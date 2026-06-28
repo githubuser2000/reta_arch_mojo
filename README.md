@@ -5,12 +5,12 @@ Dies ist ein inkrementeller, getesteter Port des hochgeladenen Python-Projekts `
 ## Fortschritt
 
 ```text
-abgeschlossene Release-Stufen:       6 von 12 = 50,0 %
-Stufe 7:                              Generatorpfad weitgehend nativ
-vollständig native Originaldateien:  16 von 92 = 17,4 %
-mindestens teilweise portiert:       36 von 92 = 39,1 %
-gewichteter Quellzeilenstand:         ca. 18 %
-funktionaler Nutzerumfang:            ca. 50–55 %
+abgeschlossene Release-Stufen:       8 von 12 = 66,7 %
+Stufe 9:                              BBCode/HTML weitgehend nativ
+vollständig native Originaldateien:  18 von 92 = 19,6 %
+mindestens teilweise portiert:       39 von 92 = 42,4 %
+gewichteter Quellzeilenstand:         ca. 24 %
+funktionaler Nutzerumfang:            ca. 65–70 %
 ```
 
 Die Metriken messen Verschiedenes. Die Stufenquote ist höher, weil die noch offenen Stufen die größten dynamischen Python-Module bündeln. Der vollständige Plan steht in [`ROADMAP.md`](ROADMAP.md).
@@ -35,7 +35,7 @@ Das Skript erzeugt `.venv`, installiert den Modular-Mojo-Compiler und baut acht 
 
 Details: [`BUILD.md`](BUILD.md).
 
-## Stufe 7: umfangreicher nativer Generatorpfad
+## Stufen 7–9: Generatoren, Kombinationen und Markup
 
 ### Native normale Reta-Syntax
 
@@ -116,7 +116,7 @@ Deutsch und Englisch sind nun für die zentralen historischen Generatorpfade nat
 - vier gebrochen-rationale Primuniversum-Familien
 - die beschriebene Primzahlvielfachen-Spalte `PrimCSV`
 
-Die gebrochen-rationalen Generatoren verwenden einen reproduzierbaren Katalog mit 71.820 geordneten Relationen. Die historische CPython-Mengenreihenfolge wird beim Erzeugen des Assets mit `PYTHONHASHSEED=0` festgeschrieben. Allgemeine Metaspalten aus `meta_columns.py` bleiben der offene Rest von Stufe 7.
+Die gebrochen-rationalen Generatoren verwenden einen reproduzierbaren Katalog mit 71.820 geordneten Relationen. Die historische CPython-Mengenreihenfolge wird beim Erzeugen des Assets mit `PYTHONHASHSEED=0` festgeschrieben. Zusätzlich sind nun die zwölf allgemeinen Meta-/Konkretachsen aus `meta_columns.py` portiert; ein Asset hält die exakte Reihenfolge aller 4.095 nichtleeren Teilmengen fest.
 
 Beispiel:
 
@@ -127,9 +127,15 @@ Beispiel:
   -ausgabe --art=csv --breite=40
 ```
 
+### Kombinationen und CSV-Verkettung
+
+Stufe 8 portiert die vier gebrochen-rationalen CSV-Prägarben sowie den relationalen Galaxie-/Universum-Kombi-Join. 173 zweisprachige Aliase und 151 Relationsordnungen werden reproduzierbar geladen. Mehrfachauswahl, Negativauswahl, gemischte Galaxie-/Universum-Abfragen, leere Segmente und historische Rand-Leerzeichen sind erhalten.
+
 ### Ausgabe
 
-Für den portierten Tabellenpfad sind CSV, Markdown und Emacs bei den geprüften realen Befehlen bytegleich zur projektlokalen Python-Referenz. HTML und BBCode besitzen bereits native Grundstrukturen, aber noch nicht sämtliche dynamischen Klassen und Wrappingregeln.
+CSV, Markdown und Emacs sind für die geprüften realen Befehle bytegleich. BBCode reproduziert Zählungsfarben, Zellabstände, Wortumbruch und Seitenteilung. HTML verwendet Klassenmetadaten für alle 746 physischen Haupttabellenspalten und einen semantischen Katalog für Generatorüberschriften. Beabsichtigte Tags wie `<ul>`, `<li>` und `<br>` bleiben aktiv, während mathematische Vergleichszeichen weiter maskiert werden.
+
+Die derzeit bytegleich geprüften HTML-Generatorpfade umfassen Primzahlwirkung, allgemeine Meta-Spalten und gebrochenes Universum auf Deutsch und Englisch. Farbige Shellausgabe und noch nicht katalogisierte dynamische HTML-Familien bleiben Teil der laufenden Stufe 9.
 
 ## Weitere native Bereiche
 
@@ -164,7 +170,11 @@ Siehe [`BINARIES.md`](BINARIES.md).
 
 ```bash
 ./scripts/test_stage7.sh
+./scripts/test_stage8.sh
+./scripts/test_stage9.sh
 ./scripts/check_generated_column_parity.sh
+./scripts/check_kombi_parity.sh
+./scripts/check_markup_parity.sh
 ./scripts/check_native_table_parity.sh
 ./scripts/check_runtime_alias_catalog.sh
 ./scripts/check_schema_catalog.sh
@@ -174,11 +184,11 @@ Siehe [`BINARIES.md`](BINARIES.md).
 Gesamtbestand:
 
 ```text
-39 native Testdateien
-150 native Testfunktionen
-145/145 Tests im normalen vollständigen Lauf bestanden
-28 gezielte Stufe-7-Unit-Tests bestanden
-22 reale Stufe-7-CLI-Fälle bytegleich zur Python-Referenz
+43 native Testdateien
+170 native Testfunktionen
+30/30 aktuell fokussiert erneut ausgeführte Tests bestanden
+30 Generator- und 9 Kombi-CLI-Fälle in den Paritätssuiten
+8 schnelle Markup-Fixtures; 16 Fälle einzeln gegen Python validiert
 2 schwere Katalogtestdateien bleiben im normalen Lauf optional
 ```
 
@@ -197,7 +207,7 @@ Details: [`TEST_RESULTS.md`](TEST_RESULTS.md).
 
 ## Nächster Portierungsblock
 
-Der verbleibende Teil von Stufe 7 sind die allgemeinen Metaspalten aus `meta_columns.py`. Danach folgt Stufe 8 mit Kombinations-Joins und der allgemeinen CSV-Verkettung. Die für Primuniversum benötigte gebrochen-rationale Relationserzeugung ist bereits nativ nutzbar; offen ist die breitere Tabellenverkettung.
+Stufe 9 wird mit der farbigen Shellausgabe, Terminalbreiten-/Rich-Sonderfällen und den restlichen dynamischen HTML-Metadaten fortgesetzt. Danach folgt Stufe 10 mit komplexer Prompt-Kurzsprache, verschachtelter Completion und den vollständigen i18n-Wortmatrizen.
 
 ## Dokumentation
 

@@ -11,6 +11,8 @@ cd "$ROOT"
 ./scripts/check_runtime_alias_catalog.sh
 ./scripts/check_generated_alias_catalog.sh
 ./scripts/check_fraction_pair_catalog.sh
+./scripts/check_meta_request_order.sh
+./scripts/check_kombi_catalogs.sh
 ./scripts/check_generated_column_parity.sh
 ./scripts/check_schema_catalog.sh
 ./scripts/check_category_catalog.sh
@@ -20,6 +22,9 @@ cd "$ROOT"
 ./scripts/test_prompt_bins.sh
 ./scripts/check_compat_parity.sh
 ./scripts/check_html_parity.sh
+./scripts/check_html_cell_catalog.sh
+./scripts/check_html_heading_catalog.sh
+./scripts/check_markup_parity.sh
 ./scripts/test_all.sh
 
 printf '%s\n' 'Alle Release-Prüfungen bestanden.'

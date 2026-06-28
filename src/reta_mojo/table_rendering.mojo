@@ -4,6 +4,12 @@ from std.collections import List
 from .csv_table import CsvTable
 from .row_filtering import counting_groups
 from .output_modes import colored_row_begin
+from .table_wrapping import codepoint_length, hard_chunks
+from .html_cell_metadata import (
+    HtmlCellCatalog,
+    html_cell_open,
+    load_html_cell_catalog,
+)
 
 
 def normalize_cell_whitespace(text: String) -> String:
@@ -33,7 +39,11 @@ def _normal_table(table: CsvTable) -> CsvTable:
         var row = List[String]()
         var source = table.rows[row_index].copy()
         for column_index in range(len(source)):
-            row.append(normalize_cell_whitespace(source[column_index]))
+            row.append(
+                normalize_cell_whitespace(source[column_index])
+                .replace("@@RETA_COMBI_LEADING_SPACE@@", " ")
+                .replace("@@RETA_COMBI_TRAILING_SPACE@@", " ")
+            )
         rows.append(row^)
     return CsvTable(rows^, table.maximum_columns)
 
@@ -150,6 +160,70 @@ def _html_escape(text: String) -> String:
     return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
 
+def _html_ascii_letter(code: Int) -> Bool:
+    return (code >= 65 and code <= 90) or (code >= 97 and code <= 122)
+
+
+def _html_slice_bytes(text: String, start: Int, end: Int) -> String:
+    return String(StringSlice(text)[byte=start:end])
+
+
+def _html_escape_preserving_tags(text: String) -> String:
+    """Escape text while retaining deliberate HTML tags from CSV generators."""
+    var result = String()
+    var cursor = 0
+    var plain_start = 0
+    var bytes = text.as_bytes()
+    while cursor < len(bytes):
+        var code = Int(bytes[cursor])
+        if code != 38 and code != 60 and code != 62:
+            cursor += 1
+            continue
+        if cursor > plain_start:
+            result += _html_slice_bytes(text, plain_start, cursor)
+        if code == 38:
+            result += "&amp;"
+            cursor += 1
+        elif code == 62:
+            result += "&gt;"
+            cursor += 1
+        else:
+            var tag_start = False
+            if cursor + 1 < len(bytes):
+                var next_code = Int(bytes[cursor + 1])
+                tag_start = (
+                    _html_ascii_letter(next_code)
+                    or next_code == 33
+                    or next_code == 63
+                )
+                if (
+                    next_code == 47
+                    and cursor + 2 < len(bytes)
+                    and _html_ascii_letter(Int(bytes[cursor + 2]))
+                ):
+                    tag_start = True
+            if tag_start:
+                var closing = cursor + 1
+                while (
+                    closing < len(bytes)
+                    and Int(bytes[closing]) != 62
+                ):
+                    closing += 1
+                if closing < len(bytes):
+                    result += _html_slice_bytes(text, cursor, closing + 1)
+                    cursor = closing + 1
+                else:
+                    result += "&lt;"
+                    cursor += 1
+            else:
+                result += "&lt;"
+                cursor += 1
+        plain_start = cursor
+    if plain_start < len(bytes):
+        result += _html_slice_bytes(text, plain_start, len(bytes))
+    return result^
+
+
 def render_html_table(table: CsvTable, row_numbers: List[Int]) -> String:
     var result = String("<table border=0 id=\"bigtable\">\n")
     for row_index in range(len(table.rows)):
@@ -167,20 +241,285 @@ def render_html_table(table: CsvTable, row_numbers: List[Int]) -> String:
     return result^
 
 
-def render_bbcode_table(table: CsvTable, row_numbers: List[Int]) -> String:
-    var result = String("[table]\n")
-    for row_index in range(len(table.rows)):
-        var number = row_numbers[row_index] if row_index < len(row_numbers) else row_index
-        result += colored_row_begin("bbcode", number)
-        var row = table.rows[row_index].copy()
-        for column_index in range(len(row)):
-            if column_index == 0:
-                result += "[td=\"background-color:#ffffff;color:#000000\"]"
+def _render_parse_uint(text: String) -> Int:
+    var result = 0
+    for index in range(text.byte_length()):
+        var code = ord(text[byte=index])
+        if code < 48 or code > 57:
+            return -1
+        result = result * 10 + code - 48
+    return result
+
+
+def _bbcode_counting_cell(content: String, heading: Bool) -> String:
+    var style = String("background-color:#ffffff;color:#000000")
+    if not heading and content.byte_length() > 0 and _render_parse_uint(content) % 2 == 0:
+        style = "background-color:#000000;color:#ffffff"
+    return "[td=\"" + style + "\"]" + (" " if heading else content) + "[/td]"
+
+
+def _pad_cell(text: String, width: Int) -> String:
+    # BBCode/HTML are passed through the legacy coloured console path, which
+    # collapses every run of padding whitespace to one significant space.
+    if width > 0 and codepoint_length(text) < width:
+        return text + " "
+    return text
+
+
+def _append_long_word(mut result: List[String], word: String, width: Int) -> String:
+    """Append complete chunks and return the final chunk as current line."""
+    var chunks = hard_chunks(word, width)
+    if len(chunks) == 0:
+        return ""
+    for index in range(len(chunks) - 1):
+        result.append(chunks[index])
+    return chunks[len(chunks) - 1]
+
+
+def _word_wrap_cell(text: String, width: Int) -> List[String]:
+    var clean = normalize_cell_whitespace(text)
+    var result = List[String]()
+    if width <= 0 or codepoint_length(clean) <= width:
+        result.append(clean)
+        return result^
+    var words = clean.split()
+    var current = String()
+    for index in range(len(words)):
+        var word = String(words[index])
+        if current.byte_length() == 0:
+            if codepoint_length(word) <= width:
+                current = word^
             else:
-                result += "[td=\"\"]"
-            result += row[column_index] + "[/td]"
-        result += " [/tr]\n"
-    result += "[/table]\n"
+                current = _append_long_word(result, word, width)
+        elif codepoint_length(current) + 1 + codepoint_length(word) <= width:
+            current += " " + word
+        else:
+            result.append(current^)
+            if codepoint_length(word) <= width:
+                current = word^
+            else:
+                current = _append_long_word(result, word, width)
+    if current.byte_length() > 0 or len(result) == 0:
+        result.append(current^)
+    return result^
+
+
+def _wrapped_column_width(table: CsvTable, column: Int, width: Int) -> Int:
+    if width <= 0:
+        return 0
+    var maximum = 0
+    for row_index in range(len(table.rows)):
+        var parts = _word_wrap_cell(table.rows[row_index][column], width)
+        for part_index in range(len(parts)):
+            maximum = max(maximum, codepoint_length(parts[part_index]))
+    return maximum
+
+
+def _maximum_row_number(row_numbers: List[Int]) -> Int:
+    var highest = 0
+    for index in range(len(row_numbers)):
+        highest = max(highest, row_numbers[index])
+    return highest
+
+
+def render_bbcode_table_with_width_reference(
+    table: CsvTable,
+    width_reference: CsvTable,
+    row_numbers: List[Int],
+    number_rows: Bool = True,
+    width: Int = 0,
+) -> String:
+    """Render BBCode with legacy wrapping, paging and significant spaces."""
+    if len(table.rows) == 0:
+        return ""
+    var data_start = 2 if number_rows else 0
+    var total_columns = len(table.rows[0])
+    var result = String()
+    var page_start = data_start
+    var screen_width = 80 - _decimal_width(_maximum_row_number(row_numbers)) - 1
+    while page_start < total_columns:
+        var page_end = page_start
+        if width <= 0:
+            page_end = total_columns
+        else:
+            var sum_widths = 0
+            while page_end < total_columns:
+                var column_width = _wrapped_column_width(width_reference, page_end, width)
+                var candidate = sum_widths + column_width + 1
+                if page_end > page_start and candidate >= screen_width:
+                    break
+                sum_widths = candidate
+                page_end += 1
+        if page_end == page_start:
+            page_end += 1
+        result += "[table]\n"
+        for row_index in range(len(table.rows)):
+            var row = table.rows[row_index].copy()
+            var row_height = 1
+            if width > 0:
+                for column_index in range(page_start, page_end):
+                    row_height = max(
+                        row_height,
+                        len(_word_wrap_cell(row[column_index], width)),
+                    )
+            for visual_line in range(row_height):
+                var number = row_numbers[row_index] if row_index < len(row_numbers) else row_index
+                result += colored_row_begin("bbcode", number)
+                var is_heading = number == 0
+                if number_rows and len(row) > 0:
+                    result += _bbcode_counting_cell(row[0], is_heading)
+                if number_rows and len(row) > 1:
+                    result += "[td=\"\"]"
+                    result += (
+                        " "
+                        if is_heading or visual_line > 0
+                        else row[1] + " "
+                    )
+                    result += "[/td]"
+                for column_index in range(page_start, page_end):
+                    var parts = _word_wrap_cell(row[column_index], width)
+                    var part = parts[visual_line] if visual_line < len(parts) else ""
+                    var column_width = _wrapped_column_width(width_reference, column_index, width)
+                    result += "[td=\"\"]" + _pad_cell(part, column_width) + "[/td] "
+                result += "[/tr]\n"
+        result += "[/table]\n"
+        page_start = page_end
+    return result^
+
+
+def render_bbcode_table(
+    table: CsvTable,
+    row_numbers: List[Int],
+    number_rows: Bool = True,
+    width: Int = 0,
+) -> String:
+    return render_bbcode_table_with_width_reference(
+        table, table, row_numbers, number_rows, width
+    )
+
+
+def _html_counting_open(
+    catalog: HtmlCellCatalog,
+    language: String,
+    content: String,
+    heading: Bool,
+) -> String:
+    if heading:
+        return html_cell_open(catalog, language, -2, 0, True)
+    if content.byte_length() > 0 and _render_parse_uint(content) % 2 == 0:
+        return '<td style="background-color:#000000;color:#ffffff;">'
+    return '<td style="background-color:#ffffff;color:#000000;">'
+
+
+def _html_cell_payload(text: String) -> String:
+    if text.byte_length() == 0:
+        return " "
+    return " " + text + " "
+
+
+def render_html_table_with_context(
+    table: CsvTable,
+    width_reference: CsvTable,
+    row_numbers: List[Int],
+    source_columns: List[Int],
+    language: String,
+    number_rows: Bool = True,
+    width: Int = 0,
+) raises -> String:
+    if len(table.rows) == 0:
+        return ""
+    var catalog = load_html_cell_catalog()
+    var data_start = 2 if number_rows else 0
+    var total_columns = len(table.rows[0])
+    var result = String()
+    var page_start = data_start
+    var screen_width = 80 - _decimal_width(_maximum_row_number(row_numbers)) - 1
+    while page_start < total_columns:
+        var page_end = page_start
+        if width <= 0:
+            page_end = total_columns
+        else:
+            var sum_widths = 0
+            while page_end < total_columns:
+                var column_width = _wrapped_column_width(
+                    width_reference, page_end, width
+                )
+                var candidate = sum_widths + column_width + 1
+                if page_end > page_start and candidate >= screen_width:
+                    break
+                sum_widths = candidate
+                page_end += 1
+        if page_end == page_start:
+            page_end += 1
+        result += '<table border=0 id="bigtable">\n'
+        for row_index in range(len(table.rows)):
+            var row = table.rows[row_index].copy()
+            var row_height = 1
+            if width > 0:
+                for column_index in range(page_start, page_end):
+                    row_height = max(
+                        row_height,
+                        len(_word_wrap_cell(row[column_index], width)),
+                    )
+            for visual_line in range(row_height):
+                var number = (
+                    row_numbers[row_index]
+                    if row_index < len(row_numbers)
+                    else row_index
+                )
+                var is_heading = number == 0
+                result += colored_row_begin("html", number).replace("\n", "")
+                if number_rows and len(row) > 0:
+                    result += " " + _html_counting_open(
+                        catalog, language, row[0], is_heading
+                    )
+                    result += _html_cell_payload(
+                        _html_escape("" if is_heading else row[0])
+                    ) + "</td>"
+                if number_rows and len(row) > 1:
+                    result += " " + html_cell_open(
+                        catalog, language, -1, 1, is_heading, ""
+                    )
+                    var number_text = (
+                        ""
+                        if is_heading or visual_line > 0
+                        else row[1]
+                    )
+                    result += _html_cell_payload(
+                        _html_escape(number_text)
+                    ) + "</td>"
+                for column_index in range(page_start, page_end):
+                    var parts = _word_wrap_cell(row[column_index], width)
+                    var part = (
+                        parts[visual_line] if visual_line < len(parts) else ""
+                    )
+                    var source_position = column_index - data_start
+                    var source_column = (
+                        source_columns[source_position]
+                        if source_position >= 0
+                        and source_position < len(source_columns)
+                        else -999999
+                    )
+                    var semantic_heading = (
+                        width_reference.rows[0][column_index]
+                        if len(width_reference.rows) > 0
+                        and column_index < len(width_reference.rows[0])
+                        else ""
+                    )
+                    result += " " + html_cell_open(
+                        catalog,
+                        language,
+                        source_column,
+                        source_position + 2,
+                        is_heading,
+                        semantic_heading,
+                    )
+                    result += _html_cell_payload(
+                        _html_escape_preserving_tags(part)
+                    ) + "</td>"
+                result += " </tr>\n"
+        result += "</table>\n"
+        page_start = page_end
     return result^
 
 
@@ -196,8 +535,13 @@ def render_plain_table(table: CsvTable) -> String:
     return result^
 
 
-def render_table(
-    table: CsvTable, row_numbers: List[Int], mode: String
+def render_table_with_width_reference(
+    table: CsvTable,
+    width_reference: CsvTable,
+    row_numbers: List[Int],
+    mode: String,
+    width: Int = 0,
+    number_rows: Bool = True,
 ) -> String:
     if mode == "csv":
         return render_csv_table(table)
@@ -208,7 +552,46 @@ def render_table(
     if mode == "html":
         return render_html_table(table, row_numbers)
     if mode == "bbcode":
-        return render_bbcode_table(table, row_numbers)
+        return render_bbcode_table_with_width_reference(
+            table, width_reference, row_numbers, number_rows, width
+        )
     if mode == "nichts":
         return ""
     return render_plain_table(table)
+
+
+
+def render_table_with_native_context(
+    table: CsvTable,
+    width_reference: CsvTable,
+    row_numbers: List[Int],
+    source_columns: List[Int],
+    language: String,
+    mode: String,
+    width: Int = 0,
+    number_rows: Bool = True,
+) raises -> String:
+    if mode == "html":
+        return render_html_table_with_context(
+            table,
+            width_reference,
+            row_numbers,
+            source_columns,
+            language,
+            number_rows,
+            width,
+        )
+    return render_table_with_width_reference(
+        table, width_reference, row_numbers, mode, width, number_rows
+    )
+
+def render_table(
+    table: CsvTable,
+    row_numbers: List[Int],
+    mode: String,
+    width: Int = 0,
+    number_rows: Bool = True,
+) -> String:
+    return render_table_with_width_reference(
+        table, table, row_numbers, mode, width, number_rows
+    )

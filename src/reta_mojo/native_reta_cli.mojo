@@ -7,14 +7,35 @@ from .runtime_aliases import load_runtime_alias_catalog, resolve_runtime_columns
 from .csv_table import read_semicolon_csv, select_zero_based_columns
 from .row_filtering import RowFilterConfig
 from .table_preparation import select_display_lines, select_display_table
-from .table_rendering import add_numbering_columns, render_table
+from .table_rendering import (
+    add_numbering_columns,
+    render_table_with_native_context,
+)
 from .generated_table_columns import apply_native_generated_columns
+from .kombi_join_columns import (
+    KombiColumnRequest,
+    append_unique_kombi_request,
+    apply_kombi_join_columns,
+    load_kombi_alias_catalog,
+    remove_kombi_requests,
+    resolve_kombi_alias,
+    sort_kombi_requests,
+)
 from .generated_aliases import (
+    FractionColumnRequest,
     GeneratedAliasEntry,
+    MetaColumnRequest,
     ModalConcept,
+    append_unique_fraction_request,
+    append_unique_meta_request,
     append_unique_modal_concept,
+    fraction_request_from_entry,
     load_generated_alias_catalog,
+    meta_request_from_entry,
     modal_concept_from_entry,
+    remove_fraction_requests,
+    remove_meta_requests,
+    sort_meta_requests_by_python_set,
     remove_modal_concepts,
     resolve_generated_aliases,
     sort_modal_concepts,
@@ -33,8 +54,32 @@ struct NativeRetaPlan(Copyable):
     var negative_rows: List[String]
     var columns: List[Int]
     var modal_concepts: List[ModalConcept]
+    var meta_requests: List[MetaColumnRequest]
+    var fraction_requests: List[FractionColumnRequest]
+    var kombi_requests: List[KombiColumnRequest]
     var generated_commands: List[String]
     var diagnostics: List[String]
+
+
+def _row_has_visible_content(row: List[String]) -> Bool:
+    for index in range(len(row)):
+        if String(row[index].strip()).byte_length() > 0:
+            return True
+    return False
+
+
+def _drop_empty_selected_rows(
+    table: CsvTable, row_numbers: List[Int]
+) -> Tuple[CsvTable, List[Int]]:
+    var rows = List[List[String]]()
+    var numbers = List[Int]()
+    for index in range(len(table.rows)):
+        var number = row_numbers[index] if index < len(row_numbers) else index
+        var row = table.rows[index].copy()
+        if number == 0 or _row_has_visible_content(row):
+            rows.append(row^)
+            numbers.append(number)
+    return CsvTable(rows^, table.maximum_columns), numbers^
 
 
 def _section_is(section: String, german: String, english: String) -> Bool:
@@ -84,6 +129,10 @@ def _collect_generated_alias(
     negative: Bool,
     mut positive_modal: List[ModalConcept],
     mut negative_modal: List[ModalConcept],
+    mut positive_meta: List[MetaColumnRequest],
+    mut negative_meta: List[MetaColumnRequest],
+    mut positive_fractions: List[FractionColumnRequest],
+    mut negative_fractions: List[FractionColumnRequest],
     mut positive_commands: List[String],
     mut negative_commands: List[String],
 ) raises:
@@ -93,6 +142,18 @@ def _collect_generated_alias(
             append_unique_modal_concept(negative_modal, concept)
         else:
             append_unique_modal_concept(positive_modal, concept)
+    elif entry.bucket == "meta":
+        var request = meta_request_from_entry(entry)
+        if negative:
+            append_unique_meta_request(negative_meta, request)
+        else:
+            append_unique_meta_request(positive_meta, request)
+    elif entry.bucket.startswith("fraction_"):
+        var request = fraction_request_from_entry(entry)
+        if negative:
+            append_unique_fraction_request(negative_fractions, request)
+        else:
+            append_unique_fraction_request(positive_fractions, request)
     elif entry.bucket == "generated_command":
         if negative:
             _append_unique_string_native(negative_commands, entry.payload)
@@ -222,6 +283,7 @@ def build_native_reta_plan(tokens: List[String], maximum_columns: Int, maximum_r
     var parsed = parse_cli_tokens(tokens)
     var aliases = load_runtime_alias_catalog("assets/parameter_aliases.tsv")
     var generated_aliases = load_generated_alias_catalog("assets/generated_aliases.tsv")
+    var kombi_aliases = load_kombi_alias_catalog("assets/kombi_aliases.tsv")
     var language = String("german")
     # Language affects the generated alias matrix itself, so resolve it before
     # processing any column option rather than after the option loop.
@@ -243,6 +305,12 @@ def build_native_reta_plan(tokens: List[String], maximum_columns: Int, maximum_r
     var explicit_order = List[Int]()
     var positive_modal = List[ModalConcept]()
     var negative_modal = List[ModalConcept]()
+    var positive_meta = List[MetaColumnRequest]()
+    var negative_meta = List[MetaColumnRequest]()
+    var positive_fractions = List[FractionColumnRequest]()
+    var negative_fractions = List[FractionColumnRequest]()
+    var positive_kombi = List[KombiColumnRequest]()
+    var negative_kombi = List[KombiColumnRequest]()
     var positive_commands = List[String]()
     var negative_commands = List[String]()
     var diagnostics = parsed.diagnostics.copy()
@@ -251,6 +319,24 @@ def build_native_reta_plan(tokens: List[String], maximum_columns: Int, maximum_r
         var option = parsed.options[option_index].copy()
         if _section_is_lines(option.section):
             _process_row_option(option, positive_rows, negative_rows, highest)
+            continue
+        if _section_is(option.section, "kombination", "combination"):
+            for value_index in range(len(option.values)):
+                var value = option.values[value_index].copy()
+                var request = resolve_kombi_alias(
+                    kombi_aliases, language, option.name, value.text
+                )
+                if request.column < 1:
+                    diagnostics.append(
+                        "unbekanntes Kombinationspaar: "
+                        + option.name
+                        + "/"
+                        + value.text
+                    )
+                elif value.negative:
+                    append_unique_kombi_request(negative_kombi, request)
+                else:
+                    append_unique_kombi_request(positive_kombi, request)
             continue
         if _section_is(option.section, "ausgabe", "output"):
             if option.name == "art" or option.name == "type":
@@ -298,6 +384,10 @@ def build_native_reta_plan(tokens: List[String], maximum_columns: Int, maximum_r
                         value.negative,
                         positive_modal,
                         negative_modal,
+                        positive_meta,
+                        negative_meta,
+                        positive_fractions,
+                        negative_fractions,
                         positive_commands,
                         negative_commands,
                     )
@@ -315,6 +405,13 @@ def build_native_reta_plan(tokens: List[String], maximum_columns: Int, maximum_r
         highest = maximum_rows
     var modal_concepts = remove_modal_concepts(positive_modal, negative_modal)
     sort_modal_concepts(modal_concepts)
+    var meta_requests = remove_meta_requests(positive_meta, negative_meta)
+    sort_meta_requests_by_python_set(meta_requests)
+    var fraction_requests = remove_fraction_requests(
+        positive_fractions, negative_fractions
+    )
+    var kombi_requests = remove_kombi_requests(positive_kombi, negative_kombi)
+    sort_kombi_requests(kombi_requests)
     var generated_commands = _remove_strings_native(
         positive_commands, negative_commands
     )
@@ -324,6 +421,9 @@ def build_native_reta_plan(tokens: List[String], maximum_columns: Int, maximum_r
     if (
         len(columns) == 0
         and len(modal_concepts) == 0
+        and len(meta_requests) == 0
+        and len(fraction_requests) == 0
+        and len(kombi_requests) == 0
         and len(generated_commands) == 0
     ):
         columns = [0]
@@ -338,6 +438,9 @@ def build_native_reta_plan(tokens: List[String], maximum_columns: Int, maximum_r
         negative_rows^,
         columns^,
         modal_concepts^,
+        meta_requests^,
+        fraction_requests^,
+        kombi_requests^,
         generated_commands^,
         diagnostics^,
     )
@@ -364,19 +467,52 @@ def run_native_reta(tokens: List[String], csv_path: String) raises -> String:
         table,
         plan.columns,
         plan.modal_concepts,
+        plan.meta_requests,
+        plan.fraction_requests,
         plan.generated_commands,
         plan.language,
         plan.output_mode,
         display_last_row,
     )
     table = generated.table.copy()
+    var output_columns = generated.output_columns.copy()
+    var kombi = apply_kombi_join_columns(
+        table, plan.kombi_requests, display_last_row
+    )
+    table = kombi.table.copy()
+    for kombi_index in range(len(kombi.output_columns)):
+        output_columns.append(kombi.output_columns[kombi_index])
     var selected_rows = selection.rows.copy()
-    if not plan.include_headings and len(selected_rows) > 0 and selected_rows[0] == 0:
-        selected_rows = List(selected_rows[1:])
     var selected = select_display_table(table, selection)
-    if not plan.include_headings and len(selected.rows) > 0:
-        selected.rows = List(selected.rows[1:])
-    selected = select_zero_based_columns(selected, generated.output_columns)
+    selected = select_zero_based_columns(selected, output_columns)
+    var nonempty = _drop_empty_selected_rows(selected, selected_rows)
+    selected = nonempty[0].copy()
+    selected_rows = nonempty[1].copy()
+
+    # Width calculation in the Python renderer still sees the heading even
+    # when --keineueberschriften suppresses it.  Preserve that separate width
+    # reference instead of changing pagination as a side effect of hiding row 0.
+    var width_reference = selected.copy()
+    var width_reference_rows = selected_rows.copy()
     if plan.number_rows:
-        selected = add_numbering_columns(selected, selected_rows)
-    return render_table(selected, selected_rows, plan.output_mode)
+        width_reference = add_numbering_columns(
+            width_reference, width_reference_rows
+        )
+        selected = width_reference.copy()
+    if (
+        not plan.include_headings
+        and len(selected_rows) > 0
+        and selected_rows[0] == 0
+    ):
+        selected_rows = List(selected_rows[1:])
+        selected.rows = List(selected.rows[1:])
+    return render_table_with_native_context(
+        selected,
+        width_reference,
+        selected_rows,
+        output_columns,
+        plan.language,
+        plan.output_mode,
+        plan.width,
+        plan.number_rows,
+    )

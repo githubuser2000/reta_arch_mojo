@@ -99,6 +99,38 @@ run_pair primcsv-described-en \
     -language=english -lines --thisrangebefore=1-3 \
     -columns --multiplications=described \
     -output --type=csv --width=40
+run_pair meta-de \
+    -zeilen --vorhervonausschnitt=1-8 \
+    -spalten --universummetakonkret=meta \
+    -ausgabe --art=csv --breite=40
+run_pair concrete-de \
+    -zeilen --vorhervonausschnitt=1-8 \
+    -spalten --universummetakonkret=konkret \
+    -ausgabe --art=csv --breite=40
+run_pair theory-en \
+    -language=english -lines --thisrangebefore=1-8 \
+    -columns --universeMetaConcrete=theory \
+    -output --type=csv --width=40
+run_pair meta-multi-de \
+    -zeilen --vorhervonausschnitt=1-3 \
+    -spalten --universummetakonkret=meta,konkret,theorie,praxis \
+    -ausgabe --art=csv --breite=40
+run_pair fraction-universe-de \
+    -zeilen --vorhervonausschnitt=1-3 \
+    -spalten --gebrochenuniversum=2 \
+    -ausgabe --art=csv --breite=40
+run_pair fraction-galaxy-de \
+    -zeilen --vorhervonausschnitt=1-3 \
+    -spalten --gebrochengalaxie=2 \
+    -ausgabe --art=csv --breite=40
+run_pair fraction-emotion-de \
+    -zeilen --vorhervonausschnitt=1-3 \
+    -spalten --gebrochenemotion=2 \
+    -ausgabe --art=csv --breite=40
+run_pair fraction-size-en \
+    -language=english -lines --thisrangebefore=1-3 \
+    -columns --fractional-rational_numbered_structure_sizes_n/m=2 \
+    -output --type=csv --width=40
 run_pair markdown-baseline \
     -zeilen --vorhervonausschnitt=1-3 \
     -spalten --religionen=sternpolygon \

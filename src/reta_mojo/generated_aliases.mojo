@@ -30,6 +30,26 @@ struct ModalConcept(Copyable):
     var second: Int
 
 
+@fieldwise_init
+struct FractionColumnRequest(Copyable):
+    """One selected denominator from a fractional CSV presheaf bucket."""
+
+    var domain: String
+    var denominator: Int
+
+
+@fieldwise_init
+struct MetaColumnRequest(Copyable):
+    """One historical ``(metavariable, side)`` request from bucket 11.
+
+    ``metavariable`` is 2..7. ``side`` is 0 for the upper/meta/theory
+    branch and 1 for the lower/concrete/practice branch.
+    """
+
+    var metavariable: Int
+    var side: Int
+
+
 def load_generated_alias_catalog(path: String) raises -> GeneratedAliasCatalog:
     var text = read_text_file(path)
     var lines = text.split("\n")
@@ -114,3 +134,145 @@ def sort_modal_concepts(mut values: List[ModalConcept]):
             values[position + 1] = values[position].copy()
             position -= 1
         values[position + 1] = key.copy()
+
+
+def meta_request_from_entry(entry: GeneratedAliasEntry) raises -> MetaColumnRequest:
+    var pieces = entry.payload.split(",")
+    if len(pieces) < 2:
+        return MetaColumnRequest(-1, -1)
+    return MetaColumnRequest(atol(String(pieces[0])), atol(String(pieces[1])))
+
+
+def contains_meta_request(values: List[MetaColumnRequest], wanted: MetaColumnRequest) -> Bool:
+    for index in range(len(values)):
+        if (
+            values[index].metavariable == wanted.metavariable
+            and values[index].side == wanted.side
+        ):
+            return True
+    return False
+
+
+def append_unique_meta_request(
+    mut values: List[MetaColumnRequest], value: MetaColumnRequest
+):
+    if (
+        value.metavariable >= 2
+        and value.metavariable <= 7
+        and (value.side == 0 or value.side == 1)
+        and not contains_meta_request(values, value)
+    ):
+        values.append(value.copy())
+
+
+def remove_meta_requests(
+    values: List[MetaColumnRequest], excluded: List[MetaColumnRequest]
+) -> List[MetaColumnRequest]:
+    var result = List[MetaColumnRequest]()
+    for index in range(len(values)):
+        if not contains_meta_request(excluded, values[index]):
+            result.append(values[index].copy())
+    return result^
+
+
+def _meta_request_bit(value: MetaColumnRequest) -> Int:
+    if (
+        value.metavariable < 2
+        or value.metavariable > 7
+        or (value.side != 0 and value.side != 1)
+    ):
+        return -1
+    return (value.metavariable - 2) * 2 + value.side
+
+
+def sort_meta_requests_by_python_set(
+    mut values: List[MetaColumnRequest],
+    path: String = "assets/meta_request_order.tsv",
+) raises:
+    """Reproduce legacy CPython ``set`` iteration for the final subset.
+
+    A single rank table is insufficient because CPython's slot order changes
+    when the set grows from 8 to 32 slots.  The generated asset contains the
+    exact order for all 4095 non-empty subsets of the twelve valid requests.
+    """
+    if len(values) < 2:
+        return
+    var mask = 0
+    for index in range(len(values)):
+        var bit = _meta_request_bit(values[index])
+        if bit >= 0:
+            mask |= 1 << bit
+    if mask == 0:
+        return
+    var wanted = String(mask) + "\t"
+    var text = read_text_file(path)
+    var lines = text.split("\n")
+    for line_index in range(len(lines)):
+        var line = String(lines[line_index])
+        if not line.startswith(wanted):
+            continue
+        var fields = line.split("\t")
+        if len(fields) != 2:
+            return
+        var ordered = List[MetaColumnRequest]()
+        var pairs = String(fields[1]).split(";")
+        for pair_index in range(len(pairs)):
+            var parts = String(pairs[pair_index]).split(",")
+            if len(parts) != 2:
+                continue
+            var request = MetaColumnRequest(
+                atol(String(parts[0])), atol(String(parts[1]))
+            )
+            if contains_meta_request(values, request):
+                ordered.append(request.copy())
+        if len(ordered) == len(values):
+            for index in range(len(values)):
+                values[index] = ordered[index].copy()
+        return
+
+
+def fraction_request_from_entry(entry: GeneratedAliasEntry) raises -> FractionColumnRequest:
+    var domain = String()
+    if entry.bucket == "fraction_universe":
+        domain = "universe"
+    elif entry.bucket == "fraction_galaxy":
+        domain = "galaxy"
+    elif entry.bucket == "fraction_emotion":
+        domain = "emotion"
+    elif entry.bucket == "fraction_size":
+        domain = "size"
+    return FractionColumnRequest(domain^, atol(entry.parameter_alias))
+
+
+def contains_fraction_request(
+    values: List[FractionColumnRequest], wanted: FractionColumnRequest
+) -> Bool:
+    for index in range(len(values)):
+        if (
+            values[index].domain == wanted.domain
+            and values[index].denominator == wanted.denominator
+        ):
+            return True
+    return False
+
+
+def append_unique_fraction_request(
+    mut values: List[FractionColumnRequest], value: FractionColumnRequest
+):
+    if (
+        value.domain.byte_length() > 0
+        and value.denominator >= 2
+        and value.denominator <= 23
+        and not contains_fraction_request(values, value)
+    ):
+        values.append(value.copy())
+
+
+def remove_fraction_requests(
+    values: List[FractionColumnRequest], excluded: List[FractionColumnRequest]
+) -> List[FractionColumnRequest]:
+    var result = List[FractionColumnRequest]()
+    for index in range(len(values)):
+        if not contains_fraction_request(excluded, values[index]):
+            result.append(values[index].copy())
+    return result^

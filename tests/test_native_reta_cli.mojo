@@ -45,5 +45,52 @@ def test_prime_effect_alias_becomes_generated_command() raises:
     assert_equal(plan.generated_commands, ["prime_effect:10"])
 
 
+def test_meta_aliases_resolve_in_python_set_order() raises:
+    var plan = build_native_reta_plan(
+        [
+            "-spalten",
+            "--universummetakonkret=meta,konkret,theorie,praxis",
+        ],
+        746,
+        1024,
+    )
+    assert_equal(len(plan.columns), 0)
+    assert_equal(len(plan.meta_requests), 4)
+    assert_equal(plan.meta_requests[0].metavariable, 3)
+    assert_equal(plan.meta_requests[0].side, 1)
+    assert_equal(plan.meta_requests[1].metavariable, 2)
+    assert_equal(plan.meta_requests[1].side, 0)
+
+
+def test_fraction_alias_resolves_one_typed_request() raises:
+    var plan = build_native_reta_plan(
+        ["-spalten", "--gebrochenuniversum=2"], 746, 1024
+    )
+    assert_equal(len(plan.columns), 0)
+    assert_equal(len(plan.fraction_requests), 1)
+    assert_equal(plan.fraction_requests[0].domain, "universe")
+    assert_equal(plan.fraction_requests[0].denominator, 2)
+
+
+def test_kombi_aliases_resolve_and_sort() raises:
+    var plan = build_native_reta_plan(
+        [
+            "-kombination",
+            "--universum=transzendenz,tiere",
+            "--galaxie=berufe,tiere",
+        ],
+        746,
+        1024,
+    )
+    assert_equal(len(plan.columns), 0)
+    assert_equal(len(plan.kombi_requests), 4)
+    assert_equal(plan.kombi_requests[0].kind, "galaxy")
+    assert_equal(plan.kombi_requests[0].column, 1)
+    assert_equal(plan.kombi_requests[1].column, 2)
+    assert_equal(plan.kombi_requests[2].kind, "universe")
+    assert_equal(plan.kombi_requests[2].column, 1)
+    assert_equal(plan.kombi_requests[3].column, 5)
+
+
 def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()

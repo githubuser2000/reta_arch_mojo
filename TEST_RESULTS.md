@@ -1,87 +1,93 @@
-# Testergebnisse – Stufe-7-Zwischenstand
+# Testergebnisse – Stufe-9-Zwischenstand
 
-## Native Testmenge
+## Testbestand
 
 ```text
-39 Mojo-Test-/Konstantendateien
-150 Testfunktionen insgesamt
-145 Testfunktionen im normalen vollständigen Lauf
-145 bestanden
-0 fehlgeschlagen
-0 übersprungen
-2 optionale schwere Compilerdateien mit zusammen 5 Testfunktionen nicht kalt gebaut
+43 Mojo-Testdateien
+170 Testfunktionen insgesamt
+8 reguläre ELF-Compilerziele
+2 optionale schwere Katalogtestdateien
 ```
 
-Der vollständige normale Lauf war:
+Der letzte vollständig abgeschlossene normale Stufe-7-Lauf ergab **145/145** Tests. Seitdem wurden 20 Tests für Meta-, Bruch-, Kombi- und Markup-Pfade ergänzt. Ein erneuter monolithischer Kaltlauf stößt in dieser Umgebung bei `test_csv_reference` und weiteren großen Asset-Compilern an das äußere Ausführungslimit. Deshalb wurden die direkt geänderten Programme einzeln gebaut und ausgeführt.
 
-```bash
-./scripts/test_all.sh
+## Aktuell erneut ausgeführte Mojo-Tests
+
+```text
+test_table_rendering             3/3
+test_html_cell_metadata          4/4
+test_meta_columns                3/3
+test_fraction_concat_columns     3/3
+test_kombi_join_columns          4/4
+test_generated_aliases           6/6
+test_native_reta_cli             7/7
+                               -------
+                                30/30 bestanden
 ```
 
-Die optionalen Dateien `test_category_theory.mojo` und `test_schema_catalog_parity.mojo` werden mit `RETA_TEST_HEAVY=1` zugeschaltet. Ihre generierten Kataloge werden unabhängig davon reproduzierbar geprüft:
+Es gab keinen Testfehler. Sammelläufe wurden ausschließlich durch die Laufzeitgrenze während eines nachfolgenden Compiler- oder Referenzprozesses beendet.
 
-```bash
-./scripts/check_category_catalog.sh
-./scripts/check_schema_catalog.sh
-```
-
-## Gezielte Stufe-7-Tests
-
-Die erweiterte Stufe-7-Suite enthält 28 Unit-/Integrationstests für:
-
-- skalare Generatorfamilien
-- Nichtstandard-Aliasauflösung und Last-write-wins
-- Modallogik und Tabellenmutationsreihenfolge
-- Primzahlwirkung
-- ganzzahlige Primuniversum-Spalten
-- gebrochen-rationale Primuniversum-Spalten
-- historische Bruchpaarreihenfolge
-- `PrimCSV`/`beschrieben`
-- Tabellenrenderer und nativen CLI-Plan
+## Stufe 7: Generator- und Metaspalten
 
 ```bash
 ./scripts/test_stage7.sh
-```
-
-Die sieben direkt betroffenen Testprogramme wurden im aktuellen Lauf einzeln kompiliert und ergaben **28/28 bestanden**.
-
-## Reale CLI-Byteparität
-
-```bash
 ./scripts/check_generated_column_parity.sh
 ```
 
-Ergebnis: **22/22 reale Befehlsfälle bytegleich** zur projektlokalen Python-Referenz mit `PYTHONHASHSEED=0`.
+Die CLI-Suite enthält **30** reale deutsche und englische Generatorfälle. Abgedeckt sind Klassifikatoren, Modallogik, Primzahlkreuz, Primzahlwirkung, Primuniversum, `PrimCSV`, zwölf Metaachsen, vier Bruch-Prägarben sowie Markdown/Emacs.
 
-Geprüft werden unter anderem:
+Wichtig: Der frühere englische Testname `--universe_meta_concrete` war im Python-Original kein wirksamer Alias und verglich zwei leere Ausgaben. Er wurde durch den realen Alias `--universeMetaConcrete` ersetzt; dessen nichtleere Ausgabe ist bytegleich.
 
-- Gestirn, Gleichheit/Freiheit, Geist/Energie und Primvielfache
-- Deutsch und Englisch
-- Modallogik Liebe/Love
-- Primzahlkreuz Pro/Contra
-- einzelne und alle sieben Primzahlwirkungsquellen
-- einzelne und alle vier ganzzahligen Primuniversum-Familien
-- einzelne englische und alle vier deutschen gebrochen-rationalen Primuniversum-Familien
-- `PrimCSV`/`beschrieben` in Deutsch und Englisch
-- Markdown- und Emacs-Baseline
-
-Die größten Einzelvergleiche umfassten 110.816 Byte für eine gebrochen-rationale Familie und 161.222 Byte für alle vier Familien gemeinsam.
-
-## Reproduzierbare Laufzeitassets
+## Stufe 8: Kombinationspfad
 
 ```bash
-PYTHONHASHSEED=0 python3 scripts/generate_fraction_pair_catalog.py
-python3 scripts/generate_generated_aliases.py
+./scripts/test_stage8.sh
+./scripts/check_kombi_parity.sh
 ```
 
-Aktueller Bestand:
+Die Kombi-Suite enthält **9** reale CLI-Fälle für:
+
+- Galaxie und Universum
+- Deutsch und Englisch
+- Einzel- und Mehrfachauswahl
+- Negativauswahl
+- gemischte Galaxie-/Universum-Abfragen
+- historische leere Segmente und Relationsreihenfolge
+
+Die Laufzeitassets sind reproduzierbar:
 
 ```text
-9.593 wirksame deutsch/englische Nichtstandard-Aliase
+4.095 Meta-Anfrageordnungen
+173 Kombi-Aliase
+151 Kombi-Relationsordnungen
+9.593 wirksame Generatoraliase
 71.820 geordnete Bruchrelationen
 ```
 
-Der Hash-Seed ist beim Bruchkatalog Teil der Referenzdefinition, weil das Python-Original sichtbare Set-Iterationsreihenfolgen verwendet.
+## Stufe 9: BBCode und HTML
+
+```bash
+./scripts/test_stage9.sh
+./scripts/check_markup_parity.sh
+RETA_MARKUP_EXTENDED=1 ./scripts/check_markup_parity.sh
+```
+
+Die schnelle Release-Suite vergleicht **8** zentrale Ausgaben gegen geprüfte Python-Byte-Fixtures. Insgesamt wurden **16** Fälle einzeln direkt mit `PYTHONHASHSEED=0` gegen die Python-Referenz validiert:
+
+- BBCode Breite 0 und 40
+- Deutsch und Englisch
+- ohne Nummerierung und ohne Überschriften
+- HTML Breite 0 und 40
+- physische deutsche und englische Spalten
+- Primzahlwirkung
+- Meta-Spalten mit echten `<ul>/<li>`-Listen
+- gebrochenes Universum mit echten `<br>`-Tags
+
+Die Trennung in schnelle Fixtures und expliziten Refresh ist notwendig, weil wiederholte Kaltstarts der Python-Referenz in einem einzigen Sammellauf sporadisch sehr lange dauern.
+
+```bash
+RETA_REFRESH_MARKUP_FIXTURES=1 ./scripts/check_markup_parity_extended.sh
+```
 
 ## Buildprüfung
 
@@ -90,29 +96,7 @@ Der Hash-Seed ist beim Bruchkatalog Teil der Referenzdefinition, weil das Python
 ./scripts/check_build_layout.sh
 ```
 
-Ergebnis: acht reguläre ELF-64-Programme erfolgreich gebaut; `bin/` enthält ausschließlich versionierbare Shell-Launcher, `target/bin/` ausschließlich ignorierte Compilerprodukte.
-
-Die compilerintensiven generierten Katalogziele bleiben getrennt:
-
-```bash
-./scripts/build-heavy.sh
-RETA_CHECK_HEAVY=1 ./scripts/check_build_layout.sh
-```
-
-## Weitere bestehende Integrationsprüfungen
-
-```bash
-./scripts/check_multis3_parity.sh
-./scripts/check_tag_schema.sh
-./scripts/check_table_runtime_parity.sh
-./scripts/check_prompt_catalog.sh
-./scripts/check_grundstrukturen_catalog.sh
-./scripts/test_prompt_bins.sh
-./scripts/check_compat_parity.sh
-./scripts/check_html_parity.sh
-./scripts/check_native_table_parity.sh
-./scripts/check_runtime_alias_catalog.sh
-```
+Alle acht regulären ELF-64-Ziele wurden gebaut. Der Sammelbuild erreichte wegen des äußeren Zeitlimits fünf Ziele; die verbleibenden drei sowie das unterbrochene Kompatibilitätsziel wurden anschließend einzeln erfolgreich gebaut. `bin/` enthält nur versionierbare Launcher, `target/bin/` nur ignorierte Compilerprodukte.
 
 ## Referenzbaseline
 

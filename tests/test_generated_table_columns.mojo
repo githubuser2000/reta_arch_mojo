@@ -2,7 +2,7 @@ from std.collections import List
 from std.testing import assert_equal, assert_true, TestSuite
 from reta_mojo.csv_table import CsvTable, read_semicolon_csv
 from reta_mojo.generated_table_columns import *
-from reta_mojo.generated_aliases import ModalConcept
+from reta_mojo.generated_aliases import FractionColumnRequest, MetaColumnRequest, ModalConcept
 
 
 def _blank_table(row_count: Int, column_count: Int) -> CsvTable:
@@ -52,9 +52,11 @@ def test_real_table_generated_order_and_values() raises:
     var base = table.maximum_columns
     var selected: List[Int] = [64]
     var modal = List[ModalConcept]()
+    var meta = List[MetaColumnRequest]()
+    var fractions = List[FractionColumnRequest]()
     var commands = List[String]()
     var generated = apply_native_generated_columns(
-        table, selected, modal, commands, "german", "csv", 6
+        table, selected, modal, meta, fractions, commands, "german", "csv", 6
     )
     assert_equal(len(generated.generated_names), 4)
     assert_equal(generated.generated_names[0], "concatPrimCreativityType")
@@ -75,9 +77,11 @@ def test_trigger_order_for_multiple_families() raises:
     var table = _blank_table(4, 250)
     var selected: List[Int] = [64, 132, 242, 9]
     var modal = List[ModalConcept]()
+    var meta = List[MetaColumnRequest]()
+    var fractions = List[FractionColumnRequest]()
     var commands = List[String]()
     var generated = apply_native_generated_columns(
-        table, selected, modal, commands, "english", "csv", 3
+        table, selected, modal, meta, fractions, commands, "english", "csv", 3
     )
     assert_equal(len(generated.generated_names), 7)
     assert_equal(generated.generated_names[0], "concatPrimCreativityType")
@@ -94,9 +98,11 @@ def test_prime_cross_command_appends_two_deterministic_columns() raises:
     var base = table.maximum_columns
     var selected = List[Int]()
     var modal = List[ModalConcept]()
+    var meta = List[MetaColumnRequest]()
+    var fractions = List[FractionColumnRequest]()
     var commands: List[String] = ["primzahlkreuzprocontra"]
     var generated = apply_native_generated_columns(
-        table, selected, modal, commands, "german", "csv", 30
+        table, selected, modal, meta, fractions, commands, "german", "csv", 30
     )
     assert_equal(len(generated.generated_names), 2)
     assert_equal(generated.output_columns, [base, base + 1])
@@ -116,9 +122,11 @@ def test_prim_csv_command_appends_legacy_described_prime_column() raises:
     var base = table.maximum_columns
     var selected = List[Int]()
     var modal = List[ModalConcept]()
+    var meta = List[MetaColumnRequest]()
+    var fractions = List[FractionColumnRequest]()
     var commands: List[String] = ["PrimCSV"]
     var generated = apply_native_generated_columns(
-        table, selected, modal, commands, "german", "csv", 3
+        table, selected, modal, meta, fractions, commands, "german", "csv", 3
     )
     assert_equal(generated.generated_names, ["PrimCSV"])
     assert_equal(generated.output_columns, [base])
@@ -135,9 +143,11 @@ def test_prim_csv_html_empty_row_uses_empty_list() raises:
     var table = read_semicolon_csv("python_reference/csv/religion.csv")
     var selected = List[Int]()
     var modal = List[ModalConcept]()
+    var meta = List[MetaColumnRequest]()
+    var fractions = List[FractionColumnRequest]()
     var commands: List[String] = ["PrimCSV"]
     var generated = apply_native_generated_columns(
-        table, selected, modal, commands, "english", "html", 2
+        table, selected, modal, meta, fractions, commands, "english", "html", 2
     )
     var base = table.maximum_columns
     assert_equal(generated.table.rows[0][base], "prime multiples, not generated")

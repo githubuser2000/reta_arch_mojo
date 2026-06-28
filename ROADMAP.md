@@ -1,19 +1,18 @@
 # Portierungsfahrplan Python → Mojo
 
-Geplanter Umfang: **12 Release-Stufen**. Eine Stufe zählt erst als abgeschlossen, wenn Quellcode, Referenztests, Compilerziele, Dokumentation und ein source-only Archiv zusammen geprüft sind.
+Geplanter Umfang: **12 Release-Stufen**. Eine Stufe zählt erst als abgeschlossen, wenn Quellcode, Referenztests, Compilerziele, Dokumentation und ein source-only Archiv gemeinsam geprüft sind.
 
-## Fortschrittsmaße im aktuellen Stufe-7-Zwischenstand
+## Fortschrittsmaße im aktuellen Stufe-9-Zwischenstand
 
 | Maß | Stand | Aussage |
 |---|---:|---|
-| abgeschlossene Release-Stufen | **6/12 = 50,0 %** | Stufe 7 ist aktiv, aber wegen offener allgemeiner Metaspalten noch nicht abgeschlossen |
-| vollständig native Python-Dateien | **16/92 = 17,4 %** | Datei vollständig ersetzt oder reproduzierbar generiert |
-| mindestens angegriffene Python-Dateien | **36/92 = 39,1 %** | vollständig oder teilweise nativ |
-| vollständig ersetzte Python-Zeilen | **4.714/48.831 = 9,7 %** | konservative Quellzeilenmetrik |
-| gewichtete Quellzeilen | **ca. 18 %** | konservative Schätzung unter Berücksichtigung der großen Teilports |
-| funktionaler Nutzerumfang | **ca. 50–55 %** | geschätzter Anteil praktisch nutzbarer Reta-Funktionen ohne Python-Algorithmus |
+| abgeschlossene Release-Stufen | **8/12 = 66,7 %** | Generator-/Meta- und Kombinationspfade sind abgeschlossen; Stufe 9 ist aktiv |
+| vollständig native oder generierte Python-Dateien | **18/92 = 19,6 %** | Datei vollständig ersetzt oder als reproduzierbares Laufzeitasset abgebildet |
+| mindestens angegriffene Python-Dateien | **39/92 = 42,4 %** | vollständig oder teilweise nativ |
+| gewichtete Quellzeilen | **ca. 24 %** | konservative Schätzung unter Berücksichtigung der großen Teilports |
+| funktionaler Nutzerumfang | **ca. 65–70 %** | praktisch nutzbarer Reta-Umfang ohne Python-Algorithmus |
 
-Die Stufenquote ist höher als die Quellzeilenquote, weil die späteren Stufen die größten und dynamischsten Module enthalten: Generatorspalten, Kombinations-Joins, Prompt-Sprache, i18n-Matrix, Architekturvalidierung und Parallelisierung.
+Die Stufenquote ist höher als die Quellzeilenquote, weil die letzten Stufen besonders große dynamische Module bündeln: vollständige Ausgabeaufbereitung, Prompt-Sprache, i18n-Matrix, Architekturvalidierung und Parallelisierung.
 
 ## Die zwölf Stufen
 
@@ -35,14 +34,14 @@ Die Stufenquote ist höher als die Quellzeilenquote, weil die späteren Stufen d
 6. **CSV, Zeilenfilter und erster nativer Reta-Tabellenpfad — abgeschlossen**  
    Semikolon-CSV, vollständige Zeilenfiltermaschine, zweisprachige Laufzeit-Aliase, erste Generatorspalten, CSV/Markdown/Emacs-Ausgabe und `RETA_NATIVE=1`.
 
-7. **Alle Generator- und Metaspalten — in Arbeit**  
-   Die nutzerseitigen Generatorfamilien, Primzahlwirkung, Primzahlkreuz, ganzzahlige und gebrochen-rationale Primuniversum-Spalten sowie `PrimCSV` sind nativ und bytegleich geprüft. Offen bleiben die allgemeinen Metaspalten und weitere dynamische Relationen aus `meta_columns.py`.
+7. **Alle Generator- und Metaspalten — abgeschlossen**  
+   Klassifikatoren, Modallogik, Primzahlkreuz, Primzahlwirkung, Primuniversum, `PrimCSV` sowie zwölf allgemeine Meta-/Konkretachsen einschließlich aller 4.095 Teilmengenordnungen.
 
-8. **Kombinationen und CSV-Verkettung — offen**  
-   `combi_join.py`, `concat_csv.py`, `lib4tables_concat.py`, gebrochen-rationale Tabellen und Kombi-Meta.
+8. **Kombinationen und CSV-Verkettung — abgeschlossen**  
+   Vier gebrochen-rationale CSV-Prägarben, Galaxie-/Universum-Kombi-Join, 173 Aliase, 151 Relationsordnungen, Negativ- und Mehrfachauswahl.
 
-9. **Vollständige Tabellenaufbereitung und Ausgabe — offen**  
-   Mehrzeilige Zellen, Wörterbuchtrennung, Shellbreiten, vollständiges BBCode/HTML, alle Ausgabeparameter.
+9. **Vollständige Tabellenaufbereitung und Ausgabe — in Arbeit**  
+   BBCode ist für die geprüften Pfade bytegleich. HTML besitzt physische und semantische Zellmetadaten, tag-erhaltende Zellen, Wrapping und Seitenteilung. Offen bleiben farbige Shellausgabe, Rich-/Terminalsonderfälle und restliche dynamische HTML-Familien.
 
 10. **Vollständige Prompt-Sprache und i18n — offen**  
     Komplexe Kurzbefehle, Completion-Nesting, Promptvorbereitung, Wortmatrizen und alle Sprachen.

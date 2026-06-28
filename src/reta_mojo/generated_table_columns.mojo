@@ -10,13 +10,20 @@ families implemented here.
 from std.collections import List
 from .csv_table import CsvTable, read_semicolon_csv
 from .number_theory import moon_number
-from .generated_aliases import ModalConcept, sort_modal_concepts
+from .generated_aliases import (
+    FractionColumnRequest,
+    MetaColumnRequest,
+    ModalConcept,
+    sort_modal_concepts,
+)
 from .prime_cross_columns import generate_prime_cross_columns
 from .prime_universe_columns import (
     generate_integer_prime_universe_columns,
     generate_fractional_prime_universe_columns,
 )
 from .prime_effect_columns import generate_prime_effect_columns
+from .meta_columns import generate_meta_columns
+from .fraction_concat_columns import generate_fraction_concat_columns
 from .generated_columns import (
     equality_freedom_value,
     mind_energy_topology_value,
@@ -575,6 +582,8 @@ def apply_native_generated_columns(
     table: CsvTable,
     selected_columns: List[Int],
     modal_concepts: List[ModalConcept],
+    meta_requests: List[MetaColumnRequest],
+    fraction_requests: List[FractionColumnRequest],
     generated_commands: List[String],
     language: String,
     output_mode: String,
@@ -590,6 +599,27 @@ def apply_native_generated_columns(
     var output_columns = selected_columns.copy()
     var generated_names = List[String]()
     var stop = min(last_row, len(table.rows) - 1)
+
+    # _concat_csv_inputs: fractional galaxy/universe/emotion/size presheaves
+    # are glued before the generated-column morphism chain.
+    var fraction_columns = generate_fraction_concat_columns(
+        result, fraction_requests, stop, output_mode, language
+    )
+    for fraction_index in range(len(fraction_columns.columns)):
+        var request = fraction_columns.requests[fraction_index].copy()
+        var reciprocal = fraction_columns.reciprocal_flags[fraction_index]
+        result = _append_generated(
+            result,
+            fraction_columns.columns[fraction_index],
+            output_columns,
+            generated_names,
+            "readConcatCsv:"
+            + request.domain
+            + ","
+            + String(request.denominator)
+            + ","
+            + String(reciprocal),
+        )
 
     # concatVervielfacheZeile mutates the selected source columns before any
     # generated columns are appended.
@@ -748,6 +778,27 @@ def apply_native_generated_columns(
             generated_names,
             "spalteFuerGegenInnenAussenSeitlichPrim:"
             + String(prime_effect.source_columns[effect_index]),
+        )
+
+    # spalteMetaKontretTheorieAbstrakt_etc_1 follows prime effects and emits
+    # two columns per selected (metavariable, side) coordinate.
+    var meta_columns = generate_meta_columns(
+        result, meta_requests, stop, output_mode, language
+    )
+    for meta_index in range(len(meta_columns.columns)):
+        var request = meta_columns.requests[meta_index].copy()
+        var inverse = meta_columns.inversion_flags[meta_index]
+        result = _append_generated(
+            result,
+            meta_columns.columns[meta_index],
+            output_columns,
+            generated_names,
+            "spalteMetaKontretTheorieAbstrakt_etc:"
+            + String(request.metavariable)
+            + ","
+            + String(request.side)
+            + ","
+            + String(inverse),
         )
 
     # createSpalteGestirn is the final generated-column morphism.
