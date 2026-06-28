@@ -1,41 +1,87 @@
-# Testergebnisse – Stufe 6
+# Testergebnisse – Stufe-7-Zwischenstand
 
 ## Native Testmenge
 
 ```text
-32 Testdateien
-127 Testfunktionen insgesamt
-122 Testfunktionen im aktuellen Stufe-6-Lauf erneut ausgeführt
-122 bestanden
+39 Mojo-Test-/Konstantendateien
+150 Testfunktionen insgesamt
+145 Testfunktionen im normalen vollständigen Lauf
+145 bestanden
 0 fehlgeschlagen
 0 übersprungen
+2 optionale schwere Compilerdateien mit zusammen 5 Testfunktionen nicht kalt gebaut
 ```
 
-Die fünf nicht erneut kalt kompilierten Funktionen liegen in den unveränderten, sehr großen Katalogtests `test_category_theory.mojo` und `test_schema_catalog_parity.mojo`. Beide bestanden in Stufe 5. In Stufe 6 wurden ihre Generatoren erneut ausgeführt und die generierten Mojo-Dateien bytegleich bestätigt:
+Der vollständige normale Lauf war:
+
+```bash
+./scripts/test_all.sh
+```
+
+Die optionalen Dateien `test_category_theory.mojo` und `test_schema_catalog_parity.mojo` werden mit `RETA_TEST_HEAVY=1` zugeschaltet. Ihre generierten Kataloge werden unabhängig davon reproduzierbar geprüft:
 
 ```bash
 ./scripts/check_category_catalog.sh
 ./scripts/check_schema_catalog.sh
 ```
 
-## Neue Stufe-6-Prüfungen
+## Gezielte Stufe-7-Tests
 
-- 36 automatisch aus Python erzeugte Zeilenfiltervektoren
-- 16 vollständige Original-CSV-Dateien
-- `religion.csv`: 1.025 Zeilen, 746 Spalten, 764.650 Zellen
-- vier Generatorfamilien für 0–512 in Deutsch und Englisch
-- positive und negative Zeilenselektion
-- Tabellenprojektion und Headerbehandlung
-- deutsche CSV-, Markdown- und Emacs-Ausgabe bytegleich
-- englische CSV-Ausgabe bytegleich
-- `RETA_NATIVE=1`-Umschaltung bytegleich
-- deutscher/englischer Laufzeit-Aliaskatalog reproduzierbar
+Die erweiterte Stufe-7-Suite enthält 28 Unit-/Integrationstests für:
+
+- skalare Generatorfamilien
+- Nichtstandard-Aliasauflösung und Last-write-wins
+- Modallogik und Tabellenmutationsreihenfolge
+- Primzahlwirkung
+- ganzzahlige Primuniversum-Spalten
+- gebrochen-rationale Primuniversum-Spalten
+- historische Bruchpaarreihenfolge
+- `PrimCSV`/`beschrieben`
+- Tabellenrenderer und nativen CLI-Plan
 
 ```bash
-./scripts/test_stage6.sh
-./scripts/check_runtime_alias_catalog.sh
-./scripts/check_native_table_parity.sh
+./scripts/test_stage7.sh
 ```
+
+Die sieben direkt betroffenen Testprogramme wurden im aktuellen Lauf einzeln kompiliert und ergaben **28/28 bestanden**.
+
+## Reale CLI-Byteparität
+
+```bash
+./scripts/check_generated_column_parity.sh
+```
+
+Ergebnis: **22/22 reale Befehlsfälle bytegleich** zur projektlokalen Python-Referenz mit `PYTHONHASHSEED=0`.
+
+Geprüft werden unter anderem:
+
+- Gestirn, Gleichheit/Freiheit, Geist/Energie und Primvielfache
+- Deutsch und Englisch
+- Modallogik Liebe/Love
+- Primzahlkreuz Pro/Contra
+- einzelne und alle sieben Primzahlwirkungsquellen
+- einzelne und alle vier ganzzahligen Primuniversum-Familien
+- einzelne englische und alle vier deutschen gebrochen-rationalen Primuniversum-Familien
+- `PrimCSV`/`beschrieben` in Deutsch und Englisch
+- Markdown- und Emacs-Baseline
+
+Die größten Einzelvergleiche umfassten 110.816 Byte für eine gebrochen-rationale Familie und 161.222 Byte für alle vier Familien gemeinsam.
+
+## Reproduzierbare Laufzeitassets
+
+```bash
+PYTHONHASHSEED=0 python3 scripts/generate_fraction_pair_catalog.py
+python3 scripts/generate_generated_aliases.py
+```
+
+Aktueller Bestand:
+
+```text
+9.593 wirksame deutsch/englische Nichtstandard-Aliase
+71.820 geordnete Bruchrelationen
+```
+
+Der Hash-Seed ist beim Bruchkatalog Teil der Referenzdefinition, weil das Python-Original sichtbare Set-Iterationsreihenfolgen verwendet.
 
 ## Buildprüfung
 
@@ -44,14 +90,16 @@ Die fünf nicht erneut kalt kompilierten Funktionen liegen in den unveränderten
 ./scripts/check_build_layout.sh
 ```
 
-Der normale Build erzeugt acht ELF-64-Programme. Die compilerintensiven, generierten Katalogziele sind absichtlich getrennt:
+Ergebnis: acht reguläre ELF-64-Programme erfolgreich gebaut; `bin/` enthält ausschließlich versionierbare Shell-Launcher, `target/bin/` ausschließlich ignorierte Compilerprodukte.
+
+Die compilerintensiven generierten Katalogziele bleiben getrennt:
 
 ```bash
 ./scripts/build-heavy.sh
 RETA_CHECK_HEAVY=1 ./scripts/check_build_layout.sh
 ```
 
-## Bestehende Integrationsprüfungen
+## Weitere bestehende Integrationsprüfungen
 
 ```bash
 ./scripts/check_multis3_parity.sh
@@ -62,6 +110,8 @@ RETA_CHECK_HEAVY=1 ./scripts/check_build_layout.sh
 ./scripts/test_prompt_bins.sh
 ./scripts/check_compat_parity.sh
 ./scripts/check_html_parity.sh
+./scripts/check_native_table_parity.sh
+./scripts/check_runtime_alias_catalog.sh
 ```
 
 ## Referenzbaseline

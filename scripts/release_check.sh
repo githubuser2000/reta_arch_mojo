@@ -9,6 +9,9 @@ cd "$ROOT"
 ./scripts/check_tag_schema.sh
 ./scripts/check_table_runtime_parity.sh
 ./scripts/check_runtime_alias_catalog.sh
+./scripts/check_generated_alias_catalog.sh
+./scripts/check_fraction_pair_catalog.sh
+./scripts/check_generated_column_parity.sh
 ./scripts/check_schema_catalog.sh
 ./scripts/check_category_catalog.sh
 ./scripts/check_native_table_parity.sh

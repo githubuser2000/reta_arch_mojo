@@ -38,6 +38,22 @@ def _normal_table(table: CsvTable) -> CsvTable:
     return CsvTable(rows^, table.maximum_columns)
 
 
+def _decimal_width(value: Int) -> Int:
+    var number = abs(value)
+    var width = 1
+    while number >= 10:
+        number //= 10
+        width += 1
+    return width
+
+
+def _right_aligned_number(value: Int, width: Int) -> String:
+    var result = String(value)
+    while result.byte_length() < width:
+        result = " " + result
+    return result^
+
+
 def add_numbering_columns(table: CsvTable, row_numbers: List[Int]) -> CsvTable:
     """Add historical counting and source-row columns before selected data."""
     var normalized = _normal_table(table)
@@ -46,6 +62,7 @@ def add_numbering_columns(table: CsvTable, row_numbers: List[Int]) -> CsvTable:
         if row_numbers[index] > highest:
             highest = row_numbers[index]
     var groups = counting_groups(highest)
+    var number_width = _decimal_width(highest)
     var rows = List[List[String]]()
     for index in range(len(normalized.rows)):
         var source = normalized.rows[index].copy()
@@ -56,23 +73,33 @@ def add_numbering_columns(table: CsvTable, row_numbers: List[Int]) -> CsvTable:
             row.append("")
         else:
             row.append(String(groups[number]))
-            row.append(String(number))
+            row.append(_right_aligned_number(number, number_width))
         for column_index in range(len(source)):
             row.append(source[column_index] + ("" if number == 0 else ""))
         rows.append(row^)
     return CsvTable(rows^, normalized.maximum_columns + 2)
 
 
+def _csv_quote_minimal(text: String) -> String:
+    var value = text
+    if value.find(";") >= 0 or value.find("\"") >= 0 or value.find("\n") >= 0 or value.find("\r") >= 0:
+        return "\"" + value.replace("\"", "\"\"") + "\""
+    return value^
+
+
 def render_csv_table(table: CsvTable) -> String:
+    """Match Python ``csv.writer(delimiter=';')`` with LF line endings."""
     var result = String()
     for row_index in range(len(table.rows)):
         var row = table.rows[row_index].copy()
         for column_index in range(len(row)):
             if column_index > 0:
                 result += ";"
-            result += row[column_index]
+            var value = row[column_index]
             if column_index == 1:
-                result += " "
+                value += " "
+            result += _csv_quote_minimal(value)
+        result += "\n"
     return result^
 
 
@@ -88,10 +115,12 @@ def render_markdown_table(table: CsvTable) -> String:
             if row_index == 0 or column_index != 0:
                 result += " "
             result += "|"
+        result += "\n"
         if row_index == 0:
             result += "|"
             for _ in range(len(row)):
                 result += ":--:|"
+            result += "\n"
     return result^
 
 
@@ -107,11 +136,13 @@ def render_emacs_table(table: CsvTable) -> String:
             if row_index == 0 or column_index != 0:
                 result += " "
             result += "|"
+        result += "\n"
         if row_index == 0:
             result += "|"
             for column_index in range(len(row)):
                 result += "----"
                 result += "+" if column_index + 1 < len(row) else "|"
+            result += "\n"
     return result^
 
 

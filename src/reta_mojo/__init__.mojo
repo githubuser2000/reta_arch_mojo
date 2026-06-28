@@ -24,3 +24,11 @@ from .table_wrapping import *
 from .compat_text import *
 from .runtime_compat import *
 from .console_io import *
+
+from .generated_table_columns import *
+
+from .generated_aliases import *
+
+from .prime_cross_columns import *
+from .prime_effect_columns import *
+from .prime_universe_columns import *

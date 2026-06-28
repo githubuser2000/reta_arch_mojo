@@ -5,11 +5,12 @@ Dies ist ein inkrementeller, getesteter Port des hochgeladenen Python-Projekts `
 ## Fortschritt
 
 ```text
-Release-Stufen:                    6 von 12 = 50,0 %
-vollständig native Originaldateien: 16 von 92 = 17,4 %
-mindestens teilweise portiert:      34 von 92 = 37,0 %
-gewichteter Quellzeilenstand:        ca. 15,1 %
-funktionaler Nutzerumfang:           ca. 40–45 %
+abgeschlossene Release-Stufen:       6 von 12 = 50,0 %
+Stufe 7:                              Generatorpfad weitgehend nativ
+vollständig native Originaldateien:  16 von 92 = 17,4 %
+mindestens teilweise portiert:       36 von 92 = 39,1 %
+gewichteter Quellzeilenstand:         ca. 18 %
+funktionaler Nutzerumfang:            ca. 50–55 %
 ```
 
 Die Metriken messen Verschiedenes. Die Stufenquote ist höher, weil die noch offenen Stufen die größten dynamischen Python-Module bündeln. Der vollständige Plan steht in [`ROADMAP.md`](ROADMAP.md).
@@ -34,7 +35,7 @@ Das Skript erzeugt `.venv`, installiert den Modular-Mojo-Compiler und baut acht 
 
 Details: [`BUILD.md`](BUILD.md).
 
-## Stufe 6: erster echter nativer Tabellenpfad
+## Stufe 7: umfangreicher nativer Generatorpfad
 
 ### Native normale Reta-Syntax
 
@@ -103,16 +104,28 @@ Vollständig nativ umgesetzt wurden:
 - Invertierung
 - nachträgliche Positionsfilter
 
-### Erste Generatorspalten
+### Generatorspalten
 
-Deutsch und Englisch sind für vier Familien nativ:
+Deutsch und Englisch sind nun für die zentralen historischen Generatorpfade nativ:
 
-- Gleichheit/Freiheit/Dominieren
-- Geist/Emotion/Energie/Materie/Topologie
-- Prim-Kreativität
-- Gestirnklassifikation
+- Gleichheit/Freiheit/Dominieren, Geist/Energie, Prim-Kreativität und Gestirn
+- Vielfachen-Vererbung, Modallogik, Mond-/Exponent-Beziehungen und Liebespolygon
+- Primzahlkreuz Pro/Contra
+- alle sieben Primzahlwirkungsquellen
+- vier ganzzahlige Primuniversum-Familien
+- vier gebrochen-rationale Primuniversum-Familien
+- die beschriebene Primzahlvielfachen-Spalte `PrimCSV`
 
-Die restlichen Generator- und Metaspalten bilden Stufe 7.
+Die gebrochen-rationalen Generatoren verwenden einen reproduzierbaren Katalog mit 71.820 geordneten Relationen. Die historische CPython-Mengenreihenfolge wird beim Erzeugen des Assets mit `PYTHONHASHSEED=0` festgeschrieben. Allgemeine Metaspalten aus `meta_columns.py` bleiben der offene Rest von Stufe 7.
+
+Beispiel:
+
+```bash
+./reta-native \
+  -zeilen --vorhervonausschnitt=1-8 \
+  -spalten --multiplikationen=motivgebrstern \
+  -ausgabe --art=csv --breite=40
+```
 
 ### Ausgabe
 
@@ -150,7 +163,8 @@ Siehe [`BINARIES.md`](BINARIES.md).
 ## Tests
 
 ```bash
-./scripts/test_stage6.sh
+./scripts/test_stage7.sh
+./scripts/check_generated_column_parity.sh
 ./scripts/check_native_table_parity.sh
 ./scripts/check_runtime_alias_catalog.sh
 ./scripts/check_schema_catalog.sh
@@ -160,11 +174,12 @@ Siehe [`BINARIES.md`](BINARIES.md).
 Gesamtbestand:
 
 ```text
-32 native Testdateien
-127 native Testfunktionen
-122 im aktuellen Stufe-6-Lauf erneut ausgeführt und bestanden
-5 unveränderte schwere Katalogtests zuletzt in Stufe 5 bestanden;
-  ihre Generatoren wurden in Stufe 6 bytegleich reproduziert
+39 native Testdateien
+150 native Testfunktionen
+145/145 Tests im normalen vollständigen Lauf bestanden
+28 gezielte Stufe-7-Unit-Tests bestanden
+22 reale Stufe-7-CLI-Fälle bytegleich zur Python-Referenz
+2 schwere Katalogtestdateien bleiben im normalen Lauf optional
 ```
 
 Weitere bestehende Prüfungen:
@@ -180,9 +195,9 @@ Weitere bestehende Prüfungen:
 
 Details: [`TEST_RESULTS.md`](TEST_RESULTS.md).
 
-## Nächste Stufe
+## Nächster Portierungsblock
 
-Stufe 7 portiert den Rest von `generated_columns.py` und `meta_columns.py`, damit wesentlich mehr Spalten ohne Python-Algorithmus entstehen. Danach folgen Kombinations-Joins und gebrochen-rationale CSV-Verkettungen.
+Der verbleibende Teil von Stufe 7 sind die allgemeinen Metaspalten aus `meta_columns.py`. Danach folgt Stufe 8 mit Kombinations-Joins und der allgemeinen CSV-Verkettung. Die für Primuniversum benötigte gebrochen-rationale Relationserzeugung ist bereits nativ nutzbar; offen ist die breitere Tabellenverkettung.
 
 ## Dokumentation
 

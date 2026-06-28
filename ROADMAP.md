@@ -2,16 +2,16 @@
 
 Geplanter Umfang: **12 Release-Stufen**. Eine Stufe zählt erst als abgeschlossen, wenn Quellcode, Referenztests, Compilerziele, Dokumentation und ein source-only Archiv zusammen geprüft sind.
 
-## Fortschrittsmaße nach Stufe 6
+## Fortschrittsmaße im aktuellen Stufe-7-Zwischenstand
 
 | Maß | Stand | Aussage |
 |---|---:|---|
-| Release-Stufen | **6/12 = 50,0 %** | organisatorischer Fortschritt |
+| abgeschlossene Release-Stufen | **6/12 = 50,0 %** | Stufe 7 ist aktiv, aber wegen offener allgemeiner Metaspalten noch nicht abgeschlossen |
 | vollständig native Python-Dateien | **16/92 = 17,4 %** | Datei vollständig ersetzt oder reproduzierbar generiert |
-| mindestens angegriffene Python-Dateien | **34/92 = 37,0 %** | vollständig oder teilweise nativ |
+| mindestens angegriffene Python-Dateien | **36/92 = 39,1 %** | vollständig oder teilweise nativ |
 | vollständig ersetzte Python-Zeilen | **4.714/48.831 = 9,7 %** | konservative Quellzeilenmetrik |
-| gewichtete Quellzeilen | **ca. 15,1 %** | Teilports mit 40 % ihres Python-Umfangs gewichtet |
-| funktionaler Nutzerumfang | **ca. 40–45 %** | geschätzter Anteil praktisch nutzbarer Reta-Funktionen ohne Python-Algorithmus |
+| gewichtete Quellzeilen | **ca. 18 %** | konservative Schätzung unter Berücksichtigung der großen Teilports |
+| funktionaler Nutzerumfang | **ca. 50–55 %** | geschätzter Anteil praktisch nutzbarer Reta-Funktionen ohne Python-Algorithmus |
 
 Die Stufenquote ist höher als die Quellzeilenquote, weil die späteren Stufen die größten und dynamischsten Module enthalten: Generatorspalten, Kombinations-Joins, Prompt-Sprache, i18n-Matrix, Architekturvalidierung und Parallelisierung.
 
@@ -35,8 +35,8 @@ Die Stufenquote ist höher als die Quellzeilenquote, weil die späteren Stufen d
 6. **CSV, Zeilenfilter und erster nativer Reta-Tabellenpfad — abgeschlossen**  
    Semikolon-CSV, vollständige Zeilenfiltermaschine, zweisprachige Laufzeit-Aliase, erste Generatorspalten, CSV/Markdown/Emacs-Ausgabe und `RETA_NATIVE=1`.
 
-7. **Alle Generator- und Metaspalten — offen**  
-   Rest von `generated_columns.py`, `meta_columns.py`, relationalen und dynamischen Spalten.
+7. **Alle Generator- und Metaspalten — in Arbeit**  
+   Die nutzerseitigen Generatorfamilien, Primzahlwirkung, Primzahlkreuz, ganzzahlige und gebrochen-rationale Primuniversum-Spalten sowie `PrimCSV` sind nativ und bytegleich geprüft. Offen bleiben die allgemeinen Metaspalten und weitere dynamische Relationen aus `meta_columns.py`.
 
 8. **Kombinationen und CSV-Verkettung — offen**  
    `combi_join.py`, `concat_csv.py`, `lib4tables_concat.py`, gebrochen-rationale Tabellen und Kombi-Meta.

@@ -8,6 +8,17 @@ from .csv_table import read_semicolon_csv, select_zero_based_columns
 from .row_filtering import RowFilterConfig
 from .table_preparation import select_display_lines, select_display_table
 from .table_rendering import add_numbering_columns, render_table
+from .generated_table_columns import apply_native_generated_columns
+from .generated_aliases import (
+    GeneratedAliasEntry,
+    ModalConcept,
+    append_unique_modal_concept,
+    load_generated_alias_catalog,
+    modal_concept_from_entry,
+    remove_modal_concepts,
+    resolve_generated_aliases,
+    sort_modal_concepts,
+)
 
 
 @fieldwise_init
@@ -21,6 +32,8 @@ struct NativeRetaPlan(Copyable):
     var positive_rows: List[String]
     var negative_rows: List[String]
     var columns: List[Int]
+    var modal_concepts: List[ModalConcept]
+    var generated_commands: List[String]
     var diagnostics: List[String]
 
 
@@ -42,6 +55,59 @@ def _contains_int(values: List[Int], wanted: Int) -> Bool:
 def _append_unique_int(mut values: List[Int], value: Int):
     if not _contains_int(values, value):
         values.append(value)
+
+
+def _contains_string_native(values: List[String], wanted: String) -> Bool:
+    for index in range(len(values)):
+        if values[index] == wanted:
+            return True
+    return False
+
+
+def _append_unique_string_native(mut values: List[String], value: String):
+    if not _contains_string_native(values, value):
+        values.append(value)
+
+
+def _remove_strings_native(
+    values: List[String], excluded: List[String]
+) -> List[String]:
+    var result = List[String]()
+    for index in range(len(values)):
+        if not _contains_string_native(excluded, values[index]):
+            result.append(values[index])
+    return result^
+
+
+def _collect_generated_alias(
+    entry: GeneratedAliasEntry,
+    negative: Bool,
+    mut positive_modal: List[ModalConcept],
+    mut negative_modal: List[ModalConcept],
+    mut positive_commands: List[String],
+    mut negative_commands: List[String],
+) raises:
+    if entry.bucket == "modal":
+        var concept = modal_concept_from_entry(entry)
+        if negative:
+            append_unique_modal_concept(negative_modal, concept)
+        else:
+            append_unique_modal_concept(positive_modal, concept)
+    elif entry.bucket == "generated_command":
+        if negative:
+            _append_unique_string_native(negative_commands, entry.payload)
+        else:
+            _append_unique_string_native(positive_commands, entry.payload)
+    elif entry.bucket == "prime_effect":
+        var command = (
+            "prime_effect:none"
+            if entry.payload.byte_length() == 0
+            else "prime_effect:" + entry.payload
+        )
+        if negative:
+            _append_unique_string_native(negative_commands, command)
+        else:
+            _append_unique_string_native(positive_commands, command)
 
 
 def _sort_ints(mut values: List[Int]):
@@ -155,7 +221,16 @@ def _process_row_option(
 def build_native_reta_plan(tokens: List[String], maximum_columns: Int, maximum_rows: Int) raises -> NativeRetaPlan:
     var parsed = parse_cli_tokens(tokens)
     var aliases = load_runtime_alias_catalog("assets/parameter_aliases.tsv")
+    var generated_aliases = load_generated_alias_catalog("assets/generated_aliases.tsv")
     var language = String("german")
+    # Language affects the generated alias matrix itself, so resolve it before
+    # processing any column option rather than after the option loop.
+    for token_index in range(len(tokens)):
+        var token = tokens[token_index]
+        if token.startswith("-language="):
+            language = String(StringSlice(token)[byte=10:])
+        elif token.startswith("-sprache="):
+            language = String(StringSlice(token)[byte=9:])
     var output_mode = String("shell")
     var width = 21
     var highest = maximum_rows
@@ -166,6 +241,10 @@ def build_native_reta_plan(tokens: List[String], maximum_columns: Int, maximum_r
     var positive_columns = List[Int]()
     var negative_columns = List[Int]()
     var explicit_order = List[Int]()
+    var positive_modal = List[ModalConcept]()
+    var negative_modal = List[ModalConcept]()
+    var positive_commands = List[String]()
+    var negative_commands = List[String]()
     var diagnostics = parsed.diagnostics.copy()
 
     for option_index in range(len(parsed.options)):
@@ -202,7 +281,10 @@ def build_native_reta_plan(tokens: List[String], maximum_columns: Int, maximum_r
             for value_index in range(len(option.values)):
                 var value = option.values[value_index].copy()
                 var resolved = resolve_runtime_columns(aliases, option.name, value.text)
-                if len(resolved) == 0:
+                var generated_resolved = resolve_generated_aliases(
+                    generated_aliases, language, option.name, value.text
+                )
+                if len(resolved) == 0 and len(generated_resolved) == 0:
                     diagnostics.append("unbekanntes Spaltenpaar: " + option.name + "/" + value.text)
                     continue
                 for column_index in range(len(resolved)):
@@ -210,15 +292,15 @@ def build_native_reta_plan(tokens: List[String], maximum_columns: Int, maximum_r
                         _append_unique_int(negative_columns, resolved[column_index])
                     else:
                         _append_unique_int(positive_columns, resolved[column_index])
-
-    # Top-level language tokens are represented as pseudo-sections by the
-    # historical single-dash surface form. Inspect them independently.
-    for token_index in range(len(tokens)):
-        var token = tokens[token_index]
-        if token.startswith("-language="):
-            language = String(StringSlice(token)[byte=10:])
-        elif token.startswith("-sprache="):
-            language = String(StringSlice(token)[byte=9:])
+                for generated_index in range(len(generated_resolved)):
+                    _collect_generated_alias(
+                        generated_resolved[generated_index],
+                        value.negative,
+                        positive_modal,
+                        negative_modal,
+                        positive_commands,
+                        negative_commands,
+                    )
 
     var has_explicit_order = len(explicit_order) > 0
     var columns: List[Int]
@@ -226,13 +308,25 @@ def build_native_reta_plan(tokens: List[String], maximum_columns: Int, maximum_r
         columns = explicit_order^
     else:
         columns = positive_columns^
-    if len(columns) == 0:
-        columns = [0]
     columns = _remove_ints(columns, negative_columns)
     if not has_explicit_order:
         _sort_ints(columns)
     if highest < 1 or highest > maximum_rows:
         highest = maximum_rows
+    var modal_concepts = remove_modal_concepts(positive_modal, negative_modal)
+    sort_modal_concepts(modal_concepts)
+    var generated_commands = _remove_strings_native(
+        positive_commands, negative_commands
+    )
+    # A generated-only selection must not silently pull in physical column 0.
+    # Keep the historical default only when no physical or generated column was
+    # selected at all.
+    if (
+        len(columns) == 0
+        and len(modal_concepts) == 0
+        and len(generated_commands) == 0
+    ):
+        columns = [0]
     return NativeRetaPlan(
         language^,
         output_mode^,
@@ -243,6 +337,8 @@ def build_native_reta_plan(tokens: List[String], maximum_columns: Int, maximum_r
         positive_rows^,
         negative_rows^,
         columns^,
+        modal_concepts^,
+        generated_commands^,
         diagnostics^,
     )
 
@@ -252,19 +348,35 @@ def run_native_reta(tokens: List[String], csv_path: String) raises -> String:
     var maximum_rows = len(table.rows) - 1
     var plan = build_native_reta_plan(tokens, table.maximum_columns, maximum_rows)
     var rows_were_set = len(plan.positive_rows) > 0 or len(plan.negative_rows) > 0
+    # Resolve displayed source rows before generating derived columns.  The
+    # Python implementation uses its last displayed line as the annotation
+    # boundary, while relation maps may still be built farther ahead.
     var selection = select_display_lines(
         RowFilterConfig(plan.highest, min(plan.highest, 114), rows_were_set),
         table,
         plan.positive_rows,
         plan.negative_rows,
     )
+    var display_last_row = 0
+    for row_index in range(len(selection.rows)):
+        display_last_row = max(display_last_row, selection.rows[row_index])
+    var generated = apply_native_generated_columns(
+        table,
+        plan.columns,
+        plan.modal_concepts,
+        plan.generated_commands,
+        plan.language,
+        plan.output_mode,
+        display_last_row,
+    )
+    table = generated.table.copy()
     var selected_rows = selection.rows.copy()
     if not plan.include_headings and len(selected_rows) > 0 and selected_rows[0] == 0:
         selected_rows = List(selected_rows[1:])
     var selected = select_display_table(table, selection)
     if not plan.include_headings and len(selected.rows) > 0:
         selected.rows = List(selected.rows[1:])
-    selected = select_zero_based_columns(selected, plan.columns)
+    selected = select_zero_based_columns(selected, generated.output_columns)
     if plan.number_rows:
         selected = add_numbering_columns(selected, selected_rows)
     return render_table(selected, selected_rows, plan.output_mode)
