@@ -5,7 +5,8 @@ if command -v readlink >/dev/null 2>&1; then
     SELF=$(readlink -f "$0" 2>/dev/null || printf '%s' "$0")
 fi
 ROOT=$(CDPATH= cd -- "$(dirname -- "$SELF")/.." && pwd)
-if [ "${RETA_NATIVE:-0}" = "1" ]; then
-    exec "$ROOT/bin/reta-native" "$@"
+cd "$ROOT"
+if [ -x "$ROOT/target/bin/reta-native" ]; then
+    exec "$ROOT/target/bin/reta-native" "$@"
 fi
-exec "$ROOT/bin/reta-mojo-compat" "$@"
+exec "$ROOT/bin/mojo-real" run -I "$ROOT/src" "$ROOT/src/reta_native_main.mojo" "$@"

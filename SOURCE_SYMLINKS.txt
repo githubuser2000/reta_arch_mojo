@@ -78,6 +78,7 @@
 ./python_reference/csv/vn-religion.csv -> religion.csv
 ./python_reference/csv/vn-sunMoonEtc.csv -> sunMoonEtc.csv
 ./reta -> bin/reta
+./reta-native -> bin/reta-native
 ./reta.english -> bin/reta.english
 ./reta.sh -> bin/reta.sh
 ./retaPrompt -> bin/retaPrompt
@@ -98,6 +99,7 @@
 ./run/prim -> ../bin/prim
 ./run/prim24 -> ../bin/prim24
 ./run/reta -> ../bin/reta
+./run/reta-native -> ../bin/reta-native
 ./run/reta.english -> ../bin/reta.english
 ./run/reta.sh -> ../bin/reta.sh
 ./run/retaPrompt -> ../bin/retaPrompt

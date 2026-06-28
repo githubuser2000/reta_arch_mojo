@@ -174,3 +174,12 @@ Die reine Anwendung der sieben Ausgabemodi ist vollständig nativ. Auch determin
 ### `multis3`
 
 Die Dreifach-Faktorisierung aus `multis3.py` ist nativ. Die Referenz lieferte ein Set und druckte dessen nicht zugesicherte Iterationsreihenfolge. Der Mojo-Port bewahrt die Menge, sortiert die Tripel intern und die Ergebnisliste lexikographisch. Ein generierter Referenzfingerprint prüft sämtliche Eingaben 2 bis 256.
+
+## Stufe 6 – CSV, Zeilenfilter und nativer Reta-Pfad
+
+- `row_filtering.py` wurde als besitzender Mojo-Zustandsautomat übertragen. Die Portierung bildet absolute und relative Bereiche, Ausschlüsse, Teiler, Zeit, Zählungsgruppen, Primklassen, Gestirntypen, Primvielfache, Potenzen, gewöhnliche Vielfache, Invertierung und Positionsfilter explizit ab.
+- Der CSV-Parser besitzt einen schnellen Pfad für die großen einfachen Semikolondateien und einen vollständigen Pfad für Quotes und eingebettete Zeilenumbrüche.
+- Deutsche und englische Parameteraliase werden als reproduzierbare TSV-Laufzeitdaten geladen. Dadurch muss der große Schemakatalog nicht in jedes Laufzeitprogramm einkompiliert werden.
+- `reta-native` versteht eine wachsende Teilmenge der historischen deutschen und englischen Oberfläche. Der bestehende Name `reta` wechselt nur bei `RETA_NATIVE=1` auf diesen Pfad; ohne Variable bleibt die vollständige Kompatibilitätsausführung erhalten.
+- CSV, Markdown und Emacs reproduzieren im projektlokalen Kompatibilitätsumfeld die Referenzbytes. Das optionale Python-Paket Rich kann die sichtbare Referenzausgabe selbst verändern; die Releaseprüfung verwendet deshalb ausdrücklich den projektlokalen Referenzinterpreter.
+- Die Compilerziele wurden weiter entkoppelt: leichtes Tabellenziel, separates Tag-Schema sowie optionale schwere Schema-/Architekturziele.

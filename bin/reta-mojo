@@ -17,7 +17,13 @@ if [ "${1-}" = "--mojo-architecture" ]; then
     fi
     exec "$ROOT/bin/mojo-real" run -I "$ROOT/src" "$ROOT/src/architecture_main.mojo"
 fi
-if [ "${1-}" = "--mojo-tags" ] || [ "${1-}" = "--mojo-tag-columns" ] || [ "${1-}" = "--mojo-table-state" ] || [ "${1-}" = "--mojo-wrap" ]; then
+if [ "${1-}" = "--mojo-tags" ] || [ "${1-}" = "--mojo-tag-columns" ]; then
+    if [ -x "$ROOT/target/bin/reta-mojo-tags" ]; then
+        exec "$ROOT/target/bin/reta-mojo-tags" "$@"
+    fi
+    exec "$ROOT/bin/mojo-real" run -I "$ROOT/src" "$ROOT/src/tags_main.mojo" "$@"
+fi
+if [ "${1-}" = "--mojo-table-state" ] || [ "${1-}" = "--mojo-wrap" ] || [ "${1-}" = "--mojo-csv-info" ]; then
     if [ -x "$ROOT/target/bin/reta-mojo-table" ]; then
         exec "$ROOT/target/bin/reta-mojo-table" "$@"
     fi

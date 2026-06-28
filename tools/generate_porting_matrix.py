@@ -35,6 +35,14 @@ NATIVE = {
     "reta_architecture/sheaves.py": ("teilweise nativ", "src/reta_mojo/parameter_semantics.mojo", "ParameterSemanticsSheaf: Aliasauflösung, kanonische Paare, direkte Spalten und Rückabbildung"),
     "reta_architecture/morphisms.py": ("teilweise nativ", "src/reta_mojo/morphisms.mojo", "Alias-, Bereichs-, Prompt-Split- und Renderer-Modus-Morphismen"),
     "reta_architecture/input_semantics.py": ("teilweise nativ", "src/reta_mojo/input_semantics.mojo + row_ranges.mojo", "CLI-Normalisierung, Kommasyntax, Polarität, kanonische Spaltenauswahl und schemaabgeleitetes Prompt-Vokabular; dynamischer Prompt-Executor noch Bridge"),
+    "reta.py": ("teilweise nativ", "src/reta_native_main.mojo + src/reta_mojo/native_reta_cli.mojo", "häufige deutsche und englische Tabellenaufrufe nativ; vollständige Legacy-Oberfläche bleibt über RETA_NATIVE=0 kompatibel"),
+    "reta_architecture/row_filtering.py": ("nativ", "src/reta_mojo/row_filtering.mojo", "Zeilenbereiche, Zeit, Zählgruppen, Primklassen, Gestirne, Vielfache, Potenzen, Invertierung und Positionsfilter"),
+    "reta_architecture/generated_columns.py": ("teilweise nativ", "src/reta_mojo/generated_columns.mojo", "vier Generatorfamilien zweisprachig nativ; restliche Generator- und Metaspalten folgen in Stufe 7"),
+    "reta_architecture/table_preparation.py": ("teilweise nativ", "src/reta_mojo/table_preparation.mojo", "positive/negative Zeilenauswahl, Headerbehandlung und Tabellenprojektion nativ"),
+    "reta_architecture/table_output.py": ("teilweise nativ", "src/reta_mojo/table_rendering.mojo", "CSV, Markdown und Emacs für den nativen Tabellenpfad bytegleich; komplexes HTML/BBCode-Wrapping noch unvollständig"),
+    "reta_architecture/table_generation.py": ("teilweise nativ", "src/reta_mojo/csv_table.mojo + native_reta_cli.mojo", "CSV-Grundtabelle, Spaltenprojektion und einfacher Ende-zu-Ende-Tabellenpfad nativ"),
+    "reta_architecture/table_runtime.py": ("teilweise nativ", "src/reta_mojo/native_reta_cli.mojo + table_preparation.mojo", "typisierter nativer Laufzeitplan für häufige Zeilen-, Spalten- und Ausgabeparameter"),
+    "libs/lib4tables_prepare.py": ("teilweise nativ", "src/reta_mojo/table_preparation.mojo + row_filtering.mojo", "deterministische Zeilenauswahl und Vorbereitung nativ; Generatorverkettung noch Bridge"),
 }
 
 

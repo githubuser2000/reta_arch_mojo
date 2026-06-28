@@ -14,13 +14,13 @@ build() {
 }
 
 build src/main.mojo reta-mojo-native -I src
-build src/schema_main.mojo reta-mojo-schema -I src
 build src/table_main.mojo reta-mojo-table -I src
+build src/tags_main.mojo reta-mojo-tags -I src
+build src/reta_native_main.mojo reta-native -I src
 build src/compat_main.mojo reta-mojo-compat-bin
 build src/prompt_main.mojo reta-prompt-native -I src
 build src/grundstruk_html_main.mojo grundStrukHtml-native -I src
 build src/generate_html_main.mojo generate-html-native -I src
-build src/architecture_main.mojo reta-mojo-architecture -I src
 
 printf '\nKompilierte Mojo-Executables:\n'
 for executable in "$TARGET_DIR"/*; do

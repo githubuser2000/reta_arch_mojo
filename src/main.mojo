@@ -30,6 +30,10 @@ def _print_native_help() -> None:
     print("  --mojo-columns H P        Aliasauflösung und direkte Spalten für H/P")
     print("  --mojo-alias H [P]        kanonische Aliasnamen anzeigen")
     print("  --mojo-output MODUS ZEILE Renderer-Zeilenanfang erzeugen")
+    print("  --mojo-csv-info [DATEI]  CSV-Abmessungen nativ lesen")
+    print("  --mojo-table-state [MAX] Tabellenzustand anzeigen")
+    print("  --mojo-wrap BREITE TEXT  Unicode-sicher umbrechen")
+    print("  --mojo-tags SPALTE       Tabellen-Tags anzeigen")
     print("  --mojo-help               Diese Hilfe")
     print("Die historische CLI steht über bin/reta-mojo-compat bereit.")
 

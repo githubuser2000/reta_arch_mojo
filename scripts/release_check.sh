@@ -8,6 +8,10 @@ cd "$ROOT"
 ./scripts/check_multis3_parity.sh
 ./scripts/check_tag_schema.sh
 ./scripts/check_table_runtime_parity.sh
+./scripts/check_runtime_alias_catalog.sh
+./scripts/check_schema_catalog.sh
+./scripts/check_category_catalog.sh
+./scripts/check_native_table_parity.sh
 ./scripts/check_prompt_catalog.sh
 ./scripts/check_grundstrukturen_catalog.sh
 ./scripts/test_prompt_bins.sh
