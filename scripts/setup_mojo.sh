@@ -36,6 +36,14 @@ uv pip install --python .venv/bin/python 'mojo==1.0.0b2' --prerelease allow
 
 printf '\n%s\n' 'Installierter Modular-Mojo-Compiler:'
 .venv/bin/mojo --version
+
+if [ "${RETA_SKIP_BUILD-0}" != "1" ]; then
+    printf '\n%s\n' 'Kompiliere native Mojo-Executables nach target/bin ...'
+    ./scripts/build.sh
+else
+    printf '\n%s\n' 'Kompilierung durch RETA_SKIP_BUILD=1 übersprungen.'
+fi
+
 printf '\n%s\n' 'Jetzt ausführbar, ohne source/activate:'
 printf '%s\n' '  ./bin/reta-mojo --mojo-prime 60'
 printf '%s\n' "  ./bin/reta-mojo --mojo-range '1-9,-3' 100"
@@ -43,5 +51,8 @@ printf '%s\n' '  ./bin/reta-mojo --mojo-columns religionen sternpolygon'
 printf '%s\n' '  ./rp'
 printf '%s\n' '  ./rpb prim 60'
 printf '%s\n' '  ./retaPrompt -befehl multis 12'
+printf '%s\n' '  ./multis3 36'
+printf '%s\n' '  ./grundStrukHtml.py blank'
+printf '%s\n' '  ./generate_html > religions-tabelle.html'
 printf '%s\n' 'Optional alle öffentlichen Startnamen verlinken:'
 printf '%s\n' '  ./scripts/install_bins.sh'

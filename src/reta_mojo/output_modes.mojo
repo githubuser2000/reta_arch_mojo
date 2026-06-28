@@ -118,3 +118,40 @@ def generate_simple_cell(mode: String, column: Int, content: Int = 0, has_conten
             return "[td=\"background-color:#ffffff;color:#000000\"]"
         return "[td=\"\"]"
     return output_mode_spec(canonical).begin_cell
+
+
+@fieldwise_init
+struct OutputRuntimeState(Copyable, Equatable):
+    var canonical_name: String
+    var syntax_class_name: String
+    var one_table: Bool
+    var text_width: Int
+    var marks_html_or_bbcode: Bool
+
+
+def default_output_runtime_state() -> OutputRuntimeState:
+    return OutputRuntimeState("shell", "OutputSyntax", False, 21, False)
+
+
+def apply_output_mode(
+    state: OutputRuntimeState,
+    mode: String,
+) -> OutputRuntimeState:
+    """Pure native equivalent of RetaOutputSemantics.apply_mode_to_tables."""
+    var spec = output_mode_spec(mode)
+    if spec.canonical_name.byte_length() == 0:
+        return state.copy()
+    var one_table = state.one_table or spec.force_one_table
+    var width = 0 if spec.force_zero_width else state.text_width
+    return OutputRuntimeState(
+        spec.canonical_name,
+        spec.syntax_class_name,
+        one_table,
+        width,
+        spec.marks_html_or_bbcode,
+    )
+
+
+def is_output_mode(state: OutputRuntimeState, mode: String) -> Bool:
+    var canonical = canonicalize_output_mode(mode)
+    return canonical.byte_length() > 0 and state.canonical_name == canonical

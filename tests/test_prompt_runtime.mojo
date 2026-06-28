@@ -54,6 +54,7 @@ def test_command_classification() raises:
     assert_equal(classify_prompt_command("hilfe").kind, KIND_HELP)
     assert_equal(classify_prompt_command("prim 60").kind, KIND_PRIME)
     assert_equal(classify_prompt_command("prim24 29").kind, KIND_PRIME24)
+    assert_equal(classify_prompt_command("multis3 36").kind, KIND_MULTIS3)
     assert_equal(classify_prompt_command("reta -h").kind, KIND_RETA)
     assert_equal(classify_prompt_command("a 2").kind, KIND_FALLBACK)
 
@@ -77,6 +78,12 @@ def test_multis_prompt_lines() raises:
     var lines = multis_lines(classify_prompt_command("multis 12"))
     assert_equal(len(lines), 1)
     assert_equal(lines[0], "12: [(6, 2), (4, 3), (12, 1)]")
+
+
+def test_multis3_prompt_lines() raises:
+    var lines = multis3_lines(classify_prompt_command("multis3 36"))
+    assert_equal(len(lines), 1)
+    assert_equal(lines[0], "36: [(2, 2, 9), (2, 3, 6), (3, 3, 4)]")
 
 
 def test_modulo_prompt_lines() raises:

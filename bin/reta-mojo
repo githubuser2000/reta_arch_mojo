@@ -6,18 +6,24 @@ if command -v readlink >/dev/null 2>&1; then
 fi
 ROOT=$(CDPATH= cd -- "$(dirname -- "$SELF")/.." && pwd)
 if [ "${1-}" = "--mojo-schema" ] || [ "${1-}" = "--mojo-columns" ] || [ "${1-}" = "--mojo-alias" ] || [ "${1-}" = "--mojo-parse-cli" ] || [ "${1-}" = "--mojo-vocabulary" ]; then
-    if [ -x "$ROOT/build/reta-mojo-schema" ]; then
-        exec "$ROOT/build/reta-mojo-schema" "$@"
+    if [ -x "$ROOT/target/bin/reta-mojo-schema" ]; then
+        exec "$ROOT/target/bin/reta-mojo-schema" "$@"
     fi
     exec "$ROOT/bin/mojo-real" run -I "$ROOT/src" "$ROOT/src/schema_main.mojo" "$@"
 fi
 if [ "${1-}" = "--mojo-architecture" ]; then
-    if [ -x "$ROOT/build/reta-mojo-architecture" ]; then
-        exec "$ROOT/build/reta-mojo-architecture"
+    if [ -x "$ROOT/target/bin/reta-mojo-architecture" ]; then
+        exec "$ROOT/target/bin/reta-mojo-architecture"
     fi
     exec "$ROOT/bin/mojo-real" run -I "$ROOT/src" "$ROOT/src/architecture_main.mojo"
 fi
-if [ -x "$ROOT/build/reta-mojo-native" ]; then
-    exec "$ROOT/build/reta-mojo-native" "$@"
+if [ "${1-}" = "--mojo-tags" ] || [ "${1-}" = "--mojo-tag-columns" ] || [ "${1-}" = "--mojo-table-state" ] || [ "${1-}" = "--mojo-wrap" ]; then
+    if [ -x "$ROOT/target/bin/reta-mojo-table" ]; then
+        exec "$ROOT/target/bin/reta-mojo-table" "$@"
+    fi
+    exec "$ROOT/bin/mojo-real" run -I "$ROOT/src" "$ROOT/src/table_main.mojo" "$@"
+fi
+if [ -x "$ROOT/target/bin/reta-mojo-native" ]; then
+    exec "$ROOT/target/bin/reta-mojo-native" "$@"
 fi
 exec "$ROOT/bin/mojo-real" run -I "$ROOT/src" "$ROOT/src/main.mojo" "$@"

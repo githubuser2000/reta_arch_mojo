@@ -12,6 +12,17 @@ def test_factor_pairs() raises:
     assert_equal(pairs[4].second, 1)
 
 
+def test_factor_triples_are_unique_sorted_and_nontrivial() raises:
+    var triples = factor_triples(60)
+    assert_equal(len(triples), 4)
+    assert_equal(triples[0].first, 2)
+    assert_equal(triples[0].second, 2)
+    assert_equal(triples[0].third, 15)
+    assert_equal(triples[3].first, 3)
+    assert_equal(triples[3].second, 4)
+    assert_equal(triples[3].third, 5)
+
+
 def test_prime_factors_modulo() raises:
     var values = prime_factors(58, modulo=True)
     assert_equal(len(values), 2)

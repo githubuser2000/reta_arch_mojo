@@ -7,17 +7,18 @@ mkdir -p "$TMP"
 trap 'rm -rf "$TMP"' EXIT HUP INT TERM
 
 # Build once so integration tests exercise the same executable users receive.
-mkdir -p build
-if [ ! -x build/reta-prompt-native ]; then
-    "$ROOT/bin/mojo-real" build -I src src/prompt_main.mojo -o build/reta-prompt-native
+mkdir -p target/bin
+if [ ! -x target/bin/reta-prompt-native ]; then
+    "$ROOT/bin/mojo-real" build -I src src/prompt_main.mojo -o target/bin/reta-prompt-native
 fi
-if [ ! -x build/reta-mojo-compat-bin ]; then
-    "$ROOT/bin/mojo-real" build src/compat_main.mojo -o build/reta-mojo-compat-bin
+if [ ! -x target/bin/reta-mojo-compat-bin ]; then
+    "$ROOT/bin/mojo-real" build src/compat_main.mojo -o target/bin/reta-mojo-compat-bin
 fi
 
 [ "$(./bin/rpb prim 60)" = "60: 2^2 3 5" ]
 [ "$(./bin/prim24 29)" = "29: 5" ]
 [ "$(./bin/multis 12)" = "12: [(6, 2), (4, 3), (12, 1)]" ]
+[ "$(./bin/multis3 36)" = "36: [(2, 2, 9), (2, 3, 6), (3, 3, 4)]" ]
 ./bin/modulo 5 > "$TMP/modulo"
 [ "$(wc -l < "$TMP/modulo")" -eq 24 ]
 [ "$(head -n 1 "$TMP/modulo")" = "5 % 2 = 1 Gegenteil, 1 Gegenteil" ]

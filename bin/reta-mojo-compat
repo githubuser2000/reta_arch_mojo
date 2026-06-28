@@ -6,7 +6,7 @@ if command -v readlink >/dev/null 2>&1; then
 fi
 ROOT=$(CDPATH= cd -- "$(dirname -- "$SELF")/.." && pwd)
 cd "$ROOT"
-if [ -x "$ROOT/build/reta-mojo-compat-bin" ]; then
-    exec "$ROOT/build/reta-mojo-compat-bin" "$@"
+if [ -x "$ROOT/target/bin/reta-mojo-compat-bin" ]; then
+    exec "$ROOT/target/bin/reta-mojo-compat-bin" "$@"
 fi
 exec "$ROOT/bin/mojo-real" run "$ROOT/src/compat_main.mojo" "$@"

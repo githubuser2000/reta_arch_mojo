@@ -7,7 +7,7 @@ fi
 ROOT=$(CDPATH= cd -- "$(dirname -- "$SELF")/.." && pwd)
 PROFILE=${RETA_PROMPT_PROFILE:-$(basename -- "$0")}
 cd "$ROOT"
-if [ -x "$ROOT/build/reta-prompt-native" ]; then
-    exec "$ROOT/build/reta-prompt-native" "$PROFILE" "$@"
+if [ -x "$ROOT/target/bin/reta-prompt-native" ]; then
+    exec "$ROOT/target/bin/reta-prompt-native" "$PROFILE" "$@"
 fi
 exec "$ROOT/bin/mojo-real" run -I "$ROOT/src" "$ROOT/src/prompt_main.mojo" "$PROFILE" "$@"

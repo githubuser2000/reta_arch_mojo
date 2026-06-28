@@ -1,0 +1,12 @@
+#!/usr/bin/env sh
+set -eu
+SELF=$0
+if command -v readlink >/dev/null 2>&1; then
+    SELF=$(readlink -f "$0" 2>/dev/null || printf '%s' "$0")
+fi
+ROOT=$(CDPATH= cd -- "$(dirname -- "$SELF")/.." && pwd)
+cd "$ROOT"
+if [ -x "$ROOT/target/bin/generate-html-native" ]; then
+    exec "$ROOT/target/bin/generate-html-native" "$@"
+fi
+exec "$ROOT/bin/mojo-real" run -I "$ROOT/src" "$ROOT/src/generate_html_main.mojo" "$@"

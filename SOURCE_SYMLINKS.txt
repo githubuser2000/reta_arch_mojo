@@ -1,3 +1,4 @@
+./bin/grundStrukHtml.py -> grundStrukHtml
 ./bin/reta.sh -> reta
 ./bin/retaPrompt -> reta-prompt-profile
 ./bin/retaPrompt.english -> reta-prompt-profile
@@ -7,9 +8,13 @@
 ./bin/rpe -> reta-prompt-profile
 ./bin/rpl -> reta-prompt-profile
 ./bin/rpl.sh -> rpl
+./generate_html -> bin/generate_html
+./grundStrukHtml -> bin/grundStrukHtml
+./grundStrukHtml.py -> bin/grundStrukHtml
 ./math -> bin/math
 ./modulo -> bin/modulo
 ./multis -> bin/multis
+./multis3 -> bin/multis3
 ./prim -> bin/prim
 ./prim24 -> bin/prim24
 ./python_reference/csv/cn-dualism-trinities-etc.csv -> dualism-trinities-etc.csv
@@ -83,9 +88,13 @@
 ./rpe -> bin/rpe
 ./rpl -> bin/rpl
 ./rpl.sh -> bin/rpl.sh
+./run/generate_html -> ../bin/generate_html
+./run/grundStrukHtml -> ../bin/grundStrukHtml
+./run/grundStrukHtml.py -> ../bin/grundStrukHtml
 ./run/math -> ../bin/math
 ./run/modulo -> ../bin/modulo
 ./run/multis -> ../bin/multis
+./run/multis3 -> ../bin/multis3
 ./run/prim -> ../bin/prim
 ./run/prim24 -> ../bin/prim24
 ./run/reta -> ../bin/reta

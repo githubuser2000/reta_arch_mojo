@@ -132,4 +132,45 @@ Die Befehle `shell`, `python` und `math` sind ihrem Zweck nach Prozess-/Interpre
 
 Die dokumentierten Laufzeitnamen sind im Wurzelverzeichnis, in `bin/` und in `run/` verfügbar. `reta.sh`, `rp.sh` und `rpl.sh` bleiben als Aliase bestehen, aktivieren aber keine Umgebung mehr. Der Resolver findet `.venv/bin/mojo` selbst. `scripts/install_bins.sh` verlinkt die Programme optional nach `~/.local/bin`.
 
-Entwicklungs- und Releasehelfer wie `coden`, `csvs`, `rpmake` oder `generate_html` gehören nicht zur transpilierten Laufzeit. Sie steuern lokale Git-Branches, Editoren, LibreOffice, Veröffentlichungsarchive oder fest codierte Rechnerpfade und werden deshalb nicht fälschlich als Mojo-Fachlogik ausgegeben.
+Entwicklungs- und Releasehelfer wie `coden`, `csvs` und `rpmake` gehören nicht zur transpilierten Laufzeit. Sie steuern lokale Git-Branches, Editoren, LibreOffice, Veröffentlichungsarchive oder fest codierte Rechnerpfade. `generate_html` wurde in Stufe 4 dagegen als tatsächlicher Laufzeitgenerator erkannt und portiert.
+
+
+## Stufe 4: `grundStrukHtml.py` und `generate_html`
+
+- `grundStrukHtml.py` wurde nicht als statischer HTML-Blob übernommen. Die Referenzhierarchie wird als reproduzierbarer, lokalisierter Traversierungskatalog erzeugt; Stacksteuerung, Blattdarstellung, Checkboxattribute und HTML-Ausgabe laufen nativ in Mojo.
+- Die historische ungewöhnliche Sortier-/Traversalreihenfolge bleibt erhalten. Der Generator bildet auch den alten Bool-als-Comparator-Effekt bewusst ab.
+- Deutsch und der internationale Katalog enthalten jeweils 151 Renderdatensätze und 84 Blätter. Englisch, Vietnamesisch, Chinesisch und Koreanisch teilen in der vorhandenen Referenz für diese Begriffe denselben internationalen Katalog.
+- Vier Ausgaben (`normal`/`blank`, Deutsch/Englisch) werden vollständig per `cmp` gegen Python geprüft.
+- `generate_html` ist nun ein Mojo-Einstiegspunkt. Die Berechnung des großen Tabellenmittelteils bleibt vorläufig in `reta.py`; die Dateikomposition und der Grundstrukturenabschnitt sind portiert.
+- `middle.alx` bleibt als historischer Seiteneffekt erhalten. `head1.alx`, `religionen.js`, `head2.alx` und `footer.alx` liegen als bytegeprüfte Laufzeitassets unter `assets/html/`, nicht mehr nur im Python-Referenzbaum.
+- `RETA_GENERATE_HTML_MIDDLE_FILE` ist ausschließlich eine Integrationstest-Naht für einen kleinen, deterministischen Mittelteilsnapshot. `RETA_GENERATE_HTML_ROWS` begrenzt in Integrationstests den echten Tabellenlauf, ohne die normale historische CLI zu verändern.
+
+## Stufe 5: kompilierte Artefakte, Tabellenlaufzeit und `multis3`
+
+### Buildgrenze
+
+Die früheren Archive vermischten in der Dokumentation Launcher und Compilerprodukte. Diese Unterscheidung ist jetzt technisch erzwungen:
+
+- `bin/` enthält ausschließlich versionierbare POSIX-Shell-Launcher.
+- `target/bin/` enthält die mit `mojo build` erzeugten ELF-Executables.
+- `target/`, `build/` und `.venv/` sind in `.gitignore`.
+- `setup_mojo.sh` kompiliert nach der Installation automatisch; `RETA_SKIP_BUILD=1` unterdrückt dies.
+- `check_build_layout.sh` lehnt ELF-Dateien in `bin/` ab und prüft alle erwarteten Compilerprodukte.
+
+Die kompilierten Dateien werden nicht in das Quellarchiv aufgenommen. In der verwendeten pip/uv-Distribution referenzieren sie lokale Mojo-Runtimebibliotheken der jeweiligen `.venv`; ein fremd gebautes ELF wäre daher kein ehrliches portables Release.
+
+### Tabellen-Tag-Schema
+
+`tag_schema.mojo` und der generierte Katalog übertragen die sieben Tagarten sowie Primär-, Kombi- und Kombi2-Zuordnungen. Die Rückabbildung wird direkt aus der Python-Referenz erzeugt, damit auch deren Last-write-Semantik bei mehrfachen Spalteneinträgen erhalten bleibt. Vollständige Fingerprints prüfen Vorwärts- und Rückrichtung.
+
+### Tabellenzustand und Wrapping
+
+`table_state.mojo` ersetzt den dynamischen Zustandscontainer durch besitzende Strukturen. `table_wrapping.mojo` verwendet Codepoint-Slices und trennt dadurch Unicode-Zeichen nicht mitten in einer UTF-8-Sequenz. Wörterbuchbasierte Trennung durch externe Python-Pakete bleibt eine bewusst benannte Grenze.
+
+### Ausgabe- und Konsolenlogik
+
+Die reine Anwendung der sieben Ausgabemodi ist vollständig nativ. Auch deterministische Hilfen aus `console_io.py`, `runtime_compat.py`, `bbcode.py` und `html2text.py` sind übertragen. Terminalerkennung, Rich-Rendering und Prozess-I/O bleiben Systemgrenzen.
+
+### `multis3`
+
+Die Dreifach-Faktorisierung aus `multis3.py` ist nativ. Die Referenz lieferte ein Set und druckte dessen nicht zugesicherte Iterationsreihenfolge. Der Mojo-Port bewahrt die Menge, sortiert die Tripel intern und die Ergebnisliste lexikographisch. Ein generierter Referenzfingerprint prüft sämtliche Eingaben 2 bis 256.

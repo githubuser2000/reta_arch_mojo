@@ -235,3 +235,63 @@ def run_python_prompt_line(line: str) -> int:
 def run_math_prompt_line(line: str) -> int:
     _command, _space, payload = str(line).partition(" ")
     return run_math_expression(payload)
+
+# --- HTML generator operating-system boundary -----------------------------
+# The hierarchy renderer and orchestration live in Mojo.  These helpers only
+# provide subprocess execution and byte-preserving file streaming while the
+# large reta table pipeline is still behind the compatibility boundary.
+
+
+def generate_html_document(native_hierarchy_html: str, language: str = "") -> int:
+    """Generate ``middle.alx`` and stream the complete historical HTML page.
+
+    ``RETA_GENERATE_HTML_MIDDLE_FILE`` is an integration-test seam: when set,
+    its bytes are copied to ``middle.alx`` instead of invoking the full table
+    pipeline.  Normal users never need this variable.
+    """
+    import shutil
+    import subprocess
+
+    project_root = REFERENCE_ROOT.parent
+    middle_path = project_root / "middle.alx"
+    override = os.environ.get("RETA_GENERATE_HTML_MIDDLE_FILE", "")
+    if override:
+        shutil.copyfile(Path(override), middle_path)
+    else:
+        command = [
+            sys.executable,
+            str(REFERENCE_ROOT / "reta.py"),
+            "-spalten",
+            "--alles",
+            "--breite=0",
+            "-ausgabe",
+            "--art=html",
+            "--onetable",
+            "--nocolor",
+        ]
+        if language:
+            command.append(f"-language={language}")
+        row_limit = os.environ.get("RETA_GENERATE_HTML_ROWS", "").strip()
+        if row_limit:
+            command.extend(["-zeilen", f"--vorhervonausschnitt={row_limit}"])
+        with middle_path.open("wb") as middle_file:
+            completed = subprocess.run(
+                command,
+                cwd=REFERENCE_ROOT,
+                stdout=middle_file,
+                check=False,
+            )
+        if completed.returncode != 0:
+            raise RuntimeError(
+                f"reta HTML generation failed with exit code {completed.returncode}"
+            )
+
+    output = sys.stdout.buffer
+    assets_root = project_root / "assets" / "html"
+    for name in ("head1.alx", "religionen.js", "head2.alx"):
+        output.write((assets_root / name).read_bytes())
+    output.write(middle_path.read_bytes())
+    output.write(str(native_hierarchy_html).encode("utf-8"))
+    output.write((assets_root / "footer.alx").read_bytes())
+    output.flush()
+    return 0

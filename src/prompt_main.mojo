@@ -21,6 +21,7 @@ from reta_mojo.prompt_runtime import (
     KIND_CLEAR,
     KIND_PRIME,
     KIND_MULTIS,
+    KIND_MULTIS3,
     KIND_MODULO,
     KIND_ABC,
     KIND_SHELL,
@@ -41,6 +42,7 @@ from reta_mojo.prompt_runtime import (
     join_prompt_tokens,
     prime_lines,
     multis_lines,
+    multis3_lines,
     modulo_lines,
     abc_line,
     NativePromptSession,
@@ -80,6 +82,7 @@ def _print_prompt_help() -> None:
     print("  loggen / nichtloggen          History umschalten")
     print("  prim ZAHLENBEREICH            Primfaktorzerlegung")
     print("  multis ZAHLENBEREICH          Faktorpaare")
+    print("  multis3 ZAHLENBEREICH         Dreifach-Faktorisierungen")
     print("  modulo ZAHLENBEREICH          Modulo-Tabelle")
     print("  abc WORT                       Buchstabenwerte")
     print("  reta ...                       vollständige reta-CLI")
@@ -218,6 +221,9 @@ def _run_command(
         return True
     if command.kind == KIND_MULTIS:
         _print_lines(multis_lines(command))
+        return True
+    if command.kind == KIND_MULTIS3:
+        _print_lines(multis3_lines(command))
         return True
     if command.kind == KIND_MODULO:
         _print_lines(modulo_lines(command))

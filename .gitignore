@@ -1,4 +1,19 @@
+# Local Mojo/Python environments
 .venv/
+.pixi/
+
+# Compiled Mojo executables and other build products
+target/
 build/
+
+# Python caches
 __pycache__/
-*.pyc
+*.py[cod]
+.pytest_cache/
+
+# Runtime-generated table artifact
+/middle.alx
+
+# Compiler/profiler leftovers
+*.profraw
+*.profdata

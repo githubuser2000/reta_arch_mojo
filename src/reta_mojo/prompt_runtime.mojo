@@ -8,7 +8,7 @@ policy, and the native arithmetic commands are owned by Mojo.
 from std.collections import List
 from std.collections.string import atol, ord
 from .number_theory import prime_factors
-from .arithmetic import factor_pairs, modulo_table_lines, prime_repeat_labels, has_digit
+from .arithmetic import factor_pairs, factor_triples, modulo_table_lines, prime_repeat_labels, has_digit
 from .row_ranges import range_to_numbers
 
 
@@ -34,6 +34,7 @@ comptime KIND_STORE_PREVIOUS = 18
 comptime KIND_OUTPUT_STORED = 19
 comptime KIND_DELETE_STORED = 20
 comptime KIND_FALLBACK = 21
+comptime KIND_MULTIS3 = 22
 
 
 @fieldwise_init
@@ -194,6 +195,8 @@ def classify_prompt_command(raw: String) -> PromptCommand:
         return PromptCommand(KIND_PRIME24, text^, words^)
     if first == "multis":
         return PromptCommand(KIND_MULTIS, text^, words^)
+    if first == "multis3":
+        return PromptCommand(KIND_MULTIS3, text^, words^)
     if first == "modulo":
         return PromptCommand(KIND_MODULO, text^, words^)
     if first == "abc" or first == "abcd":
@@ -289,6 +292,30 @@ def multis_lines(command: PromptCommand) raises -> List[String]:
             if pair_index > 0:
                 line += ", "
             line += "(" + String(pairs[pair_index].first) + ", " + String(pairs[pair_index].second) + ")"
+        line += "]"
+        lines.append(line^)
+    return lines^
+
+
+def multis3_lines(command: PromptCommand) raises -> List[String]:
+    var lines = List[String]()
+    var numbers = command_numbers(command)
+    for number_index in range(len(numbers)):
+        var number = numbers[number_index]
+        var triples = factor_triples(number)
+        var line = String(number) + ": ["
+        for triple_index in range(len(triples)):
+            if triple_index > 0:
+                line += ", "
+            line += (
+                "("
+                + String(triples[triple_index].first)
+                + ", "
+                + String(triples[triple_index].second)
+                + ", "
+                + String(triples[triple_index].third)
+                + ")"
+            )
         line += "]"
         lines.append(line^)
     return lines^

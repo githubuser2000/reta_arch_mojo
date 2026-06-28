@@ -2,7 +2,7 @@
 
 from std.collections import Dict, List, Set
 from std.collections.string import atol, ord
-from .types import IntPair
+from .types import IntPair, IntTriple
 from .number_theory import prime_factors as number_theory_prime_factors
 from .row_ranges import range_to_numbers
 
@@ -18,6 +18,79 @@ def factor_pairs(value: Int, include_one: Bool = True) -> List[IntPair]:
     if include_one:
         pairs.append(IntPair(value, 1))
     return pairs^
+
+
+def _sorted_triple(a: Int, b: Int, c: Int) -> IntTriple:
+    var first = a
+    var second = b
+    var third = c
+    if first > second:
+        var temp = first
+        first = second
+        second = temp
+    if second > third:
+        var temp = second
+        second = third
+        third = temp
+    if first > second:
+        var temp = first
+        first = second
+        second = temp
+    return IntTriple(first, second, third)
+
+
+def _contains_triple(values: List[IntTriple], candidate: IntTriple) -> Bool:
+    for index in range(len(values)):
+        if values[index] == candidate:
+            return True
+    return False
+
+
+def _triple_less(left: IntTriple, right: IntTriple) -> Bool:
+    if left.first != right.first:
+        return left.first < right.first
+    if left.second != right.second:
+        return left.second < right.second
+    return left.third < right.third
+
+
+def factor_triples(value: Int) -> List[IntTriple]:
+    """Return non-trivial three-factor decompositions deterministically.
+
+    This is the native semantic equivalent of ``multis3.mult3``.  The Python
+    implementation returned a set and therefore exposed implementation-defined
+    display ordering; Mojo returns the same mathematical set in lexicographic
+    order.
+    """
+    var triples = List[IntTriple]()
+    var outer_pairs = factor_pairs(value)
+    for outer_index in range(len(outer_pairs)):
+        var larger = outer_pairs[outer_index].first
+        var smaller = outer_pairs[outer_index].second
+        if larger < smaller:
+            var temp = larger
+            larger = smaller
+            smaller = temp
+        var inner_pairs = factor_pairs(larger)
+        for inner_index in range(len(inner_pairs)):
+            var candidate = _sorted_triple(
+                smaller,
+                inner_pairs[inner_index].first,
+                inner_pairs[inner_index].second,
+            )
+            if candidate.first == 1:
+                continue
+            if not _contains_triple(triples, candidate):
+                triples.append(candidate.copy())
+
+    for index in range(1, len(triples)):
+        var key = triples[index].copy()
+        var previous = index - 1
+        while previous >= 0 and _triple_less(key, triples[previous]):
+            triples[previous + 1] = triples[previous].copy()
+            previous -= 1
+        triples[previous + 1] = key.copy()
+    return triples^
 
 
 def prime_factors(value: Int, modulo: Bool = False) -> List[Int]:
