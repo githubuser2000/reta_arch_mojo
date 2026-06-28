@@ -20,32 +20,68 @@ Ausgeführt mit Mojo 1.0.0b2:
 | `test_output_modes.mojo` | 4 | bestanden |
 | `test_parameter_semantics.mojo` | 3 | bestanden |
 | `test_presheaves.mojo` | 2 | bestanden |
+| `test_prompt_runtime.mojo` | 17 | bestanden |
 | `test_row_ranges.mojo` | 7 | bestanden |
 | `test_schema_catalog_parity.mojo` | 2 | bestanden |
 | `test_topology.mojo` | 5 | bestanden |
 | `test_universal.mojo` | 2 | bestanden |
-| **Gesamt** | **59** | **59 bestanden, 0 fehlgeschlagen, 0 übersprungen** |
+| **Gesamt** | **76** | **76 bestanden, 0 fehlgeschlagen, 0 übersprungen** |
 
-Die generierten Paritätstests enthalten intern hunderte Einzelvergleiche gegen aus Python erzeugte Erwartungswerte. Der Schemaabgleich umfasst alle 86 Hauptaliase, 1.355 Unterparameter-Aliase, 428 kanonischen Paare und 838 direkten Spaltenverknüpfungen. Die Eingabetests prüfen zusätzlich Abschnittszustand, Klammer-Kommas, Polarität, reale Aliasauflösung und das native Prompt-Vokabular.
-
-## Neuer vollständig nativer CLI-Pfad
+## Prompt-Binärintegration
 
 ```bash
-./bin/reta-mojo --mojo-parse-cli \
-  -spalten '--religionen=sternpolygon,-gleichfoermigespolygon' \
-  -zeilen '--vorhervonausschnitt=1-9,-3'
+./scripts/test_prompt_bins.sh
 ```
 
-Relevantes Ergebnis:
+Geprüft werden:
+
+- `rpb prim 60`
+- `prim24 29`
+- `multis 12`
+- 24 Zeilen von `modulo 5`
+- ein per Pipe bedientes interaktives `rp`
+- direkte Weitergabe von `rpb reta ...`
+- bytegleiche Ausgabe von Python-Referenz und Mojo-Promptfallback für `a 2`
+- Speichern und Ausführen eines Promptbefehls
+
+Ergebnis:
 
 ```text
-Auswahl: Religionen / Sternpolygon negativ=False
-  Spalten: [0, 6, 36]
-Auswahl: Religionen / gleichförmiges_Polygon negativ=True
-  Spalten: [16, 37]
-Positive Spalten: [0, 6, 36]
-Negative Spalten: [16, 37]
+Prompt-Binärtests bestanden.
 ```
+
+## Prompt-Parität und neue native Semantik
+
+Die 17 Prompttests prüfen:
+
+- historische Standardprofile von `retaPrompt`, `rp`, `rpl`, `rpb`, `rpe`
+- Startparameter und Diagnosen
+- Befehlsklassifikation
+- native Ergebnisse von `prim`, `prim24`, `multis`, `modulo`, `abc`
+- die beiden `rpe`-Umschreibungsformen
+- 388 generierte Completion-Wörter
+- Speichern, Nummerieren und Löschen von Prompttokens
+
+## Reproduzierbarer Completion-Katalog
+
+```bash
+./scripts/check_prompt_catalog.sh
+```
+
+Der Generator wurde erneut ausgeführt und erzeugte bytegleich denselben Katalog mit 388 Wörtern.
+
+## Generierte Gesamtparität
+
+Die übrigen Tests enthalten hunderte Einzelvergleiche gegen aus Python erzeugte Erwartungswerte, darunter:
+
+- 86 Hauptparameter-Aliase
+- 1.355 Unterparameter-Aliase
+- 428 kanonische Paare mit 838 direkten Spaltenverknüpfungen
+- 257 Prime-Creativity-Werte
+- 86 Primfaktorzerlegungen
+- 44 Teilermengen
+- 288 Primzahlkreuz-Prädikate
+- 10 nichttriviale Bereichsausdrücke
 
 ## Kompatibilitäts-Launcher
 
@@ -53,40 +89,13 @@ Negative Spalten: [16, 37]
 ./scripts/check_compat_parity.sh
 ```
 
-Für den geprüften realen Tabellenaufruf waren direkte Python-Ausgabe und Ausgabe über den Mojo-Kompatibilitäts-Launcher bytegleich. Beide Dateien hatten 2.003 Bytes und denselben SHA-256-Wert:
-
-```text
-8b3a3ebd821ad9399b4978b2c7f6c5e3500ed0762055b51da7e38839bab2826a
-```
+Für den geprüften realen Tabellenaufruf sind direkte Python-Ausgabe und Ausgabe über den Mojo-Kompatibilitätslauncher bytegleich.
 
 ## Unveränderte Python-Baseline
-
-```bash
-cd python_reference
-python -m unittest discover -s tests
-```
-
-Aktuell erneut ausgeführt:
 
 ```text
 Ran 70 tests
 FAILED (failures=3, skipped=1)
 ```
 
-Die drei Fehler sind bereits in der Python-Referenz vorhanden:
-
-1. Zweimal wird eine erste `dataDict`-Größe von 554 erwartet, tatsächlich sind es 556.
-2. Ein Test erwartet den älteren Orchestrierungsschritt `load_/religion_table`, der Snapshot enthält `load_religion_table`.
-
-Diese Erwartungen wurden nicht verändert, um die Referenz als Referenz zu erhalten.
-
-## Installation und Build
-
-- Offizieller Modular-Compiler projektlokal geprüft: `Mojo 1.0.0b2`
-- `scripts/setup_mojo.sh` bevorzugt Python 3.14 und akzeptiert 3.10–3.14
-- 59/59 native Tests bestanden
-- native CLI, Schema-CLI und Kompatibilitätslauncher erfolgreich gebaut
-- nativer Primzahl-, Schema-, Vokabular- und CLI-Normalisierungsaufruf ausgeführt
-- falsches gleichnamiges `mojo` im `PATH` wird mit verständlicher Diagnose zurückgewiesen
-
-Die Ausführungsumgebung dieser Erstellung enthielt Python 3.13.5. Ein zusätzlicher Download von Python 3.14 für einen isolierten Installationslauf war wegen fehlender DNS-Auflösung nicht möglich; die Versionsprüfung und Auswahl im Setup-Skript sind dennoch explizit auf 3.14 ausgelegt.
+Die drei Fehler waren bereits im Upload vorhanden: zweimal wird eine ältere `dataDict`-Größe erwartet, einmal ein älterer Orchestrierungsname. Die Referenz wurde nicht angepasst, um rote Python-Erwartungen künstlich grün zu machen.

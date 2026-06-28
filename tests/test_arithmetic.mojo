@@ -45,7 +45,7 @@ def test_divisor_range() raises:
 def test_modulo_lines() raises:
     var lines = modulo_table_lines([5])
     assert_equal(len(lines), 24)
-    assert_equal(lines[0], "5 % 2 = 1, 1")
+    assert_equal(lines[0], "5 % 2 = 1 Gegenteil, 1 Gegenteil")
 
 
 def test_invert_dict() raises:

@@ -1,0 +1,13 @@
+#!/usr/bin/env sh
+set -eu
+SELF=$0
+if command -v readlink >/dev/null 2>&1; then
+    SELF=$(readlink -f "$0" 2>/dev/null || printf '%s' "$0")
+fi
+ROOT=$(CDPATH= cd -- "$(dirname -- "$SELF")/.." && pwd)
+PROFILE=${RETA_PROMPT_PROFILE:-$(basename -- "$0")}
+cd "$ROOT"
+if [ -x "$ROOT/build/reta-prompt-native" ]; then
+    exec "$ROOT/build/reta-prompt-native" "$PROFILE" "$@"
+fi
+exec "$ROOT/bin/mojo-real" run -I "$ROOT/src" "$ROOT/src/prompt_main.mojo" "$PROFILE" "$@"

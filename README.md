@@ -1,70 +1,89 @@
 # reta.arch → Mojo
 
-Dies ist ein **arbeitsfähiger inkrementeller Port** des hochgeladenen Python-Projekts `reta.arch` auf Mojo 1.0.0b2.
+Dies ist ein **arbeitsfähiger inkrementeller Port** des hochgeladenen Python-Projekts `reta.arch` auf Mojo 1.0.0b2. Das Original umfasst ungefähr 49.000 Python-Zeilen und nutzt stark dynamische Python-Semantik. Der Port überträgt deshalb zusammenhängende Laufzeitpfade typisiert und testbar, statt Python-Syntax mechanisch umzuschreiben.
 
-Er ist absichtlich kein vorgetäuschter 1:1-Syntaxdump. Das Original umfasst ungefähr 49.000 Python-Zeilen und nutzt an vielen Stellen dynamische Python-Semantik (`getattr`, untypisierte Rückgaben, `*args`, `**kwargs`, Laufzeitimporte und frei geformte Dictionaries). Eine mechanische Umschrift würde zwar nach Mojo aussehen, aber weder zuverlässig kompilieren noch die Semantik erhalten.
+## Architektur des Übergangs
 
-Deshalb besteht das Ergebnis aus zwei klar getrennten Schichten:
+1. **Nativer Mojo-Kern** für bereits portierte Algorithmen, Parametersemantik und Promptsteuerung.
+2. **Explizite Betriebssystem-/Kompatibilitätsgrenze** für noch nicht portierte Tabellenpfade, Terminaldienste und historische Kurzbefehle.
+3. **Unveränderte Python-Referenz** zur Paritätsprüfung und als vorübergehender Fallback.
 
-1. **Nativer Mojo-Kern** für bereits sauber übertragene Algorithmen und Architekturbegriffe.
-2. **Kompatibilitäts-Launcher** für die vollständige historische CLI, solange deren übrige Subsysteme noch Python sind.
+Der native Quellbaum umfasst **5.327 Mojo-Zeilen**, davon **4.769 Zeilen im Paket `reta_mojo`**.
 
-## Was nativ portiert ist
+## Neu: historische Startprogramme
+
+Die wichtigsten alten Startnamen fehlen nicht mehr:
+
+```bash
+./reta
+./retaPrompt
+./retaPrompt.english
+./rp
+./rpl
+./rpb prim 60
+./rpe reta -h
+./prim 60
+./prim24 29
+./multis 12
+./modulo 5
+./math '2**20'
+```
+
+Dieselben Namen existieren zusätzlich unter `bin/` und `run/`. Die Aliasnamen `reta.sh`, `rp.sh` und `rpl.sh` sind ebenfalls vorhanden. Einzelheiten stehen in [`BINARIES.md`](BINARIES.md).
+
+## Nativer Mojo-Prompt
+
+`retaPrompt`, `rp`, `rpl`, `rpb` und `rpe` verwenden jetzt einen gemeinsamen Mojo-Controller in:
+
+- `src/prompt_main.mojo`
+- `src/reta_mojo/prompt_runtime.mojo`
+- `src/reta_mojo/prompt_catalog.mojo`
+
+Nativ sind Profile, Startargumente, Schleife, Sitzung, Dispatch, Loggingzustand, Befehlsspeicher, Completion-Katalog und die Befehle `prim`, `prim24`, `multis`, `modulo` und `abc`. Der Katalog enthält 388 aus der Referenz erzeugte Promptwörter.
+
+Beispiele:
+
+```bash
+./rp
+./retaPrompt -befehl multis 12
+./rpb prim '1-20'
+printf 'prim 29\nq\n' | ./rp
+```
+
+Noch nicht portierte komplexe Kurzbefehle werden pro Befehl in einem isolierten Python-Prozess ausgeführt. Der Promptprozess selbst, sein Zustand und die weitere Sitzung bleiben Mojo. GNU-readline, Historydatei und Kindprozesserzeugung bilden eine ausdrücklich markierte Betriebssystemgrenze.
+
+## Weitere native Bereiche
 
 | Bereich | Mojo-Modul | Stand |
 |---|---|---|
-| Zahlentheorie | `src/reta_mojo/number_theory.mojo` | Primfaktoren, Teiler, Wiederholungen, Prime Creativity, Primzahlkreuz, Mondzahlen |
-| Zeilenbereiche | `src/reta_mojo/row_ranges.mojo` | Parser und Expansion einschließlich Ausschlüssen, Mengen, Vielfachen und Offsets |
-| Arithmetik | `src/reta_mojo/arithmetic.mojo` | Faktorpaare, Primfaktoren, Modulozeilen, Teilerbereiche, Dictionary-Invertierung |
-| Kategorientheorie | `src/reta_mojo/category_theory.mojo` | 26 Kategorien, 77 Funktoren, 42 natürliche Transformationen, 8 Paradigmenbegriffe |
-| Topologie | `src/reta_mojo/topology.mojo` | typisierte Kontextdimensionen, Aliasauflösung, offene Auswahlen, Verfeinerung |
-| Ausgabe-Modi | `src/reta_mojo/output_modes.mojo` | Modussemantik, Renderer-Konstanten, HTML-/BBCode-Zeilenfarben |
-| Prägarben | `src/reta_mojo/presheaves.mojo` | typisierte Lokalsektionen und Restriktion |
-| Universelle Konstruktion | `src/reta_mojo/universal.mojo` | Normalisierung positiver/negativer Spalten-Buckets |
-| Kontextschema | `src/reta_mojo/schema.mojo`, `schema_catalog.mojo` | 33 Hauptgruppen, 431 Parametereinträge, Kontext-Mappings und 7 Tags |
-| Parametersemantik | `src/reta_mojo/parameter_semantics.mojo` | 86 Hauptaliase, 1.355 Unterparameter-Aliase, 428 kanonische Paare und direkte Spalten |
-| Spaltenauswahl | `src/reta_mojo/column_selection.mojo` | 24 typisierte positive/negative Bucket-Koordinaten |
-| Morphismen | `src/reta_mojo/morphisms.mojo` | Alias-, Bereichs-, Prompt-Aufteilungs- und Renderer-Modus-Morphismen |
-| Eingabesemantik | `src/reta_mojo/input_semantics.mojo` | besitzende CLI-Tokens, Abschnittskontext, Top-Level-Kommas, positive/negative Werte, kanonische Spaltenauswahl und schemaabgeleitetes Prompt-Vokabular |
+| Zahlentheorie | `number_theory.mojo` | Primfaktoren, Teiler, Wiederholungen, Prime Creativity, Primzahlkreuz, Mondzahlen |
+| Zeilenbereiche | `row_ranges.mojo` | Parser und Expansion einschließlich Ausschlüssen, Mengen, Vielfachen und Offsets |
+| Arithmetik | `arithmetic.mojo` | Faktorpaare, Modulo-Tabelle, Teilerbereiche und Hilfsalgorithmen |
+| Kategorientheorie | `category_theory.mojo` | 26 Kategorien, 77 Funktoren, 42 natürliche Transformationen, 8 Paradigmenbegriffe |
+| Topologie | `topology.mojo` | typisierte Kontextdimensionen, Aliasauflösung, offene Auswahlen, Verfeinerung |
+| Ausgabe-Modi | `output_modes.mojo` | Modussemantik, Renderer-Konstanten, HTML-/BBCode-Zeilenfarben |
+| Prägarben | `presheaves.mojo` | typisierte Lokalsektionen und Restriktion |
+| Universelle Konstruktion | `universal.mojo` | Normalisierung positiver/negativer Spalten-Buckets |
+| Kontextschema | `schema.mojo`, `schema_catalog.mojo` | 33 Hauptgruppen, 431 Parametereinträge und Kontext-Mappings |
+| Parametersemantik | `parameter_semantics.mojo` | 86 Hauptaliase, 1.355 Unterparameter-Aliase, 428 kanonische Paare, 838 Spaltenverknüpfungen |
+| Eingabesemantik | `input_semantics.mojo` | besitzende CLI-Tokens, Abschnitte, Top-Level-Kommas, Polarität und kanonische Spaltenauswahl |
+| Prompt | `prompt_runtime.mojo`, `prompt_catalog.mojo` | Profile, Sitzung, Dispatch, Speicherzustand, native Kurzbefehle, 388 Completion-Wörter |
 
-Der native Quellbaum hat **4.118 Mojo-Zeilen**, davon 581 Zeilen generierter, aber vollständig typisierter realer Schemadaten.
-
-## Voraussetzungen
-
-- Linux, macOS oder Windows über WSL gemäß den Mojo-Systemvoraussetzungen
-- Mojo **1.0.0b2** zum Ausführen oder Bauen
-- Python **3.10 bis 3.14** nur für den Kompatibilitätsmodus
-
-Am einfachsten richtest du den offiziellen Compiler projektlokal ein:
+## Installation mit Python 3.14
 
 ```bash
 ./scripts/setup_mojo.sh
 ```
 
-Das Skript erzeugt `.venv`, bevorzugt ein vorhandenes **Python 3.14**, installiert exakt `mojo==1.0.0b2` mit `uv` und prüft anschließend `mojo --version`. Über `RETA_MOJO_PYTHON=/pfad/zu/python` kann die Python-Auswahl überschrieben werden. Die Wrapper finden `.venv/bin/mojo` automatisch; `source .venv/bin/activate` ist daher nicht nötig.
-
-Manuell entspricht das:
+Das Skript bevorzugt `python3.14`, akzeptiert Python 3.10 bis 3.14 und installiert `mojo==1.0.0b2` in `.venv`. Eine Aktivierung der Umgebung ist nicht nötig. Explizite Auswahl:
 
 ```bash
-uv venv --python 3.14 .venv
-uv pip install --python .venv/bin/python 'mojo==1.0.0b2' --prerelease allow
+RETA_MOJO_PYTHON="$(command -v python3.14)" ./scripts/setup_mojo.sh
 ```
 
-### Achtung: gleichnamiger Snap
+Der gleichnamige Snap `/snap/mojo/...` ist ein Canonical/Juju-Werkzeug und **nicht** der Modular-Mojo-Compiler. `bin/mojo-real` erkennt und verwirft ihn.
 
-Der Snap `mojo` aus dem Snap Store ist **nicht** die Programmiersprache von Modular, sondern ein Canonical/Juju-Deploymentwerkzeug. Typische Spuren des falschen Programms sind Pfade wie `/snap/mojo/.../site-packages/mojo/juju` und Fehler über ein fehlendes `juju`. Entferne ihn bei Bedarf mit:
-
-```bash
-sudo snap remove mojo
-```
-
-Die Projekt-Wrapper lehnen `/snap/mojo/...` ausdrücklich ab und bevorzugen immer den projektlokalen offiziellen Compiler.
-
-Für die komplette alte Prompt-Oberfläche können zusätzlich die Abhängigkeiten aus `python_reference/pyproject.toml` nötig sein. Die normalen Tabellenaufrufe funktionieren mit der gebündelten Referenz und den im Projekt enthaltenen Fallback-Modulen.
-
-## Benutzung
-
-### Native Mojo-Befehle
+## Native Fach-CLI
 
 ```bash
 ./bin/reta-mojo --mojo-prime 60
@@ -74,64 +93,55 @@ Für die komplette alte Prompt-Oberfläche können zusätzlich die Abhängigkeit
 ./bin/reta-mojo --mojo-columns religionen sternpolygon
 ./bin/reta-mojo --mojo-alias religion gleichfoermigespolygon
 ./bin/reta-mojo --mojo-vocabulary
-./bin/reta-mojo --mojo-parse-cli -spalten '--religionen=sternpolygon,-gleichfoermigespolygon'
-./bin/reta-mojo --mojo-output html 9
-./bin/reta-mojo --mojo-help
+./bin/reta-mojo --mojo-parse-cli \
+  -spalten '--religionen=sternpolygon,-gleichfoermigespolygon'
 ```
 
-### Vollständige historische CLI über die Migrationsgrenze
+## Historische Tabellen-CLI
 
 ```bash
-./bin/reta-mojo-compat \
+./reta \
   -zeilen --vorhervonausschnitt=1-3 \
   -spalten --religionen=sternpolygon --breite=40
 ```
 
-Der Kompatibilitäts-Launcher ist selbst Mojo. Er startet die gebündelte Python-Referenz als Kindprozess, damit deren globale Zustände, Laufzeitimporte und mögliche Worker-Prozesse nicht in den Mojo-Prozess hineinreichen.
+`reta` ist bereits ein Mojo-Launcher, startet für den noch nicht portierten Gesamtworkflow aber die gebündelte Python-Referenz als isolierten Kindprozess.
 
-## Bauen
+## Bauen und installieren
 
 ```bash
 ./scripts/build.sh
+./scripts/install_bins.sh
 ```
 
-Erzeugt lokal:
+Der Build erzeugt:
 
 - `build/reta-mojo-native`
 - `build/reta-mojo-schema`
 - `build/reta-mojo-compat-bin`
+- `build/reta-prompt-native`
 
-Der Architekturkatalog hat wegen seiner Größe einen eigenen Einstiegspunkt und wird nur bei `--mojo-architecture` geladen. Die Wrapper `bin/reta-mojo` und `bin/reta-mojo-compat` verwenden die lokalen Binärdateien, falls sie vorhanden sind; andernfalls starten sie den jeweiligen Mojo-Quelltext direkt. Dadurch enthält das Archiv keine an einen fremden absoluten Runtime-Pfad gebundenen Binärdateien.
+Das Quellarchiv enthält bewusst keine vorgebauten Binärdateien mit fremden Runtime-Pfaden.
 
 ## Tests
 
 ```bash
 ./scripts/test_all.sh
+./scripts/test_prompt_bins.sh
+./scripts/check_prompt_catalog.sh
 ./scripts/check_compat_parity.sh
 ```
 
-Die Tests decken die nativen Module direkt ab. Zusätzlich erzeugt `tools/generate_parity_tests.py` feste Erwartungsvektoren aus der Python-Referenz. Dadurch wird nicht nur geprüft, ob der Mojo-Code intern konsistent ist, sondern ob er bei legitimen Eingaben dasselbe Ergebnis wie Python liefert.
-
-Der Testlauf umfasst **59 native Testfälle in 14 Testdateien**. Die geprüften Referenzvektoren umfassen unter anderem:
-
-- 86 Hauptparameter-Aliase
-- 1.355 Unterparameter-Aliase
-- 428 kanonische Parameterpaare mit 838 direkten Spaltenverknüpfungen
-- 257 Prime-Creativity-Werte
-- 86 Primfaktorzerlegungen
-- 44 Teilermengen
-- 288 Primzahlkreuz-Prädikate
-- 10 nichttriviale Bereichsausdrücke
+Aktueller Stand: **76/76 native Tests in 15 Testdateien**. Die Prozessintegration prüft zusätzlich `rpb`, `prim24`, `multis`, `modulo`, ein per Pipe gesteuertes `rp`, Promptspeicher, direkte `reta`-Weitergabe und die bytegleiche Fallback-Ausgabe eines historischen Kurzbefehls.
 
 ## Wichtige Dateien
 
+- `BINARIES.md` – alle Laufzeit-Startnamen und ihre native Grenze
 - `PORTING_MATRIX.md` – Status jeder Python-Datei
-- `MIGRATION_NOTES.md` – bewusste semantische Entscheidungen und offene Grenzen
-- `tools/generate_category_theory.py` – erzeugt den typisierten Kategoriekatalog
-- `tools/generate_parity_tests.py` – erzeugt Python→Mojo-Paritätstests
-- `tools/generate_schema_catalog.py` – erzeugt den realen nativen Kontext-/Parametersnapshot und Vollbestands-Fingerprints
-- `python_reference/` – unveränderte hochgeladene Referenz plus minimaler Bridge-Adapter
+- `MIGRATION_NOTES.md` – bewusste semantische Entscheidungen
+- `TEST_RESULTS.md` – Test- und Integrationsnachweise
+- `python_reference/` – unveränderte Referenz plus schmaler Bridge-Adapter
 
 ## Ehrlicher Status
 
-Die vollständigen Tabellen-, dynamischen Prompt-Ausführungs-, CSV-, Generatorspalten- und Architekturvalidierungsnetze sind noch nicht nativ in Mojo. Das reale I18n-/Parameterschema, seine direkte Alias-/Spaltensemantik, die CLI-Normalisierung und das schemaabgeleitete Prompt-Vokabular sind dagegen bereits ohne Python zur Laufzeit verfügbar. Nur die noch nicht portierten Gesamtworkflows laufen über `reta-mojo-compat`. Der Port ist direkt ausführbar, testbar und so strukturiert, dass weitere Module ohne erneute Architekturentscheidung aus der Bridge herausgelöst werden können.
+Der Promptcontroller und seine öffentlichen Profile sind jetzt Mojo. Nicht vollständig nativ sind weiterhin die große Tabellenpipeline, CSV-/Generatorspalten, das Architekturvalidierungsnetz und die Übersetzung aller historischen Kurzbefehle. Auch Terminal-readline und Prozessstart liegen noch an der Python-Betriebssystembrücke. Diese Grenzen sind im Code sichtbar und werden nicht als vollständige Transpilierung ausgegeben.

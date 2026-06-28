@@ -1,7 +1,11 @@
 #!/usr/bin/env sh
 set -eu
 
-ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+SELF=$0
+if command -v readlink >/dev/null 2>&1; then
+    SELF=$(readlink -f "$0" 2>/dev/null || printf '%s' "$0")
+fi
+ROOT=$(CDPATH= cd -- "$(dirname -- "$SELF")/.." && pwd)
 
 fail() {
     cat >&2 <<'MSG'

@@ -85,8 +85,23 @@ def divisor_range(range_expression: String) raises -> Tuple[List[String], Set[In
     return (string_values^, divisor_values^)
 
 
+def modulo_classification(value: Int) -> String:
+    """Return the historical German relation label used by retaPrompt."""
+    if value == 0:
+        return "ja"
+    if value == 1:
+        return "Gegenteil"
+    if value == 2:
+        return "ähnlich"
+    if value == 3:
+        return "entferntes Gegenteil"
+    if value == 4:
+        return "entfernt ähnlich"
+    return "None"
+
+
 def modulo_table_lines(values: List[Int]) -> List[String]:
-    """Return the arithmetic portion of the historical modulo table."""
+    """Return the complete lines printed by the historical modulo command."""
     var lines = List[String]()
     for value_index in range(len(values)):
         var raw = values[value_index]
@@ -94,7 +109,17 @@ def modulo_table_lines(values: List[Int]) -> List[String]:
             var remainder = raw % divisor
             var complement = divisor - remainder
             lines.append(
-                String(raw) + " % " + String(divisor) + " = " + String(remainder) + ", " + String(complement)
+                String(raw)
+                + " % "
+                + String(divisor)
+                + " = "
+                + String(remainder)
+                + " "
+                + modulo_classification(remainder)
+                + ", "
+                + String(complement)
+                + " "
+                + modulo_classification(complement)
             )
     return lines^
 

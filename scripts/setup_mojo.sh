@@ -40,3 +40,8 @@ printf '\n%s\n' 'Jetzt ausführbar, ohne source/activate:'
 printf '%s\n' '  ./bin/reta-mojo --mojo-prime 60'
 printf '%s\n' "  ./bin/reta-mojo --mojo-range '1-9,-3' 100"
 printf '%s\n' '  ./bin/reta-mojo --mojo-columns religionen sternpolygon'
+printf '%s\n' '  ./rp'
+printf '%s\n' '  ./rpb prim 60'
+printf '%s\n' '  ./retaPrompt -befehl multis 12'
+printf '%s\n' 'Optional alle öffentlichen Startnamen verlinken:'
+printf '%s\n' '  ./scripts/install_bins.sh'

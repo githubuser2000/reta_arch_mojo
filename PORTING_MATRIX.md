@@ -6,7 +6,13 @@ Stand: 28. Juni 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der 
 - Ursprüngliche Python-Zeilen insgesamt: **48831**
 - Zusätzlicher Bridge-Adapter: **1 Python-Datei**
 - Quellzeilen der bereits angegriffenen Architekturmodule: **4231**
-- Native Mojo-Quellzeilen: siehe `src/` (inklusive generiertem Kategoriekatalog)
+- Native Mojo-Quellzeilen: **5.327**, davon **4.769** im Paket `reta_mojo`
+
+## Öffentliche Laufzeit-Startnamen
+
+Alle in `python_reference/readme-startFiles.md` beschriebenen Startprogramme sind wieder vorhanden: `reta`, `retaPrompt`, `rp`, `rpl`, `rpb` und `rpe`; außerdem `reta.english`, `retaPrompt.english`, `prim`, `prim24`, `multis`, `modulo` und `math`. Sie liegen im Projektwurzelverzeichnis, in `bin/` und als Kompatibilitätsalias in `run/`. Details: `BINARIES.md`.
+
+Die lokalen Entwicklerwerkzeuge `coden`, `csvs`, `rpmake` und die Release-/HTML-Skripte sind nicht als Mojo-Laufzeitbinaries klassifiziert, weil sie Git, Editoren, LibreOffice oder rechnergebundene Pfade steuern.
 
 | Python-Datei | Zeilen | Funktionen | Klassen | dynamische Aufrufe | Status | Mojo/Ziel | Anmerkung |
 |---|---:|---:|---:|---:|---|---|---|
@@ -29,11 +35,11 @@ Stand: 28. Juni 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der 
 | `libs/nestedAlx.py` | 24 | 0 | 0 | 0 | Python-Referenz/Bridge | `python_reference/libs/nestedAlx.py` | noch nicht nativ portiert |
 | `libs/tableHandling.py` | 68 | 0 | 0 | 0 | Python-Referenz/Bridge | `python_reference/libs/tableHandling.py` | noch nicht nativ portiert |
 | `libs/word_completerAlx.py` | 10 | 0 | 0 | 0 | Python-Referenz/Bridge | `python_reference/libs/word_completerAlx.py` | noch nicht nativ portiert |
-| `mojo_bridge.py` | 57 | 3 | 0 | 0 | Python-Referenz/Bridge | `python_reference/mojo_bridge.py` | noch nicht nativ portiert |
-| `multis.py` | 34 | 2 | 0 | 0 | Python-Referenz/Bridge | `python_reference/multis.py` | noch nicht nativ portiert |
+| `mojo_bridge.py` | 237 | 15 | 0 | 0 | explizite OS-/Kompatibilitätsgrenze | `python_reference/mojo_bridge.py` | readline, History, Prozessstart und noch nicht portierte Prompt-/reta-Aufrufe; kein Fachkern |
+| `multis.py` | 34 | 2 | 0 | 0 | Kern nativ | `src/reta_mojo/arithmetic.mojo`, `src/reta_mojo/prompt_runtime.mojo` | öffentliches `multis`-Binary und Faktorpaare nativ; Python-Datei bleibt Referenz |
 | `multis3.py` | 34 | 1 | 0 | 0 | Python-Referenz/Bridge | `python_reference/multis3.py` | noch nicht nativ portiert |
-| `reta.py` | 214 | 19 | 1 | 3 | Python-Referenz/Bridge | `python_reference/reta.py` | noch nicht nativ portiert |
-| `retaPrompt.py` | 130 | 10 | 0 | 3 | Python-Referenz/Bridge | `python_reference/retaPrompt.py` | noch nicht nativ portiert |
+| `reta.py` | 214 | 19 | 1 | 3 | Launcher Mojo, Gesamtworkflow Bridge | `src/compat_main.mojo`, `bin/reta` | öffentlicher Startname wiederhergestellt; Tabellenpipeline noch Python-Referenz |
+| `retaPrompt.py` | 130 | 10 | 0 | 3 | teilweise nativ | `src/prompt_main.mojo`, `src/reta_mojo/prompt_runtime.mojo` | Profile, Schleife, Sitzung, Dispatch und native Kurzbefehle in Mojo; komplexe Übersetzung pro Befehl als Fallback |
 | `reta_architecture/__init__.py` | 598 | 0 | 0 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/__init__.py` | noch nicht nativ portiert |
 | `reta_architecture/architecture_activation.py` | 600 | 20 | 9 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/architecture_activation.py` | noch nicht nativ portiert |
 | `reta_architecture/architecture_boundaries.py` | 343 | 20 | 8 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/architecture_boundaries.py` | noch nicht nativ portiert |
@@ -51,9 +57,9 @@ Stand: 28. Juni 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der 
 | `reta_architecture/category_theory.py` | 1441 | 53 | 8 | 0 | generiert nativ | `src/reta_mojo/category_theory.mojo` | 26 Kategorien, 77 Funktoren, 42 Transformationen |
 | `reta_architecture/column_selection.py` | 119 | 7 | 1 | 0 | teilweise nativ | `src/reta_mojo/column_selection.mojo` | 24 typisierte Bucket-Koordinaten und Bucket-Erzeugung; Legacy-Programmbindung noch Bridge |
 | `reta_architecture/combi_join.py` | 712 | 12 | 2 | 4 | Python-Referenz/Bridge | `python_reference/reta_architecture/combi_join.py` | noch nicht nativ portiert |
-| `reta_architecture/completion_nested.py` | 589 | 37 | 9 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/completion_nested.py` | noch nicht nativ portiert |
-| `reta_architecture/completion_runtime.py` | 192 | 8 | 2 | 1 | Python-Referenz/Bridge | `python_reference/reta_architecture/completion_runtime.py` | noch nicht nativ portiert |
-| `reta_architecture/completion_word.py` | 265 | 21 | 6 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/completion_word.py` | noch nicht nativ portiert |
+| `reta_architecture/completion_nested.py` | 589 | 37 | 9 | 0 | teilweise generiert nativ | `src/reta_mojo/prompt_catalog.mojo` | flacher öffentlicher Completion-Bestand mit 388 Wörtern nativ; verschachtelte Kontextlogik noch Python |
+| `reta_architecture/completion_runtime.py` | 192 | 8 | 2 | 1 | teilweise generiert nativ | `src/reta_mojo/prompt_catalog.mojo`, `scripts/generate_prompt_catalog.py` | Startwortkatalog zur Laufzeit ohne Python; dynamische Ergänzung noch Bridge |
+| `reta_architecture/completion_word.py` | 265 | 21 | 6 | 0 | teilweise nativ | `src/reta_mojo/prompt_catalog.mojo` | Completion-Wörter als besitzende Mojo-Strings; Python-Klassenmodell nicht vollständig übertragen |
 | `reta_architecture/concat_csv.py` | 305 | 18 | 2 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/concat_csv.py` | noch nicht nativ portiert |
 | `reta_architecture/console_io.py` | 349 | 41 | 6 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/console_io.py` | noch nicht nativ portiert |
 | `reta_architecture/execution_network.py` | 412 | 45 | 11 | 3 | Python-Referenz/Bridge | `python_reference/reta_architecture/execution_network.py` | noch nicht nativ portiert |
@@ -71,12 +77,12 @@ Stand: 28. Juni 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der 
 | `reta_architecture/persistence.py` | 485 | 27 | 3 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/persistence.py` | noch nicht nativ portiert |
 | `reta_architecture/presheaves.py` | 150 | 15 | 5 | 0 | teilweise nativ | `src/reta_mojo/presheaves.mojo` | typisierte String-Lokalsektionen und Restriktion |
 | `reta_architecture/program_workflow.py` | 379 | 12 | 1 | 4 | Python-Referenz/Bridge | `python_reference/reta_architecture/program_workflow.py` | noch nicht nativ portiert |
-| `reta_architecture/prompt_execution.py` | 2516 | 24 | 1 | 3 | Python-Referenz/Bridge | `python_reference/reta_architecture/prompt_execution.py` | noch nicht nativ portiert |
-| `reta_architecture/prompt_interaction.py` | 273 | 15 | 1 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/prompt_interaction.py` | noch nicht nativ portiert |
-| `reta_architecture/prompt_language.py` | 492 | 23 | 2 | 2 | Python-Referenz/Bridge | `python_reference/reta_architecture/prompt_language.py` | noch nicht nativ portiert |
-| `reta_architecture/prompt_preparation.py` | 462 | 14 | 1 | 4 | Python-Referenz/Bridge | `python_reference/reta_architecture/prompt_preparation.py` | noch nicht nativ portiert |
-| `reta_architecture/prompt_runtime.py` | 158 | 9 | 4 | 1 | Python-Referenz/Bridge | `python_reference/reta_architecture/prompt_runtime.py` | noch nicht nativ portiert |
-| `reta_architecture/prompt_session.py` | 543 | 37 | 8 | 1 | Python-Referenz/Bridge | `python_reference/reta_architecture/prompt_session.py` | noch nicht nativ portiert |
+| `reta_architecture/prompt_execution.py` | 2516 | 24 | 1 | 3 | teilweise nativ | `src/prompt_main.mojo`, `src/reta_mojo/prompt_runtime.mojo` | `prim`, `prim24`, `multis`, `modulo`, `abc`, direkte reta-/Shell-/Python-/Math-Grenzen; übrige Kurzbefehle Fallback |
+| `reta_architecture/prompt_interaction.py` | 273 | 15 | 1 | 0 | teilweise nativ | `src/prompt_main.mojo` | Prompt-Schleife, EOF/Interrupt, Speicher- und Löschmodus nativ; readline als OS-Bridge |
+| `reta_architecture/prompt_language.py` | 492 | 23 | 2 | 2 | teilweise nativ | `src/reta_mojo/prompt_runtime.mojo` | Befehlsklassifikation und Grundbefehle nativ; vollständige historische Kurzsyntax noch Bridge |
+| `reta_architecture/prompt_preparation.py` | 462 | 14 | 1 | 4 | teilweise nativ | `src/reta_mojo/prompt_runtime.mojo` | Profile, Startflags, One-shot- und rpe-Umschreibung nativ |
+| `reta_architecture/prompt_runtime.py` | 158 | 9 | 4 | 1 | teilweise nativ | `src/reta_mojo/prompt_runtime.mojo`, `src/prompt_main.mojo` | Controller und Zustandsmodell nativ; Prozessgrenzen explizit |
+| `reta_architecture/prompt_session.py` | 543 | 37 | 8 | 1 | teilweise nativ | `src/reta_mojo/prompt_runtime.mojo`, `src/prompt_main.mojo` | Loggingzustand, vorheriger Befehl und Befehlsspeicher nativ; Terminaleditor/Historydatei Bridge |
 | `reta_architecture/row_filtering.py` | 714 | 13 | 1 | 5 | Python-Referenz/Bridge | `python_reference/reta_architecture/row_filtering.py` | noch nicht nativ portiert |
 | `reta_architecture/row_ranges.py` | 329 | 26 | 1 | 1 | nativ | `src/reta_mojo/row_ranges.mojo` | legitime Bereichssyntax; eval bewusst entfernt |
 | `reta_architecture/runtime_compat.py` | 189 | 23 | 1 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/runtime_compat.py` | noch nicht nativ portiert |

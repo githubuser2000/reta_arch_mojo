@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+set -eu
+ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+DEST=${1:-"$HOME/.local/bin"}
+mkdir -p "$DEST"
+for name in reta reta.english retaPrompt retaPrompt.english rp rpl rpb rpe prim prim24 multis modulo math; do
+    ln -sf "$ROOT/bin/$name" "$DEST/$name"
+done
+printf 'Reta/Mojo-Startprogramme wurden nach %s verlinkt.\n' "$DEST"
+printf 'Falls nötig, ergänze PATH um: %s\n' "$DEST"
