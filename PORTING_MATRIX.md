@@ -1,0 +1,105 @@
+# Portierungsmatrix Python → Mojo
+
+Stand: 28. Juni 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der gebündelten Python-Kompatibilitätsreferenz.
+
+- Ursprüngliche Python-Dateien: **92**
+- Ursprüngliche Python-Zeilen insgesamt: **48831**
+- Zusätzlicher Bridge-Adapter: **1 Python-Datei**
+- Quellzeilen der bereits angegriffenen Architekturmodule: **3319**
+- Native Mojo-Quellzeilen: siehe `src/` (inklusive generiertem Kategoriekatalog)
+
+| Python-Datei | Zeilen | Funktionen | Klassen | dynamische Aufrufe | Status | Mojo/Ziel | Anmerkung |
+|---|---:|---:|---:|---:|---|---|---|
+| `bbcode.py` | 9 | 2 | 1 | 0 | Python-Referenz/Bridge | `python_reference/bbcode.py` | noch nicht nativ portiert |
+| `grundStrukHtml.py` | 232 | 5 | 0 | 0 | Python-Referenz/Bridge | `python_reference/grundStrukHtml.py` | noch nicht nativ portiert |
+| `html2text.py` | 9 | 2 | 1 | 0 | Python-Referenz/Bridge | `python_reference/html2text.py` | noch nicht nativ portiert |
+| `i18n/words.py` | 24 | 0 | 0 | 0 | Python-Referenz/Bridge | `python_reference/i18n/words.py` | noch nicht nativ portiert |
+| `i18n/words_bootstrap.py` | 49 | 2 | 0 | 0 | Python-Referenz/Bridge | `python_reference/i18n/words_bootstrap.py` | noch nicht nativ portiert |
+| `i18n/words_context.py` | 753 | 1 | 0 | 0 | Python-Referenz/Bridge | `python_reference/i18n/words_context.py` | noch nicht nativ portiert |
+| `i18n/words_legacy_monolith.py` | 5431 | 4 | 8 | 0 | Python-Referenz/Bridge | `python_reference/i18n/words_legacy_monolith.py` | noch nicht nativ portiert |
+| `i18n/words_matrix.py` | 4111 | 0 | 0 | 0 | Python-Referenz/Bridge | `python_reference/i18n/words_matrix.py` | noch nicht nativ portiert |
+| `i18n/words_runtime.py` | 548 | 1 | 8 | 0 | Python-Referenz/Bridge | `python_reference/i18n/words_runtime.py` | noch nicht nativ portiert |
+| `libs/LibRetaPrompt.py` | 80 | 0 | 0 | 0 | Python-Referenz/Bridge | `python_reference/libs/LibRetaPrompt.py` | noch nicht nativ portiert |
+| `libs/center.py` | 333 | 33 | 1 | 0 | Python-Referenz/Bridge | `python_reference/libs/center.py` | noch nicht nativ portiert |
+| `libs/generate4readme.py` | 382 | 0 | 0 | 0 | Python-Referenz/Bridge | `python_reference/libs/generate4readme.py` | noch nicht nativ portiert |
+| `libs/lib4tables.py` | 59 | 0 | 0 | 0 | Python-Referenz/Bridge | `python_reference/libs/lib4tables.py` | noch nicht nativ portiert |
+| `libs/lib4tables_Enum.py` | 37 | 0 | 0 | 0 | Python-Referenz/Bridge | `python_reference/libs/lib4tables_Enum.py` | noch nicht nativ portiert |
+| `libs/lib4tables_concat.py` | 252 | 35 | 1 | 0 | Python-Referenz/Bridge | `python_reference/libs/lib4tables_concat.py` | noch nicht nativ portiert |
+| `libs/lib4tables_prepare.py` | 313 | 26 | 1 | 0 | Python-Referenz/Bridge | `python_reference/libs/lib4tables_prepare.py` | noch nicht nativ portiert |
+| `libs/nestedAlx.py` | 24 | 0 | 0 | 0 | Python-Referenz/Bridge | `python_reference/libs/nestedAlx.py` | noch nicht nativ portiert |
+| `libs/tableHandling.py` | 68 | 0 | 0 | 0 | Python-Referenz/Bridge | `python_reference/libs/tableHandling.py` | noch nicht nativ portiert |
+| `libs/word_completerAlx.py` | 10 | 0 | 0 | 0 | Python-Referenz/Bridge | `python_reference/libs/word_completerAlx.py` | noch nicht nativ portiert |
+| `mojo_bridge.py` | 57 | 3 | 0 | 0 | Python-Referenz/Bridge | `python_reference/mojo_bridge.py` | noch nicht nativ portiert |
+| `multis.py` | 34 | 2 | 0 | 0 | Python-Referenz/Bridge | `python_reference/multis.py` | noch nicht nativ portiert |
+| `multis3.py` | 34 | 1 | 0 | 0 | Python-Referenz/Bridge | `python_reference/multis3.py` | noch nicht nativ portiert |
+| `reta.py` | 214 | 19 | 1 | 3 | Python-Referenz/Bridge | `python_reference/reta.py` | noch nicht nativ portiert |
+| `retaPrompt.py` | 130 | 10 | 0 | 3 | Python-Referenz/Bridge | `python_reference/retaPrompt.py` | noch nicht nativ portiert |
+| `reta_architecture/__init__.py` | 598 | 0 | 0 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/__init__.py` | noch nicht nativ portiert |
+| `reta_architecture/architecture_activation.py` | 600 | 20 | 9 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/architecture_activation.py` | noch nicht nativ portiert |
+| `reta_architecture/architecture_boundaries.py` | 343 | 20 | 8 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/architecture_boundaries.py` | noch nicht nativ portiert |
+| `reta_architecture/architecture_coherence.py` | 796 | 19 | 7 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/architecture_coherence.py` | noch nicht nativ portiert |
+| `reta_architecture/architecture_contracts.py` | 1190 | 43 | 7 | 6 | Python-Referenz/Bridge | `python_reference/reta_architecture/architecture_contracts.py` | noch nicht nativ portiert |
+| `reta_architecture/architecture_impact.py` | 525 | 24 | 8 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/architecture_impact.py` | noch nicht nativ portiert |
+| `reta_architecture/architecture_map.py` | 1568 | 71 | 7 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/architecture_map.py` | noch nicht nativ portiert |
+| `reta_architecture/architecture_migration.py` | 661 | 28 | 8 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/architecture_migration.py` | noch nicht nativ portiert |
+| `reta_architecture/architecture_progress.py` | 839 | 27 | 9 | 1 | Python-Referenz/Bridge | `python_reference/reta_architecture/architecture_progress.py` | noch nicht nativ portiert |
+| `reta_architecture/architecture_rehearsal.py` | 437 | 16 | 8 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/architecture_rehearsal.py` | noch nicht nativ portiert |
+| `reta_architecture/architecture_traces.py` | 352 | 17 | 7 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/architecture_traces.py` | noch nicht nativ portiert |
+| `reta_architecture/architecture_validation.py` | 1137 | 29 | 5 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/architecture_validation.py` | noch nicht nativ portiert |
+| `reta_architecture/architecture_witnesses.py` | 640 | 26 | 8 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/architecture_witnesses.py` | noch nicht nativ portiert |
+| `reta_architecture/arithmetic.py` | 273 | 19 | 1 | 0 | nativ | `src/reta_mojo/arithmetic.mojo` | arithmetischer Kern; Prozessparallelisierung noch nicht |
+| `reta_architecture/category_theory.py` | 1441 | 53 | 8 | 0 | generiert nativ | `src/reta_mojo/category_theory.mojo` | 26 Kategorien, 77 Funktoren, 42 Transformationen |
+| `reta_architecture/column_selection.py` | 119 | 7 | 1 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/column_selection.py` | noch nicht nativ portiert |
+| `reta_architecture/combi_join.py` | 712 | 12 | 2 | 4 | Python-Referenz/Bridge | `python_reference/reta_architecture/combi_join.py` | noch nicht nativ portiert |
+| `reta_architecture/completion_nested.py` | 589 | 37 | 9 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/completion_nested.py` | noch nicht nativ portiert |
+| `reta_architecture/completion_runtime.py` | 192 | 8 | 2 | 1 | Python-Referenz/Bridge | `python_reference/reta_architecture/completion_runtime.py` | noch nicht nativ portiert |
+| `reta_architecture/completion_word.py` | 265 | 21 | 6 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/completion_word.py` | noch nicht nativ portiert |
+| `reta_architecture/concat_csv.py` | 305 | 18 | 2 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/concat_csv.py` | noch nicht nativ portiert |
+| `reta_architecture/console_io.py` | 349 | 41 | 6 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/console_io.py` | noch nicht nativ portiert |
+| `reta_architecture/execution_network.py` | 412 | 45 | 11 | 3 | Python-Referenz/Bridge | `python_reference/reta_architecture/execution_network.py` | noch nicht nativ portiert |
+| `reta_architecture/facade.py` | 709 | 49 | 1 | 1 | Python-Referenz/Bridge | `python_reference/reta_architecture/facade.py` | noch nicht nativ portiert |
+| `reta_architecture/generated_columns.py` | 2010 | 38 | 3 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/generated_columns.py` | noch nicht nativ portiert |
+| `reta_architecture/input_semantics.py` | 249 | 15 | 4 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/input_semantics.py` | noch nicht nativ portiert |
+| `reta_architecture/meta_columns.py` | 977 | 24 | 2 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/meta_columns.py` | noch nicht nativ portiert |
+| `reta_architecture/morphisms.py` | 89 | 13 | 5 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/morphisms.py` | noch nicht nativ portiert |
+| `reta_architecture/number_theory.py` | 200 | 12 | 1 | 0 | nativ | `src/reta_mojo/number_theory.mojo` | Kernfunktionen vollständig typisiert |
+| `reta_architecture/output_semantics.py` | 155 | 13 | 3 | 8 | teilweise nativ | `src/reta_mojo/output_modes.mojo` | Modusauflösung und Flags |
+| `reta_architecture/output_syntax.py` | 409 | 13 | 8 | 3 | teilweise nativ | `src/reta_mojo/output_modes.mojo` | statische Syntax und Zeilenfarben |
+| `reta_architecture/package_integrity.py` | 232 | 9 | 1 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/package_integrity.py` | noch nicht nativ portiert |
+| `reta_architecture/parallel_execution.py` | 1076 | 53 | 6 | 10 | Python-Referenz/Bridge | `python_reference/reta_architecture/parallel_execution.py` | noch nicht nativ portiert |
+| `reta_architecture/parameter_runtime.py` | 894 | 11 | 1 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/parameter_runtime.py` | noch nicht nativ portiert |
+| `reta_architecture/persistence.py` | 485 | 27 | 3 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/persistence.py` | noch nicht nativ portiert |
+| `reta_architecture/presheaves.py` | 150 | 15 | 5 | 0 | teilweise nativ | `src/reta_mojo/presheaves.mojo` | typisierte String-Lokalsektionen und Restriktion |
+| `reta_architecture/program_workflow.py` | 379 | 12 | 1 | 4 | Python-Referenz/Bridge | `python_reference/reta_architecture/program_workflow.py` | noch nicht nativ portiert |
+| `reta_architecture/prompt_execution.py` | 2516 | 24 | 1 | 3 | Python-Referenz/Bridge | `python_reference/reta_architecture/prompt_execution.py` | noch nicht nativ portiert |
+| `reta_architecture/prompt_interaction.py` | 273 | 15 | 1 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/prompt_interaction.py` | noch nicht nativ portiert |
+| `reta_architecture/prompt_language.py` | 492 | 23 | 2 | 2 | Python-Referenz/Bridge | `python_reference/reta_architecture/prompt_language.py` | noch nicht nativ portiert |
+| `reta_architecture/prompt_preparation.py` | 462 | 14 | 1 | 4 | Python-Referenz/Bridge | `python_reference/reta_architecture/prompt_preparation.py` | noch nicht nativ portiert |
+| `reta_architecture/prompt_runtime.py` | 158 | 9 | 4 | 1 | Python-Referenz/Bridge | `python_reference/reta_architecture/prompt_runtime.py` | noch nicht nativ portiert |
+| `reta_architecture/prompt_session.py` | 543 | 37 | 8 | 1 | Python-Referenz/Bridge | `python_reference/reta_architecture/prompt_session.py` | noch nicht nativ portiert |
+| `reta_architecture/row_filtering.py` | 714 | 13 | 1 | 5 | Python-Referenz/Bridge | `python_reference/reta_architecture/row_filtering.py` | noch nicht nativ portiert |
+| `reta_architecture/row_ranges.py` | 329 | 26 | 1 | 1 | nativ | `src/reta_mojo/row_ranges.mojo` | legitime Bereichssyntax; eval bewusst entfernt |
+| `reta_architecture/runtime_compat.py` | 189 | 23 | 1 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/runtime_compat.py` | noch nicht nativ portiert |
+| `reta_architecture/schema.py` | 186 | 10 | 2 | 12 | Python-Referenz/Bridge | `python_reference/reta_architecture/schema.py` | noch nicht nativ portiert |
+| `reta_architecture/semantics_builder.py` | 267 | 6 | 2 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/semantics_builder.py` | noch nicht nativ portiert |
+| `reta_architecture/sheaves.py` | 269 | 22 | 5 | 4 | Python-Referenz/Bridge | `python_reference/reta_architecture/sheaves.py` | noch nicht nativ portiert |
+| `reta_architecture/split_i18n.py` | 33 | 1 | 0 | 3 | Python-Referenz/Bridge | `python_reference/reta_architecture/split_i18n.py` | noch nicht nativ portiert |
+| `reta_architecture/table_adapters.py` | 419 | 60 | 2 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/table_adapters.py` | noch nicht nativ portiert |
+| `reta_architecture/table_generation.py` | 298 | 8 | 2 | 2 | Python-Referenz/Bridge | `python_reference/reta_architecture/table_generation.py` | noch nicht nativ portiert |
+| `reta_architecture/table_output.py` | 769 | 24 | 3 | 2 | Python-Referenz/Bridge | `python_reference/reta_architecture/table_output.py` | noch nicht nativ portiert |
+| `reta_architecture/table_preparation.py` | 475 | 19 | 3 | 1 | Python-Referenz/Bridge | `python_reference/reta_architecture/table_preparation.py` | noch nicht nativ portiert |
+| `reta_architecture/table_runtime.py` | 310 | 42 | 4 | 2 | Python-Referenz/Bridge | `python_reference/reta_architecture/table_runtime.py` | noch nicht nativ portiert |
+| `reta_architecture/table_state.py` | 137 | 8 | 4 | 1 | Python-Referenz/Bridge | `python_reference/reta_architecture/table_state.py` | noch nicht nativ portiert |
+| `reta_architecture/table_wrapping.py` | 200 | 16 | 3 | 1 | Python-Referenz/Bridge | `python_reference/reta_architecture/table_wrapping.py` | noch nicht nativ portiert |
+| `reta_architecture/tag_schema.py` | 694 | 5 | 2 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/tag_schema.py` | noch nicht nativ portiert |
+| `reta_architecture/topology.py` | 230 | 15 | 3 | 1 | nativ | `src/reta_mojo/topology.mojo` | symbolische Auswahl, Verfeinerung, Aliasauflösung |
+| `reta_architecture/universal.py` | 132 | 8 | 1 | 0 | teilweise nativ | `src/reta_mojo/universal.mojo` | Normalisierung positiver/negativer Spalten-Buckets |
+| `reta_architecture_probe_py.py` | 440 | 4 | 0 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture_probe_py.py` | noch nicht nativ portiert |
+| `reta_domain_probe_py.py` | 408 | 17 | 0 | 0 | Python-Referenz/Bridge | `python_reference/reta_domain_probe_py.py` | noch nicht nativ portiert |
+| `reta_extract_html_classes.py` | 125 | 7 | 0 | 0 | Python-Referenz/Bridge | `python_reference/reta_extract_html_classes.py` | noch nicht nativ portiert |
+| `setup.py` | 113 | 8 | 5 | 0 | Python-Referenz/Bridge | `python_reference/setup.py` | noch nicht nativ portiert |
+| `tests/__init__.py` | 0 | 0 | 0 | 0 | Python-Referenz/Bridge | `python_reference/tests/__init__.py` | noch nicht nativ portiert |
+| `tests/test_architecture_refactor.py` | 1804 | 80 | 2 | 0 | Python-Referenz/Bridge | `python_reference/tests/test_architecture_refactor.py` | noch nicht nativ portiert |
+| `tests/test_command_parity.py` | 298 | 11 | 1 | 0 | Python-Referenz/Bridge | `python_reference/tests/test_command_parity.py` | noch nicht nativ portiert |
+| `tests/test_py_reta_truth_matrix.py` | 20 | 3 | 0 | 0 | Python-Referenz/Bridge | `python_reference/tests/test_py_reta_truth_matrix.py` | noch nicht nativ portiert |
+| `tests/test_py_reta_truth_output_invariants.py` | 35 | 4 | 0 | 0 | Python-Referenz/Bridge | `python_reference/tests/test_py_reta_truth_output_invariants.py` | noch nicht nativ portiert |

@@ -1,0 +1,13 @@
+#!/usr/bin/env sh
+set -eu
+ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+if [ "${1-}" = "--mojo-architecture" ]; then
+    if [ -x "$ROOT/build/reta-mojo-architecture" ]; then
+        exec "$ROOT/build/reta-mojo-architecture"
+    fi
+    exec "$ROOT/bin/mojo-real" run -I "$ROOT/src" "$ROOT/src/architecture_main.mojo"
+fi
+if [ -x "$ROOT/build/reta-mojo-native" ]; then
+    exec "$ROOT/build/reta-mojo-native" "$@"
+fi
+exec "$ROOT/bin/mojo-real" run -I "$ROOT/src" "$ROOT/src/main.mojo" "$@"

@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+set -eu
+ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+cd "$ROOT"
+if [ -x "$ROOT/build/reta-mojo-compat-bin" ]; then
+    exec "$ROOT/build/reta-mojo-compat-bin" "$@"
+fi
+exec "$ROOT/bin/mojo-real" run "$ROOT/src/compat_main.mojo" "$@"
