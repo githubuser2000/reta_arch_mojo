@@ -1,6 +1,12 @@
 #!/usr/bin/env sh
 set -eu
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+if [ "${1-}" = "--mojo-schema" ] || [ "${1-}" = "--mojo-columns" ] || [ "${1-}" = "--mojo-alias" ] || [ "${1-}" = "--mojo-parse-cli" ] || [ "${1-}" = "--mojo-vocabulary" ]; then
+    if [ -x "$ROOT/build/reta-mojo-schema" ]; then
+        exec "$ROOT/build/reta-mojo-schema" "$@"
+    fi
+    exec "$ROOT/bin/mojo-real" run -I "$ROOT/src" "$ROOT/src/schema_main.mojo" "$@"
+fi
 if [ "${1-}" = "--mojo-architecture" ]; then
     if [ -x "$ROOT/build/reta-mojo-architecture" ]; then
         exec "$ROOT/build/reta-mojo-architecture"

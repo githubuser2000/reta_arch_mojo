@@ -12,16 +12,40 @@ Ausgeführt mit Mojo 1.0.0b2:
 |---|---:|---|
 | `test_arithmetic.mojo` | 7 | bestanden |
 | `test_category_theory.mojo` | 3 | bestanden |
+| `test_column_selection.mojo` | 3 | bestanden |
 | `test_generated_parity.mojo` | 5 | bestanden |
+| `test_input_semantics.mojo` | 6 | bestanden |
+| `test_morphisms.mojo` | 4 | bestanden |
 | `test_number_theory.mojo` | 6 | bestanden |
 | `test_output_modes.mojo` | 4 | bestanden |
+| `test_parameter_semantics.mojo` | 3 | bestanden |
 | `test_presheaves.mojo` | 2 | bestanden |
 | `test_row_ranges.mojo` | 7 | bestanden |
+| `test_schema_catalog_parity.mojo` | 2 | bestanden |
 | `test_topology.mojo` | 5 | bestanden |
 | `test_universal.mojo` | 2 | bestanden |
-| **Gesamt** | **41** | **41 bestanden, 0 fehlgeschlagen, 0 übersprungen** |
+| **Gesamt** | **59** | **59 bestanden, 0 fehlgeschlagen, 0 übersprungen** |
 
-Die fünf generierten Paritätstests enthalten intern hunderte Einzelvergleiche gegen aus Python erzeugte Erwartungswerte.
+Die generierten Paritätstests enthalten intern hunderte Einzelvergleiche gegen aus Python erzeugte Erwartungswerte. Der Schemaabgleich umfasst alle 86 Hauptaliase, 1.355 Unterparameter-Aliase, 428 kanonischen Paare und 838 direkten Spaltenverknüpfungen. Die Eingabetests prüfen zusätzlich Abschnittszustand, Klammer-Kommas, Polarität, reale Aliasauflösung und das native Prompt-Vokabular.
+
+## Neuer vollständig nativer CLI-Pfad
+
+```bash
+./bin/reta-mojo --mojo-parse-cli \
+  -spalten '--religionen=sternpolygon,-gleichfoermigespolygon' \
+  -zeilen '--vorhervonausschnitt=1-9,-3'
+```
+
+Relevantes Ergebnis:
+
+```text
+Auswahl: Religionen / Sternpolygon negativ=False
+  Spalten: [0, 6, 36]
+Auswahl: Religionen / gleichförmiges_Polygon negativ=True
+  Spalten: [16, 37]
+Positive Spalten: [0, 6, 36]
+Negative Spalten: [16, 37]
+```
 
 ## Kompatibilitäts-Launcher
 
@@ -42,7 +66,7 @@ cd python_reference
 python -m unittest discover -s tests
 ```
 
-Ergebnis des hochgeladenen Bestands:
+Aktuell erneut ausgeführt:
 
 ```text
 Ran 70 tests
@@ -56,10 +80,13 @@ Die drei Fehler sind bereits in der Python-Referenz vorhanden:
 
 Diese Erwartungen wurden nicht verändert, um die Referenz als Referenz zu erhalten.
 
-## Nachprüfung des Installationsfixes
+## Installation und Build
 
-- Offizieller Modular-Compiler projektlokal mit `scripts/setup_mojo.sh` installiert: `Mojo 1.0.0b2 (2cf4d08a)`
-- 41/41 native Tests erneut bestanden
-- Native Beispielbefehle, Architekturkatalog und Kompatibilitätslauncher erneut ausgeführt
-- Build von `reta-mojo-native` und `reta-mojo-compat-bin` erfolgreich
-- Falsches gleichnamiges `mojo` im `PATH` wird mit verständlicher Diagnose zurückgewiesen
+- Offizieller Modular-Compiler projektlokal geprüft: `Mojo 1.0.0b2`
+- `scripts/setup_mojo.sh` bevorzugt Python 3.14 und akzeptiert 3.10–3.14
+- 59/59 native Tests bestanden
+- native CLI, Schema-CLI und Kompatibilitätslauncher erfolgreich gebaut
+- nativer Primzahl-, Schema-, Vokabular- und CLI-Normalisierungsaufruf ausgeführt
+- falsches gleichnamiges `mojo` im `PATH` wird mit verständlicher Diagnose zurückgewiesen
+
+Die Ausführungsumgebung dieser Erstellung enthielt Python 3.13.5. Ein zusätzlicher Download von Python 3.14 für einen isolierten Installationslauf war wegen fehlender DNS-Auflösung nicht möglich; die Versionsprüfung und Auswahl im Setup-Skript sind dennoch explizit auf 3.14 ausgelegt.

@@ -21,8 +21,13 @@ Deshalb besteht das Ergebnis aus zwei klar getrennten Schichten:
 | Ausgabe-Modi | `src/reta_mojo/output_modes.mojo` | Modussemantik, Renderer-Konstanten, HTML-/BBCode-Zeilenfarben |
 | Prägarben | `src/reta_mojo/presheaves.mojo` | typisierte Lokalsektionen und Restriktion |
 | Universelle Konstruktion | `src/reta_mojo/universal.mojo` | Normalisierung positiver/negativer Spalten-Buckets |
+| Kontextschema | `src/reta_mojo/schema.mojo`, `schema_catalog.mojo` | 33 Hauptgruppen, 431 Parametereinträge, Kontext-Mappings und 7 Tags |
+| Parametersemantik | `src/reta_mojo/parameter_semantics.mojo` | 86 Hauptaliase, 1.355 Unterparameter-Aliase, 428 kanonische Paare und direkte Spalten |
+| Spaltenauswahl | `src/reta_mojo/column_selection.mojo` | 24 typisierte positive/negative Bucket-Koordinaten |
+| Morphismen | `src/reta_mojo/morphisms.mojo` | Alias-, Bereichs-, Prompt-Aufteilungs- und Renderer-Modus-Morphismen |
+| Eingabesemantik | `src/reta_mojo/input_semantics.mojo` | besitzende CLI-Tokens, Abschnittskontext, Top-Level-Kommas, positive/negative Werte, kanonische Spaltenauswahl und schemaabgeleitetes Prompt-Vokabular |
 
-Der native Quellbaum hat rund 2.300 Mojo-Zeilen, davon etwa 1.050 generierte, aber vollständig typisierte Architekturdaten.
+Der native Quellbaum hat **4.118 Mojo-Zeilen**, davon 581 Zeilen generierter, aber vollständig typisierter realer Schemadaten.
 
 ## Voraussetzungen
 
@@ -36,12 +41,12 @@ Am einfachsten richtest du den offiziellen Compiler projektlokal ein:
 ./scripts/setup_mojo.sh
 ```
 
-Das Skript erzeugt `.venv`, installiert exakt `mojo==1.0.0b2` mit `uv` und prüft anschließend `mojo --version`. Die Wrapper finden `.venv/bin/mojo` automatisch; `source .venv/bin/activate` ist daher nicht nötig.
+Das Skript erzeugt `.venv`, bevorzugt ein vorhandenes **Python 3.14**, installiert exakt `mojo==1.0.0b2` mit `uv` und prüft anschließend `mojo --version`. Über `RETA_MOJO_PYTHON=/pfad/zu/python` kann die Python-Auswahl überschrieben werden. Die Wrapper finden `.venv/bin/mojo` automatisch; `source .venv/bin/activate` ist daher nicht nötig.
 
 Manuell entspricht das:
 
 ```bash
-uv venv --python 3.13 .venv
+uv venv --python 3.14 .venv
 uv pip install --python .venv/bin/python 'mojo==1.0.0b2' --prerelease allow
 ```
 
@@ -65,6 +70,11 @@ Für die komplette alte Prompt-Oberfläche können zusätzlich die Abhängigkeit
 ./bin/reta-mojo --mojo-prime 60
 ./bin/reta-mojo --mojo-range '1-9,-3' 100
 ./bin/reta-mojo --mojo-architecture
+./bin/reta-mojo --mojo-schema
+./bin/reta-mojo --mojo-columns religionen sternpolygon
+./bin/reta-mojo --mojo-alias religion gleichfoermigespolygon
+./bin/reta-mojo --mojo-vocabulary
+./bin/reta-mojo --mojo-parse-cli -spalten '--religionen=sternpolygon,-gleichfoermigespolygon'
 ./bin/reta-mojo --mojo-output html 9
 ./bin/reta-mojo --mojo-help
 ```
@@ -88,6 +98,7 @@ Der Kompatibilitäts-Launcher ist selbst Mojo. Er startet die gebündelte Python
 Erzeugt lokal:
 
 - `build/reta-mojo-native`
+- `build/reta-mojo-schema`
 - `build/reta-mojo-compat-bin`
 
 Der Architekturkatalog hat wegen seiner Größe einen eigenen Einstiegspunkt und wird nur bei `--mojo-architecture` geladen. Die Wrapper `bin/reta-mojo` und `bin/reta-mojo-compat` verwenden die lokalen Binärdateien, falls sie vorhanden sind; andernfalls starten sie den jeweiligen Mojo-Quelltext direkt. Dadurch enthält das Archiv keine an einen fremden absoluten Runtime-Pfad gebundenen Binärdateien.
@@ -101,8 +112,11 @@ Der Architekturkatalog hat wegen seiner Größe einen eigenen Einstiegspunkt und
 
 Die Tests decken die nativen Module direkt ab. Zusätzlich erzeugt `tools/generate_parity_tests.py` feste Erwartungsvektoren aus der Python-Referenz. Dadurch wird nicht nur geprüft, ob der Mojo-Code intern konsistent ist, sondern ob er bei legitimen Eingaben dasselbe Ergebnis wie Python liefert.
 
-Die geprüften Referenzvektoren umfassen unter anderem:
+Der Testlauf umfasst **59 native Testfälle in 14 Testdateien**. Die geprüften Referenzvektoren umfassen unter anderem:
 
+- 86 Hauptparameter-Aliase
+- 1.355 Unterparameter-Aliase
+- 428 kanonische Parameterpaare mit 838 direkten Spaltenverknüpfungen
 - 257 Prime-Creativity-Werte
 - 86 Primfaktorzerlegungen
 - 44 Teilermengen
@@ -115,8 +129,9 @@ Die geprüften Referenzvektoren umfassen unter anderem:
 - `MIGRATION_NOTES.md` – bewusste semantische Entscheidungen und offene Grenzen
 - `tools/generate_category_theory.py` – erzeugt den typisierten Kategoriekatalog
 - `tools/generate_parity_tests.py` – erzeugt Python→Mojo-Paritätstests
+- `tools/generate_schema_catalog.py` – erzeugt den realen nativen Kontext-/Parametersnapshot und Vollbestands-Fingerprints
 - `python_reference/` – unveränderte hochgeladene Referenz plus minimaler Bridge-Adapter
 
 ## Ehrlicher Status
 
-Die vollständigen Tabellen-, Prompt-, I18n-, CSV-, Generatorspalten- und Architekturvalidierungsnetze sind noch nicht nativ in Mojo. Sie laufen über `reta-mojo-compat`. Der Port ist dennoch direkt ausführbar, testbar und so strukturiert, dass weitere Module ohne erneute Architekturentscheidung aus der Bridge herausgelöst werden können.
+Die vollständigen Tabellen-, dynamischen Prompt-Ausführungs-, CSV-, Generatorspalten- und Architekturvalidierungsnetze sind noch nicht nativ in Mojo. Das reale I18n-/Parameterschema, seine direkte Alias-/Spaltensemantik, die CLI-Normalisierung und das schemaabgeleitete Prompt-Vokabular sind dagegen bereits ohne Python zur Laufzeit verfügbar. Nur die noch nicht portierten Gesamtworkflows laufen über `reta-mojo-compat`. Der Port ist direkt ausführbar, testbar und so strukturiert, dass weitere Module ohne erneute Architekturentscheidung aus der Bridge herausgelöst werden können.

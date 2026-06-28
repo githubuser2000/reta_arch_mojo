@@ -18,6 +18,11 @@ NATIVE = {
     "reta_architecture/output_syntax.py": ("teilweise nativ", "src/reta_mojo/output_modes.mojo", "statische Syntax und Zeilenfarben"),
     "reta_architecture/presheaves.py": ("teilweise nativ", "src/reta_mojo/presheaves.mojo", "typisierte String-Lokalsektionen und Restriktion"),
     "reta_architecture/universal.py": ("teilweise nativ", "src/reta_mojo/universal.mojo", "Normalisierung positiver/negativer Spalten-Buckets"),
+    "reta_architecture/column_selection.py": ("teilweise nativ", "src/reta_mojo/column_selection.mojo", "24 typisierte Bucket-Koordinaten und Bucket-Erzeugung; Legacy-Programmbindung noch Bridge"),
+    "reta_architecture/schema.py": ("generiert nativ", "src/reta_mojo/schema.mojo + schema_catalog.mojo", "33 Hauptgruppen, 431 Parametereinträge und Kontext-Mappings als besitzender Snapshot"),
+    "reta_architecture/sheaves.py": ("teilweise nativ", "src/reta_mojo/parameter_semantics.mojo", "ParameterSemanticsSheaf: Aliasauflösung, kanonische Paare, direkte Spalten und Rückabbildung"),
+    "reta_architecture/morphisms.py": ("teilweise nativ", "src/reta_mojo/morphisms.mojo", "Alias-, Bereichs-, Prompt-Split- und Renderer-Modus-Morphismen"),
+    "reta_architecture/input_semantics.py": ("teilweise nativ", "src/reta_mojo/input_semantics.mojo + row_ranges.mojo", "CLI-Normalisierung, Kommasyntax, Polarität, kanonische Spaltenauswahl und schemaabgeleitetes Prompt-Vokabular; dynamischer Prompt-Executor noch Bridge"),
 }
 
 
