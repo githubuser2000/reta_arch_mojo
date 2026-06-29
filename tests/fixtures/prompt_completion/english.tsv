@@ -1,0 +1,6 @@
+root-pri	pri
+reta-main	reta 
+output-parameters	reta -output 
+output-type-fuzzy	reta -output --type=h
+line-values-comma	reta -lines --type=sun,mo
+combination-values	reta -combination --galaxy=ani

@@ -64,15 +64,97 @@ def run_reta_subprocess_encoded(encoded: str) -> int:
 _PROMPT_READLINE_INITIALIZED = False
 _PROMPT_HISTORY_FILE: Path | None = None
 _PROMPT_COMPLETION_WORDS: tuple[str, ...] = ()
+_PROMPT_COMPLETION_MATCHES: tuple[str, ...] = ()
+_PROMPT_COMPLETION_PROCESS = None
+_PROMPT_COMPLETION_LANGUAGE = ""
+
+
+def _close_prompt_completion_process() -> None:
+    global _PROMPT_COMPLETION_PROCESS, _PROMPT_COMPLETION_LANGUAGE
+    process = _PROMPT_COMPLETION_PROCESS
+    _PROMPT_COMPLETION_PROCESS = None
+    _PROMPT_COMPLETION_LANGUAGE = ""
+    if process is None:
+        return
+    try:
+        if process.stdin is not None:
+            process.stdin.close()
+        process.terminate()
+        process.wait(timeout=1)
+    except Exception:
+        try:
+            process.kill()
+        except Exception:
+            pass
+
+
+def _prompt_completion_process(language: str):
+    global _PROMPT_COMPLETION_PROCESS, _PROMPT_COMPLETION_LANGUAGE
+    import subprocess
+
+    normalized = str(language or "deutsch")
+    process = _PROMPT_COMPLETION_PROCESS
+    if (
+        process is not None
+        and process.poll() is None
+        and _PROMPT_COMPLETION_LANGUAGE == normalized
+    ):
+        return process
+    _close_prompt_completion_process()
+    project_root = REFERENCE_ROOT.parent
+    executable = project_root / "target" / "bin" / "reta-prompt-complete"
+    if not executable.is_file():
+        return None
+    try:
+        process = subprocess.Popen(
+            [str(executable), normalized, str(project_root / "assets")],
+            cwd=project_root,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            text=True,
+            encoding="utf-8",
+            bufsize=1,
+        )
+    except OSError:
+        return None
+    _PROMPT_COMPLETION_PROCESS = process
+    _PROMPT_COMPLETION_LANGUAGE = normalized
+    return process
+
+
+def _native_prompt_completion(line: str, language: str) -> tuple[str, ...] | None:
+    process = _prompt_completion_process(language)
+    if process is None or process.stdin is None or process.stdout is None:
+        return None
+    try:
+        process.stdin.write(str(line).replace("\r", " ").replace("\n", " ") + "\n")
+        process.stdin.flush()
+        count_line = process.stdout.readline()
+        if not count_line:
+            raise BrokenPipeError("native completion worker closed its output")
+        count = int(count_line.strip())
+        values = []
+        for _ in range(count):
+            value = process.stdout.readline()
+            if value == "":
+                raise BrokenPipeError("native completion worker ended mid-response")
+            values.append(value.rstrip("\r\n"))
+        return tuple(values)
+    except (BrokenPipeError, OSError, ValueError):
+        _close_prompt_completion_process()
+        return None
 
 
 def _configure_prompt_readline(
     *,
     vi_mode: bool,
     history_file: str,
+    language: str,
     completion_words: Iterable[str],
 ) -> object | None:
-    global _PROMPT_READLINE_INITIALIZED, _PROMPT_HISTORY_FILE, _PROMPT_COMPLETION_WORDS
+    global _PROMPT_READLINE_INITIALIZED, _PROMPT_HISTORY_FILE
+    global _PROMPT_COMPLETION_WORDS, _PROMPT_COMPLETION_MATCHES
     try:
         import readline
     except (ImportError, ModuleNotFoundError):
@@ -85,11 +167,22 @@ def _configure_prompt_readline(
     readline.parse_and_bind("tab: complete")
 
     def complete(text: str, state: int) -> str | None:
-        matches = [word for word in _PROMPT_COMPLETION_WORDS if word.startswith(text)]
-        return matches[state] if state < len(matches) else None
+        global _PROMPT_COMPLETION_MATCHES
+        if state == 0:
+            native = _native_prompt_completion(readline.get_line_buffer(), language)
+            if native is None:
+                native = tuple(
+                    word for word in _PROMPT_COMPLETION_WORDS if word.startswith(text)
+                )
+            _PROMPT_COMPLETION_MATCHES = native
+        return (
+            _PROMPT_COMPLETION_MATCHES[state]
+            if state < len(_PROMPT_COMPLETION_MATCHES)
+            else None
+        )
 
     readline.set_completer(complete)
-    readline.set_completer_delims(" \t\n")
+    readline.set_completer_delims(" \t\n=,")
 
     if not _PROMPT_READLINE_INITIALIZED or _PROMPT_HISTORY_FILE != path:
         try:
@@ -103,6 +196,10 @@ def _configure_prompt_readline(
     return readline
 
 
+import atexit as _prompt_atexit
+_prompt_atexit.register(_close_prompt_completion_process)
+
+
 def read_prompt_line_encoded(encoded: str) -> str:
     """Read one interactive line and return control sentinels for EOF/interrupt.
 
@@ -114,10 +211,12 @@ def read_prompt_line_encoded(encoded: str) -> str:
     history_enabled = len(fields) > 1 and fields[1] == "1"
     vi_mode = len(fields) > 2 and fields[2] == "1"
     history_file = fields[3] if len(fields) > 3 else str(Path.home() / ".ReTaPromptHistory")
-    completion_words = fields[4:]
+    language = fields[4] if len(fields) > 4 else "deutsch"
+    completion_words = fields[5:]
     readline = _configure_prompt_readline(
         vi_mode=vi_mode,
         history_file=history_file,
+        language=language,
         completion_words=completion_words,
     )
     try:

@@ -1,0 +1,6 @@
+root-prim	prim
+reta-haupt	reta 
+ausgabe-parameter	reta -ausgabe 
+ausgabe-art-fuzzy	reta -ausgabe --art=h
+zeilen-werte-komma	reta -zeilen --typ=sonne,mo
+kombi-werte	reta -kombination --galaxie=tier

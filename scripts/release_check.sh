@@ -20,6 +20,7 @@ cd "$ROOT"
 ./scripts/check_prompt_catalog.sh
 ./scripts/check_grundstrukturen_catalog.sh
 ./scripts/test_prompt_bins.sh
+./scripts/test_stage10.sh
 ./scripts/check_compat_parity.sh
 ./scripts/check_html_parity.sh
 ./scripts/check_html_cell_catalog.sh

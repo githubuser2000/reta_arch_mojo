@@ -31,7 +31,7 @@ RETA_SKIP_BUILD=1 RETA_MOJO_PYTHON="$(command -v python3.14)" ./scripts/setup_mo
 ./scripts/check_build_layout.sh
 ```
 
-Erzeugt werden acht normale Laufzeitziele:
+Erzeugt werden neun normale Laufzeitziele:
 
 ```text
 target/bin/reta-mojo-native
@@ -40,11 +40,12 @@ target/bin/reta-mojo-tags
 target/bin/reta-native
 target/bin/reta-mojo-compat-bin
 target/bin/reta-prompt-native
+target/bin/reta-prompt-complete
 target/bin/grundStrukHtml-native
 target/bin/generate-html-native
 ```
 
-`reta-mojo-table` ist bewusst leicht und enthält Tabellenzustand, Wrapping und CSV-Inspektion. Das vollständige Tag-Schema liegt in `reta-mojo-tags`. Diese Trennung vermeidet einen unnötigen Compiler-Monolithen.
+`reta-prompt-complete` ist der persistente native Completion-Arbeiter für die interaktive Readline-Grenze. `reta-mojo-table` ist bewusst leicht und enthält Tabellenzustand, Wrapping und CSV-Inspektion. Das vollständige Tag-Schema liegt in `reta-mojo-tags`. Diese Trennung vermeidet einen unnötigen Compiler-Monolithen.
 
 ## Schwere generierte Ziele
 

@@ -14,6 +14,9 @@ fi
 if [ ! -x target/bin/reta-mojo-compat-bin ]; then
     "$ROOT/bin/mojo-real" build src/compat_main.mojo -o target/bin/reta-mojo-compat-bin
 fi
+if [ ! -x target/bin/reta-prompt-complete ]; then
+    "$ROOT/bin/mojo-real" build -I src src/prompt_completion_main.mojo -o target/bin/reta-prompt-complete
+fi
 
 [ "$(./bin/rpb prim 60)" = "60: 2^2 3 5" ]
 [ "$(./bin/prim24 29)" = "29: 5" ]

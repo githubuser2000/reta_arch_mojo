@@ -215,3 +215,27 @@ Die Dreifach-Faktorisierung aus `multis3.py` ist nativ. Die Referenz lieferte ei
 ## Stufe 9 – nativer ANSI-Shellrenderer
 
 `table_rendering.mojo` besitzt nun einen eigenen Shellpfad statt des früheren ` | `-Fallbacks. Er reproduziert die historischen ANSI-Hintergründe für Überschrift, Mondzahlen, Primzahlen sowie gerade/ungerade Restzeilen. Der Renderer erhält signifikante interne Doppel-Leerzeichen, trennt Tabellen nach Terminalbreite und behandelt Fortsetzungszeilen wie die Python-Referenz. Die gemeinsame Nummerierungsvorbereitung normalisiert Shellzellen nicht mehr vorzeitig.
+
+## Stufe 10 – native Prompt-Sprache, CPython-Mengenordnung und Completion-Arbeiter
+
+### Katalog statt Laufzeitimport
+
+Die Prompt-Completion wird nicht durch einen Python-Import zur Laufzeit erzeugt. `generate_prompt_nested_catalog.py` extrahiert die wirksame Referenzoberfläche für Deutsch, Englisch, Vietnamesisch, Chinesisch und Koreanisch in kompakte TSV-Assets. 28.990 einzelne Completion-Werte werden dabei in 549 Kontextsektionen gruppiert. Separate Dateien halten 170 Dispatch-Aliase, 95 Ein-Zeichen-Ersetzungen, 370 numerische Kurzbefehlszeilen und 1.355 Vokabularaliase.
+
+Der Generator unterstützt ein alternatives Ausgabeverzeichnis. `check_prompt_language_catalog.sh` regeneriert deshalb alle Dateien in einem temporären Verzeichnis und vergleicht sie byteweise mit dem Releasebestand.
+
+### Tokenisierung und Fuzzy-Reihenfolge
+
+`prompt_language.mojo` trennt Leerzeichen und Kommas nur außerhalb von `()`, `[]` und `{}`. Die Completion verwendet nicht bloß Präfixe: Sie bildet das beobachtete `prompt_toolkit`-Verhalten als Teilsequenzsuche nach, sortiert zuerst nach der frühesten Trefferposition, danach nach der kürzesten Treffspanne und bewahrt anschließend die Quellreihenfolge.
+
+### Kompakte Kurzsprache
+
+Die ehemalige `stextFromKleinKleinKleinBefehl`-Semantik ist als typisierte Mojo-Transformation portiert. Dazu gehören einfache und rotierte Formen wie `a15`, `ap15`, `15a`, `p12`, `(1 2)` und `uv3/2`, Bruchstandardbefehle, selektive Ausgabe, `-e` sowie die historischen `15_…`-/`16_…`-Ausnahmen.
+
+Nicht intuitiv ist die sichtbare Reihenfolge mehrerer expandierter Tokens. Das Python-Original verwendet normale Sets. Der Port implementiert deshalb CPython 3.13 mit `PYTHONHASHSEED=0` für Strings über SipHash-1-3 und das beobachtete offene Hash-Tabellen-Probing. `set(iterable)` und Set-Merge vergrößern ihre Tabellen zu unterschiedlichen Zeitpunkten; beide Pfade werden getrennt nachgebildet.
+
+### Interaktive Systemgrenze
+
+GNU Readline bleibt eine Python-/Betriebssystemgrenze. Die eigentliche Completion läuft jedoch in `reta-prompt-complete`, einem persistenten Mojo-Prozess, der den vollständigen Eingabepuffer erhält und Kandidaten zurückgibt. Der Katalog wird dadurch nur einmal pro Sitzung geladen. Der Python-Adapter besitzt lediglich Prozesslebenszyklus, Pipe-I/O, Readline-Callback und einen statischen Notfallfallback.
+
+Noch nicht portierte Fachoperationen erhalten an der Kompatibilitätsgrenze weiterhin die unveränderte Originalzeile. Dadurch gehen die historischen späteren Parserwirkungen nicht verloren, obwohl die vordere Kurzsprache und Completion bereits nativ sind.

@@ -6,11 +6,11 @@ Dies ist ein inkrementeller, getesteter Port des hochgeladenen Python-Projekts `
 
 ```text
 abgeschlossene Release-Stufen:       8 von 12 = 66,7 %
-Stufe 9:                              BBCode/HTML weitgehend nativ
+Stufen 9/10:                          Ausgabe und Prompt-Sprache in Arbeit
 vollständig native Originaldateien:  18 von 92 = 19,6 %
-mindestens teilweise portiert:       39 von 92 = 42,4 %
-gewichteter Quellzeilenstand:         ca. 24 %
-funktionaler Nutzerumfang:            ca. 65–70 %
+mindestens teilweise portiert:       45 von 92 = 48,9 %
+gewichteter Quellzeilenstand:         ca. 28 %
+funktionaler Nutzerumfang:            ca. 70–74 %
 ```
 
 Die Metriken messen Verschiedenes. Die Stufenquote ist höher, weil die noch offenen Stufen die größten dynamischen Python-Module bündeln. Der vollständige Plan steht in [`ROADMAP.md`](ROADMAP.md).
@@ -21,7 +21,7 @@ Die Metriken messen Verschiedenes. Die Stufenquote ist höher, weil die noch off
 RETA_MOJO_PYTHON="$(command -v python3.14)" ./scripts/setup_mojo.sh
 ```
 
-Das Skript erzeugt `.venv`, installiert den Modular-Mojo-Compiler und baut acht reguläre ELF-Programme nach `target/bin/`. Eine Aktivierung mit `source` ist nicht nötig.
+Das Skript erzeugt `.venv`, installiert den Modular-Mojo-Compiler und baut neun reguläre ELF-Programme nach `target/bin/`. Eine Aktivierung mit `source` ist nicht nötig.
 
 ```bash
 ./scripts/check_build_layout.sh
@@ -35,7 +35,7 @@ Das Skript erzeugt `.venv`, installiert den Modular-Mojo-Compiler und baut acht 
 
 Details: [`BUILD.md`](BUILD.md).
 
-## Stufen 7–9: Generatoren, Kombinationen und Markup
+## Stufen 7–10: Generatoren, Kombinationen, Markup und Prompt
 
 ### Native normale Reta-Syntax
 
@@ -135,7 +135,15 @@ Stufe 8 portiert die vier gebrochen-rationalen CSV-Prägarben sowie den relation
 
 CSV, Markdown und Emacs sind für die geprüften realen Befehle bytegleich. BBCode reproduziert Zählungsfarben, Zellabstände, Wortumbruch und Seitenteilung. HTML verwendet Klassenmetadaten für alle 746 physischen Haupttabellenspalten und einen semantischen Katalog für Generatorüberschriften. Beabsichtigte Tags wie `<ul>`, `<li>` und `<br>` bleiben aktiv, während mathematische Vergleichszeichen weiter maskiert werden.
 
-Die derzeit bytegleich geprüften HTML-Generatorpfade umfassen Primzahlwirkung, allgemeine Meta-Spalten und gebrochenes Universum auf Deutsch und Englisch. Farbige Shellausgabe und noch nicht katalogisierte dynamische HTML-Familien bleiben Teil der laufenden Stufe 9.
+Die derzeit bytegleich geprüften HTML-Generatorpfade umfassen Primzahlwirkung, allgemeine Meta-Spalten und gebrochenes Universum auf Deutsch und Englisch. Der zentrale farbige ANSI-Shellpfad ist ebenfalls bytegleich portiert. Offen bleiben seltene Terminal-/Rich-Sonderfälle und noch nicht katalogisierte kombinierte HTML-Familien.
+
+## Stufe 10: native Prompt-Sprache
+
+Die vordere Promptverarbeitung läuft nun in Mojo: klammerbewusstes Tokenisieren, kompakte Kurzbefehle, Ein-Zeichen-Ersetzungen, CPython-kompatible Mengenordnung und kontextabhängige Completion. Ein reproduzierbarer Katalog bündelt 28.990 Completion-Werte in 549 Sektionen und enthält fünf Sprachen sowie 1.355 Vokabularaliase.
+
+Der zusätzliche Compilerprozess `reta-prompt-complete` bleibt während einer interaktiven Sitzung aktiv. GNU Readline übermittelt nur den vollständigen Eingabepuffer; Fuzzy-Suche, Parameterkontext und Kommawert-Completion werden nativ in Mojo berechnet. Noch nicht portierte Fachoperationen erhalten an der Kompatibilitätsgrenze weiterhin unverändert die ursprüngliche Eingabezeile.
+
+Geprüft sind 27 kompakte deutsch/englische Kurzsprachenkontexte, 23 vollständige Vorbereitungskontexte und 12 verschachtelte Completion-Kontexte bytegleich zur Python-Referenz.
 
 ## Weitere native Bereiche
 
@@ -172,6 +180,7 @@ Siehe [`BINARIES.md`](BINARIES.md).
 ./scripts/test_stage7.sh
 ./scripts/test_stage8.sh
 ./scripts/test_stage9.sh
+./scripts/test_stage10.sh
 ./scripts/check_generated_column_parity.sh
 ./scripts/check_kombi_parity.sh
 ./scripts/check_markup_parity.sh
@@ -184,11 +193,12 @@ Siehe [`BINARIES.md`](BINARIES.md).
 Gesamtbestand:
 
 ```text
-43 native Testdateien
-170 native Testfunktionen
-30/30 aktuell fokussiert erneut ausgeführte Tests bestanden
+48 native Testdateien
+185 native Testfunktionen
+70/70 aktuell fokussiert erneut ausgeführte Tests bestanden
 30 Generator- und 9 Kombi-CLI-Fälle in den Paritätssuiten
 8 schnelle Markup-Fixtures; 16 Fälle einzeln gegen Python validiert
+27 Kurzsprachen-, 23 Vorbereitung- und 12 Completion-Kontexte bytegleich
 2 schwere Katalogtestdateien bleiben im normalen Lauf optional
 ```
 
@@ -207,7 +217,7 @@ Details: [`TEST_RESULTS.md`](TEST_RESULTS.md).
 
 ## Nächster Portierungsblock
 
-Stufe 9 wird mit der farbigen Shellausgabe, Terminalbreiten-/Rich-Sonderfällen und den restlichen dynamischen HTML-Metadaten fortgesetzt. Danach folgt Stufe 10 mit komplexer Prompt-Kurzsprache, verschachtelter Completion und den vollständigen i18n-Wortmatrizen.
+Stufe 9 wird mit seltenen Terminal-/Rich-Sonderfällen und den restlichen kombinierten HTML-Metadaten fortgesetzt. Parallel wird Stufe 10 von der bereits nativen Kurzsprache und Completion in die fachliche Promptausführung und die vollständige i18n-Laufzeit erweitert.
 
 ## Dokumentation
 

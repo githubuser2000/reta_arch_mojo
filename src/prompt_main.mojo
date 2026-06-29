@@ -9,7 +9,15 @@ compatibility boundary until their translation layer is ported.
 from std.sys import argv
 from std.collections import List
 from std.python import Python, PythonObject
-from reta_mojo.prompt_catalog import prompt_completion_words
+from reta_mojo.prompt_language import (
+    PromptLanguageCatalog,
+    balanced_prompt_split,
+    expand_compact_prompt_tokens,
+    expand_prompt_replacements,
+    load_prompt_language_catalog,
+    prompt_completion_word_pool,
+    prompt_root_commands,
+)
 from reta_mojo.prompt_runtime import (
     KIND_EMPTY,
     KIND_EXIT,
@@ -36,6 +44,7 @@ from reta_mojo.prompt_runtime import (
     PromptProfile,
     PromptStartup,
     classify_prompt_command,
+    classify_prompt_command_localized,
     parse_prompt_startup,
     fallback_profile_arguments,
     effective_one_shot_tokens,
@@ -88,13 +97,17 @@ def _print_prompt_help() -> None:
     print("  reta ...                       vollständige reta-CLI")
     print("  shell ..., python ..., math ...")
     print("")
-    print("Weitere historische Kurzbefehle werden bereits durch den Mojo-")
-    print("Controller angenommen und vorläufig isoliert an die Python-Referenz")
-    print("weitergereicht.")
+    print("Kompakte Zahlen- und Ein-Zeichen-Befehle werden nativ expandiert.")
+    print("Noch nicht portierte fachliche Operationen nutzen danach die isolierte")
+    print("Python-Kompatibilitätsgrenze.")
 
 
-def _print_commands(short_only: Bool) -> None:
-    var words = prompt_completion_words()
+def _print_commands(
+    catalog: PromptLanguageCatalog,
+    language: String,
+    short_only: Bool,
+) -> None:
+    var words = prompt_root_commands(catalog, language)
     var first = True
     for index in range(len(words)):
         var word = words[index]
@@ -120,13 +133,15 @@ def _read_line(
     bridge: PythonObject,
     profile: PromptProfile,
     session: NativePromptSession,
+    catalog: PromptLanguageCatalog,
 ) raises -> String:
     var fields = List[String]()
     fields.append(prompt_prefix(session))
     fields.append("1" if session.logging_enabled else "0")
     fields.append("1" if profile.vi_mode else "0")
     fields.append("~/.ReTaPromptHistory")
-    var words = prompt_completion_words()
+    fields.append(profile.language)
+    var words = prompt_completion_word_pool(catalog, profile.language)
     for index in range(len(words)):
         fields.append(words[index])
     return String(py=bridge.read_prompt_line_encoded(_encode_fields(fields)))
@@ -147,9 +162,24 @@ def _run_command(
     profile: PromptProfile,
     line: String,
     mut session: NativePromptSession,
+    catalog: PromptLanguageCatalog,
 ) raises -> Bool:
     """Run one command and return false when the loop should terminate."""
-    var command = classify_prompt_command(line)
+    var raw_tokens = balanced_prompt_split(line)
+    var compact_expansion = expand_compact_prompt_tokens(
+        catalog,
+        profile.language,
+        raw_tokens,
+        False,
+        profile.force_e_command,
+    )
+    var normalized_tokens = expand_prompt_replacements(
+        catalog, profile.language, compact_expansion.tokens
+    )
+    var normalized_line = join_prompt_tokens(normalized_tokens)
+    var command = classify_prompt_command_localized(
+        normalized_line, profile.language, catalog
+    )
     if command.kind == KIND_EMPTY:
         return True
     if command.kind == KIND_EXIT:
@@ -158,10 +188,10 @@ def _run_command(
         _print_prompt_help()
         return True
     if command.kind == KIND_COMMANDS:
-        _print_commands(False)
+        _print_commands(catalog, profile.language, False)
         return True
     if command.kind == KIND_SHORT_COMMANDS:
-        _print_commands(True)
+        _print_commands(catalog, profile.language, True)
         return True
     if command.kind == KIND_LOG_ON:
         session.logging_enabled = True
@@ -196,7 +226,7 @@ def _run_command(
             return True
         if addition.byte_length() > 0:
             stored += " " + addition
-        return _run_command(bridge, profile, stored, session)
+        return _run_command(bridge, profile, stored, session, catalog)
     if command.kind == KIND_DELETE_STORED:
         var selection = storage_payload(command)
         if selection.byte_length() > 0:
@@ -246,7 +276,11 @@ def _run_command(
         bridge.run_reta_line(command.raw)
         return True
 
-    _run_fallback(bridge, profile, command.raw)
+    # Preserve the untouched source spelling at the compatibility boundary.
+    # Native parsing already owns routing, but an unported operation must still
+    # observe the Python reference's exact compact-command announcement and
+    # later set normalisation.
+    _run_fallback(bridge, profile, line)
     return True
 
 
@@ -264,6 +298,7 @@ def main() raises:
     for index in range(2, len(args)):
         startup_args.append(String(args[index]))
     var startup = parse_prompt_startup(profile_name, startup_args)
+    var prompt_catalog = load_prompt_language_catalog("assets")
 
     for index in range(len(startup.diagnostics)):
         print("Hinweis:", startup.diagnostics[index])
@@ -282,11 +317,11 @@ def main() raises:
         var line = _one_shot_line(startup)
         if line.byte_length() == 0:
             raise Error("-befehl benötigt einen Promptbefehl")
-        _ = _run_command(bridge, startup.profile, line, session)
+        _ = _run_command(bridge, startup.profile, line, session, prompt_catalog)
         return
 
     while True:
-        var line = _read_line(bridge, startup.profile, session)
+        var line = _read_line(bridge, startup.profile, session, prompt_catalog)
         if line == "\x04" or line == "\x03":
             break
         if session.store_next:
@@ -294,7 +329,7 @@ def main() raises:
             print("Gespeichert:", stored_prompt_text(session))
             continue
         if session.delete_next:
-            var cancel = classify_prompt_command(line)
+            var cancel = classify_prompt_command_localized(line, startup.profile.language, prompt_catalog)
             if cancel.kind == KIND_EXIT:
                 session.delete_next = False
                 print("Löschen abgebrochen.")
@@ -302,9 +337,9 @@ def main() raises:
                 delete_stored_selection(session, line)
                 print("Gespeichert:", stored_prompt_text(session))
             continue
-        if not _run_command(bridge, startup.profile, line, session):
+        if not _run_command(bridge, startup.profile, line, session, prompt_catalog):
             break
-        var executed = classify_prompt_command(line)
+        var executed = classify_prompt_command_localized(line, startup.profile.language, prompt_catalog)
         if (
             executed.kind != KIND_STORE_NEXT
             and executed.kind != KIND_STORE_PREVIOUS
