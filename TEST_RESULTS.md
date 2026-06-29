@@ -3,8 +3,8 @@
 ## Testbestand
 
 ```text
-48 Mojo-Testdateien
-185 Testfunktionen insgesamt
+50 Mojo-Testdateien
+198 Testfunktionen insgesamt
 9 reguläre ELF-Compilerziele
 2 optionale schwere Katalogtestdateien
 ```
@@ -15,17 +15,18 @@ Der letzte vollständig abgeschlossene normale Stufe-7-Lauf ergab **145/145** Te
 
 ```text
 test_prompt_language             15/15
-test_prompt_runtime              18/18
+test_prompt_runtime              21/21
+test_prompt_fraction_execution    8/8
 test_meta_columns                 3/3
 test_fraction_concat_columns      3/3
 test_kombi_join_columns           4/4
 test_generated_aliases            6/6
-test_native_reta_cli              7/7
+test_native_reta_cli              9/9
 test_generated_table_columns      7/7
 test_table_rendering              3/3
 test_html_cell_metadata           4/4
                                 -------
-                                 70/70 bestanden
+                                 83/83 bestanden
 ```
 
 Es gab keinen Testfehler. Abgebrochene Sammelläufe endeten ausschließlich während eines nachfolgenden Compiler- oder Referenzprozesses durch die äußere Laufzeitgrenze.
@@ -102,13 +103,23 @@ Die Promptprüfung umfasst:
 18/18 Prompt-Laufzeittests bestanden
 ```
 
+Zusätzlich ist die vordere fachliche Ausführung jetzt geprüft:
+
+```text
+18/18 Bruch-/Bereichsausdrücke bytegleich zu bruchSpalt/createRangesForBruchLists
+7/7 reale Prompt-Ausführungen als Byte-Fixtures
+2/2 Tabellenbefehle (mond, richtung) über reta-native statt retaPrompt.py
+```
+
+Die sieben Ausführungsfixtures umfassen Primfaktorenvergleich, einfache und primfaktorisierte Abstände, bidirektionale Bereichsabstände sowie ANSI-Tabellenausgaben. Der vollständige native CLI-Plantest benötigt kalt rund 51 Minuten und bestand mit **9/9** Tests.
+
 Ein Pseudoterminaltest bestätigte die tatsächliche interaktive Ergänzung:
 
 ```text
 reta -ausgabe --art=htm<Tab>  →  reta -ausgabe --art=html
 ```
 
-Der fünfsprachige Katalog wird in ein temporäres Verzeichnis regeneriert und byteweise gegen die eingecheckten Assets verglichen. Abgedeckt sind 28.990 Completion-Werte in 549 Sektionen, 170 Dispatch-Aliase, 95 Kurzersetzungen, 370 numerische Kurzbefehlszeilen und 1.355 Vokabularaliase.
+Der fünfsprachige Katalog wird in ein temporäres Verzeichnis regeneriert und byteweise gegen die eingecheckten Assets verglichen. Abgedeckt sind 28.990 Completion-Werte in 549 Sektionen, 200 Dispatch-Aliase, 95 Kurzersetzungen, 370 numerische Kurzbefehlszeilen und 1.355 Vokabularaliase.
 
 Der kombinierte `test_stage10.sh`-Kaltlauf wurde einmal nach den bereits bestandenen Sprach-, Laufzeit-, Katalog-, Kurzsprachen- und Fixtureprüfungen vom äußeren Limit beendet. Die noch ausstehende Workerprüfung und die später ergänzten Vorbereitungstests wurden anschließend separat vollständig bestanden. Deshalb wird kein unvollständiger Sammellauf als Gesamterfolg ausgegeben; die obigen Zahlen stammen aus den jeweils abgeschlossenen Einzelprüfungen.
 

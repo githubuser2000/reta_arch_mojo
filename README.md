@@ -145,6 +145,12 @@ Der zusätzliche Compilerprozess `reta-prompt-complete` bleibt während einer in
 
 Geprüft sind 27 kompakte deutsch/englische Kurzsprachenkontexte, 23 vollständige Vorbereitungskontexte und 12 verschachtelte Completion-Kontexte bytegleich zur Python-Referenz.
 
+### Neu: native Prompt-Fachausführung
+
+`src/reta_mojo/prompt_fraction_execution.mojo` übernimmt die vordere Bruch- und Bereichssprache aus `prompt_execution.py`. `primfaktorenvergleich`, die eindeutigen Zwei-Bereichsformen von `abstand`/`abstandPrim` sowie `mond` und `richtung` werden nativ ausgeführt. Die beiden Tabellenbefehle starten den kompilierten `reta-native`-Kern; der kleine Python-Adapter bleibt nur für Prozess- und Terminal-I/O.
+
+Die explizite Spaltenfolge wird bei semantischen Spaltenauswahlen nach der Generatorpipeline als relative Ergebnisposition angewandt. Dadurch entspricht `--Bedeutung=gestirn --spaltenreihenfolgeundnurdiese=3-6` wieder der Python-Referenz.
+
 ## Weitere native Bereiche
 
 - Zahlentheorie, Primzahlkreuz und Arithmetik

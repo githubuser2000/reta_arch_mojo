@@ -14,7 +14,10 @@ build_and_run() {
 
 build_and_run tests/test_prompt_language.mojo
 build_and_run tests/test_prompt_runtime.mojo
+build_and_run tests/test_prompt_fraction_execution.mojo
 ./scripts/check_prompt_language_catalog.sh
+./scripts/check_prompt_fraction_parity.sh
+./scripts/check_prompt_execution_fixtures.sh
 ./scripts/check_prompt_compact_parity.sh
 ./scripts/check_prompt_preparation_parity.sh
 ./scripts/check_prompt_completion_fixtures.sh

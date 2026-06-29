@@ -10,6 +10,7 @@ from std.collections.string import atol, ord
 from .number_theory import prime_factors
 from .arithmetic import factor_pairs, factor_triples, modulo_table_lines, prime_repeat_labels, has_digit
 from .row_ranges import range_to_numbers
+from .prime_cross_columns import python_int_set_order
 from .prompt_language import (
     PromptLanguageCatalog,
     balanced_prompt_split,
@@ -41,6 +42,11 @@ comptime KIND_OUTPUT_STORED = 19
 comptime KIND_DELETE_STORED = 20
 comptime KIND_FALLBACK = 21
 comptime KIND_MULTIS3 = 22
+comptime KIND_PRIME_COMPARE = 23
+comptime KIND_MOON = 24
+comptime KIND_DISTANCE = 25
+comptime KIND_DISTANCE_PRIME = 26
+comptime KIND_DIRECTION = 27
 
 
 @fieldwise_init
@@ -196,6 +202,16 @@ def classify_prompt_command(raw: String) -> PromptCommand:
         return PromptCommand(KIND_MULTIS, text^, words^)
     if first == "multis3":
         return PromptCommand(KIND_MULTIS3, text^, words^)
+    if first == "primfaktorenvergleich":
+        return PromptCommand(KIND_PRIME_COMPARE, text^, words^)
+    if first == "mond":
+        return PromptCommand(KIND_MOON, text^, words^)
+    if first == "abstand":
+        return PromptCommand(KIND_DISTANCE, text^, words^)
+    if first == "abstandPrim":
+        return PromptCommand(KIND_DISTANCE_PRIME, text^, words^)
+    if first == "richtung" or first == "r":
+        return PromptCommand(KIND_DIRECTION, text^, words^)
     if first == "modulo":
         return PromptCommand(KIND_MODULO, text^, words^)
     if first == "abc" or first == "abcd":
@@ -357,6 +373,177 @@ def abc_line(command: PromptCommand) raises -> String:
             result += String(byte - 96)
     return result^
 
+
+
+
+def _is_decimal_prompt(text: String) -> Bool:
+    if text.byte_length() == 0:
+        return False
+    for index in range(text.byte_length()):
+        var value = ord(text[byte=index])
+        if value < 48 or value > 57:
+            return False
+    return True
+
+
+def _ordered_range_values(expression: String) raises -> List[Int]:
+    var unordered = range_to_numbers(expression, False, 0)
+    var attempts = List[Int]()
+    # BereichToNumbers2 ultimately constructs a Python set.  Integer hashes are
+    # their values, so insertion attempts followed by CPython table order are
+    # sufficient for the visible historical ordering.
+    for value in unordered:
+        attempts.append(value)
+    return python_int_set_order(attempts)
+
+
+def _prime_factor_python_list(number: Int) -> String:
+    var factors = prime_factors(abs(number))
+    if len(factors) == 0:
+        return "[]"
+    var result = String("[")
+    var index = 0
+    var first = True
+    while index < len(factors):
+        var prime = factors[index]
+        var count = 1
+        while index + count < len(factors) and factors[index + count] == prime:
+            count += 1
+        if not first:
+            result += ", "
+        if count > 1:
+            result += "'" + String(prime) + "^" + String(count) + "'"
+        else:
+            result += String(prime)
+        first = False
+        index += count
+    return result + "]"
+
+
+def _distance_message(language: String) -> String:
+    if normalize_prompt_language(language) == "deutsch":
+        return "der Befehl 'abstand' verlangt mindestens 2 Zahlenangaben, wie 'abstand 7 17-25'"
+    return "the command distance' need at least 2 number or number ranges, as 'distance 7 17-25'"
+
+
+def distance_lines(
+    command: PromptCommand,
+    prime_distances: Bool = False,
+    language: String = "deutsch",
+) raises -> List[String]:
+    """Native two-range form of ``abstand`` and ``abstandPrim``.
+
+    The legacy implementation uses dictionaries that overwrite for three or
+    more independent ranges.  Those ambiguous multi-range forms remain at the
+    compatibility boundary; the normal two-range form is exact and native.
+    """
+    var lines = List[String]()
+    if len(command.words) != 3:
+        if not prime_distances:
+            lines.append(_distance_message(language))
+        return lines^
+    var left_text = command.words[1]
+    var right_text = command.words[2]
+    var left = _ordered_range_values(left_text)
+    var right = _ordered_range_values(right_text)
+    if len(left) == 0 or len(right) == 0:
+        if not prime_distances:
+            lines.append(_distance_message(language))
+        return lines^
+    var all_numbers = _is_decimal_prompt(left_text) and _is_decimal_prompt(right_text)
+
+    for direction in range(2):
+        var sources = left.copy() if direction == 0 else right.copy()
+        var targets = right.copy() if direction == 0 else left.copy()
+        if len(targets) <= 1 and not all_numbers:
+            continue
+        for source_index in range(len(sources)):
+            var line = String(sources[source_index]) + "->: "
+            for target_index in range(len(targets)):
+                if target_index > 0:
+                    line += ", "
+                var distance = abs(sources[source_index] - targets[target_index])
+                line += String(targets[target_index]) + ": "
+                if prime_distances:
+                    line += _prime_factor_python_list(distance)
+                else:
+                    line += String(distance)
+            lines.append(line^)
+    return lines^
+
+def _gcd_prompt(left: Int, right: Int) -> Int:
+    var a = abs(left)
+    var b = abs(right)
+    while b != 0:
+        var rest = a % b
+        a = b
+        b = rest
+    return a
+
+
+def _pad_right_prompt(value: String, width: Int) -> String:
+    var result = value
+    while result.byte_length() < width:
+        result += " "
+    return result^
+
+
+def _commonalities_word(language: String) -> String:
+    if normalize_prompt_language(language) == "deutsch":
+        return "Gemeinsamkeiten"
+    return "commonalities"
+
+
+def prime_comparison_lines(command: PromptCommand, language: String = "deutsch") raises -> List[String]:
+    """Native port of the prompt ``primfaktorenvergleich`` branch."""
+    var lines = List[String]()
+    var numbers = command_numbers(command)
+    if len(numbers) == 0:
+        return lines^
+
+    var common = abs(numbers[0])
+    for index in range(1, len(numbers)):
+        common = _gcd_prompt(common, numbers[index])
+    if common == 0:
+        common = 1
+
+    var common_factors = prime_factors(common)
+    var common_text = String("1")
+    if len(common_factors) > 0:
+        common_text = String()
+        for index in range(len(common_factors)):
+            if index > 0:
+                common_text += " * "
+            common_text += String(common_factors[index])
+    lines.append(
+        _commonalities_word(language)
+        + ": "
+        + String(common)
+        + " := "
+        + common_text
+    )
+
+    for index in range(len(numbers)):
+        var number = numbers[index]
+        var quotient = number // common if common != 0 else number
+        var quotient_factors = prime_factors(quotient)
+        var factor_text = String("1")
+        if len(quotient_factors) > 0:
+            factor_text = String()
+            for factor_index in range(len(quotient_factors)):
+                if factor_index > 0:
+                    factor_text += " * "
+                factor_text += String(quotient_factors[factor_index])
+        lines.append(
+            _pad_right_prompt(String(quotient), 5)
+            + " := "
+            + _pad_right_prompt(String(number), 5)
+            + " / "
+            + _pad_right_prompt(String(common), 5)
+            + " -> "
+            + factor_text
+        )
+    return lines^
 
 def one_shot_command_line(startup: PromptStartup) -> String:
     """Construct the command line supplied by rpb/rpe or explicit -befehl."""

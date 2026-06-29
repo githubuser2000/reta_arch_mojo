@@ -5,15 +5,15 @@
 - Abgeschlossene Release-Stufen: **8/12 = 66,7 %**
 - Stufe 9: **BBCode, zentraler ANSI-Shellpfad und zentrale HTML-Pfade nativ; seltene Ausgabegrenzen offen**
 - Stufe 10: **native Kurzsprache, mehrsprachige verschachtelte Completion und Promptvorbereitung in Arbeit**
-- Geschätzter funktionaler Portierungsstand: **70–74 %**
+- Geschätzter funktionaler Portierungsstand: **73–77 %**
 - Konservativ vollständig native oder reproduzierbar generierte Originaldateien: **18/92 = 19,6 %**
-- Mindestens teilweise portierte Originaldateien: **45/92 = 48,9 %**
+- Mindestens teilweise portierte Originaldateien: **46/92 = 50,0 %**
 - Gewichteter Quellzeilenstand: **ca. 28 %**
-- Nativer Mojo-Quellcode in `src/`: **14.575 Zeilen**
-- Davon im Paket `reta_mojo`: **13.665 Zeilen**
-- Native Testdateien: **48**
-- Native Testfunktionen: **185**
-- Aktuell fokussiert erneut ausgeführt: **70/70 bestanden**
+- Nativer Mojo-Quellcode in `src/`: **15.296 Zeilen**
+- Davon im Paket `reta_mojo`: **14.260 Zeilen**
+- Native Testdateien: **50**
+- Native Testfunktionen: **198**
+- Aktuell fokussiert erneut ausgeführt: **83/83 bestanden**
 - Prompt-Kurzsprache: **27/27 deutsche und englische Referenzkontexte bytegleich**
 - Promptvorbereitung: **23/23 deutsche und englische Referenzkontexte bytegleich**
 - Verschachtelte Completion: **12/12 Referenzkontexte und 12/12 schnelle Fixtures bytegleich**
@@ -52,7 +52,7 @@
 
 - `prompt_language.mojo` als besitzender, mehrsprachiger Promptkatalog
 - **28.990** Completion-Werte in **549** Kontextsektionen
-- **170** lokalisierte Dispatch-Aliase
+- **200** lokalisierte Dispatch-Aliase
 - **95** Ein-Zeichen-Ersetzungen
 - **370** numerische Kurzbefehlszeilen
 - **1.355** Vokabularaliase aus Befehls-, Hauptparameter-, Zeilen-, Ausgabe- und Kombinationsdomänen
@@ -63,6 +63,11 @@
 - persistenter nativer Completion-Arbeiter `reta-prompt-complete`
 - GNU Readline bleibt nur Terminal-/Tastaturgrenze; Kandidaten und Kontextauflösung kommen aus Mojo
 - interaktiver Pseudoterminaltest ergänzt `reta -ausgabe --art=htm<Tab>` zu `html`
+- nativer Bruchparser für die vordere `prompt_execution.py`-Strecke einschließlich Bereichsbildung, Reziprok- und Ganzzahlerkennung
+- native Fachbefehle `primfaktorenvergleich`, `abstand`, `abstandPrim`, `mond` und `richtung`
+- `mond` und `richtung` verwenden den kompilierten Tabellenkern; Python bleibt dort nur Prozess-/Readline-Grenze
+- relative `--spaltenreihenfolgeundnurdiese=3-6`-Semantik nach der Generatorpipeline korrigiert
+- **18/18** Bruchparser-Referenzfälle und **7/7** reale Prompt-Ausführungsfixtures bytegleich
 
 ## Weiterhin an der Kompatibilitätsgrenze
 

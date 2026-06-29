@@ -58,6 +58,12 @@ CORE_KINDS = {
     "l": 20,
     "BefehlSpeicherungLöschen": 20,
     "multis3": 22,
+    "primfaktorenvergleich": 23,
+    "mond": 24,
+    "abstand": 25,
+    "abstandPrim": 26,
+    "richtung": 27,
+    "r": 27,
 }
 
 

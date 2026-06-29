@@ -92,5 +92,28 @@ def test_kombi_aliases_resolve_and_sort() raises:
     assert_equal(plan.kombi_requests[3].column, 5)
 
 
+
+def test_explicit_column_range_filters_semantic_output_positions() raises:
+    var plan = build_native_reta_plan(
+        [
+            "-spalten",
+            "--Bedeutung=gestirn",
+            "-ausgabe",
+            "--spaltenreihenfolgeundnurdiese=3-6",
+        ],
+        746,
+        1024,
+    )
+    assert_equal(plan.columns, [64, 154])
+    assert_equal(plan.explicit_positions, [2, 3, 4, 5])
+
+
+def test_explicit_column_range_without_semantic_selection_is_physical() raises:
+    var plan = build_native_reta_plan(
+        ["-ausgabe", "--spaltenreihenfolgeundnurdiese=3-6"], 746, 1024
+    )
+    assert_equal(plan.columns, [2, 3, 4, 5])
+    assert_equal(len(plan.explicit_positions), 0)
+
 def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()

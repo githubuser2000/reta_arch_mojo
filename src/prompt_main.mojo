@@ -15,9 +15,11 @@ from reta_mojo.prompt_language import (
     expand_compact_prompt_tokens,
     expand_prompt_replacements,
     load_prompt_language_catalog,
+    normalize_prompt_language,
     prompt_completion_word_pool,
     prompt_root_commands,
 )
+from reta_mojo.row_ranges import range_to_numbers
 from reta_mojo.prompt_runtime import (
     KIND_EMPTY,
     KIND_EXIT,
@@ -30,6 +32,11 @@ from reta_mojo.prompt_runtime import (
     KIND_PRIME,
     KIND_MULTIS,
     KIND_MULTIS3,
+    KIND_PRIME_COMPARE,
+    KIND_MOON,
+    KIND_DISTANCE,
+    KIND_DISTANCE_PRIME,
+    KIND_DIRECTION,
     KIND_MODULO,
     KIND_ABC,
     KIND_SHELL,
@@ -42,6 +49,7 @@ from reta_mojo.prompt_runtime import (
     KIND_OUTPUT_STORED,
     KIND_DELETE_STORED,
     PromptProfile,
+    PromptCommand,
     PromptStartup,
     classify_prompt_command,
     classify_prompt_command_localized,
@@ -53,6 +61,8 @@ from reta_mojo.prompt_runtime import (
     multis_lines,
     multis3_lines,
     modulo_lines,
+    prime_comparison_lines,
+    distance_lines,
     abc_line,
     NativePromptSession,
     new_prompt_session,
@@ -157,6 +167,102 @@ def _run_fallback(
     bridge.run_reta_prompt_line_encoded(encoded)
 
 
+
+def _native_moon_tokens(command: PromptCommand, language: String) raises -> List[String]:
+    var row_parts = List[String]()
+    var max_row = 0
+    for index in range(1, len(command.words)):
+        var token = command.words[index]
+        if token == "e" or token == "ee":
+            continue
+        try:
+            var values = range_to_numbers(token, False, 0)
+            if len(values) == 0:
+                continue
+            row_parts.append(token)
+            for value in values:
+                max_row = max(max_row, value)
+        except:
+            pass
+    if len(row_parts) == 0:
+        return List[String]()
+    var rows = String()
+    for index in range(len(row_parts)):
+        if index > 0:
+            rows += ","
+        rows += row_parts[index]
+    var english = language != "deutsch"
+    var tokens = List[String]()
+    tokens.append("-lines" if english else "-zeilen")
+    tokens.append(("--thisrangebefore=" if english else "--vorhervonausschnitt=") + rows)
+    tokens.append(("--uppermaximum=" if english else "--oberesmaximum=") + String(max(1024, max_row) + 1))
+    tokens.append("-columns" if english else "-spalten")
+    tokens.append("--meaning=spaceObject" if english else "--Bedeutung=gestirn")
+    tokens.append("--width=0" if english else "--breite=0")
+    tokens.append("-output" if english else "-ausgabe")
+    tokens.append("--columnorderandonlythese=3-6" if english else "--spaltenreihenfolgeundnurdiese=3-6")
+    return tokens^
+
+
+
+def _native_direction_tokens(command: PromptCommand, language: String) raises -> List[String]:
+    var row_parts = List[String]()
+    var max_row = 0
+    for index in range(1, len(command.words)):
+        var token = command.words[index]
+        if token == "e" or token == "ee":
+            continue
+        try:
+            var values = range_to_numbers(token, False, 0)
+            if len(values) == 0:
+                continue
+            row_parts.append(token)
+            for value in values:
+                max_row = max(max_row, value)
+        except:
+            pass
+    if len(row_parts) == 0:
+        return List[String]()
+    var rows = String()
+    for index in range(len(row_parts)):
+        if index > 0:
+            rows += ","
+        rows += row_parts[index]
+    var english = language != "deutsch"
+    return [
+        "-lines" if english else "-zeilen",
+        ("--thisrangebefore=" if english else "--vorhervonausschnitt=") + rows,
+        ("--uppermaximum=" if english else "--oberesmaximum=") + String(max(1024, max_row) + 1),
+        "-columns" if english else "-spalten",
+        "--primeeffect=galaxyintention" if english else "--Primzahlwirkung=Galaxieabsicht",
+        "--width=0" if english else "--breite=0",
+        "-output" if english else "-ausgabe",
+    ]
+
+
+def _run_native_table_tokens(bridge: PythonObject, tokens: List[String]) raises -> Bool:
+    if len(tokens) == 0:
+        return False
+    var command_line = String("reta")
+    var encoded = String()
+    for index in range(len(tokens)):
+        command_line += " " + tokens[index]
+        if index > 0:
+            encoded += "\x1f"
+        encoded += tokens[index]
+    print(command_line, end="")
+    _ = bridge.run_native_reta_subprocess_encoded(encoded)
+    return True
+
+
+def _run_native_moon(bridge: PythonObject, command: PromptCommand, profile: PromptProfile) raises -> Bool:
+    var language = normalize_prompt_language(profile.language)
+    var tokens = _native_moon_tokens(command, language)
+    if len(tokens) == 0:
+        return False
+    return _run_native_table_tokens(bridge, tokens)
+
+
 def _run_command(
     bridge: PythonObject,
     profile: PromptProfile,
@@ -258,6 +364,26 @@ def _run_command(
     if command.kind == KIND_MODULO:
         _print_lines(modulo_lines(command))
         return True
+    if command.kind == KIND_PRIME_COMPARE:
+        _print_lines(prime_comparison_lines(command, profile.language))
+        return True
+    if command.kind == KIND_MOON:
+        if _run_native_moon(bridge, command, profile):
+            return True
+    if command.kind == KIND_DISTANCE:
+        if len(command.words) == 3:
+            _print_lines(distance_lines(command, False, profile.language))
+            return True
+    if command.kind == KIND_DISTANCE_PRIME:
+        if len(command.words) == 3:
+            _print_lines(distance_lines(command, True, profile.language))
+            return True
+    if command.kind == KIND_DIRECTION:
+        if _run_native_table_tokens(
+            bridge,
+            _native_direction_tokens(command, normalize_prompt_language(profile.language)),
+        ):
+            return True
     if command.kind == KIND_ABC:
         var line_out = abc_line(command)
         if line_out.byte_length() > 0:

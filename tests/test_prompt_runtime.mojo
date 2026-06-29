@@ -56,6 +56,12 @@ def test_command_classification() raises:
     assert_equal(classify_prompt_command("prim24 29").kind, KIND_PRIME24)
     assert_equal(classify_prompt_command("multis3 36").kind, KIND_MULTIS3)
     assert_equal(classify_prompt_command("reta -h").kind, KIND_RETA)
+    assert_equal(classify_prompt_command("primfaktorenvergleich 12 18").kind, KIND_PRIME_COMPARE)
+    assert_equal(classify_prompt_command("mond 1-3").kind, KIND_MOON)
+    assert_equal(classify_prompt_command("abstand 7 17-19").kind, KIND_DISTANCE)
+    assert_equal(classify_prompt_command("abstandPrim 7 17-19").kind, KIND_DISTANCE_PRIME)
+    assert_equal(classify_prompt_command("richtung 1-2").kind, KIND_DIRECTION)
+    assert_equal(classify_prompt_command("r 1-2").kind, KIND_DIRECTION)
     assert_equal(classify_prompt_command("a 2").kind, KIND_FALLBACK)
 
 
@@ -156,6 +162,32 @@ def test_storage_commands_classify_natively() raises:
     assert_equal(classify_prompt_command("o").kind, KIND_OUTPUT_STORED)
     assert_equal(classify_prompt_command("l").kind, KIND_DELETE_STORED)
 
+
+
+def test_prime_comparison_prompt_lines() raises:
+    var lines = prime_comparison_lines(classify_prompt_command("primfaktorenvergleich 12 18"))
+    assert_equal(len(lines), 3)
+    assert_equal(lines[0], "Gemeinsamkeiten: 6 := 2 * 3")
+    assert_equal(lines[1], "2     := 12    / 6     -> 2")
+    assert_equal(lines[2], "3     := 18    / 6     -> 3")
+    var english = prime_comparison_lines(classify_prompt_command("primfaktorenvergleich 12 18"), "english")
+    assert_equal(english[0], "commonalities: 6 := 2 * 3")
+
+
+def test_distance_prompt_lines() raises:
+    var simple = distance_lines(classify_prompt_command("abstand 7 17-19"))
+    assert_equal(len(simple), 1)
+    assert_equal(simple[0], "7->: 17: 10, 18: 11, 19: 12")
+    var both = distance_lines(classify_prompt_command("abstand 7 17"))
+    assert_equal(len(both), 2)
+    assert_equal(both[0], "7->: 17: 10")
+    assert_equal(both[1], "17->: 7: 10")
+
+
+def test_prime_distance_prompt_lines() raises:
+    var lines = distance_lines(classify_prompt_command("abstandPrim 7 17-19"), True)
+    assert_equal(len(lines), 1)
+    assert_equal(lines[0], "7->: 17: [2, 5], 18: [11], 19: ['2^2', 3]")
 
 def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()

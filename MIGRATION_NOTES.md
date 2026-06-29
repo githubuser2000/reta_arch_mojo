@@ -239,3 +239,12 @@ Nicht intuitiv ist die sichtbare Reihenfolge mehrerer expandierter Tokens. Das P
 GNU Readline bleibt eine Python-/Betriebssystemgrenze. Die eigentliche Completion läuft jedoch in `reta-prompt-complete`, einem persistenten Mojo-Prozess, der den vollständigen Eingabepuffer erhält und Kandidaten zurückgibt. Der Katalog wird dadurch nur einmal pro Sitzung geladen. Der Python-Adapter besitzt lediglich Prozesslebenszyklus, Pipe-I/O, Readline-Callback und einen statischen Notfallfallback.
 
 Noch nicht portierte Fachoperationen erhalten an der Kompatibilitätsgrenze weiterhin die unveränderte Originalzeile. Dadurch gehen die historischen späteren Parserwirkungen nicht verloren, obwohl die vordere Kurzsprache und Completion bereits nativ sind.
+
+## Stufe 10 – Bruchausführung und native Fachbefehle
+
+- `prompt_fraction_execution.mojo` portiert `bruchSpalt`, `createRangesForBruchLists`, gleiche Zähler/Nenner, ganzzahlige Quotienten und Reziprok-Ergänzungen.
+- Die ungewöhnliche alternierende Legacy-Repräsentation aus Textgruppen und Zweiergruppen bleibt erhalten.
+- `primfaktorenvergleich`, `abstand`, `abstandPrim`, `mond` und `richtung` besitzen native Dispatch-Zweige.
+- Drei oder mehr unabhängige Abstandbereiche bleiben wegen der überschreibenden Set-/Dict-Semantik des Originals am Kompatibilitätsrand; die eindeutige Zwei-Bereichsform ist bytegleich.
+- `mond` und `richtung` delegieren nur den Prozessstart an `mojo_bridge.py`; Tabellenplanung, Generatoren und Rendering laufen im kompilierten Mojo-Ziel.
+- Explizite Spaltenbereiche werden als Ergebnispositionen auf semantisch erzeugte Spalten angewandt, statt die ursprüngliche Auswahl zu ersetzen.

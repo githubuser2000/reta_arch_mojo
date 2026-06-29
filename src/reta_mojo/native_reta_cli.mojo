@@ -6,6 +6,7 @@ from .input_semantics import parse_cli_tokens, CliParseResult, ParsedCliOption
 from .runtime_aliases import load_runtime_alias_catalog, resolve_runtime_columns
 from .csv_table import read_semicolon_csv, select_zero_based_columns
 from .row_filtering import RowFilterConfig
+from .row_ranges import range_to_numbers
 from .table_preparation import select_display_lines, select_display_table
 from .table_rendering import (
     add_numbering_columns,
@@ -53,6 +54,7 @@ struct NativeRetaPlan(Copyable):
     var positive_rows: List[String]
     var negative_rows: List[String]
     var columns: List[Int]
+    var explicit_positions: List[Int]
     var modal_concepts: List[ModalConcept]
     var meta_requests: List[MetaColumnRequest]
     var fraction_requests: List[FractionColumnRequest]
@@ -352,9 +354,18 @@ def build_native_reta_plan(tokens: List[String], maximum_columns: Int, maximum_r
             elif option.name == "spaltenreihenfolgeundnurdiese" or option.name == "columnorderandonlythese" or option.name == "columnorder":
                 for value_index in range(len(option.values)):
                     var raw = option.values[value_index].text
-                    var column = atol(raw)
-                    if column > 0 and column <= maximum_columns:
-                        explicit_order.append(column - 1)
+                    var selected = List[Int]()
+                    try:
+                        var parsed_columns = range_to_numbers(raw, False, 0)
+                        for parsed_column in parsed_columns:
+                            selected.append(parsed_column)
+                    except:
+                        selected.append(atol(raw))
+                    _sort_ints(selected)
+                    for selected_index in range(len(selected)):
+                        var column = selected[selected_index]
+                        if column > 0 and column <= maximum_columns:
+                            _append_unique_int(explicit_order, column - 1)
             continue
         if _section_is(option.section, "spalten", "columns"):
             if option.name == "breite" or option.name == "width":
@@ -393,13 +404,22 @@ def build_native_reta_plan(tokens: List[String], maximum_columns: Int, maximum_r
                     )
 
     var has_explicit_order = len(explicit_order) > 0
-    var columns: List[Int]
-    if has_explicit_order:
+    var has_semantic_selection = (
+        len(positive_columns) > 0
+        or len(positive_modal) > 0
+        or len(positive_meta) > 0
+        or len(positive_fractions) > 0
+        or len(positive_kombi) > 0
+        or len(positive_commands) > 0
+    )
+    var columns = positive_columns^
+    var explicit_positions = List[Int]()
+    if has_explicit_order and has_semantic_selection:
+        explicit_positions = explicit_order^
+    elif has_explicit_order:
         columns = explicit_order^
-    else:
-        columns = positive_columns^
     columns = _remove_ints(columns, negative_columns)
-    if not has_explicit_order:
+    if not (has_explicit_order and not has_semantic_selection):
         _sort_ints(columns)
     if highest < 1 or highest > maximum_rows:
         highest = maximum_rows
@@ -437,6 +457,7 @@ def build_native_reta_plan(tokens: List[String], maximum_columns: Int, maximum_r
         positive_rows^,
         negative_rows^,
         columns^,
+        explicit_positions^,
         modal_concepts^,
         meta_requests^,
         fraction_requests^,
@@ -482,6 +503,13 @@ def run_native_reta(tokens: List[String], csv_path: String) raises -> String:
     table = kombi.table.copy()
     for kombi_index in range(len(kombi.output_columns)):
         output_columns.append(kombi.output_columns[kombi_index])
+    if len(plan.explicit_positions) > 0:
+        var ordered_output = List[Int]()
+        for position_index in range(len(plan.explicit_positions)):
+            var position = plan.explicit_positions[position_index]
+            if position >= 0 and position < len(output_columns):
+                ordered_output.append(output_columns[position])
+        output_columns = ordered_output^
     var selected_rows = selection.rows.copy()
     var selected = select_display_table(table, selection)
     selected = select_zero_based_columns(selected, output_columns)

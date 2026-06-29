@@ -174,6 +174,11 @@ def _pc_python_set_order(values: List[Int]) -> List[Int]:
     return result^
 
 
+def python_int_set_order(values: List[Int]) -> List[Int]:
+    """Public CPython-3.13 integer-set iteration order used by prompt parity."""
+    return _pc_python_set_order(values)
+
+
 @fieldwise_init
 struct _PcSipState(Copyable):
     var v0: UInt64
