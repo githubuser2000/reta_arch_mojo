@@ -3,6 +3,7 @@
 from std.collections import List
 from std.collections.string import atol
 from .input_semantics import parse_cli_tokens, CliParseResult, ParsedCliOption
+from .output_modes import canonicalize_output_mode
 from .runtime_aliases import load_runtime_alias_catalog, resolve_runtime_columns
 from .csv_table import read_semicolon_csv, select_zero_based_columns
 from .row_filtering import RowFilterConfig
@@ -475,6 +476,161 @@ def build_native_reta_plan(tokens: List[String], maximum_columns: Int, maximum_r
         generated_commands^,
         diagnostics^,
     )
+
+
+
+def _native_cli_section_supported(section: String) -> Bool:
+    return (
+        _section_is_lines(section)
+        or _section_is(section, "spalten", "columns")
+        or _section_is(section, "kombination", "combination")
+        or _section_is(section, "ausgabe", "output")
+        or section.startswith("language=")
+        or section.startswith("sprache=")
+    )
+
+
+def _native_row_option_supported(name: String) -> Bool:
+    return (
+        name == "alles"
+        or name == "all"
+        or name == "vorhervonausschnittteiler"
+        or name == "thisrangebeforedividers"
+        or name == "divisors"
+        or name == "invertieren"
+        or name == "invert"
+        or name == "oberesmaximum"
+        or name == "uppermaximum"
+        or name == "maximum"
+        or name == "vorhervonausschnitt"
+        or name == "thisrangebefore"
+        or name == "range"
+        or name == "vorhervonausschnittvielfache"
+        or name == "multiplerange"
+        or name == "zaehlung"
+        or name == "zählung"
+        or name == "ranges"
+        or name == "counting"
+        or name == "nachtraeglichneuabzaehlung"
+        or name == "retrospectiverecount"
+        or name == "position"
+        or name == "nachtraeglichneuabzaehlungvielfache"
+        or name == "retrospectiverecountmultiples"
+        or name == "multipleposition"
+        or name == "potenzenvonzahlen"
+        or name == "potenciesofnumbers"
+        or name == "powers"
+        or name == "primzahlvielfache"
+        or name == "primemultiples"
+        or name == "vielfachevonzahlen"
+        or name == "multiplesofnumbers"
+        or name == "multiples"
+        or name == "zeit"
+        or name == "time"
+        or name == "typ"
+        or name == "type"
+        or name == "primzahlen"
+        or name == "primenumbers"
+        or name == "primes"
+    )
+
+
+def _native_output_option_supported(name: String) -> Bool:
+    return (
+        name == "art"
+        or name == "type"
+        or name == "breite"
+        or name == "width"
+        or name == "keinenummerierung"
+        or name == "nonumbering"
+        or name == "keineueberschriften"
+        or name == "noheadings"
+        or name == "nocolor"
+        or name == "spaltenreihenfolgeundnurdiese"
+        or name == "columnorderandonlythese"
+        or name == "columnorder"
+    )
+
+
+def native_reta_tokens_supported(tokens: List[String], csv_path: String) raises -> Bool:
+    """Conservatively prove that a raw prompt ``reta`` call is Mojo-owned.
+
+    The normal CLI parser intentionally tolerates not-yet-owned options.  The
+    prompt fast path must be stricter: every supplied section and option has to
+    be understood before Python may be skipped.
+    """
+    var parsed = parse_cli_tokens(tokens)
+    if len(parsed.diagnostics) > 0 or len(parsed.positional) > 0:
+        return False
+    for section_index in range(len(parsed.sections)):
+        if not _native_cli_section_supported(parsed.sections[section_index]):
+            return False
+    for option_index in range(len(parsed.options)):
+        var option = parsed.options[option_index].copy()
+        if _section_is_lines(option.section):
+            if not _native_row_option_supported(option.name):
+                return False
+            var row_flag = (
+                option.name == "alles"
+                or option.name == "all"
+                or option.name == "vorhervonausschnittteiler"
+                or option.name == "thisrangebeforedividers"
+                or option.name == "divisors"
+                or option.name == "invertieren"
+                or option.name == "invert"
+            )
+            if not row_flag and len(option.values) == 0:
+                return False
+        elif _section_is(option.section, "ausgabe", "output"):
+            if not _native_output_option_supported(option.name):
+                return False
+            var output_flag = (
+                option.name == "keinenummerierung"
+                or option.name == "nonumbering"
+                or option.name == "keineueberschriften"
+                or option.name == "noheadings"
+                or option.name == "nocolor"
+            )
+            if not output_flag and len(option.values) == 0:
+                return False
+        elif _section_is(option.section, "spalten", "columns"):
+            var column_flag = (
+                option.name == "keinenummerierung"
+                or option.name == "nonumbering"
+            )
+            var column_value_option = (
+                option.name == "breite" or option.name == "width"
+            )
+            if column_value_option and len(option.values) == 0:
+                return False
+            if not column_flag and not column_value_option and (
+                not option.has_equals or len(option.values) == 0
+            ):
+                return False
+            # All value-bearing column pairs are validated by the owning
+            # runtime/generated alias catalogs in build_native_reta_plan below.
+        elif _section_is(option.section, "kombination", "combination"):
+            if not option.has_equals or len(option.values) == 0:
+                return False
+        else:
+            return False
+
+    var table = read_semicolon_csv(csv_path)
+    var plan = build_native_reta_plan(
+        tokens, table.maximum_columns, len(table.rows) - 1
+    )
+    if len(plan.diagnostics) > 0:
+        return False
+    var mode = canonicalize_output_mode(plan.output_mode)
+    if mode.byte_length() == 0:
+        return False
+    # Positive-width shell/HTML/BBCode output still depends on Python's
+    # hyphenator/rich wrapping state. Width-zero and table-like modes do not.
+    if plan.width > 0 and (
+        mode == "shell" or mode == "html" or mode == "bbcode"
+    ):
+        return False
+    return True
 
 
 def _has_explicit_upper_maximum(tokens: List[String]) -> Bool:

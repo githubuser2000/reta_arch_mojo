@@ -138,5 +138,99 @@ def test_nocolor_disables_shell_row_colors() raises:
     assert_true(not plan.color_rows)
 
 
+
+def test_prompt_fast_path_accepts_owned_raw_reta_subset() raises:
+    assert_true(
+        native_reta_tokens_supported(
+            [
+                "-zeilen",
+                "--vorhervonausschnitt=1-2",
+                "-spalten",
+                "--religionen=sternpolygon",
+                "--breite=0",
+                "-ausgabe",
+                "--nocolor",
+            ],
+            "python_reference/csv/religion.csv",
+        )
+    )
+
+
+def test_prompt_fast_path_accepts_language_and_known_output_mode() raises:
+    assert_true(
+        native_reta_tokens_supported(
+            [
+                "-zeilen",
+                "--range=1",
+                "-columns",
+                "--religions=starpolygon",
+                "-output",
+                "--type=csv",
+                "-language=english",
+            ],
+            "python_reference/csv/religion.csv",
+        )
+    )
+
+
+def test_prompt_fast_path_rejects_hyphenated_shell_width() raises:
+    assert_true(
+        not native_reta_tokens_supported(
+            [
+                "-zeilen",
+                "--vorhervonausschnitt=1-2",
+                "-spalten",
+                "--religionen=sternpolygon",
+                "--breite=40",
+            ],
+            "python_reference/csv/religion.csv",
+        )
+    )
+
+
+def test_prompt_fast_path_rejects_unowned_output_option() raises:
+    assert_true(
+        not native_reta_tokens_supported(
+            ["-ausgabe", "--onetable"],
+            "python_reference/csv/religion.csv",
+        )
+    )
+
+
+def test_prompt_fast_path_rejects_unknown_row_operator() raises:
+    assert_true(
+        not native_reta_tokens_supported(
+            ["-zeilen", "--nichtportiert=1"],
+            "python_reference/csv/religion.csv",
+        )
+    )
+
+
+def test_prompt_fast_path_rejects_unknown_main_section() raises:
+    assert_true(
+        not native_reta_tokens_supported(
+            ["-foo", "--bar=baz"],
+            "python_reference/csv/religion.csv",
+        )
+    )
+
+
+def test_prompt_fast_path_rejects_valueless_column_option() raises:
+    assert_true(
+        not native_reta_tokens_supported(
+            ["-spalten", "--nichtportiert"],
+            "python_reference/csv/religion.csv",
+        )
+    )
+
+
+def test_prompt_fast_path_rejects_missing_required_row_value() raises:
+    assert_true(
+        not native_reta_tokens_supported(
+            ["-zeilen", "--vorhervonausschnitt"],
+            "python_reference/csv/religion.csv",
+        )
+    )
+
 def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()

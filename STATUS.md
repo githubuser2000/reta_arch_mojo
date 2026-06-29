@@ -5,15 +5,15 @@
 - Abgeschlossene Release-Stufen: **8/12 = 66,7 %**
 - Stufe 9: **BBCode, zentraler ANSI-Shellpfad und zentrale HTML-Pfade nativ; seltene Ausgabegrenzen offen**
 - Stufe 10: **native Kurzsprache, mehrsprachige verschachtelte Completion und Promptvorbereitung in Arbeit**
-- Geschätzter funktionaler Portierungsstand: **80–83 %**
+- Geschätzter funktionaler Portierungsstand: **81–84 %**
 - Konservativ vollständig native oder reproduzierbar generierte Originaldateien: **18/92 = 19,6 %**
 - Mindestens teilweise portierte Originaldateien: **46/92 = 50,0 %**
 - Gewichteter Quellzeilenstand: **ca. 29 %**
-- Nativer Mojo-Quellcode in `src/`: **16.632 Zeilen**
-- Davon im Paket `reta_mojo`: **15.645 Zeilen**
+- Nativer Mojo-Quellcode in `src/`: **16.921 Zeilen**
+- Davon im Paket `reta_mojo`: **15.801 Zeilen**
 - Native Mojo-Testdateien und -Probes: **51**
-- Native Testfunktionen: **219**
-- Aktuell fokussiert dokumentiert: **105/105 bestanden**
+- Native Testfunktionen: **227**
+- Aktuell fokussiert dokumentiert: **113/113 bestanden**
 - Prompt-Kurzsprache: **27/27 deutsche und englische Referenzkontexte bytegleich**
 - Promptvorbereitung: **23/23 deutsche und englische Referenzkontexte bytegleich**
 - Verschachtelte Completion: **12/12 Referenzkontexte und 12/12 schnelle Fixtures bytegleich**
@@ -76,6 +76,9 @@
 - `--nocolor` wirkt im Shellrenderer; ungültige explizite Ergebnispositionen öffnen nicht mehr alle Spalten
 - explizites `--oberesmaximum` hebt wie Python beide historischen Zeilengrenzen an; ohne Angabe gilt die korrekte Kurzgrenze 163
 - **18/18** Bruchparser-Referenzfälle, **16/16** Tabellenplanertests, **14/14** reale Bruch-/Modifikator-Tokenströme und **7/7** Prompt-Ausführungsfixtures bestanden
+- native One-shot-Ausführung vor jedem Python-Import; Tabellenkern direkt im Promptprozess statt über `reta-native`-Kindprozess
+- konservativer Besitzervertrag für rohe `reta`-Befehle; **19/19** CLI-Tests und sechs isolierte native Einmalbefehle bestanden
+- kompakte/einbuchstabige Formen behalten ihre historische Echo-Schreibweise an der Bridge
 
 ## Weiterhin an der Kompatibilitätsgrenze
 

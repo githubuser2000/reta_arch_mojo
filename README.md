@@ -10,7 +10,7 @@ Stufen 9/10:                          Ausgabe und Prompt-Sprache in Arbeit
 vollständig native Originaldateien:  18 von 92 = 19,6 %
 mindestens teilweise portiert:       46 von 92 = 50,0 %
 gewichteter Quellzeilenstand:         ca. 29 %
-funktionaler Nutzerumfang:            ca. 80–83 %
+funktionaler Nutzerumfang:            ca. 81–84 %
 ```
 
 Die Metriken messen Verschiedenes. Die Stufenquote ist höher, weil die noch offenen Stufen die größten dynamischen Python-Module bündeln. Der vollständige Plan steht in [`ROADMAP.md`](ROADMAP.md).
@@ -155,6 +155,10 @@ Neben den Ganzzahlpfaden werden ganzzahlige `vielfache`/`teiler`/`einzeln`, posi
 
 `--nocolor` ist im Shellrenderer jetzt wirksam. Außerdem kann eine explizite, nicht vorhandene Ergebnisposition nicht mehr auf die vollständige Spaltenmenge zurückfallen. Ein explizites `--oberesmaximum` hebt nun wie in Python beide historischen Zeilengrenzen an; ohne Angabe bleibt die Kurzgrenze korrekt bei 163.
 
+### Stage 10e: native Einmalbefehle ohne Python-Prozess
+
+Vollständig besessene One-shot-Befehle werden nun vor dem Import von `mojo_bridge.py` ausgeführt. Arithmetik, `abc`, `leeren`, die nativen Tabellenfamilien und streng validierte rohe `reta`-Aufrufe rufen den Tabellenkern direkt im selben Mojo-Prozess auf. Unbekannte Optionen, hyphenatorabhängige positive Shell/HTML/BBCode-Breiten und historisch nicht kanonische Kurzbefehls-Echos bleiben atomar an der Bridge. Details stehen in [`STAGE10E_NATIVE_PROMPT_ONESHOT.md`](STAGE10E_NATIVE_PROMPT_ONESHOT.md).
+
 Die explizite Spaltenfolge wird bei semantischen Spaltenauswahlen nach der Generatorpipeline als relative Ergebnisposition angewandt. Dadurch entspricht `--Bedeutung=gestirn --spaltenreihenfolgeundnurdiese=3-6` wieder der Python-Referenz. Auch die historische Unterdrückung der zusätzlichen Universumsspalte bei `e`, `ee`, fehlenden Überschriften oder mehr als zwei kombinierten Fachbefehlen ist modelliert.
 
 ## Weitere native Bereiche
@@ -206,8 +210,8 @@ Gesamtbestand:
 
 ```text
 51 native Testdateien und Probes
-219 native Testfunktionen
-105/105 aktuell fokussiert dokumentierte Tests bestanden
+227 native Testfunktionen
+113/113 aktuell fokussiert dokumentierte Tests bestanden
 30 Generator- und 9 Kombi-CLI-Fälle in den Paritätssuiten
 8 schnelle Markup-Fixtures; 16 Fälle einzeln gegen Python validiert
 27 Kurzsprachen-, 23 Vorbereitung- und 12 Completion-Kontexte bytegleich

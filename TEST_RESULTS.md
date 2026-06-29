@@ -4,7 +4,7 @@
 
 ```text
 51 Mojo-Testdateien und -Probes
-219 Testfunktionen insgesamt
+227 Testfunktionen insgesamt
 9 reguläre ELF-Compilerziele
 2 optionale schwere Katalogtestdateien
 ```
@@ -28,7 +28,7 @@ test_table_rendering              4/4
 test_html_cell_metadata           4/4
 test_row_filtering_reference      3/3
                                 -------
-                                105/105 bestanden
+                                113/113 bestanden
 ```
 
 In den oben gezählten Einzelsuiten gab es keinen Testfehler. Zwei breitere Sammelprüfungen werden ausdrücklich **nicht** als bestanden gezählt:
@@ -166,3 +166,11 @@ Der Sammelbuild erreichte wegen des äußeren Zeitlimits nur einen Teil der gro�
 ## Referenzbaseline
 
 Die unveränderte Python-Referenz hatte beim Eingang bereits drei fehlschlagende und einen übersprungenen Test. Diese Baseline-Abweichungen wurden nicht dem Mojo-Port zugerechnet und nicht verdeckt geändert.
+
+## Stage 10e: nativer One-shot- und In-Process-Promptpfad
+
+- `test_native_reta_cli.mojo`: **19/19** bestanden, davon acht neue Besitz-/Ablehnungstests.
+- `check_prompt_native_oneshot.sh`: sechs Befehlsarten in einem Verzeichnis ohne `mojo_bridge.py` und ohne `reta-native`-Kindprozess bestanden; zwei Fallbackgrenzen isoliert bestätigt.
+- Öffentliche Prompt-Binärtests einschließlich rohem `reta`, interaktivem Prompt, Speicherung und historischem `a 2`-Echo bestanden.
+- Die zuvor ausgeführten betroffenen Mojo-Gruppen standen bei **83/83**, die Prompt-Ausführungsfixtures bei **7/7** und die Bruch-/Modifikatormatrix bei **14/14**.
+- Der abschließende breite Stage-10-Sammellauf wurde durch einen Neustart der begrenzten Ausführungsumgebung während weiterer Compilerziele beendet. Er wird ausdrücklich nicht als bestanden gezählt; daraus entstand kein konkreter Testfehler.

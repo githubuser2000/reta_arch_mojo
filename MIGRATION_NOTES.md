@@ -276,3 +276,12 @@ Die Bruch-/Modifikatorparität wird als normalisierter geordneter CSV-Tokenstrom
 - Reine negative Bruchauswahlen werden als vollständig behandelte leere Pläne erkannt und nicht mehr unnötig an Python delegiert.
 - Nicht kollidierende Reziprok- und echte `n/m`-Ausschlüsse sowie Bruchteiler werden nativ in Zeilen- und Generatorachsen zerlegt.
 - `--oberesmaximum` setzt nun wie der Python-Setter sowohl die 1024- als auch die historische Kurzgrenze. Ohne explizite Angabe ist diese Kurzgrenze 163, nicht 114. Dadurch bleiben etwa die explizit ausgewählten Reziprok-Vielfachenzeilen 256 und 768 gemeinsam sichtbar.
+
+## Stufe 10e – In-Process-Promptausführung und strenger CLI-Besitz
+
+- Der One-shot-Dispatcher läuft vor `Python.import_module`. Vollständig native Befehle benötigen weder CPython noch einen zweiten Prozess.
+- Tabellenpläne rufen `run_native_reta` direkt auf; der bisherige Bridgeadapter `run_native_reta_subprocess_encoded` entfällt.
+- Rohe `reta`-Befehle werden nur übernommen, wenn jeder Bereich und jede Option zum nativen Vertrag gehört. Unbekannte Eingaben fallen vollständig zurück.
+- Positive Shell-/HTML-/BBCode-Breiten bleiben wegen des noch nicht portierten Python-Hyphenators an der Bridge; Breite 0 und tabellenartige Modi sind nativ.
+- Kompakte/einbuchstabige Befehle bleiben bis zur Typisierung ihrer historischen Echozeile an der Referenzgrenze.
+- `leeren` verwendet direkt `ESC[2J ESC[H`; der externe `clear`-Prozess und sein Pythonadapter entfallen.

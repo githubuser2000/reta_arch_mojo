@@ -245,16 +245,6 @@ def read_prompt_line_encoded(encoded: str) -> str:
 
 
 
-def run_native_reta_subprocess_encoded(encoded: str) -> int:
-    """Spawn the compiled native Reta CLI; Python remains only the OS adapter."""
-    import subprocess
-
-    project_root = REFERENCE_ROOT.parent
-    executable = project_root / "target" / "bin" / "reta-native"
-    argv = str(encoded).split("\x1f") if str(encoded) else []
-    completed = subprocess.run([str(executable), *argv], cwd=project_root, check=False)
-    return int(completed.returncode)
-
 
 def run_reta_prompt_subprocess_encoded(encoded: str) -> int:
     """Run one still-unported prompt command in an isolated Python process."""
@@ -299,11 +289,6 @@ def run_math_expression(expression: str) -> int:
         ).returncode
     )
 
-
-def clear_terminal() -> int:
-    import subprocess
-
-    return int(subprocess.run(["clear"], check=False).returncode)
 
 
 def run_reta_line(line: str) -> int:

@@ -10,6 +10,7 @@ from std.sys import argv
 from std.collections import List
 from std.python import Python, PythonObject
 from reta_mojo.prompt_language import (
+    PromptExpansionResult,
     PromptLanguageCatalog,
     balanced_prompt_split,
     expand_compact_prompt_tokens,
@@ -21,6 +22,10 @@ from reta_mojo.prompt_language import (
 from reta_mojo.prompt_table_execution import (
     PromptTablePlan,
     plan_prompt_table_commands,
+)
+from reta_mojo.native_reta_cli import (
+    native_reta_tokens_supported,
+    run_native_reta,
 )
 from reta_mojo.prompt_runtime import (
     KIND_EMPTY,
@@ -79,6 +84,10 @@ def _print_lines(values: List[String]) -> None:
         print(values[index])
 
 
+def _clear_terminal_native() -> None:
+    print("\x1b[2J\x1b[H", end="")
+
+
 def _print_start_help() -> None:
     print("retaPrompt (nativer Mojo-Controller)")
     print("  -vi                 Vi-Eingabemodus")
@@ -114,8 +123,10 @@ def _print_prompt_help() -> None:
     print("Kompakte Zahlen- und Ein-Zeichen-Befehle werden nativ expandiert.")
     print("Positive Brüche, historische Bruchbereiche sowie ganzzahlige")
     print("Vielfachen-, Teiler- und Einzelauswahl werden nativ geplant.")
-    print("Brüche mit Ausschlüssen oder Bruch+Vielfachen/Teiler bleiben")
-    print("an der isolierten Python-Kompatibilitätsgrenze.")
+    print("Stabile Bruchausschlüsse, Bruchteiler und Reziprok-Vielfache")
+    print("werden ebenfalls nativ geplant; kollidierende Legacy-Algebra und")
+    print("echte v-n/m-Vielfache bleiben an der Kompatibilitätsgrenze.")
+    print("Explizite native Einmalbefehle laufen ohne Python-Kindprozess.")
 
 
 def _print_commands(
@@ -173,34 +184,56 @@ def _run_fallback(
     bridge.run_reta_prompt_line_encoded(encoded)
 
 
-def _run_native_table_tokens(
-    bridge: PythonObject, tokens: List[String]
-) raises -> Bool:
+def _run_native_table_tokens(tokens: List[String]) raises -> Bool:
     if len(tokens) == 0:
         return False
     var command_line = String("reta")
-    var encoded = String()
     for index in range(len(tokens)):
         command_line += " " + tokens[index]
-        if index > 0:
-            encoded += "\x1f"
-        encoded += tokens[index]
     print(command_line)
-    _ = bridge.run_native_reta_subprocess_encoded(encoded)
+    print(
+        run_native_reta(tokens, "python_reference/csv/religion.csv"),
+        end="",
+    )
     return True
 
 
-def _run_native_table_plan(
-    bridge: PythonObject, plan: PromptTablePlan
-) raises -> Bool:
+def _run_native_reta_prompt_command(command: PromptCommand) raises -> Bool:
+    if command.kind != KIND_RETA or len(command.words) < 1:
+        return False
+    var tokens = List[String]()
+    for index in range(1, len(command.words)):
+        tokens.append(command.words[index])
+    var csv_path = String("python_reference/csv/religion.csv")
+    if not native_reta_tokens_supported(tokens, csv_path):
+        return False
+    print(run_native_reta(tokens, csv_path), end="")
+    return True
+
+
+def _run_native_table_plan(plan: PromptTablePlan) raises -> Bool:
     if not plan.handled:
         return False
     if len(plan.invocations) == 0:
         return True
     for index in range(len(plan.invocations)):
-        if not _run_native_table_tokens(bridge, plan.invocations[index].tokens):
+        if not _run_native_table_tokens(plan.invocations[index].tokens):
             return False
     return True
+
+
+def _uses_historical_compact_echo(
+    raw_tokens: List[String], expansion: PromptExpansionResult
+) -> Bool:
+    """Return true when Python owns the visibly echoed shorthand spelling."""
+    if expansion.compact:
+        return True
+    if len(raw_tokens) == 0:
+        return False
+    # One-letter vocabulary replacements such as ``a 2`` are not marked as
+    # compact. Their historical echoed reta command still differs from the
+    # canonical native spelling, so retain the source form at the boundary.
+    return raw_tokens[0].byte_length() == 1
 
 
 def _run_command(
@@ -287,7 +320,10 @@ def _run_command(
                 session.delete_next = True
         return True
     if command.kind == KIND_CLEAR:
-        bridge.clear_terminal()
+        _clear_terminal_native()
+        return True
+    if _uses_historical_compact_echo(raw_tokens, compact_expansion):
+        _run_fallback(bridge, profile, line)
         return True
 
     # The historical PromptGrosseAusgabe branch treats domain words as an
@@ -297,7 +333,7 @@ def _run_command(
     var table_plan = plan_prompt_table_commands(
         normalized_tokens, profile.language, catalog
     )
-    if _run_native_table_plan(bridge, table_plan):
+    if _run_native_table_plan(table_plan):
         return True
 
     if command.kind == KIND_PRIME:
@@ -341,6 +377,8 @@ def _run_command(
         bridge.run_math_prompt_line(command.raw)
         return True
     if command.kind == KIND_RETA:
+        if _run_native_reta_prompt_command(command):
+            return True
         bridge.run_reta_line(command.raw)
         return True
 
@@ -350,6 +388,96 @@ def _run_command(
     # later set normalisation.
     _run_fallback(bridge, profile, line)
     return True
+
+
+def _run_native_one_shot(
+    profile: PromptProfile,
+    line: String,
+    catalog: PromptLanguageCatalog,
+) raises -> Bool:
+    """Handle a fully owned one-shot command before importing Python.
+
+    Compact commands whose historical echo spelling is not yet typed, storage
+    operations and genuinely unported branches return ``False`` and enter the
+    explicit compatibility path in ``main``.
+    """
+    var raw_tokens = balanced_prompt_split(line)
+    var compact_expansion = expand_compact_prompt_tokens(
+        catalog,
+        profile.language,
+        raw_tokens,
+        False,
+        profile.force_e_command,
+    )
+    var normalized_tokens = expand_prompt_replacements(
+        catalog, profile.language, compact_expansion.tokens
+    )
+    var normalized_line = join_prompt_tokens(normalized_tokens)
+    var command = classify_prompt_command_localized(
+        normalized_line, profile.language, catalog
+    )
+
+    if command.kind == KIND_EMPTY or command.kind == KIND_EXIT:
+        return True
+    if command.kind == KIND_HELP:
+        _print_prompt_help()
+        return True
+    if command.kind == KIND_COMMANDS:
+        _print_commands(catalog, profile.language, False)
+        return True
+    if command.kind == KIND_SHORT_COMMANDS:
+        _print_commands(catalog, profile.language, True)
+        return True
+    if command.kind == KIND_LOG_ON:
+        print("Logging ist eingeschaltet.")
+        return True
+    if command.kind == KIND_LOG_OFF:
+        print("Logging ist ausgeschaltet.")
+        return True
+    if command.kind == KIND_CLEAR:
+        _clear_terminal_native()
+        return True
+    if _uses_historical_compact_echo(raw_tokens, compact_expansion):
+        return False
+
+    var table_plan = plan_prompt_table_commands(
+        normalized_tokens, profile.language, catalog
+    )
+    if _run_native_table_plan(table_plan):
+        return True
+
+    if command.kind == KIND_PRIME:
+        _print_lines(prime_lines(command))
+        return True
+    if command.kind == KIND_PRIME24:
+        _print_lines(prime_lines(command, True))
+        return True
+    if command.kind == KIND_MULTIS:
+        _print_lines(multis_lines(command))
+        return True
+    if command.kind == KIND_MULTIS3:
+        _print_lines(multis3_lines(command))
+        return True
+    if command.kind == KIND_MODULO:
+        _print_lines(modulo_lines(command))
+        return True
+    if command.kind == KIND_PRIME_COMPARE:
+        _print_lines(prime_comparison_lines(command, profile.language))
+        return True
+    if command.kind == KIND_DISTANCE and len(command.words) == 3:
+        _print_lines(distance_lines(command, False, profile.language))
+        return True
+    if command.kind == KIND_DISTANCE_PRIME and len(command.words) == 3:
+        _print_lines(distance_lines(command, True, profile.language))
+        return True
+    if command.kind == KIND_ABC:
+        var line_out = abc_line(command)
+        if line_out.byte_length() > 0:
+            print(line_out)
+        return True
+    if _run_native_reta_prompt_command(command):
+        return True
+    return False
 
 
 def _one_shot_line(startup: PromptStartup) -> String:
@@ -374,6 +502,13 @@ def main() raises:
         _print_start_help()
         return
 
+    if startup.profile.one_shot:
+        var line = _one_shot_line(startup)
+        if line.byte_length() == 0:
+            raise Error("-befehl benötigt einen Promptbefehl")
+        if _run_native_one_shot(startup.profile, line, prompt_catalog):
+            return
+
     Python.add_to_path("python_reference")
     var bridge = Python.import_module("mojo_bridge")
     var session = new_prompt_session(startup.profile.logging_enabled)
@@ -386,8 +521,6 @@ def main() raises:
 
     if startup.profile.one_shot:
         var line = _one_shot_line(startup)
-        if line.byte_length() == 0:
-            raise Error("-befehl benötigt einen Promptbefehl")
         _ = _run_command(bridge, startup.profile, line, session, prompt_catalog)
         return
 
