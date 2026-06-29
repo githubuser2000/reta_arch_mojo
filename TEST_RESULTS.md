@@ -4,7 +4,7 @@
 
 ```text
 51 Mojo-Testdateien und -Probes
-217 Testfunktionen insgesamt
+219 Testfunktionen insgesamt
 9 reguläre ELF-Compilerziele
 2 optionale schwere Katalogtestdateien
 ```
@@ -26,8 +26,9 @@ test_native_reta_cli             11/11
 test_generated_table_columns      7/7
 test_table_rendering              4/4
 test_html_cell_metadata           4/4
+test_row_filtering_reference      3/3
                                 -------
-                                102/102 bestanden
+                                105/105 bestanden
 ```
 
 In den oben gezählten Einzelsuiten gab es keinen Testfehler. Zwei breitere Sammelprüfungen werden ausdrücklich **nicht** als bestanden gezählt:
@@ -112,14 +113,14 @@ Zusätzlich ist die fachliche Ausführung jetzt geprüft:
 ```text
 18/18 Bruch-/Bereichsausdrücke bytegleich zu bruchSpalt/createRangesForBruchLists
 16/16 Tabellenplanertests bestanden
-10/10 reale Bruch-/Modifikatorfälle als normalisierte CSV-Tokenströme identisch
+14/14 reale Bruch-/Modifikatorfälle als normalisierte CSV-Tokenströme identisch
 7/7 reale Prompt-Ausführungen als Byte-Fixtures
 18 Tabellenfamilien über reta-native statt retaPrompt.py
 ```
 
-Die Planertests prüfen deutsche und englische Aliase, Mehrfachbefehle, `range`, Invertierung, Ausgabeparameter, das doppelte `groesse`-Routing, die bedingte Universum-Spaltenauswahl, ganzzahlige Vielfachen/Teiler/Einzelauswahl, reduzierte Brüche, echte `n/m`-Spalten sowie historische Rechteck- und Versatzsyntax.
+Die Planertests prüfen deutsche und englische Aliase, Mehrfachbefehle, `range`, Invertierung, Ausgabeparameter, das doppelte `groesse`-Routing, die bedingte Universum-Spaltenauswahl, ganzzahlige Vielfachen/Teiler/Einzelauswahl, reduzierte Brüche, echte `n/m`-Spalten, historische Rechteck- und Versatzsyntax, stabile Bruchausschlüsse, Bruchteiler und Reziprok-Vielfache.
 
-Die zehn Tabellenreferenzfälle umfassen `emotion`, `universum`, `groesse`, `mond` und `motive`. Verglichen wird der geordnete CSV-Tokenstrom nach Entfernung ausschließlich präsentationsbedingter Whitespace-Läufe; eine Bytegleichheit des noch nicht vollständig identischen Shell-Wrappings wird daraus nicht abgeleitet. Bruchausschlüsse und Bruch-plus-Vielfachen/Teiler bleiben atomar am Fallback.
+Die vierzehn Tabellenreferenzfälle umfassen `emotion`, `universum`, `groesse`, `mond` und `motive`. Neu geprüft sind Bruchteiler, Reziprok- und echte Bruchausschlüsse sowie Reziprok-Vielfache. Verglichen wird der geordnete CSV-Tokenstrom nach Entfernung ausschließlich präsentationsbedingter Whitespace-Läufe; eine Bytegleichheit des noch nicht vollständig identischen Shell-Wrappings wird daraus nicht abgeleitet. Echte `v n/m`-Vielfache mit Zähler größer 1 und kollidierende Legacy-Ausschlussformen bleiben atomar am Fallback.
 
 Die sieben Ausführungsfixtures umfassen Primfaktorenvergleich, einfache und primfaktorisierte Abstände, bidirektionale Bereichsabstände sowie ANSI-Tabellenausgaben. Der Promptcontroller trennt die ausgegebene Befehlszeile nun korrekt von der ersten Tabellenzeile. Der native CLI-Plantest bestand nach den Kernkorrekturen mit **11/11**, der Renderer mit **4/4** Tests.
 
@@ -132,6 +133,12 @@ reta -ausgabe --art=htm<Tab>  →  reta -ausgabe --art=html
 Der fünfsprachige Katalog wird in ein temporäres Verzeichnis regeneriert und byteweise gegen die eingecheckten Assets verglichen. Abgedeckt sind 28.990 Completion-Werte in 549 Sektionen, 200 Dispatch-Aliase, 95 Kurzersetzungen, 370 numerische Kurzbefehlszeilen und 1.355 Vokabularaliase.
 
 Der kombinierte `test_stage10.sh`-Kaltlauf wurde einmal nach den bereits bestandenen Sprach-, Laufzeit-, Katalog-, Kurzsprachen- und Fixtureprüfungen vom äußeren Limit beendet. Die noch ausstehende Workerprüfung und die später ergänzten Vorbereitungstests wurden anschließend separat vollständig bestanden. Deshalb wird kein unvollständiger Sammellauf als Gesamterfolg ausgegeben; die obigen Zahlen stammen aus den jeweils abgeschlossenen Einzelprüfungen.
+
+### Stage 10d: obere Zeilengrenzen und Referenzabgrenzung
+
+Ein explizites `--oberesmaximum` hebt nun wie in Python beide historischen Zeilengrenzen an. Zwei fokussierte Tests sichern die Sichtbarkeit nicht-mondartiger Zeilen oberhalb der Standard-Kurzgrenze sowie den korrekten Standardwert 163; gemeinsam mit dem bestehenden Referenzvektor ergibt die Suite **3/3**. Der Reziprok-Vielfachenfall `v1/256,-1/512` prüft praktisch, dass sowohl Zeile 256 als auch Zeile 768 gerendert werden.
+
+Die Fälle `v2/3` und `vielfache 2/3` werden nicht als fehlgeschlagene Mojo-Parität gezählt: Das unveränderte Python-Original bricht dort selbst mit `IndexError` ab. Stage 10d belässt diesen Bereich ausdrücklich an der Bridge, statt eine unbelegte Ersatzsemantik einzuführen.
 
 ## Buildprüfung
 

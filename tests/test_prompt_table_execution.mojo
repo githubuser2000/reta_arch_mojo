@@ -161,8 +161,21 @@ def test_equal_fraction_adds_universe_equality_axis() raises:
     assert_true("--vorhervonausschnitt=3" in _tokens(plan, 3))
 
 
-def test_unsupported_fraction_combinations_stay_at_boundary() raises:
-    assert_false(_plan("universum vielfache 1/2").handled)
+def test_fraction_divisors_and_reciprocal_multiples_are_native() raises:
+    var divisors_plan = _plan("universum teiler 2/6")
+    assert_true(divisors_plan.handled)
+    assert_equal(len(divisors_plan.invocations), 2)
+    assert_true("--vorhervonausschnitt=3" in _tokens(divisors_plan, 0))
+    assert_true("--vorhervonausschnitt=6" in _tokens(divisors_plan, 1))
+
+    var multiples_plan = _plan("universum vielfache 1/2")
+    assert_true(multiples_plan.handled)
+    assert_equal(len(multiples_plan.invocations), 1)
+    assert_true("--vorhervonausschnitt=2,4,6,8,10" in _tokens(multiples_plan))
+    assert_true(",1018,1020,1022" in _tokens(multiples_plan))
+
+    # The Python reference itself raises IndexError for true v-n/m expansion.
+    assert_false(_plan("universum v2/3").handled)
     assert_false(_plan("mond 1/2").handled)
 
 
@@ -183,9 +196,34 @@ def test_legacy_fraction_rectangles_and_offsets_are_native() raises:
     assert_true("--gebrochen-rational_Galaxie_n/m=6" in _tokens(offset, 2))
 
 
-def test_fraction_exclusions_remain_at_boundary() raises:
-    assert_false(_plan("universum -1/2").handled)
-    assert_false(_plan("universum v1/2").handled)
+def test_fraction_exclusions_and_prefixed_reciprocals_are_native() raises:
+    var negative_only = _plan("universum -1/2")
+    assert_true(negative_only.handled)
+    assert_equal(len(negative_only.invocations), 0)
+
+    var mixed = _plan("universum 1/2,-1/4")
+    assert_true(mixed.handled)
+    assert_equal(len(mixed.invocations), 1)
+    assert_true("--vorhervonausschnitt=2,-4" in _tokens(mixed))
+
+    var proper = _plan("universum 2/3,-2/4")
+    assert_true(proper.handled)
+    assert_equal(len(proper.invocations), 1)
+    assert_true("--gebrochen-rational_Universum_n/m=2" in _tokens(proper))
+    assert_true("3" in _tokens(proper))
+    assert_true("-4" in _tokens(proper))
+
+    # Exact cancellation and negative-only reciprocal selectors open the
+    # Python all-row edge path and therefore still fall back.
+    assert_false(_plan("universum 2/4,-2/4").handled)
+    assert_false(_plan("emotion 2/3,-1/4").handled)
+    assert_false(_plan("universum 2/4,-1/2").handled)
+
+    var prefixed = _plan("universum v1/4,-1/8")
+    assert_true(prefixed.handled)
+    assert_equal(len(prefixed.invocations), 1)
+    assert_true("--vorhervonausschnitt=4,516,12,524" in _tokens(prefixed))
+    assert_true(",500,1012,508" in _tokens(prefixed))
 
 
 def test_no_table_command_stays_at_boundary() raises:

@@ -10,7 +10,7 @@ Geplanter Umfang: **12 Release-Stufen**. Eine Stufe zählt erst als abgeschlosse
 | vollständig native oder generierte Python-Dateien | **18/92 = 19,6 %** | Datei vollständig ersetzt oder als reproduzierbares Laufzeitasset abgebildet |
 | mindestens angegriffene Python-Dateien | **46/92 = 50,0 %** | vollständig oder teilweise nativ |
 | gewichtete Quellzeilen | **ca. 29 %** | konservative Schätzung unter Berücksichtigung der großen Teilports |
-| funktionaler Nutzerumfang | **ca. 78–82 %** | praktisch nutzbarer Reta-Umfang ohne Python-Algorithmus |
+| funktionaler Nutzerumfang | **ca. 80–83 %** | praktisch nutzbarer Reta-Umfang ohne Python-Algorithmus |
 
 Die Stufenquote ist höher als die Quellzeilenquote, weil die letzten Stufen besonders große dynamische Module bündeln: vollständige Ausgabeaufbereitung, Prompt-Sprache, i18n-Matrix, Architekturvalidierung und Parallelisierung.
 
@@ -44,7 +44,7 @@ Die Stufenquote ist höher als die Quellzeilenquote, weil die letzten Stufen bes
    BBCode und der zentrale ANSI-Shellpfad sind für die geprüften deutschen und englischen Ausgaben bytegleich. HTML besitzt physische und semantische Zellmetadaten, tag-erhaltende Zellen, Wrapping und Seitenteilung. Offen bleiben Rich-/Terminalsonderfälle und restliche dynamische HTML-Familien.
 
 10. **Vollständige Prompt-Sprache und i18n — in Arbeit**  
-    Klammerbewusstes Tokenisieren, kompakte Kurzbefehle, CPython-Set-Reihenfolge, fünfsprachiger Completion-Katalog und persistenter Mojo-Completion-Arbeiter sind nativ. Mojo plant 18 Tabellenfamilien einschließlich positiver Ganzzahl-, Reziprok- und `n/m`-Achsen, ganzzahliger Vielfachen/Teiler sowie historischer Bruchbereiche. Offen bleiben Bruchausschlüsse, Bruch-plus-Vielfachen/Teiler, weitere hintere Sonderpfade und die vollständige i18n-Laufzeit außerhalb des Promptvokabulars.
+    Klammerbewusstes Tokenisieren, kompakte Kurzbefehle, CPython-Set-Reihenfolge, fünfsprachiger Completion-Katalog und persistenter Mojo-Completion-Arbeiter sind nativ. Mojo plant 18 Tabellenfamilien einschließlich Ganzzahl-, Reziprok- und `n/m`-Achsen, ganzzahliger Vielfachen/Teiler, historischer Bruchbereiche, stabiler Bruchausschlüsse, Bruchteiler und Reziprok-Vielfache. Offen bleiben echte `v n/m`-Vielfache mit Zähler größer 1, kollidierende Legacy-Ausschlussalgebra, weitere hintere Sonderpfade und die vollständige i18n-Laufzeit außerhalb des Promptvokabulars.
 
 11. **Architektursteuerung und Laufzeitnetze — offen**  
     Validierung, Aktivierung, Verträge, Persistenz, Ausführungsnetz, Parallelisierung und Rehearsal.

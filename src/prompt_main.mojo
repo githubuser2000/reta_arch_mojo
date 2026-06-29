@@ -193,8 +193,10 @@ def _run_native_table_tokens(
 def _run_native_table_plan(
     bridge: PythonObject, plan: PromptTablePlan
 ) raises -> Bool:
-    if not plan.handled or len(plan.invocations) == 0:
+    if not plan.handled:
         return False
+    if len(plan.invocations) == 0:
+        return True
     for index in range(len(plan.invocations)):
         if not _run_native_table_tokens(bridge, plan.invocations[index].tokens):
             return False

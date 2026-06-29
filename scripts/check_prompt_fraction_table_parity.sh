@@ -20,7 +20,9 @@ import sys
 source = Path(sys.argv[1]).read_bytes()
 normalized = []
 for line in source.splitlines():
-    if line.startswith(b"reta ") or not line.strip():
+    if line.startswith(b"reta ") or not line.strip() or b";" not in line:
+        # Prompt notices and compatibility explanations are presentation-only.
+        # The semantic parity target is the ordered CSV table token stream.
         continue
     # Python's legacy renderers retain several presentation-only whitespace
     # runs. Compare the ordered CSV token stream after whitespace normalization.
@@ -62,4 +64,8 @@ run_case moon-multiples vielfache mond 512
 run_case motives-proper motive 2/3
 run_case universe-rectangle universum 1/2-3/3
 run_case motives-offset motive 4/5+2/2
+run_case universe-divisor-fraction universum teiler 2/6
+run_case universe-exclusion-reciprocal universum 1/2,-1/4
+run_case universe-exclusion-proper universum 2/3,-2/4
+run_case universe-reciprocal-multiples universum v1/256,-1/512
 printf 'native fraction/modifier prompt CSV token streams: %s/%s identical\n' "$CHECKED" "$CHECKED"

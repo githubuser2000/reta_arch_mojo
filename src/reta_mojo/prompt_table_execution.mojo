@@ -1,15 +1,17 @@
 """Native planning for prompt commands backed by the reta table core.
 
 This module owns the integer ``n`` path, integer multiple/divisor modifiers and
-simple positive rational ``n/m`` expressions.  The historical Python function
-mixes parsing, i18n, range algebra and table execution; here these concerns are
-split into typed planning stages.  Ambiguous arithmetic fraction expressions
-and fraction+multiple/divisor combinations deliberately remain at the
-compatibility boundary until their complete legacy set algebra is ported.
+positive rational ``n/m`` expressions, stable exclusion forms, reciprocal
+multiple expansion and fraction/divisor combinations.  The historical Python
+function mixes parsing, i18n, range algebra and table execution; here these
+concerns are split into typed planning stages.  True ``v n/m`` expansion and
+empty-positive exclusion selectors remain at the compatibility boundary because
+the Python reference either crashes or opens a separate all-row algebra.
 """
 
 from std.collections import List
 from .number_theory import divisors
+from .prime_cross_columns import python_int_set_order, python_signed_int_set_order
 from .prompt_fraction_execution import (
     create_prompt_fraction_range,
     parse_prompt_fraction,
@@ -33,6 +35,8 @@ struct PromptTablePlan(Copyable):
 struct _PromptFractionPair(Copyable):
     var numerator: Int
     var denominator: Int
+    var excluded: Bool
+    var multiple: Bool
 
 
 def _canonical_command(
@@ -369,17 +373,31 @@ def _add_axis_family(
 
 
 def _append_unique_fraction_pair(
-    mut pairs: List[_PromptFractionPair], numerator: Int, denominator: Int
+    mut pairs: List[_PromptFractionPair],
+    numerator: Int,
+    denominator: Int,
+    excluded: Bool,
+    multiple: Bool,
 ) -> None:
     for index in range(len(pairs)):
         var pair = pairs[index].copy()
-        if pair.numerator == numerator and pair.denominator == denominator:
+        if (
+            pair.numerator == numerator
+            and pair.denominator == denominator
+            and pair.excluded == excluded
+            and pair.multiple == multiple
+        ):
             return
-    pairs.append(_PromptFractionPair(numerator, denominator))
+    pairs.append(
+        _PromptFractionPair(numerator, denominator, excluded, multiple)
+    )
 
 
 def _parse_direct_fraction_axes(
-    part: String, mut pairs: List[_PromptFractionPair]
+    part: String,
+    mut pairs: List[_PromptFractionPair],
+    excluded: Bool,
+    multiple: Bool,
 ) raises -> Bool:
     var axes = part.split("/")
     if len(axes) != 2:
@@ -399,14 +417,19 @@ def _parse_direct_fraction_axes(
             for denominator in denominators:
                 if denominator <= 0:
                     return False
-                _append_unique_fraction_pair(pairs, numerator, denominator)
+                _append_unique_fraction_pair(
+                    pairs, numerator, denominator, excluded, multiple
+                )
     except:
         return False
     return True
 
 
 def _parse_legacy_fraction_expression(
-    part: String, mut pairs: List[_PromptFractionPair]
+    part: String,
+    mut pairs: List[_PromptFractionPair],
+    excluded: Bool,
+    multiple: Bool,
 ) raises -> Bool:
     var parsed = parse_prompt_fraction(part)
     if not parsed.valid:
@@ -424,7 +447,9 @@ def _parse_legacy_fraction_expression(
             for denominator in denominators:
                 if denominator <= 0:
                     continue
-                _append_unique_fraction_pair(pairs, numerator, denominator)
+                _append_unique_fraction_pair(
+                    pairs, numerator, denominator, excluded, multiple
+                )
                 appended = True
     except:
         return False
@@ -438,16 +463,131 @@ def _parse_fraction_token(
     var comma_parts = token.split(",")
     for part_index in range(len(comma_parts)):
         var part = String(comma_parts[part_index])
-        # Exclusion and fraction-multiple prefixes require the still-unported
-        # subtraction algebra; never reinterpret them as positive ranges.
-        if part.startswith("-") or part.startswith("v"):
+        var excluded = False
+        var multiple = False
+        if part.startswith("v"):
+            multiple = True
+            part = String(part[byte=1:])
+        if part.startswith("-"):
+            excluded = True
+            part = String(part[byte=1:])
+        if part.byte_length() == 0:
             return False
-        if _parse_direct_fraction_axes(part, pairs):
+        if _parse_direct_fraction_axes(part, pairs, excluded, multiple):
             continue
-        if not _parse_legacy_fraction_expression(part, pairs):
+        if not _parse_legacy_fraction_expression(
+            part, pairs, excluded, multiple
+        ):
             return False
     return True
 
+
+def _has_matching_exclusion(
+    pairs: List[_PromptFractionPair], positive: _PromptFractionPair
+) -> Bool:
+    for index in range(len(pairs)):
+        var candidate = pairs[index].copy()
+        if (
+            candidate.excluded
+            and candidate.numerator == positive.numerator
+            and candidate.denominator == positive.denominator
+        ):
+            return True
+    return False
+
+
+def _has_positive_fraction(pairs: List[_PromptFractionPair]) -> Bool:
+    for index in range(len(pairs)):
+        if not pairs[index].excluded:
+            return True
+    return False
+
+
+def _fraction_multiple_mode(pairs: List[_PromptFractionPair]) -> Bool:
+    for index in range(len(pairs)):
+        if pairs[index].multiple:
+            return True
+    return False
+
+
+def _fraction_multiple_supported(pairs: List[_PromptFractionPair]) -> Bool:
+    # The legacy implementation is stable for reciprocal 1/n multiples.  It
+    # raises IndexError for true n/m or n/1 multiple expansion, so those remain
+    # behind the compatibility boundary until a reference contract exists.
+    for index in range(len(pairs)):
+        if pairs[index].numerator != 1:
+            return False
+    return True
+
+
+def _fraction_exclusions_supported(
+    pairs: List[_PromptFractionPair], multiple_mode: Bool
+) -> Bool:
+    if multiple_mode or not _has_positive_fraction(pairs):
+        return True
+
+    var positive_reciprocals = List[Int]()
+    var negative_unit_denominators = List[Int]()
+    for index in range(len(pairs)):
+        var pair = pairs[index].copy()
+        if pair.excluded:
+            if pair.numerator == 1:
+                _append_unique_int(
+                    negative_unit_denominators, pair.denominator
+                )
+            continue
+        if _has_matching_exclusion(pairs, pair):
+            # Python's selector turns exact positive/negative cancellation into
+            # an all-row edge case that the native row algebra does not yet
+            # model.  Preserve it at the compatibility boundary.
+            return False
+        if pair.denominator % pair.numerator == 0:
+            _append_unique_int(
+                positive_reciprocals,
+                pair.denominator // pair.numerator,
+            )
+
+    if len(negative_unit_denominators) == 0:
+        return True
+    # A negative-only reciprocal selector (",-4") means "all except 4" in
+    # the Python renderer.  Likewise 2,-2 opens the legacy all-row path.  Both
+    # remain fallback cases until that empty-positive selector is native.
+    if len(positive_reciprocals) == 0:
+        return False
+    for index in range(len(negative_unit_denominators)):
+        if _contains_int(
+            positive_reciprocals, negative_unit_denominators[index]
+        ):
+            return False
+    return True
+
+
+def _expanded_reciprocal_multiple_rows(
+    pairs: List[_PromptFractionPair], upper_exclusive: Int
+) -> List[String]:
+    var attempts = List[Int]()
+    var exclusions = List[Int]()
+    for index in range(len(pairs)):
+        var pair = pairs[index].copy()
+        if pair.numerator != 1 or pair.denominator <= 0:
+            continue
+        var value = pair.denominator
+        while value < upper_exclusive:
+            if pair.excluded:
+                _append_unique_int(exclusions, value)
+            else:
+                attempts.append(value)
+            value += pair.denominator
+
+    # CPython iterates the positive set after subtraction.  Integer hashes are
+    # identities, so reproducing its slot order and then filtering exclusions
+    # preserves cases such as v1/4,-1/8 (4,516,12,524,...).
+    var ordered = python_int_set_order(attempts)
+    var result = List[String]()
+    for index in range(len(ordered)):
+        if not _contains_int(exclusions, ordered[index]):
+            result.append(String(ordered[index]))
+    return result^
 
 def _append_fraction_invocations(
     mut invocations: List[PromptTableInvocation],
@@ -463,19 +603,23 @@ def _append_fraction_invocations(
     var numerators = List[Int]()
     for pair_index in range(len(pairs)):
         var pair = pairs[pair_index].copy()
-        if pair.numerator != 1:
+        if not pair.excluded and pair.numerator != 1:
             _append_unique_int(numerators, pair.numerator)
-    # The Python reference groups through frozenset-backed keys.  Its stable
-    # observable order for positive prompt axes is ascending, including the
-    # historical +offset syntax (for example 4/5+2/2 -> 2, 6).
+    # Positive numerator groups retain the Stage-10c observed ascending order.
     _sort_ints(numerators)
     for numerator_index in range(len(numerators)):
         var numerator = numerators[numerator_index]
-        var denominator_rows = List[String]()
+        var denominator_attempts = List[Int]()
         for other_index in range(len(pairs)):
             var other = pairs[other_index].copy()
             if other.numerator == numerator:
-                _append_unique_string(denominator_rows, String(other.denominator))
+                denominator_attempts.append(
+                    -other.denominator if other.excluded else other.denominator
+                )
+        var ordered_rows = python_signed_int_set_order(denominator_attempts)
+        var denominator_rows = List[String]()
+        for row_index in range(len(ordered_rows)):
+            denominator_rows.append(String(ordered_rows[row_index]))
         var base = _base_table_tokens_without_maximum(
             language,
             _join_rows(denominator_rows),
@@ -504,7 +648,12 @@ def _append_universe_equal_axis(
     var equal_rows = List[String]()
     for index in range(len(pairs)):
         var pair = pairs[index].copy()
-        if pair.numerator == pair.denominator and pair.numerator != 1:
+        if (
+            not pair.excluded
+            and not _has_matching_exclusion(pairs, pair)
+            and pair.numerator == pair.denominator
+            and pair.numerator != 1
+        ):
             _append_unique_string(equal_rows, String(pair.numerator))
     if len(equal_rows) == 0:
         return
@@ -522,7 +671,6 @@ def _append_universe_equal_axis(
         suppress_empty,
         passthrough,
     )
-
 
 def plan_prompt_table_commands(
     words: List[String],
@@ -548,15 +696,15 @@ def plan_prompt_table_commands(
         var token = words[index]
         var canonical = _canonical_command(catalog, language, token)
         canonical_words.append(canonical)
-        if token.startswith("-"):
-            passthrough.append(token)
-            continue
-        if _is_table_command(canonical) or _is_control_command(canonical):
-            continue
         if _is_fraction_expression(token):
             has_fraction = True
             if not _parse_fraction_token(token, fraction_pairs):
                 unsupported = True
+            continue
+        if token.startswith("-"):
+            passthrough.append(token)
+            continue
+        if _is_table_command(canonical) or _is_control_command(canonical):
             continue
         try:
             var values = range_to_numbers(token, False, 0)
@@ -578,8 +726,10 @@ def plan_prompt_table_commands(
     if not has_table_command:
         return PromptTablePlan(False, List[PromptTableInvocation]())
 
-    var multiple_mode = _contains(canonical_words, "vielfache") or _contains(
-        canonical_words, "v"
+    var multiple_mode = (
+        _contains(canonical_words, "vielfache")
+        or _contains(canonical_words, "v")
+        or _fraction_multiple_mode(fraction_pairs)
     )
     var divisor_mode = _contains(canonical_words, "teiler") or _contains(
         canonical_words, "w"
@@ -589,15 +739,26 @@ def plan_prompt_table_commands(
         multiple_mode = False
     if multiple_mode and divisor_mode:
         unsupported = True
-    if has_fraction and (multiple_mode or divisor_mode or has_non_fraction_table_command):
+    if has_fraction and has_non_fraction_table_command:
+        unsupported = True
+    if has_fraction and multiple_mode and not _fraction_multiple_supported(
+        fraction_pairs
+    ):
+        unsupported = True
+    if has_fraction and not _fraction_exclusions_supported(
+        fraction_pairs, multiple_mode
+    ):
         unsupported = True
     if unsupported:
         return PromptTablePlan(False, List[PromptTableInvocation]())
 
     var whole_rows = List[String]()
     var reciprocal_rows = List[String]()
+    var has_positive_fraction = _has_positive_fraction(fraction_pairs)
     for index in range(len(fraction_pairs)):
         var pair = fraction_pairs[index].copy()
+        if pair.excluded or _has_matching_exclusion(fraction_pairs, pair):
+            continue
         if pair.numerator % pair.denominator == 0:
             _append_unique_string(
                 whole_rows, String(pair.numerator // pair.denominator)
@@ -606,6 +767,26 @@ def plan_prompt_table_commands(
             _append_unique_string(
                 reciprocal_rows, String(pair.denominator // pair.numerator)
             )
+
+    if multiple_mode and has_fraction:
+        reciprocal_rows = _expanded_reciprocal_multiple_rows(
+            fraction_pairs, 1024
+        )
+    elif has_positive_fraction or len(row_parts) > 0:
+        # Legacy subtraction only promotes explicit -1/n axes into the
+        # reciprocal row selection.  Equivalent forms such as -2/4 stay in
+        # their proper-fraction numerator group.
+        var reciprocal_attempts = List[Int]()
+        for index in range(len(reciprocal_rows)):
+            reciprocal_attempts.append(Int(reciprocal_rows[index]))
+        for index in range(len(fraction_pairs)):
+            var pair = fraction_pairs[index].copy()
+            if pair.excluded and pair.numerator == 1:
+                reciprocal_attempts.append(-pair.denominator)
+        var reciprocal_order = python_signed_int_set_order(reciprocal_attempts)
+        reciprocal_rows = List[String]()
+        for index in range(len(reciprocal_order)):
+            reciprocal_rows.append(String(reciprocal_order[index]))
 
     var normal_rows = _copy_strings(row_parts)
     for index in range(len(whole_rows)):
@@ -621,6 +802,10 @@ def plan_prompt_table_commands(
                     divisor_rows.append(String(values[divisor_index]))
         for index in range(len(row_parts)):
             divisor_rows.append(row_parts[index])
+        # Reduced n/m integers are added after the historical w/teiler
+        # expansion and are not themselves expanded into their divisors.
+        for index in range(len(whole_rows)):
+            divisor_rows.append(whole_rows[index])
         normal_rows = divisor_rows^
 
     var has_integer = len(normal_rows) > 0
@@ -665,12 +850,21 @@ def plan_prompt_table_commands(
             )
     var reciprocal_base = List[String]()
     if has_reciprocal:
-        reciprocal_base = _base_table_tokens_without_maximum(
-            language,
-            _join_rows(reciprocal_rows),
-            counting,
-            invert,
-        )
+        if multiple_mode and has_fraction:
+            reciprocal_base = _base_table_tokens(
+                language,
+                _join_rows(reciprocal_rows),
+                1024,
+                counting,
+                invert,
+            )
+        else:
+            reciprocal_base = _base_table_tokens_without_maximum(
+                language,
+                _join_rows(reciprocal_rows),
+                counting,
+                invert,
+            )
     var invocations = List[PromptTableInvocation]()
 
     if _contains(canonical_words, "mond") and has_integer:
@@ -997,7 +1191,10 @@ def plan_prompt_table_commands(
             passthrough,
         )
 
-    return PromptTablePlan(len(invocations) > 0, invocations^)
+    return PromptTablePlan(
+        len(invocations) > 0 or (has_fraction and not has_positive_fraction),
+        invocations^,
+    )
 
 
 def serialize_prompt_table_plan(plan: PromptTablePlan) -> String:
@@ -1007,7 +1204,7 @@ def serialize_prompt_table_plan(plan: PromptTablePlan) -> String:
     for invocation_index in range(len(plan.invocations)):
         if invocation_index > 0:
             result += "\x1e"
-        var tokens = plan.invocations[invocation_index].tokens
+        var tokens = plan.invocations[invocation_index].tokens.copy()
         for token_index in range(len(tokens)):
             if token_index > 0:
                 result += "\x1f"

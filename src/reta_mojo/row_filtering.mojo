@@ -14,7 +14,7 @@ struct RowFilterConfig(Copyable):
 
 
 def default_row_filter_config(highest: Int = 1024) -> RowFilterConfig:
-    return RowFilterConfig(highest, min(highest, 114), True)
+    return RowFilterConfig(highest, min(highest, 163), True)
 
 
 def _tail_filter(text: String, start: Int) -> String:
@@ -177,7 +177,7 @@ def filter_original_lines(config: RowFilterConfig, initial: Set[Int], conditions
     """Translate historical row-condition markers to concrete row numbers.
 
     The control flow intentionally follows ``row_filtering.py`` including the
-    final rule that removes non-moon rows above the 114-row main-table limit.
+    final rule that removes non-moon rows above the historical 163-row main-table limit.
     """
     var current = _copy_set(initial)
     if 0 in current:

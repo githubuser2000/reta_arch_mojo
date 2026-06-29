@@ -175,8 +175,83 @@ def _pc_python_set_order(values: List[Int]) -> List[Int]:
 
 
 def python_int_set_order(values: List[Int]) -> List[Int]:
-    """Public CPython-3.13 integer-set iteration order used by prompt parity."""
+    """Public CPython-3.13 non-negative integer-set iteration order."""
     return _pc_python_set_order(values)
+
+
+def _pc_signed_int_hash(value: Int) -> UInt64:
+    # Python hashes integers as themselves, except -1 which is reserved as the
+    # C-API error sentinel and therefore hashes to -2.  Conversion to UInt64
+    # reproduces setobject.c's size_t perturbation for negative hashes.
+    return UInt64(-2 if value == -1 else value)
+
+
+def _pc_signed_int_set_slot(
+    slots: List[Int], stored: List[Int], value: Int
+) -> Int:
+    var mask = len(slots) - 1
+    var hash_value = _pc_signed_int_hash(value)
+    var index = Int(hash_value & UInt64(mask))
+    var perturb = hash_value
+    while True:
+        var stored_index = slots[index]
+        if stored_index == -1 or stored[stored_index] == value:
+            return index
+        var probes = 9 if index + 9 <= mask else 0
+        for offset in range(1, probes + 1):
+            stored_index = slots[index + offset]
+            if stored_index == -1 or stored[stored_index] == value:
+                return index + offset
+        perturb >>= UInt64(5)
+        index = Int(
+            (UInt64(index * 5 + 1) + perturb) & UInt64(mask)
+        )
+
+
+def _pc_signed_int_set_resize(
+    slots: List[Int], stored: List[Int], minimum_used: Int
+) -> List[Int]:
+    var new_size = 8
+    while new_size <= minimum_used:
+        new_size <<= 1
+    var resized = _pc_empty_set_slots(new_size)
+    for index in range(len(slots)):
+        var stored_index = slots[index]
+        if stored_index >= 0:
+            var target = _pc_signed_int_set_slot(
+                resized, stored, stored[stored_index]
+            )
+            resized[target] = stored_index
+    return resized^
+
+
+def python_signed_int_set_order(values: List[Int]) -> List[Int]:
+    """CPython-3.13 set iteration order for signed prompt row values."""
+    var slots = _pc_empty_set_slots(8)
+    var stored = List[Int]()
+    var fill = 0
+    var used = 0
+    for value_index in range(len(values)):
+        var value = values[value_index]
+        var mask = len(slots) - 1
+        if (fill + 1) * 5 >= mask * 3:
+            slots = _pc_signed_int_set_resize(
+                slots, stored, (used + 1) * 2
+            )
+            fill = used
+        var target = _pc_signed_int_set_slot(slots, stored, value)
+        if slots[target] >= 0:
+            continue
+        stored.append(value)
+        slots[target] = len(stored) - 1
+        fill += 1
+        used += 1
+
+    var result = List[Int]()
+    for index in range(len(slots)):
+        if slots[index] >= 0:
+            result.append(stored[slots[index]])
+    return result^
 
 
 @fieldwise_init

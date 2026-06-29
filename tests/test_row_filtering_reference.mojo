@@ -1,4 +1,4 @@
-from std.testing import assert_equal, TestSuite
+from std.testing import assert_equal, assert_true, TestSuite
 from std.collections import Set
 from reta_mojo.row_filtering import *
 
@@ -82,6 +82,28 @@ def test_python_reference_vectors() raises:
     assert_equal(sorted_row_numbers(filter_original_lines(config, _initial(), ["_b_2", "<"])), [2, 4, 6, 8])
     # combo_type_position
     assert_equal(sorted_row_numbers(filter_original_lines(config, _initial(), ["_a_1-100", "aussenalle", "_z_1-5"])), [1, 7, 13, 14, 19])
+
+
+def test_explicit_upper_maximum_can_keep_non_moon_rows_above_default_short_limit() raises:
+    var initial = Set[Int]()
+    for value in range(1, 1026):
+        initial.add(value)
+    var selected = filter_original_lines(
+        RowFilterConfig(1025, 1025, True), initial, ["_a_256,768"]
+    )
+    assert_true(256 in selected)
+    assert_true(768 in selected)
+
+
+def test_default_short_limit_matches_python_163_rows() raises:
+    var initial = Set[Int]()
+    for value in range(1, 1025):
+        initial.add(value)
+    var selected = filter_original_lines(
+        default_row_filter_config(1024), initial, ["_a_163,164"]
+    )
+    assert_true(163 in selected)
+    assert_true(164 not in selected)
 
 def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()

@@ -257,7 +257,7 @@ Portiert sind 18 Tabellenfamilien. Darin enthalten sind alle reinen `n`- und `1/
 
 Der bestehende Port von `bruchSpalt` und `createRangesForBruchLists` ist nun an den Tabellenplaner angeschlossen. Dadurch funktionieren einfache Achsenbereiche, historische Rechtecke (`1/2-3/3`) und Versätze (`4/5+2/2`). Positive Zählergruppen werden in der beobachtbaren Referenzreihenfolge aufsteigend ausgeführt; die Versatzform `4/5+2/2` liefert also zuerst `2/n`, danach `6/n`.
 
-Ganzzahlige `vielfache`, `teiler` und `einzeln` werden vor der Fachfamilie als Zeilenoperatoren ausgewertet. Die Sicherheitsgrenze ist enger geworden, bleibt aber atomar: Bruchausschlüsse, `v`-präfixierte Brüche sowie Bruch-plus-Vielfachen/Teiler fallen als kompletter Befehl zurück.
+Ganzzahlige `vielfache`, `teiler` und `einzeln` werden vor der Fachfamilie als Zeilenoperatoren ausgewertet. Stage 10d nimmt zusätzlich stabile Bruchausschlüsse, Bruchteiler und Reziprok-Vielfache (`v1/n`) in denselben besitzenden Plan auf. Atomar am Fallback bleiben echte `v n/m`-Vielfache mit Zähler größer 1, bei denen die Python-Referenz selbst mit `IndexError` endet, sowie kollidierende Ausschlussformen, die im Original eine gesonderte All-Zeilen-Algebra aktivieren.
 
 Die Universumsfamilie behält ihre historische bedingte Spaltenauswahl: Spalte 4 entfällt bei `e`, `ee`, deaktivierten Überschriften, dem Unterdrückungsbefehl oder mehr als zwei kombinierten Fachbefehlen. Für Tabellenoptionen mit Umlauten verwendet der Plan vorhandene ASCII-Aliase (`trieb`, `groesse`).
 
@@ -268,3 +268,11 @@ Die Universumsfamilie behält ihre historische bedingte Spaltenauswahl: Spalte 4
 - Native Tabellenaufrufe werden nach der ausgegebenen `reta`-Befehlszeile mit einem echten Zeilenumbruch begonnen. Die früher zusammengeklebte erste Tabellenzeile war ein Promptcontrollerfehler, kein Renderermerkmal.
 
 Die Bruch-/Modifikatorparität wird als normalisierter geordneter CSV-Tokenstrom geprüft. Das entfernt nur präsentationsbedingte Whitespace-Läufe der Legacy-Renderer und behauptet ausdrücklich keine vollständige Byteparität des Shell-Wrappings.
+
+## Stufe 10d – vorzeichenbehaftete Bruchmengen und obere Zeilengrenzen
+
+- `_PromptFractionPair` trägt Ausschluss- und Vielfachenstatus typisiert statt über nachträgliche Stringtests.
+- Positive und vorzeichenbehaftete Ganzzahlmengen besitzen getrennte CPython-Ordnungsabbilder; damit bleibt auch die ungewöhnliche Reihenfolge großer Reziprok-Vielfachen reproduzierbar.
+- Reine negative Bruchauswahlen werden als vollständig behandelte leere Pläne erkannt und nicht mehr unnötig an Python delegiert.
+- Nicht kollidierende Reziprok- und echte `n/m`-Ausschlüsse sowie Bruchteiler werden nativ in Zeilen- und Generatorachsen zerlegt.
+- `--oberesmaximum` setzt nun wie der Python-Setter sowohl die 1024- als auch die historische Kurzgrenze. Ohne explizite Angabe ist diese Kurzgrenze 163, nicht 114. Dadurch bleiben etwa die explizit ausgewählten Reziprok-Vielfachenzeilen 256 und 768 gemeinsam sichtbar.

@@ -58,7 +58,7 @@ Der Umschalter ist absichtlich explizit, solange nicht sämtliche Tabellenfunkti
 |---|---|---|
 | `reta-native`, `RETA_NATIVE=1 ./reta` | `target/bin/reta-native` | erster nativer Tabellenpfad |
 | normale `reta`-Ausführung | `target/bin/reta-mojo-compat-bin` | vollständige historische Oberfläche |
-| `rp`, `rpl`, `rpb`, `rpe`, `retaPrompt*` | `target/bin/reta-prompt-native` | Kurzsprache, Vorbereitung, positive Bruchbereiche, ganzzahlige Vielfachen/Teiler und Kernbefehle nativ; Bruchausschlüsse und restliche Sonderoperationen bleiben an der Bridge |
+| `rp`, `rpl`, `rpb`, `rpe`, `retaPrompt*` | `target/bin/reta-prompt-native` | Kurzsprache, Vorbereitung, Bruchbereiche, stabile Ausschlüsse, Bruchteiler, Reziprok-Vielfache und Kernbefehle nativ; echte `v n/m`-Vielfache und kollidierende Legacy-Sonderoperationen bleiben an der Bridge |
 | interaktive verschachtelte Completion | `target/bin/reta-prompt-complete` | persistenter Mojo-Arbeiter; Readline ist nur Terminalgrenze |
 | `grundStrukHtml*` | `target/bin/grundStrukHtml-native` | Renderer nativ |
 | `generate_html` | `target/bin/generate-html-native` | Komposition nativ, große Mitteltabelle noch Bridge |

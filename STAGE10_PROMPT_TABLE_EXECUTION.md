@@ -48,11 +48,11 @@ Mehrere Zähler werden in der beobachtbaren positiven Referenzreihenfolge aufste
 
 ## Bewusste Fallbackgrenze
 
-Weiterhin vollständig an der Python-Kompatibilitätsgrenze bleiben:
+Stage 10d hat stabile Bruchausschlüsse, Bruchteiler und Reziprok-Vielfache in den nativen Plan aufgenommen. Weiterhin vollständig an der Python-Kompatibilitätsgrenze bleiben:
 
-- Bruchausschlüsse wie `-1/2`
-- mit `v` präfixierte Bruchausdrücke wie `v1/2`
-- Brüche zusammen mit `vielfache` oder `teiler`
+- echte `v n/m`-Vielfache mit Zähler größer 1, etwa `v2/3`, weil die Referenz dort selbst mit `IndexError` abbricht
+- exakt kollidierende positive und negative Brüche wie `2/4,-2/4`
+- Ausschlusskombinationen, die im Original eine gesonderte All-Zeilen-Algebra öffnen, etwa `2/3,-1/4` oder `2/4,-1/2`
 - Brüche bei Fachbefehlen ohne historische Bruchtabellensemantik, etwa `mond 1/2`
 
 Der gesamte Befehl fällt zurück. Es gibt keine halb native Ausführung, die nur einen Teil der Legacy-Mengenalgebra verschluckt.
@@ -63,6 +63,7 @@ Im Zuge der Paritätsprüfung wurden zwei Fehler des nativen Tabellenkerns behob
 
 1. `--nocolor` deaktiviert nun tatsächlich ANSI-Sequenzen im Shellrenderer.
 2. Eine explizite Ergebnisposition außerhalb der erzeugten Spaltenmenge liefert keine Spalte mehr, statt irrtümlich auf alle Spalten zurückzufallen.
+3. `--oberesmaximum` hebt wie der Python-Property-Setter beide historischen Zeilengrenzen an; ohne explizite Angabe gilt die korrekte Kurzgrenze 163.
 
 Der Promptcontroller trennt außerdem die ausgegebene `reta`-Befehlszeile wieder durch einen Zeilenumbruch von der ersten Tabellenzeile.
 
@@ -73,7 +74,8 @@ Der Promptcontroller trennt außerdem die ausgegebene `reta`-Befehlszeile wieder
 - 21/21 Prompt-Laufzeittests
 - 8/8 Bruchparser-/Achsentests
 - 18/18 reine Bruch-/Bereichsparitätsfälle bytegleich
-- 10/10 reale Bruch-/Modifikatorfälle als normalisierte CSV-Tokenströme identisch
+- 14/14 reale Bruch-/Modifikatorfälle als normalisierte CSV-Tokenströme identisch
 - 7/7 bestehende Prompt-Ausführungsfixtures bytegleich
 - 11/11 native CLI-Plantests
 - 4/4 Renderertests
+- 3/3 fokussierte Zeilenfilter-Referenztests

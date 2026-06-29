@@ -477,6 +477,18 @@ def build_native_reta_plan(tokens: List[String], maximum_columns: Int, maximum_r
     )
 
 
+def _has_explicit_upper_maximum(tokens: List[String]) -> Bool:
+    for index in range(len(tokens)):
+        var token = tokens[index]
+        if (
+            token.startswith("--oberesmaximum=")
+            or token.startswith("--uppermaximum=")
+            or token.startswith("--maximum=")
+        ):
+            return True
+    return False
+
+
 def run_native_reta(tokens: List[String], csv_path: String) raises -> String:
     var table = read_semicolon_csv(csv_path)
     var maximum_rows = len(table.rows) - 1
@@ -485,8 +497,14 @@ def run_native_reta(tokens: List[String], csv_path: String) raises -> String:
     # Resolve displayed source rows before generating derived columns.  The
     # Python implementation uses its last displayed line as the annotation
     # boundary, while relation maps may still be built farther ahead.
+    # The Python runtime keeps two historical row ceilings: 1024 for the
+    # generated table and 163 for ordinary main-table rows.  Supplying an
+    # explicit upper maximum assigns that value to both ceilings.
+    var highest_multiple = min(plan.highest, 163)
+    if _has_explicit_upper_maximum(tokens):
+        highest_multiple = plan.highest
     var selection = select_display_lines(
-        RowFilterConfig(plan.highest, min(plan.highest, 114), rows_were_set),
+        RowFilterConfig(plan.highest, highest_multiple, rows_were_set),
         table,
         plan.positive_rows,
         plan.negative_rows,
