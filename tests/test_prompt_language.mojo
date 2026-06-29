@@ -205,5 +205,17 @@ def test_prompt_preparation_fraction_and_shell_order() raises:
     _assert_tokens(shell.tokens, ["hi", "shell", "echo"])
 
 
+
+def test_prompt_preparation_unicode_control_alias() raises:
+    var catalog = _catalog()
+    # The historical CPython-set hash must consume UTF-8 bytes rather than
+    # slicing in the middle of the ö in BefehlSpeicherungLöschen.
+    var prepared = prepare_prompt_tokens(catalog, "deutsch", ["a2l"])
+    assert_true(prepared.compact)
+    assert_equal(len(prepared.tokens), 3)
+    assert_true("absicht" in prepared.tokens)
+    assert_true("2" in prepared.tokens)
+    assert_true("BefehlSpeicherungLöschen" in prepared.tokens)
+
 def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()

@@ -83,7 +83,7 @@ def test_prime24_prompt_lines() raises:
 def test_multis_prompt_lines() raises:
     var lines = multis_lines(classify_prompt_command("multis 12"))
     assert_equal(len(lines), 1)
-    assert_equal(lines[0], "12: [(6, 2), (4, 3), (12, 1)]")
+    assert_equal(lines[0], "12: [(6, 2), (4, 3)]")
 
 
 def test_multis3_prompt_lines() raises:

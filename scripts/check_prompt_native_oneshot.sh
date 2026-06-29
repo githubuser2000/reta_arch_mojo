@@ -19,29 +19,57 @@ ln -s "$ROOT/python_reference/csv" "$TMP/python_reference/csv"
     "$PROMPT" rpb prim 60 > prime.actual
     [[ $(cat prime.actual) == '60: 2^2 3 5' ]]
     "$PROMPT" retaPrompt -befehl multis 12 > multis.actual
-    [[ $(cat multis.actual) == '12: [(6, 2), (4, 3), (12, 1)]' ]]
+    [[ $(cat multis.actual) == '12: [(6, 2), (4, 3)]' ]]
     "$PROMPT" rpb abc Test > abc.actual
     [[ $(cat abc.actual) == '20 5 19 20' ]]
     "$PROMPT" rpb leeren > clear.actual
     printf '\033[2J\033[H' > clear.expected
     cmp clear.expected clear.actual
+
     "$PROMPT" rpb universum 1/2 --nocolor --breite=0 > table.actual
     grep -F 'reta -zeilen --vorhervonausschnitt=2' table.actual >/dev/null
     grep -F '1 / 2 Art und Weise' table.actual >/dev/null
     [[ ! -e target/bin/reta-native ]]
+
     "$PROMPT" rpb reta -zeilen --vorhervonausschnitt=1-2 \
         -spalten --religionen=sternpolygon -ausgabe --art=csv --nocolor \
         > raw-reta.actual
     grep -F ';Religionen der Föderation' raw-reta.actual >/dev/null
+
+    "$PROMPT" rpb a2 > compact-a.actual
+    grep -F "'absicht 2' ergibt sich aus 'a2' und ergibt danach reta-Befehl:" compact-a.actual >/dev/null
+    grep -F -- '--Menschliches=motivation' compact-a.actual >/dev/null
+
+    "$PROMPT" rpb p12 > compact-p.actual
+    grep -F "'12 mulpri multis prim primfaktorenvergleich' ergibt sich aus 'p12'" compact-p.actual >/dev/null
+    grep -Fx '12: [(6, 2), (4, 3)]' compact-p.actual >/dev/null
+
+    "$PROMPT" rpb G2 > compact-g.actual
+    grep -F "'2 geist' ergibt sich aus 'G2' und ergibt danach reta-Befehl:" compact-g.actual >/dev/null
+    grep -F -- '--Grundstrukturen=geist' compact-g.actual >/dev/null
+
     if "$PROMPT" rpb reta -ausgabe --onetable > fallback.actual 2> fallback.err; then
         echo 'unported raw reta command unexpectedly bypassed compatibility' >&2
         exit 1
     fi
     grep -F "No module named 'mojo_bridge'" fallback.actual >/dev/null
-    if "$PROMPT" rpb a 2 > compact.actual 2> compact.err; then
-        echo 'compact echo command unexpectedly bypassed compatibility' >&2
+
+    if "$PROMPT" rpb B2 > compact-renderer.actual 2> compact-renderer.err; then
+        echo 'renderer-sensitive compact command unexpectedly bypassed compatibility' >&2
         exit 1
     fi
-    grep -F "No module named 'mojo_bridge'" compact.actual >/dev/null
+    grep -F "No module named 'mojo_bridge'" compact-renderer.actual >/dev/null
+
+    if "$PROMPT" rpb 15 > compact-number.actual 2> compact-number.err; then
+        echo 'pure-number compact command unexpectedly bypassed compatibility' >&2
+        exit 1
+    fi
+    grep -F "No module named 'mojo_bridge'" compact-number.actual >/dev/null
+
+    if "$PROMPT" rpb a2s > compact-storage.actual 2> compact-storage.err; then
+        echo 'mixed storage/table compact command unexpectedly executed partially' >&2
+        exit 1
+    fi
+    grep -F "No module named 'mojo_bridge'" compact-storage.actual >/dev/null
 )
-printf '%s\n' 'native one-shot prompt boundary: 6 native commands without Python; raw and compact fallbacks remain isolated'
+printf '%s\n' 'native one-shot prompt boundary: 9 native command classes without Python; renderer-sensitive compact fallbacks remain isolated'

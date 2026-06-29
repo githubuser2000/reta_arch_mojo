@@ -285,3 +285,15 @@ Die Bruch-/Modifikatorparität wird als normalisierter geordneter CSV-Tokenstrom
 - Positive Shell-/HTML-/BBCode-Breiten bleiben wegen des noch nicht portierten Python-Hyphenators an der Bridge; Breite 0 und tabellenartige Modi sind nativ.
 - Kompakte/einbuchstabige Befehle bleiben bis zur Typisierung ihrer historischen Echozeile an der Referenzgrenze.
 - `leeren` verwendet direkt `ESC[2J ESC[H`; der externe `clear`-Prozess und sein Pythonadapter entfallen.
+
+
+## Stufe 10f – kompakte Legacy-Präsentation und nativer `mulpri`-Ablauf
+
+- `prompt_legacy_echo.mojo` trennt sichtbare historische Optionsschreibweisen von den kanonischen Ausführungstokens.
+- Rendererstabile Kurzformen für Absicht/Motiv, Geist, Impulse, Thomas und Richtung laufen vor jedem Python-Import.
+- `mulpri`/`p` komponiert Primfaktorenvergleich, Primfaktorzerlegung und nichttriviale Faktorpaare nativ; Primzahlen behalten die historische Sonderausgabe.
+- `multis` gibt wie die Referenz keine triviale Zerlegung `(n, 1)` mehr aus.
+- Python-`set`-Reihenfolge in sichtbaren Ankündigungen wird mit dem vorhandenen CPython-3.13-/`PYTHONHASHSEED=0`-Modell erzeugt.
+- Rendererempfindliche Kurzformen und reine Zahlenkürzel bleiben atomar an der Bridge, damit kein Teil eines zusammengesetzten Legacybefehls vorzeitig nativ ausgeführt wird.
+- Der kompakte Besitzervertrag prüft jedes nichtnumerische Token; Speicher-/Sitzungsbefehle können nicht mehr neben einer nativen Tabelle verloren gehen.
+- Die SipHash-13-Nachbildung verarbeitet UTF-8-Bytes direkt und schneidet mehrbyteige deutsche Bezeichner nicht mehr an ungültigen Grenzen.

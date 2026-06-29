@@ -3,8 +3,8 @@
 ## Testbestand
 
 ```text
-51 Mojo-Testdateien und -Probes
-227 Testfunktionen insgesamt
+52 Mojo-Testdateien und -Probes
+233 Testfunktionen insgesamt
 9 reguläre ELF-Compilerziele
 2 optionale schwere Katalogtestdateien
 ```
@@ -14,21 +14,22 @@ Der letzte vollständig abgeschlossene normale Stufe-7-Lauf ergab **145/145** Te
 ## Aktuell erneut ausgeführte Mojo-Tests
 
 ```text
-test_prompt_language             15/15
+test_prompt_language             16/16
 test_prompt_runtime              21/21
+test_prompt_legacy_echo           5/5
 test_prompt_fraction_execution    8/8
 test_prompt_table_execution      16/16
 test_meta_columns                 3/3
 test_fraction_concat_columns      3/3
 test_kombi_join_columns           4/4
 test_generated_aliases            6/6
-test_native_reta_cli             11/11
+test_native_reta_cli             19/19
 test_generated_table_columns      7/7
 test_table_rendering              4/4
 test_html_cell_metadata           4/4
 test_row_filtering_reference      3/3
                                 -------
-                                113/113 bestanden
+                                119/119 bestanden
 ```
 
 In den oben gezählten Einzelsuiten gab es keinen Testfehler. Zwei breitere Sammelprüfungen werden ausdrücklich **nicht** als bestanden gezählt:
@@ -104,7 +105,7 @@ Die Promptprüfung umfasst:
 12/12 verschachtelte Referenz-Completion-Kontexte bytegleich
 12/12 schnelle Completion-Fixtures bytegleich
 12/12 Readline-Kontexte an den persistenten Mojo-Arbeiter delegiert
-15/15 Prompt-Sprachtests bestanden
+16/16 Prompt-Sprachtests bestanden
 21/21 Prompt-Laufzeittests bestanden
 ```
 
@@ -122,7 +123,7 @@ Die Planertests prüfen deutsche und englische Aliase, Mehrfachbefehle, `range`,
 
 Die vierzehn Tabellenreferenzfälle umfassen `emotion`, `universum`, `groesse`, `mond` und `motive`. Neu geprüft sind Bruchteiler, Reziprok- und echte Bruchausschlüsse sowie Reziprok-Vielfache. Verglichen wird der geordnete CSV-Tokenstrom nach Entfernung ausschließlich präsentationsbedingter Whitespace-Läufe; eine Bytegleichheit des noch nicht vollständig identischen Shell-Wrappings wird daraus nicht abgeleitet. Echte `v n/m`-Vielfache mit Zähler größer 1 und kollidierende Legacy-Ausschlussformen bleiben atomar am Fallback.
 
-Die sieben Ausführungsfixtures umfassen Primfaktorenvergleich, einfache und primfaktorisierte Abstände, bidirektionale Bereichsabstände sowie ANSI-Tabellenausgaben. Der Promptcontroller trennt die ausgegebene Befehlszeile nun korrekt von der ersten Tabellenzeile. Der native CLI-Plantest bestand nach den Kernkorrekturen mit **11/11**, der Renderer mit **4/4** Tests.
+Die sieben Ausführungsfixtures umfassen Primfaktorenvergleich, einfache und primfaktorisierte Abstände, bidirektionale Bereichsabstände sowie ANSI-Tabellenausgaben. Der Promptcontroller trennt die ausgegebene Befehlszeile nun korrekt von der ersten Tabellenzeile. Der native CLI- und One-shot-Besitztest bestand mit **19/19**, der Renderer mit **4/4** Tests.
 
 Ein Pseudoterminaltest bestätigte die tatsächliche interaktive Ergänzung:
 
@@ -174,3 +175,13 @@ Die unveränderte Python-Referenz hatte beim Eingang bereits drei fehlschlagende
 - Öffentliche Prompt-Binärtests einschließlich rohem `reta`, interaktivem Prompt, Speicherung und historischem `a 2`-Echo bestanden.
 - Die zuvor ausgeführten betroffenen Mojo-Gruppen standen bei **83/83**, die Prompt-Ausführungsfixtures bei **7/7** und die Bruch-/Modifikatormatrix bei **14/14**.
 - Der abschließende breite Stage-10-Sammellauf wurde durch einen Neustart der begrenzten Ausführungsumgebung während weiterer Compilerziele beendet. Er wird ausdrücklich nicht als bestanden gezählt; daraus entstand kein konkreter Testfehler.
+
+
+## Stage 10f: kompakte Legacy-Echos und zusammengesetztes `mulpri`
+
+- `test_prompt_legacy_echo.mojo`: **5/5** bestanden.
+- `test_prompt_language.mojo`: **16/16** einschließlich UTF-8-SipHash-Regression bestanden.
+- `test_prompt_runtime.mojo`: **21/21** einschließlich korrigierter nichttrivialer Faktorpaare bestanden.
+- `check_prompt_compact_execution_parity.sh`: **5/5** vollständige Ausgaben (`a2`, `ap15`, `p12`, `p13`, `G2`) bytegleich zu Python 3.13.5 mit `PYTHONHASHSEED=0`.
+- `check_prompt_native_oneshot.sh`: neun native Befehlsklassen ohne `mojo_bridge.py` und ohne `reta-native`-Kindprozess; rendererempfindliche Kurzformen, reine Zahlenkürzel und gemischte Speicher-/Tabellenkürzel bleiben nachweislich atomar am Fallback.
+- Die kompakte Sprachvorbereitung bleibt **27/27**, die bestehenden Ausführungsfixtures **7/7**, der Bruchparser **18/18** und die Bruch-/Modifikatormatrix **14/14**. Der ungeteilte 14er-Lauf überschritt das Werkzeugfenster; dieselben Fälle wurden in Gruppen 4+4+3+3 vollständig abgeschlossen.

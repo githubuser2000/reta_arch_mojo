@@ -619,20 +619,21 @@ def _prompt_siphash13_seed_zero(text: String) -> UInt64:
         UInt64(0x6c7967656e657261),
         UInt64(0x7465646279746573),
     )
+    var bytes = text.as_bytes()
     var cursor = 0
-    while cursor + 8 <= text.byte_length():
+    while cursor + 8 <= len(bytes):
         var word = UInt64(0)
         for offset in range(8):
-            word |= UInt64(ord(text[byte=cursor + offset])) << UInt64(offset * 8)
+            word |= UInt64(bytes[cursor + offset]) << UInt64(offset * 8)
         state.v3 ^= word
         state = _prompt_sip_round(state)
         state.v0 ^= word
         cursor += 8
 
-    var tail = UInt64(text.byte_length()) << UInt64(56)
+    var tail = UInt64(len(bytes)) << UInt64(56)
     var offset = 0
-    while cursor + offset < text.byte_length():
-        tail |= UInt64(ord(text[byte=cursor + offset])) << UInt64(offset * 8)
+    while cursor + offset < len(bytes):
+        tail |= UInt64(bytes[cursor + offset]) << UInt64(offset * 8)
         offset += 1
     state.v3 ^= tail
     state = _prompt_sip_round(state)

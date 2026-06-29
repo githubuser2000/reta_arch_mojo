@@ -2,12 +2,14 @@
 
 The public shell launchers pass a profile name as the first private argument.
 Prompt profiles, state, dispatch, history policy and arithmetic commands are
-native Mojo. Advanced historical shorthand commands cross the explicit Python
-compatibility boundary until their translation layer is ported.
+native Mojo. Renderer-stable historical shorthand commands also execute natively
+through a separate legacy-presentation layer; unowned compound cases cross the
+explicit Python compatibility boundary atomically.
 """
 
 from std.sys import argv
 from std.collections import List
+from std.collections.string import ord
 from std.python import Python, PythonObject
 from reta_mojo.prompt_language import (
     PromptExpansionResult,
@@ -18,10 +20,17 @@ from reta_mojo.prompt_language import (
     load_prompt_language_catalog,
     prompt_completion_word_pool,
     prompt_root_commands,
+    prompt_vocabulary_alias,
+    prepare_prompt_tokens,
+    normalize_prompt_language,
 )
 from reta_mojo.prompt_table_execution import (
     PromptTablePlan,
     plan_prompt_table_commands,
+)
+from reta_mojo.prompt_legacy_echo import (
+    compact_prompt_announcement,
+    legacy_table_echo_tokens,
 )
 from reta_mojo.native_reta_cli import (
     native_reta_tokens_supported,
@@ -62,6 +71,7 @@ from reta_mojo.prompt_runtime import (
     effective_one_shot_tokens,
     join_prompt_tokens,
     prime_lines,
+    command_numbers,
     multis_lines,
     multis3_lines,
     modulo_lines,
@@ -184,13 +194,21 @@ def _run_fallback(
     bridge.run_reta_prompt_line_encoded(encoded)
 
 
-def _run_native_table_tokens(tokens: List[String]) raises -> Bool:
+def _run_native_table_tokens(
+    tokens: List[String],
+    historical_echo: Bool = False,
+    suppress_command_echo: Bool = False,
+) raises -> Bool:
     if len(tokens) == 0:
         return False
-    var command_line = String("reta")
-    for index in range(len(tokens)):
-        command_line += " " + tokens[index]
-    print(command_line)
+    if not suppress_command_echo:
+        var display_tokens = (
+            legacy_table_echo_tokens(tokens) if historical_echo else tokens.copy()
+        )
+        var command_line = String("reta")
+        for index in range(len(display_tokens)):
+            command_line += " " + display_tokens[index]
+        print(command_line)
     print(
         run_native_reta(tokens, "python_reference/csv/religion.csv"),
         end="",
@@ -211,29 +229,332 @@ def _run_native_reta_prompt_command(command: PromptCommand) raises -> Bool:
     return True
 
 
-def _run_native_table_plan(plan: PromptTablePlan) raises -> Bool:
+def _run_native_table_plan(
+    plan: PromptTablePlan,
+    historical_echo: Bool = False,
+    suppress_command_echo: Bool = False,
+) raises -> Bool:
     if not plan.handled:
         return False
     if len(plan.invocations) == 0:
         return True
     for index in range(len(plan.invocations)):
-        if not _run_native_table_tokens(plan.invocations[index].tokens):
+        if not _run_native_table_tokens(
+            plan.invocations[index].tokens,
+            historical_echo,
+            suppress_command_echo,
+        ):
             return False
     return True
 
 
-def _uses_historical_compact_echo(
+def _uses_historical_prompt_echo(
     raw_tokens: List[String], expansion: PromptExpansionResult
 ) -> Bool:
-    """Return true when Python owns the visibly echoed shorthand spelling."""
     if expansion.compact:
         return True
-    if len(raw_tokens) == 0:
+    return len(raw_tokens) > 0 and raw_tokens[0].byte_length() == 1
+
+
+def _contains_token(values: List[String], needle: String) -> Bool:
+    for index in range(len(values)):
+        if values[index] == needle:
+            return True
+    return False
+
+
+def _quiet_prompt_echo(
+    values: List[String], language: String, catalog: PromptLanguageCatalog
+) -> Bool:
+    var quiet = prompt_vocabulary_alias(
+        catalog,
+        language,
+        "command",
+        "keineEinZeichenZeilenPlusKeineAusgabeWelcherBefehlEsWar",
+    )
+    return _contains_token(values, quiet)
+
+
+def _integer_argument_words(values: List[String]) -> List[String]:
+    var result = List[String]()
+    for index in range(len(values)):
+        var token = values[index]
+        if "/" in token or token.startswith("-"):
+            continue
+        try:
+            var numbers = command_numbers(
+                PromptCommand(KIND_PRIME, "prim " + token, ["prim", token])
+            )
+            if len(numbers) > 0:
+                result.append(token)
+        except:
+            pass
+    return result^
+
+
+def _has_mulpri(
+    values: List[String], language: String, catalog: PromptLanguageCatalog
+) -> Bool:
+    var mulpri = prompt_vocabulary_alias(
+        catalog, language, "command", "mulpri"
+    )
+    var short = prompt_vocabulary_alias(catalog, language, "command", "p")
+    return _contains_token(values, mulpri) or _contains_token(values, short)
+
+
+def profile_language_is_german(language: String) -> Bool:
+    var normalized = language.lower()
+    return (
+        normalized == ""
+        or normalized == "de"
+        or normalized == "deutsch"
+        or normalized == "german"
+    )
+
+
+def _run_native_mulpri(
+    values: List[String], language: String, catalog: PromptLanguageCatalog
+) raises -> Bool:
+    if not _has_mulpri(values, language, catalog):
         return False
-    # One-letter vocabulary replacements such as ``a 2`` are not marked as
-    # compact. Their historical echoed reta command still differs from the
-    # canonical native spelling, so retain the source form at the boundary.
-    return raw_tokens[0].byte_length() == 1
+    var arguments = _integer_argument_words(values)
+    if len(arguments) == 0:
+        return False
+    var prime_words = List[String]()
+    prime_words.append("prim")
+    for index in range(len(arguments)):
+        prime_words.append(arguments[index])
+    var prime_command = PromptCommand(
+        KIND_PRIME, join_prompt_tokens(prime_words), prime_words^
+    )
+    var numbers = command_numbers(prime_command)
+    if len(numbers) > 1:
+        var compare_words = List[String]()
+        compare_words.append("primfaktorenvergleich")
+        for index in range(len(arguments)):
+            compare_words.append(arguments[index])
+        _print_lines(
+            prime_comparison_lines(
+                PromptCommand(
+                    KIND_PRIME_COMPARE,
+                    join_prompt_tokens(compare_words),
+                    compare_words^,
+                ),
+                language,
+            )
+        )
+    _print_lines(prime_lines(prime_command))
+    var multi_words = List[String]()
+    multi_words.append("multis")
+    for index in range(len(arguments)):
+        multi_words.append(arguments[index])
+    var multi_lines = multis_lines(
+        PromptCommand(
+            KIND_MULTIS, join_prompt_tokens(multi_words), multi_words^
+        )
+    )
+    for index in range(len(multi_lines)):
+        if multi_lines[index].endswith("[]") and index < len(numbers):
+            var prime_word = (
+                "Primzahl"
+                if profile_language_is_german(language)
+                else "prime_number"
+            )
+            print(
+                String(numbers[index])
+                + ": "
+                + String(numbers[index])
+                + " ("
+                + prime_word
+                + ")"
+            )
+        else:
+            print(multi_lines[index])
+    return True
+
+
+def _compact_announcement_tokens(
+    prepared_tokens: List[String],
+    language: String,
+    catalog: PromptLanguageCatalog,
+) -> List[String]:
+    var result = prepared_tokens.copy()
+    if _has_mulpri(prepared_tokens, language, catalog):
+        for canonical in ["multis", "prim", "primfaktorenvergleich"]:
+            var translated = prompt_vocabulary_alias(
+                catalog, language, "command", canonical
+            )
+            if not _contains_token(result, translated):
+                result.append(translated)
+    return result^
+
+
+def _contains_ascii_command_letter(values: List[String]) -> Bool:
+    for value_index in range(len(values)):
+        var bytes = values[value_index].as_bytes()
+        for byte_index in range(len(bytes)):
+            var code = Int(bytes[byte_index])
+            if (code >= 65 and code <= 90) or (code >= 97 and code <= 122):
+                return True
+    return False
+
+
+def _is_prompt_numeric_syntax_token(value: String) -> Bool:
+    if value.byte_length() == 0:
+        return False
+    var bytes = value.as_bytes()
+    for index in range(len(bytes)):
+        var code = Int(bytes[index])
+        if code >= 48 and code <= 57:
+            continue
+        if (
+            code == 32
+            or code == 9
+            or code == 43
+            or code == 44
+            or code == 45
+            or code == 46
+            or code == 47
+            or code == 58
+            or code == 59
+            or code == 91
+            or code == 93
+            or code == 40
+            or code == 41
+            or code == 123
+            or code == 125
+        ):
+            continue
+        return False
+    return True
+
+
+def _canonical_prompt_command(
+    token: String, language: String, catalog: PromptLanguageCatalog
+) -> String:
+    var normalized = normalize_prompt_language(language)
+    for index in range(len(catalog.vocabulary)):
+        var entry = catalog.vocabulary[index].copy()
+        if (
+            entry.language == normalized
+            and entry.domain == "command"
+            and entry.translated == token
+        ):
+            return entry.canonical
+    return token
+
+
+def _is_prompt_table_canonical(value: String) -> Bool:
+    return (
+        value == "mond"
+        or value == "richtung"
+        or value == "r"
+        or value == "primzahlkreuz"
+        or value == "alles"
+        or value == "thomas"
+        or value == "t"
+        or value == "emotion"
+        or value == "E"
+        or value == "wirklichkeit"
+        or value == "W"
+        or value == "triebe"
+        or value == "T"
+        or value == "impulse"
+        or value == "I"
+        or value == "bewusstsein"
+        or value == "B"
+        or value == "geist"
+        or value == "G"
+        or value == "freiheit"
+        or value == "gleichheit"
+        or value == "groesse"
+        or value == "kugeln"
+        or value == "kreise"
+        or value == "netzwerk"
+        or value == "komplex"
+        or value == "absicht"
+        or value == "absichten"
+        or value == "motiv"
+        or value == "motive"
+        or value == "a"
+        or value == "universum"
+        or value == "u"
+    )
+
+
+def _historical_prompt_control_supported(canonical: String) -> Bool:
+    return (
+        canonical == "mulpri"
+        or canonical == "p"
+        or canonical == "range"
+        or canonical == "R"
+        or canonical == "invertieren"
+        or canonical == "e"
+        or canonical == "ee"
+        or canonical == "vielfache"
+        or canonical == "v"
+        or canonical == "teiler"
+        or canonical == "w"
+        or canonical == "einzeln"
+        or canonical
+        == "keineEinZeichenZeilenPlusKeineAusgabeWelcherBefehlEsWar"
+    )
+
+
+def _historical_prompt_execution_supported(
+    raw_tokens: List[String],
+    planning_tokens: List[String],
+    language: String,
+    catalog: PromptLanguageCatalog,
+) -> Bool:
+    # Number-only compact defaults still expose a renderer marker difference
+    # in the Python reference.  Keep the entire compound command atomic.
+    if not _contains_ascii_command_letter(raw_tokens):
+        return False
+    for index in range(len(planning_tokens)):
+        var token = planning_tokens[index]
+        # Only pure numeric/rational/range syntax is data.  Every other token
+        # must be owned explicitly; otherwise a localized storage/shell/session
+        # command could be silently dropped while its table sibling runs.
+        if _is_prompt_numeric_syntax_token(token):
+            continue
+        var canonical = _canonical_prompt_command(token, language, catalog)
+        if _historical_prompt_control_supported(canonical):
+            continue
+        if not _is_prompt_table_canonical(canonical):
+            return False
+        if not (
+            canonical == "richtung"
+            or canonical == "r"
+            or canonical == "thomas"
+            or canonical == "t"
+            or canonical == "impulse"
+            or canonical == "I"
+            or canonical == "geist"
+            or canonical == "G"
+            or canonical == "absicht"
+            or canonical == "absichten"
+            or canonical == "motiv"
+            or canonical == "motive"
+            or canonical == "a"
+        ):
+            return False
+    return True
+
+
+def _print_compact_announcement_if_needed(
+    expansion: PromptExpansionResult,
+    prepared_tokens: List[String],
+    source: String,
+    language: String,
+    catalog: PromptLanguageCatalog,
+    quiet: Bool,
+) -> None:
+    if expansion.compact and not quiet:
+        var visible_tokens = _compact_announcement_tokens(
+            prepared_tokens, language, catalog
+        )
+        print(compact_prompt_announcement(visible_tokens, source, language))
 
 
 def _run_command(
@@ -322,19 +643,62 @@ def _run_command(
     if command.kind == KIND_CLEAR:
         _clear_terminal_native()
         return True
-    if _uses_historical_compact_echo(raw_tokens, compact_expansion):
-        _run_fallback(bridge, profile, line)
-        return True
+
+    var historical_echo = _uses_historical_prompt_echo(
+        raw_tokens, compact_expansion
+    )
+    var prepared = prepare_prompt_tokens(
+        catalog,
+        profile.language,
+        raw_tokens,
+        False,
+        profile.force_e_command,
+    )
+    var planning_tokens = (
+        prepared.tokens.copy() if historical_echo else normalized_tokens.copy()
+    )
+    var quiet_echo = _quiet_prompt_echo(
+        planning_tokens, profile.language, catalog
+    )
 
     # The historical PromptGrosseAusgabe branch treats domain words as an
     # unordered command set.  Plan these table-backed commands before the
     # single-command dispatch so localized aliases and mixed command lines can
     # remain native as one or more invocations.
     var table_plan = plan_prompt_table_commands(
-        normalized_tokens, profile.language, catalog
+        planning_tokens, profile.language, catalog
     )
-    if _run_native_table_plan(table_plan):
-        return True
+    var owns_mulpri = _has_mulpri(
+        planning_tokens, profile.language, catalog
+    ) and len(_integer_argument_words(planning_tokens)) > 0
+    var owns_table = table_plan.handled
+    if historical_echo and (owns_table or owns_mulpri):
+        if not _historical_prompt_execution_supported(
+            raw_tokens, planning_tokens, profile.language, catalog
+        ):
+            owns_table = False
+            owns_mulpri = False
+    # Never execute one branch of a compound historical command while another
+    # branch still belongs to the compatibility boundary.
+    if table_plan.handled and not owns_table:
+        owns_mulpri = False
+    if owns_table or owns_mulpri:
+        _print_compact_announcement_if_needed(
+            compact_expansion,
+            prepared.tokens,
+            line,
+            profile.language,
+            catalog,
+            quiet_echo,
+        )
+        var handled_table = _run_native_table_plan(
+            table_plan, historical_echo, quiet_echo
+        )
+        var handled_mulpri = _run_native_mulpri(
+            planning_tokens, profile.language, catalog
+        )
+        if handled_table or handled_mulpri:
+            return True
 
     if command.kind == KIND_PRIME:
         _print_lines(prime_lines(command))
@@ -397,9 +761,9 @@ def _run_native_one_shot(
 ) raises -> Bool:
     """Handle a fully owned one-shot command before importing Python.
 
-    Compact commands whose historical echo spelling is not yet typed, storage
-    operations and genuinely unported branches return ``False`` and enter the
-    explicit compatibility path in ``main``.
+    Renderer-stable compact commands use typed historical presentation while
+    storage operations, renderer-sensitive compounds and genuinely unported
+    branches return ``False`` and enter the compatibility path in ``main``.
     """
     var raw_tokens = balanced_prompt_split(line)
     var compact_expansion = expand_compact_prompt_tokens(
@@ -437,14 +801,57 @@ def _run_native_one_shot(
     if command.kind == KIND_CLEAR:
         _clear_terminal_native()
         return True
-    if _uses_historical_compact_echo(raw_tokens, compact_expansion):
-        return False
 
-    var table_plan = plan_prompt_table_commands(
-        normalized_tokens, profile.language, catalog
+    var historical_echo = _uses_historical_prompt_echo(
+        raw_tokens, compact_expansion
     )
-    if _run_native_table_plan(table_plan):
-        return True
+    var prepared = prepare_prompt_tokens(
+        catalog,
+        profile.language,
+        raw_tokens,
+        False,
+        profile.force_e_command,
+    )
+    var planning_tokens = (
+        prepared.tokens.copy() if historical_echo else normalized_tokens.copy()
+    )
+    var quiet_echo = _quiet_prompt_echo(
+        planning_tokens, profile.language, catalog
+    )
+    var table_plan = plan_prompt_table_commands(
+        planning_tokens, profile.language, catalog
+    )
+    var owns_mulpri = _has_mulpri(
+        planning_tokens, profile.language, catalog
+    ) and len(_integer_argument_words(planning_tokens)) > 0
+    var owns_table = table_plan.handled
+    if historical_echo and (owns_table or owns_mulpri):
+        if not _historical_prompt_execution_supported(
+            raw_tokens, planning_tokens, profile.language, catalog
+        ):
+            owns_table = False
+            owns_mulpri = False
+    # Never execute one branch of a compound historical command while another
+    # branch still belongs to the compatibility boundary.
+    if table_plan.handled and not owns_table:
+        owns_mulpri = False
+    if owns_table or owns_mulpri:
+        _print_compact_announcement_if_needed(
+            compact_expansion,
+            prepared.tokens,
+            line,
+            profile.language,
+            catalog,
+            quiet_echo,
+        )
+        var handled_table = _run_native_table_plan(
+            table_plan, historical_echo, quiet_echo
+        )
+        var handled_mulpri = _run_native_mulpri(
+            planning_tokens, profile.language, catalog
+        )
+        if handled_table or handled_mulpri:
+            return True
 
     if command.kind == KIND_PRIME:
         _print_lines(prime_lines(command))

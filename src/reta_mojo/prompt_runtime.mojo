@@ -321,7 +321,7 @@ def multis_lines(command: PromptCommand) raises -> List[String]:
     var numbers = command_numbers(command)
     for number_index in range(len(numbers)):
         var number = numbers[number_index]
-        var pairs = factor_pairs(number)
+        var pairs = factor_pairs(number, False)
         var line = String(number) + ": ["
         for pair_index in range(len(pairs)):
             if pair_index > 0:
