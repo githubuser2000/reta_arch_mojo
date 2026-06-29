@@ -248,3 +248,14 @@ Noch nicht portierte Fachoperationen erhalten an der Kompatibilitätsgrenze weit
 - Drei oder mehr unabhängige Abstandbereiche bleiben wegen der überschreibenden Set-/Dict-Semantik des Originals am Kompatibilitätsrand; die eindeutige Zwei-Bereichsform ist bytegleich.
 - `mond` und `richtung` delegieren nur den Prozessstart an `mojo_bridge.py`; Tabellenplanung, Generatoren und Rendering laufen im kompilierten Mojo-Ziel.
 - Explizite Spaltenbereiche werden als Ergebnispositionen auf semantisch erzeugte Spalten angewandt, statt die ursprüngliche Auswahl zu ersetzen.
+
+## Stufe 10 – besitzende Tabellenplanung für Ganzzahlbefehle
+
+`prompt_table_execution.mojo` trennt die bisher in `PromptGrosseAusgabe` vermischten Aufgaben: lokalisierte Befehlsauflösung, Zahlenbereichssammlung, Modifikatorauswertung, Tabellenargumente und Mehrfachausführung. Das Ergebnis ist ein `PromptTablePlan` mit null, einer oder mehreren `PromptTableInvocation`-Strukturen. Der Promptcontroller führt den Plan aus, ohne die Fachsemantik erneut zu interpretieren.
+
+Portiert sind 18 ganzzahlige Tabellenfamilien. Darin enthalten sind alle reinen `n`-Zweige der zentralen `retaCmdAbstraction_n_and_1pron`-Aufrufe sowie die direkten Tabellenzweige für Mond, Richtung, Primzahlkreuz, Alles und Thomas. `groesse` erzeugt wie die Referenz zwei getrennte Tabellenaufrufe. Mehrere Fachbefehle auf derselben Zeile bleiben ebenfalls mehrere Ausführungen und werden nicht fälschlich zu einer Spaltenauswahl vereinigt.
+
+Die Planung setzt absichtlich eine harte Ganzzahligkeitsgrenze. Sobald ein Bruch, `vielfache`, `teiler` oder `einzeln` vorkommt, wird der gesamte Befehl an Python zurückgegeben. Dadurch kann kein nativ unterstützter Teilzweig die noch nicht portierte Bruch-/Divisorsemantik verschlucken. Die Universumsfamilie erhält zusätzlich ihre historische bedingte Spaltenauswahl: Spalte 4 entfällt bei `e`, `ee`, deaktivierten Überschriften, dem Unterdrückungsbefehl oder mehr als zwei kombinierten Fachbefehlen.
+
+Für Tabellenoptionen mit Umlauten verwendet der Plan vorhandene ASCII-Aliase (`trieb`, `groesse`). Das umgeht keine Fachlogik, sondern dieselbe Aliasauflösung des nativen Parameterschemas und hält die derzeitige PythonObject-Prozessgrenze UTF-8-unabhängig.
+

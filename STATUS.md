@@ -5,15 +5,15 @@
 - Abgeschlossene Release-Stufen: **8/12 = 66,7 %**
 - Stufe 9: **BBCode, zentraler ANSI-Shellpfad und zentrale HTML-Pfade nativ; seltene Ausgabegrenzen offen**
 - Stufe 10: **native Kurzsprache, mehrsprachige verschachtelte Completion und Promptvorbereitung in Arbeit**
-- Geschätzter funktionaler Portierungsstand: **73–77 %**
+- Geschätzter funktionaler Portierungsstand: **75–79 %**
 - Konservativ vollständig native oder reproduzierbar generierte Originaldateien: **18/92 = 19,6 %**
 - Mindestens teilweise portierte Originaldateien: **46/92 = 50,0 %**
 - Gewichteter Quellzeilenstand: **ca. 28 %**
-- Nativer Mojo-Quellcode in `src/`: **15.296 Zeilen**
-- Davon im Paket `reta_mojo`: **14.260 Zeilen**
-- Native Testdateien: **50**
-- Native Testfunktionen: **198**
-- Aktuell fokussiert erneut ausgeführt: **83/83 bestanden**
+- Nativer Mojo-Quellcode in `src/`: **15.751 Zeilen**
+- Davon im Paket `reta_mojo`: **14.766 Zeilen**
+- Native Mojo-Testdateien und -Probes: **51**
+- Native Testfunktionen: **208**
+- Aktuell fokussiert dokumentiert: **93/93 bestanden**
 - Prompt-Kurzsprache: **27/27 deutsche und englische Referenzkontexte bytegleich**
 - Promptvorbereitung: **23/23 deutsche und englische Referenzkontexte bytegleich**
 - Verschachtelte Completion: **12/12 Referenzkontexte und 12/12 schnelle Fixtures bytegleich**
@@ -64,15 +64,19 @@
 - GNU Readline bleibt nur Terminal-/Tastaturgrenze; Kandidaten und Kontextauflösung kommen aus Mojo
 - interaktiver Pseudoterminaltest ergänzt `reta -ausgabe --art=htm<Tab>` zu `html`
 - nativer Bruchparser für die vordere `prompt_execution.py`-Strecke einschließlich Bereichsbildung, Reziprok- und Ganzzahlerkennung
-- native Fachbefehle `primfaktorenvergleich`, `abstand`, `abstandPrim`, `mond` und `richtung`
-- `mond` und `richtung` verwenden den kompilierten Tabellenkern; Python bleibt dort nur Prozess-/Readline-Grenze
+- native Fachbefehle `primfaktorenvergleich`, `abstand` und `abstandPrim`
+- besitzende Tabellenplanung in `prompt_table_execution.mojo` für **18 ganzzahlige Promptfamilien**
+- nativ geplant sind `mond`, `richtung`, `primzahlkreuz`, `alles`, `thomas`, `emotion`, `wirklichkeit`, `triebe`, `impulse`, `bewusstsein`, `geist`, `freiheit/gleichheit`, `groesse`, `kugeln/kreise`, `netzwerk`, `komplex`, `absicht/motiv` und `universum`
+- gemischte Fachbefehle erzeugen mehrere native Tabellenaufrufe wie die unabhängigen Python-`if`-Zweige
+- `range`, `invertieren`, Ausgabeparameter und die historische Universum-Spaltenunterdrückung werden in der Planung erhalten
+- alle unterstützten Tabellenfamilien verwenden den kompilierten Tabellenkern; Python bleibt nur Prozess-/Readline-Grenze
 - relative `--spaltenreihenfolgeundnurdiese=3-6`-Semantik nach der Generatorpipeline korrigiert
-- **18/18** Bruchparser-Referenzfälle und **7/7** reale Prompt-Ausführungsfixtures bytegleich
+- **18/18** Bruchparser-Referenzfälle, **10/10** Tabellenplanertests und **7/7** reale Prompt-Ausführungsfixtures bestanden
 
 ## Weiterhin an der Kompatibilitätsgrenze
 
 - seltene Terminalbreiten-, Rich- und kombinierte HTML-Metadatenfälle
-- noch nicht portierte fachliche Promptbefehle und die hintere Prompt-Ausführung
+- gebrochene `1/n`-/`n/m`-Tabellenzweige, Vielfachen-/Teilerkombinationen und weitere hintere Prompt-Sonderzweige
 - vollständige i18n-Laufzeit außerhalb des Promptvokabulars
 - dynamische Architekturvalidierung, Persistenz und Parallelisierung
 

@@ -5,8 +5,8 @@ Stand: 29. Juni 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der 
 - Ursprüngliche Python-Dateien: **92**
 - Ursprüngliche Python-Zeilen insgesamt: **48831**
 - Zusätzlicher Bridge-Adapter: **1 Python-Datei**
-- Konservativ mindestens teilweise portierte Originaldateien: **45/92**
-- Native Mojo-Quellzeilen unter `src/`: **15296**
+- Konservativ mindestens teilweise portierte Originaldateien: **46/92**
+- Native Mojo-Quellzeilen unter `src/`: **15751**
 - Native Mojo-Quellzeilen: siehe `src/` (inklusive generiertem Kategoriekatalog)
 
 | Python-Datei | Zeilen | Funktionen | Klassen | dynamische Aufrufe | Status | Mojo/Ziel | Anmerkung |
@@ -72,11 +72,11 @@ Stand: 29. Juni 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der 
 | `reta_architecture/persistence.py` | 485 | 27 | 3 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/persistence.py` | noch nicht nativ portiert |
 | `reta_architecture/presheaves.py` | 150 | 15 | 5 | 0 | teilweise nativ | `src/reta_mojo/presheaves.mojo` | typisierte String-Lokalsektionen und Restriktion |
 | `reta_architecture/program_workflow.py` | 379 | 12 | 1 | 4 | Python-Referenz/Bridge | `python_reference/reta_architecture/program_workflow.py` | noch nicht nativ portiert |
-| `reta_architecture/prompt_execution.py` | 2516 | 24 | 1 | 3 | teilweise nativ | `src/reta_mojo/prompt_fraction_execution.mojo + prompt_runtime.mojo + prompt_main.mojo` | Bruchparser, Bereichsbildung, Quotientenhelfer, Primfaktorenvergleich, Zwei-Bereichs-Abstände sowie Mond-/Richtungsrouting nativ; große Tabellen-Fachverzweigung bleibt teilweise Bridge |
+| `reta_architecture/prompt_execution.py` | 2516 | 24 | 1 | 3 | teilweise nativ | `src/reta_mojo/prompt_fraction_execution.mojo + prompt_table_execution.mojo + prompt_runtime.mojo + prompt_main.mojo` | Bruchparser, Bereichsbildung, Quotientenhelfer, Primfaktorenvergleich, Zwei-Bereichs-Abstände und 18 ganzzahlige Tabellenfamilien nativ; gebrochene Tabellenzweige, Vielfachen-/Teilerkombinationen und weitere Sonderzweige bleiben Bridge |
 | `reta_architecture/prompt_interaction.py` | 273 | 15 | 1 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/prompt_interaction.py` | noch nicht nativ portiert |
 | `reta_architecture/prompt_language.py` | 492 | 23 | 2 | 2 | weitgehend nativ | `src/reta_mojo/prompt_language.mojo + assets/prompt_*.tsv` | Tokenisierung, Kurzexpansion, Dispatch, Vokabular und verschachtelte Completion nativ |
 | `reta_architecture/prompt_preparation.py` | 462 | 14 | 1 | 4 | teilweise nativ | `src/reta_mojo/prompt_language.mojo` | Kurzexpansion, Ein-Zeichen-Ersetzung und finale CPython-Set-Reihenfolge bytegleich; hintere fachliche Vorbereitung offen |
-| `reta_architecture/prompt_runtime.py` | 158 | 9 | 4 | 1 | weitgehend nativ | `src/reta_mojo/prompt_runtime.mojo + prompt_main.mojo` | native Kernbefehle, Profile, Primfaktorenvergleich, Abstände und Ausführungsrouting; verbleibende Fachbefehle bleiben Bridge |
+| `reta_architecture/prompt_runtime.py` | 158 | 9 | 4 | 1 | weitgehend nativ | `src/reta_mojo/prompt_runtime.mojo + prompt_table_execution.mojo + prompt_main.mojo` | native Kernbefehle, Profile, Primfaktorenvergleich, Abstände und mehrfache Tabellen-Ausführungspläne; verbleibende Sonderbefehle bleiben Bridge |
 | `reta_architecture/prompt_session.py` | 543 | 37 | 8 | 1 | teilweise nativ | `src/reta_mojo/prompt_runtime.mojo + prompt_main.mojo` | Sitzungsspeicher, Profile und zentrale Zustandsübergänge nativ; erweiterte Historien-/Persistenzpfade offen |
 | `reta_architecture/row_filtering.py` | 714 | 13 | 1 | 5 | nativ | `src/reta_mojo/row_filtering.mojo` | Zeilenbereiche, Zeit, Zählgruppen, Primklassen, Gestirne, Vielfache, Potenzen, Invertierung und Positionsfilter |
 | `reta_architecture/row_ranges.py` | 329 | 26 | 1 | 1 | nativ | `src/reta_mojo/row_ranges.mojo` | legitime Bereichssyntax; eval bewusst entfernt |

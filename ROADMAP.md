@@ -8,9 +8,9 @@ Geplanter Umfang: **12 Release-Stufen**. Eine Stufe zählt erst als abgeschlosse
 |---|---:|---|
 | abgeschlossene Release-Stufen | **8/12 = 66,7 %** | Generator-/Meta- und Kombinationspfade sind abgeschlossen; Stufen 9 und 10 sind aktiv |
 | vollständig native oder generierte Python-Dateien | **18/92 = 19,6 %** | Datei vollständig ersetzt oder als reproduzierbares Laufzeitasset abgebildet |
-| mindestens angegriffene Python-Dateien | **45/92 = 48,9 %** | vollständig oder teilweise nativ |
+| mindestens angegriffene Python-Dateien | **46/92 = 50,0 %** | vollständig oder teilweise nativ |
 | gewichtete Quellzeilen | **ca. 28 %** | konservative Schätzung unter Berücksichtigung der großen Teilports |
-| funktionaler Nutzerumfang | **ca. 70–74 %** | praktisch nutzbarer Reta-Umfang ohne Python-Algorithmus |
+| funktionaler Nutzerumfang | **ca. 75–79 %** | praktisch nutzbarer Reta-Umfang ohne Python-Algorithmus |
 
 Die Stufenquote ist höher als die Quellzeilenquote, weil die letzten Stufen besonders große dynamische Module bündeln: vollständige Ausgabeaufbereitung, Prompt-Sprache, i18n-Matrix, Architekturvalidierung und Parallelisierung.
 
@@ -44,7 +44,7 @@ Die Stufenquote ist höher als die Quellzeilenquote, weil die letzten Stufen bes
    BBCode und der zentrale ANSI-Shellpfad sind für die geprüften deutschen und englischen Ausgaben bytegleich. HTML besitzt physische und semantische Zellmetadaten, tag-erhaltende Zellen, Wrapping und Seitenteilung. Offen bleiben Rich-/Terminalsonderfälle und restliche dynamische HTML-Familien.
 
 10. **Vollständige Prompt-Sprache und i18n — in Arbeit**  
-    Klammerbewusstes Tokenisieren, kompakte Kurzbefehle, CPython-Set-Reihenfolge, fünfsprachiger Completion-Katalog und persistenter Mojo-Completion-Arbeiter sind nativ. Offen bleiben die hintere fachliche Prompt-Ausführung und die vollständige i18n-Laufzeit außerhalb des Promptvokabulars.
+    Klammerbewusstes Tokenisieren, kompakte Kurzbefehle, CPython-Set-Reihenfolge, fünfsprachiger Completion-Katalog und persistenter Mojo-Completion-Arbeiter sind nativ. Zusätzlich plant Mojo 18 ganzzahlige Tabellenfamilien und führt sie über `reta-native` aus. Offen bleiben gebrochene Tabellenzweige, Vielfachen-/Teilerkombinationen, weitere hintere Sonderpfade und die vollständige i18n-Laufzeit außerhalb des Promptvokabulars.
 
 11. **Architektursteuerung und Laufzeitnetze — offen**  
     Validierung, Aktivierung, Verträge, Persistenz, Ausführungsnetz, Parallelisierung und Rehearsal.

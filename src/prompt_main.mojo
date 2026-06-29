@@ -15,11 +15,13 @@ from reta_mojo.prompt_language import (
     expand_compact_prompt_tokens,
     expand_prompt_replacements,
     load_prompt_language_catalog,
-    normalize_prompt_language,
     prompt_completion_word_pool,
     prompt_root_commands,
 )
-from reta_mojo.row_ranges import range_to_numbers
+from reta_mojo.prompt_table_execution import (
+    PromptTablePlan,
+    plan_prompt_table_commands,
+)
 from reta_mojo.prompt_runtime import (
     KIND_EMPTY,
     KIND_EXIT,
@@ -33,10 +35,8 @@ from reta_mojo.prompt_runtime import (
     KIND_MULTIS,
     KIND_MULTIS3,
     KIND_PRIME_COMPARE,
-    KIND_MOON,
     KIND_DISTANCE,
     KIND_DISTANCE_PRIME,
-    KIND_DIRECTION,
     KIND_MODULO,
     KIND_ABC,
     KIND_SHELL,
@@ -51,7 +51,6 @@ from reta_mojo.prompt_runtime import (
     PromptProfile,
     PromptCommand,
     PromptStartup,
-    classify_prompt_command,
     classify_prompt_command_localized,
     parse_prompt_startup,
     fallback_profile_arguments,
@@ -103,13 +102,20 @@ def _print_prompt_help() -> None:
     print("  multis ZAHLENBEREICH          Faktorpaare")
     print("  multis3 ZAHLENBEREICH         Dreifach-Faktorisierungen")
     print("  modulo ZAHLENBEREICH          Modulo-Tabelle")
+    print("  mond/richtung/primzahlkreuz   native Tabellenbefehle")
+    print("  alles/thomas/emotion/geist    weitere native Tabellenpfade")
+    print("  wirklichkeit/triebe/impulse   weitere native Tabellenpfade")
+    print("  bewusstsein/groesse/freiheit  weitere native Tabellenpfade")
+    print("  motiv/universum/netzwerk      weitere native Tabellenpfade")
     print("  abc WORT                       Buchstabenwerte")
     print("  reta ...                       vollständige reta-CLI")
     print("  shell ..., python ..., math ...")
     print("")
     print("Kompakte Zahlen- und Ein-Zeichen-Befehle werden nativ expandiert.")
-    print("Noch nicht portierte fachliche Operationen nutzen danach die isolierte")
-    print("Python-Kompatibilitätsgrenze.")
+    print("Bruch-, Vielfachen- und Teilerkombinationen nutzen bis zu ihrer")
+    print(
+        "vollständigen Portierung die isolierte Python-Kompatibilitätsgrenze."
+    )
 
 
 def _print_commands(
@@ -167,80 +173,9 @@ def _run_fallback(
     bridge.run_reta_prompt_line_encoded(encoded)
 
 
-
-def _native_moon_tokens(command: PromptCommand, language: String) raises -> List[String]:
-    var row_parts = List[String]()
-    var max_row = 0
-    for index in range(1, len(command.words)):
-        var token = command.words[index]
-        if token == "e" or token == "ee":
-            continue
-        try:
-            var values = range_to_numbers(token, False, 0)
-            if len(values) == 0:
-                continue
-            row_parts.append(token)
-            for value in values:
-                max_row = max(max_row, value)
-        except:
-            pass
-    if len(row_parts) == 0:
-        return List[String]()
-    var rows = String()
-    for index in range(len(row_parts)):
-        if index > 0:
-            rows += ","
-        rows += row_parts[index]
-    var english = language != "deutsch"
-    var tokens = List[String]()
-    tokens.append("-lines" if english else "-zeilen")
-    tokens.append(("--thisrangebefore=" if english else "--vorhervonausschnitt=") + rows)
-    tokens.append(("--uppermaximum=" if english else "--oberesmaximum=") + String(max(1024, max_row) + 1))
-    tokens.append("-columns" if english else "-spalten")
-    tokens.append("--meaning=spaceObject" if english else "--Bedeutung=gestirn")
-    tokens.append("--width=0" if english else "--breite=0")
-    tokens.append("-output" if english else "-ausgabe")
-    tokens.append("--columnorderandonlythese=3-6" if english else "--spaltenreihenfolgeundnurdiese=3-6")
-    return tokens^
-
-
-
-def _native_direction_tokens(command: PromptCommand, language: String) raises -> List[String]:
-    var row_parts = List[String]()
-    var max_row = 0
-    for index in range(1, len(command.words)):
-        var token = command.words[index]
-        if token == "e" or token == "ee":
-            continue
-        try:
-            var values = range_to_numbers(token, False, 0)
-            if len(values) == 0:
-                continue
-            row_parts.append(token)
-            for value in values:
-                max_row = max(max_row, value)
-        except:
-            pass
-    if len(row_parts) == 0:
-        return List[String]()
-    var rows = String()
-    for index in range(len(row_parts)):
-        if index > 0:
-            rows += ","
-        rows += row_parts[index]
-    var english = language != "deutsch"
-    return [
-        "-lines" if english else "-zeilen",
-        ("--thisrangebefore=" if english else "--vorhervonausschnitt=") + rows,
-        ("--uppermaximum=" if english else "--oberesmaximum=") + String(max(1024, max_row) + 1),
-        "-columns" if english else "-spalten",
-        "--primeeffect=galaxyintention" if english else "--Primzahlwirkung=Galaxieabsicht",
-        "--width=0" if english else "--breite=0",
-        "-output" if english else "-ausgabe",
-    ]
-
-
-def _run_native_table_tokens(bridge: PythonObject, tokens: List[String]) raises -> Bool:
+def _run_native_table_tokens(
+    bridge: PythonObject, tokens: List[String]
+) raises -> Bool:
     if len(tokens) == 0:
         return False
     var command_line = String("reta")
@@ -255,12 +190,15 @@ def _run_native_table_tokens(bridge: PythonObject, tokens: List[String]) raises 
     return True
 
 
-def _run_native_moon(bridge: PythonObject, command: PromptCommand, profile: PromptProfile) raises -> Bool:
-    var language = normalize_prompt_language(profile.language)
-    var tokens = _native_moon_tokens(command, language)
-    if len(tokens) == 0:
+def _run_native_table_plan(
+    bridge: PythonObject, plan: PromptTablePlan
+) raises -> Bool:
+    if not plan.handled or len(plan.invocations) == 0:
         return False
-    return _run_native_table_tokens(bridge, tokens)
+    for index in range(len(plan.invocations)):
+        if not _run_native_table_tokens(bridge, plan.invocations[index].tokens):
+            return False
+    return True
 
 
 def _run_command(
@@ -349,6 +287,17 @@ def _run_command(
     if command.kind == KIND_CLEAR:
         bridge.clear_terminal()
         return True
+
+    # The historical PromptGrosseAusgabe branch treats domain words as an
+    # unordered command set.  Plan these table-backed commands before the
+    # single-command dispatch so localized aliases and mixed command lines can
+    # remain native as one or more invocations.
+    var table_plan = plan_prompt_table_commands(
+        normalized_tokens, profile.language, catalog
+    )
+    if _run_native_table_plan(bridge, table_plan):
+        return True
+
     if command.kind == KIND_PRIME:
         _print_lines(prime_lines(command))
         return True
@@ -367,9 +316,6 @@ def _run_command(
     if command.kind == KIND_PRIME_COMPARE:
         _print_lines(prime_comparison_lines(command, profile.language))
         return True
-    if command.kind == KIND_MOON:
-        if _run_native_moon(bridge, command, profile):
-            return True
     if command.kind == KIND_DISTANCE:
         if len(command.words) == 3:
             _print_lines(distance_lines(command, False, profile.language))
@@ -377,12 +323,6 @@ def _run_command(
     if command.kind == KIND_DISTANCE_PRIME:
         if len(command.words) == 3:
             _print_lines(distance_lines(command, True, profile.language))
-            return True
-    if command.kind == KIND_DIRECTION:
-        if _run_native_table_tokens(
-            bridge,
-            _native_direction_tokens(command, normalize_prompt_language(profile.language)),
-        ):
             return True
     if command.kind == KIND_ABC:
         var line_out = abc_line(command)
@@ -437,7 +377,10 @@ def main() raises:
     var session = new_prompt_session(startup.profile.logging_enabled)
 
     if startup.profile.show_intro and not startup.profile.one_shot:
-        print("retaPrompt: nativer Mojo-Controller; Hilfe mit 'hilfe', Ende mit 'q'.")
+        print(
+            "retaPrompt: nativer Mojo-Controller; Hilfe mit 'hilfe', Ende mit"
+            " 'q'."
+        )
 
     if startup.profile.one_shot:
         var line = _one_shot_line(startup)
@@ -455,7 +398,9 @@ def main() raises:
             print("Gespeichert:", stored_prompt_text(session))
             continue
         if session.delete_next:
-            var cancel = classify_prompt_command_localized(line, startup.profile.language, prompt_catalog)
+            var cancel = classify_prompt_command_localized(
+                line, startup.profile.language, prompt_catalog
+            )
             if cancel.kind == KIND_EXIT:
                 session.delete_next = False
                 print("Löschen abgebrochen.")
@@ -463,9 +408,13 @@ def main() raises:
                 delete_stored_selection(session, line)
                 print("Gespeichert:", stored_prompt_text(session))
             continue
-        if not _run_command(bridge, startup.profile, line, session, prompt_catalog):
+        if not _run_command(
+            bridge, startup.profile, line, session, prompt_catalog
+        ):
             break
-        var executed = classify_prompt_command_localized(line, startup.profile.language, prompt_catalog)
+        var executed = classify_prompt_command_localized(
+            line, startup.profile.language, prompt_catalog
+        )
         if (
             executed.kind != KIND_STORE_NEXT
             and executed.kind != KIND_STORE_PREVIOUS

@@ -8,9 +8,9 @@ Dies ist ein inkrementeller, getesteter Port des hochgeladenen Python-Projekts `
 abgeschlossene Release-Stufen:       8 von 12 = 66,7 %
 Stufen 9/10:                          Ausgabe und Prompt-Sprache in Arbeit
 vollständig native Originaldateien:  18 von 92 = 19,6 %
-mindestens teilweise portiert:       45 von 92 = 48,9 %
+mindestens teilweise portiert:       46 von 92 = 50,0 %
 gewichteter Quellzeilenstand:         ca. 28 %
-funktionaler Nutzerumfang:            ca. 70–74 %
+funktionaler Nutzerumfang:            ca. 75–79 %
 ```
 
 Die Metriken messen Verschiedenes. Die Stufenquote ist höher, weil die noch offenen Stufen die größten dynamischen Python-Module bündeln. Der vollständige Plan steht in [`ROADMAP.md`](ROADMAP.md).
@@ -147,9 +147,13 @@ Geprüft sind 27 kompakte deutsch/englische Kurzsprachenkontexte, 23 vollständi
 
 ### Neu: native Prompt-Fachausführung
 
-`src/reta_mojo/prompt_fraction_execution.mojo` übernimmt die vordere Bruch- und Bereichssprache aus `prompt_execution.py`. `primfaktorenvergleich`, die eindeutigen Zwei-Bereichsformen von `abstand`/`abstandPrim` sowie `mond` und `richtung` werden nativ ausgeführt. Die beiden Tabellenbefehle starten den kompilierten `reta-native`-Kern; der kleine Python-Adapter bleibt nur für Prozess- und Terminal-I/O.
+`src/reta_mojo/prompt_fraction_execution.mojo` übernimmt die vordere Bruch- und Bereichssprache aus `prompt_execution.py`. `primfaktorenvergleich` sowie die eindeutigen Zwei-Bereichsformen von `abstand`/`abstandPrim` werden nativ ausgeführt.
 
-Die explizite Spaltenfolge wird bei semantischen Spaltenauswahlen nach der Generatorpipeline als relative Ergebnisposition angewandt. Dadurch entspricht `--Bedeutung=gestirn --spaltenreihenfolgeundnurdiese=3-6` wieder der Python-Referenz.
+Neu besitzt `src/reta_mojo/prompt_table_execution.mojo` die ganzzahlige Tabellenplanung. Sie deckt 18 Promptfamilien ab: `mond`, `richtung`, `primzahlkreuz`, `alles`, `thomas`, `emotion`, `wirklichkeit`, `triebe`, `impulse`, `bewusstsein`, `geist`, `freiheit/gleichheit`, `groesse`, `kugeln/kreise`, `netzwerk`, `komplex`, `absicht/motiv` und `universum`. Mehrere Fachwörter in einer Eingabe erzeugen mehrere native Aufrufe wie die unabhängigen Python-Zweige; `range`, Invertierung und Ausgabeparameter werden weitergereicht.
+
+Diese Pfade starten den kompilierten `reta-native`-Kern. Der kleine Python-Adapter bleibt nur für Prozess- und Terminal-I/O. Gebrochene `1/n`-/`n/m`-Fälle sowie Vielfachen- und Teilerkombinationen fallen bewusst vollständig auf die Referenz zurück, statt nur teilweise nativ und semantisch falsch ausgeführt zu werden.
+
+Die explizite Spaltenfolge wird bei semantischen Spaltenauswahlen nach der Generatorpipeline als relative Ergebnisposition angewandt. Dadurch entspricht `--Bedeutung=gestirn --spaltenreihenfolgeundnurdiese=3-6` wieder der Python-Referenz. Auch die historische Unterdrückung der zusätzlichen Universumsspalte bei `e`, `ee`, fehlenden Überschriften oder mehr als zwei kombinierten Fachbefehlen ist modelliert.
 
 ## Weitere native Bereiche
 

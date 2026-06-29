@@ -3,8 +3,8 @@
 ## Testbestand
 
 ```text
-50 Mojo-Testdateien
-198 Testfunktionen insgesamt
+51 Mojo-Testdateien und -Probes
+208 Testfunktionen insgesamt
 9 reguläre ELF-Compilerziele
 2 optionale schwere Katalogtestdateien
 ```
@@ -17,6 +17,7 @@ Der letzte vollständig abgeschlossene normale Stufe-7-Lauf ergab **145/145** Te
 test_prompt_language             15/15
 test_prompt_runtime              21/21
 test_prompt_fraction_execution    8/8
+test_prompt_table_execution      10/10
 test_meta_columns                 3/3
 test_fraction_concat_columns      3/3
 test_kombi_join_columns           4/4
@@ -26,7 +27,7 @@ test_generated_table_columns      7/7
 test_table_rendering              3/3
 test_html_cell_metadata           4/4
                                 -------
-                                 83/83 bestanden
+                                 93/93 bestanden
 ```
 
 Es gab keinen Testfehler. Abgebrochene Sammelläufe endeten ausschließlich während eines nachfolgenden Compiler- oder Referenzprozesses durch die äußere Laufzeitgrenze.
@@ -100,16 +101,19 @@ Die Promptprüfung umfasst:
 12/12 schnelle Completion-Fixtures bytegleich
 12/12 Readline-Kontexte an den persistenten Mojo-Arbeiter delegiert
 15/15 Prompt-Sprachtests bestanden
-18/18 Prompt-Laufzeittests bestanden
+21/21 Prompt-Laufzeittests bestanden
 ```
 
-Zusätzlich ist die vordere fachliche Ausführung jetzt geprüft:
+Zusätzlich ist die fachliche Ausführung jetzt geprüft:
 
 ```text
 18/18 Bruch-/Bereichsausdrücke bytegleich zu bruchSpalt/createRangesForBruchLists
+10/10 Tabellenplanertests bestanden
 7/7 reale Prompt-Ausführungen als Byte-Fixtures
-2/2 Tabellenbefehle (mond, richtung) über reta-native statt retaPrompt.py
+18 ganzzahlige Tabellenfamilien über reta-native statt retaPrompt.py
 ```
+
+Die Planertests prüfen deutsche und englische Aliase, Mehrfachbefehle, `range`, Invertierung, Ausgabeparameter, das doppelte `groesse`-Routing und die bedingte Universum-Spaltenauswahl. Reale Rauchtests für alle neu hinzugefügten Familien endeten mit Rückgabecode 0. Brüche, `vielfache`, `teiler` und `einzeln` werden als unteilbarer Kompatibilitätsfall erkannt und nicht irrtümlich teilweise nativ ausgeführt.
 
 Die sieben Ausführungsfixtures umfassen Primfaktorenvergleich, einfache und primfaktorisierte Abstände, bidirektionale Bereichsabstände sowie ANSI-Tabellenausgaben. Der vollständige native CLI-Plantest benötigt kalt rund 51 Minuten und bestand mit **9/9** Tests.
 
