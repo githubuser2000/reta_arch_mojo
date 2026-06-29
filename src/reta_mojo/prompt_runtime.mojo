@@ -9,13 +9,14 @@ from std.collections import List
 from std.collections.string import atol, ord
 from .number_theory import prime_factors
 from .arithmetic import factor_pairs, factor_triples, modulo_table_lines, prime_repeat_labels, has_digit
-from .row_ranges import range_to_numbers
-from .prime_cross_columns import python_int_set_order
+from .row_ranges import range_to_numbers, is_row_range
+from .prime_cross_columns import python_int_set_order, python_signed_int_set_order
 from .prompt_language import (
     PromptLanguageCatalog,
     balanced_prompt_split,
     localized_prompt_kind,
     normalize_prompt_language,
+    python_string_set_order,
 )
 
 
@@ -394,8 +395,232 @@ def _ordered_range_values(expression: String) raises -> List[Int]:
     # sufficient for the visible historical ordering.
     for value in unordered:
         attempts.append(value)
-    return python_int_set_order(attempts)
+    return python_signed_int_set_order(attempts)
 
+
+@fieldwise_init
+struct _PromptDistanceRange(Copyable):
+    var raw: String
+    var values: List[Int]
+    var hash_value: UInt64
+
+
+def _distance_contains(values: List[Int], wanted: Int) -> Bool:
+    for index in range(len(values)):
+        if values[index] == wanted:
+            return True
+    return False
+
+
+def _distance_ranges_equal(
+    left: _PromptDistanceRange, right: _PromptDistanceRange
+) -> Bool:
+    if len(left.values) != len(right.values):
+        return False
+    for index in range(len(left.values)):
+        if not _distance_contains(right.values, left.values[index]):
+            return False
+    return True
+
+
+def _distance_shuffle_bits(hash_value: UInt64) -> UInt64:
+    # CPython 3.13 Objects/setobject.c::_shuffle_bits(). UInt64 arithmetic is
+    # intentional: Py_uhash_t overflow is part of the public frozenset hash.
+    return (
+        (hash_value ^ UInt64(89869747)) ^ (hash_value << UInt64(16))
+    ) * UInt64(3644798167)
+
+
+def _distance_int_hash(value: Int) -> UInt64:
+    # PyLong hashes as its integer value except for the C-API error sentinel -1.
+    return UInt64(-2 if value == -1 else value)
+
+
+def _distance_frozenset_hash(values: List[Int]) -> UInt64:
+    # Fresh frozensets have no dummy entries.  CPython's null-entry correction
+    # therefore reduces to xor-ing the shuffled active hashes plus the size mix.
+    var hash_value = UInt64(0)
+    for index in range(len(values)):
+        hash_value ^= _distance_shuffle_bits(_distance_int_hash(values[index]))
+    hash_value ^= UInt64(len(values) + 1) * UInt64(1927868237)
+    hash_value ^= (hash_value >> UInt64(11)) ^ (hash_value >> UInt64(25))
+    hash_value = hash_value * UInt64(69069) + UInt64(907133923)
+    if hash_value == UInt64.MAX:
+        return UInt64(590923713)
+    return hash_value
+
+
+def _distance_empty_slots(size: Int) -> List[Int]:
+    var result = List[Int]()
+    for _ in range(size):
+        result.append(-1)
+    return result^
+
+
+def _distance_set_slot(
+    slots: List[Int],
+    stored: List[_PromptDistanceRange],
+    value: _PromptDistanceRange,
+) -> Int:
+    var mask = len(slots) - 1
+    var index = Int(value.hash_value & UInt64(mask))
+    var perturb = value.hash_value
+    while True:
+        var stored_index = slots[index]
+        if (
+            stored_index == -1
+            or _distance_ranges_equal(stored[stored_index], value)
+        ):
+            return index
+        var probes = 9 if index + 9 <= mask else 0
+        for offset in range(1, probes + 1):
+            stored_index = slots[index + offset]
+            if (
+                stored_index == -1
+                or _distance_ranges_equal(stored[stored_index], value)
+            ):
+                return index + offset
+        perturb >>= UInt64(5)
+        index = Int(
+            (UInt64(index * 5 + 1) + perturb) & UInt64(mask)
+        )
+
+
+def _distance_set_resize(
+    slots: List[Int],
+    stored: List[_PromptDistanceRange],
+    minimum_used: Int,
+) -> List[Int]:
+    var new_size = 8
+    while new_size <= minimum_used:
+        new_size <<= 1
+    var resized = _distance_empty_slots(new_size)
+    for index in range(len(slots)):
+        var stored_index = slots[index]
+        if stored_index >= 0:
+            var target = _distance_set_slot(
+                resized, stored, stored[stored_index]
+            )
+            resized[target] = stored_index
+    return resized^
+
+
+def _python_distance_range_set_order(
+    attempts: List[_PromptDistanceRange],
+) -> List[_PromptDistanceRange]:
+    """Reproduce ``zahlenBereiche |= {frozenset(...)}`` slot order.
+
+    The singleton-set merge checks its resize threshold before every merge.  It
+    is observably different from a set comprehension once five or more ranges
+    are supplied, so insertion attempts and duplicate merges are retained.
+    """
+    var slots = _distance_empty_slots(8)
+    var stored = List[_PromptDistanceRange]()
+    var fill = 0
+    var used = 0
+    for attempt_index in range(len(attempts)):
+        var value = attempts[attempt_index].copy()
+        var mask = len(slots) - 1
+        if (fill + 1) * 5 >= mask * 3:
+            slots = _distance_set_resize(
+                slots, stored, (used + 1) * 2
+            )
+            fill = used
+        var target = _distance_set_slot(slots, stored, value)
+        if slots[target] >= 0:
+            continue
+        stored.append(value.copy())
+        slots[target] = len(stored) - 1
+        fill += 1
+        used += 1
+
+    var result = List[_PromptDistanceRange]()
+    for index in range(len(slots)):
+        if slots[index] >= 0:
+            result.append(stored[slots[index]].copy())
+    return result^
+
+
+def _python_distance_difference_order(
+    outer_order: List[_PromptDistanceRange],
+) -> List[_PromptDistanceRange]:
+    """Reproduce the fresh result set built by ``set_difference``.
+
+    The right-hand operand contains integers while the left-hand set contains
+    frozensets, so no logical element is removed.  CPython still inserts every
+    left-hand entry into a new set, whose slot order can differ observably from
+    the original set.  Unlike singleton ``set_merge``, ordinary ``set.add``
+    tests the resize threshold after inserting the new element.
+    """
+    var slots = _distance_empty_slots(8)
+    var stored = List[_PromptDistanceRange]()
+    var fill = 0
+    var used = 0
+    for attempt_index in range(len(outer_order)):
+        var value = outer_order[attempt_index].copy()
+        var target = _distance_set_slot(slots, stored, value)
+        if slots[target] >= 0:
+            continue
+        stored.append(value.copy())
+        slots[target] = len(stored) - 1
+        fill += 1
+        used += 1
+        var mask = len(slots) - 1
+        if fill * 5 >= mask * 3:
+            var minimum_used = used * 4 if used <= 50000 else used * 2
+            slots = _distance_set_resize(slots, stored, minimum_used)
+            fill = used
+
+    var result = List[_PromptDistanceRange]()
+    for index in range(len(slots)):
+        if slots[index] >= 0:
+            result.append(stored[slots[index]].copy())
+    return result^
+
+
+def _python_distance_inner_order(
+    outer_order: List[_PromptDistanceRange],
+) -> List[_PromptDistanceRange]:
+    """Select the same ``set_difference`` strategy as CPython 3.13.
+
+    If the outer set is more than four times larger than the integer
+    frozenset being subtracted, CPython copies the outer set and discards the
+    integer keys.  No integer can equal a frozenset, so this preserves the
+    outer slot order.  Otherwise the result is built by ordinary insertions.
+    """
+    var largest = 0
+    for index in range(len(outer_order)):
+        if len(outer_order[index].values) > largest:
+            largest = len(outer_order[index].values)
+    if (len(outer_order) >> 2) > largest:
+        var copied = List[_PromptDistanceRange]()
+        for index in range(len(outer_order)):
+            copied.append(outer_order[index].copy())
+        return copied^
+    return _python_distance_difference_order(outer_order)
+
+
+def _distance_range_arguments(
+    command: PromptCommand,
+) raises -> List[_PromptDistanceRange]:
+    var result = List[_PromptDistanceRange]()
+    # Prompt preparation stores the complete token stream in a Python set.
+    # Reorder and deduplicate before selecting the numeric range tokens.
+    var ordered_words = python_string_set_order(command.words)
+    for index in range(len(ordered_words)):
+        var token = ordered_words[index]
+        try:
+            if not is_row_range(token):
+                continue
+            var values = _ordered_range_values(token)
+            result.append(
+                _PromptDistanceRange(
+                    token, values.copy(), _distance_frozenset_hash(values)
+                )
+            )
+        except:
+            pass
+    return result^
 
 def _prime_factor_python_list(number: Int) -> String:
     var factors = prime_factors(abs(number))
@@ -431,44 +656,72 @@ def distance_lines(
     prime_distances: Bool = False,
     language: String = "deutsch",
 ) raises -> List[String]:
-    """Native two-range form of ``abstand`` and ``abstandPrim``.
+    """Native port of all stable ``abstand``/``abstandPrim`` range counts.
 
-    The legacy implementation uses dictionaries that overwrite for three or
-    more independent ranges.  Those ambiguous multi-range forms remain at the
-    compatibility boundary; the normal two-range form is exact and native.
+    The Python reference stores each expanded range as ``frozenset[int]`` in an
+    outer builtin set and then repeatedly overwrites dictionary values while
+    retaining first-insertion key order.  This deliberately odd algorithm is
+    reproduced exactly, including duplicate ranges and 3+ range commands.
     """
     var lines = List[String]()
-    if len(command.words) != 3:
+    var attempts = _distance_range_arguments(command)
+    if len(attempts) < 2:
         if not prime_distances:
             lines.append(_distance_message(language))
         return lines^
-    var left_text = command.words[1]
-    var right_text = command.words[2]
-    var left = _ordered_range_values(left_text)
-    var right = _ordered_range_values(right_text)
-    if len(left) == 0 or len(right) == 0:
-        if not prime_distances:
-            lines.append(_distance_message(language))
-        return lines^
-    var all_numbers = _is_decimal_prompt(left_text) and _is_decimal_prompt(right_text)
 
-    for direction in range(2):
-        var sources = left.copy() if direction == 0 else right.copy()
-        var targets = right.copy() if direction == 0 else left.copy()
-        if len(targets) <= 1 and not all_numbers:
-            continue
-        for source_index in range(len(sources)):
-            var line = String(sources[source_index]) + "->: "
-            for target_index in range(len(targets)):
-                if target_index > 0:
-                    line += ", "
-                var distance = abs(sources[source_index] - targets[target_index])
-                line += String(targets[target_index]) + ": "
-                if prime_distances:
-                    line += _prime_factor_python_list(distance)
+    var all_numbers = True
+    for index in range(len(attempts)):
+        if not _is_decimal_prompt(attempts[index].raw):
+            all_numbers = False
+            break
+
+    var ranges = _python_distance_range_set_order(attempts)
+    var inner_ranges = _python_distance_inner_order(ranges)
+    var source_order = List[Int]()
+    var source_payloads = List[String]()
+
+    # ``zahlenBereiche - maxMenge(zahlenBereiche)`` cannot remove a
+    # frozenset, because the right-hand operand is iterated as integers.  The
+    # logical contents therefore stay equal, but CPython creates a fresh set
+    # and reinserts the outer entries.  Its independent slot order is visible.
+    for target_index in range(len(ranges)):
+        var targets = ranges[target_index].copy()
+        for source_range_index in range(len(inner_ranges)):
+            var sources = inner_ranges[source_range_index].copy()
+            if _distance_ranges_equal(targets, sources):
+                continue
+            for source_index in range(len(sources.values)):
+                var source = sources.values[source_index]
+                if len(targets.values) <= 1 and not all_numbers:
+                    continue
+                var payload = String()
+                for value_index in range(len(targets.values)):
+                    if value_index > 0:
+                        payload += ", "
+                    var target = targets.values[value_index]
+                    var distance = abs(source - target)
+                    payload += String(target) + ": "
+                    if prime_distances:
+                        payload += _prime_factor_python_list(distance)
+                    else:
+                        payload += String(distance)
+
+                var known_index = -1
+                for index in range(len(source_order)):
+                    if source_order[index] == source:
+                        known_index = index
+                        break
+                if known_index >= 0:
+                    source_payloads[known_index] = payload
                 else:
-                    line += String(distance)
-            lines.append(line^)
+                    source_order.append(source)
+                    source_payloads.append(payload)
+
+    for index in range(len(source_order)):
+        lines.append(
+            String(source_order[index]) + "->: " + source_payloads[index]
+        )
     return lines^
 
 def _gcd_prompt(left: Int, right: Int) -> Int:

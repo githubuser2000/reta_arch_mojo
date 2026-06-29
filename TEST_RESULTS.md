@@ -4,7 +4,7 @@
 
 ```text
 52 Mojo-Testdateien und -Probes
-245 Testfunktionen insgesamt
+254 Testfunktionen insgesamt
 9 reguläre ELF-Compilerziele
 2 optionale schwere Katalogtestdateien
 ```
@@ -15,7 +15,7 @@ Der letzte vollständig abgeschlossene normale Stufe-7-Lauf ergab **145/145** Te
 
 ```text
 test_prompt_language             16/16
-test_prompt_runtime              21/21
+test_prompt_runtime              30/30
 test_prompt_legacy_echo           5/5
 test_prompt_fraction_execution    8/8
 test_prompt_table_execution      23/23
@@ -29,7 +29,7 @@ test_table_rendering              8/8
 test_html_cell_metadata           4/4
 test_row_filtering_reference      3/3
                                 -------
-                                131/131 bestanden
+                                140/140 bestanden
 ```
 
 In den oben gezählten Einzelsuiten gab es keinen Testfehler. Zwei breitere Sammelprüfungen werden ausdrücklich **nicht** als bestanden gezählt:
@@ -233,3 +233,15 @@ Die unveränderte Python-Referenz hatte beim Eingang bereits drei fehlschlagende
 - `check_prompt_numeric_oneshot.sh`: Besitzmatrix auf **16/16** erweitert; der neue Fall läuft in einem Verzeichnis ohne Python-Implementierung und ohne `reta-native`-Kindprogramm.
 - `scripts/test_stage10.sh`: vollständiger Lauf einschließlich 101/101 fokussierter Mojo-Tests, Katalog-, Compact-, Numeric-, Preparation- und Completion-Parität mit Exitcode 0.
 - `scripts/build.sh`: alle **9/9** regulären Mojo-Executables aus dem finalen Stage-10j-Quellstand gebaut; `check_build_layout.sh` bestanden.
+
+## Stage 10k: mehrbereichige `abstand`-/`abstandPrim`-Ausführung
+
+- Fokussierte Stage-10-Mojo-Suiten: **110/110** (`16 + 30 + 5 + 8 + 23 + 20 + 8`).
+- `test_prompt_runtime.mojo`: **30/30**; neun neue Regressionen decken Dreifachbereiche, Primfaktorabstände, Duplikate, gemischte Kardinalitäten, äußere Resizes, große Bereiche sowie beide `set.difference`-Strategien ab.
+- `check_prompt_distance_execution_parity.sh`: **8/8** vollständige Ausgaben bytegleich zur Python-3.13-Referenz mit `PYTHONHASHSEED=0`.
+- `check_prompt_distance_oneshot.sh`: **2/2** Mehrbereichsklassen laufen in einem Verzeichnis ohne Python-Quellen und ohne `reta-native`-Kindprozess.
+- Die Referenzreihenfolge wird nicht sortiert angenähert: String-Set, Frozenset-Hash, Singleton-Merge, Difference-Neuaufbau beziehungsweise Copy-and-discard sowie die erste Dict-Schlüsselposition bei späterer Wertüberschreibung sind modelliert.
+- `scripts/test_stage10.sh`: vollständiger Lauf mit **110/110** fokussierten Mojo-Tests, Katalog-, Fraction-, allgemeiner Prompt-, Compact-, Numeric-, Distance-, Preparation- und Completion-Parität; Exitcode 0.
+- `scripts/build.sh`: alle **9/9** regulären Mojo-Executables aus dem finalen Stage-10k-Quellstand gebaut; `check_build_layout.sh` bestanden.
+- Nach dem Vollbuild erneut bestanden: **30/30** Runtime-Tests, **8/8** Mehrbereichs-Bytefixtures und **2/2** isolierte Mehrbereichs-One-shots.
+

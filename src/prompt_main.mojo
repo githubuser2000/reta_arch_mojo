@@ -797,13 +797,11 @@ def _run_command(
         _print_lines(prime_comparison_lines(command, profile.language))
         return True
     if command.kind == KIND_DISTANCE:
-        if len(command.words) == 3:
-            _print_lines(distance_lines(command, False, profile.language))
-            return True
+        _print_lines(distance_lines(command, False, profile.language))
+        return True
     if command.kind == KIND_DISTANCE_PRIME:
-        if len(command.words) == 3:
-            _print_lines(distance_lines(command, True, profile.language))
-            return True
+        _print_lines(distance_lines(command, True, profile.language))
+        return True
     if command.kind == KIND_ABC:
         var line_out = abc_line(command)
         if line_out.byte_length() > 0:
@@ -954,10 +952,10 @@ def _run_native_one_shot(
     if command.kind == KIND_PRIME_COMPARE:
         _print_lines(prime_comparison_lines(command, profile.language))
         return True
-    if command.kind == KIND_DISTANCE and len(command.words) == 3:
+    if command.kind == KIND_DISTANCE:
         _print_lines(distance_lines(command, False, profile.language))
         return True
-    if command.kind == KIND_DISTANCE_PRIME and len(command.words) == 3:
+    if command.kind == KIND_DISTANCE_PRIME:
         _print_lines(distance_lines(command, True, profile.language))
         return True
     if command.kind == KIND_ABC:

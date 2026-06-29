@@ -189,5 +189,115 @@ def test_prime_distance_prompt_lines() raises:
     assert_equal(len(lines), 1)
     assert_equal(lines[0], "7->: 17: [2, 5], 18: [11], 19: ['2^2', 3]")
 
+
+def test_distance_prompt_multiple_ranges() raises:
+    var lines = distance_lines(
+        classify_prompt_command("abstand 1-2 5-6 10-11")
+    )
+    assert_equal(len(lines), 6)
+    assert_equal(lines[0], "1->: 10: 9, 11: 10")
+    assert_equal(lines[1], "2->: 10: 8, 11: 9")
+    assert_equal(lines[2], "10->: 1: 9, 2: 8")
+    assert_equal(lines[3], "11->: 1: 10, 2: 9")
+    assert_equal(lines[4], "5->: 1: 4, 2: 3")
+    assert_equal(lines[5], "6->: 1: 5, 2: 4")
+
+
+def test_prime_distance_prompt_multiple_ranges() raises:
+    var lines = distance_lines(
+        classify_prompt_command("abstandPrim 1-2 5-6 10-11"), True
+    )
+    assert_equal(len(lines), 6)
+    assert_equal(lines[0], "1->: 10: ['3^2'], 11: [2, 5]")
+    assert_equal(lines[1], "2->: 10: ['2^3'], 11: ['3^2']")
+    assert_equal(lines[2], "10->: 1: ['3^2'], 2: ['2^3']")
+    assert_equal(lines[3], "11->: 1: [2, 5], 2: ['3^2']")
+    assert_equal(lines[4], "5->: 1: ['2^2'], 2: [3]")
+    assert_equal(lines[5], "6->: 1: [5], 2: ['2^2']")
+
+
+def test_distance_prompt_duplicate_ranges() raises:
+    var lines = distance_lines(
+        classify_prompt_command("abstand 1-2 1-2 5-6")
+    )
+    assert_equal(len(lines), 4)
+    assert_equal(lines[0], "1->: 5: 4, 6: 5")
+    assert_equal(lines[3], "6->: 1: 5, 2: 4")
+
+
+def test_distance_prompt_mixed_cardinality_order() raises:
+    var lines = distance_lines(
+        classify_prompt_command("abstand 1-3 5 8-9")
+    )
+    assert_equal(len(lines), 6)
+    assert_equal(lines[0], "5->: 1: 4, 2: 3, 3: 2")
+    assert_equal(lines[1], "1->: 8: 7, 9: 8")
+    assert_equal(lines[2], "2->: 8: 6, 9: 7")
+    assert_equal(lines[3], "3->: 8: 5, 9: 6")
+    assert_equal(lines[4], "8->: 1: 7, 2: 6, 3: 5")
+    assert_equal(lines[5], "9->: 1: 8, 2: 7, 3: 6")
+
+
+def test_distance_prompt_three_scalars() raises:
+    var lines = distance_lines(classify_prompt_command("abstand 1 5 10"))
+    assert_equal(len(lines), 3)
+    assert_equal(lines[0], "10->: 1: 9")
+    assert_equal(lines[1], "1->: 10: 9")
+    assert_equal(lines[2], "5->: 1: 4")
+
+
+def test_distance_prompt_outer_set_resize_order() raises:
+    var lines = distance_lines(
+        classify_prompt_command("abstand 1 2 3 4 5 6")
+    )
+    assert_equal(len(lines), 6)
+    assert_equal(lines[0], "2->: 4: 2")
+    assert_equal(lines[1], "1->: 4: 3")
+    assert_equal(lines[2], "6->: 4: 2")
+    assert_equal(lines[3], "5->: 4: 1")
+    assert_equal(lines[4], "4->: 5: 1")
+    assert_equal(lines[5], "3->: 4: 1")
+
+
+def test_distance_prompt_large_range_difference_order() raises:
+    var lines = distance_lines(
+        classify_prompt_command("abstand 1-25 30 31 32 33")
+    )
+    assert_equal(len(lines), 4)
+    assert_true(lines[0].startswith("33->: 1: 32, 2: 31"))
+    assert_true(lines[1].startswith("32->: 1: 31, 2: 30"))
+    assert_true(lines[2].startswith("30->: 1: 29, 2: 28"))
+    assert_true(lines[3].startswith("31->: 1: 30, 2: 29"))
+
+
+def test_distance_prompt_difference_copy_strategy() raises:
+    var lines = distance_lines(
+        classify_prompt_command("abstand 1 2 3 4 5 6 7 8 9")
+    )
+    assert_equal(len(lines), 9)
+    assert_equal(lines[0], "9->: 4: 5")
+    assert_equal(lines[1], "8->: 4: 4")
+    assert_equal(lines[2], "7->: 4: 3")
+    assert_equal(lines[3], "3->: 4: 1")
+    assert_equal(lines[4], "1->: 4: 3")
+    assert_equal(lines[5], "6->: 4: 2")
+    assert_equal(lines[6], "5->: 4: 1")
+    assert_equal(lines[7], "4->: 5: 1")
+    assert_equal(lines[8], "2->: 4: 2")
+
+
+def test_distance_prompt_missing_second_range() raises:
+    var normal = distance_lines(classify_prompt_command("abstand 1"))
+    assert_equal(len(normal), 1)
+    assert_equal(
+        normal[0],
+        "der Befehl 'abstand' verlangt mindestens 2 Zahlenangaben, wie 'abstand 7 17-25'",
+    )
+    var prime = distance_lines(
+        classify_prompt_command("abstandPrim 1"), True
+    )
+    assert_equal(len(prime), 0)
+
+
 def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()

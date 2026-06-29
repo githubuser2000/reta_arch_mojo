@@ -26,6 +26,8 @@ build_and_run tests/test_table_rendering.mojo
 ./scripts/check_prompt_compact_execution_parity.sh
 ./scripts/check_prompt_numeric_execution_parity.sh
 ./scripts/check_prompt_numeric_oneshot.sh
+./scripts/check_prompt_distance_execution_parity.sh
+./scripts/check_prompt_distance_oneshot.sh
 ./scripts/check_prompt_compact_parity.sh
 ./scripts/check_prompt_preparation_parity.sh
 ./scripts/check_prompt_completion_fixtures.sh

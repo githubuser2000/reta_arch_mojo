@@ -147,7 +147,7 @@ Geprüft sind 27 kompakte deutsch/englische Kurzsprachenkontexte, 23 vollständi
 
 ### Neu: native Prompt-Fachausführung
 
-`src/reta_mojo/prompt_fraction_execution.mojo` übernimmt die vordere Bruch- und Bereichssprache aus `prompt_execution.py`. `primfaktorenvergleich` sowie die eindeutigen Zwei-Bereichsformen von `abstand`/`abstandPrim` werden nativ ausgeführt.
+`src/reta_mojo/prompt_fraction_execution.mojo` übernimmt die vordere Bruch- und Bereichssprache aus `prompt_execution.py`. `primfaktorenvergleich` sowie `abstand`/`abstandPrim` mit beliebig vielen stabilen Zahlenbereichen werden nativ ausgeführt; die verschachtelte CPython-`set[frozenset[int]]`-Reihenfolge bleibt dabei erhalten.
 
 `src/reta_mojo/prompt_table_execution.mojo` plant 18 Promptfamilien: `mond`, `richtung`, `primzahlkreuz`, `alles`, `thomas`, `emotion`, `wirklichkeit`, `triebe`, `impulse`, `bewusstsein`, `geist`, `freiheit/gleichheit`, `groesse`, `kugeln/kreise`, `netzwerk`, `komplex`, `absicht/motiv` und `universum`. Mehrere Fachwörter in einer Eingabe erzeugen mehrere native Aufrufe wie die unabhängigen Python-Zweige; `range`, Invertierung und Ausgabeparameter werden weitergereicht.
 
@@ -178,6 +178,10 @@ Positive reine Zahlen, Bereiche, Listen und Brüche komponieren nun dieselben ty
 ### Stage 10j: wiederholte Katalogauswahl und Whitespace-genauer Shellumbruch
 
 Wiederholte `15_…`-/`16_15…`-Katalogauswahlen laufen nun vollständig nativ. Das sichtbare Legacy-Echo behält beide Aliasbündel, während der Generatorregisterpfad sie wie Python semantisch dedupliziert. Die vermeintliche Instanzbreitenlücke war ein Shell-Wrappingfehler: interne Leerzeichenläufe werden jetzt als eigene `textwrap`-Chunks gezählt und nur an Zeilengrenzen verworfen. Dadurch ist auch die lange Primzahlkreuz-Spalte mit `|  Darin …` bytegleich. Details: [`STAGE10J_NATIVE_DUPLICATE_CATALOG.md`](STAGE10J_NATIVE_DUPLICATE_CATALOG.md).
+
+### Stage 10k: mehrbereichige Abstandsberechnung
+
+`abstand` und `abstandPrim` besitzen nun keine Zweibereichsgrenze mehr. Beliebig viele stabile Zahlenbereiche werden vollständig in Mojo verarbeitet, einschließlich doppelter Bereiche, gemischter Kardinalitäten, äußerer Set-Resizes und der größenabhängigen CPython-`set.difference`-Strategien. Die konkrete `set[frozenset[int]]`-Slotordnung sowie die historischen Wörterbuchüberschreibungen sind reproduziert; normale und primfaktorisierte Mehrbereichsausgaben laufen vor jedem Python-Import. Details: [`STAGE10K_NATIVE_MULTI_DISTANCE.md`](STAGE10K_NATIVE_MULTI_DISTANCE.md).
 
 Die explizite Spaltenfolge wird bei semantischen Spaltenauswahlen nach der Generatorpipeline als relative Ergebnisposition angewandt. Dadurch entspricht `--Bedeutung=gestirn --spaltenreihenfolgeundnurdiese=3-6` wieder der Python-Referenz. Auch die historische Unterdrückung der zusätzlichen Universumsspalte bei `e`, `ee`, fehlenden Überschriften oder mehr als zwei kombinierten Fachbefehlen ist modelliert.
 
@@ -230,13 +234,13 @@ Gesamtbestand:
 
 ```text
 52 native Testdateien und Probes
-245 native Testfunktionen
-131/131 aktuell fokussiert dokumentierte Mojo-Tests bestanden
+254 native Testfunktionen
+140/140 aktuell fokussiert dokumentierte Mojo-Tests bestanden
 30 Generator- und 9 Kombi-CLI-Fälle in den Paritätssuiten
 8 schnelle Markup-Fixtures; 16 Fälle einzeln gegen Python validiert
 27 Kurzsprachen-, 23 Vorbereitung- und 12 Completion-Kontexte bytegleich
 18 Bruchparserfälle bytegleich; 14 reale Bruch-/Modifikator-Tokenströme identisch
-10 vollständige kompakte und 12 numerische Promptausgaben bytegleich; 14 allgemeine plus 16 numerische One-shot-Klassen isoliert
+10 vollständige kompakte, 12 numerische und 8 mehrbereichige Abstandsausgaben bytegleich; 14 allgemeine plus 16 numerische plus 2 Abstands-One-shot-Klassen isoliert
 2 schwere Katalogtestdateien bleiben im normalen Lauf optional
 ```
 
@@ -266,3 +270,4 @@ Stufe 9 wird mit seltenen Terminal-/Rich-Sonderfällen und den restlichen kombin
 - [`TEST_RESULTS.md`](TEST_RESULTS.md) – Testnachweise
 - [`PORTING_MATRIX.md`](PORTING_MATRIX.md) – Status jeder Python-Datei
 - [`MIGRATION_NOTES.md`](MIGRATION_NOTES.md) – semantische Entscheidungen
+

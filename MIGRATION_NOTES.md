@@ -245,7 +245,7 @@ Noch nicht portierte Fachoperationen erhalten an der Kompatibilitätsgrenze weit
 - `prompt_fraction_execution.mojo` portiert `bruchSpalt`, `createRangesForBruchLists`, gleiche Zähler/Nenner, ganzzahlige Quotienten und Reziprok-Ergänzungen.
 - Die ungewöhnliche alternierende Legacy-Repräsentation aus Textgruppen und Zweiergruppen bleibt erhalten.
 - `primfaktorenvergleich`, `abstand`, `abstandPrim`, `mond` und `richtung` besitzen native Dispatch-Zweige.
-- Drei oder mehr unabhängige Abstandbereiche bleiben wegen der überschreibenden Set-/Dict-Semantik des Originals am Kompatibilitätsrand; die eindeutige Zwei-Bereichsform ist bytegleich.
+- Seit Stage 10k sind auch drei oder mehr unabhängige Abstandsbereiche nativ. Die überschreibende Set-/Dict-Semantik des Originals wird einschließlich CPython-`frozenset`-Hash, äußerer Merge-Reihenfolge, zweiter Difference-Tabelle und Wörterbuchüberschreibungen reproduziert.
 - `mond` und `richtung` delegieren nur den Prozessstart an `mojo_bridge.py`; Tabellenplanung, Generatoren und Rendering laufen im kompilierten Mojo-Ziel.
 - Explizite Spaltenbereiche werden als Ergebnispositionen auf semantisch erzeugte Spalten angewandt, statt die ursprüngliche Auswahl zu ersetzen.
 
@@ -330,3 +330,14 @@ Der Shellrenderer bestimmt die Spaltenbreite jetzt nach dem historischen Vorbere
 - `_shell_word_wrap_cell` zerlegt Zellen nun in Wörter und echte Whitespace-Chunks: interne Läufe behalten ihre Breite; an einem Umbruch verwirft `drop_whitespace` den Chunk am Zeilenende beziehungsweise -anfang.
 - Damit bleibt in `gegen 6 |  … | pro 5 |  …` das letzte Trennzeichen auf der ersten visuellen Zeile, während die zwei nachfolgenden Leerzeichen am Beginn der Fortsetzungszeile entfallen – bytegleich zu Python `textwrap`.
 - Offen bleiben echte `v n/m`-Vielfache mit Zähler größer 1 sowie seltene hintere Prompt-, Rich- und kombinierte HTML-Sonderzweige.
+
+## Stage 10k – mehrbereichige Abstände und verschachtelte CPython-Setordnung
+
+- Die früheren `len(command.words) == 3`-Grenzen entfallen im interaktiven und im One-shot-Dispatch.
+- Prompt-Tokens werden vor der Bereichsauswahl wie der Python-Referenzsatz geordnet und dedupliziert.
+- `_PromptDistanceRange` trägt Bereichstext, expandierte Integerwerte und den CPython-3.13-Frozenset-Hash typisiert.
+- Die äußere `set[frozenset[int]]`-Tabelle bildet Singleton-Merge, lineare Probes, Perturbation und Resize nach.
+- Die innere Mengendifferenz wird als eigene Set-Tabelle rekonstruiert; für kleine Subtraktionsmengen wird auch der Copy-and-discard-Pfad unterschieden.
+- Doppelte Bereiche, gemischte Kardinalitäten, große Bereiche und sechs beziehungsweise neun Einzelbereiche besitzen feste Regressionstests.
+- Normale und primfaktorisierte Mehrbereichsausgaben laufen vor jedem Python-Import und ohne `reta-native`-Kindprozess.
+
