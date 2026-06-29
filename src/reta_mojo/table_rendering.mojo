@@ -576,12 +576,56 @@ def _shell_prefix(number: Int, visual_line: Int, number_width: Int) -> String:
     return _right_aligned_number(number, number_width) + " "
 
 
+def _shell_column_width(table: CsvTable, column: Int, width: Int) -> Int:
+    """Measure a shell column before wrapping, capped by the line limit.
+
+    Measuring already-wrapped fragments feeds the shorter fragment width back
+    into the second wrapping pass and progressively narrows long columns.  The
+    Python renderer caps the original cell width instead.
+    """
+    if width <= 0:
+        return 0
+    var maximum = 0
+    for row_index in range(len(table.rows)):
+        var clean = String(table.rows[row_index][column].strip())
+        maximum = max(maximum, min(codepoint_length(clean), width))
+    return maximum
+
+
+def _shell_page_row_has_content(
+    row: List[String], page_start: Int, page_end: Int
+) -> Bool:
+    for column_index in range(page_start, page_end):
+        if String(row[column_index].strip()).byte_length() > 0:
+            return True
+    return False
+
+def _shell_page_has_data(
+    table: CsvTable,
+    row_numbers: List[Int],
+    page_start: Int,
+    page_end: Int,
+) -> Bool:
+    for row_index in range(len(table.rows)):
+        var number = (
+            row_numbers[row_index]
+            if row_index < len(row_numbers)
+            else row_index
+        )
+        if number != 0 and _shell_page_row_has_content(
+            table.rows[row_index], page_start, page_end
+        ):
+            return True
+    return False
+
+
 def render_shell_table_with_width_reference(
     table: CsvTable,
     width_reference: CsvTable,
     row_numbers: List[Int],
     number_rows: Bool = True,
     width: Int = 0,
+    color_rows: Bool = True,
 ) -> String:
     """Render the legacy ANSI terminal table, including paging and wrapping."""
     if len(table.rows) == 0:
@@ -599,7 +643,7 @@ def render_shell_table_with_width_reference(
         var page_end = page_start
         var sum_widths = number_width + (1 if number_rows else 0)
         while page_end < total_columns:
-            var column_width = _wrapped_column_width(
+            var column_width = _shell_column_width(
                 width_reference, page_end, effective_width
             )
             var candidate = sum_widths + column_width + 1
@@ -609,9 +653,17 @@ def render_shell_table_with_width_reference(
             page_end += 1
         if page_end == page_start:
             page_end += 1
+        if page_start > data_start and not _shell_page_has_data(
+            table, row_numbers, page_start, page_end
+        ):
+            result += "\n"
         for row_index in range(len(table.rows)):
             var row = table.rows[row_index].copy()
             var number = row_numbers[row_index] if row_index < len(row_numbers) else row_index
+            if number != 0 and not _shell_page_row_has_content(
+                row, page_start, page_end
+            ):
+                continue
             var row_height = 1
             for column_index in range(page_start, page_end):
                 row_height = max(
@@ -624,12 +676,14 @@ def render_shell_table_with_width_reference(
                 for column_index in range(page_start, page_end):
                     var parts = _shell_word_wrap_cell(row[column_index], effective_width)
                     var part = parts[visual_line] if visual_line < len(parts) else ""
-                    var column_width = _wrapped_column_width(
+                    var column_width = _shell_column_width(
                         width_reference, column_index, effective_width
                     )
-                    result += _shell_colorize(
-                        _shell_pad(part, column_width), number
-                    ) + " "
+                    var padded = _shell_pad(part, column_width)
+                    if color_rows:
+                        result += _shell_colorize(padded, number) + " "
+                    else:
+                        result += padded + " "
                 result += "\n"
         page_start = page_end
     return result^
@@ -653,6 +707,7 @@ def render_table_with_width_reference(
     mode: String,
     width: Int = 0,
     number_rows: Bool = True,
+    color_rows: Bool = True,
 ) -> String:
     if mode == "csv":
         return render_csv_table(table)
@@ -670,7 +725,12 @@ def render_table_with_width_reference(
         return ""
     if mode == "shell":
         return render_shell_table_with_width_reference(
-            table, width_reference, row_numbers, number_rows, width
+            table,
+            width_reference,
+            row_numbers,
+            number_rows,
+            width,
+            color_rows,
         )
     return render_plain_table(table)
 
@@ -685,6 +745,7 @@ def render_table_with_native_context(
     mode: String,
     width: Int = 0,
     number_rows: Bool = True,
+    color_rows: Bool = True,
 ) raises -> String:
     if mode == "html":
         return render_html_table_with_context(
@@ -697,7 +758,13 @@ def render_table_with_native_context(
             width,
         )
     return render_table_with_width_reference(
-        table, width_reference, row_numbers, mode, width, number_rows
+        table,
+        width_reference,
+        row_numbers,
+        mode,
+        width,
+        number_rows,
+        color_rows,
     )
 
 def render_table(

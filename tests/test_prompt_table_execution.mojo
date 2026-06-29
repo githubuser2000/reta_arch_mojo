@@ -106,10 +106,86 @@ def test_english_aliases_route_to_native_table() raises:
     )
 
 
-def test_fraction_and_multiple_modifiers_stay_at_boundary() raises:
-    assert_false(_plan("universum 1/2").handled)
-    assert_false(_plan("vielfache mond 2 1-8").handled)
-    assert_false(_plan("teiler mond 12").handled)
+def test_integer_row_modifiers_are_native() raises:
+    var multiples = _plan("vielfache mond 2 1-8")
+    assert_true(multiples.handled)
+    assert_true("--vielfachevonzahlen=2,1-8" in _tokens(multiples))
+    assert_true("--vorhervonausschnitt=2,1-8,v2,v1-8" in _tokens(multiples))
+
+    var divisor_plan = _plan("teiler mond 12")
+    assert_true(divisor_plan.handled)
+    assert_true("--vorhervonausschnitt=2,3,4,6,12,12" in _tokens(divisor_plan))
+
+    var single = _plan("einzeln mond 2")
+    assert_true(single.handled)
+    assert_true("--vorhervonausschnitt=2" in _tokens(single))
+
+
+def test_reciprocal_and_proper_fraction_axes_are_native() raises:
+    var reciprocal = _plan("universum 1/2")
+    assert_true(reciprocal.handled)
+    assert_equal(len(reciprocal.invocations), 1)
+    assert_true("--vorhervonausschnitt=2" in _tokens(reciprocal))
+    assert_true("--universum=transzendentaliereziproke" in _tokens(reciprocal))
+    assert_true("--spaltenreihenfolgeundnurdiese=1,2" in _tokens(reciprocal))
+
+    var proper = _plan("emotion 2/3")
+    assert_true(proper.handled)
+    assert_equal(len(proper.invocations), 1)
+    assert_true("--vorhervonausschnitt=3" in _tokens(proper))
+    assert_true("--gebrochen-rational_Gefuehle_n/m=2" in _tokens(proper))
+
+
+def test_fraction_reduction_keeps_all_legacy_axes() raises:
+    var reduced = _plan("emotion 2/4")
+    assert_true(reduced.handled)
+    assert_equal(len(reduced.invocations), 2)
+    assert_true("--grundstrukturen=emotion" in _tokens(reduced, 0))
+    assert_true("--vorhervonausschnitt=2" in _tokens(reduced, 0))
+    assert_true("--gebrochen-rational_Gefuehle_n/m=2" in _tokens(reduced, 1))
+    assert_true("--vorhervonausschnitt=4" in _tokens(reduced, 1))
+
+    var whole = _plan("universum 4/2")
+    assert_true(whole.handled)
+    assert_equal(len(whole.invocations), 2)
+    assert_true("--oberesmaximum=1025" in _tokens(whole, 0))
+    assert_true("--vorhervonausschnitt=2" in _tokens(whole, 0))
+    assert_true("--gebrochen-rational_Universum_n/m=4" in _tokens(whole, 1))
+
+
+def test_equal_fraction_adds_universe_equality_axis() raises:
+    var plan = _plan("universum 3/3")
+    assert_true(plan.handled)
+    assert_equal(len(plan.invocations), 4)
+    assert_true("--universum=verhaeltnisgleicherzahl" in _tokens(plan, 3))
+    assert_true("--vorhervonausschnitt=3" in _tokens(plan, 3))
+
+
+def test_unsupported_fraction_combinations_stay_at_boundary() raises:
+    assert_false(_plan("universum vielfache 1/2").handled)
+    assert_false(_plan("mond 1/2").handled)
+
+
+
+def test_legacy_fraction_rectangles_and_offsets_are_native() raises:
+    var rectangle = _plan("universum 1/2-3/3")
+    assert_true(rectangle.handled)
+    assert_equal(len(rectangle.invocations), 5)
+    assert_true("--gebrochen-rational_Universum_n/m=2" in _tokens(rectangle, 2))
+    assert_true("--gebrochen-rational_Universum_n/m=3" in _tokens(rectangle, 3))
+    assert_true("--universum=verhaeltnisgleicherzahl" in _tokens(rectangle, 4))
+
+    var offset = _plan("motive 4/5+2/2")
+    assert_true(offset.handled)
+    assert_equal(len(offset.invocations), 3)
+    assert_true("--vorhervonausschnitt=2" in _tokens(offset, 0))
+    assert_true("--gebrochen-rational_Galaxie_n/m=2" in _tokens(offset, 1))
+    assert_true("--gebrochen-rational_Galaxie_n/m=6" in _tokens(offset, 2))
+
+
+def test_fraction_exclusions_remain_at_boundary() raises:
+    assert_false(_plan("universum -1/2").handled)
+    assert_false(_plan("universum v1/2").handled)
 
 
 def test_no_table_command_stays_at_boundary() raises:

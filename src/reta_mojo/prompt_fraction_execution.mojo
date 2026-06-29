@@ -96,7 +96,7 @@ def _parse_segment(raw: String, is_first: Bool, is_last: Bool) -> _FractionSegme
     if len(number_keys) == 0:
         return _FractionSegment(False, empty^, List[String](), List[String](), List[String](), False)
 
-    var valid = False
+    var valid: Bool
     if is_first:
         valid = True
         var zipped = min(len(text_keys), len(number_keys))

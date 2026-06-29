@@ -115,5 +115,28 @@ def test_explicit_column_range_without_semantic_selection_is_physical() raises:
     assert_equal(plan.columns, [2, 3, 4, 5])
     assert_equal(len(plan.explicit_positions), 0)
 
+
+def test_out_of_range_explicit_position_selects_no_generated_column() raises:
+    var plan = build_native_reta_plan(
+        [
+            "-spalten",
+            "--strukturgroesse=organisation",
+            "-ausgabe",
+            "--spaltenreihenfolgeundnurdiese=99",
+        ],
+        746,
+        1024,
+    )
+    assert_true(plan.explicit_order_requested)
+    assert_equal(plan.explicit_positions, [98])
+
+
+def test_nocolor_disables_shell_row_colors() raises:
+    var plan = build_native_reta_plan(
+        ["-ausgabe", "--nocolor"], 746, 1024
+    )
+    assert_true(not plan.color_rows)
+
+
 def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()

@@ -51,9 +51,11 @@ struct NativeRetaPlan(Copyable):
     var highest: Int
     var number_rows: Bool
     var include_headings: Bool
+    var color_rows: Bool
     var positive_rows: List[String]
     var negative_rows: List[String]
     var columns: List[Int]
+    var explicit_order_requested: Bool
     var explicit_positions: List[Int]
     var modal_concepts: List[ModalConcept]
     var meta_requests: List[MetaColumnRequest]
@@ -300,11 +302,13 @@ def build_native_reta_plan(tokens: List[String], maximum_columns: Int, maximum_r
     var highest = maximum_rows
     var number_rows = True
     var include_headings = True
+    var color_rows = True
     var positive_rows = List[String]()
     var negative_rows = List[String]()
     var positive_columns = List[Int]()
     var negative_columns = List[Int]()
     var explicit_order = List[Int]()
+    var explicit_order_requested = False
     var positive_modal = List[ModalConcept]()
     var negative_modal = List[ModalConcept]()
     var positive_meta = List[MetaColumnRequest]()
@@ -351,7 +355,10 @@ def build_native_reta_plan(tokens: List[String], maximum_columns: Int, maximum_r
                 number_rows = False
             elif option.name == "keineueberschriften" or option.name == "noheadings":
                 include_headings = False
+            elif option.name == "nocolor":
+                color_rows = False
             elif option.name == "spaltenreihenfolgeundnurdiese" or option.name == "columnorderandonlythese" or option.name == "columnorder":
+                explicit_order_requested = True
                 for value_index in range(len(option.values)):
                     var raw = option.values[value_index].text
                     var selected = List[Int]()
@@ -403,7 +410,7 @@ def build_native_reta_plan(tokens: List[String], maximum_columns: Int, maximum_r
                         negative_commands,
                     )
 
-    var has_explicit_order = len(explicit_order) > 0
+    var has_explicit_order = explicit_order_requested
     var has_semantic_selection = (
         len(positive_columns) > 0
         or len(positive_modal) > 0
@@ -445,6 +452,7 @@ def build_native_reta_plan(tokens: List[String], maximum_columns: Int, maximum_r
         and len(fraction_requests) == 0
         and len(kombi_requests) == 0
         and len(generated_commands) == 0
+        and not explicit_order_requested
     ):
         columns = [0]
     return NativeRetaPlan(
@@ -454,9 +462,11 @@ def build_native_reta_plan(tokens: List[String], maximum_columns: Int, maximum_r
         highest,
         number_rows,
         include_headings,
+        color_rows,
         positive_rows^,
         negative_rows^,
         columns^,
+        explicit_order_requested,
         explicit_positions^,
         modal_concepts^,
         meta_requests^,
@@ -503,13 +513,15 @@ def run_native_reta(tokens: List[String], csv_path: String) raises -> String:
     table = kombi.table.copy()
     for kombi_index in range(len(kombi.output_columns)):
         output_columns.append(kombi.output_columns[kombi_index])
-    if len(plan.explicit_positions) > 0:
+    if plan.explicit_order_requested:
         var ordered_output = List[Int]()
         for position_index in range(len(plan.explicit_positions)):
             var position = plan.explicit_positions[position_index]
             if position >= 0 and position < len(output_columns):
                 ordered_output.append(output_columns[position])
         output_columns = ordered_output^
+        if len(output_columns) == 0:
+            return ""
     var selected_rows = selection.rows.copy()
     var selected = select_display_table(table, selection)
     selected = select_zero_based_columns(selected, output_columns)
@@ -545,4 +557,5 @@ def run_native_reta(tokens: List[String], csv_path: String) raises -> String:
         plan.output_mode,
         plan.width,
         plan.number_rows,
+        plan.color_rows,
     )

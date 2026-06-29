@@ -9,8 +9,8 @@ abgeschlossene Release-Stufen:       8 von 12 = 66,7 %
 Stufen 9/10:                          Ausgabe und Prompt-Sprache in Arbeit
 vollständig native Originaldateien:  18 von 92 = 19,6 %
 mindestens teilweise portiert:       46 von 92 = 50,0 %
-gewichteter Quellzeilenstand:         ca. 28 %
-funktionaler Nutzerumfang:            ca. 75–79 %
+gewichteter Quellzeilenstand:         ca. 29 %
+funktionaler Nutzerumfang:            ca. 78–82 %
 ```
 
 Die Metriken messen Verschiedenes. Die Stufenquote ist höher, weil die noch offenen Stufen die größten dynamischen Python-Module bündeln. Der vollständige Plan steht in [`ROADMAP.md`](ROADMAP.md).
@@ -149,9 +149,11 @@ Geprüft sind 27 kompakte deutsch/englische Kurzsprachenkontexte, 23 vollständi
 
 `src/reta_mojo/prompt_fraction_execution.mojo` übernimmt die vordere Bruch- und Bereichssprache aus `prompt_execution.py`. `primfaktorenvergleich` sowie die eindeutigen Zwei-Bereichsformen von `abstand`/`abstandPrim` werden nativ ausgeführt.
 
-Neu besitzt `src/reta_mojo/prompt_table_execution.mojo` die ganzzahlige Tabellenplanung. Sie deckt 18 Promptfamilien ab: `mond`, `richtung`, `primzahlkreuz`, `alles`, `thomas`, `emotion`, `wirklichkeit`, `triebe`, `impulse`, `bewusstsein`, `geist`, `freiheit/gleichheit`, `groesse`, `kugeln/kreise`, `netzwerk`, `komplex`, `absicht/motiv` und `universum`. Mehrere Fachwörter in einer Eingabe erzeugen mehrere native Aufrufe wie die unabhängigen Python-Zweige; `range`, Invertierung und Ausgabeparameter werden weitergereicht.
+`src/reta_mojo/prompt_table_execution.mojo` plant 18 Promptfamilien: `mond`, `richtung`, `primzahlkreuz`, `alles`, `thomas`, `emotion`, `wirklichkeit`, `triebe`, `impulse`, `bewusstsein`, `geist`, `freiheit/gleichheit`, `groesse`, `kugeln/kreise`, `netzwerk`, `komplex`, `absicht/motiv` und `universum`. Mehrere Fachwörter in einer Eingabe erzeugen mehrere native Aufrufe wie die unabhängigen Python-Zweige; `range`, Invertierung und Ausgabeparameter werden weitergereicht.
 
-Diese Pfade starten den kompilierten `reta-native`-Kern. Der kleine Python-Adapter bleibt nur für Prozess- und Terminal-I/O. Gebrochene `1/n`-/`n/m`-Fälle sowie Vielfachen- und Teilerkombinationen fallen bewusst vollständig auf die Referenz zurück, statt nur teilweise nativ und semantisch falsch ausgeführt zu werden.
+Neben den Ganzzahlpfaden werden nun ganzzahlige `vielfache`/`teiler`/`einzeln`, positive `1/n`- und `n/m`-Ausdrücke, reduzierte Achsen sowie historische Rechteck- und Versatzformen wie `1/2-3/3` und `4/5+2/2` nativ geplant. Die eigentlichen Tabellen laufen im kompilierten `reta-native`-Kern. Nur Bruchausschlüsse, `v`-präfixierte Brüche und Bruch-plus-Vielfachen/Teiler bleiben als atomarer Kompatibilitätsfall bei Python.
+
+`--nocolor` ist im Shellrenderer jetzt wirksam. Außerdem kann eine explizite, nicht vorhandene Ergebnisposition nicht mehr auf die vollständige Spaltenmenge zurückfallen.
 
 Die explizite Spaltenfolge wird bei semantischen Spaltenauswahlen nach der Generatorpipeline als relative Ergebnisposition angewandt. Dadurch entspricht `--Bedeutung=gestirn --spaltenreihenfolgeundnurdiese=3-6` wieder der Python-Referenz. Auch die historische Unterdrückung der zusätzlichen Universumsspalte bei `e`, `ee`, fehlenden Überschriften oder mehr als zwei kombinierten Fachbefehlen ist modelliert.
 
@@ -203,12 +205,13 @@ Siehe [`BINARIES.md`](BINARIES.md).
 Gesamtbestand:
 
 ```text
-48 native Testdateien
-185 native Testfunktionen
-70/70 aktuell fokussiert erneut ausgeführte Tests bestanden
+51 native Testdateien und Probes
+217 native Testfunktionen
+102/102 aktuell fokussiert dokumentierte Tests bestanden
 30 Generator- und 9 Kombi-CLI-Fälle in den Paritätssuiten
 8 schnelle Markup-Fixtures; 16 Fälle einzeln gegen Python validiert
 27 Kurzsprachen-, 23 Vorbereitung- und 12 Completion-Kontexte bytegleich
+18 Bruchparserfälle bytegleich; 10 reale Bruch-/Modifikator-Tokenströme identisch
 2 schwere Katalogtestdateien bleiben im normalen Lauf optional
 ```
 

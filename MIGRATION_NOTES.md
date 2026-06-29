@@ -249,13 +249,22 @@ Noch nicht portierte Fachoperationen erhalten an der Kompatibilitätsgrenze weit
 - `mond` und `richtung` delegieren nur den Prozessstart an `mojo_bridge.py`; Tabellenplanung, Generatoren und Rendering laufen im kompilierten Mojo-Ziel.
 - Explizite Spaltenbereiche werden als Ergebnispositionen auf semantisch erzeugte Spalten angewandt, statt die ursprüngliche Auswahl zu ersetzen.
 
-## Stufe 10 – besitzende Tabellenplanung für Ganzzahlbefehle
+## Stufe 10 – besitzende Tabellenplanung für Ganzzahlen und positive Brüche
 
-`prompt_table_execution.mojo` trennt die bisher in `PromptGrosseAusgabe` vermischten Aufgaben: lokalisierte Befehlsauflösung, Zahlenbereichssammlung, Modifikatorauswertung, Tabellenargumente und Mehrfachausführung. Das Ergebnis ist ein `PromptTablePlan` mit null, einer oder mehreren `PromptTableInvocation`-Strukturen. Der Promptcontroller führt den Plan aus, ohne die Fachsemantik erneut zu interpretieren.
+`prompt_table_execution.mojo` trennt die bisher in `PromptGrosseAusgabe` vermischten Aufgaben: lokalisierte Befehlsauflösung, Zahlen- und Bruchsammlung, Modifikatorauswertung, Tabellenargumente und Mehrfachausführung. Das Ergebnis ist ein `PromptTablePlan` mit null, einer oder mehreren `PromptTableInvocation`-Strukturen. Der Promptcontroller führt den Plan aus, ohne die Fachsemantik erneut zu interpretieren.
 
-Portiert sind 18 ganzzahlige Tabellenfamilien. Darin enthalten sind alle reinen `n`-Zweige der zentralen `retaCmdAbstraction_n_and_1pron`-Aufrufe sowie die direkten Tabellenzweige für Mond, Richtung, Primzahlkreuz, Alles und Thomas. `groesse` erzeugt wie die Referenz zwei getrennte Tabellenaufrufe. Mehrere Fachbefehle auf derselben Zeile bleiben ebenfalls mehrere Ausführungen und werden nicht fälschlich zu einer Spaltenauswahl vereinigt.
+Portiert sind 18 Tabellenfamilien. Darin enthalten sind alle reinen `n`- und `1/n`-Zweige der zentralen `retaCmdAbstraction_n_and_1pron`-Aufrufe sowie die direkten Tabellenzweige für Mond, Richtung, Primzahlkreuz, Alles und Thomas. Für Emotion, Größe, Motive/Galaxie und Universum werden echte `n/m`-Generatorspalten geplant. `groesse` erzeugt wie die Referenz zwei getrennte Grundtabellenaufrufe; das Universum ergänzt bei gleichen positiven Zählern und Nennern seine besondere Gleichheitsachse.
 
-Die Planung setzt absichtlich eine harte Ganzzahligkeitsgrenze. Sobald ein Bruch, `vielfache`, `teiler` oder `einzeln` vorkommt, wird der gesamte Befehl an Python zurückgegeben. Dadurch kann kein nativ unterstützter Teilzweig die noch nicht portierte Bruch-/Divisorsemantik verschlucken. Die Universumsfamilie erhält zusätzlich ihre historische bedingte Spaltenauswahl: Spalte 4 entfällt bei `e`, `ee`, deaktivierten Überschriften, dem Unterdrückungsbefehl oder mehr als zwei kombinierten Fachbefehlen.
+Der bestehende Port von `bruchSpalt` und `createRangesForBruchLists` ist nun an den Tabellenplaner angeschlossen. Dadurch funktionieren einfache Achsenbereiche, historische Rechtecke (`1/2-3/3`) und Versätze (`4/5+2/2`). Positive Zählergruppen werden in der beobachtbaren Referenzreihenfolge aufsteigend ausgeführt; die Versatzform `4/5+2/2` liefert also zuerst `2/n`, danach `6/n`.
 
-Für Tabellenoptionen mit Umlauten verwendet der Plan vorhandene ASCII-Aliase (`trieb`, `groesse`). Das umgeht keine Fachlogik, sondern dieselbe Aliasauflösung des nativen Parameterschemas und hält die derzeitige PythonObject-Prozessgrenze UTF-8-unabhängig.
+Ganzzahlige `vielfache`, `teiler` und `einzeln` werden vor der Fachfamilie als Zeilenoperatoren ausgewertet. Die Sicherheitsgrenze ist enger geworden, bleibt aber atomar: Bruchausschlüsse, `v`-präfixierte Brüche sowie Bruch-plus-Vielfachen/Teiler fallen als kompletter Befehl zurück.
 
+Die Universumsfamilie behält ihre historische bedingte Spaltenauswahl: Spalte 4 entfällt bei `e`, `ee`, deaktivierten Überschriften, dem Unterdrückungsbefehl oder mehr als zwei kombinierten Fachbefehlen. Für Tabellenoptionen mit Umlauten verwendet der Plan vorhandene ASCII-Aliase (`trieb`, `groesse`).
+
+## Stufe 10c – bei der Parität gefundene Tabellenkernfehler
+
+- `--nocolor` war zuvor nur als Parametername bekannt. Der Shellrenderer erhält nun ein typisiertes `color_rows`-Flag und gibt bei deaktivierter Farbe keine ANSI-Sequenzen aus.
+- Eine explizite relative Ergebnisposition, die nach der Generatorpipeline keine Spalte traf, wurde früher als leere Auswahl interpretiert und dadurch in „alle Spalten“ umgedeutet. `explicit_order_requested` unterscheidet nun bewusst zwischen „keine Reihenfolge verlangt“ und „verlangt, aber keine Position vorhanden“.
+- Native Tabellenaufrufe werden nach der ausgegebenen `reta`-Befehlszeile mit einem echten Zeilenumbruch begonnen. Die früher zusammengeklebte erste Tabellenzeile war ein Promptcontrollerfehler, kein Renderermerkmal.
+
+Die Bruch-/Modifikatorparität wird als normalisierter geordneter CSV-Tokenstrom geprüft. Das entfernt nur präsentationsbedingte Whitespace-Läufe der Legacy-Renderer und behauptet ausdrücklich keine vollständige Byteparität des Shell-Wrappings.

@@ -112,10 +112,10 @@ def _print_prompt_help() -> None:
     print("  shell ..., python ..., math ...")
     print("")
     print("Kompakte Zahlen- und Ein-Zeichen-Befehle werden nativ expandiert.")
-    print("Bruch-, Vielfachen- und Teilerkombinationen nutzen bis zu ihrer")
-    print(
-        "vollständigen Portierung die isolierte Python-Kompatibilitätsgrenze."
-    )
+    print("Positive Brüche, historische Bruchbereiche sowie ganzzahlige")
+    print("Vielfachen-, Teiler- und Einzelauswahl werden nativ geplant.")
+    print("Brüche mit Ausschlüssen oder Bruch+Vielfachen/Teiler bleiben")
+    print("an der isolierten Python-Kompatibilitätsgrenze.")
 
 
 def _print_commands(
@@ -185,7 +185,7 @@ def _run_native_table_tokens(
         if index > 0:
             encoded += "\x1f"
         encoded += tokens[index]
-    print(command_line, end="")
+    print(command_line)
     _ = bridge.run_native_reta_subprocess_encoded(encoded)
     return True
 

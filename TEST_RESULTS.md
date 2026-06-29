@@ -4,7 +4,7 @@
 
 ```text
 51 Mojo-Testdateien und -Probes
-208 Testfunktionen insgesamt
+217 Testfunktionen insgesamt
 9 reguläre ELF-Compilerziele
 2 optionale schwere Katalogtestdateien
 ```
@@ -17,20 +17,23 @@ Der letzte vollständig abgeschlossene normale Stufe-7-Lauf ergab **145/145** Te
 test_prompt_language             15/15
 test_prompt_runtime              21/21
 test_prompt_fraction_execution    8/8
-test_prompt_table_execution      10/10
+test_prompt_table_execution      16/16
 test_meta_columns                 3/3
 test_fraction_concat_columns      3/3
 test_kombi_join_columns           4/4
 test_generated_aliases            6/6
-test_native_reta_cli              9/9
+test_native_reta_cli             11/11
 test_generated_table_columns      7/7
-test_table_rendering              3/3
+test_table_rendering              4/4
 test_html_cell_metadata           4/4
                                 -------
-                                 93/93 bestanden
+                                102/102 bestanden
 ```
 
-Es gab keinen Testfehler. Abgebrochene Sammelläufe endeten ausschließlich während eines nachfolgenden Compiler- oder Referenzprozesses durch die äußere Laufzeitgrenze.
+In den oben gezählten Einzelsuiten gab es keinen Testfehler. Zwei breitere Sammelprüfungen werden ausdrücklich **nicht** als bestanden gezählt:
+
+- `scripts/test_prompt_bins.sh` erreichte bei wiederholten Python-Referenzstarts das äußere Laufzeitlimit und lieferte deshalb keinen abgeschlossenen Gesamtlauf.
+- `scripts/check_native_table_parity.sh` trifft unter dem lokal verwendeten Python 3.13.5 auf eine Referenzharness-Abweichung: Die direkte Python-CSV-Ausgabe verklebt Zeilen, während der native CSV-Renderer sie mit Zeilenumbrüchen ausgibt. Die Stage-10c-Pfade werden deshalb zusätzlich über feste Byte-Fixtures und normalisierte geordnete CSV-Tokenströme geprüft. Dieser breite Harnessfall ist offen und wird nicht als Paritätserfolg ausgegeben.
 
 ## Stufe 7: Generator- und Metaspalten
 
@@ -108,14 +111,17 @@ Zusätzlich ist die fachliche Ausführung jetzt geprüft:
 
 ```text
 18/18 Bruch-/Bereichsausdrücke bytegleich zu bruchSpalt/createRangesForBruchLists
-10/10 Tabellenplanertests bestanden
+16/16 Tabellenplanertests bestanden
+10/10 reale Bruch-/Modifikatorfälle als normalisierte CSV-Tokenströme identisch
 7/7 reale Prompt-Ausführungen als Byte-Fixtures
-18 ganzzahlige Tabellenfamilien über reta-native statt retaPrompt.py
+18 Tabellenfamilien über reta-native statt retaPrompt.py
 ```
 
-Die Planertests prüfen deutsche und englische Aliase, Mehrfachbefehle, `range`, Invertierung, Ausgabeparameter, das doppelte `groesse`-Routing und die bedingte Universum-Spaltenauswahl. Reale Rauchtests für alle neu hinzugefügten Familien endeten mit Rückgabecode 0. Brüche, `vielfache`, `teiler` und `einzeln` werden als unteilbarer Kompatibilitätsfall erkannt und nicht irrtümlich teilweise nativ ausgeführt.
+Die Planertests prüfen deutsche und englische Aliase, Mehrfachbefehle, `range`, Invertierung, Ausgabeparameter, das doppelte `groesse`-Routing, die bedingte Universum-Spaltenauswahl, ganzzahlige Vielfachen/Teiler/Einzelauswahl, reduzierte Brüche, echte `n/m`-Spalten sowie historische Rechteck- und Versatzsyntax.
 
-Die sieben Ausführungsfixtures umfassen Primfaktorenvergleich, einfache und primfaktorisierte Abstände, bidirektionale Bereichsabstände sowie ANSI-Tabellenausgaben. Der vollständige native CLI-Plantest benötigt kalt rund 51 Minuten und bestand mit **9/9** Tests.
+Die zehn Tabellenreferenzfälle umfassen `emotion`, `universum`, `groesse`, `mond` und `motive`. Verglichen wird der geordnete CSV-Tokenstrom nach Entfernung ausschließlich präsentationsbedingter Whitespace-Läufe; eine Bytegleichheit des noch nicht vollständig identischen Shell-Wrappings wird daraus nicht abgeleitet. Bruchausschlüsse und Bruch-plus-Vielfachen/Teiler bleiben atomar am Fallback.
+
+Die sieben Ausführungsfixtures umfassen Primfaktorenvergleich, einfache und primfaktorisierte Abstände, bidirektionale Bereichsabstände sowie ANSI-Tabellenausgaben. Der Promptcontroller trennt die ausgegebene Befehlszeile nun korrekt von der ersten Tabellenzeile. Der native CLI-Plantest bestand nach den Kernkorrekturen mit **11/11**, der Renderer mit **4/4** Tests.
 
 Ein Pseudoterminaltest bestätigte die tatsächliche interaktive Ergänzung:
 

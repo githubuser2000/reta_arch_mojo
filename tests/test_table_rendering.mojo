@@ -1,4 +1,4 @@
-from std.testing import assert_equal, TestSuite
+from std.testing import assert_equal, assert_false, assert_true, TestSuite
 from reta_mojo.csv_table import parse_semicolon_csv
 from reta_mojo.table_rendering import *
 
@@ -31,6 +31,16 @@ def test_bbcode_legacy_spacing_and_counting_color() raises:
         + "[td=\"\"]2 [/td][td=\"\"]c[/td] [td=\"\"]d[/td] [/tr]\n"
         + "[/table]\n",
     )
+
+
+def test_shell_nocolor_omits_ansi_sequences() raises:
+    var table = parse_semicolon_csv("; ;H1\n1;1;a\n")
+    var rendered = render_shell_table_with_width_reference(
+        table, table, [0, 1], True, 80, False
+    )
+    assert_false("\x1b[" in rendered)
+    assert_true("H1" in rendered)
+    assert_true("a" in rendered)
 
 
 def main() raises:

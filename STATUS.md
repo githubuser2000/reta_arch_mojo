@@ -5,15 +5,15 @@
 - Abgeschlossene Release-Stufen: **8/12 = 66,7 %**
 - Stufe 9: **BBCode, zentraler ANSI-Shellpfad und zentrale HTML-Pfade nativ; seltene Ausgabegrenzen offen**
 - Stufe 10: **native Kurzsprache, mehrsprachige verschachtelte Completion und Promptvorbereitung in Arbeit**
-- Geschätzter funktionaler Portierungsstand: **75–79 %**
+- Geschätzter funktionaler Portierungsstand: **78–82 %**
 - Konservativ vollständig native oder reproduzierbar generierte Originaldateien: **18/92 = 19,6 %**
 - Mindestens teilweise portierte Originaldateien: **46/92 = 50,0 %**
-- Gewichteter Quellzeilenstand: **ca. 28 %**
-- Nativer Mojo-Quellcode in `src/`: **15.751 Zeilen**
-- Davon im Paket `reta_mojo`: **14.766 Zeilen**
+- Gewichteter Quellzeilenstand: **ca. 29 %**
+- Nativer Mojo-Quellcode in `src/`: **16.340 Zeilen**
+- Davon im Paket `reta_mojo`: **15.355 Zeilen**
 - Native Mojo-Testdateien und -Probes: **51**
-- Native Testfunktionen: **208**
-- Aktuell fokussiert dokumentiert: **93/93 bestanden**
+- Native Testfunktionen: **217**
+- Aktuell fokussiert dokumentiert: **102/102 bestanden**
 - Prompt-Kurzsprache: **27/27 deutsche und englische Referenzkontexte bytegleich**
 - Promptvorbereitung: **23/23 deutsche und englische Referenzkontexte bytegleich**
 - Verschachtelte Completion: **12/12 Referenzkontexte und 12/12 schnelle Fixtures bytegleich**
@@ -65,18 +65,19 @@
 - interaktiver Pseudoterminaltest ergänzt `reta -ausgabe --art=htm<Tab>` zu `html`
 - nativer Bruchparser für die vordere `prompt_execution.py`-Strecke einschließlich Bereichsbildung, Reziprok- und Ganzzahlerkennung
 - native Fachbefehle `primfaktorenvergleich`, `abstand` und `abstandPrim`
-- besitzende Tabellenplanung in `prompt_table_execution.mojo` für **18 ganzzahlige Promptfamilien**
-- nativ geplant sind `mond`, `richtung`, `primzahlkreuz`, `alles`, `thomas`, `emotion`, `wirklichkeit`, `triebe`, `impulse`, `bewusstsein`, `geist`, `freiheit/gleichheit`, `groesse`, `kugeln/kreise`, `netzwerk`, `komplex`, `absicht/motiv` und `universum`
+- besitzende Tabellenplanung in `prompt_table_execution.mojo` für **18 Promptfamilien**
+- positive Ganzzahlen, Reziproke und echte `n/m`-Achsen werden gemeinsam geplant
+- ganzzahlige `vielfache`, `teiler` und `einzeln` sind nativ
+- historische Bruchrechtecke und Versätze wie `1/2-3/3` und `4/5+2/2` sind nativ
 - gemischte Fachbefehle erzeugen mehrere native Tabellenaufrufe wie die unabhängigen Python-`if`-Zweige
-- `range`, `invertieren`, Ausgabeparameter und die historische Universum-Spaltenunterdrückung werden in der Planung erhalten
-- alle unterstützten Tabellenfamilien verwenden den kompilierten Tabellenkern; Python bleibt nur Prozess-/Readline-Grenze
-- relative `--spaltenreihenfolgeundnurdiese=3-6`-Semantik nach der Generatorpipeline korrigiert
-- **18/18** Bruchparser-Referenzfälle, **10/10** Tabellenplanertests und **7/7** reale Prompt-Ausführungsfixtures bestanden
+- `range`, `invertieren`, Ausgabeparameter und die historische Universum-Spaltenunterdrückung werden erhalten
+- `--nocolor` wirkt im Shellrenderer; ungültige explizite Ergebnispositionen öffnen nicht mehr alle Spalten
+- **18/18** Bruchparser-Referenzfälle, **16/16** Tabellenplanertests, **10/10** reale Bruch-/Modifikator-Tokenströme und **7/7** Prompt-Ausführungsfixtures bestanden
 
 ## Weiterhin an der Kompatibilitätsgrenze
 
 - seltene Terminalbreiten-, Rich- und kombinierte HTML-Metadatenfälle
-- gebrochene `1/n`-/`n/m`-Tabellenzweige, Vielfachen-/Teilerkombinationen und weitere hintere Prompt-Sonderzweige
+- Bruchausschlüsse, `v`-präfixierte Brüche, Bruch-plus-Vielfachen/Teiler und weitere hintere Prompt-Sonderzweige
 - vollständige i18n-Laufzeit außerhalb des Promptvokabulars
 - dynamische Architekturvalidierung, Persistenz und Parallelisierung
 
