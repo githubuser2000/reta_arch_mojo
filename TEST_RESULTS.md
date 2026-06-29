@@ -4,7 +4,7 @@
 
 ```text
 52 Mojo-Testdateien und -Probes
-233 Testfunktionen insgesamt
+234 Testfunktionen insgesamt
 9 reguläre ELF-Compilerziele
 2 optionale schwere Katalogtestdateien
 ```
@@ -25,11 +25,11 @@ test_kombi_join_columns           4/4
 test_generated_aliases            6/6
 test_native_reta_cli             19/19
 test_generated_table_columns      7/7
-test_table_rendering              4/4
+test_table_rendering              5/5
 test_html_cell_metadata           4/4
 test_row_filtering_reference      3/3
                                 -------
-                                119/119 bestanden
+                                120/120 bestanden
 ```
 
 In den oben gezählten Einzelsuiten gab es keinen Testfehler. Zwei breitere Sammelprüfungen werden ausdrücklich **nicht** als bestanden gezählt:
@@ -185,3 +185,15 @@ Die unveränderte Python-Referenz hatte beim Eingang bereits drei fehlschlagende
 - `check_prompt_compact_execution_parity.sh`: **5/5** vollständige Ausgaben (`a2`, `ap15`, `p12`, `p13`, `G2`) bytegleich zu Python 3.13.5 mit `PYTHONHASHSEED=0`.
 - `check_prompt_native_oneshot.sh`: neun native Befehlsklassen ohne `mojo_bridge.py` und ohne `reta-native`-Kindprozess; rendererempfindliche Kurzformen, reine Zahlenkürzel und gemischte Speicher-/Tabellenkürzel bleiben nachweislich atomar am Fallback.
 - Die kompakte Sprachvorbereitung bleibt **27/27**, die bestehenden Ausführungsfixtures **7/7**, der Bruchparser **18/18** und die Bruch-/Modifikatormatrix **14/14**. Der ungeteilte 14er-Lauf überschritt das Werkzeugfenster; dieselben Fälle wurden in Gruppen 4+4+3+3 vollständig abgeschlossen.
+
+
+## Stage 10g: vorbereitete Fragmentbreiten und alle kompakten Tabellenfamilien
+
+- `test_table_rendering.mojo`: **5/5**; der neue Test sichert die Messung an vorbereiteten Wortfragmenten statt an rohen, pauschal gekappten Zellen.
+- `check_prompt_compact_execution_parity.sh`: **10/10** vollständige Ausgaben bytegleich zu Python 3.13.5 mit `PYTHONHASHSEED=0`. Neu sind `B2`, `E2`, `T2`, `W2` und `u2`.
+- `check_prompt_native_oneshot.sh`: **14** repräsentative Befehlsklassen laufen in einem Verzeichnis ohne `mojo_bridge.py` und ohne `reta-native`-Kindprogramm.
+- `check_prompt_execution_fixtures.sh`: **7/7**; die zwei Tabellenfixtures bilden nun auch die tatsächliche Rich-`cliout`-Verklebung von Befehlszeile und Tabellenkopf ab.
+- `check_shell_parity.sh`: **5/5** Shell-Fixtures bytegleich.
+- `check_markup_parity.sh`: **8/8** zentrale BBCode-/HTML-Fixtures bytegleich.
+- Bruchparser **18/18**, Bruch-/Modifikatortabellen **14/14**, kompakte Sprachvorbereitung **27/27**, vollständige Promptvorbereitung **23/23**.
+- Alle neun regulären ELF-Ziele wurden seriell aus dem Stage-10g-Quellstand gebaut; `check_build_layout.sh` bestand.

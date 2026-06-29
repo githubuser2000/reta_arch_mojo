@@ -5,15 +5,15 @@
 - Abgeschlossene Release-Stufen: **8/12 = 66,7 %**
 - Stufe 9: **BBCode, zentraler ANSI-Shellpfad und zentrale HTML-Pfade nativ; seltene Ausgabegrenzen offen**
 - Stufe 10: **native Kurzsprache, mehrsprachige verschachtelte Completion und Promptvorbereitung in Arbeit**
-- Geschätzter funktionaler Portierungsstand: **82–85 %**
+- Geschätzter funktionaler Portierungsstand: **84–87 %**
 - Konservativ vollständig native oder reproduzierbar generierte Originaldateien: **18/92 = 19,6 %**
 - Mindestens teilweise portierte Originaldateien: **46/92 = 50,0 %**
 - Gewichteter Quellzeilenstand: **ca. 29 %**
-- Nativer Mojo-Quellcode in `src/`: **17.404 Zeilen**
-- Davon im Paket `reta_mojo`: **15.877 Zeilen**
+- Nativer Mojo-Quellcode in `src/`: **17.474 Zeilen**
+- Davon im Paket `reta_mojo`: **15.921 Zeilen**
 - Native Mojo-Testdateien und -Probes: **52**
-- Native Testfunktionen: **233**
-- Aktuell fokussiert dokumentiert: **119/119 bestanden**
+- Native Testfunktionen: **234**
+- Aktuell fokussiert dokumentiert: **120/120 bestanden**
 - Prompt-Kurzsprache: **27/27 deutsche und englische Referenzkontexte bytegleich**
 - Promptvorbereitung: **23/23 deutsche und englische Referenzkontexte bytegleich**
 - Verschachtelte Completion: **12/12 Referenzkontexte und 12/12 schnelle Fixtures bytegleich**
@@ -78,9 +78,10 @@
 - **18/18** Bruchparser-Referenzfälle, **16/16** Tabellenplanertests, **14/14** reale Bruch-/Modifikator-Tokenströme und **7/7** Prompt-Ausführungsfixtures bestanden
 - native One-shot-Ausführung vor jedem Python-Import; Tabellenkern direkt im Promptprozess statt über `reta-native`-Kindprozess
 - konservativer Besitzervertrag für rohe `reta`-Befehle; **19/19** CLI-Tests und neun isolierte native Befehlsklassen bestanden
-- getrennte Legacy-Echotokens für kanonische native Ausführung; `a2`, `ap15`, `p12`, `p13`, `G2` vollständig bytegleich
-- rendererstabile Kurzformen für Absicht/Motiv, Geist, Impulse, Thomas und Richtung sowie `mulpri` laufen ohne Python
-- rendererempfindliche Kurzformen und reine Zahlenkürzel bleiben atomar an der Bridge
+- getrennte Legacy-Echotokens für kanonische native Ausführung
+- vorbereitete Fragmentbreiten und vorhandene Bindestrichumbrüche entsprechen der Python-`textwrap`-Reihenfolge
+- `a2`, `ap15`, `p12`, `p13`, `G2`, `B2`, `E2`, `T2`, `W2` und `u2` vollständig bytegleich
+- alle kompakten Tabellenfamilien sowie `mulpri` laufen ohne Python; nur reine Zahlenkürzel bleiben atomar an der Bridge
 
 ## Weiterhin an der Kompatibilitätsgrenze
 

@@ -10,7 +10,7 @@ Stufen 9/10:                          Ausgabe und Prompt-Sprache in Arbeit
 vollständig native Originaldateien:  18 von 92 = 19,6 %
 mindestens teilweise portiert:       46 von 92 = 50,0 %
 gewichteter Quellzeilenstand:         ca. 29 %
-funktionaler Nutzerumfang:            ca. 82–85 %
+funktionaler Nutzerumfang:            ca. 84–87 %
 ```
 
 Die Metriken messen Verschiedenes. Die Stufenquote ist höher, weil die noch offenen Stufen die größten dynamischen Python-Module bündeln. Der vollständige Plan steht in [`ROADMAP.md`](ROADMAP.md).
@@ -163,6 +163,10 @@ Vollständig besessene One-shot-Befehle werden nun vor dem Import von `mojo_brid
 
 Eine getrennte Legacy-Präsentationsschicht gibt nun die ursprüngliche Expansion und gemischt geschriebenen Optionsnamen aus, während der Tabellenplan intern kanonisch bleibt. Rendererstabile Kurzformen der Familien `absicht/motiv`, `geist`, `impulse`, `thomas` und `richtung` sowie der zusammengesetzte `mulpri`/`p`-Ablauf laufen ohne Python-Import. Fünf vollständige Ausgaben sind mit Python 3.13.5 und `PYTHONHASHSEED=0` bytegleich eingefroren. Rendererempfindliche Familien und reine Zahlenkürzel bleiben als ganze Eingabe am Fallback. Details: [`STAGE10F_NATIVE_COMPACT_PROMPT.md`](STAGE10F_NATIVE_COMPACT_PROMPT.md).
 
+### Stage 10g: vollständige kompakte Tabellenfamilien
+
+Der Shellrenderer misst Spalten nun an den mit Breite 73 vorbereiteten Fragmenten und übernimmt Python-`textwrap`-Umbrüche an vorhandenen Bindestrichen. Dadurch laufen auch `bewusstsein`, `emotion`, `triebe`, `wirklichkeit` und `universum` als kompakte One-shots vollständig nativ. Zehn komplette Ausgaben sind bytegleich; Ankündigung, sichtbares `reta`-Echo und erste Tabellenzeile behalten den historischen zusammenhängenden Farbausgabestrom. Nur reine Zahlenkürzel bleiben als mehrteilige Komposition an der Bridge. Details: [`STAGE10G_RENDERER_COMPACT_PARITY.md`](STAGE10G_RENDERER_COMPACT_PARITY.md).
+
 Die explizite Spaltenfolge wird bei semantischen Spaltenauswahlen nach der Generatorpipeline als relative Ergebnisposition angewandt. Dadurch entspricht `--Bedeutung=gestirn --spaltenreihenfolgeundnurdiese=3-6` wieder der Python-Referenz. Auch die historische Unterdrückung der zusätzlichen Universumsspalte bei `e`, `ee`, fehlenden Überschriften oder mehr als zwei kombinierten Fachbefehlen ist modelliert.
 
 ## Weitere native Bereiche
@@ -214,8 +218,8 @@ Gesamtbestand:
 
 ```text
 52 native Testdateien und Probes
-233 native Testfunktionen
-119/119 aktuell fokussiert dokumentierte Mojo-Tests bestanden
+234 native Testfunktionen
+120/120 aktuell fokussiert dokumentierte Mojo-Tests bestanden
 30 Generator- und 9 Kombi-CLI-Fälle in den Paritätssuiten
 8 schnelle Markup-Fixtures; 16 Fälle einzeln gegen Python validiert
 27 Kurzsprachen-, 23 Vorbereitung- und 12 Completion-Kontexte bytegleich

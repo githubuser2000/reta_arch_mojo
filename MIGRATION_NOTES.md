@@ -297,3 +297,8 @@ Die Bruch-/Modifikatorparität wird als normalisierter geordneter CSV-Tokenstrom
 - Rendererempfindliche Kurzformen und reine Zahlenkürzel bleiben atomar an der Bridge, damit kein Teil eines zusammengesetzten Legacybefehls vorzeitig nativ ausgeführt wird.
 - Der kompakte Besitzervertrag prüft jedes nichtnumerische Token; Speicher-/Sitzungsbefehle können nicht mehr neben einer nativen Tabelle verloren gehen.
 - Die SipHash-13-Nachbildung verarbeitet UTF-8-Bytes direkt und schneidet mehrbyteige deutsche Bezeichner nicht mehr an ungültigen Grenzen.
+
+
+## Stufe 10g – vorbereitete Rendererfragmente und kompakter Farbausgabestrom
+
+Der Shellrenderer bestimmt die Spaltenbreite jetzt nach dem historischen Vorbereitungsumbruch und nicht aus der Rohzelle. Vorhandene Bindestriche sind wie bei Python `textwrap` bevorzugte Umbruchstellen. Farbige Promptankündigungen und sichtbare `reta`-Echos verwenden die ursprüngliche `cliout`-Semantik ohne zusätzlichen Zeilenumbruch. Dadurch wechseln `bewusstsein`, `emotion`, `triebe`, `wirklichkeit` und `universum` in den vollständig nativen kompakten One-shot-Pfad. Reine Zahlenkürzel bleiben als eigenständige mehrteilige Komposition offen.

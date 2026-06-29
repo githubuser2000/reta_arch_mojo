@@ -281,6 +281,30 @@ def _append_long_word(mut result: List[String], word: String, width: Int) -> Str
     return chunks[len(chunks) - 1]
 
 
+def _hyphen_prefix_fitting(word: String, available: Int) -> String:
+    """Return the longest existing-hyphen prefix fitting this line."""
+    if available <= 0 or not "-" in word:
+        return ""
+    var parts = word.split("-")
+    if len(parts) < 2:
+        return ""
+    var candidate = String()
+    var best = String()
+    for index in range(len(parts) - 1):
+        if index > 0:
+            candidate += "-"
+        candidate += String(parts[index]) + "-"
+        if codepoint_length(candidate) <= available:
+            best = candidate
+        else:
+            break
+    return best^
+
+
+def _slice_after_ascii_prefix(text: String, prefix: String) -> String:
+    return String(StringSlice(text)[byte=prefix.byte_length():])
+
+
 def _word_wrap_cell(text: String, width: Int) -> List[String]:
     var clean = normalize_cell_whitespace(text)
     var result = List[String]()
@@ -299,11 +323,25 @@ def _word_wrap_cell(text: String, width: Int) -> List[String]:
         elif codepoint_length(current) + 1 + codepoint_length(word) <= width:
             current += " " + word
         else:
-            result.append(current^)
-            if codepoint_length(word) <= width:
-                current = word^
+            # Python's stdlib ``textwrap`` keeps ``break_on_hyphens=True``.
+            # If an existing hyphen prefix still fits on the current line, it
+            # is consumed there before the remainder starts the next line.
+            var available = width - codepoint_length(current) - 1
+            var prefix = _hyphen_prefix_fitting(word, available)
+            if prefix.byte_length() > 0:
+                current += " " + prefix
+                result.append(current^)
+                var remainder = _slice_after_ascii_prefix(word, prefix)
+                if codepoint_length(remainder) <= width:
+                    current = remainder^
+                else:
+                    current = _append_long_word(result, remainder, width)
             else:
-                current = _append_long_word(result, word, width)
+                result.append(current^)
+                if codepoint_length(word) <= width:
+                    current = word^
+                else:
+                    current = _append_long_word(result, word, width)
     if current.byte_length() > 0 or len(result) == 0:
         result.append(current^)
     return result^
@@ -577,18 +615,24 @@ def _shell_prefix(number: Int, visual_line: Int, number_width: Int) -> String:
 
 
 def _shell_column_width(table: CsvTable, column: Int, width: Int) -> Int:
-    """Measure a shell column before wrapping, capped by the line limit.
+    """Measure the fragments produced by the fixed preparation width.
 
-    Measuring already-wrapped fragments feeds the shorter fragment width back
-    into the second wrapping pass and progressively narrows long columns.  The
-    Python renderer caps the original cell width instead.
+    The Python table pipeline wraps every selected cell with ``textWidth``
+    before ``cliOut`` determines the visible column width.  The final width is
+    therefore the longest prepared fragment, not ``min(raw_length, width)``.
+    Keep the preparation width fixed while measuring so the later render pass
+    cannot progressively narrow the same cell.
     """
     if width <= 0:
         return 0
     var maximum = 0
     for row_index in range(len(table.rows)):
         var clean = String(table.rows[row_index][column].strip())
-        maximum = max(maximum, min(codepoint_length(clean), width))
+        var fragments = _shell_word_wrap_cell(clean, width)
+        for fragment_index in range(len(fragments)):
+            maximum = max(
+                maximum, codepoint_length(fragments[fragment_index])
+            )
     return maximum
 
 

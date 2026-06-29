@@ -208,7 +208,14 @@ def _run_native_table_tokens(
         var command_line = String("reta")
         for index in range(len(display_tokens)):
             command_line += " " + display_tokens[index]
-        print(command_line)
+        # The colored Python ``cliout`` compatibility path deliberately uses
+        # ``end=""``.  The visible reta echo and first table row therefore form
+        # one physical output line for both compact and long prompt commands.
+        # ``--nocolor`` goes through ordinary ``print`` and retains a newline.
+        if not _contains_token(tokens, "--nocolor"):
+            print(command_line, end="")
+        else:
+            print(command_line)
     print(
         run_native_reta(tokens, "python_reference/csv/religion.csv"),
         end="",
@@ -526,6 +533,16 @@ def _historical_prompt_execution_supported(
         if not (
             canonical == "richtung"
             or canonical == "r"
+            or canonical == "bewusstsein"
+            or canonical == "B"
+            or canonical == "emotion"
+            or canonical == "E"
+            or canonical == "triebe"
+            or canonical == "T"
+            or canonical == "wirklichkeit"
+            or canonical == "W"
+            or canonical == "universum"
+            or canonical == "u"
             or canonical == "thomas"
             or canonical == "t"
             or canonical == "impulse"
@@ -554,7 +571,16 @@ def _print_compact_announcement_if_needed(
         var visible_tokens = _compact_announcement_tokens(
             prepared_tokens, language, catalog
         )
-        print(compact_prompt_announcement(visible_tokens, source, language))
+        var announcement = compact_prompt_announcement(
+            visible_tokens, source, language
+        )
+        # Rich-backed ``cliout`` in the Python reference does not append a
+        # newline for colored output.  Preserve that observable stream shape;
+        # colorless prompt invocations use normal line-oriented ``print``.
+        if _contains_token(prepared_tokens, "--nocolor"):
+            print(announcement)
+        else:
+            print(announcement, end="")
 
 
 def _run_command(

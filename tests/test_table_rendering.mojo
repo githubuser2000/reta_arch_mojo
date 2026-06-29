@@ -43,5 +43,15 @@ def test_shell_nocolor_omits_ansi_sequences() raises:
     assert_true("a" in rendered)
 
 
+def test_shell_width_uses_prepared_fragments() raises:
+    var table = parse_semicolon_csv("; ;H\n1;1;aaaa bbbb cccc\n")
+    assert_equal(
+        render_shell_table_with_width_reference(
+            table, table, [0, 1], True, 10, False
+        ),
+        "   H         \n 1 aaaa bbbb \n   cccc      \n",
+    )
+
+
 def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()

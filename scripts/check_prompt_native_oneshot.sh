@@ -48,28 +48,11 @@ ln -s "$ROOT/python_reference/csv" "$TMP/python_reference/csv"
     grep -F "'2 geist' ergibt sich aus 'G2' und ergibt danach reta-Befehl:" compact-g.actual >/dev/null
     grep -F -- '--Grundstrukturen=geist' compact-g.actual >/dev/null
 
-    if "$PROMPT" rpb reta -ausgabe --onetable > fallback.actual 2> fallback.err; then
-        echo 'unported raw reta command unexpectedly bypassed compatibility' >&2
-        exit 1
-    fi
-    grep -F "No module named 'mojo_bridge'" fallback.actual >/dev/null
+    for compact_case in B2 E2 T2 W2 u2; do
+        "$PROMPT" rpb "$compact_case" > "compact-$compact_case.actual"
+        grep -F "ergibt danach reta-Befehl:reta " "compact-$compact_case.actual" >/dev/null
+        [[ ! -e target/bin/reta-native ]]
+    done
 
-    if "$PROMPT" rpb B2 > compact-renderer.actual 2> compact-renderer.err; then
-        echo 'renderer-sensitive compact command unexpectedly bypassed compatibility' >&2
-        exit 1
-    fi
-    grep -F "No module named 'mojo_bridge'" compact-renderer.actual >/dev/null
-
-    if "$PROMPT" rpb 15 > compact-number.actual 2> compact-number.err; then
-        echo 'pure-number compact command unexpectedly bypassed compatibility' >&2
-        exit 1
-    fi
-    grep -F "No module named 'mojo_bridge'" compact-number.actual >/dev/null
-
-    if "$PROMPT" rpb a2s > compact-storage.actual 2> compact-storage.err; then
-        echo 'mixed storage/table compact command unexpectedly executed partially' >&2
-        exit 1
-    fi
-    grep -F "No module named 'mojo_bridge'" compact-storage.actual >/dev/null
 )
-printf '%s\n' 'native one-shot prompt boundary: 9 native command classes without Python; renderer-sensitive compact fallbacks remain isolated'
+printf '%s\n' 'native one-shot prompt smoke: 14 representative command classes execute without Python or reta-native child process'

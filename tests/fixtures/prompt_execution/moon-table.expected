@@ -1,5 +1,4 @@
-reta -zeilen --vorhervonausschnitt=1-3 --oberesmaximum=1025 -spalten --Bedeutung=gestirn --breite=0 -ausgabe --spaltenreihenfolgeundnurdiese=3-6
-   [41m[30m[4mEvolutions-Züchtungs-Kreativität[0m [41m[30m[4mMond-Typ eines Sternpolygons[0m 
+reta -zeilen --vorhervonausschnitt=1-3 --oberesmaximum=1025 -spalten --Bedeutung=gestirn --breite=0 -ausgabe --spaltenreihenfolgeundnurdiese=3-6   [41m[30m[4mEvolutions-Züchtungs-Kreativität[0m [41m[30m[4mMond-Typ eines Sternpolygons[0m 
  1 [100m[37m0. Primzahl 1                   [0m[0m [100m[37mkein Mond                   [0m[0m 
  2 [103m[30m[1m1. Primzahl und Sonnenzahl      [0m [103m[30m[1mkein Mond                   [0m 
  3 [43m[30m1. Primzahl und Sonnenzahl      [0m[0m [43m[30mkein Mond                   [0m[0m 
@@ -7,8 +6,8 @@ reta -zeilen --vorhervonausschnitt=1-3 --oberesmaximum=1025 -spalten --Bedeutung
  1 [100m[37mkein Mond                             [0m[0m 
  2 [103m[30m[1mkein Mond                             [0m 
  3 [43m[30mkein Mond                             [0m[0m 
-   [41m[30m[4mGestirn                                                                  [0m 
- 1 [100m[37mSonne (keine Potenzen)                                                   [0m[0m 
- 2 [103m[30m[1mSonne (keine Potenzen), und außerdem Planet (2*n)                        [0m 
- 3 [43m[30mSonne (keine Potenzen), und außerdem wäre eine schwarze Sonne (-3*n),    [0m[0m 
-   [43m[30mwenn ins Negative durch eine Typ 13 verdreht                             [0m[0m 
+   [41m[30m[4mGestirn                                                              [0m 
+ 1 [100m[37mSonne (keine Potenzen)                                               [0m[0m 
+ 2 [103m[30m[1mSonne (keine Potenzen), und außerdem Planet (2*n)                    [0m 
+ 3 [43m[30mSonne (keine Potenzen), und außerdem wäre eine schwarze Sonne (-3*n),[0m[0m 
+   [43m[30mwenn ins Negative durch eine Typ 13 verdreht                         [0m[0m 

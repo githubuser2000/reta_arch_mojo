@@ -42,5 +42,10 @@ check_case ap15 ap15
 check_case p12 p12
 check_case p13 p13
 check_case G2 G2
+check_case B2 B2
+check_case E2 E2
+check_case T2 T2
+check_case W2 W2
+check_case u2 u2
 
-printf '%s\n' 'compact prompt execution fixtures: 5/5 byte-identical'
+printf '%s\n' 'compact prompt execution fixtures: 10/10 byte-identical'
