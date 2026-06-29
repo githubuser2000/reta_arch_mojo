@@ -496,7 +496,9 @@ def run_native_reta(tokens: List[String], csv_path: String) raises -> String:
     var width_reference_rows = selected_rows.copy()
     if plan.number_rows:
         width_reference = add_numbering_columns(
-            width_reference, width_reference_rows
+            width_reference,
+            width_reference_rows,
+            plan.output_mode != "shell",
         )
         selected = width_reference.copy()
     if (

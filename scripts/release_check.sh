@@ -25,6 +25,7 @@ cd "$ROOT"
 ./scripts/check_html_cell_catalog.sh
 ./scripts/check_html_heading_catalog.sh
 ./scripts/check_markup_parity.sh
+./scripts/check_shell_parity.sh
 ./scripts/test_all.sh
 
 printf '%s\n' 'Alle Release-Prüfungen bestanden.'

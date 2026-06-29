@@ -41,7 +41,7 @@ Die Stufenquote ist höher als die Quellzeilenquote, weil die letzten Stufen bes
    Vier gebrochen-rationale CSV-Prägarben, Galaxie-/Universum-Kombi-Join, 173 Aliase, 151 Relationsordnungen, Negativ- und Mehrfachauswahl.
 
 9. **Vollständige Tabellenaufbereitung und Ausgabe — in Arbeit**  
-   BBCode ist für die geprüften Pfade bytegleich. HTML besitzt physische und semantische Zellmetadaten, tag-erhaltende Zellen, Wrapping und Seitenteilung. Offen bleiben farbige Shellausgabe, Rich-/Terminalsonderfälle und restliche dynamische HTML-Familien.
+   BBCode und der zentrale ANSI-Shellpfad sind für die geprüften deutschen und englischen Ausgaben bytegleich. HTML besitzt physische und semantische Zellmetadaten, tag-erhaltende Zellen, Wrapping und Seitenteilung. Offen bleiben Rich-/Terminalsonderfälle und restliche dynamische HTML-Familien.
 
 10. **Vollständige Prompt-Sprache und i18n — offen**  
     Komplexe Kurzbefehle, Completion-Nesting, Promptvorbereitung, Wortmatrizen und alle Sprachen.

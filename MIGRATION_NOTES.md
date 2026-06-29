@@ -211,3 +211,7 @@ Die Dreifach-Faktorisierung aus `multis3.py` ist nativ. Die Referenz lieferte ei
 - HTML-Zellinhalt wird nicht pauschal maskiert. Tagähnliche Sequenzen mit alphabetischem Namen, etwa `<ul>`, `<li>`, `<br>`, `<span>` oder `<table>`, bleiben aktiv. Mathematische Vergleiche wie `m<5`, `n>0` und normales `&` werden weiterhin zu Entities.
 - Ein früher englischer Paritätstest verwendete `--universe_meta_concrete`. Dieser Name wird vom Python-Original nicht erkannt und erzeugte eine leere Ausgabe. Der Test verwendet nun den wirksamen Alias `--universeMetaConcrete`; erst damit prüft er die echte nichtleere Metaspaltensemantik.
 - Wiederholte Kaltstarts der Python-Referenz können bei Markup-Sammelläufen stark schwanken. Geprüfte Byteausgaben liegen deshalb als Fixtures vor. `RETA_REFRESH_MARKUP_FIXTURES=1` erzeugt sie ausdrücklich neu aus Python; der normale Releasepfad startet nur Mojo und vergleicht deterministisch.
+
+## Stufe 9 – nativer ANSI-Shellrenderer
+
+`table_rendering.mojo` besitzt nun einen eigenen Shellpfad statt des früheren ` | `-Fallbacks. Er reproduziert die historischen ANSI-Hintergründe für Überschrift, Mondzahlen, Primzahlen sowie gerade/ungerade Restzeilen. Der Renderer erhält signifikante interne Doppel-Leerzeichen, trennt Tabellen nach Terminalbreite und behandelt Fortsetzungszeilen wie die Python-Referenz. Die gemeinsame Nummerierungsvorbereitung normalisiert Shellzellen nicht mehr vorzeitig.

@@ -3,6 +3,7 @@
 from std.collections import List
 from .csv_table import CsvTable
 from .row_filtering import counting_groups
+from .number_theory import moon_number, prime_factors
 from .output_modes import colored_row_begin
 from .table_wrapping import codepoint_length, hard_chunks
 from .html_cell_metadata import (
@@ -64,9 +65,13 @@ def _right_aligned_number(value: Int, width: Int) -> String:
     return result^
 
 
-def add_numbering_columns(table: CsvTable, row_numbers: List[Int]) -> CsvTable:
+def add_numbering_columns(
+    table: CsvTable,
+    row_numbers: List[Int],
+    normalize_cells: Bool = True,
+) -> CsvTable:
     """Add historical counting and source-row columns before selected data."""
-    var normalized = _normal_table(table)
+    var normalized = _normal_table(table) if normalize_cells else table.copy()
     var highest = 0
     for index in range(len(row_numbers)):
         if row_numbers[index] > highest:
@@ -523,6 +528,112 @@ def render_html_table_with_context(
     return result^
 
 
+
+def _shell_colorize(text: String, number: Int, rest: Bool = False) -> String:
+    """Historical ANSI row colors used by the shell renderer."""
+    if number == 0:
+        return "\x1b[41m\x1b[30m\x1b[4m" + text + "\x1b[0m"
+    if rest:
+        if number % 2 == 0:
+            return "\x1b[47m\x1b[30m" + text + "\x1b[0m\x1b[0m"
+        return "\x1b[40m\x1b[37m" + text + "\x1b[0m\x1b[0m"
+    if len(moon_number(number)[1]) > 0:
+        if number % 2 == 0:
+            return "\x1b[106m\x1b[30m" + text + "\x1b[0m\x1b[0m"
+        return "\x1b[46m\x1b[30m" + text + "\x1b[0m\x1b[0m"
+    if len(prime_factors(number)) == 1:
+        if number % 2 == 0:
+            return "\x1b[103m\x1b[30m\x1b[1m" + text + "\x1b[0m"
+        return "\x1b[43m\x1b[30m" + text + "\x1b[0m\x1b[0m"
+    if number % 2 == 0:
+        return "\x1b[47m\x1b[30m" + text + "\x1b[0m\x1b[0m"
+    return "\x1b[100m\x1b[37m" + text + "\x1b[0m\x1b[0m"
+
+
+def _shell_word_wrap_cell(text: String, width: Int) -> List[String]:
+    # Preserve significant repeated ASCII spaces while reusing the historical
+    # word wrapper. Two non-whitespace markers keep the same display width.
+    var protected = String(text.strip()).replace("  ", "§§")
+    var parts = _word_wrap_cell(protected, width)
+    for index in range(len(parts)):
+        parts[index] = parts[index].replace("§§", "  ")
+    return parts^
+
+
+def _shell_pad(text: String, width: Int) -> String:
+    var result = text
+    while codepoint_length(result) < width:
+        result += " "
+    return result^
+
+
+def _shell_prefix(number: Int, visual_line: Int, number_width: Int) -> String:
+    if number == 0 or visual_line > 0:
+        var blank = String()
+        while blank.byte_length() < number_width + 1:
+            blank += " "
+        return blank^
+    return _right_aligned_number(number, number_width) + " "
+
+
+def render_shell_table_with_width_reference(
+    table: CsvTable,
+    width_reference: CsvTable,
+    row_numbers: List[Int],
+    number_rows: Bool = True,
+    width: Int = 0,
+) -> String:
+    """Render the legacy ANSI terminal table, including paging and wrapping."""
+    if len(table.rows) == 0:
+        return ""
+    var data_start = 2 if number_rows else 0
+    var total_columns = len(table.rows[0])
+    var highest = _maximum_row_number(row_numbers)
+    var number_width = _decimal_width(highest) + 1 if number_rows else 0
+    # The historical runtime reserves seven terminal columns around table data.
+    var effective_width = width if width > 0 else max(1, 80 - 7)
+    var screen_width = 73 if not number_rows else 80
+    var result = String()
+    var page_start = data_start
+    while page_start < total_columns:
+        var page_end = page_start
+        var sum_widths = number_width + (1 if number_rows else 0)
+        while page_end < total_columns:
+            var column_width = _wrapped_column_width(
+                width_reference, page_end, effective_width
+            )
+            var candidate = sum_widths + column_width + 1
+            if page_end > page_start and candidate >= screen_width:
+                break
+            sum_widths = candidate
+            page_end += 1
+        if page_end == page_start:
+            page_end += 1
+        for row_index in range(len(table.rows)):
+            var row = table.rows[row_index].copy()
+            var number = row_numbers[row_index] if row_index < len(row_numbers) else row_index
+            var row_height = 1
+            for column_index in range(page_start, page_end):
+                row_height = max(
+                    row_height,
+                    len(_shell_word_wrap_cell(row[column_index], effective_width)),
+                )
+            for visual_line in range(row_height):
+                if number_rows:
+                    result += _shell_prefix(number, visual_line, number_width)
+                for column_index in range(page_start, page_end):
+                    var parts = _shell_word_wrap_cell(row[column_index], effective_width)
+                    var part = parts[visual_line] if visual_line < len(parts) else ""
+                    var column_width = _wrapped_column_width(
+                        width_reference, column_index, effective_width
+                    )
+                    result += _shell_colorize(
+                        _shell_pad(part, column_width), number
+                    ) + " "
+                result += "\n"
+        page_start = page_end
+    return result^
+
 def render_plain_table(table: CsvTable) -> String:
     var result = String()
     for row_index in range(len(table.rows)):
@@ -557,6 +668,10 @@ def render_table_with_width_reference(
         )
     if mode == "nichts":
         return ""
+    if mode == "shell":
+        return render_shell_table_with_width_reference(
+            table, width_reference, row_numbers, number_rows, width
+        )
     return render_plain_table(table)
 
 

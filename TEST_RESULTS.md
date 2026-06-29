@@ -101,3 +101,11 @@ Alle acht regulären ELF-64-Ziele wurden gebaut. Der Sammelbuild erreichte wegen
 ## Referenzbaseline
 
 Die unveränderte Python-Referenz hatte beim Eingang bereits drei fehlschlagende und einen übersprungenen Test. Diese Baseline-Abweichungen wurden nicht dem Mojo-Port zugerechnet und nicht verdeckt geändert.
+
+## Zusätzliche Stufe-9-Shellprüfung
+
+- 5/5 ANSI-Shell-Fixtures bytegleich zur Python-Referenz
+- geprüft: Deutsch und Englisch, Breite 0 und 40, deaktivierte Nummerierung, generierte Primzahlwirkung
+- ANSI-Farben, Fortsetzungszeilen, Seitenteilung, interne Doppel-Leerzeichen und Auffüllung sind Bestandteil des Bytevergleichs
+- `test_table_rendering.mojo`: 3/3 bestanden
+- `test_html_cell_metadata.mojo`: 4/4 bestanden; der Katalogtest benötigte rund 35 Minuten

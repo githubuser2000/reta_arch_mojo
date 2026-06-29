@@ -16,4 +16,5 @@ build_and_run tests/test_table_rendering.mojo
 build_and_run tests/test_html_cell_metadata.mojo
 ./scripts/check_html_heading_catalog.sh
 ./scripts/check_markup_parity.sh
+./scripts/check_shell_parity.sh
 printf '%s\n' 'Stage 9 Markup-Rendererprüfungen bestanden.'
