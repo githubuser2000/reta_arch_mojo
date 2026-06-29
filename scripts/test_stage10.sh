@@ -17,11 +17,15 @@ build_and_run tests/test_prompt_runtime.mojo
 build_and_run tests/test_prompt_legacy_echo.mojo
 build_and_run tests/test_prompt_fraction_execution.mojo
 build_and_run tests/test_prompt_table_execution.mojo
+build_and_run tests/test_native_reta_cli.mojo
+build_and_run tests/test_table_rendering.mojo
 ./scripts/check_prompt_language_catalog.sh
 ./scripts/check_prompt_fraction_parity.sh
 ./scripts/check_prompt_execution_fixtures.sh
 ./scripts/check_prompt_native_oneshot.sh
 ./scripts/check_prompt_compact_execution_parity.sh
+./scripts/check_prompt_numeric_execution_parity.sh
+./scripts/check_prompt_numeric_oneshot.sh
 ./scripts/check_prompt_compact_parity.sh
 ./scripts/check_prompt_preparation_parity.sh
 ./scripts/check_prompt_completion_fixtures.sh

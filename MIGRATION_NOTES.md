@@ -257,7 +257,7 @@ Portiert sind 18 Tabellenfamilien. Darin enthalten sind alle reinen `n`- und `1/
 
 Der bestehende Port von `bruchSpalt` und `createRangesForBruchLists` ist nun an den Tabellenplaner angeschlossen. Dadurch funktionieren einfache Achsenbereiche, historische Rechtecke (`1/2-3/3`) und Versätze (`4/5+2/2`). Positive Zählergruppen werden in der beobachtbaren Referenzreihenfolge aufsteigend ausgeführt; die Versatzform `4/5+2/2` liefert also zuerst `2/n`, danach `6/n`.
 
-Ganzzahlige `vielfache`, `teiler` und `einzeln` werden vor der Fachfamilie als Zeilenoperatoren ausgewertet. Stage 10d nimmt zusätzlich stabile Bruchausschlüsse, Bruchteiler und Reziprok-Vielfache (`v1/n`) in denselben besitzenden Plan auf. Atomar am Fallback bleiben echte `v n/m`-Vielfache mit Zähler größer 1, bei denen die Python-Referenz selbst mit `IndexError` endet, sowie kollidierende Ausschlussformen, die im Original eine gesonderte All-Zeilen-Algebra aktivieren.
+Ganzzahlige `vielfache`, `teiler` und `einzeln` werden vor der Fachfamilie als Zeilenoperatoren ausgewertet. Stage 10d nimmt zusätzlich stabile Bruchausschlüsse, Bruchteiler und Reziprok-Vielfache (`v1/n`) in denselben besitzenden Plan auf. Stage 10i modelliert auch Nullwerte, rein negative Selektoren und kollidierende Ausschlussformen einschließlich der historischen All-Zeilen-Algebra. Atomar am Fallback bleiben echte `v n/m`-Vielfache mit Zähler größer 1, bei denen die Python-Referenz selbst mit `IndexError` endet, sowie doppelte generierte Spalteninstanzen.
 
 Die Universumsfamilie behält ihre historische bedingte Spaltenauswahl: Spalte 4 entfällt bei `e`, `ee`, deaktivierten Überschriften, dem Unterdrückungsbefehl oder mehr als zwei kombinierten Fachbefehlen. Für Tabellenoptionen mit Umlauten verwendet der Plan vorhandene ASCII-Aliase (`trieb`, `groesse`).
 
@@ -302,3 +302,22 @@ Die Bruch-/Modifikatorparität wird als normalisierter geordneter CSV-Tokenstrom
 ## Stufe 10g – vorbereitete Rendererfragmente und kompakter Farbausgabestrom
 
 Der Shellrenderer bestimmt die Spaltenbreite jetzt nach dem historischen Vorbereitungsumbruch und nicht aus der Rohzelle. Vorhandene Bindestriche sind wie bei Python `textwrap` bevorzugte Umbruchstellen. Farbige Promptankündigungen und sichtbare `reta`-Echos verwenden die ursprüngliche `cliout`-Semantik ohne zusätzlichen Zeilenumbruch. Dadurch wechseln `bewusstsein`, `emotion`, `triebe`, `wirklichkeit` und `universum` in den vollständig nativen kompakten One-shot-Pfad. Reine Zahlenkürzel bleiben als eigenständige mehrteilige Komposition offen.
+
+
+## Stage 10h – numerische Komposition
+
+- Reine positive Zahlen-, Bereichs-, Listen- und Bruchbefehle werden vor dem Python-Import aus den vorhandenen typisierten Tabellen- und `mulpri`-Plänen komponiert.
+- `15_…`, `16_…` und `16_15_…` werden direkt aus dem fünfsprachigen Katalog auf Grundstrukturen beziehungsweise Multiversum abgebildet.
+- Die historische Reihenfolge ist fest: Multiversum vor Grundstrukturen; Werte innerhalb einer Familie behalten die CPython-Set-Reihenfolge.
+- Der Shellrenderer modelliert die Zählungsgruppenmarkierung `█` zentral.
+- `0`, rein negative numerische Ausdrücke, doppelte generierte Spalteninstanzen und die fünf durch die Legacygrammatik unerreichbaren Multiversum-Schlüssel 15 bleiben ausdrücklich außerhalb des neuen Besitzvertrags.
+
+
+## Stage 10i – numerische Selektoralgebra
+
+- Rohe Ganzzahlkomponenten werden in deterministischer CPython-`set[str]`-Reihenfolge geplant.
+- Positive und negative Zeilenprädikate werden vor der Auswahl gegeneinander gekürzt; eine leere Restbedingung bedeutet historisch „alle Zeilen“.
+- `teiler` entfernt Ausschlüsse vor der Divisorbildung und erhält bei leerer positiver Seite die explizite Komponente `","`.
+- Der reine Standardbefehl `0` erzeugt nur den Thomas-Zweig ohne oberes Maximum und ohne Motiv-Zweitaufruf.
+- Die Shellnummerierung verwendet das angeforderte obere Maximum nur im allzeiligen Projektionspfad; endliche Selektionen behalten ihre bisherige Breite.
+- Offen bleiben echte `v n/m`-Vielfache mit Zähler größer 1 und doppelte generierte Katalogspalteninstanzen.

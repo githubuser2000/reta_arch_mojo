@@ -43,6 +43,25 @@ def test_shell_nocolor_omits_ansi_sequences() raises:
     assert_true("a" in rendered)
 
 
+def test_shell_counting_group_marker_is_visible() raises:
+    var table = parse_semicolon_csv("; ;H\n1;3;three\n2;5;five\n")
+    var rendered = render_shell_table_with_width_reference(
+        table, table, [0, 3, 5], True, 80, False
+    )
+    assert_true(" 3 three" in rendered)
+    assert_true("█5 five" in rendered)
+
+
+def test_shell_numbering_width_honors_requested_upper_maximum() raises:
+    var table = parse_semicolon_csv("; ;H\n1;1;a\n")
+    assert_equal(
+        render_shell_table_with_width_reference(
+            table, table, [0, 1], True, 80, False, 1025
+        ),
+        "      H \n    1 a \n",
+    )
+
+
 def test_shell_width_uses_prepared_fragments() raises:
     var table = parse_semicolon_csv("; ;H\n1;1;aaaa bbbb cccc\n")
     assert_equal(

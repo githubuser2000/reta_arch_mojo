@@ -605,13 +605,24 @@ def _shell_pad(text: String, width: Int) -> String:
     return result^
 
 
-def _shell_prefix(number: Int, visual_line: Int, number_width: Int) -> String:
+def _shell_prefix(
+    number: Int,
+    visual_line: Int,
+    number_width: Int,
+    counting_marker: Bool,
+) -> String:
+    var prefix = String()
     if number == 0 or visual_line > 0:
-        var blank = String()
-        while blank.byte_length() < number_width + 1:
-            blank += " "
-        return blank^
-    return _right_aligned_number(number, number_width) + " "
+        while prefix.byte_length() < number_width + 1:
+            prefix += " "
+    else:
+        prefix = _right_aligned_number(number, number_width) + " "
+    # The first numbering cell is not merely padding.  The historical shell
+    # syntax renders even counting groups as a solid block and odd groups as a
+    # blank.  Wrapped visual lines retain the same group marker.
+    if counting_marker and prefix.startswith(" "):
+        prefix = "█" + String(prefix[byte=1:])
+    return prefix^
 
 
 def _shell_column_width(table: CsvTable, column: Int, width: Int) -> Int:
@@ -670,14 +681,16 @@ def render_shell_table_with_width_reference(
     number_rows: Bool = True,
     width: Int = 0,
     color_rows: Bool = True,
+    numbering_highest: Int = 0,
 ) -> String:
     """Render the legacy ANSI terminal table, including paging and wrapping."""
     if len(table.rows) == 0:
         return ""
     var data_start = 2 if number_rows else 0
     var total_columns = len(table.rows[0])
-    var highest = _maximum_row_number(row_numbers)
+    var highest = max(_maximum_row_number(row_numbers), numbering_highest)
     var number_width = _decimal_width(highest) + 1 if number_rows else 0
+    var counting = counting_groups(highest)
     # The historical runtime reserves seven terminal columns around table data.
     var effective_width = width if width > 0 else max(1, 80 - 7)
     var screen_width = 73 if not number_rows else 80
@@ -716,7 +729,14 @@ def render_shell_table_with_width_reference(
                 )
             for visual_line in range(row_height):
                 if number_rows:
-                    result += _shell_prefix(number, visual_line, number_width)
+                    var counting_marker = (
+                        number > 0
+                        and number < len(counting)
+                        and counting[number] % 2 == 0
+                    )
+                    result += _shell_prefix(
+                        number, visual_line, number_width, counting_marker
+                    )
                 for column_index in range(page_start, page_end):
                     var parts = _shell_word_wrap_cell(row[column_index], effective_width)
                     var part = parts[visual_line] if visual_line < len(parts) else ""
@@ -752,6 +772,7 @@ def render_table_with_width_reference(
     width: Int = 0,
     number_rows: Bool = True,
     color_rows: Bool = True,
+    numbering_highest: Int = 0,
 ) -> String:
     if mode == "csv":
         return render_csv_table(table)
@@ -775,6 +796,7 @@ def render_table_with_width_reference(
             number_rows,
             width,
             color_rows,
+            numbering_highest,
         )
     return render_plain_table(table)
 
@@ -790,6 +812,7 @@ def render_table_with_native_context(
     width: Int = 0,
     number_rows: Bool = True,
     color_rows: Bool = True,
+    numbering_highest: Int = 0,
 ) raises -> String:
     if mode == "html":
         return render_html_table_with_context(
@@ -809,6 +832,7 @@ def render_table_with_native_context(
         width,
         number_rows,
         color_rows,
+        numbering_highest,
     )
 
 def render_table(

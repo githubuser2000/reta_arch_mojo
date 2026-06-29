@@ -411,6 +411,16 @@ def build_native_reta_plan(tokens: List[String], maximum_columns: Int, maximum_r
                         negative_commands,
                     )
 
+    # Python removes row predicates that occur on both polarity sides before
+    # evaluating the selector.  Exact 2/-2 cancellation therefore means that
+    # no row predicate remains, which intentionally selects the full range.
+    var resolved_positive_rows = _remove_strings_native(
+        positive_rows, negative_rows
+    )
+    var resolved_negative_rows = _remove_strings_native(
+        negative_rows, positive_rows
+    )
+
     var has_explicit_order = explicit_order_requested
     var has_semantic_selection = (
         len(positive_columns) > 0
@@ -464,8 +474,8 @@ def build_native_reta_plan(tokens: List[String], maximum_columns: Int, maximum_r
         number_rows,
         include_headings,
         color_rows,
-        positive_rows^,
-        negative_rows^,
+        resolved_positive_rows^,
+        resolved_negative_rows^,
         columns^,
         explicit_order_requested,
         explicit_positions^,
@@ -633,6 +643,18 @@ def native_reta_tokens_supported(tokens: List[String], csv_path: String) raises 
     return True
 
 
+def _requested_upper_maximum(tokens: List[String]) raises -> Int:
+    for index in range(len(tokens)):
+        var token = tokens[index]
+        if token.startswith("--oberesmaximum="):
+            return atol(String(StringSlice(token)[byte=16:]))
+        if token.startswith("--uppermaximum="):
+            return atol(String(StringSlice(token)[byte=15:]))
+        if token.startswith("--maximum="):
+            return atol(String(StringSlice(token)[byte=10:]))
+    return 0
+
+
 def _has_explicit_upper_maximum(tokens: List[String]) -> Bool:
     for index in range(len(tokens)):
         var token = tokens[index]
@@ -722,6 +744,16 @@ def run_native_reta(tokens: List[String], csv_path: String) raises -> String:
     ):
         selected_rows = List(selected_rows[1:])
         selected.rows = List(selected.rows[1:])
+    # A row selector whose positive and negative predicates cancel is the
+    # legacy all-rows path.  Only that path retains the requested row ceiling
+    # for shell-numbering width; finite selections size from displayed rows.
+    var numbering_highest = 0
+    if (
+        plan.include_headings
+        and plan.explicit_order_requested
+        and not rows_were_set
+    ):
+        numbering_highest = _requested_upper_maximum(tokens)
     return render_table_with_native_context(
         selected,
         width_reference,
@@ -732,4 +764,5 @@ def run_native_reta(tokens: List[String], csv_path: String) raises -> String:
         plan.width,
         plan.number_rows,
         plan.color_rows,
+        numbering_highest,
     )

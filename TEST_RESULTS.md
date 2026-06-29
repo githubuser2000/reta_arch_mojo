@@ -4,7 +4,7 @@
 
 ```text
 52 Mojo-Testdateien und -Probes
-234 Testfunktionen insgesamt
+240 Testfunktionen insgesamt
 9 reguläre ELF-Compilerziele
 2 optionale schwere Katalogtestdateien
 ```
@@ -18,18 +18,18 @@ test_prompt_language             16/16
 test_prompt_runtime              21/21
 test_prompt_legacy_echo           5/5
 test_prompt_fraction_execution    8/8
-test_prompt_table_execution      16/16
+test_prompt_table_execution      21/21
 test_meta_columns                 3/3
 test_fraction_concat_columns      3/3
 test_kombi_join_columns           4/4
 test_generated_aliases            6/6
 test_native_reta_cli             19/19
 test_generated_table_columns      7/7
-test_table_rendering              5/5
+test_table_rendering              6/6
 test_html_cell_metadata           4/4
 test_row_filtering_reference      3/3
                                 -------
-                                120/120 bestanden
+                                126/126 bestanden
 ```
 
 In den oben gezählten Einzelsuiten gab es keinen Testfehler. Zwei breitere Sammelprüfungen werden ausdrücklich **nicht** als bestanden gezählt:
@@ -197,3 +197,27 @@ Die unveränderte Python-Referenz hatte beim Eingang bereits drei fehlschlagende
 - `check_markup_parity.sh`: **8/8** zentrale BBCode-/HTML-Fixtures bytegleich.
 - Bruchparser **18/18**, Bruch-/Modifikatortabellen **14/14**, kompakte Sprachvorbereitung **27/27**, vollständige Promptvorbereitung **23/23**.
 - Alle neun regulären ELF-Ziele wurden seriell aus dem Stage-10g-Quellstand gebaut; `check_build_layout.sh` bestand.
+
+
+## Stage 10h: native Zahlen- und Katalogkomposition
+
+- Fokussierte Mojo-Suiten: **96/96** (`5 + 21 + 16 + 8 + 21 + 19 + 6`).
+- `check_prompt_numeric_execution_parity.sh`: **11/11** vollständige Ausgaben bytegleich zu Python 3.13.5 mit `PYTHONHASHSEED=0`.
+- `check_prompt_numeric_oneshot.sh`: **8/8** repräsentative Zahlenklassen laufen in einem Verzeichnis ohne `mojo_bridge.py` und ohne `reta-native`-Kindprozess.
+- Der Tabellenplaner prüft alle **365/365 historisch adressierbaren** Einträge des fünfsprachigen numerischen Katalogs. Fünf Multiversum-Einträge mit Schlüssel 15 sind wegen der bereits belegten Legacyform `16_15` grammatisch unerreichbar und werden nicht als fehlgeschlagene Mojo-Abdeckung ausgegeben.
+- Kompakte Sprache **27/27**, vollständige Vorbereitung **23/23**, kompakte Ausführung **10/10**, Promptfixtures **7/7**, Bruchparser **18/18**, Completion **12/12**, Shell **5/5** sowie BBCode/HTML **8/8** bleiben grün.
+- Die neue Rendererprüfung sichert die historische `█`-Markierung gerader Zählungsgruppen einschließlich umgebrochener visueller Zeilen.
+
+
+## Stage 10i: native Null-, Negativ- und Ausschlussselektoren
+
+- Fokussierte Mojo-Suiten: **100/100** (`16 + 21 + 5 + 8 + 23 + 20 + 7`).
+- `test_prompt_table_execution.mojo`: **23/23**, einschließlich `0`, rein negativer Ganzzahlen, Ganzzahl-/Bruchkollisionen und `teiler`-Subtraktion vor der Divisorbildung.
+- `test_native_reta_cli.mojo`: **20/20**; identische positive/negative Zeilenprädikate werden zentral gekürzt und aktivieren bei leerem Rest die All-Zeilen-Semantik.
+- `test_table_rendering.mojo`: **7/7**; die Nummernspaltenbreite kann den angeforderten oberen Grenzwert übernehmen, ohne endliche Promptfixtures zu verbreitern.
+- `check_prompt_numeric_execution_parity.sh`: **11/11** vollständige numerische Ausgaben bytegleich.
+- `check_prompt_numeric_oneshot.sh`: **15/15** nichtleere numerische Klassen laufen isoliert ohne Python-Datei und ohne `reta-native`-Kindprozess.
+- `check_prompt_execution_fixtures.sh`: **7/7** allgemeine Promptausgaben bleiben bytegleich.
+- Reine leere Pläne wie `-2` und `u teiler 0` sind im Planner exakt geprüft; sie werden nicht als interaktive One-shot-Smokes verwendet, weil ein ausgabeloser Promptprozess sonst in die Eingabeschleife wechseln kann.
+- `scripts/test_stage10.sh`: vollständiger Stage-10-Regressionslauf einschließlich Katalog-, Fraction-, Compact-, Preparation- und Completion-Parität mit Exitcode 0.
+- `scripts/build.sh`: alle **9/9** vorgesehenen Mojo-Executables erfolgreich kompiliert; `check_build_layout.sh` bestätigt das vollständige Binärlayout.

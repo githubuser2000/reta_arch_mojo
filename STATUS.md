@@ -5,15 +5,15 @@
 - Abgeschlossene Release-Stufen: **8/12 = 66,7 %**
 - Stufe 9: **BBCode, zentraler ANSI-Shellpfad und zentrale HTML-Pfade nativ; seltene Ausgabegrenzen offen**
 - Stufe 10: **native Kurzsprache, mehrsprachige verschachtelte Completion und Promptvorbereitung in Arbeit**
-- Geschätzter funktionaler Portierungsstand: **84–87 %**
+- Geschätzter funktionaler Portierungsstand: **86–89 %**
 - Konservativ vollständig native oder reproduzierbar generierte Originaldateien: **18/92 = 19,6 %**
 - Mindestens teilweise portierte Originaldateien: **46/92 = 50,0 %**
 - Gewichteter Quellzeilenstand: **ca. 29 %**
-- Nativer Mojo-Quellcode in `src/`: **17.474 Zeilen**
-- Davon im Paket `reta_mojo`: **15.921 Zeilen**
+- Nativer Mojo-Quellcode in `src/`: **17.667 Zeilen**
+- Davon im Paket `reta_mojo`: **16.058 Zeilen**
 - Native Mojo-Testdateien und -Probes: **52**
-- Native Testfunktionen: **234**
-- Aktuell fokussiert dokumentiert: **120/120 bestanden**
+- Native Testfunktionen: **240**
+- Aktuell fokussiert dokumentiert: **126/126 bestanden**
 - Prompt-Kurzsprache: **27/27 deutsche und englische Referenzkontexte bytegleich**
 - Promptvorbereitung: **23/23 deutsche und englische Referenzkontexte bytegleich**
 - Verschachtelte Completion: **12/12 Referenzkontexte und 12/12 schnelle Fixtures bytegleich**
@@ -66,27 +66,28 @@
 - nativer Bruchparser für die vordere `prompt_execution.py`-Strecke einschließlich Bereichsbildung, Reziprok- und Ganzzahlerkennung
 - native Fachbefehle `primfaktorenvergleich`, `abstand` und `abstandPrim`
 - besitzende Tabellenplanung in `prompt_table_execution.mojo` für **18 Promptfamilien**
-- positive Ganzzahlen, Reziproke und echte `n/m`-Achsen werden gemeinsam geplant
+- Ganzzahlen einschließlich `0`, rein negative Selektoren, Reziproke und echte `n/m`-Achsen werden gemeinsam geplant
 - ganzzahlige `vielfache`, `teiler` und `einzeln` sind nativ
 - historische Bruchrechtecke und Versätze wie `1/2-3/3` und `4/5+2/2` sind nativ
-- stabile Bruchausschlüsse, Bruchteiler sowie `v1/n`-/Reziprok-Vielfache sind nativ
-- CPython-kompatible Reihenfolge für positive und vorzeichenbehaftete Ganzzahlmengen
+- stabile und kollidierende Ganzzahl-/Bruchausschlüsse, Bruchteiler sowie `v1/n`-/Reziprok-Vielfache sind nativ
+- CPython-kompatible `set[str]`-Reihenfolge für rohe Ganzzahlkomponenten und vorzeichenbehaftete Bruchachsen
 - gemischte Fachbefehle erzeugen mehrere native Tabellenaufrufe wie die unabhängigen Python-`if`-Zweige
 - `range`, `invertieren`, Ausgabeparameter und die historische Universum-Spaltenunterdrückung werden erhalten
 - `--nocolor` wirkt im Shellrenderer; ungültige explizite Ergebnispositionen öffnen nicht mehr alle Spalten
 - explizites `--oberesmaximum` hebt wie Python beide historischen Zeilengrenzen an; ohne Angabe gilt die korrekte Kurzgrenze 163
-- **18/18** Bruchparser-Referenzfälle, **16/16** Tabellenplanertests, **14/14** reale Bruch-/Modifikator-Tokenströme und **7/7** Prompt-Ausführungsfixtures bestanden
+- **18/18** Bruchparser-Referenzfälle, **23/23** Tabellenplanertests, **14/14** reale Bruch-/Modifikator-Tokenströme und **7/7** Prompt-Ausführungsfixtures bestanden
 - native One-shot-Ausführung vor jedem Python-Import; Tabellenkern direkt im Promptprozess statt über `reta-native`-Kindprozess
-- konservativer Besitzervertrag für rohe `reta`-Befehle; **19/19** CLI-Tests und neun isolierte native Befehlsklassen bestanden
+- konservativer Besitzervertrag für rohe `reta`-Befehle; **20/20** CLI-Tests und 15 isolierte numerische One-shot-Klassen bestanden
 - getrennte Legacy-Echotokens für kanonische native Ausführung
 - vorbereitete Fragmentbreiten und vorhandene Bindestrichumbrüche entsprechen der Python-`textwrap`-Reihenfolge
 - `a2`, `ap15`, `p12`, `p13`, `G2`, `B2`, `E2`, `T2`, `W2` und `u2` vollständig bytegleich
-- alle kompakten Tabellenfamilien sowie `mulpri` laufen ohne Python; nur reine Zahlenkürzel bleiben atomar an der Bridge
+- alle kompakten Tabellenfamilien, `mulpri`, reine positive Zahlen-/Bereichs-/Listen-/Bruchkompositionen und 365 adressierbare `15`-/`16`-Katalogauswahlen laufen ohne Python
+- die historische Shell-Zählungsmarkierung `█` ist zentral im nativen Renderer modelliert
 
 ## Weiterhin an der Kompatibilitätsgrenze
 
 - seltene Terminalbreiten-, Rich- und kombinierte HTML-Metadatenfälle
-- echte `v n/m`-Vielfache mit Zähler größer 1, kollidierende Legacy-Ausschlüsse und weitere hintere Prompt-Sonderzweige
+- echte `v n/m`-Vielfache mit Zähler größer 1, doppelte generierte Spalteninstanzen und weitere hintere Prompt-Sonderzweige
 - vollständige i18n-Laufzeit außerhalb des Promptvokabulars
 - dynamische Architekturvalidierung, Persistenz und Parallelisierung
 

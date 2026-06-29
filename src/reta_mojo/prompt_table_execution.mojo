@@ -4,9 +4,9 @@ This module owns the integer ``n`` path, integer multiple/divisor modifiers and
 positive rational ``n/m`` expressions, stable exclusion forms, reciprocal
 multiple expansion and fraction/divisor combinations.  The historical Python
 function mixes parsing, i18n, range algebra and table execution; here these
-concerns are split into typed planning stages.  True ``v n/m`` expansion and
-empty-positive exclusion selectors remain at the compatibility boundary because
-the Python reference either crashes or opens a separate all-row algebra.
+concerns are split into typed planning stages.  True ``v n/m`` expansion remains
+at the compatibility boundary because the Python reference itself crashes for
+that form.
 """
 
 from std.collections import List
@@ -16,13 +16,18 @@ from .prompt_fraction_execution import (
     create_prompt_fraction_range,
     parse_prompt_fraction,
 )
-from .prompt_language import PromptLanguageCatalog, normalize_prompt_language
-from .row_ranges import range_to_numbers
+from .prompt_language import (
+    PromptLanguageCatalog,
+    normalize_prompt_language,
+    python_string_set_order,
+)
+from .row_ranges import is_row_range, range_to_numbers, split_top_level_commas
 
 
 @fieldwise_init
 struct PromptTableInvocation(Copyable):
     var tokens: List[String]
+    var command_echo_newline: Bool
 
 
 @fieldwise_init
@@ -37,6 +42,64 @@ struct _PromptFractionPair(Copyable):
     var denominator: Int
     var excluded: Bool
     var multiple: Bool
+
+
+@fieldwise_init
+struct _PromptNumericSelection(Copyable):
+    var found: Bool
+    var family: String
+    var value: String
+
+
+def _lookup_numeric_shortcut(
+    catalog: PromptLanguageCatalog,
+    language: String,
+    family: String,
+    key: String,
+) -> _PromptNumericSelection:
+    var normalized = normalize_prompt_language(language)
+    for index in range(len(catalog.numeric_shortcuts)):
+        var entry = catalog.numeric_shortcuts[index].copy()
+        if (
+            entry.language == normalized
+            and entry.family == family
+            and entry.key == key
+        ):
+            return _PromptNumericSelection(True, family, entry.description)
+    return _PromptNumericSelection(False, "", "")
+
+
+def _numeric_shortcut_selection(
+    catalog: PromptLanguageCatalog,
+    language: String,
+    token: String,
+) -> _PromptNumericSelection:
+    if token == "15_":
+        return _lookup_numeric_shortcut(catalog, language, "15", "15")
+    if token.startswith("15_"):
+        return _lookup_numeric_shortcut(
+            catalog, language, "15", String(token[byte=3:])
+        )
+    if token == "16_15" or token == "16_15_":
+        return _lookup_numeric_shortcut(catalog, language, "15", "15")
+    if token.startswith("16_15_"):
+        return _lookup_numeric_shortcut(
+            catalog, language, "15", String(token[byte=6:])
+        )
+    if token == "16_":
+        return _lookup_numeric_shortcut(catalog, language, "16", "16")
+    if token.startswith("16_"):
+        return _lookup_numeric_shortcut(
+            catalog, language, "16", String(token[byte=3:])
+        )
+    return _PromptNumericSelection(False, "", "")
+
+
+def _numeric_parameter_name(language: String, family: String) -> String:
+    var normalized = normalize_prompt_language(language)
+    if family == "15":
+        return "Grundstrukturen" if normalized == "deutsch" else "basic_structures"
+    return "Multiversum" if normalized == "deutsch" else "multiverse"
 
 
 def _canonical_command(
@@ -156,6 +219,14 @@ def _contains(values: List[String], needle: String) -> Bool:
     for index in range(len(values)):
         if values[index] == needle:
             return True
+    return False
+
+
+def _has_duplicate_strings(values: List[String]) -> Bool:
+    for index in range(len(values)):
+        for other in range(index + 1, len(values)):
+            if values[index] == values[other]:
+                return True
     return False
 
 
@@ -327,6 +398,7 @@ def _add_invocation(
     selected_columns: String,
     suppress_empty: Bool,
     passthrough: List[String],
+    command_echo_newline: Bool = False,
 ) -> None:
     var tokens = _copy_strings(base)
     _append_table_tail(
@@ -336,7 +408,9 @@ def _add_invocation(
         suppress_empty,
         passthrough,
     )
-    invocations.append(PromptTableInvocation(tokens^))
+    invocations.append(
+        PromptTableInvocation(tokens^, command_echo_newline)
+    )
 
 
 def _add_axis_family(
@@ -523,42 +597,9 @@ def _fraction_multiple_supported(pairs: List[_PromptFractionPair]) -> Bool:
 def _fraction_exclusions_supported(
     pairs: List[_PromptFractionPair], multiple_mode: Bool
 ) -> Bool:
-    if multiple_mode or not _has_positive_fraction(pairs):
-        return True
-
-    var positive_reciprocals = List[Int]()
-    var negative_unit_denominators = List[Int]()
-    for index in range(len(pairs)):
-        var pair = pairs[index].copy()
-        if pair.excluded:
-            if pair.numerator == 1:
-                _append_unique_int(
-                    negative_unit_denominators, pair.denominator
-                )
-            continue
-        if _has_matching_exclusion(pairs, pair):
-            # Python's selector turns exact positive/negative cancellation into
-            # an all-row edge case that the native row algebra does not yet
-            # model.  Preserve it at the compatibility boundary.
-            return False
-        if pair.denominator % pair.numerator == 0:
-            _append_unique_int(
-                positive_reciprocals,
-                pair.denominator // pair.numerator,
-            )
-
-    if len(negative_unit_denominators) == 0:
-        return True
-    # A negative-only reciprocal selector (",-4") means "all except 4" in
-    # the Python renderer.  Likewise 2,-2 opens the legacy all-row path.  Both
-    # remain fallback cases until that empty-positive selector is native.
-    if len(positive_reciprocals) == 0:
-        return False
-    for index in range(len(negative_unit_denominators)):
-        if _contains_int(
-            positive_reciprocals, negative_unit_denominators[index]
-        ):
-            return False
+    # Row polarity cancellation and empty-positive selectors are represented
+    # by the native CLI planner.  All parsed exclusion combinations are now
+    # safe here; true n/m multiple expansion is guarded separately.
     return True
 
 
@@ -609,17 +650,17 @@ def _append_fraction_invocations(
     _sort_ints(numerators)
     for numerator_index in range(len(numerators)):
         var numerator = numerators[numerator_index]
-        var denominator_attempts = List[Int]()
+        var denominator_attempts = List[String]()
         for other_index in range(len(pairs)):
             var other = pairs[other_index].copy()
             if other.numerator == numerator:
                 denominator_attempts.append(
-                    -other.denominator if other.excluded else other.denominator
+                    ("-" if other.excluded else "")
+                    + String(other.denominator)
                 )
-        var ordered_rows = python_signed_int_set_order(denominator_attempts)
-        var denominator_rows = List[String]()
-        for row_index in range(len(ordered_rows)):
-            denominator_rows.append(String(ordered_rows[row_index]))
+        # The legacy numerator buckets store denominator spellings as strings,
+        # not integers.  This matters for collisions such as {"2", "-2"}.
+        var denominator_rows = python_string_set_order(denominator_attempts)
         var base = _base_table_tokens_without_maximum(
             language,
             _join_rows(denominator_rows),
@@ -684,45 +725,85 @@ def plan_prompt_table_commands(
     are decomposed into integer, reciprocal and proper-fraction axes.
     """
     var canonical_words = List[String]()
-    var row_parts = List[String]()
+    var row_part_attempts = List[String]()
     var row_values = List[Int]()
+    var excluded_row_values = List[Int]()
     var fraction_pairs = List[_PromptFractionPair]()
+    var numeric15_values = List[String]()
+    var numeric16_values = List[String]()
     var passthrough = List[String]()
     var maximum = 0
     var unsupported = False
     var has_fraction = False
+    var saw_ignored_negative_integer = False
+    var saw_integer_component_exclusion = False
 
     for index in range(len(words)):
         var token = words[index]
         var canonical = _canonical_command(catalog, language, token)
         canonical_words.append(canonical)
+        var numeric = _numeric_shortcut_selection(catalog, language, token)
+        if numeric.found:
+            if numeric.family == "15":
+                numeric15_values.append(numeric.value)
+                canonical_words.append("__numeric15")
+            else:
+                numeric16_values.append(numeric.value)
+                canonical_words.append("__numeric16")
+            continue
         if _is_fraction_expression(token):
             has_fraction = True
             if not _parse_fraction_token(token, fraction_pairs):
                 unsupported = True
             continue
-        if token.startswith("-"):
-            passthrough.append(token)
-            continue
         if _is_table_command(canonical) or _is_control_command(canonical):
             continue
         try:
-            var values = range_to_numbers(token, False, 0)
-            if len(values) > 0:
-                row_parts.append(token)
+            if is_row_range(token):
+                # A standalone token beginning with '-' is interpreted by the
+                # legacy prompt as a CLI-like parameter and contributes no row
+                # selection at all.  In-token exclusions (2,-2) remain rows.
+                if token.startswith("-"):
+                    saw_ignored_negative_integer = True
+                    continue
+                var token_parts = split_top_level_commas(token)
+                for part_index in range(len(token_parts)):
+                    var part = String(token_parts[part_index])
+                    if part.byte_length() == 0:
+                        continue
+                    row_part_attempts.append(part)
+                    if part.startswith("-") and part.byte_length() > 1:
+                        saw_integer_component_exclusion = True
+                        try:
+                            var excluded_values = range_to_numbers(
+                                String(part[byte=1:]), False, 0
+                            )
+                            for excluded_value in excluded_values:
+                                _append_unique_int(
+                                    excluded_row_values, excluded_value
+                                )
+                        except:
+                            pass
+                var values = range_to_numbers(token, False, 0)
                 for value in values:
                     row_values.append(value)
                     maximum = max(maximum, value)
+                continue
         except:
             pass
+        if token.startswith("-"):
+            passthrough.append(token)
 
-    var has_table_command = False
-    var has_non_fraction_table_command = False
+    # The Python prompt stores raw range components in a set.  Reproduce its
+    # deterministic seed-zero order globally across all numeric tokens.
+    var row_parts = python_string_set_order(row_part_attempts)
+
+    var has_table_command = (
+        len(numeric15_values) > 0 or len(numeric16_values) > 0
+    )
     for index in range(len(canonical_words)):
         if _is_table_command(canonical_words[index]):
             has_table_command = True
-            if not _is_fraction_table_command(canonical_words[index]):
-                has_non_fraction_table_command = True
     if not has_table_command:
         return PromptTablePlan(False, List[PromptTableInvocation]())
 
@@ -739,8 +820,6 @@ def plan_prompt_table_commands(
         multiple_mode = False
     if multiple_mode and divisor_mode:
         unsupported = True
-    if has_fraction and has_non_fraction_table_command:
-        unsupported = True
     if has_fraction and multiple_mode and not _fraction_multiple_supported(
         fraction_pairs
     ):
@@ -749,21 +828,50 @@ def plan_prompt_table_commands(
         fraction_pairs, multiple_mode
     ):
         unsupported = True
+    # Duplicate generated selections expose a legacy column-instance width
+    # distinction that the current native table model intentionally does not
+    # collapse or approximate.  Keep the whole command on the compatibility
+    # boundary until duplicate column instances are represented explicitly.
+    if _has_duplicate_strings(numeric15_values) or _has_duplicate_strings(
+        numeric16_values
+    ):
+        unsupported = True
     if unsupported:
         return PromptTablePlan(False, List[PromptTableInvocation]())
+
+    # The pure compact numeric default for zero is a peculiar stable legacy
+    # branch: ``teiler`` contributes no divisor expansion, ``absicht`` emits no
+    # second table, and the Thomas table omits ``--oberesmaximum`` entirely.
+    var zero_default_mode = (
+        len(row_parts) == 1
+        and row_parts[0] == "0"
+        and len(row_values) == 0
+        and divisor_mode
+        and _contains(canonical_words, "thomas")
+        and _contains(canonical_words, "absicht")
+        and _contains(canonical_words, "mulpri")
+        and _contains(
+            canonical_words,
+            "keineEinZeichenZeilenPlusKeineAusgabeWelcherBefehlEsWar",
+        )
+    )
 
     var whole_rows = List[String]()
     var reciprocal_rows = List[String]()
     var has_positive_fraction = _has_positive_fraction(fraction_pairs)
     for index in range(len(fraction_pairs)):
         var pair = fraction_pairs[index].copy()
-        if pair.excluded or _has_matching_exclusion(fraction_pairs, pair):
+        if pair.excluded:
             continue
-        if pair.numerator % pair.denominator == 0:
+        var exact_exclusion = _has_matching_exclusion(fraction_pairs, pair)
+        # Exact literal n/m cancellation is represented on that numerator's
+        # proper-fraction axis.  Only 1/n has no such axis, so its reciprocal
+        # promotion must remain and cancel there instead.
+        if not exact_exclusion and pair.numerator % pair.denominator == 0:
             _append_unique_string(
                 whole_rows, String(pair.numerator // pair.denominator)
             )
-        if pair.denominator % pair.numerator == 0:
+        if (not exact_exclusion or pair.numerator == 1) and pair.denominator % pair.numerator == 0:
             _append_unique_string(
                 reciprocal_rows, String(pair.denominator // pair.numerator)
             )
@@ -772,7 +880,7 @@ def plan_prompt_table_commands(
         reciprocal_rows = _expanded_reciprocal_multiple_rows(
             fraction_pairs, 1024
         )
-    elif has_positive_fraction or len(row_parts) > 0:
+    elif has_positive_fraction:
         # Legacy subtraction only promotes explicit -1/n axes into the
         # reciprocal row selection.  Equivalent forms such as -2/4 stay in
         # their proper-fraction numerator group.
@@ -783,25 +891,55 @@ def plan_prompt_table_commands(
             var pair = fraction_pairs[index].copy()
             if pair.excluded and pair.numerator == 1:
                 reciprocal_attempts.append(-pair.denominator)
+        var had_positive_reciprocal = len(reciprocal_rows) > 0
         var reciprocal_order = python_signed_int_set_order(reciprocal_attempts)
         reciprocal_rows = List[String]()
         for index in range(len(reciprocal_order)):
             reciprocal_rows.append(String(reciprocal_order[index]))
+        # A selector containing only exclusions is serialized with an explicit
+        # empty positive side (",-4"), which means all rows except 4.
+        if not had_positive_reciprocal and len(reciprocal_rows) > 0:
+            reciprocal_rows[0] = "," + reciprocal_rows[0]
 
     var normal_rows = _copy_strings(row_parts)
     for index in range(len(whole_rows)):
         normal_rows.append(whole_rows[index])
         maximum = max(maximum, Int(whole_rows[index]))
 
-    if divisor_mode:
+    if divisor_mode and not zero_default_mode:
         var divisor_rows = List[String]()
+        var resolved_divisor_values = List[Int]()
         for value_index in range(len(row_values)):
-            var values = divisors(row_values[value_index])
+            if not _contains_int(
+                excluded_row_values, row_values[value_index]
+            ):
+                resolved_divisor_values.append(row_values[value_index])
+
+        # The legacy teiler branch subtracts explicit negative components
+        # before calculating divisors.  If subtraction empties the positive
+        # side, it serializes an empty component first (",-2,2"), preserving
+        # the downstream all-rows-minus-exclusions interpretation.
+        if (
+            len(resolved_divisor_values) == 0
+            and saw_integer_component_exclusion
+            and len(row_parts) > 0
+        ):
+            divisor_rows.append("")
+        for value_index in range(len(resolved_divisor_values)):
+            var values = divisors(resolved_divisor_values[value_index])
             for divisor_index in range(len(values)):
                 if values[divisor_index] != 1:
                     divisor_rows.append(String(values[divisor_index]))
-        for index in range(len(row_parts)):
-            divisor_rows.append(row_parts[index])
+
+        # A pure zero selector contributes no teiler invocation at all.  Zero
+        # is retained only alongside a real positive value or an exclusion,
+        # exactly as in the reference prompt's raw component set.
+        if (
+            len(resolved_divisor_values) > 0
+            or saw_integer_component_exclusion
+        ):
+            for index in range(len(row_parts)):
+                divisor_rows.append(row_parts[index])
         # Reduced n/m integers are added after the historical w/teiler
         # expansion and are not themselves expanded into their divisors.
         for index in range(len(whole_rows)):
@@ -811,6 +949,13 @@ def plan_prompt_table_commands(
     var has_integer = len(normal_rows) > 0
     var has_reciprocal = len(reciprocal_rows) > 0
     if not has_integer and not has_reciprocal and len(fraction_pairs) == 0:
+        if (
+            len(numeric15_values) > 0
+            or len(numeric16_values) > 0
+            or saw_ignored_negative_integer
+            or (divisor_mode and len(row_parts) > 0)
+        ):
+            return PromptTablePlan(True, List[PromptTableInvocation]())
         return PromptTablePlan(False, List[PromptTableInvocation]())
 
     var distinct_table_commands = List[String]()
@@ -836,7 +981,11 @@ def plan_prompt_table_commands(
 
     var integer_base = List[String]()
     if has_integer:
-        if multiple_mode:
+        if zero_default_mode:
+            integer_base = _base_table_tokens_without_maximum(
+                language, _join_rows(normal_rows), counting, invert
+            )
+        elif multiple_mode:
             integer_base = _base_multiple_tokens(
                 language, row_parts, counting, invert
             )
@@ -1116,7 +1265,7 @@ def plan_prompt_table_commands(
             suppress_empty,
             passthrough,
         )
-    if _contains_any(
+    if not zero_default_mode and _contains_any(
         canonical_words, ["absicht", "absichten", "motiv", "motive", "a"]
     ):
         _add_axis_family(
@@ -1189,6 +1338,36 @@ def plan_prompt_table_commands(
             invert,
             suppress_empty,
             passthrough,
+        )
+
+    # The legacy execution order is Multiversum (16) before Grundstrukturen
+    # (15), independent of the source-token order.  Values inside each family
+    # retain the CPython set order supplied by prompt preparation.
+    if len(numeric16_values) > 0 and has_integer:
+        _add_invocation(
+            invocations,
+            integer_base,
+            "--"
+            + _numeric_parameter_name(language, "16")
+            + "="
+            + _join_rows(numeric16_values),
+            "",
+            suppress_empty,
+            passthrough,
+            True,
+        )
+    if len(numeric15_values) > 0 and has_integer:
+        _add_invocation(
+            invocations,
+            integer_base,
+            "--"
+            + _numeric_parameter_name(language, "15")
+            + "="
+            + _join_rows(numeric15_values),
+            "",
+            suppress_empty,
+            passthrough,
+            True,
         )
 
     return PromptTablePlan(

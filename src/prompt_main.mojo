@@ -18,6 +18,7 @@ from reta_mojo.prompt_language import (
     expand_compact_prompt_tokens,
     expand_prompt_replacements,
     load_prompt_language_catalog,
+    is_prompt_numeric_shortcut,
     prompt_completion_word_pool,
     prompt_root_commands,
     prompt_vocabulary_alias,
@@ -133,9 +134,9 @@ def _print_prompt_help() -> None:
     print("Kompakte Zahlen- und Ein-Zeichen-Befehle werden nativ expandiert.")
     print("Positive Brüche, historische Bruchbereiche sowie ganzzahlige")
     print("Vielfachen-, Teiler- und Einzelauswahl werden nativ geplant.")
-    print("Stabile Bruchausschlüsse, Bruchteiler und Reziprok-Vielfache")
-    print("werden ebenfalls nativ geplant; kollidierende Legacy-Algebra und")
-    print("echte v-n/m-Vielfache bleiben an der Kompatibilitätsgrenze.")
+    print("Null-, Negativ- und kollidierende Zahlenbedingungen werden samt")
+    print("historischer All-Zeilen-Algebra nativ geplant. Nur echte v-n/m-")
+    print("Vielfache und doppelte Generatorinstanzen bleiben am Fallback.")
     print("Explizite native Einmalbefehle laufen ohne Python-Kindprozess.")
 
 
@@ -198,6 +199,7 @@ def _run_native_table_tokens(
     tokens: List[String],
     historical_echo: Bool = False,
     suppress_command_echo: Bool = False,
+    command_echo_newline: Bool = False,
 ) raises -> Bool:
     if len(tokens) == 0:
         return False
@@ -212,7 +214,10 @@ def _run_native_table_tokens(
         # ``end=""``.  The visible reta echo and first table row therefore form
         # one physical output line for both compact and long prompt commands.
         # ``--nocolor`` goes through ordinary ``print`` and retains a newline.
-        if not _contains_token(tokens, "--nocolor"):
+        if (
+            not _contains_token(tokens, "--nocolor")
+            and not command_echo_newline
+        ):
             print(command_line, end="")
         else:
             print(command_line)
@@ -250,6 +255,7 @@ def _run_native_table_plan(
             plan.invocations[index].tokens,
             historical_echo,
             suppress_command_echo,
+            plan.invocations[index].command_echo_newline,
         ):
             return False
     return True
@@ -266,6 +272,15 @@ def _uses_historical_prompt_echo(
 def _contains_token(values: List[String], needle: String) -> Bool:
     for index in range(len(values)):
         if values[index] == needle:
+            return True
+    return False
+
+
+def _contains_numeric_shortcut(
+    values: List[String], language: String, catalog: PromptLanguageCatalog
+) -> Bool:
+    for index in range(len(values)):
+        if is_prompt_numeric_shortcut(catalog, language, values[index]):
             return True
     return False
 
@@ -396,16 +411,6 @@ def _compact_announcement_tokens(
     return result^
 
 
-def _contains_ascii_command_letter(values: List[String]) -> Bool:
-    for value_index in range(len(values)):
-        var bytes = values[value_index].as_bytes()
-        for byte_index in range(len(bytes)):
-            var code = Int(bytes[byte_index])
-            if (code >= 65 and code <= 90) or (code >= 97 and code <= 122):
-                return True
-    return False
-
-
 def _is_prompt_numeric_syntax_token(value: String) -> Bool:
     if value.byte_length() == 0:
         return False
@@ -433,6 +438,15 @@ def _is_prompt_numeric_syntax_token(value: String) -> Bool:
         ):
             continue
         return False
+    return True
+
+
+def _is_pure_numeric_prompt(values: List[String]) -> Bool:
+    if len(values) == 0:
+        return False
+    for index in range(len(values)):
+        if not _is_prompt_numeric_syntax_token(values[index]):
+            return False
     return True
 
 
@@ -508,22 +522,53 @@ def _historical_prompt_control_supported(canonical: String) -> Bool:
     )
 
 
+def _historical_prompt_parameter_supported(
+    token: String, language: String, catalog: PromptLanguageCatalog
+) -> Bool:
+    if token == "-ausgabe" or token == "-output":
+        return True
+    if not token.startswith("--"):
+        return False
+    var name = String(token[byte=2:])
+    if "=" in name:
+        name = String(name.split("=")[0])
+    var normalized = normalize_prompt_language(language)
+    for index in range(len(catalog.vocabulary)):
+        var entry = catalog.vocabulary[index].copy()
+        if (
+            entry.language == normalized
+            and entry.domain == "output"
+            and entry.translated == name
+        ):
+            return (
+                entry.canonical == "keineueberschriften"
+                or entry.canonical == "keineleereninhalte"
+                or entry.canonical == "keinenummerierung"
+                or entry.canonical == "nocolor"
+                or entry.canonical == "breite"
+                or entry.canonical == "art"
+                or entry.canonical == "spaltenreihenfolgeundnurdiese"
+            )
+    return False
+
+
 def _historical_prompt_execution_supported(
     raw_tokens: List[String],
     planning_tokens: List[String],
     language: String,
     catalog: PromptLanguageCatalog,
 ) -> Bool:
-    # Number-only compact defaults still expose a renderer marker difference
-    # in the Python reference.  Keep the entire compound command atomic.
-    if not _contains_ascii_command_letter(raw_tokens):
-        return False
+    # Number-only compact defaults compose the same typed table and mulpri
+    # branches as lettered shorthand.  They are accepted only when every
+    # expanded token below is explicitly owned.
     for index in range(len(planning_tokens)):
         var token = planning_tokens[index]
         # Only pure numeric/rational/range syntax is data.  Every other token
         # must be owned explicitly; otherwise a localized storage/shell/session
         # command could be silently dropped while its table sibling runs.
         if _is_prompt_numeric_syntax_token(token):
+            continue
+        if _historical_prompt_parameter_supported(token, language, catalog):
             continue
         var canonical = _canonical_prompt_command(token, language, catalog)
         if _historical_prompt_control_supported(canonical):
@@ -549,6 +594,7 @@ def _historical_prompt_execution_supported(
             or canonical == "I"
             or canonical == "geist"
             or canonical == "G"
+            or canonical == "groesse"
             or canonical == "absicht"
             or canonical == "absichten"
             or canonical == "motiv"
@@ -680,8 +726,13 @@ def _run_command(
         False,
         profile.force_e_command,
     )
+    var numeric_default = _is_pure_numeric_prompt(raw_tokens)
     var planning_tokens = (
-        prepared.tokens.copy() if historical_echo else normalized_tokens.copy()
+        prepared.tokens.copy()
+        if historical_echo
+        or numeric_default
+        or _contains_numeric_shortcut(raw_tokens, profile.language, catalog)
+        else normalized_tokens.copy()
     )
     var quiet_echo = _quiet_prompt_echo(
         planning_tokens, profile.language, catalog
@@ -698,7 +749,7 @@ def _run_command(
         planning_tokens, profile.language, catalog
     ) and len(_integer_argument_words(planning_tokens)) > 0
     var owns_table = table_plan.handled
-    if historical_echo and (owns_table or owns_mulpri):
+    if (historical_echo or numeric_default) and (owns_table or owns_mulpri):
         if not _historical_prompt_execution_supported(
             raw_tokens, planning_tokens, profile.language, catalog
         ):
@@ -838,8 +889,13 @@ def _run_native_one_shot(
         False,
         profile.force_e_command,
     )
+    var numeric_default = _is_pure_numeric_prompt(raw_tokens)
     var planning_tokens = (
-        prepared.tokens.copy() if historical_echo else normalized_tokens.copy()
+        prepared.tokens.copy()
+        if historical_echo
+        or numeric_default
+        or _contains_numeric_shortcut(raw_tokens, profile.language, catalog)
+        else normalized_tokens.copy()
     )
     var quiet_echo = _quiet_prompt_echo(
         planning_tokens, profile.language, catalog
@@ -851,7 +907,7 @@ def _run_native_one_shot(
         planning_tokens, profile.language, catalog
     ) and len(_integer_argument_words(planning_tokens)) > 0
     var owns_table = table_plan.handled
-    if historical_echo and (owns_table or owns_mulpri):
+    if (historical_echo or numeric_default) and (owns_table or owns_mulpri):
         if not _historical_prompt_execution_supported(
             raw_tokens, planning_tokens, profile.language, catalog
         ):

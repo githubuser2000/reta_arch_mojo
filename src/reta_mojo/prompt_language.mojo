@@ -709,6 +709,11 @@ def _python_string_set_order(values: List[String]) -> List[String]:
     return result^
 
 
+def python_string_set_order(values: List[String]) -> List[String]:
+    """Reproduce deterministic CPython ``set[str]`` iteration order."""
+    return _python_string_set_order(values)
+
+
 def _prompt_characters(text: String) -> List[String]:
     var result = List[String]()
     # All historical compact command letters are single-byte ASCII aliases in

@@ -13,6 +13,26 @@ def test_plan_resolves_rows_columns_and_output() raises:
     assert_equal(plan.columns, [0, 6, 36])
 
 
+def test_row_polarity_cancellation_matches_python_all_rows() raises:
+    var cancelled = build_native_reta_plan(
+        ["-zeilen", "--vorhervonausschnitt=2,-2"], 746, 1024
+    )
+    assert_equal(len(cancelled.positive_rows), 0)
+    assert_equal(len(cancelled.negative_rows), 0)
+
+    var partial = build_native_reta_plan(
+        ["-zeilen", "--vorhervonausschnitt=2,-3"], 746, 1024
+    )
+    assert_equal(partial.positive_rows, ["_a_2"])
+    assert_equal(partial.negative_rows, ["_a_3"])
+
+    var empty_positive = build_native_reta_plan(
+        ["-zeilen", "--vorhervonausschnitt=,-4"], 746, 1024
+    )
+    assert_equal(len(empty_positive.positive_rows), 0)
+    assert_equal(empty_positive.negative_rows, ["_a_4"])
+
+
 def test_generated_only_selection_does_not_add_physical_default() raises:
     var plan = build_native_reta_plan(
         ["-spalten", "--bedeutung=primzahlkreuz"],
