@@ -236,7 +236,7 @@ Nicht intuitiv ist die sichtbare Reihenfolge mehrerer expandierter Tokens. Das P
 
 ### Interaktive Systemgrenze
 
-GNU Readline bleibt eine Python-/Betriebssystemgrenze. Die eigentliche Completion läuft jedoch in `reta-prompt-complete`, einem persistenten Mojo-Prozess, der den vollständigen Eingabepuffer erhält und Kandidaten zurückgibt. Der Katalog wird dadurch nur einmal pro Sitzung geladen. Der Python-Adapter besitzt lediglich Prozesslebenszyklus, Pipe-I/O, Readline-Callback und einen statischen Notfallfallback.
+GNU Readline bleibt eine Python-/Betriebssystemgrenze. Die eigentliche Completion läuft jedoch in `reta-prompt-complete`, einem persistenten Mojo-Prozess, der den vollständigen Eingabepuffer erhält und Kandidaten zurückgibt. Der Katalog wird dadurch nur einmal pro Sitzung geladen. Der Python-Adapter besitzt Prozesslebenszyklus, seine Pipehälfte, Readline-Callback und einen statischen Notfallfallback; der Mojo-Arbeiter liest und schreibt seine Dateideskriptoren nativ.
 
 Noch nicht portierte Fachoperationen erhalten an der Kompatibilitätsgrenze weiterhin die unveränderte Originalzeile. Dadurch gehen die historischen späteren Parserwirkungen nicht verloren, obwohl die vordere Kurzsprache und Completion bereits nativ sind.
 
@@ -282,7 +282,7 @@ Die Bruch-/Modifikatorparität wird als normalisierter geordneter CSV-Tokenstrom
 - Der One-shot-Dispatcher läuft vor `Python.import_module`. Vollständig native Befehle benötigen weder CPython noch einen zweiten Prozess.
 - Tabellenpläne rufen `run_native_reta` direkt auf; der bisherige Bridgeadapter `run_native_reta_subprocess_encoded` entfällt.
 - Rohe `reta`-Befehle werden nur übernommen, wenn jeder Bereich und jede Option zum nativen Vertrag gehört. Unbekannte Eingaben fallen vollständig zurück.
-- Positive Shell-/HTML-/BBCode-Breiten bleiben wegen des noch nicht portierten Python-Hyphenators an der Bridge; Breite 0 und tabellenartige Modi sind nativ.
+- Positive Shell-/HTML-/BBCode-Breiten gehören nach den Stage-10l-Byteprüfungen ebenfalls zum nativen Promptvertrag.
 - Kompakte/einbuchstabige Befehle bleiben bis zur Typisierung ihrer historischen Echozeile an der Referenzgrenze.
 - `leeren` verwendet direkt `ESC[2J ESC[H`; der externe `clear`-Prozess und sein Pythonadapter entfallen.
 
@@ -341,3 +341,12 @@ Der Shellrenderer bestimmt die Spaltenbreite jetzt nach dem historischen Vorbere
 - Doppelte Bereiche, gemischte Kardinalitäten, große Bereiche und sechs beziehungsweise neun Einzelbereiche besitzen feste Regressionstests.
 - Normale und primfaktorisierte Mehrbereichsausgaben laufen vor jedem Python-Import und ohne `reta-native`-Kindprozess.
 
+
+
+## Stage 10l – native Datei-, Pipe- und HTML-Orchestrierung
+
+- `csv_table.read_text_file` verwendet natives `open(...).read()` statt `std.python`/`pathlib`; alle darauf aufbauenden CSV-, TSV-, Prompt- und HTML-Assetloader erben diese Besitzgrenze.
+- `reta-prompt-complete` liest Dateideskriptor 0 und schreibt Dateideskriptor 1 über `FileHandle`; leere Zeilen, CRLF, EOF und persistente Mehrfachanfragen bleiben erhalten.
+- `generate_html_main.mojo` besitzt Argumente, Environment, Override, `middle.alx`, Assets, Hierarchie und stdout. Nur die noch unportierte `--spalten --alles`-Mitteltabelle wird im Normalmodus als expliziter Python-Kindprozess erzeugt.
+- Die veraltete positive-Breiten-Sperre in `native_reta_tokens_supported` entfällt. Shell, HTML und BBCode mit Breite 40 laufen aus dem Prompt bytegleich vor jedem Python-Import.
+- Neue Regressionen prüfen fehlende `libpython`-NEEDED-Einträge, einen absichtlich ungültigen Referenzinterpreter im HTML-Overridepfad sowie Python-quellfreie Tabellen-, Completion- und Promptausführung.

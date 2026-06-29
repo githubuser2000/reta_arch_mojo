@@ -1,12 +1,12 @@
-"""Owned semicolon-CSV table and parser used by the native Reta pipeline.
+"""Owned UTF-8 text loading and semicolon-CSV parsing for native Reta.
 
-Only filesystem text loading remains an explicit std.python boundary. Parsing,
-selection, fingerprinting and rendering are native Mojo.
+Filesystem reads, parsing, selection, fingerprinting and rendering are native
+Mojo.  This module is the single byte-preserving asset-loading boundary used by
+CSV tables, generated catalogs, prompt language assets and HTML metadata.
 """
 
 from std.collections import List
 from std.collections.string import ord
-from std.python import Python
 
 
 @fieldwise_init
@@ -96,9 +96,8 @@ def parse_semicolon_csv(text: String) -> CsvTable:
 
 
 def read_text_file(path: String) raises -> String:
-    var pathlib = Python.import_module("pathlib")
-    var value = pathlib.Path(path).read_text(encoding="utf-8")
-    return String(value)
+    var file = open(path, "r")
+    return file.read()
 
 
 def read_semicolon_csv(path: String) raises -> CsvTable:

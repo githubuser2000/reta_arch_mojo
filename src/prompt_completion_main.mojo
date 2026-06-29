@@ -1,11 +1,12 @@
 """Persistent native nested-completion worker for GNU readline.
 
-The Python bridge owns only the terminal callback and pipe.  Every context
-transition, fuzzy match and candidate order is resolved in Mojo.
+The Python adapter owns only the terminal callback and worker process lifecycle.
+Every context transition, fuzzy match, candidate order and pipe byte is handled
+in Mojo; the worker no longer embeds CPython merely to access stdin/stdout.
 """
 
+from std.io import FileHandle
 from std.sys import argv
-from std.python import Python
 from reta_mojo.prompt_language import (
     load_prompt_language_catalog,
     normalize_prompt_language,
@@ -31,16 +32,27 @@ def main() raises:
     if len(args) > 2:
         asset_root = String(args[2])
     var catalog = load_prompt_language_catalog(asset_root)
-    var sys = Python.import_module("sys")
+    var stdin_file = FileHandle()
+    stdin_file.handle = 0
+    var stdout_file = FileHandle()
+    stdout_file.handle = 1
+    var raw = String()
 
     while True:
-        var raw = String(py=sys.stdin.readline())
-        if raw.byte_length() == 0:
+        var byte_text = stdin_file.read(1)
+        var at_eof = byte_text.byte_length() == 0
+        if not at_eof and byte_text != "\n":
+            raw += byte_text
+            continue
+        if at_eof and raw.byte_length() == 0:
             break
+
         var text = _without_line_ending(raw)
         var values = prompt_completion_candidates(catalog, language, text)
         var response = String(len(values)) + "\n"
         for index in range(len(values)):
             response += values[index] + "\n"
-        _ = sys.stdout.write(response)
-        _ = sys.stdout.flush()
+        stdout_file.write_all(response.as_bytes())
+        raw = String()
+        if at_eof:
+            break

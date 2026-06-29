@@ -80,4 +80,12 @@ cat assets/html/head1.alx assets/html/religionen.js assets/html/head2.alx \
 cmp "$TMP/full-real-small-reference" "$TMP/full-real-small"
 test -s middle.alx
 
+RETA_GENERATE_HTML_ROWS=1 ./target/bin/generate-html-native -language=english \
+    > "$TMP/full-real-small-en"
+cat assets/html/head1.alx assets/html/religionen.js assets/html/head2.alx \
+    middle.alx "$TMP/python-blank-en" assets/html/footer.alx \
+    > "$TMP/full-real-small-reference-en"
+cmp "$TMP/full-real-small-reference-en" "$TMP/full-real-small-en"
+test -s middle.alx
+
 printf '%s\n' 'GrundstrukHtml und generate_html sind bytegleich zur Referenz.'

@@ -9,11 +9,11 @@
 - Konservativ vollständig native oder reproduzierbar generierte Originaldateien: **18/92 = 19,6 %**
 - Mindestens teilweise portierte Originaldateien: **46/92 = 50,0 %**
 - Gewichteter Quellzeilenstand: **ca. 29 %**
-- Nativer Mojo-Quellcode in `src/`: **18.092 Zeilen**
-- Davon im Paket `reta_mojo`: **16.484 Zeilen**
+- Nativer Mojo-Quellcode in `src/`: **18.153 Zeilen**
+- Davon im Paket `reta_mojo`: **16.479 Zeilen**
 - Native Mojo-Testdateien und -Probes: **52**
 - Native Testfunktionen: **254**
-- Aktuell fokussiert dokumentiert: **140/140 bestanden**
+- Aktuell fokussiert dokumentiert: **143/143 bestanden**
 - Prompt-Kurzsprache: **27/27 deutsche und englische Referenzkontexte bytegleich**
 - Promptvorbereitung: **23/23 deutsche und englische Referenzkontexte bytegleich**
 - Verschachtelte Completion: **12/12 Referenzkontexte und 12/12 schnelle Fixtures bytegleich**
@@ -60,7 +60,7 @@
 - `prompt_toolkit`-kompatible Fuzzy-Teilsequenzordnung
 - native Expansion kompakter Befehle wie `a15`, `ap15`, `15a`, `p12`, `(1 2)` und `uv3/2`
 - exakte CPython-3.13-Set-Reihenfolge bei `PYTHONHASHSEED=0`, einschließlich des Unterschieds zwischen `set(iterable)` und Set-Merge
-- persistenter nativer Completion-Arbeiter `reta-prompt-complete`
+- persistenter nativer Completion-Arbeiter `reta-prompt-complete` mit direkter stdin/stdout-`FileHandle`-I/O
 - GNU Readline bleibt nur Terminal-/Tastaturgrenze; Kandidaten und Kontextauflösung kommen aus Mojo
 - interaktiver Pseudoterminaltest ergänzt `reta -ausgabe --art=htm<Tab>` zu `html`
 - nativer Bruchparser für die vordere `prompt_execution.py`-Strecke einschließlich Bereichsbildung, Reziprok- und Ganzzahlerkennung
@@ -82,6 +82,8 @@
 - vorbereitete Fragmentbreiten, vorhandene Bindestrichumbrüche und interne Leerzeichenläufe entsprechen der Python-`textwrap`-Reihenfolge
 - `a2`, `ap15`, `p12`, `p13`, `G2`, `B2`, `E2`, `T2`, `W2` und `u2` vollständig bytegleich
 - alle kompakten Tabellenfamilien, `mulpri`, reine positive Zahlen-/Bereichs-/Listen-/Bruchkompositionen und 365 adressierbare `15`-/`16`-Katalogauswahlen laufen ohne Python
+- zentrale UTF-8-Dateischicht ohne `std.python`; positive Shell-/HTML-/BBCode-Breiten laufen auch im Prompt nativ
+- `generate_html` besitzt Asset-, Override- und Seitenorchestrierung nativ; die große `--alles`-Mitteltabelle bleibt ein expliziter Referenzkindprozess
 - wiederholte numerische Katalogauswahlen behalten ihr doppeltes Legacy-Echo, werden semantisch wie Python auf eine Generatoranforderung reduziert und laufen ohne Fallback
 - die historische Shell-Zählungsmarkierung `█` ist zentral im nativen Renderer modelliert
 

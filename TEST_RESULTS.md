@@ -14,6 +14,7 @@ Der letzte vollständig abgeschlossene normale Stufe-7-Lauf ergab **145/145** Te
 ## Aktuell erneut ausgeführte Mojo-Tests
 
 ```text
+test_csv_table                    3/3
 test_prompt_language             16/16
 test_prompt_runtime              30/30
 test_prompt_legacy_echo           5/5
@@ -29,7 +30,7 @@ test_table_rendering              8/8
 test_html_cell_metadata           4/4
 test_row_filtering_reference      3/3
                                 -------
-                                140/140 bestanden
+                                143/143 bestanden
 ```
 
 In den oben gezählten Einzelsuiten gab es keinen Testfehler. Zwei breitere Sammelprüfungen werden ausdrücklich **nicht** als bestanden gezählt:
@@ -106,14 +107,14 @@ Die Promptprüfung umfasst:
 12/12 schnelle Completion-Fixtures bytegleich
 12/12 Readline-Kontexte an den persistenten Mojo-Arbeiter delegiert
 16/16 Prompt-Sprachtests bestanden
-21/21 Prompt-Laufzeittests bestanden
+30/30 Prompt-Laufzeittests bestanden
 ```
 
 Zusätzlich ist die fachliche Ausführung jetzt geprüft:
 
 ```text
 18/18 Bruch-/Bereichsausdrücke bytegleich zu bruchSpalt/createRangesForBruchLists
-16/16 Tabellenplanertests bestanden
+23/23 Tabellenplanertests bestanden
 14/14 reale Bruch-/Modifikatorfälle als normalisierte CSV-Tokenströme identisch
 7/7 reale Prompt-Ausführungen als Byte-Fixtures
 18 Tabellenfamilien über reta-native statt retaPrompt.py
@@ -245,3 +246,18 @@ Die unveränderte Python-Referenz hatte beim Eingang bereits drei fehlschlagende
 - `scripts/build.sh`: alle **9/9** regulären Mojo-Executables aus dem finalen Stage-10k-Quellstand gebaut; `check_build_layout.sh` bestanden.
 - Nach dem Vollbuild erneut bestanden: **30/30** Runtime-Tests, **8/8** Mehrbereichs-Bytefixtures und **2/2** isolierte Mehrbereichs-One-shots.
 
+
+
+## Stage 10l: native Datei-, Pipe- und HTML-Orchestrierung
+
+- `test_csv_table.mojo`: **3/3** einschließlich vollständiger 1025×746-Referenztabelle über natives Mojo-Datei-I/O.
+- Die fokussierten dokumentierten Einzelsuiten stehen damit bei **143/143**.
+- `scripts/test_stage10.sh`: **113/113** Stage-10-Mojo-Tests und sämtliche Fraction-, Prompt-, Compact-, Numeric-, Distance-, Preparation- und Completion-Prüfungen mit Exitcode 0.
+- `check_prompt_width_oneshot.sh`: **3/3** positive Shell-/HTML-/BBCode-Breiten bytegleich, ohne Python-Quellbaum und ohne `reta-native`-Kindprozess.
+- `check_native_io_boundaries.sh`: native CSV-/Asset-Datei-I/O, persistentes Completion-Protokoll und HTML-Override ohne `std.python` beziehungsweise `libpython`; ein fehlgeschlagener Referenzkindprozess wird nicht als Erfolg akzeptiert.
+- `check_prompt_completion_worker.py`: **12/12** Readline-Kontexte weiterhin bytegleich.
+- `check_html_parity.sh`: Override-, deutscher und englischer Ein-Zeilen-Normalpfad bytegleich; der normale Pfad besitzt genau die dokumentierte `--spalten --alles`-Referenzgrenze.
+- `scripts/build.sh`: alle **9/9** regulären Mojo-Executables aus dem finalen Stage-10l-Quellstand gebaut; `check_build_layout.sh` bestanden.
+- `check_markup_parity.sh`: **8/8** zentrale BBCode-/HTML-Fixtures bytegleich; `check_shell_parity.sh`: **5/5** Shell-Fixtures bytegleich; `check_compat_parity.sh` bestanden.
+- Der breite kalte `test_all.sh`-Lauf schloss die ersten **13** Suiten ohne Fehler ab und wurde während des folgenden Compilerziels bewusst beendet, statt einen unvollständigen Lauf als Gesamterfolg auszugeben.
+- `release_check.sh` erreichte nach Vollbuild und mehreren Katalogprüfungen den bereits dokumentierten Python-3.13.5-CSV-Harnessfall: Die Referenz verklebt Zeilen, während der native CSV-Renderer Zeilenumbrüche ausgibt. Dieser bekannte Harnessfall wird nicht als Stage-10l-Regression und auch nicht als Release-Gesamterfolg ausgegeben.

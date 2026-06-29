@@ -634,12 +634,8 @@ def native_reta_tokens_supported(tokens: List[String], csv_path: String) raises 
     var mode = canonicalize_output_mode(plan.output_mode)
     if mode.byte_length() == 0:
         return False
-    # Positive-width shell/HTML/BBCode output still depends on Python's
-    # hyphenator/rich wrapping state. Width-zero and table-like modes do not.
-    if plan.width > 0 and (
-        mode == "shell" or mode == "html" or mode == "bbcode"
-    ):
-        return False
+    # Positive-width shell, HTML and BBCode rendering is owned by the native
+    # renderer and covered by byte fixtures; no prompt-only Python gate remains.
     return True
 
 

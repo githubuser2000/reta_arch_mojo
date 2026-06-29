@@ -6,7 +6,7 @@ Stand: 29. Juni 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der 
 - Ursprüngliche Python-Zeilen insgesamt: **48831**
 - Zusätzlicher Bridge-Adapter: **1 Python-Datei**
 - Konservativ mindestens teilweise portierte Originaldateien: **46/92**
-- Native Mojo-Quellzeilen unter `src/`: **17667**
+- Native Mojo-Quellzeilen unter `src/`: **18153**
 - Native Mojo-Quellzeilen: siehe `src/` (inklusive generiertem Kategoriekatalog)
 
 | Python-Datei | Zeilen | Funktionen | Klassen | dynamische Aufrufe | Status | Mojo/Ziel | Anmerkung |
@@ -30,7 +30,7 @@ Stand: 29. Juni 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der 
 | `libs/nestedAlx.py` | 24 | 0 | 0 | 0 | Python-Referenz/Bridge | `python_reference/libs/nestedAlx.py` | noch nicht nativ portiert |
 | `libs/tableHandling.py` | 68 | 0 | 0 | 0 | teilweise nativ | `src/reta_mojo/table_state.mojo + table_wrapping.mojo + output_modes.mojo` | deterministischer Tabellenzustand, Umbruch und Ausgabemodi; große Tabellenberechnung noch Bridge |
 | `libs/word_completerAlx.py` | 10 | 0 | 0 | 0 | weitgehend nativ | `src/reta_mojo/prompt_language.mojo + src/prompt_completion_main.mojo` | Fuzzy- und Kontextkandidaten nativ; GNU Readline bleibt Terminalgrenze |
-| `mojo_bridge.py` | 394 | 18 | 0 | 0 | Systemgrenze | `src/prompt_completion_main.mojo + python_reference/mojo_bridge.py` | Python verwaltet Readline, Pipes und echte Fallbackprozesse; native One-shots und Tabellen benötigen keinen Bridgeimport oder Kindprozess |
+| `mojo_bridge.py` | 394 | 18 | 0 | 0 | Systemgrenze | `src/prompt_completion_main.mojo + python_reference/mojo_bridge.py` | Python verwaltet Readline, seine Adapter-Pipehälfte und echte Fallbackprozesse; der Mojo-Arbeiter besitzt natives stdin/stdout, native One-shots und Tabellen benötigen keinen Bridgeimport oder Kindprozess |
 | `multis.py` | 34 | 2 | 0 | 0 | nativ | `src/reta_mojo/arithmetic.mojo + prompt_runtime.mojo` | Faktorpaare und öffentliche multis-CLI nativ |
 | `multis3.py` | 34 | 1 | 0 | 0 | nativ | `src/reta_mojo/arithmetic.mojo + prompt_runtime.mojo` | Dreifach-Faktorisierung nativ; deterministische lexikographische Ausgabe statt Set-Reihenfolge |
 | `reta.py` | 214 | 19 | 1 | 3 | teilweise nativ | `src/reta_native_main.mojo + src/reta_mojo/native_reta_cli.mojo` | häufige deutsche und englische Tabellenaufrufe nativ; relative Ergebnis-Spaltenreihenfolge nach Generatoren unterstützt; vollständige Legacy-Oberfläche bleibt über RETA_NATIVE=0 kompatibel |
@@ -53,7 +53,7 @@ Stand: 29. Juni 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der 
 | `reta_architecture/column_selection.py` | 119 | 7 | 1 | 0 | teilweise nativ | `src/reta_mojo/column_selection.mojo` | 24 typisierte Bucket-Koordinaten und Bucket-Erzeugung; Legacy-Programmbindung noch Bridge |
 | `reta_architecture/combi_join.py` | 712 | 12 | 2 | 4 | weitgehend nativ | `src/reta_mojo/kombi_join_columns.mojo + assets/kombi_aliases.tsv + assets/kombi_relation_order.tsv` | Galaxie-/Universum-Join, 173 Aliase, 151 Relationsordnungen, Negativ- und Mehrfachauswahl nativ |
 | `reta_architecture/completion_nested.py` | 589 | 37 | 9 | 0 | weitgehend nativ | `src/reta_mojo/prompt_language.mojo + assets/prompt_nested_completion.tsv` | 28.990 Werte in 549 Kontextsektionen, Klammer-/Kommakontext und fünf Sprachen nativ |
-| `reta_architecture/completion_runtime.py` | 192 | 8 | 2 | 1 | weitgehend nativ | `src/prompt_completion_main.mojo + prompt_language.mojo` | persistenter Anfragearbeiter und Kontextauflösung nativ; Readline-Lebenszyklus bleibt Python-Systemgrenze |
+| `reta_architecture/completion_runtime.py` | 192 | 8 | 2 | 1 | weitgehend nativ | `src/prompt_completion_main.mojo + prompt_language.mojo` | persistenter Anfragearbeiter, Kontextauflösung und worker-seitige Pipe-I/O nativ; Readline-Lebenszyklus bleibt Python-Systemgrenze |
 | `reta_architecture/completion_word.py` | 265 | 21 | 6 | 0 | weitgehend nativ | `src/reta_mojo/prompt_language.mojo` | prompt_toolkit-artige Fuzzy-Teilsequenzordnung und stabile Kandidatenreihenfolge nativ |
 | `reta_architecture/concat_csv.py` | 305 | 18 | 2 | 0 | weitgehend nativ | `src/reta_mojo/fraction_concat_columns.mojo + prime_universe_columns.mojo + assets/fraction_pairs.tsv` | `PrimCSV`, Primuniversum und vier gebrochen-rationale CSV-Prägarben nativ |
 | `reta_architecture/console_io.py` | 349 | 41 | 6 | 0 | teilweise nativ | `src/reta_mojo/console_io.mojo` | reine Chunk-, Deduplikations-, Whitespace- und Debugformatierung nativ; Terminal-/Rich-I/O bleibt Systemgrenze |
@@ -86,7 +86,7 @@ Stand: 29. Juni 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der 
 | `reta_architecture/sheaves.py` | 269 | 22 | 5 | 4 | teilweise nativ | `src/reta_mojo/parameter_semantics.mojo` | ParameterSemanticsSheaf: Aliasauflösung, kanonische Paare, direkte Spalten und Rückabbildung |
 | `reta_architecture/split_i18n.py` | 33 | 1 | 0 | 3 | Python-Referenz/Bridge | `python_reference/reta_architecture/split_i18n.py` | noch nicht nativ portiert |
 | `reta_architecture/table_adapters.py` | 419 | 60 | 2 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/table_adapters.py` | noch nicht nativ portiert |
-| `reta_architecture/table_generation.py` | 298 | 8 | 2 | 2 | teilweise nativ | `src/reta_mojo/csv_table.mojo + native_reta_cli.mojo + generated_table_columns.mojo` | CSV-Grundtabelle, Spaltenprojektion und umfangreicher Ende-zu-Ende-Generatorpfad nativ |
+| `reta_architecture/table_generation.py` | 298 | 8 | 2 | 2 | teilweise nativ | `src/reta_mojo/csv_table.mojo + native_reta_cli.mojo + generated_table_columns.mojo` | native UTF-8-Dateischicht, CSV-Grundtabelle, Spaltenprojektion und umfangreicher Ende-zu-Ende-Generatorpfad nativ |
 | `reta_architecture/table_output.py` | 769 | 24 | 3 | 2 | weitgehend nativ | `src/reta_mojo/table_rendering.mojo + html_cell_metadata.mojo + assets/html_cell_catalog.tsv + assets/html_heading_catalog.tsv` | CSV/Markdown/Emacs, BBCode, zentraler ANSI-Shellpfad und geprüfte HTML-Pfade bytegleich; seltene Rich-/HTML-Kombinationsfälle offen |
 | `reta_architecture/table_preparation.py` | 475 | 19 | 3 | 1 | teilweise nativ | `src/reta_mojo/table_preparation.mojo` | positive/negative Zeilenauswahl, Headerbehandlung und Tabellenprojektion nativ |
 | `reta_architecture/table_runtime.py` | 310 | 42 | 4 | 2 | teilweise nativ | `src/reta_mojo/native_reta_cli.mojo + table_preparation.mojo` | typisierter nativer Laufzeitplan für häufige Zeilen-, Spalten- und Ausgabeparameter |

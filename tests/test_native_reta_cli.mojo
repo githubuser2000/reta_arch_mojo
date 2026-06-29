@@ -193,19 +193,22 @@ def test_prompt_fast_path_accepts_language_and_known_output_mode() raises:
     )
 
 
-def test_prompt_fast_path_rejects_hyphenated_shell_width() raises:
-    assert_true(
-        not native_reta_tokens_supported(
-            [
-                "-zeilen",
-                "--vorhervonausschnitt=1-2",
-                "-spalten",
-                "--religionen=sternpolygon",
-                "--breite=40",
-            ],
-            "python_reference/csv/religion.csv",
+def test_prompt_fast_path_accepts_positive_width_renderers() raises:
+    for output_mode in ["shell", "html", "bbcode"]:
+        assert_true(
+            native_reta_tokens_supported(
+                [
+                    "-zeilen",
+                    "--vorhervonausschnitt=1-2",
+                    "-spalten",
+                    "--religionen=sternpolygon",
+                    "-ausgabe",
+                    "--art=" + output_mode,
+                    "--breite=40",
+                ],
+                "python_reference/csv/religion.csv",
+            )
         )
-    )
 
 
 def test_prompt_fast_path_rejects_unowned_output_option() raises:

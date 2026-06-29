@@ -45,7 +45,7 @@ target/bin/grundStrukHtml-native
 target/bin/generate-html-native
 ```
 
-`reta-prompt-complete` ist der persistente native Completion-Arbeiter für die interaktive Readline-Grenze. `reta-mojo-table` ist bewusst leicht und enthält Tabellenzustand, Wrapping und CSV-Inspektion. Das vollständige Tag-Schema liegt in `reta-mojo-tags`. Diese Trennung vermeidet einen unnötigen Compiler-Monolithen.
+`reta-prompt-complete` ist der persistente native Completion-Arbeiter für die interaktive Readline-Grenze und besitzt seine stdin/stdout-Dateideskriptoren ohne eingebettetes CPython. `reta-mojo-table` ist bewusst leicht und enthält Tabellenzustand, Wrapping und CSV-Inspektion. Das vollständige Tag-Schema liegt in `reta-mojo-tags`. Diese Trennung vermeidet einen unnötigen Compiler-Monolithen.
 
 ## Schwere generierte Ziele
 
@@ -70,3 +70,5 @@ Beide Ziele enthalten sehr große generierte Konstantenstrukturen. Sie sind nich
 ```
 
 Das Quellrelease enthält weder `.venv/`, `target/` noch ELF-Dateien. Dadurch entstehen keine fremden absoluten Runtime-Pfade im Git-Repository oder Releasearchiv.
+
+`generate-html-native` lädt und komponiert Assets nativ. Nur die noch nicht portierte große `--spalten --alles`-Mitteltabelle wird im normalen Generatorpfad über einen expliziten Referenzkindprozess erzeugt; der Overridepfad benötigt Python nicht.
