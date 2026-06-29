@@ -4,7 +4,7 @@
 
 ```text
 52 Mojo-Testdateien und -Probes
-240 Testfunktionen insgesamt
+245 Testfunktionen insgesamt
 9 reguläre ELF-Compilerziele
 2 optionale schwere Katalogtestdateien
 ```
@@ -18,18 +18,18 @@ test_prompt_language             16/16
 test_prompt_runtime              21/21
 test_prompt_legacy_echo           5/5
 test_prompt_fraction_execution    8/8
-test_prompt_table_execution      21/21
+test_prompt_table_execution      23/23
 test_meta_columns                 3/3
 test_fraction_concat_columns      3/3
 test_kombi_join_columns           4/4
 test_generated_aliases            6/6
-test_native_reta_cli             19/19
+test_native_reta_cli             20/20
 test_generated_table_columns      7/7
-test_table_rendering              6/6
+test_table_rendering              8/8
 test_html_cell_metadata           4/4
 test_row_filtering_reference      3/3
                                 -------
-                                126/126 bestanden
+                                131/131 bestanden
 ```
 
 In den oben gezählten Einzelsuiten gab es keinen Testfehler. Zwei breitere Sammelprüfungen werden ausdrücklich **nicht** als bestanden gezählt:
@@ -221,3 +221,15 @@ Die unveränderte Python-Referenz hatte beim Eingang bereits drei fehlschlagende
 - Reine leere Pläne wie `-2` und `u teiler 0` sind im Planner exakt geprüft; sie werden nicht als interaktive One-shot-Smokes verwendet, weil ein ausgabeloser Promptprozess sonst in die Eingabeschleife wechseln kann.
 - `scripts/test_stage10.sh`: vollständiger Stage-10-Regressionslauf einschließlich Katalog-, Fraction-, Compact-, Preparation- und Completion-Parität mit Exitcode 0.
 - `scripts/build.sh`: alle **9/9** vorgesehenen Mojo-Executables erfolgreich kompiliert; `check_build_layout.sh` bestätigt das vollständige Binärlayout.
+
+
+## Stage 10j: wiederholte Katalogauswahl und Shell-Whitespace-Chunks
+
+- `test_prompt_table_execution.mojo`: **23/23**; der frühere Fallbackfall `15_ 16_15 15` ist jetzt ein besessener Einzelplan mit doppeltem Legacy-Aliasbündel.
+- `test_table_rendering.mojo`: **8/8**; der neue Regressionstest sichert Whitespace-Läufe an der 73-Zeichen-Umbruchgrenze der Primzahlkreuz-Zelle.
+- Direkter Tabellenvergleich des einfachen Aliasbündels: **8.955/8.955 Byte** und `cmp` ohne Abweichung.
+- Vollständige doppelte Promptausgabe: **9.523/9.523 Byte** und `cmp` ohne Abweichung.
+- `check_prompt_numeric_execution_parity.sh`: Fixturematrix auf **12/12** erweitert.
+- `check_prompt_numeric_oneshot.sh`: Besitzmatrix auf **16/16** erweitert; der neue Fall läuft in einem Verzeichnis ohne Python-Implementierung und ohne `reta-native`-Kindprogramm.
+- `scripts/test_stage10.sh`: vollständiger Lauf einschließlich 101/101 fokussierter Mojo-Tests, Katalog-, Compact-, Numeric-, Preparation- und Completion-Parität mit Exitcode 0.
+- `scripts/build.sh`: alle **9/9** regulären Mojo-Executables aus dem finalen Stage-10j-Quellstand gebaut; `check_build_layout.sh` bestanden.

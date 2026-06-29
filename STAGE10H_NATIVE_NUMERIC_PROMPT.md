@@ -1,5 +1,8 @@
 # Stage 10h – native numerische Promptkomposition
 
+
+> **Folgestufe:** Null-/Negativselektoren wurden in Stage 10i übernommen; die Duplikatgrenze wurde in Stage 10j geschlossen.
+
 > **Folgestand:** Stage 10i hebt die hier noch dokumentierte Grenze für Nullwerte, rein negative Selektoren und kollidierende Ausschlüsse auf.
 
 

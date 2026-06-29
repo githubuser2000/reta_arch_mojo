@@ -41,6 +41,11 @@ run_prompt() {
     run_prompt rpb 16_15_13 13 > numeric-basic-alias.actual
     grep -F -- '--Grundstrukturen=Paradigmen_sind_Absichten_(13)' numeric-basic-alias.actual >/dev/null
 
+    run_prompt rpb 15_ 16_15 15 > numeric-duplicate-basic.actual
+    grep -F -- 'Primzahl-Kreuz-Algorithmus_(15),Strukturalien_bzw' \
+        numeric-duplicate-basic.actual >/dev/null
+    grep -F -- 'gegen 6' numeric-duplicate-basic.actual >/dev/null
+
     run_prompt rpb 15_13 > numeric-empty.actual
     [[ ! -s numeric-empty.actual ]]
 
@@ -78,4 +83,4 @@ run_prompt() {
 
     [[ ! -e target/bin/reta-native ]]
 )
-printf '%s\n' 'native numeric one-shot prompt smoke: 15/15 execute without Python or reta-native child process'
+printf '%s\n' 'native numeric one-shot prompt smoke: 16/16 execute without Python or reta-native child process'

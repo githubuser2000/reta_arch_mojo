@@ -48,5 +48,6 @@ check_case multiverse_2 16_2 2
 check_case basic_via_16_15 16_15_13 13
 check_case set_order 15_5 15_2 15_13 2-3
 check_case combined_families 15_13 16_2 2
+check_case duplicate_basic_15 15_ 16_15 15
 
-printf '%s\n' 'numeric prompt execution fixtures: 11/11 byte-identical'
+printf '%s\n' 'numeric prompt execution fixtures: 12/12 byte-identical'

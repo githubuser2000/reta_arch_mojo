@@ -396,10 +396,23 @@ def test_numeric_shortcut_set_order_and_empty_selection() raises:
     assert_true(empty.handled)
     assert_equal(len(empty.invocations), 0)
 
-    # Repeated generated columns retain per-instance width state in Python.
-    # Until that state is represented natively, the command stays atomic at
-    # the compatibility boundary rather than rendering approximately.
-    assert_false(_plan("15_ 16_15 15").handled)
+    # 16_15 is the historical alias for family 15/key 15.  Repeating it
+    # preserves both bundles in the echoed invocation while the generated
+    # column itself is deduplicated by the native table registry, like Python.
+    var repeated = _plan("15_ 16_15 15")
+    assert_true(repeated.handled)
+    assert_equal(len(repeated.invocations), 1)
+    var bundle = (
+        "Strukturalien_bzw_Meta-Paradigmen_bzw_Transzendentalien_(15),"
+        + "Geist_(15),Model_of_Hierarchical_Complexity,"
+        + "Biologischer_Baum_(15),Teilchen_anderes_Universum,"
+        + "nachvollziehen_emotional_oder_geistig_durch_"
+        + "Primzahl-Kreuz-Algorithmus_(15)"
+    )
+    assert_true(
+        "--Grundstrukturen=" + bundle + "," + bundle
+        in _tokens(repeated)
+    )
 
 
 def test_english_numeric_shortcut_option_names() raises:

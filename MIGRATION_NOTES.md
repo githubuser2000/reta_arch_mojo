@@ -257,7 +257,7 @@ Portiert sind 18 Tabellenfamilien. Darin enthalten sind alle reinen `n`- und `1/
 
 Der bestehende Port von `bruchSpalt` und `createRangesForBruchLists` ist nun an den Tabellenplaner angeschlossen. Dadurch funktionieren einfache Achsenbereiche, historische Rechtecke (`1/2-3/3`) und Versätze (`4/5+2/2`). Positive Zählergruppen werden in der beobachtbaren Referenzreihenfolge aufsteigend ausgeführt; die Versatzform `4/5+2/2` liefert also zuerst `2/n`, danach `6/n`.
 
-Ganzzahlige `vielfache`, `teiler` und `einzeln` werden vor der Fachfamilie als Zeilenoperatoren ausgewertet. Stage 10d nimmt zusätzlich stabile Bruchausschlüsse, Bruchteiler und Reziprok-Vielfache (`v1/n`) in denselben besitzenden Plan auf. Stage 10i modelliert auch Nullwerte, rein negative Selektoren und kollidierende Ausschlussformen einschließlich der historischen All-Zeilen-Algebra. Atomar am Fallback bleiben echte `v n/m`-Vielfache mit Zähler größer 1, bei denen die Python-Referenz selbst mit `IndexError` endet, sowie doppelte generierte Spalteninstanzen.
+Ganzzahlige `vielfache`, `teiler` und `einzeln` werden vor der Fachfamilie als Zeilenoperatoren ausgewertet. Stage 10d nimmt zusätzlich stabile Bruchausschlüsse, Bruchteiler und Reziprok-Vielfache (`v1/n`) in denselben besitzenden Plan auf. Stage 10i modelliert auch Nullwerte, rein negative Selektoren und kollidierende Ausschlussformen einschließlich der historischen All-Zeilen-Algebra. Atomar am Fallback bleiben echte `v n/m`-Vielfache mit Zähler größer 1, bei denen die Python-Referenz selbst mit `IndexError` endet. Wiederholte numerische Katalogauswahlen werden seit Stage 10j nativ ausgeführt: Das sichtbare Echo bewahrt die Wiederholung, während die semantische Generatoranforderung wie in Python dedupliziert wird.
 
 Die Universumsfamilie behält ihre historische bedingte Spaltenauswahl: Spalte 4 entfällt bei `e`, `ee`, deaktivierten Überschriften, dem Unterdrückungsbefehl oder mehr als zwei kombinierten Fachbefehlen. Für Tabellenoptionen mit Umlauten verwendet der Plan vorhandene ASCII-Aliase (`trieb`, `groesse`).
 
@@ -321,3 +321,12 @@ Der Shellrenderer bestimmt die Spaltenbreite jetzt nach dem historischen Vorbere
 - Der reine Standardbefehl `0` erzeugt nur den Thomas-Zweig ohne oberes Maximum und ohne Motiv-Zweitaufruf.
 - Die Shellnummerierung verwendet das angeforderte obere Maximum nur im allzeiligen Projektionspfad; endliche Selektionen behalten ihre bisherige Breite.
 - Offen bleiben echte `v n/m`-Vielfache mit Zähler größer 1 und doppelte generierte Katalogspalteninstanzen.
+
+
+## Stage 10j – wiederholte Katalogauswahl und Shell-Whitespace-Chunks
+
+- Die frühere Duplikatsperre im Promptplaner wurde entfernt. Mehrfach adressierte identische Katalogwerte bleiben im sichtbaren Legacy-CLI-Token erhalten, erzeugen aber wie in Python nur eine semantische Generatoranforderung.
+- Der vermeintliche instanzabhängige Breitenunterschied war tatsächlich eine Abweichung im Shell-Wortumbruch der Primzahlkreuz-Spalte.
+- `_shell_word_wrap_cell` zerlegt Zellen nun in Wörter und echte Whitespace-Chunks: interne Läufe behalten ihre Breite; an einem Umbruch verwirft `drop_whitespace` den Chunk am Zeilenende beziehungsweise -anfang.
+- Damit bleibt in `gegen 6 |  … | pro 5 |  …` das letzte Trennzeichen auf der ersten visuellen Zeile, während die zwei nachfolgenden Leerzeichen am Beginn der Fortsetzungszeile entfallen – bytegleich zu Python `textwrap`.
+- Offen bleiben echte `v n/m`-Vielfache mit Zähler größer 1 sowie seltene hintere Prompt-, Rich- und kombinierte HTML-Sonderzweige.

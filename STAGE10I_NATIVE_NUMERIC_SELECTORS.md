@@ -1,5 +1,8 @@
 # Stage 10i – native Null-, Negativ- und Ausschlussselektoren
 
+
+> **Folgestufe:** Die hier noch dokumentierte Grenze für wiederholte Katalogspalten wurde in Stage 10j geschlossen.
+
 Stage 10i schließt die bisherige Lücke zwischen der numerischen Promptplanung und der Zeilenalgebra des nativen Tabellenkerns. Die betroffenen Eingaben werden nicht mehr als Sonderfälle an Python abgegeben, sondern als typisierte positive und negative Zeilenprädikate geplant.
 
 ## Übernommene Semantik

@@ -9,11 +9,11 @@
 - Konservativ vollständig native oder reproduzierbar generierte Originaldateien: **18/92 = 19,6 %**
 - Mindestens teilweise portierte Originaldateien: **46/92 = 50,0 %**
 - Gewichteter Quellzeilenstand: **ca. 29 %**
-- Nativer Mojo-Quellcode in `src/`: **17.667 Zeilen**
-- Davon im Paket `reta_mojo`: **16.058 Zeilen**
+- Nativer Mojo-Quellcode in `src/`: **17.841 Zeilen**
+- Davon im Paket `reta_mojo`: **16.231 Zeilen**
 - Native Mojo-Testdateien und -Probes: **52**
-- Native Testfunktionen: **240**
-- Aktuell fokussiert dokumentiert: **126/126 bestanden**
+- Native Testfunktionen: **245**
+- Aktuell fokussiert dokumentiert: **131/131 bestanden**
 - Prompt-Kurzsprache: **27/27 deutsche und englische Referenzkontexte bytegleich**
 - Promptvorbereitung: **23/23 deutsche und englische Referenzkontexte bytegleich**
 - Verschachtelte Completion: **12/12 Referenzkontexte und 12/12 schnelle Fixtures bytegleich**
@@ -77,17 +77,18 @@
 - explizites `--oberesmaximum` hebt wie Python beide historischen Zeilengrenzen an; ohne Angabe gilt die korrekte Kurzgrenze 163
 - **18/18** Bruchparser-Referenzfälle, **23/23** Tabellenplanertests, **14/14** reale Bruch-/Modifikator-Tokenströme und **7/7** Prompt-Ausführungsfixtures bestanden
 - native One-shot-Ausführung vor jedem Python-Import; Tabellenkern direkt im Promptprozess statt über `reta-native`-Kindprozess
-- konservativer Besitzervertrag für rohe `reta`-Befehle; **20/20** CLI-Tests und 15 isolierte numerische One-shot-Klassen bestanden
+- konservativer Besitzervertrag für rohe `reta`-Befehle; **20/20** CLI-Tests und 16 isolierte numerische One-shot-Klassen bestanden
 - getrennte Legacy-Echotokens für kanonische native Ausführung
-- vorbereitete Fragmentbreiten und vorhandene Bindestrichumbrüche entsprechen der Python-`textwrap`-Reihenfolge
+- vorbereitete Fragmentbreiten, vorhandene Bindestrichumbrüche und interne Leerzeichenläufe entsprechen der Python-`textwrap`-Reihenfolge
 - `a2`, `ap15`, `p12`, `p13`, `G2`, `B2`, `E2`, `T2`, `W2` und `u2` vollständig bytegleich
 - alle kompakten Tabellenfamilien, `mulpri`, reine positive Zahlen-/Bereichs-/Listen-/Bruchkompositionen und 365 adressierbare `15`-/`16`-Katalogauswahlen laufen ohne Python
+- wiederholte numerische Katalogauswahlen behalten ihr doppeltes Legacy-Echo, werden semantisch wie Python auf eine Generatoranforderung reduziert und laufen ohne Fallback
 - die historische Shell-Zählungsmarkierung `█` ist zentral im nativen Renderer modelliert
 
 ## Weiterhin an der Kompatibilitätsgrenze
 
 - seltene Terminalbreiten-, Rich- und kombinierte HTML-Metadatenfälle
-- echte `v n/m`-Vielfache mit Zähler größer 1, doppelte generierte Spalteninstanzen und weitere hintere Prompt-Sonderzweige
+- echte `v n/m`-Vielfache mit Zähler größer 1 und weitere hintere Prompt-Sonderzweige
 - vollständige i18n-Laufzeit außerhalb des Promptvokabulars
 - dynamische Architekturvalidierung, Persistenz und Parallelisierung
 

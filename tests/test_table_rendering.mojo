@@ -72,5 +72,26 @@ def test_shell_width_uses_prepared_fragments() raises:
     )
 
 
+def test_shell_wrap_preserves_internal_space_runs_at_boundary() raises:
+    var value = (
+        "gegen 6 |  Darin kann sich die 15 am Besten hineinversetzen. "
+        + "| pro 5 |  Darin kann sich die 15 am Besten hineinversetzen."
+    )
+    var table = parse_semicolon_csv("; ;H\n1;15;" + value + "\n")
+    var rendered = render_shell_table_with_width_reference(
+        table, table, [0, 15], True, 0, False
+    )
+    assert_true(
+        " 15 gegen 6 |  Darin kann sich die 15 am Besten "
+        + "hineinversetzen. | pro 5 | "
+        in rendered
+    )
+    assert_true(
+        "\n    Darin kann sich die 15 am Besten hineinversetzen."
+        in rendered
+    )
+    assert_false("\n    |  Darin kann sich die 15" in rendered)
+
+
 def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()

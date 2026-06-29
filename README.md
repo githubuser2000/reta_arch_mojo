@@ -175,6 +175,10 @@ Positive reine Zahlen, Bereiche, Listen und Brüche komponieren nun dieselben ty
 
 `0`, rein negative Ganzzahlselektoren und kollidierende positive/negative Ganzzahl- und Bruchbedingungen werden jetzt vollständig nativ geplant. Gleiche positive und negative Prädikate kürzen sich vor der Zeilenauswahl; eine danach leere Bedingungsmenge aktiviert wie in Python die All-Zeilen-Semantik. Beim `teiler`-Modifikator erfolgt diese Kürzung vor der Teilerbildung. Die CPython-`set[str]`-Reihenfolge und die besondere Nummernspaltenbreite des All-Zeilen-Pfads sind reproduziert. Doppelte generierte Spalteninstanzen und echte `v n/m`-Vielfache mit Zähler größer 1 bleiben offen. Details: [`STAGE10I_NATIVE_NUMERIC_SELECTORS.md`](STAGE10I_NATIVE_NUMERIC_SELECTORS.md).
 
+### Stage 10j: wiederholte Katalogauswahl und Whitespace-genauer Shellumbruch
+
+Wiederholte `15_…`-/`16_15…`-Katalogauswahlen laufen nun vollständig nativ. Das sichtbare Legacy-Echo behält beide Aliasbündel, während der Generatorregisterpfad sie wie Python semantisch dedupliziert. Die vermeintliche Instanzbreitenlücke war ein Shell-Wrappingfehler: interne Leerzeichenläufe werden jetzt als eigene `textwrap`-Chunks gezählt und nur an Zeilengrenzen verworfen. Dadurch ist auch die lange Primzahlkreuz-Spalte mit `|  Darin …` bytegleich. Details: [`STAGE10J_NATIVE_DUPLICATE_CATALOG.md`](STAGE10J_NATIVE_DUPLICATE_CATALOG.md).
+
 Die explizite Spaltenfolge wird bei semantischen Spaltenauswahlen nach der Generatorpipeline als relative Ergebnisposition angewandt. Dadurch entspricht `--Bedeutung=gestirn --spaltenreihenfolgeundnurdiese=3-6` wieder der Python-Referenz. Auch die historische Unterdrückung der zusätzlichen Universumsspalte bei `e`, `ee`, fehlenden Überschriften oder mehr als zwei kombinierten Fachbefehlen ist modelliert.
 
 ## Weitere native Bereiche
@@ -226,13 +230,13 @@ Gesamtbestand:
 
 ```text
 52 native Testdateien und Probes
-240 native Testfunktionen
-126/126 aktuell fokussiert dokumentierte Mojo-Tests bestanden
+245 native Testfunktionen
+131/131 aktuell fokussiert dokumentierte Mojo-Tests bestanden
 30 Generator- und 9 Kombi-CLI-Fälle in den Paritätssuiten
 8 schnelle Markup-Fixtures; 16 Fälle einzeln gegen Python validiert
 27 Kurzsprachen-, 23 Vorbereitung- und 12 Completion-Kontexte bytegleich
 18 Bruchparserfälle bytegleich; 14 reale Bruch-/Modifikator-Tokenströme identisch
-10 vollständige kompakte und 11 numerische Promptausgaben bytegleich; 14 allgemeine plus 8 numerische One-shot-Klassen isoliert
+10 vollständige kompakte und 12 numerische Promptausgaben bytegleich; 14 allgemeine plus 16 numerische One-shot-Klassen isoliert
 2 schwere Katalogtestdateien bleiben im normalen Lauf optional
 ```
 

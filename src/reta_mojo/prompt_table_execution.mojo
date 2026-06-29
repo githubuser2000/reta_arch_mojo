@@ -222,14 +222,6 @@ def _contains(values: List[String], needle: String) -> Bool:
     return False
 
 
-def _has_duplicate_strings(values: List[String]) -> Bool:
-    for index in range(len(values)):
-        for other in range(index + 1, len(values)):
-            if values[index] == values[other]:
-                return True
-    return False
-
-
 def _contains_int(values: List[Int], needle: Int) -> Bool:
     for index in range(len(values)):
         if values[index] == needle:
@@ -828,14 +820,9 @@ def plan_prompt_table_commands(
         fraction_pairs, multiple_mode
     ):
         unsupported = True
-    # Duplicate generated selections expose a legacy column-instance width
-    # distinction that the current native table model intentionally does not
-    # collapse or approximate.  Keep the whole command on the compatibility
-    # boundary until duplicate column instances are represented explicitly.
-    if _has_duplicate_strings(numeric15_values) or _has_duplicate_strings(
-        numeric16_values
-    ):
-        unsupported = True
+    # Repeated catalog aliases remain in the echoed command, but both Python
+    # and the native generated-column registry deduplicate their semantic
+    # column request.  They therefore no longer require an atomic fallback.
     if unsupported:
         return PromptTablePlan(False, List[PromptTableInvocation]())
 

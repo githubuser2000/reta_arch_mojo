@@ -588,14 +588,96 @@ def _shell_colorize(text: String, number: Int, rest: Bool = False) -> String:
     return "\x1b[100m\x1b[37m" + text + "\x1b[0m\x1b[0m"
 
 
+def _shell_split_words(
+    text: String,
+    mut words: List[String],
+    mut separators: List[String],
+) -> None:
+    """Split like ``textwrap`` while retaining inter-word space widths.
+
+    Python's shell renderer keeps significant ASCII-space runs inside a
+    visual line and drops a run when it would begin or end a wrapped line.  The
+    generic table wrapper deliberately collapses whitespace, so the terminal
+    path needs its own chunk representation. Control whitespace is normalized
+    to spaces for the table-data fallback path.
+    """
+    var clean = String(text.strip())
+    var bytes = clean.as_bytes()
+    var cursor = 0
+    var pending_spaces = String()
+    while cursor < len(bytes):
+        while cursor < len(bytes):
+            var code = Int(bytes[cursor])
+            if code != 9 and code != 10 and code != 13 and code != 32:
+                break
+            pending_spaces += " "
+            cursor += 1
+        if cursor >= len(bytes):
+            break
+        var start = cursor
+        while cursor < len(bytes):
+            var code = Int(bytes[cursor])
+            if code == 9 or code == 10 or code == 13 or code == 32:
+                break
+            cursor += 1
+        words.append(String(StringSlice(clean)[byte=start:cursor]))
+        separators.append("" if len(words) == 1 else pending_spaces)
+        pending_spaces = String()
+
+
 def _shell_word_wrap_cell(text: String, width: Int) -> List[String]:
-    # Preserve significant repeated ASCII spaces while reusing the historical
-    # word wrapper. Two non-whitespace markers keep the same display width.
-    var protected = String(text.strip()).replace("  ", "§§")
-    var parts = _word_wrap_cell(protected, width)
-    for index in range(len(parts)):
-        parts[index] = parts[index].replace("§§", "  ")
-    return parts^
+    """Wrap terminal cells with Python ``textwrap`` space-run semantics."""
+    var clean = String(text.strip())
+    var result = List[String]()
+    if width <= 0 or codepoint_length(clean) <= width:
+        result.append(clean)
+        return result^
+
+    var words = List[String]()
+    var separators = List[String]()
+    _shell_split_words(clean, words, separators)
+    var current = String()
+    for index in range(len(words)):
+        var word = words[index]
+        var separator = separators[index]
+        var separator_width = codepoint_length(separator)
+        if current.byte_length() == 0:
+            if codepoint_length(word) <= width:
+                current = word
+            else:
+                current = _append_long_word(result, word, width)
+        elif (
+            codepoint_length(current)
+            + separator_width
+            + codepoint_length(word)
+            <= width
+        ):
+            current += separator + word
+        else:
+            # Whitespace chunks are discarded at a line boundary, matching
+            # TextWrapper(drop_whitespace=True). Existing-hyphen prefixes may
+            # still consume the remaining width on the current line.
+            var available = (
+                width - codepoint_length(current) - separator_width
+            )
+            var prefix = _hyphen_prefix_fitting(word, available)
+            if prefix.byte_length() > 0:
+                current += separator + prefix
+                result.append(current^)
+                var remainder = _slice_after_ascii_prefix(word, prefix)
+                if codepoint_length(remainder) <= width:
+                    current = remainder^
+                else:
+                    current = _append_long_word(result, remainder, width)
+            else:
+                result.append(current^)
+                if codepoint_length(word) <= width:
+                    current = word
+                else:
+                    current = _append_long_word(result, word, width)
+    if current.byte_length() > 0 or len(result) == 0:
+        result.append(current^)
+    return result^
 
 
 def _shell_pad(text: String, width: Int) -> String:

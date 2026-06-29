@@ -135,8 +135,9 @@ def _print_prompt_help() -> None:
     print("Positive Brüche, historische Bruchbereiche sowie ganzzahlige")
     print("Vielfachen-, Teiler- und Einzelauswahl werden nativ geplant.")
     print("Null-, Negativ- und kollidierende Zahlenbedingungen werden samt")
-    print("historischer All-Zeilen-Algebra nativ geplant. Nur echte v-n/m-")
-    print("Vielfache und doppelte Generatorinstanzen bleiben am Fallback.")
+    print("historischer All-Zeilen-Algebra nativ geplant. Auch wiederholte")
+    print("Katalogauswahlen sind nativ; echte v-n/m-Vielfache mit Zähler")
+    print("> 1 und seltene hintere Sonderzweige bleiben am Fallback.")
     print("Explizite native Einmalbefehle laufen ohne Python-Kindprozess.")
 
 
