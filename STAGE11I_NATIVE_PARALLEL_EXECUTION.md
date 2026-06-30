@@ -1,4 +1,8 @@
-# Stage 11i – native prozessbasierte Tabellenparallelisierung
+> **Historischer Stand:** Stage 12a hat sämtliche hier beschriebenen nativen
+> `fork`-/Pipe-Pfade entfernt und durch Mojo-Threads ersetzt. Die semantischen
+> Tests und seriellen Referenzpfade bleiben erhalten.
+
+# Stage 11i – native Tabellenparallelisierung (historischer Prozessstand)
 
 ## Ziel
 

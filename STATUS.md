@@ -1,22 +1,24 @@
-# Status – Stufe 11 abgeschlossen; Stufen 9, 10 und 12 in Arbeit
+# Status – Stage 12a abgeschlossen; Stufen 9, 10 und 12 in Arbeit
 
 - Zielversion: Mojo 1.0.0b2
 - Unterstützte Python-Umgebung für Installation/Referenzbrücken: 3.10–3.14; Setup bevorzugt Python 3.14
-- Abgeschlossene Release-Stufen: **9/12 = 75,0 %**
+- Vollständig abgeschlossene Release-Stufen: **9/12 = 75,0 %**; teilgewichtet mit Stage 12a: **9,2/12 = 76,7 %**
 - Stufe 9: **BBCode, zentraler ANSI-Shellpfad und zentrale HTML-Pfade nativ; seltene Ausgabegrenzen offen**
 - Stufe 10: **native Kurzsprache, mehrsprachige verschachtelte Completion und Promptvorbereitung in Arbeit**
 - Stufe 11: **11a–11j abgeschlossen; 10/10 Teilstufen = 100 %**
-- Geschätzter funktionaler Portierungsstand: **93–95 %**
+- Stufe 12: **12a abgeschlossen; 1/5 Teilstufen = 20 %**
+- Geschätzter funktionaler Portierungsstand: **94–96 %**
 - Konservativ vollständig native oder reproduzierbar generierte Originaldateien: **33/92 = 35,9 %**
 - Mindestens teilweise portierte Originaldateien: **61/92 = 66,3 %**
-- Gewichteter Quellzeilenstand: **ca. 51 %**
-- Nativer Mojo-Quellcode in `src/`: **38.263 Zeilen**
-- Davon im Paket `reta_mojo`: **35.125 Zeilen**
-- Test-/Probe-Dateien: **78** (**75 Mojo**, **3 Python** für Generator-/Fixture-Integrität)
-- Native Testfunktionen: **276**
-- Stage-11j-Fokus: nativer Threadstandard für In-Memory-Kerne, expliziter Prozess-Isolationsmodus, besitzender `ParallelRowPreparationContext`, deterministische Chunkslot-Reduktion, **36/36** Konfigurations-, **40/40** Zeilenvorbereitungs- und **2/2** Python↔seriell↔Thread-Vollstromparitätsprüfungen; **78/78** ausgeführte fokussierte Prüfungen
-- Stage-11i-Fokus: zehn reine Tabellen-/Zahlenkerne und zehn echte Prozess-Chunkpfade, längenpräfixiertes UTF-8-Protokoll, **29/29** damalige Konfigurations-, **55/55** Zeilenprozess-, **157/157** Zahlenprozess-, **26/26** Tabellen-, **12/12** Paritäts-, **6/6** Prompt-LF- und **1/1** Fixture-Integritätsprüfungen; insgesamt **286/286**
-- Stage-11h-Fokus: typisierte FIFO-/LIFO-/Prioritätsplanung, Kanäle und Semaphoren, echte Linux-`fork`-Worker, deterministische Reduktion, **85/85** native Netzprüfungen, **15/15** Persistenzintegration und **8/8** Python↔Mojo-Paritätsfälle
+- Gewichteter Quellzeilenstand: **ca. 52 %**
+- Nativer Mojo-Quellcode in `src/`: **37.976 Zeilen**
+- Davon im Paket `reta_mojo`: **34.841 Zeilen**
+- Test-/Probe-Dateien: **79** (**75 Mojo**, **4 Python** einschließlich Boundary-Audit)
+- Native Mojo-Testfunktionen: **275**; Python-Testfunktionen: **2**
+- Stage-12a-Fokus: vollständige Threadmigration aller nativen Parallelpfade, typisierte Chunks statt Prozess-Stringprotokoll, **0** POSIX-Prozessprimitive, **3** explizit inventarisierte Restbrücken, **10** kanonische Thread-APIs; fokussierte native/Paritätsprüfungen **480/480** plus Boundary-Pytest **1/1**
+- Stage-11j-Fokus: nativer Threadstandard für In-Memory-Kerne; der damalige Prozess-Isolationsmodus wurde in Stage 12a vollständig entfernt, besitzender `ParallelRowPreparationContext`, deterministische Chunkslot-Reduktion, **36/36** Konfigurations-, **40/40** Zeilenvorbereitungs- und **2/2** Python↔seriell↔Thread-Vollstromparitätsprüfungen; **78/78** ausgeführte fokussierte Prüfungen
+- Stage-11i-Fokus (historisch, durch Stage 12a abgelöst): zehn reine Tabellen-/Zahlenkerne und damalige Prozess-Chunkpfade, **29/29** damalige Konfigurations-, **55/55** Zeilenprozess-, **157/157** Zahlenprozess-, **26/26** Tabellen-, **12/12** Paritäts-, **6/6** Prompt-LF- und **1/1** Fixture-Integritätsprüfungen; insgesamt **286/286**
+- Stage-11h-Fokus (historisch, durch Stage 12a threadbasiert): typisierte FIFO-/LIFO-/Prioritätsplanung, Kanäle und Semaphoren, deterministische Reduktion, **85/85** native Netzprüfungen, **15/15** Persistenzintegration und **8/8** Python↔Mojo-Paritätsfälle
 - Stage-11g-Fokus: echte SQLite-Persistenz mit **6 Tabellen**, **12 Morphismen**, **47/47** nativen Prüfungen und **5/5** Python↔Mojo-Paritäts-/Interoperabilitätsprüfungen; stabile Digests und Datenbanken sind beidseitig lesbar
 - Stage-11f-Fokus: Gesamtvalidierung **51/17/3.448**, Fortschritt **30/34/7/1**, native Tests **29/29**, Python↔Mojo-Abfragen **8/8 byteidentisch**, Generatoren **12/12** byteidentisch; Validierung `passed`, Fortschritts-Overlay konsistent `attention`
 - Stage-11e-Fokus: Rehearsal **7/34/34/7**, Aktivierung **7/34/34/34/7**, native Tests **30/30**, Python↔Mojo-Abfragen **11/11 byteidentisch**, Generatoren **10/10** byteidentisch und beide native Kreuzvalidierungen `passed`
@@ -29,7 +31,7 @@
 - Promptvorbereitung: **23/23 deutsche und englische Referenzkontexte bytegleich**
 - Verschachtelte Completion: **12/12 Referenzkontexte und 12/12 schnelle Fixtures bytegleich**
 - Reguläre Compilerziele: **9 ELF-Executables** unter `target/bin/`
-- Schwere optionale Compilerziele: Parameterschema, Kategorienkatalog, Architektur-Grenzgraph, Verträge, Witnesses, Kohärenz, Traces, Impact, Migration, Rehearsal, Aktivierung, Gesamtvalidierung, Fortschritts-Overlay, SQLite-Persistenz, Ausführungsnetz, hybride Thread-/Prozess-Chunkkerne und typisierte Thread-Zeilenvorbereitung über `scripts/build-heavy.sh`
+- Schwere optionale Compilerziele: Parameterschema, Kategorienkatalog, Architektur-Grenzgraph, Verträge, Witnesses, Kohärenz, Traces, Impact, Migration, Rehearsal, Aktivierung, Gesamtvalidierung, Fortschritts-Overlay, SQLite-Persistenz, Ausführungsnetz, thread-only Tabellen-/Zahlen-Chunks und typisierte Thread-Zeilenvorbereitung über `scripts/build-heavy.sh`
 
 ## Stufe 7 abgeschlossen
 

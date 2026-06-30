@@ -76,7 +76,7 @@ target/bin/reta-mojo-parallel-execution
 target/bin/reta-mojo-row-preparation
 ```
 
-Die siebzehn Ziele enthalten sehr große generierte Konstantenstrukturen, Grenzgraphdaten, Architekturverträge, Witness-Matrizen, Kohärenzrouten, Trace-Netze, Impact-Routen, Migrationspläne, Rehearsal-Gates, Aktivierungstransaktionen, Gesamtvalidierungschecks, das Fortschritts-Overlay, die native SQLite-Persistenz, das deterministische Ausführungsnetz, die hybriden Thread-/Prozess-Chunk-Kerne und die typisierte Thread-Zeilenvorbereitung. Sie sind nicht für jeden normalen Build erforderlich; die Laufzeitpfade verwenden kompakte Katalogdateien.
+Die siebzehn Ziele enthalten sehr große generierte Konstantenstrukturen, Grenzgraphdaten, Architekturverträge, Witness-Matrizen, Kohärenzrouten, Trace-Netze, Impact-Routen, Migrationspläne, Rehearsal-Gates, Aktivierungstransaktionen, Gesamtvalidierungschecks, das Fortschritts-Overlay, die native SQLite-Persistenz, das deterministische Thread-Ausführungsnetz, die typisierten Thread-Chunk-Kerne und die typisierte Thread-Zeilenvorbereitung. Sie sind nicht für jeden normalen Build erforderlich; die Laufzeitpfade verwenden kompakte Katalogdateien.
 
 ## Aufräumen
 
@@ -110,9 +110,9 @@ Der gezielte Build und Test lautet:
 ```
 
 
-## Stage 11h: Ausführungsnetz und gezielter Fork-Build
+## Stage 11h/12a: Ausführungsnetz und gezielter Thread-Build
 
-Der öffentliche Ausführungsnetz-Controller wird mit `--no-optimization -j 4` gebaut. Das vermeidet unnötige O3-Elaboration der C-ABI-, Pipe- und Snapshotpfade; die Worker selbst bleiben echte native Linux-`fork`-Prozesse. Es werden keine zusätzlichen Laufzeitbibliotheken außer libc benötigt.
+Der öffentliche Ausführungsnetz-Controller wird mit `--no-optimization -j 4` gebaut. Seit Stage 12a verwendet er ausschließlich Mojos CPU-Workerthreads. Direkte POSIX-Prozessprimitive und das frühere Pipe-Protokoll sind entfernt; die Snapshot- und Reduktionspfade bleiben nativ.
 
 Der gezielte Build-, Integrations- und Paritätslauf lautet:
 
@@ -123,9 +123,9 @@ Der gezielte Build-, Integrations- und Paritätslauf lautet:
 Der Test koppelt das Ausführungsnetz zusätzlich an SQLite und SHA-256; nur dieses Integrationsziel wird daher mit `-lsqlite3 -lcrypto` gelinkt.
 
 
-## Stage 11i: Hybride Thread-/Prozess-Chunk-Kerne
+## Stage 11i/12a: Typisierte Thread-Chunk-Kerne
 
-`reta-mojo-parallel-execution` wird gezielt mit `--no-optimization -j 4` gebaut. `auto` und `threads` verwenden Mojos CPU-Threadpool; `processes` behält Linux `fork`, private Pipes und `waitpid` als expliziten Isolationsmodus. Es wird keine Python-Laufzeit gelinkt. Der Prozessmodus verwendet längenpräfixierte UTF-8-Felder.
+`reta-mojo-parallel-execution` wird gezielt mit `--no-optimization -j 4` gebaut. Alle nativen Tabellen- und Zahlenkerne verwenden Mojos CPU-Threadpool und typisierte Chunkslots. Alte Prozessbezeichnungen werden nur noch als Kompatibilitätsalias auf `threads` normalisiert; `fork`, Pipes, `waitpid` und das String-Transportprotokoll sind entfernt.
 
 Der fokussierte Lauf baut mehrere kleine Testprogramme statt eines großen Testmonolithen:
 
@@ -138,7 +138,7 @@ Das Skript prüft zusätzlich die kompakte Prompt-Zeilengrenze, die Integrität 
 
 ## Stage 11j: Getrennter Thread-Prepare-Build
 
-`parallel_execution.mojo` ist durch zehn ältere Kernfamilien bereits compilerseitig groß. Der typisierte Prepare-Pfad liegt deshalb in `table_preparation.mojo` und `parallel_row_preparation.mojo` und wird als eigenes Ziel `reta-mojo-row-preparation` gebaut. Dadurch muss eine Änderung an der Zeilenvorbereitung nicht sämtliche Prozessprotokolle und Zahlenkerne erneut elaborieren.
+`parallel_execution.mojo` ist durch zehn ältere Kernfamilien bereits compilerseitig groß. Der typisierte Prepare-Pfad liegt deshalb in `table_preparation.mojo` und `parallel_row_preparation.mojo` und wird als eigenes Ziel `reta-mojo-row-preparation` gebaut. Dadurch muss eine Änderung an der Zeilenvorbereitung nicht sämtliche übrigen Zahlen- und Tabellenkerne erneut elaborieren.
 
 ```bash
 ./scripts/test_stage11j.sh

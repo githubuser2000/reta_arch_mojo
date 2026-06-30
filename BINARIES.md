@@ -110,8 +110,8 @@ Der Umschalter ist absichtlich explizit, solange nicht sämtliche Tabellenfunkti
 | Rehearsal und Aktivierung | `target/bin/reta-mojo-rehearsal`, `target/bin/reta-mojo-activation` | Trockenlauf-Moves, Gate-Suiten, Readiness-Cover, Commit-Gates, Rollbacks und Transaktionen nativ; Python nur bei Regeneration |
 | Gesamtvalidierung und Fortschritt | `target/bin/reta-mojo-validation`, `target/bin/reta-mojo-progress` | 51 Architekturchecks, 17 Schichten und Stage-42-Overlay mit Oberflächen-, Schritt-, Wellen- und Arbeitsrestnavigation nativ; Python/AST/Git nur bei Regeneration |
 | Persistenz | `target/bin/reta-mojo-persistence` | sechs SQLite-Tabellen, zwölf Morphismen, Python-kompatible SHA-256-Digests, Sections, Garben-Snapshots, Runs, Audit, Cache und Batchpfade vollständig nativ |
-| Ausführungsnetz | `target/bin/reta-mojo-execution-network` | FIFO/LIFO/Priorität, Kanäle, Semaphoren, deterministische Reduktion und echte Linux-`fork`-Worker vollständig nativ; statische UTF-8-Operationsgrenze |
-| Hybride Tabellen-/Zahlenparallelisierung | `target/bin/reta-mojo-parallel-execution` | `auto`/`threads` über native Mojo-Threads; zehn reine Kerne; explizites `processes`-Backend mit echten Linux-`fork`-Chunks bleibt als Isolationsmodus |
+| Ausführungsnetz | `target/bin/reta-mojo-execution-network` | FIFO/LIFO/Priorität, Kanäle, Semaphoren, typisierte Mojo-Threads und deterministische Reduktion vollständig nativ; statische UTF-8-Operationsgrenze |
+| Tabellen-/Zahlenparallelisierung | `target/bin/reta-mojo-parallel-execution` | zehn reine Kerne über typisierte native Mojo-Thread-Chunks; historische Prozessoptionen sind ausschließlich Kompatibilitätsalias und erzeugen keinen Prozess |
 | Typisierte Zeilenvorbereitung | `target/bin/reta-mojo-row-preparation` | besitzender `ParallelRowPreparationContext`, disjunkte Chunkslots, deterministische Reduktion und Python↔seriell↔Thread-Parität ohne `deepcopy` oder Pickle |
 
 Lokale Installation der Launcher:

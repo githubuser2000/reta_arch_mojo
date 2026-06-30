@@ -439,18 +439,18 @@ SQLite-Batchschreibvorgänge bleiben seriell und transaktional. Reine In-Memory-
 
 `reta_architecture/execution_network.py` ist als ausführende Mojo-Schicht portiert. Queue-Disziplinen, Kanäle, Semaphoren, Task-/Resulttypen, Snapshotbildung und deterministische Reduktion sind nicht generierte Metadaten, sondern tatsächliche Laufzeitlogik.
 
-Der Python-Prozesspool wird nicht durch eine serielle Attrappe ersetzt. Der native Linux-Pfad startet mit `fork()` echte Kindprozesse, gibt jedem Worker eine private Pipe, liest die vollständige UTF-8-Nutzlast und prüft den Exitstatus mit `waitpid()`. Gleichzeitig aktive Kinder werden durch `max_workers` begrenzt.
+Historischer Stand von Stage 11h: Der erste native Port verwendete noch `fork()`, private Pipes und `waitpid()`. Stage 12a hat diesen Übergangscode vollständig entfernt. Das Ausführungsnetz begrenzt nun native Mojo-Threadtasks über `max_workers`, schreibt pro Task in einen disjunkten Ergebnisslot und reduziert nach der Threadbarriere deterministisch.
 
 Die dynamische Python-Grenze aus `Any`, Pickle, lokalen Handlern und `importlib` wird bewusst nicht nachgebaut. Tasks tragen besitzende UTF-8-Nutzlasten, kanonisches Metadaten-JSON und eine geprüfte Operation beziehungsweise bekannte `callable_path`. Dadurch bleibt der Scheduler statisch prüfbar und kann später um Reta-spezifische Workeroperationen erweitert werden.
 
 Kanäle und Semaphoren des Ausführungsnetzes bleiben nichtblockierende deterministische Zustandsobjekte. Die konkreten Stage-11j-Tabellenworker benötigen dort keine geteilte Warteschlange: Sie erhalten feste Chunkslots über Mojos Threadpool, schreiben disjunkt und synchronisieren an der `parallelize`-Barriere.
 
-`execution_run_snapshot_json()` verbindet Stage 11h mit der Stage-11g-Persistenz. Der Integrationstest persistiert einen echten Prozesslauf und dessen Auditspur in SQLite. Stage 11i ergänzt reine Chunk-Kerne; Stage 11j ergänzt den typisierten Thread-Zeilenpfad. Der Stage-11h-Prozessmodus bleibt bewusst als isolierter Ausführungsmodus bestehen.
+`execution_run_snapshot_json()` verbindet Stage 11h mit der Stage-11g-Persistenz. Der Integrationstest persistiert einen nativen Threadlauf und dessen Auditspur in SQLite. Stage 11i ergänzt reine Chunk-Kerne; Stage 11j ergänzt den typisierten Thread-Zeilenpfad. Stage 12a vereinheitlicht beide auf eine threadbasierte Laufzeit.
 
 
-## Stage 11i – native Thread-/Prozess-Chunk-Kerne
+## Stage 11i/12a – native Thread-Chunk-Kerne
 
-`reta_architecture/parallel_execution.py` wird nicht als dünne `multiprocessing`-Nachbildung portiert. Die Mojo-Schicht besitzt explizite Konfiguration, CPU-Erkennung, typisierte Ergebnisstatistiken und zehn reine Tabellen-/Zahlenkerne mit serieller Referenz, nativem Threadpfad und echtem Linux-`fork`-Pfad.
+`reta_architecture/parallel_execution.py` wird nicht als dünne `multiprocessing`-Nachbildung portiert. Die Mojo-Schicht besitzt explizite Konfiguration, CPU-Erkennung, typisierte Ergebnisstatistiken und zehn reine Tabellen-/Zahlenkerne mit serieller Referenz und nativem Threadpfad. Der historische Linux-`fork`-Pfad wurde in Stage 12a entfernt.
 
 Der Python-Transport über Pickle und dynamische Objektgraphen wird durch ein längenpräfixiertes UTF-8-Protokoll ersetzt. Dadurch bleiben Unicode, Leerzeilen und beliebige Trennzeichen erhalten, während der Workervertrag statisch prüfbar bleibt. Die Reduktion erfolgt nach Chunkindex und ist damit unabhängig von der Reihenfolge, in der Kindprozesse beendet werden.
 
@@ -463,7 +463,7 @@ Für reine CPU-Arbeit auf bereits im Mojo-Prozess befindlichen Tabellen ist `aut
 
 `ParallelRowPreparationContext` besitzt alle für Nichtkopfzeilen nötigen Tabellen-, Breiten-, Kombi- und Religionsnummerninformationen. Die Worker erhalten unveränderliche Eingaben, jeder Worker schreibt nur in seinen eigenen vorab angelegten `_PreparedChunk`, und die Hauptfaser reduziert nach dem ursprünglichen Zeilenindex. Dadurch braucht dieser Pfad weder Locks noch `deepcopy`, Pickle oder Python-Objektmutation. Header-Tag-Mutationen, SQLite-Schreibvorgänge und Ausgabe-I/O bleiben seriell.
 
-Der neue Pfad liegt absichtlich in `parallel_row_preparation.mojo`, getrennt vom inzwischen großen `parallel_execution.mojo`. Diese Modulgrenze reduziert Mojos Elaborationslast und macht kleine Zeilenänderungen unabhängig von den älteren Prozessprotokollen kompilierbar.
+Der neue Pfad liegt absichtlich in `parallel_row_preparation.mojo`, getrennt vom inzwischen großen `parallel_execution.mojo`. Diese Modulgrenze reduziert Mojos Elaborationslast und macht kleine Zeilenänderungen unabhängig von den übrigen Tabellen- und Zahlenkernen kompilierbar.
 
 Ein vorläufiger Lauf mit 20.000 Zeilen und acht Workern benötigte in der verwendeten Umgebung 4,12 s seriell und 3,22 s threadparallel bei identischer Prüfsumme. Kleine Eingaben bleiben über den Schwellwertmechanismus seriell, weil Schedulingkosten sonst den Nutzen übersteigen können.
 

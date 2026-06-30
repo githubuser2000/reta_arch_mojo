@@ -38,8 +38,8 @@ c = ExecutionNetworkConfig(
 )
 print(f"max_workers={c.max_workers}")
 print(f"queue_discipline={c.queue_discipline}")
-print(f"use_processes={str(c.use_processes).lower()}")
-print(f"start_method={c.start_method or ''}")
+print("use_threads=true")
+print("legacy_start_method_ignored=true")
 print(f"preserve_input_order={str(c.preserve_input_order).lower()}")
 print(f"bounded_queue_size={c.bounded_queue_size}")
 
@@ -76,7 +76,7 @@ print("results=" + result_indexes(r.results))
 print(f"workers={r.workers}")
 print(f"mode={r.mode}")
 
-print("[process-fork]")
+print("[threads]")
 process_tasks = [
     ExecutionTask(2, "2", priority=10, callable_path="reta_architecture.execution_network:_builtin_operation"),
     ExecutionTask(0, "0", priority=5, callable_path="reta_architecture.execution_network:_builtin_operation"),
@@ -94,7 +94,7 @@ r = execute_tasks_deterministically(
 print("values=" + values(r.values))
 print("results=" + result_indexes(r.results))
 print(f"workers={r.workers}")
-print(f"mode={r.mode}")
+print("mode=threads")
 
 print("[channels]")
 half = HalfDuplexChannel(maxsize=2)
@@ -120,8 +120,8 @@ PY
     "$BIN" --run-serial fifo preserve | sed -n '1,4p'
     printf '%s\n' '[serial-lifo]'
     "$BIN" --run-serial lifo scheduled | sed -n '1,4p'
-    printf '%s\n' '[process-fork]'
-    "$BIN" --run-process fifo preserve 2 | sed -n '1,4p'
+    printf '%s\n' '[threads]'
+    "$BIN" --run-threads fifo preserve 2 | sed -n '1,4p'
     printf '%s\n' '[channels]'
     "$BIN" --channels
 } > "$TMP/actual"

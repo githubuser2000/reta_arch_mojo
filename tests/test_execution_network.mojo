@@ -46,7 +46,7 @@ def main() raises:
     checks += 1
     assert_true(defaults.queue_discipline == "fifo", "default discipline")
     checks += 1
-    assert_true(not defaults.use_processes, "default process mode")
+    assert_true(not defaults.use_threads, "default thread mode")
     checks += 1
     assert_true(defaults.preserve_input_order, "default input order")
     checks += 1
@@ -58,7 +58,7 @@ def main() raises:
     checks += 1
     assert_true(normalized.queue_discipline == "fifo", "normalized discipline")
     checks += 1
-    assert_true(normalized.start_method == "", "normalized start method")
+    assert_true(normalized.use_threads, "normalized thread mode")
     checks += 1
     assert_true(normalized.bounded_queue_size == 1, "normalized queue size")
     checks += 1
@@ -417,8 +417,8 @@ def main() raises:
     assert_true(priority_run.values[0] == "fast", "priority execution")
     checks += 1
 
-    var process_tasks = List[type_of(task_two)]()
-    process_tasks.append(
+    var thread_tasks = List[type_of(task_two)]()
+    thread_tasks.append(
         make_execution_task(
             2,
             "2",
@@ -426,7 +426,7 @@ def main() raises:
             metadata_json='{"worker":2}',
         )
     )
-    process_tasks.append(
+    thread_tasks.append(
         make_execution_task(
             0,
             "0",
@@ -434,7 +434,7 @@ def main() raises:
             metadata_json='{"worker":0}',
         )
     )
-    process_tasks.append(
+    thread_tasks.append(
         make_execution_task(
             1,
             "1",
@@ -442,80 +442,91 @@ def main() raises:
             metadata_json='{"worker":1}',
         )
     )
-    var process_run = execute_tasks_deterministically(
-        process_tasks,
+    var thread_run = execute_tasks_deterministically(
+        thread_tasks,
         make_execution_network_config(2, "fifo", True, "fork"),
     )
-    assert_true(process_run.mode == "processes", "process mode")
+    assert_true(thread_run.mode == "threads", "thread mode")
     checks += 1
-    assert_true(process_run.workers == 2, "process workers")
+    assert_true(thread_run.workers == 2, "thread workers")
     checks += 1
     assert_true(
-        process_run.values[0] == "0" and process_run.values[2] == "4",
-        "process deterministic values",
+        thread_run.values[0] == "0" and thread_run.values[2] == "4",
+        "thread deterministic values",
     )
     checks += 1
     assert_true(
-        process_run.results[0].task_index == 2, "process scheduled result order"
+        thread_run.results[0].task_index == 2, "thread scheduled result order"
     )
     checks += 1
     assert_true(
-        process_run.results[0].metadata_json == '{"worker":2}',
-        "process metadata",
+        thread_run.results[0].metadata_json == '{"worker":2}',
+        "thread metadata",
     )
     checks += 1
 
-    var unicode_process_tasks = List[type_of(task_two)]()
-    unicode_process_tasks.append(
+    var unicode_thread_tasks = List[type_of(task_two)]()
+    unicode_thread_tasks.append(
         make_execution_task(
             0, "ä\nß", callable_path="reta_mojo.execution_network:identity"
         )
     )
-    var unicode_process = execute_tasks_deterministically(
-        unicode_process_tasks,
-        make_execution_network_config(1, "fifo", True, "fork"),
+    unicode_thread_tasks.append(
+        make_execution_task(
+            1, "終", callable_path="reta_mojo.execution_network:identity"
+        )
     )
-    assert_true(unicode_process.values[0] == "ä\nß", "process UTF-8 payload")
+    var unicode_thread = execute_tasks_deterministically(
+        unicode_thread_tasks,
+        make_execution_network_config(2, "fifo", True, "fork"),
+    )
+    assert_true(unicode_thread.values[0] == "ä\nß", "thread UTF-8 payload")
     checks += 1
 
     var no_callable_run = execute_tasks_deterministically(
         serial_tasks, make_execution_network_config(3, "fifo", True, "fork")
     )
     assert_true(
-        no_callable_run.mode == "serial",
-        "process request without callable is serial",
+        no_callable_run.mode == "threads",
+        "thread execution does not require callable paths",
     )
     checks += 1
 
-    var spawn_failed = False
-    try:
-        _ = execute_tasks_deterministically(
-            process_tasks,
-            make_execution_network_config(2, "fifo", True, "spawn"),
-        )
-    except:
-        spawn_failed = True
-    assert_raises(spawn_failed, "unsupported spawn method")
+    var legacy_spawn = execute_tasks_deterministically(
+        thread_tasks,
+        make_execution_network_config(2, "fifo", True, "spawn"),
+    )
+    assert_true(
+        legacy_spawn.mode == "threads",
+        "legacy start method is ignored by thread backend",
+    )
     checks += 1
 
-    var broken_process_tasks = List[type_of(task_two)]()
-    broken_process_tasks.append(
+    var broken_thread_tasks = List[type_of(task_two)]()
+    broken_thread_tasks.append(
         make_execution_task(
             0,
             "not-an-int",
             callable_path="reta_mojo.execution_network:double_int",
         )
     )
+    broken_thread_tasks.append(
+        make_execution_task(
+            1,
+            "2",
+            callable_path="reta_mojo.execution_network:double_int",
+        )
+    )
     var worker_failed = False
     try:
         _ = execute_tasks_deterministically(
-            broken_process_tasks,
-            make_execution_network_config(1, "fifo", True, "fork"),
+            broken_thread_tasks,
+            make_execution_network_config(2, "fifo", True, "fork"),
         )
     except:
         worker_failed = True
-    assert_raises(worker_failed, "process worker failure")
+    assert_raises(worker_failed, "thread worker failure")
     checks += 1
 
     assert_true(checks == 85, "test count")
-    print("execution network tests: 85/85")
+    print("execution network thread tests: 85/85")

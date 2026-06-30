@@ -1,12 +1,12 @@
 from std.collections import List
 from reta_mojo.parallel_execution import (
     IndexedStringRow,
-    decode_religion_rows_in_processes,
+    decode_religion_rows_threaded,
     decode_religion_rows_serial,
-    factor_pairs_in_processes,
+    factor_pairs_threaded,
     factor_pairs_serial,
     make_parallel_config,
-    prime_factors_in_processes,
+    prime_factors_threaded,
     prime_factors_serial,
 )
 
@@ -24,7 +24,7 @@ def main() raises:
 
     var numbers: List[Int] = [49, 6, 18, 6]
     var prime_reference = prime_factors_serial(numbers)
-    var prime = prime_factors_in_processes(numbers, threads)
+    var prime = prime_factors_threaded(numbers, threads)
     assert_true(prime.stats.mode == "threads", "prime thread mode")
     checks += 1
     assert_true(prime.stats.workers == 2, "prime worker count")
@@ -43,7 +43,7 @@ def main() raises:
             checks += 1
 
     var pair_reference = factor_pairs_serial(numbers, True)
-    var pairs = factor_pairs_in_processes(numbers, True, threads)
+    var pairs = factor_pairs_threaded(numbers, True, threads)
     assert_true(pairs.stats.mode == "threads", "pair thread mode")
     checks += 1
     assert_true(len(pairs.values) == len(pair_reference), "pair record count")
@@ -59,7 +59,7 @@ def main() raises:
     rows.append(IndexedStringRow(1, ['|{"":"eins","html":"<b>eins</b>"}|', "ä"]))
     rows.append(IndexedStringRow(2, ["5", "line\nbreak"]))
     var row_reference = decode_religion_rows_serial(rows, "html")
-    var decoded = decode_religion_rows_in_processes(rows, "html", threads)
+    var decoded = decode_religion_rows_threaded(rows, "html", threads)
     assert_true(decoded.stats.mode == "threads", "row thread mode")
     checks += 1
     assert_true(len(decoded.rows) == len(row_reference), "row count")

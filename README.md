@@ -248,9 +248,9 @@ Siehe [`BINARIES.md`](BINARIES.md).
 Gesamtbestand:
 
 ```text
-78 Test-/Probe-Dateien (75 Mojo, 3 Python)
-276 native Testfunktionen
-Stage 11i historisch 286/286; Stage 11j aktuell 78/78 fokussierte Prüfungen bestanden
+79 Test-/Probe-Dateien (75 Mojo, 4 Python)
+275 native Mojo-Testfunktionen plus 2 Python-Testfunktionen
+Stage 12a aktuell 480/480 fokussierte Mojo-/Paritätsprüfungen plus 1/1 Boundary-Pytest
 30 Generator- und 9 Kombi-CLI-Fälle in den Paritätssuiten
 8 schnelle Markup-Fixtures; 16 Fälle einzeln gegen Python validiert
 27 Kurzsprachen-, 23 Vorbereitung- und 12 Completion-Kontexte bytegleich
@@ -274,7 +274,7 @@ Details: [`TEST_RESULTS.md`](TEST_RESULTS.md).
 
 ## Nächster Portierungsblock
 
-Stufe 9 wird mit seltenen Terminal-/Rich-Sonderfällen fortgesetzt. Stufe 10 erweitert die bereits native Promptausführung und i18n-Laufzeit. Stufe 11 ist mit 11a–11j abgeschlossen: Karte, Boundary-Graph, Verträge, Witnesses, Kohärenzmatrix, Trace-Navigation, Impact-Kalkül, Migrationsplan, Rehearsal, Aktivierung, Gesamtvalidierung, Fortschritts-Overlay, SQLite-Persistenz, Ausführungsnetz, hybride Thread-/Prozess-Chunk-Kerne und der typisierte Prepare-Zeilenkontext sind nativ. Als Nächstes folgen die fünf formalen Abschlussblöcke 12a–12e.
+Stufe 9 wird mit seltenen Terminal-/Rich-Sonderfällen fortgesetzt. Stufe 10 erweitert die bereits native Promptausführung und i18n-Laufzeit. Stufe 11 ist mit 11a–11j abgeschlossen. Stage 12a ist ebenfalls abgeschlossen: Sämtliche nativen Parallelpfade verwenden nun typisierte Mojo-Threads; direkte `fork`-/Pipe-/`waitpid`-Primitive sind durch ein maschinenprüfbares Boundary-Gate ausgeschlossen. Als Nächstes folgen 12b–12e.
 
 ## Dokumentation
 
@@ -423,22 +423,22 @@ Der fokussierte Lauf besteht aus 47/47 nativen Prüfungen und 5/5 Python↔Mojo-
 
 ## Stage 11h: Natives deterministisches Ausführungsnetz
 
-`execution_network.py` ist als reale Mojo-Laufzeitschicht portiert. FIFO-, LIFO- und Prioritätswarteschlangen, Halb-/Vollduplexkanäle, Semaphoren, Snapshotbildung und deterministische Reduktion laufen ohne Python. Der Prozessmodus startet unter Linux echte `fork`-Worker, transportiert UTF-8-Ergebnisse über private Pipes und propagiert Kindprozessfehler.
+`execution_network.py` ist als reale Mojo-Laufzeitschicht portiert. FIFO-, LIFO- und Prioritätswarteschlangen, Halb-/Vollduplexkanäle, Semaphoren, Snapshotbildung und deterministische Reduktion laufen ohne Python. Seit Stage 12a führen Mojos CPU-Workerthreads die statisch bekannten Operationen aus; Eingaben werden gemeinsam gelesen, jeder Worker schreibt in einen disjunkten Ergebnisslot und die Reduktion bleibt deterministisch.
 
 ```bash
 ./scripts/test_stage11h.sh
 ./bin/reta-mojo-execution-network --summary
 ./bin/reta-mojo-execution-network --order priority
-./bin/reta-mojo-execution-network --run-process fifo
+./bin/reta-mojo-execution-network --run-threads fifo
 ./bin/reta-mojo-execution-network --task double_int 21
 ```
 
 Die statische Mojo-Grenze verwendet UTF-8-Text, kanonisches Metadaten-JSON und geprüfte Operationskennungen anstelle von Python-`Any`, Pickle und dynamischen Imports. Der fokussierte Lauf besteht aus 85/85 nativen Netzprüfungen, 15/15 Persistenzintegrationsprüfungen und 8/8 Python↔Mojo-Paritätsfällen. Details: [`STAGE11H_NATIVE_EXECUTION_NETWORK.md`](STAGE11H_NATIVE_EXECUTION_NETWORK.md).
 
 
-## Stage 11i: Native Thread-/Prozess-Chunk-Kerne
+## Stage 11i/12a: Native Thread-Chunk-Kerne
 
-Der reine Kern von `parallel_execution.py` läuft nun in Mojo. Zehn Tabellen- und Zahlenoperationen besitzen serielle Referenzpfade, native Mojo-Thread-Chunks sowie echte Linux-`fork`-Chunkpfade. Das längenpräfixierte UTF-8-Protokoll erhält Unicode, eingebettete Zeilenumbrüche und Trennzeichen ohne Pickle oder Python. Ergebnisse werden unabhängig von der Schedulerreihenfolge wieder in die von Python definierte Zeilen-/Zahlenindexordnung zusammengesetzt; Filterwerte werden wie die Referenz dedupliziert.
+Der reine Kern von `parallel_execution.py` läuft in Mojo. Zehn Tabellen- und Zahlenoperationen besitzen serielle Referenzpfade und typisierte Thread-Chunks. Stage 12a hat die historischen `fork`-Worker und das längenpräfixierte Prozessprotokoll vollständig entfernt. Ergebnisse werden unabhängig von der Schedulerreihenfolge wieder in die von Python definierte Zeilen-/Zahlenindexordnung zusammengesetzt; Filterwerte werden wie die Referenz dedupliziert.
 
 ```bash
 ./scripts/test_stage11i.sh
@@ -447,12 +447,12 @@ Der reine Kern von `parallel_execution.py` läuft nun in Mojo. Zehn Tabellen- un
 ./bin/reta-mojo-parallel-execution --prime-factors 12 18 25 49
 ```
 
-Die historische Stage-11i-Prüfung umfasst 6/6 Prompt-LF-Tests, 1/1 Fixture-Integritätstest, 29/29 damalige Konfigurationsprüfungen, 55/55 Zeilenprozess-, 157/157 Zahlenprozess-, 26/26 Tabellen-Chunk-Prüfungen sowie 12/12 Python↔Mojo-Paritätsausgaben. Stage 11j stellt `auto` auf native Threads um und behält `processes` als expliziten Isolationsmodus. Details: [`STAGE11I_NATIVE_PARALLEL_EXECUTION.md`](STAGE11I_NATIVE_PARALLEL_EXECUTION.md).
+Die historische Stage-11i-Prüfung bleibt dokumentiert. Der aktuelle Stage-12a-Lauf prüft die Threadmigration mit 480/480 Mojo-/Paritätsfällen plus 1/1 Boundary-Pytest. Alte Namen und Konfigurationswerte mit `process` bleiben vorläufig als Kompatibilitätsalias erhalten, erzeugen aber keinen Prozess. Details: [`STAGE12A_NATIVE_THREAD_MIGRATION.md`](STAGE12A_NATIVE_THREAD_MIGRATION.md).
 
 
 ## Stage 11j: Typisierte Thread-Zeilenvorbereitung
 
-Der letzte dynamische `WorkerPrepare`-/`deepcopy`-Objektgraph ist durch `ParallelRowPreparationContext` ersetzt. Reine In-Memory-Kerne verwenden bei `auto` native Mojo-Threads; der explizite Modus `processes` bleibt für Adressraumisolation und Regressionstests erhalten. Jeder Thread schreibt ausschließlich in seinen vorab zugewiesenen Chunkslot, danach wird seriell nach der ursprünglichen Zeilennummer reduziert. SQLite-Schreibvorgänge, globale Header-Tag-Mutationen und Ausgabe-I/O bleiben bewusst seriell.
+Der letzte dynamische `WorkerPrepare`-/`deepcopy`-Objektgraph ist durch `ParallelRowPreparationContext` ersetzt. Reine In-Memory-Kerne verwenden native Mojo-Threads. Jeder Thread schreibt ausschließlich in seinen vorab zugewiesenen Chunkslot, danach wird seriell nach der ursprünglichen Zeilennummer reduziert. SQLite-Schreibvorgänge, globale Header-Tag-Mutationen und Ausgabe-I/O bleiben bewusst seriell.
 
 ```bash
 ./scripts/test_stage11j.sh

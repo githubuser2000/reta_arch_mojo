@@ -1,4 +1,8 @@
-# Stage 11h – natives deterministisches Ausführungsnetz
+> **Historischer Stand:** Stage 12a hat sämtliche hier beschriebenen nativen
+> `fork`-/Pipe-Pfade entfernt und durch Mojo-Threads ersetzt. Die semantischen
+> Tests und seriellen Referenzpfade bleiben erhalten.
+
+# Stage 11h – natives deterministisches Ausführungsnetz (historischer Stand)
 
 ## Portierter Referenzbereich
 

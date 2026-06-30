@@ -20,14 +20,14 @@ mkdir -p "$TEST_DIR" "$BIN_DIR"
 "$TEST_DIR/test-parallel-execution-config"
 
 "$ROOT/bin/mojo-real" build --no-optimization -j 4 -I src \
-    tests/test_parallel_row_processes.mojo \
-    -o "$TEST_DIR/test-parallel-row-processes"
-"$TEST_DIR/test-parallel-row-processes"
+    tests/test_parallel_row_threads.mojo \
+    -o "$TEST_DIR/test-parallel-row-threads"
+"$TEST_DIR/test-parallel-row-threads"
 
 "$ROOT/bin/mojo-real" build --no-optimization -j 4 -I src \
-    tests/test_parallel_number_processes.mojo \
-    -o "$TEST_DIR/test-parallel-number-processes"
-"$TEST_DIR/test-parallel-number-processes"
+    tests/test_parallel_number_threads.mojo \
+    -o "$TEST_DIR/test-parallel-number-threads"
+"$TEST_DIR/test-parallel-number-threads"
 
 "$ROOT/bin/mojo-real" build --no-optimization -j 4 -I src \
     tests/test_parallel_table_execution.mojo \

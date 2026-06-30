@@ -23,12 +23,13 @@ def _usage():
     print("reta-mojo-execution-network")
     print("  --summary")
     print(
-        "  --config MAX_WORKERS DISCIPLINE USE_PROCESSES START_METHOD"
+        "  --config MAX_WORKERS DISCIPLINE USE_THREADS LEGACY_START_METHOD"
         " PRESERVE_ORDER BOUNDED_SIZE"
     )
     print("  --order fifo|lifo|priority")
     print("  --run-serial fifo|lifo|priority preserve|scheduled")
-    print("  --run-process fifo|lifo|priority preserve|scheduled WORKERS")
+    print("  --run-threads fifo|lifo|priority preserve|scheduled WORKERS")
+    print("  --run-process is a legacy alias for --run-threads")
     print("  --channels")
     print("  --task OPERATION PAYLOAD")
 
@@ -91,8 +92,8 @@ def main() raises:
         )
         print("max_workers=" + String(config.max_workers))
         print("queue_discipline=" + config.queue_discipline)
-        print("use_processes=" + ("true" if config.use_processes else "false"))
-        print("start_method=" + config.start_method)
+        print("use_threads=" + ("true" if config.use_threads else "false"))
+        print("legacy_start_method_ignored=true")
         print(
             "preserve_input_order="
             + ("true" if config.preserve_input_order else "false")
@@ -118,10 +119,12 @@ def main() raises:
         print(execution_run_snapshot_json(run))
         return
 
-    if len(args) == 5 and String(args[1]) == "--run-process":
+    if len(args) == 5 and (
+        String(args[1]) == "--run-threads" or String(args[1]) == "--run-process"
+    ):
         var preserve = String(args[3]) == "preserve"
         var config = make_execution_network_config(
-            atol(String(args[4])), String(args[2]), True, "fork", preserve
+            atol(String(args[4])), String(args[2]), True, "", preserve
         )
         var run = execute_tasks_deterministically(_demo_tasks(True), config)
         print("values=" + _join_strings(run.values))

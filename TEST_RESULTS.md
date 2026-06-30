@@ -478,7 +478,7 @@ Der fokussierte Lauf verwendet weder den langen Gesamtbuild noch `--alles`:
 ```
 
 
-## Stage 11h: Natives deterministisches Ausführungsnetz
+## Stage 11h: Natives deterministisches Ausführungsnetz (historischer Prozessstand)
 
 ```text
 test_execution_network:              85/85
@@ -507,7 +507,7 @@ Der fokussierte Lauf vermeidet die langen Gesamtbuilds:
 ```
 
 
-## Stage 11i: Native Thread-/Prozess-Tabellenparallelisierung
+## Stage 11i: Native Tabellenparallelisierung (historischer Prozessstand)
 
 ```text
 test_prompt_legacy_echo:                 6/6
@@ -538,7 +538,7 @@ Der fokussierte Lauf vermeidet die langen Gesamtbuilds:
 ```
 
 
-## Stage 11j: Typisierte Thread-Zeilenvorbereitung
+## Stage 11j: Typisierte Thread-Zeilenvorbereitung (vor Stage 12a)
 
 ```text
 test_parallel_execution_config:             36/36
@@ -562,4 +562,52 @@ Der permanente breite Test `test_parallel_thread_backend.mojo` und der aktualisi
 ```bash
 ./scripts/test_stage11j.sh
 ./scripts/benchmark_parallel_row_preparation.sh 20000 8 128
+```
+
+
+## Stage 12a: Vollständige native Threadmigration und Boundary-Gates
+
+Stage 12a ersetzt die historischen Prozesspfade aus Stage 11h/11i vollständig.
+Die älteren Abschnitte bleiben oben als Entwicklungsnachweis erhalten, beschreiben
+aber nicht mehr den aktuellen Laufzeitcode.
+
+```text
+Boundary-Pytest:                              1/1
+test_execution_network:                     85/85
+test_execution_network_persistence:         15/15
+test_parallel_execution_config:             36/36
+test_parallel_thread_backend:               43/43
+test_parallel_row_preparation:              40/40
+test_parallel_row_threads:                  55/55
+test_parallel_number_threads:              157/157
+test_parallel_table_execution:              26/26
+Python↔Mojo execution-network parity:         8/8
+Python↔Mojo parallel parity:                 12/12
+Thread↔Legacy-Alias parity:                   1/1
+Python↔serial↔thread row parity:              2/2
+                                             -------
+fokussierte Mojo-/Paritätsprüfungen:       480/480
+plus Boundary-Pytest:                         1/1
+```
+
+Zusätzlich bestätigt:
+
+- **0** direkte native `fork`-, `pipe`-, `waitpid`- oder `_exit`-Primitive;
+- **3** explizit inventarisierte Restbrücken außerhalb der Parallelmodule;
+- **10** kanonische typisierte `*_threaded`-APIs;
+- alle drei Parallelmodule sind frei von `std.python` und `std.subprocess`;
+- `auto`, `threads` und historische Prozesswerte führen denselben Threadpfad aus;
+- alte `_in_processes`-Funktionsnamen und CLI-Schalter bleiben nur als
+  Kompatibilitätsalias erhalten und erzeugen keinen Prozess;
+- das frühere längenpräfixierte Prozess-Stringprotokoll ist durch typisierte
+  Chunks und disjunkte Ergebnisslots ersetzt;
+- FIFO-, LIFO- und Prioritätsplanung, Fehlerpropagation, Unicode und
+  deterministische Reduktion bleiben erhalten;
+- Python-Referenz, serielles Mojo, Thread-Mojo und Legacy-Alias liefern in den
+  geprüften Fällen identische Ergebnisse.
+
+Der fokussierte Lauf lautet:
+
+```bash
+./scripts/test_stage12a.sh
 ```

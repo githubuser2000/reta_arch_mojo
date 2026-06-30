@@ -1,25 +1,24 @@
-"""Native deterministic execution-network primitives for Reta.
+"""Native deterministic threaded execution-network primitives for Reta.
 
 This module ports ``reta_architecture.execution_network`` without importing
-Python.  The dynamic ``Any``/callable boundary of the reference implementation
-is represented as UTF-8 String payloads plus an explicit operation tag.  Queue
-order, priority order, deterministic reduction, bounded channels and the Linux
-fork worker path are native Mojo runtime behaviour.
+Python. The dynamic ``Any``/callable boundary of the reference implementation
+is represented as UTF-8 String payloads plus an explicit operation tag. Queue
+order, priority order, deterministic reduction and bounded channels are native
+Mojo runtime behaviour. Independent task slots run on Mojo CPU worker threads;
+there is no ``fork``, pipe or process-serialization boundary.
 """
 
+from std.algorithm import parallelize
 from std.collections import List
 from std.collections.string import atol, ord
 from std.ffi import c_int, external_call
-from std.io import FileHandle
-from std.memory import stack_allocation
 
 
 @fieldwise_init
 struct ExecutionNetworkConfig(Copyable):
     var max_workers: Int
     var queue_discipline: String
-    var use_processes: Bool
-    var start_method: String
+    var use_threads: Bool
     var preserve_input_order: Bool
     var bounded_queue_size: Int
 
@@ -307,10 +306,6 @@ def _json_bool(value: Bool) -> String:
 def execution_network_config_snapshot_json(
     config: ExecutionNetworkConfig,
 ) -> String:
-    var start_method = (
-        _json_quote(config.start_method) if config.start_method.byte_length()
-        > 0 else "null"
-    )
     var bounded_queue_size = (
         String(config.bounded_queue_size) if config.bounded_queue_size
         > 0 else "null"
@@ -322,10 +317,8 @@ def execution_network_config_snapshot_json(
         + String(available_worker_count())
         + ',"queue_discipline":'
         + _json_quote(config.queue_discipline)
-        + ',"use_processes":'
-        + _json_bool(config.use_processes)
-        + ',"start_method":'
-        + start_method
+        + ',"use_threads":'
+        + _json_bool(config.use_threads)
         + ',"preserve_input_order":'
         + _json_bool(config.preserve_input_order)
         + ',"bounded_queue_size":'
@@ -371,11 +364,14 @@ def execution_result_snapshot_json(result: ExecutionResult) -> String:
 def make_execution_network_config(
     max_workers: Int = -2147483647,
     queue_discipline: String = "fifo",
-    use_processes: Bool = False,
-    start_method: String = "",
+    use_threads: Bool = False,
+    legacy_start_method: String = "",
     preserve_input_order: Bool = True,
     bounded_queue_size: Int = -2147483647,
 ) -> ExecutionNetworkConfig:
+    # Keep the old positional start-method argument source-compatible while
+    # intentionally ignoring it: the native network is thread-only.
+    _ = legacy_start_method
     var workers = (
         available_worker_count() if max_workers
         == -2147483647 else max(1, max_workers)
@@ -387,17 +383,13 @@ def make_execution_network_config(
         and discipline != "priority"
     ):
         discipline = "fifo"
-    var method = start_method.strip().lower()
-    if method == "default" or method == "none":
-        method = ""
     var queue_size = 0 if bounded_queue_size == -2147483647 else max(
         1, bounded_queue_size
     )
     return ExecutionNetworkConfig(
         workers,
         discipline^,
-        use_processes,
-        method^,
+        use_threads,
         preserve_input_order,
         queue_size,
     )
@@ -577,94 +569,40 @@ def _run_serial(tasks: List[ExecutionTask]) raises -> List[ExecutionResult]:
     return results^
 
 
-def _wait_exit_code(pid: Int) -> Int:
-    var status = stack_allocation[1, c_int]()
-    status[0] = c_int(0)
-    _ = external_call["waitpid", c_int](c_int(pid), status, c_int(0))
-    return (Int(status[0]) >> 8) & 255
-
-
-def _run_process_batch(
+def _run_threads(
     tasks: List[ExecutionTask],
-    start: Int,
-    end: Int,
+    workers: Int,
 ) raises -> List[ExecutionResult]:
-    var pids = List[Int]()
-    var read_fds = List[Int]()
-    var batch_tasks = List[ExecutionTask]()
-
-    for task_index in range(start, end):
-        var descriptors = stack_allocation[2, c_int]()
-        if external_call["pipe", c_int](descriptors) != 0:
-            raise Error("unable to create execution worker pipe")
-        var pid = Int(external_call["fork", c_int]())
-        if pid < 0:
-            _ = external_call["close", c_int](descriptors[0])
-            _ = external_call["close", c_int](descriptors[1])
-            raise Error("unable to fork execution worker")
-        if pid == 0:
-            _ = external_call["close", c_int](descriptors[0])
-            var writer = FileHandle()
-            writer.handle = Int(descriptors[1])
-            try:
-                var child_result = execute_task(tasks[task_index])
-                writer.write_all(child_result.value.as_bytes())
-                writer.close()
-                _ = external_call["_exit", NoneType](c_int(0))
-            except:
-                writer.write_all(
-                    String("native execution worker failed").as_bytes()
-                )
-                writer.close()
-                _ = external_call["_exit", NoneType](c_int(70))
-        _ = external_call["close", c_int](descriptors[1])
-        pids.append(pid)
-        read_fds.append(Int(descriptors[0]))
-        batch_tasks.append(tasks[task_index].copy())
-
+    """Execute one immutable task per slot on Mojo CPU worker threads."""
     var results = List[ExecutionResult]()
-    for slot in range(len(pids)):
-        var reader = FileHandle()
-        reader.handle = read_fds[slot]
-        var value = reader.read()
-        reader.close()
-        var exit_code = _wait_exit_code(pids[slot])
-        if exit_code != 0:
-            raise Error(
-                "native execution worker exited with code "
-                + String(exit_code)
-                + ": "
-                + value
-            )
-        var task = batch_tasks[slot].copy()
+    var errors = List[String]()
+    for task in tasks:
         results.append(
             ExecutionResult(
                 task.index,
-                value^,
+                String(),
                 task.operation.copy(),
                 task.metadata_json.copy(),
             )
         )
-    return results^
+        errors.append(String())
 
+    @parameter
+    def worker(slot: Int):
+        try:
+            results[slot] = execute_task(tasks[slot])
+        except error:
+            errors[slot] = String(error)
 
-def _run_processes(
-    tasks: List[ExecutionTask],
-    workers: Int,
-    start_method: String,
-) raises -> List[ExecutionResult]:
-    if start_method.byte_length() > 0 and start_method != "fork":
-        raise Error(
-            "native execution network currently supports start_method=fork"
-        )
-    var results = List[ExecutionResult]()
-    var start = 0
-    while start < len(tasks):
-        var end = min(len(tasks), start + max(1, workers))
-        var batch = _run_process_batch(tasks, start, end)
-        for item in batch:
-            results.append(item.copy())
-        start = end
+    parallelize[worker](len(tasks), max(1, workers))
+    for slot in range(len(errors)):
+        if errors[slot].byte_length() > 0:
+            raise Error(
+                "native execution thread "
+                + String(slot)
+                + " failed: "
+                + errors[slot]
+            )
     return results^
 
 
@@ -708,16 +646,14 @@ def execute_tasks_deterministically(
         )
 
     var scheduled = order_tasks(tasks, config)
-    var has_callable = False
-    for task in scheduled:
-        if task.callable_path.byte_length() > 0:
-            has_callable = True
-            break
-    var use_processes = config.use_processes and has_callable
-    var workers = workers_for(config, len(scheduled)) if use_processes else 1
-    var results = _run_processes(
-        scheduled, workers, config.start_method
-    ) if use_processes else _run_serial(scheduled)
+    var requested_workers = workers_for(config, len(scheduled))
+    var use_threads = (
+        config.use_threads and requested_workers > 1 and len(scheduled) > 1
+    )
+    var workers = requested_workers if use_threads else 1
+    var results = _run_threads(
+        scheduled, workers
+    ) if use_threads else _run_serial(scheduled)
     var values = deterministic_reduce(results, config.preserve_input_order)
     return ExecutionRunResult(
         values^,
@@ -726,7 +662,7 @@ def execute_tasks_deterministically(
         workers,
         len(scheduled),
         config.queue_discipline.copy(),
-        "processes" if use_processes else "serial",
+        "threads" if use_threads else "serial",
     )
 
 

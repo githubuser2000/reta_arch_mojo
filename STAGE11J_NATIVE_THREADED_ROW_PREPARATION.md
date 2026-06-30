@@ -1,3 +1,7 @@
+> **Seit Stage 12a:** Der hier noch beschriebene explizite Prozessmodus ist entfernt.
+> Alle nativen Parallelpfade verwenden Threads; historische Prozessoptionen sind
+> nur noch Aliasnamen und erzeugen keinen Prozess.
+
 # Stage 11j – typisierte Thread-Zeilenvorbereitung
 
 Stage 11j schließt die native Laufzeitstufe 11 ab. Der letzte dynamische
@@ -11,17 +15,13 @@ Für die reinen Tabellen- und Zahlenkerne ist der native Standard nun:
 
 - `auto` → Mojo-Threads,
 - `threads` → Mojo-Threads,
-- `processes` → expliziter Linux-`fork`-Isolationsmodus,
+- `processes` → seit Stage 12a Kompatibilitätsalias für Mojo-Threads,
 - `off` → serieller Referenzpfad.
 
 Mojo besitzt keinen Python-GIL. Threads dürfen daher CPU-Arbeit wirklich auf
 mehrere Kerne verteilen und zugleich die bereits geladenen Tabellen lesen,
 ohne sie über Pipes zu serialisieren oder durch Copy-on-write-Prozessräume zu
-vervielfachen. Der Prozesspfad bleibt absichtlich erhalten für:
-
-- Adressraum- und Fehlerisolation,
-- Vergleich mit dem historischen PyPy3-Multiprocessingpfad,
-- explizit als nicht thread-sicher eingestufte Fremdgrenzen.
+vervielfachen. Stage 12a hat den damaligen Prozesspfad entfernt, weil die portierten Kerne keine nicht-thread-sichere Fremdgrenze mehr enthalten.
 
 SQLite-Schreibvorgänge, globale Header-Tag-Mutation und finale Terminal-/Datei-
 Ausgabe bleiben seriell. Parallelisiert werden nur unabhängige, reine
@@ -67,8 +67,7 @@ Deadlockzustände.
 ## Umstellung der vorhandenen Chunk-Kerne
 
 `src/reta_mojo/parallel_execution.mojo` besitzt nun einen gemeinsamen Backend-
-Dispatcher. Alle zehn in Stage 11i portierten Tabellen-/Zahlenkerne können mit
-demselben deterministischen Ergebnis über Threads oder Prozesse laufen.
+Dispatcher. Alle zehn in Stage 11i portierten Tabellen-/Zahlenkerne laufen seit Stage 12a ausschließlich über typisierte Thread-Chunks.
 
 Der alte Funktionsnamensbestand mit Suffix `_in_processes` bleibt zunächst als
 Kompatibilitätsoberfläche erhalten. Das ausgewählte Backend steht in

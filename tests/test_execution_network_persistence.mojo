@@ -45,23 +45,29 @@ def main() raises:
 
     var config = make_execution_network_config(2, "fifo", True, "fork")
     var run = execute_tasks_deterministically(tasks, config)
-    assert_true(run.mode == "processes", "process execution mode")
+    assert_true(run.mode == "threads", "thread execution mode")
     checks += 1
-    assert_true(run.workers == 2, "process worker count")
+    assert_true(run.workers == 2, "thread worker count")
     checks += 1
-    assert_true(run.values[0] == "12", "first process value")
+    assert_true(run.values[0] == "12", "first thread value")
     checks += 1
-    assert_true(run.values[1] == "49", "second process value")
+    assert_true(run.values[1] == "49", "second thread value")
     checks += 1
 
     var payload_json = execution_run_snapshot_json(run)
-    assert_true(payload_json.find('"task_count":2') >= 0, "run payload task count")
+    assert_true(
+        payload_json.find('"task_count":2') >= 0, "run payload task count"
+    )
     checks += 1
-    assert_true(payload_json.find('"mode":"processes"') >= 0, "run payload mode")
+    assert_true(
+        payload_json.find('"mode":"threads"') >= 0, "run payload thread mode"
+    )
     checks += 1
 
     var context = json_context('{"scope":"execution-network","stage":"11h"}')
-    var connection = open_persistence(PersistenceConfig(":memory:", True, "WAL"))
+    var connection = open_persistence(
+        PersistenceConfig(":memory:", True, "WAL")
+    )
     var record = persist_execution_run(
         connection,
         "execution-network",
@@ -92,17 +98,19 @@ def main() raises:
         + "}"
     )
     var audit = record_audit_event(
-        connection, "process_execution", record.digest, audit_payload
+        connection, "thread_execution", record.digest, audit_payload
     )
     assert_true(audit.has_rowid and audit.rowid > 0, "audit row id")
     checks += 1
 
     var events = query_audit_events(
-        connection, "process_execution", record.digest, 10
+        connection, "thread_execution", record.digest, 10
     )
     assert_true(len(events) == 1, "audit event count")
     checks += 1
-    assert_true(events[0].payload_json == audit_payload, "audit payload roundtrip")
+    assert_true(
+        events[0].payload_json == audit_payload, "audit payload roundtrip"
+    )
     checks += 1
 
     var counts = persistence_counts(connection)

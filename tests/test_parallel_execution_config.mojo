@@ -28,14 +28,26 @@ def main() raises:
     assert_true(cores.default_workers() >= 1, "default workers")
     checks += 1
 
-    var process_config = make_parallel_config("processes", 2, 2, 1, "fork", "unit")
-    assert_true(process_config.enabled_by_mode(), "process mode")
+    var process_alias_config = make_parallel_config(
+        "processes", 2, 2, 1, "fork", "unit"
+    )
+    assert_true(
+        process_alias_config.enabled_by_mode(), "legacy process alias enabled"
+    )
     checks += 1
-    assert_true(process_config.resolved_backend() == "processes", "process backend")
+    assert_true(
+        process_alias_config.resolved_backend() == "threads",
+        "legacy process alias uses threads",
+    )
     checks += 1
-    assert_true(process_config.should_use_processes(4), "process threshold")
+    assert_true(
+        process_alias_config.should_use_threads(4),
+        "legacy alias thread threshold",
+    )
     checks += 1
-    assert_true(not process_config.should_use_processes(0), "empty threshold")
+    assert_true(
+        not process_alias_config.should_use_threads(0), "empty threshold"
+    )
     checks += 1
 
     var thread_config = make_parallel_config("threads", 2, 2, 1, "", "unit")
@@ -49,21 +61,29 @@ def main() raises:
     checks += 1
 
     var auto_config = make_parallel_config("auto", 2, 2, 1, "", "unit")
-    assert_true(auto_config.resolved_backend() == "threads", "auto prefers threads")
+    assert_true(
+        auto_config.resolved_backend() == "threads", "auto prefers threads"
+    )
     checks += 1
     assert_true(auto_config.should_use_threads(4), "auto thread threshold")
     checks += 1
 
-    var serial_config = make_parallel_config("off", 8, 2, 1, "fork", "unit")
+    var serial_config = make_parallel_config("off", 8, 2, 1, "", "unit")
     assert_true(not serial_config.enabled_by_mode(), "serial mode")
     checks += 1
-    var unknown_config = make_parallel_config("typo", 8, 2, 1, "fork", "unit")
-    assert_true(not unknown_config.enabled_by_mode(), "unknown mode stays disabled")
+    var unknown_config = make_parallel_config("typo", 8, 2, 1, "", "unit")
+    assert_true(
+        not unknown_config.enabled_by_mode(), "unknown mode stays disabled"
+    )
     checks += 1
-    var fallback_config = make_parallel_config("processes", 2, 0, -1, "fork", "unit")
+    var fallback_config = make_parallel_config(
+        "processes", 2, 0, -1, "fork", "unit"
+    )
     assert_true(fallback_config.chunk_size == 64, "invalid chunk falls back")
     checks += 1
-    assert_true(fallback_config.threshold == 128, "invalid threshold falls back")
+    assert_true(
+        fallback_config.threshold == 128, "invalid threshold falls back"
+    )
     checks += 1
 
     var argv = List[String]()
@@ -80,7 +100,7 @@ def main() raises:
     checks += 1
     assert_true(parsed.argv[1] == "--foo", "argv keeps ordinary flag")
     checks += 1
-    assert_true(parsed.config.mode == "processes", "argv mode")
+    assert_true(parsed.config.mode == "threads", "argv mode")
     checks += 1
     assert_true(parsed.config.workers == 3, "argv workers")
     checks += 1
@@ -88,39 +108,55 @@ def main() raises:
     checks += 1
     assert_true(parsed.config.threshold == 9, "argv threshold")
     checks += 1
-    assert_true(parsed.config.start_method == "fork", "argv start")
+    assert_true(parsed.config.start_method == "", "legacy start method ignored")
     checks += 1
     assert_true(parsed.config.source == "argv", "argv source")
     checks += 1
 
-    var config_json = parallel_config_snapshot_json(process_config)
-    assert_true(config_json.find('"mode":"processes"') >= 0, "config snapshot mode")
+    var config_json = parallel_config_snapshot_json(process_alias_config)
+    assert_true(
+        config_json.find('"mode":"threads"') >= 0, "config snapshot mode"
+    )
     checks += 1
-    assert_true(config_json.find('"runtime":"Mojo"') >= 0, "config snapshot runtime")
+    assert_true(
+        config_json.find('"runtime":"Mojo"') >= 0, "config snapshot runtime"
+    )
     checks += 1
     var bundle_json = parallel_execution_bundle_snapshot_json(
-        bootstrap_parallel_execution(process_config)
+        bootstrap_parallel_execution(process_alias_config)
     )
-    assert_true(bundle_json.find("thread_preferred_chunked_table_work") >= 0, "bundle strategy")
+    assert_true(
+        bundle_json.find("thread_only_chunked_table_work") >= 0,
+        "bundle strategy",
+    )
     checks += 1
-    assert_true(bundle_json.find("prime_factors_in_processes") >= 0, "bundle morphism")
+    assert_true(
+        bundle_json.find("prime_factors_threaded") >= 0, "bundle morphism"
+    )
     checks += 1
-    assert_true(bundle_json.find("prepare_rows_in_processes") < 0, "unported morphism excluded")
+    assert_true(
+        bundle_json.find("prepare_rows_threaded") < 0,
+        "unported morphism excluded",
+    )
     checks += 1
 
-    assert_true(decode_religion_cell("<x>", "html") == "&lt;x&gt;", "html escape")
+    assert_true(
+        decode_religion_cell("<x>", "html") == "&lt;x&gt;", "html escape"
+    )
     checks += 1
     assert_true(
         decode_religion_cell(
             '|{"":"x","html":"<b>x</b>","bbcode":"[b]x[/b]"}|', "html"
-        ) == "<b>x</b>",
+        )
+        == "<b>x</b>",
         "religion html",
     )
     checks += 1
     assert_true(
         decode_religion_cell(
             '|{"":"x","html":"<b>x</b>","bbcode":"[b]x[/b]"}|', "bbcode"
-        ) == "[b]x[/b]",
+        )
+        == "[b]x[/b]",
         "religion bbcode",
     )
     checks += 1
