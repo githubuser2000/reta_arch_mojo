@@ -274,3 +274,36 @@ Die unveränderte Python-Referenz hatte beim Eingang bereits drei fehlschlagende
 - `reta-native` wurde aus dem Stage-10m-Quellstand erfolgreich neu gebaut.
 - Der große `test_generated_columns.mojo` überschritt beim erneuten Kompilieren das großzügige Compilerlimit; es kam zu keinem ausgeführten und fehlgeschlagenen Test.
 - Der breite `--alles`-Test wurde **nicht** gestartet. Gemäß Vorgabe darf er ausschließlich mit **90 Minuten Timeout** laufen; ein 30-Minuten-Lauf wurde weder angesetzt noch versucht.
+
+## Stage 10n: native EIGN/EIGR-Eigenschaften
+
+```bash
+./scripts/check_prompt_property_planning.sh
+./scripts/check_prompt_property_execution_parity.sh
+./scripts/check_prompt_property_oneshot.sh
+```
+
+Ergebnisse:
+
+```text
+6/6 fokussierte Eigenschaftsplanertests bestanden
+23/23 Integrationsverträge bestanden
+165/165 katalogisierte EIGN/EIGR-Befehle besitzen einen nativen Plan
+5/5 Python↔Mojo-CSV-Zellströme semantisch identisch
+2/2 EIGN-Promptnutzlasten semantisch identisch
+6/6 isolierte One-shot-Besitzfälle ohne Python-Module und Kindprozess
+```
+
+EIGN wird zusätzlich gegen den funktionsfähigen Python-Prompt geprüft. Für EIGR
+ist der direkte `reta.py`-Argumentvertrag die Referenz, weil der Python-Prompt
+vorher in `deepcopy(module)` abbricht. Die CSV-Parität normalisiert ausschließlich
+präsentationsbedingte Whitespace-Läufe und Leerzeilen; Rohbyte-Parität wird für
+diese Fälle nicht behauptet.
+
+In dieser Stage wurde **kein** Befehl und kein Test mit `--alles` ausgeführt.
+
+Der funktional integrierte Prompt-Controller war für die Ausführungsprüfungen
+erfolgreich gebaut. Ein erneuter vollständiger Monolithbuild nach der
+verhaltensneutralen Ein-Set-Reihenfolge-Optimierung überschritt 30 Minuten
+Compilerzeit ohne Diagnose; Unit- und Integrationsziele des endgültigen
+Quellstands kompilierten und bestanden.

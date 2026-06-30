@@ -24,6 +24,7 @@ from .prompt_language import (
     normalize_prompt_language,
     python_string_set_order,
 )
+from .prompt_property_execution import plan_prompt_property_commands
 from .row_ranges import is_row_range, range_to_numbers, split_top_level_commas
 
 
@@ -101,7 +102,9 @@ def _numeric_shortcut_selection(
 def _numeric_parameter_name(language: String, family: String) -> String:
     var normalized = normalize_prompt_language(language)
     if family == "15":
-        return "Grundstrukturen" if normalized == "deutsch" else "basic_structures"
+        return (
+            "Grundstrukturen" if normalized == "deutsch" else "basic_structures"
+        )
     return "Multiversum" if normalized == "deutsch" else "multiverse"
 
 
@@ -437,9 +440,7 @@ def _add_invocation(
         suppress_empty,
         passthrough,
     )
-    invocations.append(
-        PromptTableInvocation(tokens^, command_echo_newline)
-    )
+    invocations.append(PromptTableInvocation(tokens^, command_echo_newline))
 
 
 def _add_axis_family(
@@ -659,6 +660,7 @@ def _expanded_reciprocal_multiple_rows(
             result.append(String(ordered[index]))
     return result^
 
+
 def _append_fraction_invocations(
     mut invocations: List[PromptTableInvocation],
     pairs: List[_PromptFractionPair],
@@ -684,8 +686,7 @@ def _append_fraction_invocations(
             var other = pairs[other_index].copy()
             if other.numerator == numerator:
                 denominator_attempts.append(
-                    ("-" if other.excluded else "")
-                    + String(other.denominator)
+                    ("-" if other.excluded else "") + String(other.denominator)
                 )
         # The legacy numerator buckets store denominator spellings as strings,
         # not integers.  This matters for collisions such as {"2", "-2"}.
@@ -742,6 +743,7 @@ def _append_universe_equal_axis(
         passthrough,
     )
 
+
 def plan_prompt_table_commands(
     words: List[String],
     language: String,
@@ -763,12 +765,21 @@ def plan_prompt_table_commands(
     var passthrough = List[String]()
     var maximum = 0
     var unsupported = False
+    var has_property_command = False
     var has_fraction = False
     var saw_ignored_negative_integer = False
     var saw_integer_component_exclusion = False
 
     for index in range(len(words)):
         var token = words[index]
+        if token.startswith("EIGN") and token.byte_length() > 4:
+            has_property_command = True
+            canonical_words.append("__property_n")
+            continue
+        if token.startswith("EIGR") and token.byte_length() > 4:
+            has_property_command = True
+            canonical_words.append("__property_r")
+            continue
         var canonical = _canonical_command(catalog, language, token)
         canonical_words.append(canonical)
         var numeric = _numeric_shortcut_selection(catalog, language, token)
@@ -828,7 +839,9 @@ def plan_prompt_table_commands(
     var row_parts = python_string_set_order(row_part_attempts)
 
     var has_table_command = (
-        len(numeric15_values) > 0 or len(numeric16_values) > 0
+        len(numeric15_values) > 0
+        or len(numeric16_values) > 0
+        or has_property_command
     )
     for index in range(len(canonical_words)):
         if _is_table_command(canonical_words[index]):
@@ -853,8 +866,10 @@ def plan_prompt_table_commands(
     # successful Python reference contract.
     if multiple_mode and divisor_mode and has_fraction:
         unsupported = True
-    if has_fraction and multiple_mode and not _fraction_multiple_supported(
-        fraction_pairs
+    if (
+        has_fraction
+        and multiple_mode
+        and not _fraction_multiple_supported(fraction_pairs)
     ):
         unsupported = True
     if has_fraction and not _fraction_exclusions_supported(
@@ -899,7 +914,9 @@ def plan_prompt_table_commands(
             _append_unique_string(
                 whole_rows, String(pair.numerator // pair.denominator)
             )
-        if (not exact_exclusion or pair.numerator == 1) and pair.denominator % pair.numerator == 0:
+        if (
+            not exact_exclusion or pair.numerator == 1
+        ) and pair.denominator % pair.numerator == 0:
             _append_unique_string(
                 reciprocal_rows, String(pair.denominator // pair.numerator)
             )
@@ -938,9 +955,7 @@ def plan_prompt_table_commands(
         var divisor_rows = List[String]()
         var resolved_divisor_values = List[Int]()
         for value_index in range(len(row_values)):
-            if not _contains_int(
-                excluded_row_values, row_values[value_index]
-            ):
+            if not _contains_int(excluded_row_values, row_values[value_index]):
                 resolved_divisor_values.append(row_values[value_index])
 
         # The legacy teiler branch subtracts explicit negative components
@@ -953,19 +968,14 @@ def plan_prompt_table_commands(
             and len(row_parts) > 0
         ):
             divisor_rows.append("")
-        var ordered_divisors = python_divisor_set_order(
-            resolved_divisor_values
-        )
+        var ordered_divisors = python_divisor_set_order(resolved_divisor_values)
         for divisor_index in range(len(ordered_divisors)):
             divisor_rows.append(String(ordered_divisors[divisor_index]))
 
         # A pure zero selector contributes no teiler invocation at all.  Zero
         # is retained only alongside a real positive value or an exclusion,
         # exactly as in the reference prompt's raw component set.
-        if (
-            len(resolved_divisor_values) > 0
-            or saw_integer_component_exclusion
-        ):
+        if len(resolved_divisor_values) > 0 or saw_integer_component_exclusion:
             for index in range(len(row_parts)):
                 divisor_rows.append(row_parts[index])
         # Reduced n/m integers are added after the historical w/teiler
@@ -980,6 +990,7 @@ def plan_prompt_table_commands(
         if (
             len(numeric15_values) > 0
             or len(numeric16_values) > 0
+            or has_property_command
             or saw_ignored_negative_integer
             or (divisor_mode and len(row_parts) > 0)
         ):
@@ -1088,8 +1099,7 @@ def plan_prompt_table_commands(
             passthrough,
         )
     if (
-        _contains(canonical_words, "thomas")
-        or _contains(canonical_words, "t")
+        _contains(canonical_words, "thomas") or _contains(canonical_words, "t")
     ) and has_integer:
         _add_invocation(
             invocations,
@@ -1324,6 +1334,30 @@ def plan_prompt_table_commands(
             suppress_empty,
             passthrough,
         )
+    if has_property_command:
+        var property_plan = plan_prompt_property_commands(
+            words,
+            language,
+            has_integer,
+            integer_base,
+            has_reciprocal,
+            reciprocal_base,
+            counting,
+            invert,
+            suppress_empty,
+            passthrough,
+        )
+        for property_index in range(len(property_plan.invocations)):
+            var property_invocation = property_plan.invocations[
+                property_index
+            ].copy()
+            invocations.append(
+                PromptTableInvocation(
+                    _copy_strings(property_invocation.tokens),
+                    False,
+                )
+            )
+
     if _contains(canonical_words, "universum") or _contains(
         canonical_words, "u"
     ):
@@ -1403,7 +1437,9 @@ def plan_prompt_table_commands(
         )
 
     return PromptTablePlan(
-        len(invocations) > 0 or (has_fraction and not has_positive_fraction),
+        len(invocations) > 0
+        or (has_fraction and not has_positive_fraction)
+        or has_property_command,
         invocations^,
     )
 

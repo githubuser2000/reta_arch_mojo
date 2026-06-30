@@ -163,9 +163,7 @@ def test_integer_divisor_zero_and_exclusion_algebra_is_native() raises:
 
     var range_exclusion = _plan("universum teiler 1-3,-2")
     assert_true(range_exclusion.handled)
-    assert_true(
-        "--vorhervonausschnitt=3,-2,1-3" in _tokens(range_exclusion)
-    )
+    assert_true("--vorhervonausschnitt=3,-2,1-3" in _tokens(range_exclusion))
 
     var zero_exclusion = _plan("universum teiler 0,-2")
     assert_true(zero_exclusion.handled)
@@ -230,33 +228,25 @@ def test_fraction_divisors_and_reciprocal_multiples_are_native() raises:
     assert_false(_plan("mond 1/2").handled)
 
 
-
 def test_divisor_union_preserves_cpython_set_merge_order() raises:
     var multi = _plan("teiler mond 6 10")
     assert_true(multi.handled)
-    assert_true(
-        "--vorhervonausschnitt=2,3,5,6,10,10,6"
-        in _tokens(multi)
-    )
+    assert_true("--vorhervonausschnitt=2,3,5,6,10,10,6" in _tokens(multi))
 
     var mixed_multi = _plan("vielfache teiler mond 6 10")
     assert_true(mixed_multi.handled)
     assert_true(
-        "--vorhervonausschnitt=2,3,5,6,10,10,6,v10,v6"
-        in _tokens(mixed_multi)
+        "--vorhervonausschnitt=2,3,5,6,10,10,6,v10,v6" in _tokens(mixed_multi)
     )
 
     var range_plan = _plan("teiler mond 2-4")
-    assert_true(
-        "--vorhervonausschnitt=2,3,4,2-4" in _tokens(range_plan)
-    )
+    assert_true("--vorhervonausschnitt=2,3,4,2-4" in _tokens(range_plan))
 
     # 24 is the smallest common case where CPython's nested set-merge order
     # differs from a sorted divisor list: 24 precedes 12.
     var collision = _plan("teiler mond 24")
     assert_true(
-        "--vorhervonausschnitt=2,3,4,6,8,24,12,24"
-        in _tokens(collision)
+        "--vorhervonausschnitt=2,3,4,6,8,24,12,24" in _tokens(collision)
     )
 
 
@@ -265,10 +255,7 @@ def test_combined_integer_divisors_and_multiples_are_native() raises:
     assert_true(german.handled)
     assert_equal(len(german.invocations), 1)
     assert_false("--vielfachevonzahlen=12" in _tokens(german))
-    assert_true(
-        "--vorhervonausschnitt=2,3,4,6,12,12,v12"
-        in _tokens(german)
-    )
+    assert_true("--vorhervonausschnitt=2,3,4,6,12,12,v12" in _tokens(german))
     assert_false("--oberesmaximum=" in _tokens(german))
 
     var compact = _plan("v w mond 12")
@@ -284,10 +271,7 @@ def test_combined_integer_divisors_and_multiples_are_native() raises:
     assert_true(english.handled)
     assert_equal(len(english.invocations), 1)
     assert_true("-language=english" in _tokens(english))
-    assert_true(
-        "--vorhervonausschnitt=2,3,4,6,12,12,v12"
-        in _tokens(english)
-    )
+    assert_true("--vorhervonausschnitt=2,3,4,6,12,12,v12" in _tokens(english))
 
     # The rational combination remains at the explicit compatibility boundary.
     assert_false(_plan("vielfache teiler universum 1/2").handled)
@@ -351,13 +335,80 @@ def test_fraction_exclusions_and_prefixed_reciprocals_are_native() raises:
     var equal_literal_collision = _plan("universum 2/2,-2/2")
     assert_true(equal_literal_collision.handled)
     assert_equal(len(equal_literal_collision.invocations), 1)
-    assert_true("--vorhervonausschnitt=-2,2" in _tokens(equal_literal_collision))
+    assert_true(
+        "--vorhervonausschnitt=-2,2" in _tokens(equal_literal_collision)
+    )
 
     var prefixed = _plan("universum v1/4,-1/8")
     assert_true(prefixed.handled)
     assert_equal(len(prefixed.invocations), 1)
     assert_true("--vorhervonausschnitt=4,516,12,524" in _tokens(prefixed))
     assert_true(",500,1012,508" in _tokens(prefixed))
+
+
+def test_eign_properties_are_native_in_full_python_set_order() raises:
+    var plan = _plan("EIGNgut EIGNehrlich 2 --art=csv --nocolor")
+    assert_true(plan.handled)
+    assert_equal(len(plan.invocations), 1)
+    assert_true("--vorhervonausschnitt=2" in _tokens(plan))
+    assert_true("--konzept=ehrlich,gut" in _tokens(plan))
+    assert_true("--art=csv" in _tokens(plan))
+    assert_true("--nocolor" in _tokens(plan))
+
+    var reduced_whole = _plan("EIGNgut 4/2")
+    assert_true(reduced_whole.handled)
+    assert_equal(len(reduced_whole.invocations), 1)
+    assert_true("--vorhervonausschnitt=2" in _tokens(reduced_whole))
+
+    var proper_only = _plan("EIGNgut 2/3")
+    assert_true(proper_only.handled)
+    assert_equal(len(proper_only.invocations), 0)
+
+
+def test_eigr_properties_use_the_explicit_legacy_argv_contract() raises:
+    var integer = _plan("EIGRwerte 2 --art=csv --nocolor")
+    assert_true(integer.handled)
+    assert_equal(len(integer.invocations), 1)
+    assert_true("--vorhervonausschnitt=0" in _tokens(integer))
+    assert_true("--konzept2=werte" in _tokens(integer))
+    assert_true(
+        "-zeilen|--vorhervonausschnitt=2|--oberesmaximum=1025"
+        in _tokens(integer)
+    )
+
+    var reciprocal = _plan("EIGRwerte 1/2")
+    assert_true(reciprocal.handled)
+    assert_equal(len(reciprocal.invocations), 1)
+    assert_true("--vorhervonausschnitt=2" in _tokens(reciprocal))
+    assert_true("--konzept2=werte" in _tokens(reciprocal))
+
+    var proper_only = _plan("EIGRwerte 2/3")
+    assert_true(proper_only.handled)
+    assert_equal(len(proper_only.invocations), 0)
+
+
+def test_every_catalogued_eign_eigr_command_has_a_native_plan() raises:
+    var catalog = load_prompt_language_catalog("assets")
+    var count = 0
+    for entry_index in range(len(catalog.completions)):
+        var entry = catalog.completions[entry_index].copy()
+        if entry.language != "deutsch" or entry.scope != "root":
+            continue
+        for value_index in range(len(entry.values)):
+            var value = entry.values[value_index]
+            if not (value.startswith("EIGN") or value.startswith("EIGR")):
+                continue
+            var plan = plan_prompt_table_commands(
+                [value, "2"], "deutsch", catalog
+            )
+            assert_true(plan.handled)
+            assert_equal(len(plan.invocations), 1)
+            if value.startswith("EIGN"):
+                assert_true("--konzept=" in _tokens(plan))
+            else:
+                assert_true("--konzept2=" in _tokens(plan))
+            count += 1
+    assert_equal(count, 165)
 
 
 def test_pure_numeric_default_compositions_are_native() raises:
@@ -396,8 +447,7 @@ def test_pure_numeric_default_compositions_are_native() raises:
     assert_true(reciprocal_plan.handled)
     assert_equal(len(reciprocal_plan.invocations), 7)
     assert_true(
-        "--universum=transzendentaliereziproke"
-        in _tokens(reciprocal_plan, 6)
+        "--universum=transzendentaliereziproke" in _tokens(reciprocal_plan, 6)
     )
 
     var proper_default = prepare_prompt_tokens(
@@ -409,8 +459,7 @@ def test_pure_numeric_default_compositions_are_native() raises:
     assert_true(proper_plan.handled)
     assert_equal(len(proper_plan.invocations), 4)
     assert_true(
-        "--gebrochen-rational_Universum_n/m=3"
-        in _tokens(proper_plan, 3)
+        "--gebrochen-rational_Universum_n/m=3" in _tokens(proper_plan, 3)
     )
 
 
@@ -419,8 +468,7 @@ def test_numeric_shortcut_families_are_native() raises:
     assert_true(basic.handled)
     assert_equal(len(basic.invocations), 1)
     assert_true(
-        "--Grundstrukturen=Paradigmen_sind_Absichten_(13)"
-        in _tokens(basic)
+        "--Grundstrukturen=Paradigmen_sind_Absichten_(13)" in _tokens(basic)
     )
 
     var multi = _plan("16_2 2")
@@ -472,8 +520,7 @@ def test_numeric_shortcut_set_order_and_empty_selection() raises:
         + "Primzahl-Kreuz-Algorithmus_(15)"
     )
     assert_true(
-        "--Grundstrukturen=" + bundle + "," + bundle
-        in _tokens(repeated)
+        "--Grundstrukturen=" + bundle + "," + bundle in _tokens(repeated)
     )
 
 
@@ -481,8 +528,7 @@ def test_english_numeric_shortcut_option_names() raises:
     var basic = _plan("15_13 13", "english")
     assert_true(basic.handled)
     assert_true(
-        "--basic_structures=paradigms_are_intentions_(13)"
-        in _tokens(basic)
+        "--basic_structures=paradigms_are_intentions_(13)" in _tokens(basic)
     )
     var multi = _plan("16_2 2", "english")
     assert_true(multi.handled)
@@ -503,19 +549,15 @@ def test_every_addressable_numeric_catalog_entry_has_a_native_plan() raises:
         var words = List[String]()
         words.append(entry.family + "_" + entry.key)
         words.append("2")
-        var plan = plan_prompt_table_commands(
-            words, entry.language, catalog
-        )
+        var plan = plan_prompt_table_commands(words, entry.language, catalog)
         assert_true(plan.handled)
         assert_equal(len(plan.invocations), 1)
         var expected_name = (
-            "Grundstrukturen"
-            if entry.language == "deutsch" and entry.family == "15"
-            else "Multiversum"
-            if entry.language == "deutsch"
-            else "basic_structures"
-            if entry.family == "15"
-            else "multiverse"
+            "Grundstrukturen" if entry.language == "deutsch"
+            and entry.family
+            == "15" else "Multiversum" if entry.language
+            == "deutsch" else "basic_structures" if entry.family
+            == "15" else "multiverse"
         )
         assert_true("--" + expected_name + "=" in _tokens(plan))
     assert_equal(addressable, 365)

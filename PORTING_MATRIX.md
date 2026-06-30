@@ -1,12 +1,12 @@
 # Portierungsmatrix Python → Mojo
 
-Stand: 29. Juni 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der gebündelten Python-Kompatibilitätsreferenz.
+Stand: 30. Juni 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der gebündelten Python-Kompatibilitätsreferenz.
 
 - Ursprüngliche Python-Dateien: **92**
 - Ursprüngliche Python-Zeilen insgesamt: **48831**
 - Zusätzlicher Bridge-Adapter: **1 Python-Datei**
 - Konservativ mindestens teilweise portierte Originaldateien: **46/92**
-- Native Mojo-Quellzeilen unter `src/`: **18153**
+- Native Mojo-Quellzeilen unter `src/`: **18802**
 - Native Mojo-Quellzeilen: siehe `src/` (inklusive generiertem Kategoriekatalog)
 
 | Python-Datei | Zeilen | Funktionen | Klassen | dynamische Aufrufe | Status | Mojo/Ziel | Anmerkung |
@@ -34,7 +34,7 @@ Stand: 29. Juni 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der 
 | `multis.py` | 34 | 2 | 0 | 0 | nativ | `src/reta_mojo/arithmetic.mojo + prompt_runtime.mojo` | Faktorpaare und öffentliche multis-CLI nativ |
 | `multis3.py` | 34 | 1 | 0 | 0 | nativ | `src/reta_mojo/arithmetic.mojo + prompt_runtime.mojo` | Dreifach-Faktorisierung nativ; deterministische lexikographische Ausgabe statt Set-Reihenfolge |
 | `reta.py` | 214 | 19 | 1 | 3 | teilweise nativ | `src/reta_native_main.mojo + src/reta_mojo/native_reta_cli.mojo` | häufige deutsche und englische Tabellenaufrufe nativ; relative Ergebnis-Spaltenreihenfolge nach Generatoren unterstützt; vollständige Legacy-Oberfläche bleibt über RETA_NATIVE=0 kompatibel |
-| `retaPrompt.py` | 130 | 10 | 0 | 3 | weitgehend nativ | `src/prompt_main.mojo + src/reta_mojo/prompt_runtime.mojo + prompt_language.mojo + prompt_legacy_echo.mojo` | Controller, Sitzungskern, Kurzsprache, Completion, explizite One-shots, sämtliche kompakte Tabellenfamilien sowie positive reine Zahlen-/Bruch- und 15/16-Katalogkompositionen mit bytegenauem Legacy-Echo nativ; Sonderwerte und noch nicht portierte Fachoperationen gehen unverändert an die Bridge |
+| `retaPrompt.py` | 130 | 10 | 0 | 3 | weitgehend nativ | `src/prompt_main.mojo + src/reta_mojo/prompt_runtime.mojo + prompt_language.mojo + prompt_legacy_echo.mojo + prompt_property_execution.mojo` | Controller, Sitzungskern, Kurzsprache, Completion, explizite One-shots, sämtliche kompakte Tabellenfamilien, positive reine Zahlen-/Bruch- und 15/16-Katalogkompositionen sowie alle 165 EIGN/EIGR-Eigenschaftsbefehle nativ; Sonderwerte und noch nicht portierte Fachoperationen gehen unverändert an die Bridge |
 | `reta_architecture/__init__.py` | 598 | 0 | 0 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/__init__.py` | noch nicht nativ portiert |
 | `reta_architecture/architecture_activation.py` | 600 | 20 | 9 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/architecture_activation.py` | noch nicht nativ portiert |
 | `reta_architecture/architecture_boundaries.py` | 343 | 20 | 8 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/architecture_boundaries.py` | noch nicht nativ portiert |
@@ -72,7 +72,7 @@ Stand: 29. Juni 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der 
 | `reta_architecture/persistence.py` | 485 | 27 | 3 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/persistence.py` | noch nicht nativ portiert |
 | `reta_architecture/presheaves.py` | 150 | 15 | 5 | 0 | teilweise nativ | `src/reta_mojo/presheaves.mojo` | typisierte String-Lokalsektionen und Restriktion |
 | `reta_architecture/program_workflow.py` | 379 | 12 | 1 | 4 | Python-Referenz/Bridge | `python_reference/reta_architecture/program_workflow.py` | noch nicht nativ portiert |
-| `reta_architecture/prompt_execution.py` | 2516 | 24 | 1 | 3 | weitgehend nativ | `src/reta_mojo/prompt_fraction_execution.mojo + prompt_table_execution.mojo + prompt_runtime.mojo + prompt_main.mojo` | Bruchparser, historische Bruchbereiche, Quotientenachsen, Primfaktorenvergleich, beliebig viele stabile Abstandsbereiche, 18 Tabellenfamilien, Null-/Negativselektoren, kollidierende All-Zeilen-Ausschlüsse, Bruchteiler, Reziprok-Vielfache, komponierte ganzzahlige Vielfachen-/Teilerpfade mit verschachtelter CPython-Setordnung und wiederholte numerische Katalogauswahlen nativ; echte `v n/m`-Vielfache und weitere Sonderzweige bleiben Bridge |
+| `reta_architecture/prompt_execution.py` | 2516 | 24 | 1 | 3 | weitgehend nativ | `src/reta_mojo/prompt_fraction_execution.mojo + prompt_property_execution.mojo + prompt_table_execution.mojo + prompt_runtime.mojo + prompt_main.mojo` | Bruchparser, historische Bruchbereiche, Quotientenachsen, Primfaktorenvergleich, beliebig viele stabile Abstandsbereiche, 18 Domänenfamilien sowie EIGN/EIGR mit 165 Katalogbefehlen, Null-/Negativselektoren, kollidierende All-Zeilen-Ausschlüsse, Bruchteiler, Reziprok-Vielfache, komponierte ganzzahlige Vielfachen-/Teilerpfade mit verschachtelter CPython-Setordnung und wiederholte numerische Katalogauswahlen nativ; echte `v n/m`-Vielfache und weitere Sonderzweige bleiben Bridge |
 | `reta_architecture/prompt_interaction.py` | 273 | 15 | 1 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/prompt_interaction.py` | noch nicht nativ portiert |
 | `reta_architecture/prompt_language.py` | 492 | 23 | 2 | 2 | weitgehend nativ | `src/reta_mojo/prompt_language.mojo + assets/prompt_*.tsv` | Tokenisierung, Kurzexpansion, Dispatch, Vokabular und verschachtelte Completion nativ |
 | `reta_architecture/prompt_preparation.py` | 462 | 14 | 1 | 4 | teilweise nativ | `src/reta_mojo/prompt_language.mojo` | Kurzexpansion, Ein-Zeichen-Ersetzung und finale CPython-Set-Reihenfolge bytegleich; hintere fachliche Vorbereitung offen |

@@ -357,3 +357,16 @@ Der Shellrenderer bestimmt die Spaltenbreite jetzt nach dem historischen Vorbere
 - Die Teilerreihenfolge bildet nicht bloß eine Ganzzahlmenge nach. Das Original verschachtelt Faktor-Tupelmengen, eine zweite Tupelkonvertierung, zweielementige Ganzzahlmengen und `set |=`. Der Port reproduziert dafür Tupelhash, Probing, direkte Add-Resizes, Merge-Resizes und den leeren Tabellenkopierpfad von CPython 3.13.
 - Absolute Selektoren mit eingebettetem `vN` bestimmen ihre Tabellenobergrenze vor dem eigentlichen Zeilenfilter. Die erste 1028-begrenzte Expansion liefert `max(Auswahl) + 1`; die zweite Expansion gegen diese neue Grenze erklärt historische Folgezeilen wie 1029 bei `v2-4`.
 - Die native CSV-Tabelle wird für solche Selektoren mit typisierten Leerzeilen erweitert, damit Generatoren auch oberhalb der physischen Zeile 1024 arbeiten können. Der dedizierte `--vielfachevonzahlen`-Pfad behält seine kurze Haupttabellengrenze.
+
+## Stage 10n: EIGN/EIGR ohne Prompt-Bridge
+
+`EIGN<eigenschaft>` und `EIGR<eigenschaft>` gehören nun zum nativen
+One-shot-Vertrag. Der deutsche Promptkatalog enthält zusammen 165 solche
+Befehle. EIGN wird auf `--konzept`, EIGR auf `--konzept2` abgebildet. Bei EIGR
+mit Ganzzahl bleibt die zweite historische `-zeilen`-Sektion hinter den
+Ausgabeparametern erhalten.
+
+Die Python-Promptimplementierung von EIGR scheitert derzeit vor der Ausführung
+beim tiefen Kopieren eines Modulobjekts. Der Mojo-Port folgt dem unmittelbar im
+Referenzzweig gebildeten und über `reta.py` erfolgreich geprüften Argumentvektor
+und übernimmt nicht diesen vorgeschalteten Defekt.

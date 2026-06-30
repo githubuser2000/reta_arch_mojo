@@ -9,11 +9,11 @@
 - Konservativ vollständig native oder reproduzierbar generierte Originaldateien: **18/92 = 19,6 %**
 - Mindestens teilweise portierte Originaldateien: **46/92 = 50,0 %**
 - Gewichteter Quellzeilenstand: **ca. 29 %**
-- Nativer Mojo-Quellcode in `src/`: **18.595 Zeilen**
-- Davon im Paket `reta_mojo`: **16.921 Zeilen**
-- Native Mojo-Testdateien und -Probes: **52**
-- Native Testfunktionen: **258**
-- Aktuell fokussiert dokumentiert: **147/147 bestanden**
+- Nativer Mojo-Quellcode in `src/`: **18.802 Zeilen**
+- Davon im Paket `reta_mojo`: **17.128 Zeilen**
+- Native Mojo-Testdateien und -Probes: **54**
+- Native Testfunktionen: **267**
+- Stage-10n-Fokus: **6/6** Unit, **23/23** Integration, **165/165** Katalogbefehle, **5/5** Tabellenströme, **2/2** EIGN-Promptnutzlasten und **6/6** isolierte One-shots bestanden
 - Prompt-Kurzsprache: **27/27 deutsche und englische Referenzkontexte bytegleich**
 - Promptvorbereitung: **23/23 deutsche und englische Referenzkontexte bytegleich**
 - Verschachtelte Completion: **12/12 Referenzkontexte und 12/12 schnelle Fixtures bytegleich**
@@ -65,7 +65,7 @@
 - interaktiver Pseudoterminaltest ergänzt `reta -ausgabe --art=htm<Tab>` zu `html`
 - nativer Bruchparser für die vordere `prompt_execution.py`-Strecke einschließlich Bereichsbildung, Reziprok- und Ganzzahlerkennung
 - native Fachbefehle `primfaktorenvergleich`, `abstand` und `abstandPrim`; Abstände besitzen keine Zweibereichsgrenze mehr und reproduzieren CPython-`set[frozenset[int]]`- sowie Difference-Reihenfolgen
-- besitzende Tabellenplanung in `prompt_table_execution.mojo` für **18 Promptfamilien**
+- besitzende Tabellenplanung in `prompt_table_execution.mojo` für **18 Domänenfamilien plus EIGN/EIGR-Eigenschaftsachsen**
 - Ganzzahlen einschließlich `0`, rein negative Selektoren, Reziproke und echte `n/m`-Achsen werden gemeinsam geplant
 - ganzzahlige `vielfache`, `teiler` und `einzeln` sind nativ
 - kombinierte ganzzahlige `vielfache`-/`teiler`-Pfade sind nativ; Teilervereinigung und rohe `vN`-Komposition behalten die verschachtelte CPython-Set-Reihenfolge
@@ -88,6 +88,8 @@
 - `generate_html` besitzt Asset-, Override- und Seitenorchestrierung nativ; die große `--alles`-Mitteltabelle bleibt ein expliziter Referenzkindprozess
 - wiederholte numerische Katalogauswahlen behalten ihr doppeltes Legacy-Echo, werden semantisch wie Python auf eine Generatoranforderung reduziert und laufen ohne Fallback
 - die historische Shell-Zählungsmarkierung `█` ist zentral im nativen Renderer modelliert
+- alle **165** katalogisierten deutschen `EIGN…`-/`EIGR…`-Eigenschaftsbefehle werden nativ geplant; CPython-Set-Reihenfolge, Ganzzahl-, Reziprok- und gemischte Zweit-`-zeilen`-Achsen bleiben erhalten
+- EIGR umgeht den defekten Python-`deepcopy(module)`-Wrapper über dessen expliziten, direkt lauffähigen `reta.py`-Argumentvertrag
 
 ## Weiterhin an der Kompatibilitätsgrenze
 

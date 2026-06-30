@@ -149,7 +149,7 @@ Geprüft sind 27 kompakte deutsch/englische Kurzsprachenkontexte, 23 vollständi
 
 `src/reta_mojo/prompt_fraction_execution.mojo` übernimmt die vordere Bruch- und Bereichssprache aus `prompt_execution.py`. `primfaktorenvergleich` sowie `abstand`/`abstandPrim` mit beliebig vielen stabilen Zahlenbereichen werden nativ ausgeführt; die verschachtelte CPython-`set[frozenset[int]]`-Reihenfolge bleibt dabei erhalten.
 
-`src/reta_mojo/prompt_table_execution.mojo` plant 18 Promptfamilien: `mond`, `richtung`, `primzahlkreuz`, `alles`, `thomas`, `emotion`, `wirklichkeit`, `triebe`, `impulse`, `bewusstsein`, `geist`, `freiheit/gleichheit`, `groesse`, `kugeln/kreise`, `netzwerk`, `komplex`, `absicht/motiv` und `universum`. Mehrere Fachwörter in einer Eingabe erzeugen mehrere native Aufrufe wie die unabhängigen Python-Zweige; `range`, Invertierung und Ausgabeparameter werden weitergereicht.
+`src/reta_mojo/prompt_table_execution.mojo` plant 18 Domänenfamilien: `mond`, `richtung`, `primzahlkreuz`, `alles`, `thomas`, `emotion`, `wirklichkeit`, `triebe`, `impulse`, `bewusstsein`, `geist`, `freiheit/gleichheit`, `groesse`, `kugeln/kreise`, `netzwerk`, `komplex`, `absicht/motiv` und `universum`. Mehrere Fachwörter in einer Eingabe erzeugen mehrere native Aufrufe wie die unabhängigen Python-Zweige; `range`, Invertierung und Ausgabeparameter werden weitergereicht. Stage 10n ergänzt die zwei dynamischen Eigenschaftsachsen `EIGN…` und `EIGR…` mit allen 165 deutschen Katalogbefehlen.
 
 Neben den Ganzzahlpfaden werden ganzzahlige `vielfache`/`teiler`/`einzeln`, positive `1/n`- und `n/m`-Ausdrücke, reduzierte Achsen sowie historische Rechteck- und Versatzformen wie `1/2-3/3` und `4/5+2/2` nativ geplant. Stage 10d ergänzt stabile negative Bruchausschlüsse, Bruchteiler und Reziprok-Vielfache wie `v1/256,-1/512`; Stage 10i übernimmt zusätzlich Nullwerte, rein negative Selektoren und kollidierende All-Zeilen-Ausschlüsse. Die eigentlichen Tabellen laufen im kompilierten `reta-native`-Kern. Echte `v n/m`-Vielfache mit Zähler größer 1 bleiben an der Kompatibilitätsgrenze, weil die Python-Referenz in diesem Zweig selbst mit `IndexError` abbricht.
 
@@ -180,6 +180,10 @@ Stage 10l ersetzt die zentrale `pathlib`-Dateibrücke durch natives Mojo-I/O, gi
 ### Stage 10m: komponierte Ganzzahlmodifikatoren und dynamische `vN`-Grenzen
 
 Ganzzahlige `vielfache`- und `teiler`-Befehle werden nun auch kombiniert vollständig nativ geplant. Die sichtbare Teilervereinigung reproduziert die verschachtelte CPython-3.13-Semantik aus Faktor-Tupelmengen, zweielementigen Ganzzahlmengen und `set_merge`; dadurch bleibt selbst die Reihenfolge `24 -> 2,3,4,6,8,24,12` erhalten. Absolute `vN`-Selektoren heben die native Tabellenobergrenze wie Python aus `max(Auswahl) + 1` an und können die physische CSV-Tabelle für generierte Zeilen über 1024 erweitern. Details: [`STAGE10M_NATIVE_INTEGER_MODIFIER_COMPOSITION.md`](STAGE10M_NATIVE_INTEGER_MODIFIER_COMPOSITION.md).
+
+### Stage 10n: native EIGN/EIGR-Eigenschaftsachsen
+
+Alle 165 im deutschen Promptkatalog veröffentlichten `EIGN…`- und `EIGR…`-Befehle werden vor dem Python-Import geplant. EIGN adressiert `--konzept`, EIGR `--konzept2`; Ganzzahlen, Reziproke, reduzierte Ganzzahlbrüche und die historische zweite `-zeilen`-Sektion werden typisiert erhalten. Die aktuelle Python-Promptschicht scheitert bei EIGR in `deepcopy(module)`; Mojo führt stattdessen den direkt lauffähigen, im Referenzcode explizit gebildeten `reta.py`-Argumentvektor aus. Details: [`STAGE10N_NATIVE_PROMPT_PROPERTIES.md`](STAGE10N_NATIVE_PROMPT_PROPERTIES.md).
 
 ### Stage 10j: wiederholte Katalogauswahl und Whitespace-genauer Shellumbruch
 
