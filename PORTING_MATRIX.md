@@ -12,6 +12,7 @@ Stand: 30. Juni 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der 
 |---|---:|---:|---:|---:|---|---|---|
 | `bbcode.py` | 9 | 2 | 1 | 0 | nativ | `src/reta_mojo/compat_text.mojo` | identische Text-Fallbacksemantik ohne Python-Abhängigkeit |
 | `grundStrukHtml.py` | 232 | 5 | 0 | 0 | generiert nativ | `src/reta_mojo/grundstrukturen_html.mojo + grundstrukturen_catalog.mojo` | Renderer vollständig nativ; lokalisierter wahl15-Katalog reproduzierbar generiert und bytegleich |
+| `generate_html` | 8 | 0 | 0 | 1 | nativ | `src/generate_html_main.mojo + reta_mojo/all_columns.mojo` | zwölfteiliger `--alles`-Plan und vollständige Seitenkomposition ohne Python-/Subprozessbrücke |
 | `html2text.py` | 9 | 2 | 1 | 0 | nativ | `src/reta_mojo/compat_text.mojo` | identische Text-Fallbacksemantik ohne Python-Abhängigkeit |
 | `i18n/words.py` | 24 | 0 | 0 | 0 | Python-Referenz/Bridge | `python_reference/i18n/words.py` | noch nicht nativ portiert |
 | `i18n/words_bootstrap.py` | 49 | 2 | 0 | 0 | Python-Referenz/Bridge | `python_reference/i18n/words_bootstrap.py` | noch nicht nativ portiert |

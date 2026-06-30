@@ -1,18 +1,18 @@
 """Native Mojo orchestration for the historical ``generate_html`` program.
 
-Asset loading, middle-file handling, hierarchy rendering and byte-preserving
-page assembly are native Mojo.  The still-unported ``-spalten --alles`` table
-family remains one explicit child-process boundary until the complete all-column
-matrix is owned by the native table engine; no CPython runtime is embedded in
-this executable.
+Asset loading, all-column table generation, hierarchy rendering and byte-preserving
+page assembly are native Mojo.  The historical ``-spalten --alles`` middle table
+is resolved through a generated twelve-bucket selection plan and the native table
+engine; this executable starts neither Python nor a child process.
 """
 
+from std.collections import List
 from std.io import FileHandle
 from std.os import getenv
-from std.subprocess import run
 from std.sys import argv
 from reta_mojo.csv_table import read_text_file
 from reta_mojo.grundstrukturen_html import render_grundstrukturen_html
+from reta_mojo.native_reta_cli import run_native_reta
 
 
 def _language_from_arguments(
@@ -46,10 +46,6 @@ def _language_from_arguments(
     return language^
 
 
-def _shell_quote(value: String) -> String:
-    return "'" + value.replace("'", "'\"'\"'") + "'"
-
-
 def _write_text_file(path: String, text: String) raises:
     var file = open(path, "w")
     file.write_all(text.as_bytes())
@@ -62,24 +58,23 @@ def _generate_middle(language: String) raises -> String:
         _write_text_file("middle.alx", middle)
         return middle^
 
-    var reference_python = String(getenv("RETA_REFERENCE_PYTHON", "python3").strip())
-    if reference_python.byte_length() == 0:
-        reference_python = "python3"
-    var command = (
-        _shell_quote(reference_python)
-        + " python_reference/reta.py -spalten --alles --breite=0"
-        + " -ausgabe --art=html --onetable --nocolor"
-    )
+    var tokens = List[String]()
+    tokens.append("-spalten")
+    tokens.append("--alles")
+    tokens.append("--breite=0")
+    tokens.append("-ausgabe")
+    tokens.append("--art=html")
+    tokens.append("--onetable")
+    tokens.append("--nocolor")
     if language.byte_length() > 0:
-        command += " -language=" + _shell_quote(language)
+        tokens.append("-language=" + language)
     var row_limit = String(getenv("RETA_GENERATE_HTML_ROWS").strip())
     if row_limit.byte_length() > 0:
-        command += " -zeilen --vorhervonausschnitt=" + _shell_quote(row_limit)
-    command += " > middle.alx && printf RETA_GENERATE_HTML_OK"
-    var marker = run(command)
-    if marker != "RETA_GENERATE_HTML_OK":
-        raise Error("reta HTML generation failed")
-    return read_text_file("middle.alx")
+        tokens.append("-zeilen")
+        tokens.append("--vorhervonausschnitt=" + row_limit)
+    var middle = run_native_reta(tokens, "python_reference/csv/religion.csv")
+    _write_text_file("middle.alx", middle)
+    return middle^
 
 
 def _write_stdout(text: String) raises:

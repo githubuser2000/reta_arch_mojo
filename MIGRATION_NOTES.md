@@ -347,7 +347,7 @@ Der Shellrenderer bestimmt die Spaltenbreite jetzt nach dem historischen Vorbere
 
 - `csv_table.read_text_file` verwendet natives `open(...).read()` statt `std.python`/`pathlib`; alle darauf aufbauenden CSV-, TSV-, Prompt- und HTML-Assetloader erben diese Besitzgrenze.
 - `reta-prompt-complete` liest Dateideskriptor 0 und schreibt Dateideskriptor 1 über `FileHandle`; leere Zeilen, CRLF, EOF und persistente Mehrfachanfragen bleiben erhalten.
-- `generate_html_main.mojo` besitzt Argumente, Environment, Override, `middle.alx`, Assets, Hierarchie und stdout. Nur die noch unportierte `--spalten --alles`-Mitteltabelle wird im Normalmodus als expliziter Python-Kindprozess erzeugt.
+- `generate_html_main.mojo` besitzt Argumente, Environment, Override, `middle.alx`, Assets, Hierarchie und stdout. Seit Stage 12b wird auch die zwölfteilige `--spalten --alles`-Mitteltabelle direkt durch `run_native_reta` erzeugt; ein Python-Kindprozess entfällt.
 - Die veraltete positive-Breiten-Sperre in `native_reta_tokens_supported` entfällt. Shell, HTML und BBCode mit Breite 40 laufen aus dem Prompt bytegleich vor jedem Python-Import.
 - Neue Regressionen prüfen fehlende `libpython`-NEEDED-Einträge, einen absichtlich ungültigen Referenzinterpreter im HTML-Overridepfad sowie Python-quellfreie Tabellen-, Completion- und Promptausführung.
 
@@ -472,3 +472,12 @@ Ein vorläufiger Lauf mit 20.000 Zeilen und acht Workern benötigte in der verwe
 Die frühere Mojo-Portierung hatte Richs internen Aufruf `Console.print(..., end="")` wörtlich kopiert. Das gerenderte Python-`Syntax`-Objekt beendet seine physische Zeile dennoch mit LF. Mojo gab dagegen die nächste `reta`-Zeile direkt anschließend aus. Die neue Funktion `compact_prompt_announcement_line()` macht den beobachtbaren Bytevertrag explizit und liefert genau eine vollständige Zeile einschließlich `\n`.
 
 Ein separater Fixture-Integritätstest verbietet nun `reta-Befehl:reta `, leere Referenzdateien und fehlende zweite Nutzlastzeilen. Damit wird nicht nur der konkrete Fehler, sondern auch seine bisherige Testlücke geschlossen.
+
+
+## Stage 12b – native `--alles`-Spaltenauswahl und HTML-Gesamtgenerator
+
+- `scripts/generate_all_columns_plan.py` extrahiert die zwölf bereits aufgelösten Buckets des synthetischen Python-Parameters mit festem `PYTHONHASHSEED=0`.
+- `all_columns.mojo` lädt 756 Quellwerte als typisierte physische, modale, Meta-, Bruch-, Kombi- und Generatoranforderungen.
+- `native_reta_cli.mojo` besitzt `-spalten --alles` und `--onetable`; der HTML-Gesamtgenerator ruft den Tabellenkern direkt im selben Mojo-Prozess auf.
+- Das Ein-Zeilen-Fixture enthält 805 Daten-/Generatorspalten plus zwei Nummerierungszellen und wird nach dem lokalen Build bytegenau geprüft.
+- Der explizite Boundary-Bestand sinkt von drei auf zwei Runtime-Brücken.

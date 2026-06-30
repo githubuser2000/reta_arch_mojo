@@ -86,7 +86,7 @@ Die siebzehn Ziele enthalten sehr große generierte Konstantenstrukturen, Grenzg
 
 Das Quellrelease enthält weder `.venv/`, `target/` noch ELF-Dateien. Dadurch entstehen keine fremden absoluten Runtime-Pfade im Git-Repository oder Releasearchiv.
 
-`generate-html-native` lädt und komponiert Assets nativ. Nur die noch nicht portierte große `--spalten --alles`-Mitteltabelle wird im normalen Generatorpfad über einen expliziten Referenzkindprozess erzeugt; der Overridepfad benötigt Python nicht.
+`generate-html-native` lädt Assets, löst den zwölfteiligen `--spalten --alles`-Plan auf, rendert die Mitteltabelle und komponiert die Seite vollständig im Mojo-Prozess. Weder Normal- noch Overridepfad benötigt Python oder einen Kindprozess.
 
 
 ## Stage 11e: gezielt unoptimierte Metadaten-Controller
@@ -146,3 +146,15 @@ Das Skript prüft zusätzlich die kompakte Prompt-Zeilengrenze, die Integrität 
 ```
 
 Die fokussierten Befehle dürfen mit längeren Zeitlimits ausgeführt werden. Die vollständigen Skripte `scripts/build-heavy.sh` und `scripts/build.sh` werden für das Übergabearchiv nicht erneut benötigt und können auf dem Zielsystem gebaut werden.
+
+
+## Stage 12b: nativer `--alles`-HTML-Pfad
+
+Der reguläre Build erzeugt `generate-html-native` ohne Python- oder Subprozessimport. Der reproduzierbare Plan- und Loader-Test ist klein und kann getrennt ausgeführt werden:
+
+```bash
+./scripts/check_all_columns_plan.sh
+./scripts/test_stage12b.sh
+```
+
+Nach `scripts/build.sh` vergleicht `scripts/check_html_parity.sh` die native Ein-Zeilen-Mitteltabelle mit dem eingefrorenen CPython-Referenzfixture mit 805 Daten-/Generatorspalten.

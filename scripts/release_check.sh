@@ -22,6 +22,7 @@ cd "$ROOT"
 ./scripts/test_prompt_bins.sh
 ./scripts/test_stage10.sh
 ./scripts/check_compat_parity.sh
+./scripts/check_all_columns_plan.sh
 ./scripts/check_html_parity.sh
 ./scripts/check_html_cell_catalog.sh
 ./scripts/check_html_heading_catalog.sh

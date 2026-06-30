@@ -14,6 +14,7 @@ from .table_rendering import (
     render_table_with_native_context,
 )
 from .generated_table_columns import apply_native_generated_columns
+from .all_columns import load_all_column_selection
 from .kombi_join_columns import (
     KombiColumnRequest,
     append_unique_kombi_request,
@@ -320,6 +321,7 @@ def build_native_reta_plan(tokens: List[String], maximum_columns: Int, maximum_r
     var negative_kombi = List[KombiColumnRequest]()
     var positive_commands = List[String]()
     var negative_commands = List[String]()
+    var all_columns_requested = False
     var diagnostics = parsed.diagnostics.copy()
 
     for option_index in range(len(parsed.options)):
@@ -376,6 +378,9 @@ def build_native_reta_plan(tokens: List[String], maximum_columns: Int, maximum_r
                             _append_unique_int(explicit_order, column - 1)
             continue
         if _section_is(option.section, "spalten", "columns"):
+            if option.name == "alles" or option.name == "all":
+                all_columns_requested = True
+                continue
             if option.name == "breite" or option.name == "width":
                 if len(option.values) > 0:
                     width = atol(option.values[0].text)
@@ -410,6 +415,21 @@ def build_native_reta_plan(tokens: List[String], maximum_columns: Int, maximum_r
                         positive_commands,
                         negative_commands,
                     )
+
+    if all_columns_requested:
+        var all_selection = load_all_column_selection()
+        for column_index in range(len(all_selection.columns)):
+            _append_unique_int(positive_columns, all_selection.columns[column_index])
+        for modal_index in range(len(all_selection.modal_concepts)):
+            append_unique_modal_concept(positive_modal, all_selection.modal_concepts[modal_index])
+        for meta_index in range(len(all_selection.meta_requests)):
+            append_unique_meta_request(positive_meta, all_selection.meta_requests[meta_index])
+        for fraction_index in range(len(all_selection.fraction_requests)):
+            append_unique_fraction_request(positive_fractions, all_selection.fraction_requests[fraction_index])
+        for kombi_index in range(len(all_selection.kombi_requests)):
+            append_unique_kombi_request(positive_kombi, all_selection.kombi_requests[kombi_index])
+        for command_index in range(len(all_selection.generated_commands)):
+            _append_unique_string_native(positive_commands, all_selection.generated_commands[command_index])
 
     # Python removes row predicates that occur on both polarity sides before
     # evaluating the selector.  Exact 2/-2 cancellation therefore means that
@@ -556,6 +576,7 @@ def _native_output_option_supported(name: String) -> Bool:
         or name == "keineueberschriften"
         or name == "noheadings"
         or name == "nocolor"
+        or name == "onetable"
         or name == "spaltenreihenfolgeundnurdiese"
         or name == "columnorderandonlythese"
         or name == "columnorder"
@@ -600,6 +621,7 @@ def native_reta_tokens_supported(tokens: List[String], csv_path: String) raises 
                 or option.name == "keineueberschriften"
                 or option.name == "noheadings"
                 or option.name == "nocolor"
+                or option.name == "onetable"
             )
             if not output_flag and len(option.values) == 0:
                 return False
@@ -607,6 +629,8 @@ def native_reta_tokens_supported(tokens: List[String], csv_path: String) raises 
             var column_flag = (
                 option.name == "keinenummerierung"
                 or option.name == "nonumbering"
+                or option.name == "alles"
+                or option.name == "all"
             )
             var column_value_option = (
                 option.name == "breite" or option.name == "width"

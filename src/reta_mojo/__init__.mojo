@@ -33,3 +33,5 @@ from .prime_cross_columns import *
 from .prime_effect_columns import *
 from .prime_universe_columns import *
 from .prompt_fraction_execution import *
+
+from .all_columns import *

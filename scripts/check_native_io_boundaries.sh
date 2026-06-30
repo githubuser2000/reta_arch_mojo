@@ -71,14 +71,17 @@ cat "$ROOT/assets/html/head1.alx" \
 )
 cmp "$TMP/html.expected" "$TMP/html.actual"
 
-if (
+(
     cd "$TMP"
     RETA_REFERENCE_PYTHON=/definitely/not/available \
     RETA_GENERATE_HTML_ROWS=1 \
-        "$ROOT/target/bin/generate-html-native" > /dev/null 2> /dev/null
-); then
-    printf '%s\n' 'Fehlgeschlagener HTML-Referenzprozess wurde fälschlich akzeptiert.' >&2
+        "$ROOT/target/bin/generate-html-native" > html-native-all.actual
+)
+test -s "$TMP/html-native-all.actual"
+test -s "$TMP/middle.alx"
+if grep -q '^from std\.subprocess import' "$ROOT/src/generate_html_main.mojo"; then
+    printf '%s\n' 'generate_html enthält unerwartet noch eine Subprozessbrücke.' >&2
     exit 1
 fi
 
-printf '%s\n' 'Native Datei-, Pipe- und HTML-Override-I/O funktionieren ohne CPython-Runtime oder Python-Quellbaum.'
+printf '%s\n' 'Native Datei-, Pipe- und generate_html-I/O funktionieren ohne CPython-Runtime oder Python-Kindprozess.'

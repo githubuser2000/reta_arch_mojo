@@ -258,7 +258,7 @@ Die unveränderte Python-Referenz hatte beim Eingang bereits drei fehlschlagende
 - Die fokussierten dokumentierten Einzelsuiten stehen damit bei **143/143**.
 - `scripts/test_stage10.sh`: **113/113** Stage-10-Mojo-Tests und sämtliche Fraction-, Prompt-, Compact-, Numeric-, Distance-, Preparation- und Completion-Prüfungen mit Exitcode 0.
 - `check_prompt_width_oneshot.sh`: **3/3** positive Shell-/HTML-/BBCode-Breiten bytegleich, ohne Python-Quellbaum und ohne `reta-native`-Kindprozess.
-- `check_native_io_boundaries.sh`: native CSV-/Asset-Datei-I/O, persistentes Completion-Protokoll und HTML-Override ohne `std.python` beziehungsweise `libpython`; ein fehlgeschlagener Referenzkindprozess wird nicht als Erfolg akzeptiert.
+- `check_native_io_boundaries.sh`: native CSV-/Asset-Datei-I/O, persistentes Completion-Protokoll und HTML-Override ohne `std.python` beziehungsweise `libpython`; seit Stage 12b läuft auch der reale `--alles`-Normalpfad ohne Referenzkindprozess.
 - `check_prompt_completion_worker.py`: **12/12** Readline-Kontexte weiterhin bytegleich.
 - `check_html_parity.sh`: Override-, deutscher und englischer Ein-Zeilen-Normalpfad bytegleich; der normale Pfad besitzt genau die dokumentierte `--spalten --alles`-Referenzgrenze.
 - `scripts/build.sh`: alle **9/9** regulären Mojo-Executables aus dem finalen Stage-10l-Quellstand gebaut; `check_build_layout.sh` bestanden.
@@ -593,7 +593,7 @@ plus Boundary-Pytest:                         1/1
 Zusätzlich bestätigt:
 
 - **0** direkte native `fork`-, `pipe`-, `waitpid`- oder `_exit`-Primitive;
-- **3** explizit inventarisierte Restbrücken außerhalb der Parallelmodule;
+- **2** explizit inventarisierte Restbrücken nach Entfernung der `generate_html`-Subprozessgrenze;
 - **10** kanonische typisierte `*_threaded`-APIs;
 - alle drei Parallelmodule sind frei von `std.python` und `std.subprocess`;
 - `auto`, `threads` und historische Prozesswerte führen denselben Threadpfad aus;
@@ -610,4 +610,31 @@ Der fokussierte Lauf lautet:
 
 ```bash
 ./scripts/test_stage12a.sh
+```
+
+
+## Stage 12b: native `--alles`-Mitteltabelle und Entfernung der HTML-Brücke
+
+```text
+Plan-/Boundary-Pytests:                     5/5
+Mojo-All-Columns-Loader:                    1/1
+native POSIX-Prozessprimitive:                0
+explizite verbleibende Runtime-Brücken:       2
+Quellwerte im zwölfteiligen Alles-Plan:      756
+Daten-/Generatorspalten im Referenzfixture:  805
+```
+
+Zusätzlich bestätigt:
+
+- `assets/all_columns_plan.tsv` wird mit `PYTHONHASHSEED=0` byteidentisch aus der Python-Referenz reproduziert;
+- das Ein-Zeilen-HTML-Fixture besitzt zwei vollständige Zeilen, 1614 öffnende und 1614 schließende Zellen sowie einen vollständigen Tabellenabschluss;
+- `generate_html_main.mojo` importiert weder `std.python` noch `std.subprocess`;
+- `native_reta_cli.mojo` besitzt `--alles` und `--onetable`;
+- der kleine Mojo-Loader wurde mit dem finalen Quellstand kompiliert und ausgeführt;
+- der große `generate-html-native`-Build und dessen Bytevergleich bleiben Bestandteil des lokalen `scripts/build.sh`-/`scripts/check_html_parity.sh`-Laufs, weil die monolithische CLI-Elaboration in dieser Sandbox das verdoppelte Compilerlimit überschritt.
+
+Der fokussierte Lauf lautet:
+
+```bash
+./scripts/test_stage12b.sh
 ```

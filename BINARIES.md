@@ -100,7 +100,7 @@ Der Umschalter ist absichtlich explizit, solange nicht sämtliche Tabellenfunkti
 | `rp`, `rpl`, `rpb`, `rpe`, `retaPrompt*` | `target/bin/reta-prompt-native` | explizite One-shots, besessene Tabellen, sämtliche kompakte Tabellenfamilien sowie reine Zahlen-/Bruch-, Null-/Negativ-, Ausschluss- und wiederholte 15/16-Katalogkompositionen laufen ohne Python-/`reta-native`-Kindprozess; echte `v n/m`-Vielfache mit Zähler größer 1 und seltene hintere Sonderzweige bleiben an der Bridge |
 | interaktive verschachtelte Completion | `target/bin/reta-prompt-complete` | persistenter Mojo-Arbeiter; Readline ist nur Terminalgrenze |
 | `grundStrukHtml*` | `target/bin/grundStrukHtml-native` | Renderer nativ |
-| `generate_html` | `target/bin/generate-html-native` | Komposition nativ, große Mitteltabelle noch Bridge |
+| `generate_html` | `target/bin/generate-html-native` | vollständig nativ einschließlich `--alles`-Mitteltabelle |
 | Tabellenzustand/CSV/Wrapping | `target/bin/reta-mojo-table` | nativ |
 | Tag-Schema | `target/bin/reta-mojo-tags` | nativ |
 | Architekturkarte und Kapselgrenzen | `target/bin/reta-mojo-architecture`, `target/bin/reta-mojo-boundaries` | generierte Metadaten und Abfragen nativ; Python-AST-Scan nur bei Regeneration |

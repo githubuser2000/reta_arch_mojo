@@ -175,7 +175,7 @@ Positive reine Zahlen, Bereiche, Listen und Brüche komponieren nun dieselben ty
 
 `0`, rein negative Ganzzahlselektoren und kollidierende positive/negative Ganzzahl- und Bruchbedingungen werden jetzt vollständig nativ geplant. Gleiche positive und negative Prädikate kürzen sich vor der Zeilenauswahl; eine danach leere Bedingungsmenge aktiviert wie in Python die All-Zeilen-Semantik. Beim `teiler`-Modifikator erfolgt diese Kürzung vor der Teilerbildung. Die CPython-`set[str]`-Reihenfolge und die besondere Nummernspaltenbreite des All-Zeilen-Pfads sind reproduziert. Wiederholte Katalogauswahlen wurden in Stage 10j übernommen; echte `v n/m`-Vielfache mit Zähler größer 1 bleiben offen. Details: [`STAGE10I_NATIVE_NUMERIC_SELECTORS.md`](STAGE10I_NATIVE_NUMERIC_SELECTORS.md).
 
-Stage 10l ersetzt die zentrale `pathlib`-Dateibrücke durch natives Mojo-I/O, gibt dem persistenten Completion-Arbeiter direkte stdin/stdout-Dateideskriptoren und portiert die äußere `generate_html`-Orchestrierung. Dessen Overridepfad ist vollständig Python-frei; nur die noch offene große `--spalten --alles`-Mitteltabelle bleibt im Normalmodus ein expliziter Referenzkindprozess. Positive Shell-, HTML- und BBCode-Breiten laufen nun auch aus dem Prompt vor jedem Python-Import. Details: [`STAGE10L_NATIVE_IO_ORCHESTRATION.md`](STAGE10L_NATIVE_IO_ORCHESTRATION.md).
+Stage 10l ersetzt die zentrale `pathlib`-Dateibrücke durch natives Mojo-I/O, gibt dem persistenten Completion-Arbeiter direkte stdin/stdout-Dateideskriptoren und portiert die äußere `generate_html`-Orchestrierung. Stage 12b ergänzt den reproduzierbaren zwölfteiligen `--spalten --alles`-Plan; Normal- und Overridepfad laufen nun vollständig ohne Python-Kindprozess. Positive Shell-, HTML- und BBCode-Breiten laufen nun auch aus dem Prompt vor jedem Python-Import. Details: [`STAGE10L_NATIVE_IO_ORCHESTRATION.md`](STAGE10L_NATIVE_IO_ORCHESTRATION.md).
 
 ### Stage 10m: komponierte Ganzzahlmodifikatoren und dynamische `vN`-Grenzen
 
@@ -274,7 +274,7 @@ Details: [`TEST_RESULTS.md`](TEST_RESULTS.md).
 
 ## Nächster Portierungsblock
 
-Stufe 9 wird mit seltenen Terminal-/Rich-Sonderfällen fortgesetzt. Stufe 10 erweitert die bereits native Promptausführung und i18n-Laufzeit. Stufe 11 ist mit 11a–11j abgeschlossen. Stage 12a ist ebenfalls abgeschlossen: Sämtliche nativen Parallelpfade verwenden nun typisierte Mojo-Threads; direkte `fork`-/Pipe-/`waitpid`-Primitive sind durch ein maschinenprüfbares Boundary-Gate ausgeschlossen. Als Nächstes folgen 12b–12e.
+Stufe 9 wird mit seltenen Terminal-/Rich-Sonderfällen fortgesetzt. Stufe 10 erweitert die bereits native Promptausführung und i18n-Laufzeit. Stufe 11 ist mit 11a–11j abgeschlossen. Stage 12a und 12b sind abgeschlossen: Sämtliche nativen Parallelpfade verwenden Mojo-Threads, und `generate_html` besitzt nun auch die vollständige `--alles`-Mitteltabelle. Als Nächstes folgen 12c–12e.
 
 ## Dokumentation
 
@@ -462,3 +462,16 @@ Der letzte dynamische `WorkerPrepare`-/`deepcopy`-Objektgraph ist durch `Paralle
 ```
 
 Die hier ausgeführten fokussierten Prüfungen umfassen 36/36 Konfigurationsfälle, 40/40 typisierte Zeilenvorbereitungsfälle und 2/2 Python↔seriell↔Thread-Vollstromparitätsfälle. Ein vorläufiger Lauf mit 20.000 Zeilen benötigte in dieser Umgebung 4,12 s seriell und 3,22 s mit acht Thread-Workern bei identischer Prüfsumme. Details: [`STAGE11J_NATIVE_THREADED_ROW_PREPARATION.md`](STAGE11J_NATIVE_THREADED_ROW_PREPARATION.md).
+
+## Stage 12b: Native `--alles`-Mitteltabelle und `generate_html`
+
+Der synthetische Spaltenparameter `--alles` wird als reproduzierbarer zwölfteiliger Plan aus der Python-Referenz eingefroren und zur Laufzeit typisiert in Mojo geladen. Der Plan umfasst 756 Quellwerte und führt für das Ein-Zeilen-HTML-Referenzfixture zu 805 Daten-/Generatorspalten. `generate-html-native` ruft `run_native_reta` direkt auf; `std.subprocess` und der Python-Kindprozess sind entfernt.
+
+```bash
+./scripts/check_all_columns_plan.sh
+./scripts/test_stage12b.sh
+./scripts/build.sh
+./scripts/check_html_parity.sh
+```
+
+Nach Stage 12b verbleiben nur noch die allgemeine Kompatibilitätsbrücke in `compat_main.mojo` und der interaktive Prompt-Callback in `prompt_main.mojo`. Details: [`STAGE12B_NATIVE_ALL_COLUMNS_HTML.md`](STAGE12B_NATIVE_ALL_COLUMNS_HTML.md).

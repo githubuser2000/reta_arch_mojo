@@ -75,6 +75,7 @@ cmp "$TMP/full-reference-en" "$TMP/full-mojo-en"
 # default historical generator remains unbounded; this test seam keeps CI
 # finite while crossing the actual compatibility boundary.
 RETA_GENERATE_HTML_ROWS=1 ./target/bin/generate-html-native > "$TMP/full-real-small"
+cmp tests/fixtures/generate_html/middle-all-row1-de.html middle.alx
 cat assets/html/head1.alx assets/html/religionen.js assets/html/head2.alx \
     middle.alx "$TMP/python-blank-de" assets/html/footer.alx > "$TMP/full-real-small-reference"
 cmp "$TMP/full-real-small-reference" "$TMP/full-real-small"
