@@ -1,4 +1,5 @@
 from std.testing import assert_equal, assert_true, assert_false, TestSuite
+from std.os import getenv
 from reta_mojo.prompt_language import (
     load_prompt_language_catalog,
     prepare_prompt_tokens,
@@ -16,6 +17,17 @@ def _plan(text: String, language: String = "deutsch") raises -> PromptTablePlan:
 
 def _tokens(plan: PromptTablePlan, invocation: Int = 0) -> String:
     return "|".join(plan.invocations[invocation].tokens)
+
+
+def _emit_mixed_reciprocal_reference(text: String) raises:
+    if String(getenv("RETA_EMIT_MIXED_RECIPROCAL_PLANS", "")) != "1":
+        return
+    var plan = _plan(text)
+    if not plan.handled:
+        print("MIXED_RECIPROCAL_PLAN\tFALLBACK")
+        return
+    assert_equal(len(plan.invocations), 1)
+    print("MIXED_RECIPROCAL_PLAN\t" + _tokens(plan))
 
 
 def test_moon_plan_preserves_output_parameters() raises:
@@ -64,7 +76,7 @@ def test_more_integer_table_families() raises:
     assert_true("--universum=netzwerk" in _tokens(plan, 3))
     assert_true("--universum=komplex" in _tokens(plan, 4))
     assert_true("--menschliches=motive" in _tokens(plan, 5))
-    assert_true("--universum=transzendentalien" in _tokens(plan, 6))
+    assert_true("--Universum=transzendentalien" in _tokens(plan, 6))
 
 
 def test_remaining_integer_n_families() raises:
@@ -97,6 +109,18 @@ def test_universe_column_suppression_matches_legacy_conditions() raises:
     assert_true(
         "--spaltenreihenfolgeundnurdiese=1"
         in _tokens(_plan("universe 2 --noheadings", "english"))
+    )
+    assert_true(
+        "--spaltenreihenfolgeundnurdiese=1,4"
+        in _tokens(_plan("universum teiler 2"))
+    )
+    assert_true(
+        "--spaltenreihenfolgeundnurdiese=1"
+        in _tokens(_plan("universum range invertieren 2"))
+    )
+    assert_true(
+        "--spaltenreihenfolgeundnurdiese=1"
+        in _tokens(_plan("universum mond teiler 2"), 1)
     )
 
 
@@ -175,7 +199,7 @@ def test_reciprocal_and_proper_fraction_axes_are_native() raises:
     assert_true(reciprocal.handled)
     assert_equal(len(reciprocal.invocations), 1)
     assert_true("--vorhervonausschnitt=2" in _tokens(reciprocal))
-    assert_true("--universum=transzendentaliereziproke" in _tokens(reciprocal))
+    assert_true("--Universum=transzendentaliereziproke" in _tokens(reciprocal))
     assert_true("--spaltenreihenfolgeundnurdiese=1,2" in _tokens(reciprocal))
 
     var proper = _plan("emotion 2/3")
@@ -217,11 +241,19 @@ def test_fraction_divisors_and_reciprocal_multiples_are_native() raises:
     assert_true("--vorhervonausschnitt=3" in _tokens(divisors_plan, 0))
     assert_true("--vorhervonausschnitt=6" in _tokens(divisors_plan, 1))
 
+    var pure_reciprocal_divisor = _plan("universum teiler 1/2")
+    assert_true(pure_reciprocal_divisor.handled)
+    assert_equal(len(pure_reciprocal_divisor.invocations), 1)
+    assert_true(
+        "--vorhervonausschnitt=2," in _tokens(pure_reciprocal_divisor)
+    )
+
     var multiples_plan = _plan("universum vielfache 1/2")
     assert_true(multiples_plan.handled)
     assert_equal(len(multiples_plan.invocations), 1)
     assert_true("--vorhervonausschnitt=2,4,6,8,10" in _tokens(multiples_plan))
     assert_true(",1018,1020,1022" in _tokens(multiples_plan))
+    assert_false("--oberesmaximum=" in _tokens(multiples_plan))
 
     # The Python reference itself raises IndexError for true v-n/m expansion.
     assert_false(_plan("universum v2/3").handled)
@@ -273,8 +305,60 @@ def test_combined_integer_divisors_and_multiples_are_native() raises:
     assert_true("-language=english" in _tokens(english))
     assert_true("--vorhervonausschnitt=2,3,4,6,12,12,v12" in _tokens(english))
 
-    # The rational combination remains at the explicit compatibility boundary.
-    assert_false(_plan("vielfache teiler universum 1/2").handled)
+    # Stable reciprocal multiples compose with ``teiler`` natively.  The
+    # modifier contributes to the legacy command count, narrowing Universe to
+    # column 1, while true n/m multiple expansion remains a fallback.
+    var reciprocal = _plan("vielfache teiler universum 1/2")
+    assert_true(reciprocal.handled)
+    assert_equal(len(reciprocal.invocations), 1)
+    assert_true("--vorhervonausschnitt=2,4,6,8,10" in _tokens(reciprocal))
+    assert_true(",1018,1020,1022" in _tokens(reciprocal))
+    assert_true(
+        "--spaltenreihenfolgeundnurdiese=1" in _tokens(reciprocal)
+    )
+    assert_false(
+        "--spaltenreihenfolgeundnurdiese=1,2" in _tokens(reciprocal)
+    )
+    assert_false("--oberesmaximum=" in _tokens(reciprocal))
+
+    var prefixed = _plan("universum v1/2 teiler")
+    assert_true(prefixed.handled)
+    assert_equal(_tokens(prefixed), _tokens(reciprocal))
+
+    var excluded = _plan("universum vielfache teiler 1/2,-1/4")
+    assert_true(excluded.handled)
+    assert_true("--vorhervonausschnitt=2,6,10,14,18" in _tokens(excluded))
+    assert_true(",1010,1014,1018,1022" in _tokens(excluded))
+    assert_false(",4," in _tokens(excluded))
+
+    var english_reciprocal = plan_prompt_table_commands(
+        ["universe", "multiple", "divider", "1/2"],
+        "english",
+        catalog,
+    )
+    assert_true(english_reciprocal.handled)
+    assert_equal(len(english_reciprocal.invocations), 1)
+    assert_true("-language=english" in _tokens(english_reciprocal))
+    assert_true(
+        "--spaltenreihenfolgeundnurdiese=1" in _tokens(english_reciprocal)
+    )
+    assert_false("--oberesmaximum=" in _tokens(english_reciprocal))
+
+    assert_false(_plan("vielfache teiler universum 2/3").handled)
+    assert_false(_plan("universum v2/3 teiler").handled)
+
+    # A machine-readable stream lets the shell parity test compare the complete
+    # native token plans with the instrumented Python reference, not only
+    # selected boundary assertions.  All handled cases have one invocation.
+    _emit_mixed_reciprocal_reference("universum teiler 1/2")
+    _emit_mixed_reciprocal_reference("universum vielfache 1/2")
+    _emit_mixed_reciprocal_reference("universum vielfache teiler 1/2")
+    _emit_mixed_reciprocal_reference("universum v1/2 teiler")
+    _emit_mixed_reciprocal_reference(
+        "universum vielfache teiler 1/2,-1/4"
+    )
+    _emit_mixed_reciprocal_reference("universum vielfache teiler 2/3")
+    _emit_mixed_reciprocal_reference("universum v2/3 teiler")
 
 
 def test_legacy_fraction_rectangles_and_offsets_are_native() raises:
@@ -447,7 +531,7 @@ def test_pure_numeric_default_compositions_are_native() raises:
     assert_true(reciprocal_plan.handled)
     assert_equal(len(reciprocal_plan.invocations), 7)
     assert_true(
-        "--universum=transzendentaliereziproke" in _tokens(reciprocal_plan, 6)
+        "--Universum=transzendentaliereziproke" in _tokens(reciprocal_plan, 6)
     )
 
     var proper_default = prepare_prompt_tokens(

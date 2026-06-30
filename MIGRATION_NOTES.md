@@ -539,3 +539,22 @@ Ein separater Fixture-Integritätstest verbietet nun `reta-Befehl:reta `, leere 
 - Atomare Promptfallbacks erhalten die typisierten Profilflags und die unveränderten Shellwörter direkt am Mojo-Kindprozessadapter.
 - Leere Argumente, Unicode, Arbeitsverzeichnis, Umgebung und unverarbeitete stdout-/stderr-Bytes bleiben erhalten.
 - Die Restalgorithmen sind damit noch Python-Kompatibilität, aber keine eingebettete Python-Brücke mehr.
+
+
+## Stage 12c4c – gemischte reziproke Modifier aus dem Fallback übernommen
+
+Die frühere native Schutzbedingung behandelte jede Kombination aus Bruch,
+`vielfache` und `teiler` als unbestimmt. Die Python-Referenz zeigt jedoch eine
+saubere Grenze: `1/n` wird erfolgreich bis kleiner 1024 expandiert, während
+echtes `v n/m` mit Zähler größer eins im Original selbst mit `IndexError`
+abbricht. Mojo besitzt nun genau die stabile Teilmenge und fällt nur an der
+wirklich undefinierten Grenze zurück.
+
+Dabei wurden drei ältere Serialisierungsabweichungen korrigiert. Die vollständig
+materialisierte Reziprokachse erhält kein künstliches `--oberesmaximum=1025`.
+Der Transzendentalien-Hauptparameter besitzt wieder die historische Schreibweise
+`--Universum` statt `--universum`. Außerdem zählt die Universum-Spaltenheuristik sämtliche semantischen
+Promptbefehle statt nur Tabellenfamilien; ein kompaktes `v1/n` trägt deshalb wie
+in der Python-Vorbereitung einen impliziten `vielfache`-Befehl bei. Der
+historische leere Ganzzahlanteil von reinem `teiler 1/n` bleibt als
+abschließendes Komma erhalten.

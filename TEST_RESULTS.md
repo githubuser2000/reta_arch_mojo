@@ -767,3 +767,39 @@ erfolgreich. Der kombinierte unveränderte `std.python`-FFI-Probe und der
 monolithische Promptcontroller wurden wegen der bekannten extrem langen
 Sandbox-Elaboration nicht erneut bis zum Ende gebaut; der vollständige Build
 erfolgt weiterhin über `scripts/build.sh` auf dem Zielsystem.
+
+
+## Stage 12c4c: native gemischte Reziprok-Modifier
+
+Die Python-Referenz wird vor dem Tabellenrenderer instrumentiert und liefert für
+sieben Fälle den exakten Argumentplan. Hier bestanden **7/7**
+Referenzmessungen: reines `teiler 1/n`, reines Reziprok-Vielfaches, deutsche
+Langform, kompaktes `v1/n`, Ausschluss von `-1/n` und zwei echte `v n/m`-
+Fallbackgrenzen.
+
+Fokussierte Python-Gates:
+
+```text
+prompt mixed reciprocal reference:       7/7
+prompt external/source boundary pytest:  7/7
+Python-Syntax und Shell-Syntax:           bestanden
+```
+
+`check_prompt_mixed_reciprocal_parity.sh` regeneriert die sieben exakten
+Python-Argumentpläne, baut die native Tabellenplaner-Suite und extrahiert aus
+deren Lauf die vollständigen Mojo-Tokenpläne. Der Vergleich deckte dabei auch
+die zuvor falsche Schreibweise `--universum` statt `--Universum` auf. Mit Mojo
+1.0.0b2 ergab der fokussierte Lauf:
+
+```text
+Python↔Mojo-Argumentpläne:           7/7 byteidentisch
+Python-Hash-Seeds 0, 1, 42:          byteidentisch
+Mojo-Tabellenplaner:                 28/28 bestanden
+prompt external/source boundaries:   7/7 bestanden
+```
+
+Der vollständige Python-Testlauf zeigte zusätzlich **86 bestandene**,
+**1 übersprungene** und **16 fehlgeschlagene** Tests; die Fehlschläge betreffen
+bereits vorhandene veraltete Python-Snapshotzahlen oder in diesem Lauf nicht
+neu gebaute beziehungsweise wegen fehlender `libKGENCompilerRTShared.so` nicht
+startbare ältere Mojo-Probes, nicht den Stage-12c4c-Quellpfad.

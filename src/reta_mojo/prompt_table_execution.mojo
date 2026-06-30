@@ -862,10 +862,9 @@ def plan_prompt_table_commands(
         multiple_mode = False
     # Integer inputs have a stable combined legacy contract: divisors are
     # selected first and the original values are then expanded as multiples.
-    # Rational combinations remain guarded because true ``v n/m`` still has no
-    # successful Python reference contract.
-    if multiple_mode and divisor_mode and has_fraction:
-        unsupported = True
+    # Reciprocal ``1/n`` multiples are equally stable when ``teiler`` is also
+    # present: the divisor modifier does not alter their expanded reciprocal
+    # row axis.  Only true ``v n/m`` remains behind the compatibility boundary.
     if (
         has_fraction
         and multiple_mode
@@ -946,6 +945,20 @@ def plan_prompt_table_commands(
         if not had_positive_reciprocal and len(reciprocal_rows) > 0:
             reciprocal_rows[0] = "," + reciprocal_rows[0]
 
+    # A divisor request containing only positive literal 1/n fractions carries
+    # an empty integer-side component into the historical reciprocal selector.
+    # It is observable as a trailing comma ("2," or "2,3,") even though the
+    # selected row set is unchanged.  Mixed proper fractions or exclusions do
+    # not retain that empty component.
+    if divisor_mode and not multiple_mode and len(fraction_pairs) > 0:
+        var pure_positive_reciprocals = True
+        for pair_index in range(len(fraction_pairs)):
+            var pair = fraction_pairs[pair_index].copy()
+            if pair.excluded or pair.numerator != 1:
+                pure_positive_reciprocals = False
+        if pure_positive_reciprocals and len(reciprocal_rows) > 0:
+            reciprocal_rows.append("")
+
     var normal_rows = _copy_strings(row_parts)
     for index in range(len(whole_rows)):
         normal_rows.append(whole_rows[index])
@@ -997,13 +1010,25 @@ def plan_prompt_table_commands(
             return PromptTablePlan(True, List[PromptTableInvocation]())
         return PromptTablePlan(False, List[PromptTableInvocation]())
 
-    var distinct_table_commands = List[String]()
+    # Python chooses the wider Universe column pair only when at most two
+    # recognized prompt commands are present.  This count includes modifiers,
+    # not merely table families.  A compact ``v1/n`` token is normalized by the
+    # legacy preparation layer into the semantic ``vielfache`` command, so add
+    # one implicit command when the native fraction parser observed that prefix.
+    var distinct_prompt_commands = List[String]()
     for index in range(len(canonical_words)):
         var canonical = canonical_words[index]
-        if _is_table_command(canonical) and not _contains(
-            distinct_table_commands, canonical
+        if (
+            (_is_table_command(canonical) or _is_control_command(canonical))
+            and not _contains(distinct_prompt_commands, canonical)
         ):
-            distinct_table_commands.append(canonical)
+            distinct_prompt_commands.append(canonical)
+    if (
+        _fraction_multiple_mode(fraction_pairs)
+        and not _contains(canonical_words, "vielfache")
+        and not _contains(canonical_words, "v")
+    ):
+        distinct_prompt_commands.append("__fraction_multiple")
 
     var counting = _contains(canonical_words, "range") or _contains(
         canonical_words, "R"
@@ -1042,21 +1067,15 @@ def plan_prompt_table_commands(
             )
     var reciprocal_base = List[String]()
     if has_reciprocal:
-        if multiple_mode and has_fraction:
-            reciprocal_base = _base_table_tokens(
-                language,
-                _join_rows(reciprocal_rows),
-                1024,
-                counting,
-                invert,
-            )
-        else:
-            reciprocal_base = _base_table_tokens_without_maximum(
-                language,
-                _join_rows(reciprocal_rows),
-                counting,
-                invert,
-            )
+        # Reciprocal axes already carry their fully materialized row selector.
+        # In particular, ``vielfache 1/n`` enumerates every matching row below
+        # 1024, so the Python prompt emits no separate maximum token.
+        reciprocal_base = _base_table_tokens_without_maximum(
+            language,
+            _join_rows(reciprocal_rows),
+            counting,
+            invert,
+        )
     var invocations = List[PromptTableInvocation]()
 
     if _contains(canonical_words, "mond") and has_integer:
@@ -1364,7 +1383,7 @@ def plan_prompt_table_commands(
         var universe_columns = "1"
         var reciprocal_universe_columns = "1"
         if (
-            len(distinct_table_commands) <= 2
+            len(distinct_prompt_commands) <= 2
             and not _contains(canonical_words, "e")
             and not _contains(canonical_words, "ee")
             and not suppress_empty
@@ -1376,11 +1395,11 @@ def plan_prompt_table_commands(
             invocations,
             has_integer,
             integer_base,
-            "--universum=transzendentalien",
+            "--Universum=transzendentalien",
             universe_columns,
             has_reciprocal,
             reciprocal_base,
-            "--universum=transzendentaliereziproke",
+            "--Universum=transzendentaliereziproke",
             reciprocal_universe_columns,
             suppress_empty,
             passthrough,
