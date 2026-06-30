@@ -2,15 +2,15 @@
 
 Geplanter Umfang: **12 Release-Stufen**. Eine Stufe zählt erst als abgeschlossen, wenn Quellcode, Referenztests, Compilerziele, Dokumentation und ein source-only Archiv gemeinsam geprüft sind.
 
-## Fortschrittsmaße nach Stage 12c2
+## Fortschrittsmaße nach Stage 12c3
 
 | Maß | Stand | Aussage |
 |---|---:|---|
-| abgeschlossene Release-Stufen | **9/12 = 75,0 %** | Stufen 1–8 und 11 sind abgeschlossen; Stufe 12 ist mit 12a, 12b und den ersten beiden 12c-Blöcken zu etwa 50 % abgeschlossen, während 9 und 10 noch Restpfade besitzen |
+| abgeschlossene Release-Stufen | **9/12 = 75,0 %** | Stufen 1–8 und 11 sind abgeschlossen; Stufe 12 ist mit 12a, 12b und den ersten drei 12c-Blöcken zu etwa 55 % abgeschlossen, während 9 und 10 noch Restpfade besitzen |
 | vollständig native oder generierte Python-Dateien | **33/92 = 35,9 %** | Datei vollständig ersetzt oder als reproduzierbares Laufzeitasset abgebildet |
 | mindestens angegriffene Python-Dateien | **61/92 = 66,3 %** | vollständig oder teilweise nativ |
 | gewichtete Quellzeilen | **ca. 52 %** | konservative Schätzung unter Berücksichtigung der großen Teilports |
-| funktionaler Nutzerumfang | **ca. 95–97 %** | praktisch nutzbarer Reta-Umfang ohne Python-Algorithmus |
+| funktionaler Nutzerumfang | **ca. 96–98 %** | praktisch nutzbarer Reta-Umfang ohne Python-Algorithmus |
 
 Die Stufenquote ist höher als die Quellzeilenquote, weil die letzten Stufen besonders große dynamische Module bündeln: vollständige Ausgabeaufbereitung, Prompt-Sprache, i18n-Matrix, Architekturvalidierung und Parallelisierung.
 
@@ -49,8 +49,8 @@ Die Stufenquote ist höher als die Quellzeilenquote, weil die letzten Stufen bes
 11. **Architektursteuerung und Laufzeitnetze — abgeschlossen (11a–11j)**
     Stage 11a portiert Architekturkarte und realen Modul-/Kapsel-Grenzgraph. Stage 11b ergänzt Verträge und Witnesses. Stage 11c portiert Kohärenz und Traces. Stage 11d ergänzt Impact und Migration. Stage 11e ergänzt Rehearsal und Aktivierung. Stage 11f portiert Gesamtvalidierung und Fortschritts-Overlay. Stage 11g portiert die reale SQLite-Persistenz. Stage 11h portiert das deterministische Ausführungsnetz. Stage 11i portiert Konfiguration, CPU-Erkennung und zehn reine Tabellen-/Zahlenkerne. Stage 11j ersetzt den dynamischen `WorkerPrepare`-/`deepcopy`-Objektgraphen durch einen besitzenden typisierten Zeilenvorbereitungskontext. Stage 12a vereinheitlicht sämtliche nativen Parallelpfade auf typisierte Mojo-Threads und verbietet POSIX-Prozessprimitive per Gate.
 
-12. **Bridge entfernen und Releaseparität — ca. 50 %**
-    Stage 12a ist abgeschlossen: Boundary-Inventur, harte No-Python-/No-Subprozess-Gates für Parallelmodule und vollständige native Threadmigration. Stage 12b portiert den zwölfteiligen `--alles`-Spaltenplan und entfernt den Python-Kindprozess aus `generate_html`. Stage 12c1 portiert reale TTY-Geometrie und die exakte Prompt-Befehls-/Tabellengrenze. Stage 12c2 kapselt Linux/macOS-Geometrie und verwendet für Pipes Mojos portablen Eingabekanal mit verzögertem Python-Import. Offen bleiben 12c3–12c4, 12d Befehlsmatrix/Benchmarks/SIMD und 12e Packaging/Freigabe.
+12. **Bridge entfernen und Releaseparität — ca. 55 %**
+    Stage 12a ist abgeschlossen: Boundary-Inventur, harte No-Python-/No-Subprozess-Gates für Parallelmodule und vollständige native Threadmigration. Stage 12b portiert den zwölfteiligen `--alles`-Spaltenplan und entfernt den Python-Kindprozess aus `generate_html`. Stage 12c1 portiert reale TTY-Geometrie und die exakte Prompt-Befehls-/Tabellengrenze. Stage 12c2 kapselt Linux/macOS-Geometrie und verwendet für Pipes Mojos portablen Eingabekanal mit verzögertem Python-Import. Stage 12c3 führt `shell`, `python` und `math` direkt aus Mojo aus und lässt rohe Unicode-Nutzlasten vor dem Kompaktscanner unangetastet. Offen bleiben 12c4, 12d Befehlsmatrix/Benchmarks/SIMD und 12e Packaging/Freigabe.
 
 Die Zahl **12** ist die geplante Releasegliederung. Interne Teilpakete oder Fehlerkorrekturen erhöhen diese Zahl nicht automatisch.
 
@@ -71,10 +71,10 @@ Die Zahl **12** ist die geplante Releasegliederung. Interne Teilpakete oder Fehl
 | **Stufe 11** | **10/10 = 100 %** | abgeschlossen |
 | 12a | 100 % | Bridge-Inventur, harte Boundary-Gates und vollständige Threadmigration |
 | 12b | 100 % | nativer `--alles`-Plan und Python-freies `generate_html` |
-| 12c | 50 % | 12c1 Terminalgeometrie/Promptframing und 12c2 portabler Pipe-Eingabekanal fertig; voller TTY-Editor, Restzweige und i18n offen |
+| 12c | 75 % | 12c1 Terminalgeometrie/Promptframing, 12c2 portabler Pipe-Eingabekanal und 12c3 native Rohbefehle fertig; voller TTY-Editor und Restfallbacks offen |
 | 12d | 0 % formal | Befehlsmatrix, Benchmarks und gezielte SIMD-Prüfung |
 | 12e | 0 % formal | Packaging und Freigabe |
-| **Stufe 12** | **ca. 50 %** | 12a–12b und 12c1–12c2 abgeschlossen; 12c3–12e offen |
+| **Stufe 12** | **ca. 55 %** | 12a–12b und 12c1–12c3 abgeschlossen; 12c4–12e offen |
 
 
 ## Stage 10n – native EIGN/EIGR-Eigenschaftsachsen
@@ -195,12 +195,13 @@ Die Zahl **12** ist die geplante Releasegliederung. Interne Teilpakete oder Fehl
 - Stufe 11 ist mit 11a–11j vollständig abgeschlossen.
 
 
-## Stage 12a–12b abgeschlossen; Stage 12c bis 12c2 fortgesetzt
+## Stage 12a–12b abgeschlossen; Stage 12c bis 12c3 fortgesetzt
 
 - **12a – abgeschlossen:** vollständige Bridge-Inventur, Runtime-Gates, 0 native Prozessprimitive und 10 kanonische Thread-APIs.
 - **12b – abgeschlossen:** zwölfteiliger `--alles`-Spaltenplan und `generate_html` ohne Python-/Subprozessbrücke.
 - **12c1 – abgeschlossen:** reale TTY-Breite für `--breite=0` und exakte physische Grenze zwischen Prompt-Befehlszeile und Tabelle.
 - **12c2 – abgeschlossen:** portable native Eingabe für Pipes/Umleitungen, verzögerter Python-Import und zielabhängige Linux-/macOS-Terminalgeometrie.
-- **12c3–12c4:** echten TTY-Line-Editor, hintere Promptzweige und restliche i18n-Laufzeit aus Stufe 10 schließen.
+- **12c3 – abgeschlossen:** `shell`, `python` und `math` ohne Python-Brücke, byteerhaltender Kindprozessadapter und UTF-8-sicherer Rohbefehl-Bypass.
+- **12c4:** echten TTY-Line-Editor, verbleibende `reta`-/Fallbackzweige und restliche i18n-Laufzeit aus Stufe 10 schließen.
 - **12d:** vollständige Befehlsmatrix, Leistungsprofile, Thread-/Speicheroptimierung und nur benchmarkgestützte SIMD-Kernel.
 - **12e:** reproduzierbares Packaging, Installationspfade, Release-Checks und finale Dokumentation.

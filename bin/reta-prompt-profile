@@ -6,6 +6,13 @@ if command -v readlink >/dev/null 2>&1; then
 fi
 ROOT=$(CDPATH= cd -- "$(dirname -- "$SELF")/.." && pwd)
 PROFILE=${RETA_PROMPT_PROFILE:-$(basename -- "$0")}
+# The historical Python prompt branch used sys.executable.  Preserve that
+# interpreter choice for the explicit `python` and `math` commands without
+# requiring callers to change the public launcher command.
+if [ -z "${RETA_PYTHON-}" ] && [ -x "$ROOT/.venv/bin/python" ]; then
+    RETA_PYTHON="$ROOT/.venv/bin/python"
+    export RETA_PYTHON
+fi
 cd "$ROOT"
 if [ -x "$ROOT/target/bin/reta-prompt-native" ]; then
     exec "$ROOT/target/bin/reta-prompt-native" "$PROFILE" "$@"

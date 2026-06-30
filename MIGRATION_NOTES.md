@@ -502,3 +502,16 @@ Ein separater Fixture-Integritätstest verbietet nun `reta-Befehl:reta `, leere 
   zur vollständigen nativen Tasten- und Completion-Parität erhalten.
 - `RETA_PROMPT_PLAIN_INPUT=1` erzwingt optional den portablen schlichten
   Eingabekanal, ohne öffentliche Befehlsargumente zu verändern.
+
+
+## Stage 12c3 – native rohe Promptbefehle
+
+- `shell`, `python` und `math` rufen nicht mehr `mojo_bridge.py` auf.
+- `prompt_external_commands.mojo` bildet Python-`partition`, POSIX-`shlex.split`, Arbeitsverzeichnis, Umgebung und Rückgabecode explizit ab.
+- Der unveränderte Promptlauncher setzt intern `RETA_PYTHON` auf `.venv/bin/python`, sofern der Nutzer keinen Interpreter vorgibt; damit bleibt die frühere `sys.executable`-Wahl erhalten.
+- Der Adapter startet nur ausdrücklich vom Nutzer verlangte Kindprogramme; er ist keine Rückkehr zu Prozessparallelisierung.
+- `fork`, `pipe` und `_exit` bleiben durch den Boundary-Audit verboten; `posix_spawn`/`waitpid` sind ausschließlich in diesem einen Adapter erlaubt.
+- stdout und stderr werden nicht als Mojo-String dekodiert oder normalisiert. Nachgestellte Leerzeichen, mehrere Newlines, NUL und nicht-UTF-8-Bytes bleiben erhalten.
+- Rohe Befehle umgehen den kompakten Byte-Scanner vor jeder Nutzlasttransformation; dadurch stürzt `python print("ä λ")` nicht mehr an einer UTF-8-Bytegrenze ab.
+- Die historische CPython-Set-Reihenfolge der anschließenden Planungsdarstellung bleibt unverändert.
+- Fokussierte Prüfungen: **22/22**.

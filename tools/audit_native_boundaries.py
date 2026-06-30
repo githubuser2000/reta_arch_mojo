@@ -19,10 +19,12 @@ THREAD_MODULES = (
 )
 FORBIDDEN_PROCESS_PATTERNS = {
     "fork": re.compile(r'external_call\[\s*["\']fork["\']'),
-    "waitpid": re.compile(r'external_call\[\s*["\']waitpid["\']'),
     "pipe": re.compile(r'external_call\[\s*["\']pipe["\']'),
     "_exit": re.compile(r'external_call\[\s*["\']_exit["\']'),
 }
+EXPLICIT_CHILD_ADAPTER = ROOT / "src/reta_mojo/prompt_external_commands.mojo"
+SPAWN_PATTERN = re.compile(r'external_call\[\s*["\']posix_spawn["\']')
+WAIT_PATTERN = re.compile(r'external_call\[\s*["\']waitpid["\']')
 BRIDGE_IMPORT = re.compile(r"^from\s+std\.(python|subprocess)\s+import\s+", re.MULTILINE)
 
 
@@ -80,6 +82,21 @@ def audit() -> dict[str, object]:
     if violations:
         raise AssertionError("native POSIX process primitives remain: " + ", ".join(violations))
 
+    explicit_child_paths: list[str] = []
+    for path in sorted((ROOT / "src").rglob("*.mojo")):
+        text = path.read_text(encoding="utf-8")
+        has_spawn = bool(SPAWN_PATTERN.search(text))
+        has_wait = bool(WAIT_PATTERN.search(text))
+        if has_spawn or has_wait:
+            if path != EXPLICIT_CHILD_ADAPTER or not (has_spawn and has_wait):
+                raise AssertionError(
+                    "posix_spawn/waitpid may only appear together in the explicit "
+                    f"prompt child adapter: {path.relative_to(ROOT)}"
+                )
+            explicit_child_paths.append(path.relative_to(ROOT).as_posix())
+    if explicit_child_paths != [EXPLICIT_CHILD_ADAPTER.relative_to(ROOT).as_posix()]:
+        raise AssertionError("explicit prompt child adapter is missing")
+
     for path in THREAD_MODULES:
         text = path.read_text(encoding="utf-8")
         if BRIDGE_IMPORT.search(text):
@@ -113,6 +130,8 @@ def audit() -> dict[str, object]:
         "thread_modules": [path.relative_to(ROOT).as_posix() for path in THREAD_MODULES],
         "thread_module_count": len(THREAD_MODULES),
         "native_posix_process_primitives": 0,
+        "explicit_child_process_adapters": explicit_child_paths,
+        "explicit_child_process_adapter_count": len(explicit_child_paths),
         "canonical_thread_api_count": len(required_symbols),
     }
 
@@ -129,6 +148,7 @@ def main() -> None:
             "native boundary audit: "
             f"{result['native_posix_process_primitives']} process primitives, "
             f"{result['thread_module_count']} thread modules, "
+            f"{result['explicit_child_process_adapter_count']} explicit child adapter, "
             f"{result['active_bridge_count']} explicit bridges"
         )
 

@@ -160,12 +160,13 @@ Der reguläre Build erzeugt `generate-html-native` ohne Python- oder Subprozessi
 Nach `scripts/build.sh` vergleicht `scripts/check_html_parity.sh` die native Ein-Zeilen-Mitteltabelle mit dem eingefrorenen CPython-Referenzfixture mit 805 Daten-/Generatorspalten.
 
 
-## Stage 12c1–12c2: Terminalbreite, Promptframing und native Pipe-Eingabe
+## Stage 12c1–12c3: Terminalbreite, Promptframing, native Pipe-Eingabe und Rohbefehle
 
 Nach dem regulären Build prüft derselbe öffentliche Promptbefehl seine PTY-Parität bei mehreren Fensterbreiten:
 
 ```bash
 ./scripts/check_native_prompt_input.sh
+./scripts/check_prompt_external_commands.sh
 ./scripts/build.sh
 ./scripts/test_stage12c.sh
 ```

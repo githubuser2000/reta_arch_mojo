@@ -694,3 +694,31 @@ Zusätzlich bestätigt:
 ./scripts/build.sh
 ./scripts/test_stage12c.sh
 ```
+
+
+## Stage 12c3: native rohe Promptbefehle
+
+```text
+test_prompt_external_commands.mojo:         6/6
+test_prompt_raw_commands.mojo:              5/5
+Python↔Mojo Kindprozess-/Byteparität:        7/7
+Source-Ownership + Boundary-Audit:           4/4
+                                              ----
+                                             22/22
+```
+
+Zusätzlich bestätigt:
+
+- `shell`, `python` und `math` rufen direkt den nativen Mojo-Adapter statt `mojo_bridge.py` auf;
+- Unicode, Quotes, leere Argumente, nachgestellte Leerzeichen und mehrere Newlines bleiben erhalten;
+- stdout und stderr bewahren auch NUL- und nicht-UTF-8-Bytes;
+- das Kind erbt die vollständige Umgebung und läuft wie die Referenz in `python_reference`;
+- die öffentlichen Promptlauncher wählen ohne neue Benutzeroption automatisch den Projektinterpreter `.venv/bin/python`;
+- ein früher Rohbefehl-Bypass verhindert UTF-8-Bytegrenzenfehler im Kompaktparser;
+- die historische interne Set-Reihenfolge der Planungsstufe bleibt unverändert;
+- der Boundary-Audit meldet 0 Parallel-Prozessprimitive, 3 Threadmodule, genau 1 expliziten Kindprozessadapter und 2 verbleibende Python-Brücken.
+
+```bash
+./scripts/check_prompt_external_commands.sh
+./scripts/test_stage12c.sh
+```

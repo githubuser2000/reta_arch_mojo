@@ -830,6 +830,27 @@ def _compact_number_start(token: String) -> Int:
     return -1
 
 
+def _is_raw_prompt_command(
+    catalog: PromptLanguageCatalog, language: String, first: String
+) -> Bool:
+    """Raw-tail commands must bypass compact and set-order transformations."""
+    if first == "reta":
+        return True
+    for canonical in ["shell", "python", "math"]:
+        if first == prompt_vocabulary_alias(
+            catalog, language, "command", canonical
+        ):
+            return True
+    return False
+
+
+def _copy_prompt_tokens(values: List[String]) -> List[String]:
+    var result = List[String]()
+    for index in range(len(values)):
+        result.append(values[index])
+    return result^
+
+
 def expand_compact_prompt_tokens(
     catalog: PromptLanguageCatalog,
     language: String,
@@ -846,6 +867,13 @@ def expand_compact_prompt_tokens(
     """
     if len(input_tokens) == 0:
         return PromptExpansionResult(False, List[String]())
+
+    # Raw-tail commands are already classified by their first token.  Return
+    # before joining, catalog expansion or byte-oriented compact scanning so
+    # arbitrary program text remains completely opaque to the prompt DSL.
+    var first_input = input_tokens[0]
+    if _is_raw_prompt_command(catalog, language, first_input):
+        return PromptExpansionResult(False, _copy_prompt_tokens(input_tokens))
 
     var joined = String()
     for index in range(len(input_tokens)):
@@ -867,8 +895,6 @@ def expand_compact_prompt_tokens(
     var pure_single = (
         _unique_non_control_token_count(input_tokens, e_alias, quiet_alias) == 1
     )
-    var first_input = input_tokens[0]
-
     for token_index in range(len(split_tokens)):
         var original = _trim_commas(split_tokens[token_index])
         var additions = List[String]()
@@ -986,21 +1012,6 @@ def expand_compact_prompt_tokens(
                 )
             result.append(value)
 
-    var shell_alias = prompt_vocabulary_alias(
-        catalog, language, "command", "shell"
-    )
-    var python_alias = prompt_vocabulary_alias(
-        catalog, language, "command", "python"
-    )
-    if (
-        first_input == "reta"
-        or first_input == shell_alias
-        or first_input == python_alias
-    ):
-        var unchanged = List[String]()
-        for index in range(len(input_tokens)):
-            unchanged.append(input_tokens[index])
-        return PromptExpansionResult(compact, unchanged^)
     return PromptExpansionResult(compact, result^)
 
 
@@ -1012,19 +1023,11 @@ def expand_prompt_replacements(
     var result = List[String]()
     if len(tokens) == 0:
         return result^
-    var shell_alias = prompt_vocabulary_alias(
-        catalog, language, "command", "shell"
-    )
-    var python_alias = prompt_vocabulary_alias(
-        catalog, language, "command", "python"
-    )
     var distance_alias = prompt_vocabulary_alias(
         catalog, language, "command", "abstand"
     )
     if (
-        tokens[0] == "reta"
-        or tokens[0] == shell_alias
-        or tokens[0] == python_alias
+        _is_raw_prompt_command(catalog, language, tokens[0])
         or tokens[0] == distance_alias
     ):
         for index in range(len(tokens)):
@@ -1053,6 +1056,10 @@ def prepare_prompt_tokens(
         catalog, language, input_tokens, selective_output, force_e
     )
     var replaced = expand_prompt_replacements(catalog, language, expanded.tokens)
+    # Preserve the historical preparation contract: only a literal ``reta``
+    # line bypasses the later CPython-set ordering.  Shell/Python/math execute
+    # from their untouched raw line before this planning-only representation is
+    # observed, but tests and callers still rely on the old set-order result.
     if len(replaced) > 0 and replaced[0] == "reta":
         return PromptExpansionResult(expanded.compact, replaced^)
     return PromptExpansionResult(

@@ -37,6 +37,11 @@ from reta_mojo.native_prompt_input import (
     native_plain_input_requested,
     read_plain_prompt_line,
 )
+from reta_mojo.prompt_external_commands import (
+    run_math_prompt_line_native,
+    run_python_prompt_line_native,
+    run_shell_prompt_line_native,
+)
 from reta_mojo.native_reta_cli import (
     native_reta_tokens_supported,
     run_native_reta,
@@ -821,16 +826,13 @@ def _run_command(
             print(line_out)
         return True
     if command.kind == KIND_SHELL:
-        var bridge = _python_bridge()
-        bridge.run_shell_prompt_line(command.raw)
+        _ = run_shell_prompt_line_native(command.raw)
         return True
     if command.kind == KIND_PYTHON:
-        var bridge = _python_bridge()
-        bridge.run_python_prompt_line(command.raw)
+        _ = run_python_prompt_line_native(command.raw)
         return True
     if command.kind == KIND_MATH:
-        var bridge = _python_bridge()
-        bridge.run_math_prompt_line(command.raw)
+        _ = run_math_prompt_line_native(command.raw)
         return True
     if command.kind == KIND_RETA:
         if _run_native_reta_prompt_command(command):

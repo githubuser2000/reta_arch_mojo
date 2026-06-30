@@ -1,20 +1,21 @@
-# Status – Stage 12c2 abgeschlossen; Stufen 9, 10 und 12 in Arbeit
+# Status – Stage 12c3 abgeschlossen; Stufen 9, 10 und 12 in Arbeit
 
 - Zielversion: Mojo 1.0.0b2
 - Unterstützte Python-Umgebung für Installation/Referenzbrücken: 3.10–3.14; Setup bevorzugt Python 3.14
-- Vollständig abgeschlossene Release-Stufen: **9/12 = 75,0 %**; teilgewichtet mit Stage 12c2: **9,50/12 = 79,2 %**
+- Vollständig abgeschlossene Release-Stufen: **9/12 = 75,0 %**; teilgewichtet mit Stage 12c3: **9,55/12 = 79,6 %**
 - Stufe 9: **BBCode, zentraler ANSI-Shellpfad und zentrale HTML-Pfade nativ; seltene Ausgabegrenzen offen**
 - Stufe 10: **native Kurzsprache, mehrsprachige verschachtelte Completion und Promptvorbereitung in Arbeit**
 - Stufe 11: **11a–11j abgeschlossen; 10/10 Teilstufen = 100 %**
-- Stufe 12: **12a–12b abgeschlossen; 12c zu 50 %; insgesamt ca. 50 %**
-- Geschätzter funktionaler Portierungsstand: **95–97 %**
+- Stufe 12: **12a–12b abgeschlossen; 12c zu 75 %; insgesamt ca. 55 %**
+- Geschätzter funktionaler Portierungsstand: **96–98 %**
 - Konservativ vollständig native oder reproduzierbar generierte Originaldateien: **33/92 = 35,9 %**
 - Mindestens teilweise portierte Originaldateien: **61/92 = 66,3 %**
 - Gewichteter Quellzeilenstand: **ca. 52 %**
-- Nativer Mojo-Quellcode in `src/`: **38.328 Zeilen**
-- Davon im Paket `reta_mojo`: **35.182 Zeilen**
-- Test-/Probe-Dateien: **90** (**82 Mojo**, **8 Python** einschließlich PTY-, Boundary-, Eingabe- und Alles-Plan-Audits)
-- Native Mojo-Testfunktionen: **283**; Python-Testfunktionen: **12**
+- Nativer Mojo-Quellcode in `src/`: **38.625 Zeilen**
+- Davon im Paket `reta_mojo`: **35.477 Zeilen**
+- Test-/Probe-Dateien: **95** (**85 Mojo**, **10 Python** einschließlich PTY-, Boundary-, Eingabe-, Rohbefehl- und Alles-Plan-Audits)
+- Native Mojo-Testfunktionen: **294**; Python-Testfunktionen: **22**
+- Stage-12c3-Fokus: direkte native Ausführung der Rohbefehle `shell`, `python` und `math` über einen eng begrenzten `posix_spawn`-Adapter, UTF-8-sicherer Shlex-Parser, früher Rohbefehl-Bypass vor dem Kompaktscanner sowie bytegleiche stdout-/stderr-/Umgebungsvererbung; Parser **6/6**, Rohbefehlssprache **5/5**, Python↔Mojo-Byteparität **7/7** und Source-/Boundary-Gates **4/4**, zusammen **22/22**
 - Stage-12c2-Fokus: zielabhängige Linux-/macOS-`TIOCGWINSZ`-Adapter, portabler `COLUMNS`-/80-Fallback, nativer Mojo-Eingabekanal für Pipes und umgeleitete Sessions, best-effort History ohne vorsorglichen Python-Import; Eingabe-/Historytests **3/3**, Pipe-/EOF-Proben **2/2**, Source-Ownership **2/2**, Geometrie **4/4** und Boundary-Audit **1/1**
 - Stage-12c1-Fokus: unverändertes `bin/rpb a1`, explizite LF-Grenze zwischen sichtbarem `reta`-Befehl und Tabellenkopf, native `ioctl(TIOCGWINSZ)`-Geometrie für `--breite=0`, PTY-Proben **80→73**, **120→113**, **200→193**, Geometrietests **3/3** und Python-Audits **2/2**; der lokale End-to-End-PTY-Test ist im Releasecheck enthalten
 - Stage-12b-Fokus: reproduzierbarer zwölfteiliger `--alles`-Spaltenplan mit **756** Quellwerten, **805** Daten-/Generatorspalten im Ein-Zeilen-HTML-Referenzfixture, vollständig natives `generate_html` und nur noch **2** explizite Laufzeitbrücken; Plan-/Boundary-Pytests **5/5**, Mojo-Loader **1/1**
