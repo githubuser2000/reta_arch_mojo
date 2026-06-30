@@ -12,6 +12,7 @@ prim prim24          multis multis3 modulo math
 grundStrukHtml       grundStrukHtml.py
 generate_html          reta-mojo-boundaries
 reta-mojo-contracts     reta-mojo-witnesses
+reta-mojo-coherence     reta-mojo-traces
 ```
 
 ## Wichtige Tabellenpfade
@@ -58,6 +59,10 @@ Der Umschalter ist absichtlich explizit, solange nicht sämtliche Tabellenfunkti
 ./bin/reta-mojo-contracts --diagram RawCommandNaturalitySquare
 ./bin/reta-mojo-witnesses --summary
 ./bin/reta-mojo-witnesses --anchor RetaArchitectureRoot reta_architecture/facade.py
+./bin/reta-mojo-coherence --summary
+./bin/reta-mojo-coherence --route SchemaTopologyCapsule LocalSectionCapsule
+./bin/reta-mojo-traces --summary
+./bin/reta-mojo-traces --component reta.py
 ```
 
 ## Zuordnung
@@ -74,6 +79,7 @@ Der Umschalter ist absichtlich explizit, solange nicht sämtliche Tabellenfunkti
 | Tag-Schema | `target/bin/reta-mojo-tags` | nativ |
 | Architekturkarte und Kapselgrenzen | `target/bin/reta-mojo-architecture`, `target/bin/reta-mojo-boundaries` | generierte Metadaten und Abfragen nativ; Python-AST-Scan nur bei Regeneration |
 | Architekturverträge und Witnesses | `target/bin/reta-mojo-contracts`, `target/bin/reta-mojo-witnesses` | kommutierende Verträge, Kapselgesetze, Repository-Anker und Nachweisnavigation nativ; Python nur bei Regeneration |
+| Kohärenz und Traces | `target/bin/reta-mojo-coherence`, `target/bin/reta-mojo-traces` | Kapsel-/Routenkohärenz und Legacy→Gesetz-Trace-Navigation nativ; Python nur bei Regeneration |
 
 Lokale Installation der Launcher:
 

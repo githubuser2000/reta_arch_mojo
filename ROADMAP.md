@@ -7,10 +7,10 @@ Geplanter Umfang: **12 Release-Stufen**. Eine Stufe zählt erst als abgeschlosse
 | Maß | Stand | Aussage |
 |---|---:|---|
 | abgeschlossene Release-Stufen | **8/12 = 66,7 %** | Generator-/Meta- und Kombinationspfade sind abgeschlossen; Stufen 9, 10 und 11 sind aktiv |
-| vollständig native oder generierte Python-Dateien | **22/92 = 23,9 %** | Datei vollständig ersetzt oder als reproduzierbares Laufzeitasset abgebildet |
-| mindestens angegriffene Python-Dateien | **50/92 = 54,3 %** | vollständig oder teilweise nativ |
-| gewichtete Quellzeilen | **ca. 37 %** | konservative Schätzung unter Berücksichtigung der großen Teilports |
-| funktionaler Nutzerumfang | **ca. 87–90 %** | praktisch nutzbarer Reta-Umfang ohne Python-Algorithmus |
+| vollständig native oder generierte Python-Dateien | **24/92 = 26,1 %** | Datei vollständig ersetzt oder als reproduzierbares Laufzeitasset abgebildet |
+| mindestens angegriffene Python-Dateien | **52/92 = 56,5 %** | vollständig oder teilweise nativ |
+| gewichtete Quellzeilen | **ca. 39 %** | konservative Schätzung unter Berücksichtigung der großen Teilports |
+| funktionaler Nutzerumfang | **ca. 88–91 %** | praktisch nutzbarer Reta-Umfang ohne Python-Algorithmus |
 
 Die Stufenquote ist höher als die Quellzeilenquote, weil die letzten Stufen besonders große dynamische Module bündeln: vollständige Ausgabeaufbereitung, Prompt-Sprache, i18n-Matrix, Architekturvalidierung und Parallelisierung.
 
@@ -47,7 +47,7 @@ Die Stufenquote ist höher als die Quellzeilenquote, weil die letzten Stufen bes
     Klammerbewusstes Tokenisieren, kompakte Kurzbefehle, CPython-Set-Reihenfolge, fünfsprachiger Completion-Katalog und persistenter Mojo-Completion-Arbeiter sind nativ. Mojo plant 18 Domänenfamilien plus EIGN/EIGR einschließlich Ganzzahl-, Reziprok- und `n/m`-Achsen, ganzzahliger Vielfachen/Teiler, historischer Bruchbereiche, stabiler Bruchausschlüsse, Bruchteiler und Reziprok-Vielfache. Vollständig besessene Einmalbefehle laufen vor jedem Python-Import und rufen den Tabellenkern im selben Mojo-Prozess auf. Eine getrennte Legacy-Präsentationsschicht besitzt sämtliche kompakten Tabellenfamilien und `mulpri`/`p`. Stage 10h ergänzt positive reine Zahlen-, Bereichs-, Listen- und Bruchkompositionen sowie 365 adressierbare Einträge des fünfsprachigen `15`-/`16`-Katalogs. Vorbereitete Fragmentbreiten, Bindestrichumbrüche, Zählungsmarkierungen und der historische nicht-zeilenorientierte Farbausgabestrom sind bytegenau modelliert. Stage 10i–10n ergänzen Null-/Negativ- und Kollisionsalgebra, wiederholte Katalogauswahl, mehrbereichige Abstände, native Datei-/Pipe-I/O, positive Promptbreiten, komponierte ganzzahlige Vielfachen-/Teilerpfade, verschachtelte CPython-Teiler-Setordnung und dynamische Obergrenzen absoluter `vN`-Selektoren. Offen bleiben echte `v n/m`-Vielfache mit Zähler größer 1, weitere hintere Sonderpfade, die große `--alles`-HTML-Mitteltabelle und die vollständige i18n-Laufzeit außerhalb des Promptvokabulars.
 
 11. **Architektursteuerung und Laufzeitnetze — in Arbeit**  
-    Stage 11a portiert Architekturkarte und realen Modul-/Kapsel-Grenzgraph. Stage 11b ergänzt 33 kommutierende Diagramme, 11 Kapselverträge, 22 Gesetze, 536 Witness-Anker, 33 Diagrammnachweise, 42 Natürlichkeitsnachweise und 55 Refactor-Verpflichtungen als getrennte typisierte Mojo-Bundles. Offen bleiben Kohärenz, ausführbare Gesamtvalidierung, Aktivierung, Persistenz, Ausführungsnetz, Parallelisierung und Rehearsal.
+    Stage 11a portiert Architekturkarte und realen Modul-/Kapsel-Grenzgraph. Stage 11b ergänzt Verträge und Witnesses. Stage 11c portiert 11 Kapselkohärenzen, 53 funktorielle Routen, 42 Natürlichkeits- und 22 Gesetzeskohärenzen sowie 34 Komponenten-, 11 Kapsel- und 42 Stufentraces mit 204 Route-Hops. Offen bleiben ausführbare Gesamtvalidierung, Impact, Migration, Aktivierung, Persistenz, Ausführungsnetz, Parallelisierung und Rehearsal.
 
 12. **Bridge entfernen und Releaseparität — offen**  
     Letzte Python-Grenzen entfernen, vollständige Befehlsmatrix, Leistungsprüfung, Packaging und Release.
@@ -85,3 +85,13 @@ Die Zahl **12** ist die geplante Releasegliederung. Interne Teilpakete oder Fehl
 - 351/351 dateiartige Anker sind gegen `python_reference` aufgelöst; 185 symbolische Anker bleiben bewusst symbolisch.
 - Beide Generatoren sind über `PYTHONHASHSEED=0`, `1`, `42`, `random` byteidentisch reproduzierbar.
 - Verträge und Witnesses bleiben getrennte schwere Ziele, damit Mojo nicht den gesamten Metakatalog in einem Compiler-Monolithen instanziiert.
+
+
+## Stage 11c – native Kohärenzmatrix und Trace-Navigation
+
+- `architecture_coherence.py` ist als typisierter Snapshot mit 11 Kapseln, 53 Routen, 42 Natürlichkeits- und 22 Gesetzeskohärenzen verfügbar.
+- `architecture_traces.py` ist als typisierter Snapshot mit 34 Komponenten-, 11 Kapsel- und 42 Stufentraces sowie 204 Route-Hops verfügbar.
+- Beide Validierungen besitzen den Status `passed`; interne Zählungs- und Leerfehlerinvarianten werden nativ geprüft.
+- Acht repräsentative CLI-Abfragen sind Python↔Mojo byteidentisch.
+- Die Architekturkontrollregeneration umfasst nun sechs byteidentische Generatorziele.
+- Kohärenz und Traces bleiben getrennte schwere Compilerziele.

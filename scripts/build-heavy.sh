@@ -19,3 +19,9 @@ printf 'Erzeugt: %s\n' "$TARGET_DIR/reta-mojo-contracts"
 printf 'Kompiliere native Architektur-Witnesses ...\n'
 "$ROOT/bin/mojo-real" build -I src src/architecture_witnesses_main.mojo -o "$TARGET_DIR/reta-mojo-witnesses"
 printf 'Erzeugt: %s\n' "$TARGET_DIR/reta-mojo-witnesses"
+printf 'Kompiliere native Architektur-Kohärenzmatrix ...\n'
+"$ROOT/bin/mojo-real" build -I src src/architecture_coherence_main.mojo -o "$TARGET_DIR/reta-mojo-coherence"
+printf 'Erzeugt: %s\n' "$TARGET_DIR/reta-mojo-coherence"
+printf 'Kompiliere native Architektur-Traces ...\n'
+"$ROOT/bin/mojo-real" build -I src src/architecture_traces_main.mojo -o "$TARGET_DIR/reta-mojo-traces"
+printf 'Erzeugt: %s\n' "$TARGET_DIR/reta-mojo-traces"

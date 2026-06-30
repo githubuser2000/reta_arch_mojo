@@ -386,3 +386,12 @@ Der Python-AST-Scan bleibt bewusst ein Build-/Regenerationswerkzeug. Laufzeitabf
 Der Witness-Generator muss `python_reference` selbst als Repositorywurzel verwenden. Wird irrtümlich die äußere Mojo-Projektwurzel übergeben, erscheinen sämtliche historischen Pfade unter `reta_architecture/`, `libs/`, `i18n/` und `tests/` als fehlend. Mit der richtigen Wurzel werden 351/351 dateiartige Anker aufgelöst.
 
 Kategorienkatalog, Kapselkarte, Verträge und Witnesses werden nicht zu einem einzigen Executable zusammengeklebt. Ein solcher Metamonolith verursacht unverhältnismäßige Compilerelaboration. Die Generatoren validieren die Querverweise und speichern den bestandenen Status; die nativen Programme bleiben getrennte, schnell kompilierbare Inspektionsziele.
+
+
+## Stage 11c – Kohärenzmatrix und Trace-Navigation
+
+`architecture_coherence.py` und `architecture_traces.py` sind reine Metaschichten und werden als reproduzierbare typisierte Mojo-Snapshots portiert. Die Generatorphase führt die ursprünglichen Python-Bootstraps aus; die Laufzeit besitzt danach Suche, Navigation, Diagramme, Status- und Zählungsvalidierung ohne Python.
+
+Die Compilergrenze bleibt absichtlich fein: Kohärenz und Traces werden nicht zusammen mit Kategorien, Karte, Verträgen und Witnesses in ein einziges Executable instanziiert. Die bereits validierten Querverweise werden als Snapshot übernommen; ein gemeinsamer Metamonolith würde nur die Compilerelaboration vervielfachen.
+
+Der Komponententrace bewahrt die gesamte Navigationskette `Legacy-Besitzer → Kapsel → Kategorie → Funktor/Transformation → Diagramm → Witness → Gesetz`. Damit ist die höhere mathematische Architektur erstmals nativ nicht nur katalogisiert, sondern entlang konkreter Reta-Besitzer navigierbar.

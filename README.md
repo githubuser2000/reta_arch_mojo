@@ -7,10 +7,10 @@ Dies ist ein inkrementeller, getesteter Port des hochgeladenen Python-Projekts `
 ```text
 abgeschlossene Release-Stufen:       8 von 12 = 66,7 %
 Stufen 9/10/11:                       Ausgabe, Prompt und Architektursteuerung in Arbeit
-vollständig native Originaldateien:  22 von 92 = 23,9 %
-mindestens teilweise portiert:       50 von 92 = 54,3 %
-gewichteter Quellzeilenstand:         ca. 37 %
-funktionaler Nutzerumfang:            ca. 87–90 %
+vollständig native Originaldateien:  24 von 92 = 26,1 %
+mindestens teilweise portiert:       52 von 92 = 56,5 %
+gewichteter Quellzeilenstand:         ca. 39 %
+funktionaler Nutzerumfang:            ca. 88–91 %
 ```
 
 Die Metriken messen Verschiedenes. Die Stufenquote ist höher, weil die noch offenen Stufen die größten dynamischen Python-Module bündeln. Der vollständige Plan steht in [`ROADMAP.md`](ROADMAP.md).
@@ -231,6 +231,9 @@ Siehe [`BINARIES.md`](BINARIES.md).
 ./scripts/test_stage8.sh
 ./scripts/test_stage9.sh
 ./scripts/test_stage10.sh
+./scripts/test_stage11c.sh
+./scripts/check_architecture_control_generation.sh
+./scripts/check_architecture_coherence_trace_parity.sh
 ./scripts/check_generated_column_parity.sh
 ./scripts/check_kombi_parity.sh
 ./scripts/check_markup_parity.sh
@@ -243,9 +246,9 @@ Siehe [`BINARIES.md`](BINARIES.md).
 Gesamtbestand:
 
 ```text
-60 native Testdateien und Probes
+62 native Testdateien und Probes
 274 native Testfunktionen
-143/143 aktuell fokussiert dokumentierte Mojo-Tests bestanden
+162/162 aktuell fokussiert dokumentierte Mojo-Tests bestanden
 30 Generator- und 9 Kombi-CLI-Fälle in den Paritätssuiten
 8 schnelle Markup-Fixtures; 16 Fälle einzeln gegen Python validiert
 27 Kurzsprachen-, 23 Vorbereitung- und 12 Completion-Kontexte bytegleich
@@ -269,7 +272,7 @@ Details: [`TEST_RESULTS.md`](TEST_RESULTS.md).
 
 ## Nächster Portierungsblock
 
-Stufe 9 wird mit seltenen Terminal-/Rich-Sonderfällen fortgesetzt. Stufe 10 erweitert die bereits native Promptausführung und i18n-Laufzeit. In Stufe 11 sind Karte, Boundary-Graph, Verträge und Witnesses nativ; als Nächstes folgen Kohärenz- und ausführbare Gesamtvalidierung.
+Stufe 9 wird mit seltenen Terminal-/Rich-Sonderfällen fortgesetzt. Stufe 10 erweitert die bereits native Promptausführung und i18n-Laufzeit. In Stufe 11 sind Karte, Boundary-Graph, Verträge, Witnesses, Kohärenzmatrix und Trace-Navigation nativ; als Nächstes folgen ausführbare Gesamtvalidierung sowie Impact-/Migrationsschichten.
 
 ## Dokumentation
 
@@ -322,4 +325,23 @@ Alle 351 dateiartigen Witness-Anker werden gegen den unveränderten Referenzbaum
 ./bin/reta-mojo-witnesses --anchor RetaArchitectureRoot reta_architecture/facade.py
 ```
 
-Die Generatorprüfung umfasst nun Karte, Boundaries, Verträge und Witnesses als 4/4 byteidentische Dateien. Details: [`STAGE11B_NATIVE_ARCHITECTURE_CONTRACTS_WITNESSES.md`](STAGE11B_NATIVE_ARCHITECTURE_CONTRACTS_WITNESSES.md).
+Die Generatorprüfung umfasst Karte, Boundaries, Verträge und Witnesses. Details: [`STAGE11B_NATIVE_ARCHITECTURE_CONTRACTS_WITNESSES.md`](STAGE11B_NATIVE_ARCHITECTURE_CONTRACTS_WITNESSES.md).
+
+
+## Stage 11c: Kohärenzmatrix und Trace-Navigation
+
+Die nächsten Metaebenen sind ebenfalls als getrennte Mojo-Bundles verfügbar:
+
+- `architecture_coherence.mojo`: 11 Kapselkohärenzen, 53 Routen, 42 Natürlichkeits- und 22 Gesetzeskohärenzen
+- `architecture_traces.mojo`: 34 Komponenten-, 11 Kapsel- und 42 Stufentraces mit 204 Route-Hops
+
+```bash
+./scripts/build-heavy.sh
+./bin/reta-mojo-coherence --summary
+./bin/reta-mojo-coherence --route SchemaTopologyCapsule LocalSectionCapsule
+./bin/reta-mojo-traces --summary
+./bin/reta-mojo-traces --component reta.py
+./scripts/test_stage11c.sh
+```
+
+Die sechs Architekturkontrollgeneratoren regenerieren byteidentisch; acht repräsentative Python↔Mojo-Abfragen sind vollständig bytegleich. Details: [`STAGE11C_NATIVE_ARCHITECTURE_COHERENCE_TRACES.md`](STAGE11C_NATIVE_ARCHITECTURE_COHERENCE_TRACES.md).

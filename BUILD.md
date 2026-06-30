@@ -62,9 +62,11 @@ target/bin/reta-mojo-architecture
 target/bin/reta-mojo-boundaries
 target/bin/reta-mojo-contracts
 target/bin/reta-mojo-witnesses
+target/bin/reta-mojo-coherence
+target/bin/reta-mojo-traces
 ```
 
-Die fünf Ziele enthalten sehr große generierte Konstantenstrukturen, Grenzgraphdaten, Architekturverträge beziehungsweise Witness-Matrizen. Sie sind nicht für jeden normalen Build erforderlich; die Laufzeitpfade verwenden kompakte Katalogdateien.
+Die sieben Ziele enthalten sehr große generierte Konstantenstrukturen, Grenzgraphdaten, Architekturverträge, Witness-Matrizen, Kohärenzrouten beziehungsweise Trace-Netze. Sie sind nicht für jeden normalen Build erforderlich; die Laufzeitpfade verwenden kompakte Katalogdateien.
 
 ## Aufräumen
 

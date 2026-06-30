@@ -3,10 +3,10 @@
 ## Testbestand
 
 ```text
-60 Mojo-Testdateien und -Probes
+62 Mojo-Testdateien und -Probes
 274 Testfunktionen insgesamt
 9 reguläre ELF-Compilerziele
-5 optionale schwere Metadaten-/Katalogziele
+7 optionale schwere Metadaten-/Katalogziele
 ```
 
 Der letzte vollständig abgeschlossene normale Stufe-7-Lauf ergab **145/145** Tests. Seitdem kamen Meta-, Bruch-, Kombi-, Markup- und Prompttests hinzu. Ein monolithischer Kaltlauf stößt in dieser Umgebung bei `test_csv_reference`, großen Asset-Compilern und wiederholten Python-Referenzstarts an das äußere Ausführungslimit. Deshalb werden die veränderten Programme zusätzlich einzeln gebaut und ausgeführt.
@@ -29,8 +29,10 @@ test_generated_table_columns      7/7
 test_table_rendering              8/8
 test_html_cell_metadata           4/4
 test_row_filtering_reference      3/3
+test_architecture_coherence      10/10
+test_architecture_traces           9/9
                                 -------
-                                143/143 bestanden
+                                162/162 bestanden
 ```
 
 In den oben gezählten Einzelsuiten gab es keinen Testfehler. Zwei breitere Sammelprüfungen werden ausdrücklich **nicht** als bestanden gezählt:
@@ -350,3 +352,28 @@ Generatorprüfungen:
 - `RETA_CHECK_HEAVY=1 ./scripts/check_build_layout.sh` erwartet nun fünf schwere Ziele
 
 Kein Stage-11b-Test und kein Stage-11b-Programmaufruf verwendete `--alles`.
+
+
+## Stage 11c: Architektur-Kohärenz und Trace-Navigation
+
+Fokussierte native Builds und Läufe:
+
+```text
+test_architecture_coherence   10/10, Build 9,11 s
+test_architecture_traces        9/9, Build 12,12 s
+reta-mojo-coherence           Build 10,23 s
+reta-mojo-traces              Build 12,66 s
+                             -----
+                              19/19 Bedingungen
+```
+
+Zusätzlich bestanden:
+
+- Python↔Mojo-Ausgabeparität: **8/8 byteidentisch**
+- Architekturkontrollregeneration: **6/6 byteidentisch**
+- Kohärenz- und Trace-Generatoren bei `PYTHONHASHSEED=0`, `1`, `42`, `random`: jeweils byteidentisch
+- Kohärenzvalidierung: `passed`, alle zehn Fehlerlisten leer
+- Tracevalidierung: `passed`, alle sieben Fehlerlisten leer, 34 Komponenten und 204 Route-Hops intern bestätigt
+- `RETA_CHECK_HEAVY=1 ./scripts/check_build_layout.sh`: erfolgreich mit sieben schweren Zielen
+
+Kein Stage-11c-Test und kein Stage-11c-Programmaufruf verwendete `--alles`.
