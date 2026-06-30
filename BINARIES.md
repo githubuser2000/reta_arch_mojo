@@ -10,7 +10,8 @@ reta.english         retaPrompt
 retaPrompt.english   rp rpl rpb rpe
 prim prim24          multis multis3 modulo math
 grundStrukHtml       grundStrukHtml.py
-generate_html
+generate_html          reta-mojo-boundaries
+reta-mojo-contracts     reta-mojo-witnesses
 ```
 
 ## Wichtige Tabellenpfade
@@ -50,6 +51,13 @@ Der Umschalter ist absichtlich explizit, solange nicht sämtliche Tabellenfunkti
 ./bin/reta-mojo --mojo-wrap 2 'äöü漢字'
 ./bin/reta-mojo --mojo-tags 216
 ./bin/reta-mojo --mojo-tag-columns sternPolygon,universum
+./bin/reta-mojo-boundaries --summary
+./bin/reta-mojo-boundaries --module reta.py
+./bin/reta-mojo-boundaries --capsule InputPromptCapsule
+./bin/reta-mojo-contracts --summary
+./bin/reta-mojo-contracts --diagram RawCommandNaturalitySquare
+./bin/reta-mojo-witnesses --summary
+./bin/reta-mojo-witnesses --anchor RetaArchitectureRoot reta_architecture/facade.py
 ```
 
 ## Zuordnung
@@ -64,6 +72,8 @@ Der Umschalter ist absichtlich explizit, solange nicht sämtliche Tabellenfunkti
 | `generate_html` | `target/bin/generate-html-native` | Komposition nativ, große Mitteltabelle noch Bridge |
 | Tabellenzustand/CSV/Wrapping | `target/bin/reta-mojo-table` | nativ |
 | Tag-Schema | `target/bin/reta-mojo-tags` | nativ |
+| Architekturkarte und Kapselgrenzen | `target/bin/reta-mojo-architecture`, `target/bin/reta-mojo-boundaries` | generierte Metadaten und Abfragen nativ; Python-AST-Scan nur bei Regeneration |
+| Architekturverträge und Witnesses | `target/bin/reta-mojo-contracts`, `target/bin/reta-mojo-witnesses` | kommutierende Verträge, Kapselgesetze, Repository-Anker und Nachweisnavigation nativ; Python nur bei Regeneration |
 
 Lokale Installation der Launcher:
 

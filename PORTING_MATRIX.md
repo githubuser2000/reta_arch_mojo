@@ -5,8 +5,8 @@ Stand: 30. Juni 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der 
 - Ursprüngliche Python-Dateien: **92**
 - Ursprüngliche Python-Zeilen insgesamt: **48831**
 - Zusätzlicher Bridge-Adapter: **1 Python-Datei**
-- Konservativ mindestens teilweise portierte Originaldateien: **46/92**
-- Native Mojo-Quellzeilen unter `src/`: **18802**
+- Konservativ mindestens teilweise portierte Originaldateien: **50/92**
+- Native Mojo-Quellzeilen unter `src/`: **26764**
 - Native Mojo-Quellzeilen: siehe `src/` (inklusive generiertem Kategoriekatalog)
 
 | Python-Datei | Zeilen | Funktionen | Klassen | dynamische Aufrufe | Status | Mojo/Ziel | Anmerkung |
@@ -37,17 +37,17 @@ Stand: 30. Juni 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der 
 | `retaPrompt.py` | 130 | 10 | 0 | 3 | weitgehend nativ | `src/prompt_main.mojo + src/reta_mojo/prompt_runtime.mojo + prompt_language.mojo + prompt_legacy_echo.mojo + prompt_property_execution.mojo` | Controller, Sitzungskern, Kurzsprache, Completion, explizite One-shots, sämtliche kompakte Tabellenfamilien, positive reine Zahlen-/Bruch- und 15/16-Katalogkompositionen sowie alle 165 EIGN/EIGR-Eigenschaftsbefehle nativ; Sonderwerte und noch nicht portierte Fachoperationen gehen unverändert an die Bridge |
 | `reta_architecture/__init__.py` | 598 | 0 | 0 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/__init__.py` | noch nicht nativ portiert |
 | `reta_architecture/architecture_activation.py` | 600 | 20 | 9 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/architecture_activation.py` | noch nicht nativ portiert |
-| `reta_architecture/architecture_boundaries.py` | 343 | 20 | 8 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/architecture_boundaries.py` | noch nicht nativ portiert |
+| `reta_architecture/architecture_boundaries.py` | 343 | 20 | 8 | 0 | generiert nativ | `src/reta_mojo/architecture_boundaries.mojo + tools/generate_architecture_boundaries.py` | 161 Modulbesitzer, 279 Importkanten, 37 Kapselkanten, 11 Grenzobjekte und fünf Validierungschecks als typisierter Mojo-Snapshot; Python-AST-Scan nur bei expliziter Regeneration |
 | `reta_architecture/architecture_coherence.py` | 796 | 19 | 7 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/architecture_coherence.py` | noch nicht nativ portiert |
-| `reta_architecture/architecture_contracts.py` | 1190 | 43 | 7 | 6 | Python-Referenz/Bridge | `python_reference/reta_architecture/architecture_contracts.py` | noch nicht nativ portiert |
+| `reta_architecture/architecture_contracts.py` | 1190 | 43 | 7 | 6 | generiert nativ | `src/reta_mojo/architecture_contracts.mojo + tools/generate_architecture_contracts.py` | 33 kommutierende Diagramme, 11 Kapselverträge, 22 Gesetze und validierte Kategorie-/Funktor-/Transformationsreferenzen |
 | `reta_architecture/architecture_impact.py` | 525 | 24 | 8 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/architecture_impact.py` | noch nicht nativ portiert |
-| `reta_architecture/architecture_map.py` | 1568 | 71 | 7 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/architecture_map.py` | noch nicht nativ portiert |
+| `reta_architecture/architecture_map.py` | 1568 | 71 | 7 | 0 | generiert nativ | `src/reta_mojo/architecture_map.mojo + tools/generate_architecture_map.py` | vollständige Stage-42-Karte mit 11 Kapseln, 34 Einschließungen, 53 Flüssen, 34 Legacy-Zuordnungen und 42 Stufenschritten nativ abfragbar |
 | `reta_architecture/architecture_migration.py` | 661 | 28 | 8 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/architecture_migration.py` | noch nicht nativ portiert |
 | `reta_architecture/architecture_progress.py` | 839 | 27 | 9 | 1 | Python-Referenz/Bridge | `python_reference/reta_architecture/architecture_progress.py` | noch nicht nativ portiert |
 | `reta_architecture/architecture_rehearsal.py` | 437 | 16 | 8 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/architecture_rehearsal.py` | noch nicht nativ portiert |
 | `reta_architecture/architecture_traces.py` | 352 | 17 | 7 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/architecture_traces.py` | noch nicht nativ portiert |
 | `reta_architecture/architecture_validation.py` | 1137 | 29 | 5 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/architecture_validation.py` | noch nicht nativ portiert |
-| `reta_architecture/architecture_witnesses.py` | 640 | 26 | 8 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/architecture_witnesses.py` | noch nicht nativ portiert |
+| `reta_architecture/architecture_witnesses.py` | 640 | 26 | 8 | 0 | generiert nativ | `src/reta_mojo/architecture_witnesses.mojo + tools/generate_architecture_witnesses.py` | 536 Anker, 11 Kapselschnitte, 33 Diagramm-, 42 Natürlichkeits-Witnesses und 55 Verpflichtungen; 351/351 Dateianbindungen aufgelöst |
 | `reta_architecture/arithmetic.py` | 273 | 19 | 1 | 0 | nativ | `src/reta_mojo/arithmetic.mojo` | arithmetischer Kern; Prozessparallelisierung noch nicht |
 | `reta_architecture/category_theory.py` | 1441 | 53 | 8 | 0 | generiert nativ | `src/reta_mojo/category_theory.mojo` | 26 Kategorien, 77 Funktoren, 42 Transformationen |
 | `reta_architecture/column_selection.py` | 119 | 7 | 1 | 0 | teilweise nativ | `src/reta_mojo/column_selection.mojo` | 24 typisierte Bucket-Koordinaten und Bucket-Erzeugung; Legacy-Programmbindung noch Bridge |

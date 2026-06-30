@@ -1,12 +1,12 @@
-# Testergebnisse – Stufe-9/10-Zwischenstand
+# Testergebnisse – Stufe-9/10/11-Zwischenstand
 
 ## Testbestand
 
 ```text
-52 Mojo-Testdateien und -Probes
-254 Testfunktionen insgesamt
+60 Mojo-Testdateien und -Probes
+274 Testfunktionen insgesamt
 9 reguläre ELF-Compilerziele
-2 optionale schwere Katalogtestdateien
+5 optionale schwere Metadaten-/Katalogziele
 ```
 
 Der letzte vollständig abgeschlossene normale Stufe-7-Lauf ergab **145/145** Tests. Seitdem kamen Meta-, Bruch-, Kombi-, Markup- und Prompttests hinzu. Ein monolithischer Kaltlauf stößt in dieser Umgebung bei `test_csv_reference`, großen Asset-Compilern und wiederholten Python-Referenzstarts an das äußere Ausführungslimit. Deshalb werden die veränderten Programme zusätzlich einzeln gebaut und ausgeführt.
@@ -307,3 +307,46 @@ erfolgreich gebaut. Ein erneuter vollständiger Monolithbuild nach der
 verhaltensneutralen Ein-Set-Reihenfolge-Optimierung überschritt 30 Minuten
 Compilerzeit ohne Diagnose; Unit- und Integrationsziele des endgültigen
 Quellstands kompilierten und bestanden.
+
+
+## Stage 11a: Architekturkarte und Boundary-Graph
+
+```text
+test_architecture_map           3/3
+test_architecture_boundaries    4/4
+                              -----
+                               7/7 bestanden
+```
+
+Zusätzlich bestanden:
+
+- `scripts/check_architecture_control_generation.sh`: beide generierten Mojo-Dateien byteidentisch zur aktuellen Python-Referenz
+- Architekturmap-Generator bei `PYTHONHASHSEED=0`, `1`, `42`, `random`: identischer SHA-256 `610f4b743a8bbd09316de46d46d341361c5e1561831c6818929b83d098466e45`
+- Boundary-Generator bei denselben vier Seeds: identischer SHA-256 `574d829d47ca1bdd57e75ee61177c3a188db50a99c123b27d529b32f6ed59338`
+- `reta-mojo-boundaries` als ELF gebaut; `--summary`, `--module reta.py` und `--capsule InputPromptCapsule` erfolgreich
+- `RETA_CHECK_HEAVY=1 ./scripts/check_build_layout.sh` erfolgreich mit drei schweren Zielen
+
+Kein Stage-11a-Test und kein Stage-11a-Programmaufruf verwendete `--alles`.
+
+
+## Stage 11b: Architekturverträge und Witness-Matrix
+
+Fokussierte native Builds und Läufe:
+
+```text
+probe_architecture_contracts   20/20 Bedingungen, Build 11,28 s
+reta-mojo-contracts            Summary/Diagramm/Kapsel/Gesetz, Build 12,17 s
+probe_architecture_witnesses   24/24 Bedingungen, Build 23,20 s
+reta-mojo-witnesses            Summary/Anker/Kapsel/Diagramm/Transformation/Verpflichtung, Build 23,75 s
+```
+
+Generatorprüfungen:
+
+- `architecture_contracts.mojo` bei Hash-Seeds `0`, `1`, `42`, `random` byteidentisch, SHA-256 `14f0459c85ac0513381ba92de9fde1fc42231d404a92d6be7385a6a93daf1416`
+- `architecture_witnesses.mojo` bei denselben Seeds byteidentisch, SHA-256 `26ba36ae176cc07e5031d03a3cee9d93315e8d36a59ea5b35de4c53a9ba593d3`
+- `scripts/check_architecture_control_generation.sh`: Karte, Boundaries, Verträge und Witnesses **4/4** byteidentisch
+- Vertragsvalidierung: `passed`, keine fehlenden Kapseln, Kategorien, Funktoren oder Transformationen
+- Witness-Validierung: `passed`, 351/351 dateiartige Anker aufgelöst und keine unbedeckten Kapseln, Diagramme, Gesetze oder Transformationen
+- `RETA_CHECK_HEAVY=1 ./scripts/check_build_layout.sh` erwartet nun fünf schwere Ziele
+
+Kein Stage-11b-Test und kein Stage-11b-Programmaufruf verwendete `--alles`.

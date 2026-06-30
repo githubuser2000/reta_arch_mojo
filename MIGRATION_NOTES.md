@@ -370,3 +370,19 @@ Die Python-Promptimplementierung von EIGR scheitert derzeit vor der Ausführung
 beim tiefen Kopieren eines Modulobjekts. Der Mojo-Port folgt dem unmittelbar im
 Referenzzweig gebildeten und über `reta.py` erfolgreich geprüften Argumentvektor
 und übernimmt nicht diesen vorgeschalteten Defekt.
+
+
+## Stage 11a – Architekturkarte und Boundary-Graph
+
+`architecture_map.py` und `architecture_boundaries.py` sind erstmals außerhalb der Python-Laufzeit verfügbar. Zwei deterministische Generatoren lesen die Referenzsnapshots und erzeugen typisierte Mojo-Strukturen. Der Architekturmap-Snapshot umfasst 11 Kapseln, 34 Einschließungen, 53 Flüsse, 34 Legacy-Zuordnungen und 42 Stufenschritte. Der Grenzgraph umfasst 161 Modulbesitzer, 279 aufgelöste interne Importkanten, 37 Cross-Capsule-Kanten, 11 Kapselgrenzen und fünf bestandene Validierungschecks.
+
+Der Python-AST-Scan bleibt bewusst ein Build-/Regenerationswerkzeug. Laufzeitabfragen (`--summary`, `--module`, `--capsule`, Diagramme) und Validierungsnavigation geschehen im neuen `reta-mojo-boundaries` vollständig in Mojo. Der Kategorienkatalog und der Grenzgraph bleiben getrennte schwere Compilerziele, damit der Compiler nicht beide großen Konstantenmengen in einem Monolithen elaborieren muss.
+
+
+## Stage 11b – Architekturverträge und Witnesses
+
+`architecture_contracts.py` und `architecture_witnesses.py` sind metadata-only und werden deshalb als reproduzierbar generierte, typisierte Mojo-Bundles portiert. Der Python-Code bleibt ausschließlich Wahrheit für den expliziten Generatorlauf; normale Suche, Navigation und Statusprüfung benötigen kein Python.
+
+Der Witness-Generator muss `python_reference` selbst als Repositorywurzel verwenden. Wird irrtümlich die äußere Mojo-Projektwurzel übergeben, erscheinen sämtliche historischen Pfade unter `reta_architecture/`, `libs/`, `i18n/` und `tests/` als fehlend. Mit der richtigen Wurzel werden 351/351 dateiartige Anker aufgelöst.
+
+Kategorienkatalog, Kapselkarte, Verträge und Witnesses werden nicht zu einem einzigen Executable zusammengeklebt. Ein solcher Metamonolith verursacht unverhältnismäßige Compilerelaboration. Die Generatoren validieren die Querverweise und speichern den bestandenen Status; die nativen Programme bleiben getrennte, schnell kompilierbare Inspektionsziele.

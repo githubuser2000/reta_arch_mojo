@@ -2,15 +2,15 @@
 
 Geplanter Umfang: **12 Release-Stufen**. Eine Stufe zählt erst als abgeschlossen, wenn Quellcode, Referenztests, Compilerziele, Dokumentation und ein source-only Archiv gemeinsam geprüft sind.
 
-## Fortschrittsmaße im aktuellen Stufe-9/10-Zwischenstand
+## Fortschrittsmaße im aktuellen Stufe-9/10/11-Zwischenstand
 
 | Maß | Stand | Aussage |
 |---|---:|---|
-| abgeschlossene Release-Stufen | **8/12 = 66,7 %** | Generator-/Meta- und Kombinationspfade sind abgeschlossen; Stufen 9 und 10 sind aktiv |
-| vollständig native oder generierte Python-Dateien | **18/92 = 19,6 %** | Datei vollständig ersetzt oder als reproduzierbares Laufzeitasset abgebildet |
-| mindestens angegriffene Python-Dateien | **46/92 = 50,0 %** | vollständig oder teilweise nativ |
-| gewichtete Quellzeilen | **ca. 29 %** | konservative Schätzung unter Berücksichtigung der großen Teilports |
-| funktionaler Nutzerumfang | **ca. 86–89 %** | praktisch nutzbarer Reta-Umfang ohne Python-Algorithmus |
+| abgeschlossene Release-Stufen | **8/12 = 66,7 %** | Generator-/Meta- und Kombinationspfade sind abgeschlossen; Stufen 9, 10 und 11 sind aktiv |
+| vollständig native oder generierte Python-Dateien | **22/92 = 23,9 %** | Datei vollständig ersetzt oder als reproduzierbares Laufzeitasset abgebildet |
+| mindestens angegriffene Python-Dateien | **50/92 = 54,3 %** | vollständig oder teilweise nativ |
+| gewichtete Quellzeilen | **ca. 37 %** | konservative Schätzung unter Berücksichtigung der großen Teilports |
+| funktionaler Nutzerumfang | **ca. 87–90 %** | praktisch nutzbarer Reta-Umfang ohne Python-Algorithmus |
 
 Die Stufenquote ist höher als die Quellzeilenquote, weil die letzten Stufen besonders große dynamische Module bündeln: vollständige Ausgabeaufbereitung, Prompt-Sprache, i18n-Matrix, Architekturvalidierung und Parallelisierung.
 
@@ -46,8 +46,8 @@ Die Stufenquote ist höher als die Quellzeilenquote, weil die letzten Stufen bes
 10. **Vollständige Prompt-Sprache und i18n — in Arbeit**  
     Klammerbewusstes Tokenisieren, kompakte Kurzbefehle, CPython-Set-Reihenfolge, fünfsprachiger Completion-Katalog und persistenter Mojo-Completion-Arbeiter sind nativ. Mojo plant 18 Domänenfamilien plus EIGN/EIGR einschließlich Ganzzahl-, Reziprok- und `n/m`-Achsen, ganzzahliger Vielfachen/Teiler, historischer Bruchbereiche, stabiler Bruchausschlüsse, Bruchteiler und Reziprok-Vielfache. Vollständig besessene Einmalbefehle laufen vor jedem Python-Import und rufen den Tabellenkern im selben Mojo-Prozess auf. Eine getrennte Legacy-Präsentationsschicht besitzt sämtliche kompakten Tabellenfamilien und `mulpri`/`p`. Stage 10h ergänzt positive reine Zahlen-, Bereichs-, Listen- und Bruchkompositionen sowie 365 adressierbare Einträge des fünfsprachigen `15`-/`16`-Katalogs. Vorbereitete Fragmentbreiten, Bindestrichumbrüche, Zählungsmarkierungen und der historische nicht-zeilenorientierte Farbausgabestrom sind bytegenau modelliert. Stage 10i–10n ergänzen Null-/Negativ- und Kollisionsalgebra, wiederholte Katalogauswahl, mehrbereichige Abstände, native Datei-/Pipe-I/O, positive Promptbreiten, komponierte ganzzahlige Vielfachen-/Teilerpfade, verschachtelte CPython-Teiler-Setordnung und dynamische Obergrenzen absoluter `vN`-Selektoren. Offen bleiben echte `v n/m`-Vielfache mit Zähler größer 1, weitere hintere Sonderpfade, die große `--alles`-HTML-Mitteltabelle und die vollständige i18n-Laufzeit außerhalb des Promptvokabulars.
 
-11. **Architektursteuerung und Laufzeitnetze — offen**  
-    Validierung, Aktivierung, Verträge, Persistenz, Ausführungsnetz, Parallelisierung und Rehearsal.
+11. **Architektursteuerung und Laufzeitnetze — in Arbeit**  
+    Stage 11a portiert Architekturkarte und realen Modul-/Kapsel-Grenzgraph. Stage 11b ergänzt 33 kommutierende Diagramme, 11 Kapselverträge, 22 Gesetze, 536 Witness-Anker, 33 Diagrammnachweise, 42 Natürlichkeitsnachweise und 55 Refactor-Verpflichtungen als getrennte typisierte Mojo-Bundles. Offen bleiben Kohärenz, ausführbare Gesamtvalidierung, Aktivierung, Persistenz, Ausführungsnetz, Parallelisierung und Rehearsal.
 
 12. **Bridge entfernen und Releaseparität — offen**  
     Letzte Python-Grenzen entfernen, vollständige Befehlsmatrix, Leistungsprüfung, Packaging und Release.
@@ -67,3 +67,21 @@ Die Zahl **12** ist die geplante Releasegliederung. Interne Teilpakete oder Fehl
   ausführbarer Argumentvertrag.
 - Vollständig besessene Eigenschaftsbefehle laufen vor jedem Python-Import und
   ohne `reta-native`-Kindprozess.
+
+
+## Stage 11a – native Architekturkarte und Kapselgrenzen
+
+- `architecture_map.py` ist als vollständiger typisierter Mojo-Snapshot verfügbar.
+- `architecture_boundaries.py` ist als typisierter Modulbesitz-, Import- und Kapselgraph verfügbar.
+- Die Quellbaum-/AST-Auswertung läuft nur beim expliziten Regenerieren; normale Abfragen und Validierungszugriffe benötigen kein Python.
+- `reta-mojo-boundaries` liefert Zusammenfassung, Modulbesitz, Kapselstatistik und Diagramme.
+- Generatoren sind über mehrere `PYTHONHASHSEED`-Werte byteidentisch reproduzierbar.
+
+
+## Stage 11b – native Architekturverträge und Witnesses
+
+- `architecture_contracts.py` ist als typisierter Snapshot mit 33 Diagrammen, 11 Kapselverträgen und 22 Gesetzen verfügbar.
+- `architecture_witnesses.py` ist als typisierter Snapshot mit 536 Ankern, 11 Kapselschnitten, 33 Diagramm-, 42 Natürlichkeits-Witnesses und 55 Verpflichtungen verfügbar.
+- 351/351 dateiartige Anker sind gegen `python_reference` aufgelöst; 185 symbolische Anker bleiben bewusst symbolisch.
+- Beide Generatoren sind über `PYTHONHASHSEED=0`, `1`, `42`, `random` byteidentisch reproduzierbar.
+- Verträge und Witnesses bleiben getrennte schwere Ziele, damit Mojo nicht den gesamten Metakatalog in einem Compiler-Monolithen instanziiert.

@@ -6,11 +6,11 @@ Dies ist ein inkrementeller, getesteter Port des hochgeladenen Python-Projekts `
 
 ```text
 abgeschlossene Release-Stufen:       8 von 12 = 66,7 %
-Stufen 9/10:                          Ausgabe und Prompt-Sprache in Arbeit
-vollständig native Originaldateien:  18 von 92 = 19,6 %
-mindestens teilweise portiert:       46 von 92 = 50,0 %
-gewichteter Quellzeilenstand:         ca. 29 %
-funktionaler Nutzerumfang:            ca. 86–89 %
+Stufen 9/10/11:                       Ausgabe, Prompt und Architektursteuerung in Arbeit
+vollständig native Originaldateien:  22 von 92 = 23,9 %
+mindestens teilweise portiert:       50 von 92 = 54,3 %
+gewichteter Quellzeilenstand:         ca. 37 %
+funktionaler Nutzerumfang:            ca. 87–90 %
 ```
 
 Die Metriken messen Verschiedenes. Die Stufenquote ist höher, weil die noch offenen Stufen die größten dynamischen Python-Module bündeln. Der vollständige Plan steht in [`ROADMAP.md`](ROADMAP.md).
@@ -243,8 +243,8 @@ Siehe [`BINARIES.md`](BINARIES.md).
 Gesamtbestand:
 
 ```text
-52 native Testdateien und Probes
-254 native Testfunktionen
+60 native Testdateien und Probes
+274 native Testfunktionen
 143/143 aktuell fokussiert dokumentierte Mojo-Tests bestanden
 30 Generator- und 9 Kombi-CLI-Fälle in den Paritätssuiten
 8 schnelle Markup-Fixtures; 16 Fälle einzeln gegen Python validiert
@@ -269,7 +269,7 @@ Details: [`TEST_RESULTS.md`](TEST_RESULTS.md).
 
 ## Nächster Portierungsblock
 
-Stufe 9 wird mit seltenen Terminal-/Rich-Sonderfällen und den restlichen kombinierten HTML-Metadaten fortgesetzt. Parallel wird Stufe 10 von der bereits nativen Kurzsprache und Completion in die fachliche Promptausführung und die vollständige i18n-Laufzeit erweitert.
+Stufe 9 wird mit seltenen Terminal-/Rich-Sonderfällen fortgesetzt. Stufe 10 erweitert die bereits native Promptausführung und i18n-Laufzeit. In Stufe 11 sind Karte, Boundary-Graph, Verträge und Witnesses nativ; als Nächstes folgen Kohärenz- und ausführbare Gesamtvalidierung.
 
 ## Dokumentation
 
@@ -281,3 +281,45 @@ Stufe 9 wird mit seltenen Terminal-/Rich-Sonderfällen und den restlichen kombin
 - [`PORTING_MATRIX.md`](PORTING_MATRIX.md) – Status jeder Python-Datei
 - [`MIGRATION_NOTES.md`](MIGRATION_NOTES.md) – semantische Entscheidungen
 
+
+## Stage 11a: Architekturkarte und Kapselgrenzen
+
+Die bisher ausschließlich pythonische Metaarchitektur besitzt nun zwei separate schwere Mojo-Bundles:
+
+- `architecture_map.mojo`: 11 Kapseln, 34 Einschließungen, 53 Flüsse, 34 Legacy-Zuordnungen und 42 Stufenschritte
+- `architecture_boundaries.mojo`: 161 Modulbesitzer, 279 interne Importkanten, 37 Cross-Capsule-Kanten, 11 Kapselgrenzen und fünf bestandene Checks
+
+Die AST-Auswertung der Python-Referenz ist ein expliziter Regenerationsschritt. Das eingecheckte Ergebnis, seine Navigation und die Validierungsabfragen laufen nativ:
+
+```bash
+./scripts/build-heavy.sh
+./bin/reta-mojo-boundaries --summary
+./bin/reta-mojo-boundaries --module reta.py
+./bin/reta-mojo-boundaries --capsule InputPromptCapsule
+```
+
+Reproduzierbarkeit:
+
+```bash
+./scripts/check_architecture_control_generation.sh
+```
+
+
+## Stage 11b: Architekturverträge und Witness-Matrix
+
+Die beiden auf Stage 11a folgenden Metaebenen sind als getrennte, reproduzierbar generierte Mojo-Bundles verfügbar:
+
+- `architecture_contracts.mojo`: 33 kommutierende Diagramme, 11 Kapselverträge und 22 Refactor-Gesetze
+- `architecture_witnesses.mojo`: 536 Anker, 11 Kapselschnitte, 33 Diagrammnachweise, 42 Natürlichkeitsnachweise und 55 Verpflichtungen
+
+Alle 351 dateiartigen Witness-Anker werden gegen den unveränderten Referenzbaum aufgelöst. Beide Validierungen besitzen den Status `passed`.
+
+```bash
+./scripts/build-heavy.sh
+./bin/reta-mojo-contracts --summary
+./bin/reta-mojo-contracts --diagram RawCommandNaturalitySquare
+./bin/reta-mojo-witnesses --summary
+./bin/reta-mojo-witnesses --anchor RetaArchitectureRoot reta_architecture/facade.py
+```
+
+Die Generatorprüfung umfasst nun Karte, Boundaries, Verträge und Witnesses als 4/4 byteidentische Dateien. Details: [`STAGE11B_NATIVE_ARCHITECTURE_CONTRACTS_WITNESSES.md`](STAGE11B_NATIVE_ARCHITECTURE_CONTRACTS_WITNESSES.md).

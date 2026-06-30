@@ -59,9 +59,12 @@ Das erzeugt zusätzlich:
 ```text
 target/bin/reta-mojo-schema
 target/bin/reta-mojo-architecture
+target/bin/reta-mojo-boundaries
+target/bin/reta-mojo-contracts
+target/bin/reta-mojo-witnesses
 ```
 
-Beide Ziele enthalten sehr große generierte Konstantenstrukturen. Sie sind nicht für jeden normalen Build erforderlich; die Laufzeitpfade verwenden kompakte Katalogdateien.
+Die fünf Ziele enthalten sehr große generierte Konstantenstrukturen, Grenzgraphdaten, Architekturverträge beziehungsweise Witness-Matrizen. Sie sind nicht für jeden normalen Build erforderlich; die Laufzeitpfade verwenden kompakte Katalogdateien.
 
 ## Aufräumen
 

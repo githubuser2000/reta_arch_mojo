@@ -1,24 +1,27 @@
-# Status – Stufen 9 und 10 in Arbeit
+# Status – Stufen 9, 10 und 11 in Arbeit
 
 - Zielversion: Mojo 1.0.0b2
 - Unterstützte Python-Umgebung für Installation/Referenzbrücken: 3.10–3.14; Setup bevorzugt Python 3.14
 - Abgeschlossene Release-Stufen: **8/12 = 66,7 %**
 - Stufe 9: **BBCode, zentraler ANSI-Shellpfad und zentrale HTML-Pfade nativ; seltene Ausgabegrenzen offen**
 - Stufe 10: **native Kurzsprache, mehrsprachige verschachtelte Completion und Promptvorbereitung in Arbeit**
+- Stufe 11: **Architekturkarte, Kapsel-/Importgrenzen, kommutierende Verträge und Witness-Matrix generiert nativ; Kohärenz und ausführbare Gesamtvalidierung offen**
 - Geschätzter funktionaler Portierungsstand: **87–90 %**
-- Konservativ vollständig native oder reproduzierbar generierte Originaldateien: **18/92 = 19,6 %**
-- Mindestens teilweise portierte Originaldateien: **46/92 = 50,0 %**
-- Gewichteter Quellzeilenstand: **ca. 29 %**
-- Nativer Mojo-Quellcode in `src/`: **18.802 Zeilen**
-- Davon im Paket `reta_mojo`: **17.128 Zeilen**
-- Native Mojo-Testdateien und -Probes: **54**
-- Native Testfunktionen: **267**
+- Konservativ vollständig native oder reproduzierbar generierte Originaldateien: **22/92 = 23,9 %**
+- Mindestens teilweise portierte Originaldateien: **50/92 = 54,3 %**
+- Gewichteter Quellzeilenstand: **ca. 37 %**
+- Nativer Mojo-Quellcode in `src/`: **26.764 Zeilen**
+- Davon im Paket `reta_mojo`: **24.848 Zeilen**
+- Native Mojo-Testdateien und -Probes: **60**
+- Native Testfunktionen: **274**
+- Stage-11b-Fokus: Verträge **33/11/22**, bekannte Kategorien/Funktoren/Transformationen **26/77/42**, Witnesses **536/11/33/42/55**, Ankerauflösung **351/351**, beide Validierungen `passed`; Generatoren über vier Hash-Seeds byteidentisch
+- Stage-11a-Fokus: Architekturkarte **11/34/53/34/42**, Boundary-Graph **161/279/37/11**, Validierung **5/5**, Mojo-Tests **7/7** und Generator-Reproduktion über Hash-Seeds `0`, `1`, `42`, `random` byteidentisch
 - Stage-10n-Fokus: **6/6** Unit, **23/23** Integration, **165/165** Katalogbefehle, **5/5** Tabellenströme, **2/2** EIGN-Promptnutzlasten und **6/6** isolierte One-shots bestanden
 - Prompt-Kurzsprache: **27/27 deutsche und englische Referenzkontexte bytegleich**
 - Promptvorbereitung: **23/23 deutsche und englische Referenzkontexte bytegleich**
 - Verschachtelte Completion: **12/12 Referenzkontexte und 12/12 schnelle Fixtures bytegleich**
 - Reguläre Compilerziele: **9 ELF-Executables** unter `target/bin/`
-- Schwere optionale Compilerziele: Parameterschema und Architekturkatalog über `scripts/build-heavy.sh`
+- Schwere optionale Compilerziele: Parameterschema, Kategorienkatalog, Architektur-Grenzgraph, Verträge und Witnesses über `scripts/build-heavy.sh`
 
 ## Stufe 7 abgeschlossen
 
