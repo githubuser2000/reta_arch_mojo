@@ -179,6 +179,307 @@ def python_int_set_order(values: List[Int]) -> List[Int]:
     return _pc_python_set_order(values)
 
 
+@fieldwise_init
+struct _PcPairSetState(Copyable):
+    var slots: List[Int]
+    var values: List[IntPair]
+    var hashes: List[UInt64]
+    var fill: Int
+    var used: Int
+
+
+@fieldwise_init
+struct _PcIntMergeSetState(Copyable):
+    var slots: List[Int]
+    var fill: Int
+    var used: Int
+
+
+def _pc_empty_pair_set() -> _PcPairSetState:
+    return _PcPairSetState(
+        _pc_empty_set_slots(8),
+        List[IntPair](),
+        List[UInt64](),
+        0,
+        0,
+    )
+
+
+def _pc_empty_int_merge_set() -> _PcIntMergeSetState:
+    return _PcIntMergeSetState(_pc_empty_set_slots(8), 0, 0)
+
+
+def _pc_copy_ints(values: List[Int]) -> List[Int]:
+    var result = List[Int]()
+    for index in range(len(values)):
+        result.append(values[index])
+    return result^
+
+
+def _pc_copy_pairs(values: List[IntPair]) -> List[IntPair]:
+    var result = List[IntPair]()
+    for index in range(len(values)):
+        result.append(values[index].copy())
+    return result^
+
+
+def _pc_copy_hashes(values: List[UInt64]) -> List[UInt64]:
+    var result = List[UInt64]()
+    for index in range(len(values)):
+        result.append(values[index])
+    return result^
+
+
+def _pc_tuple_pair_hash(value: IntPair) -> UInt64:
+    # CPython 3.13 tuplehash(): the XXHash-derived two-lane tuple hash.  The
+    # factor-pair inputs are positive integers, so their integer hashes equal
+    # their values.
+    var prime1 = UInt64(11400714785074694791)
+    var prime2 = UInt64(14029467366897019727)
+    var prime5 = UInt64(2870177450012600261)
+    var accumulator = prime5
+
+    accumulator += UInt64(value.first) * prime2
+    accumulator = (accumulator << UInt64(31)) | (
+        accumulator >> UInt64(33)
+    )
+    accumulator *= prime1
+
+    accumulator += UInt64(value.second) * prime2
+    accumulator = (accumulator << UInt64(31)) | (
+        accumulator >> UInt64(33)
+    )
+    accumulator *= prime1
+
+    accumulator += UInt64(2) ^ (prime5 ^ UInt64(3527539))
+    return accumulator
+
+
+def _pc_pair_set_slot(
+    state: _PcPairSetState,
+    value: IntPair,
+    hash_value: UInt64,
+) -> Int:
+    var mask = len(state.slots) - 1
+    var mask_u = UInt64(mask)
+    var index = Int(hash_value & mask_u)
+    var perturb = hash_value
+    while True:
+        var stored_index = state.slots[index]
+        if stored_index == -1 or state.values[stored_index] == value:
+            return index
+        var probes = 9 if index + 9 <= mask else 0
+        for offset in range(1, probes + 1):
+            stored_index = state.slots[index + offset]
+            if stored_index == -1 or state.values[stored_index] == value:
+                return index + offset
+        perturb >>= UInt64(5)
+        index = Int(
+            (UInt64(index * 5 + 1) + perturb) & mask_u
+        )
+
+
+def _pc_pair_set_resize(
+    mut state: _PcPairSetState, minimum_used: Int
+) -> None:
+    var new_size = 8
+    while new_size <= minimum_used:
+        new_size <<= 1
+    var old_slots = _pc_copy_ints(state.slots)
+    state.slots = _pc_empty_set_slots(new_size)
+    for index in range(len(old_slots)):
+        var stored_index = old_slots[index]
+        if stored_index >= 0:
+            var target = _pc_pair_set_slot(
+                state,
+                state.values[stored_index],
+                state.hashes[stored_index],
+            )
+            state.slots[target] = stored_index
+    state.fill = state.used
+
+
+def _pc_pair_set_add(
+    mut state: _PcPairSetState, value: IntPair
+) -> None:
+    var hash_value = _pc_tuple_pair_hash(value)
+    var target = _pc_pair_set_slot(state, value, hash_value)
+    if state.slots[target] >= 0:
+        return
+    var stored_index = len(state.values)
+    state.values.append(value.copy())
+    state.hashes.append(hash_value)
+    state.slots[target] = stored_index
+    state.fill += 1
+    state.used += 1
+    if state.fill * 5 >= (len(state.slots) - 1) * 3:
+        _pc_pair_set_resize(state, state.used * 4)
+
+
+def _pc_pair_set_merge(
+    mut target: _PcPairSetState, source: _PcPairSetState
+) -> None:
+    if (
+        (target.fill + source.used) * 5
+        >= (len(target.slots) - 1) * 3
+    ):
+        _pc_pair_set_resize(
+            target, (target.used + source.used) * 2
+        )
+    if (
+        target.fill == 0
+        and len(target.slots) == len(source.slots)
+        and source.fill == source.used
+    ):
+        target.slots = _pc_copy_ints(source.slots)
+        target.values = _pc_copy_pairs(source.values)
+        target.hashes = _pc_copy_hashes(source.hashes)
+        target.fill = source.fill
+        target.used = source.used
+        return
+    for index in range(len(source.slots)):
+        var source_index = source.slots[index]
+        if source_index < 0:
+            continue
+        var value = source.values[source_index].copy()
+        var hash_value = source.hashes[source_index]
+        var slot = _pc_pair_set_slot(target, value, hash_value)
+        if target.slots[slot] >= 0:
+            continue
+        var target_index = len(target.values)
+        target.values.append(value.copy())
+        target.hashes.append(hash_value)
+        target.slots[slot] = target_index
+        target.fill += 1
+        target.used += 1
+
+
+def _pc_pair_set_order(state: _PcPairSetState) -> List[IntPair]:
+    var result = List[IntPair]()
+    for index in range(len(state.slots)):
+        var stored_index = state.slots[index]
+        if stored_index >= 0:
+            result.append(state.values[stored_index].copy())
+    return result^
+
+
+def _pc_int_merge_set_slot(
+    slots: List[Int], value: Int
+) -> Int:
+    return _pc_set_slot(slots, value)
+
+
+def _pc_int_merge_set_resize(
+    mut state: _PcIntMergeSetState, minimum_used: Int
+) -> None:
+    state.slots = _pc_set_resize(state.slots, minimum_used)
+    state.fill = state.used
+
+
+def _pc_int_merge_set_add(
+    mut state: _PcIntMergeSetState, value: Int
+) -> None:
+    var target = _pc_int_merge_set_slot(state.slots, value)
+    if state.slots[target] == value:
+        return
+    state.slots[target] = value
+    state.fill += 1
+    state.used += 1
+    if state.fill * 5 >= (len(state.slots) - 1) * 3:
+        _pc_int_merge_set_resize(state, state.used * 4)
+
+
+def _pc_int_merge_set_from_pair(value: IntPair) -> _PcIntMergeSetState:
+    var result = _pc_empty_int_merge_set()
+    _pc_int_merge_set_add(result, value.first)
+    _pc_int_merge_set_add(result, value.second)
+    return result^
+
+
+def _pc_int_merge_set_merge(
+    mut target: _PcIntMergeSetState,
+    source: _PcIntMergeSetState,
+) -> None:
+    if (
+        (target.fill + source.used) * 5
+        >= (len(target.slots) - 1) * 3
+    ):
+        _pc_int_merge_set_resize(
+            target, (target.used + source.used) * 2
+        )
+    if (
+        target.fill == 0
+        and len(target.slots) == len(source.slots)
+        and source.fill == source.used
+    ):
+        target.slots = _pc_copy_ints(source.slots)
+        target.fill = source.fill
+        target.used = source.used
+        return
+    for index in range(len(source.slots)):
+        var value = source.slots[index]
+        if value < 0:
+            continue
+        var slot = _pc_int_merge_set_slot(target.slots, value)
+        if target.slots[slot] == value:
+            continue
+        target.slots[slot] = value
+        target.fill += 1
+        target.used += 1
+
+
+def _pc_factor_pair_order(number: Int) -> List[IntPair]:
+    # arithmetic.factor_pairs() first builds a tuple set through repeated
+    # singleton unions, converts it to a list, appends (n, 1), and then the
+    # caller constructs a fresh tuple set from that iterable.
+    var first = _pc_empty_pair_set()
+    var divisor = 2
+    while divisor * divisor <= number:
+        if number % divisor == 0:
+            var singleton = _pc_empty_pair_set()
+            _pc_pair_set_add(
+                singleton, IntPair(number // divisor, divisor)
+            )
+            _pc_pair_set_merge(first, singleton)
+        divisor += 1
+
+    var first_order = _pc_pair_set_order(first)
+    var second = _pc_empty_pair_set()
+    for index in range(len(first_order)):
+        _pc_pair_set_add(second, first_order[index])
+    _pc_pair_set_add(second, IntPair(number, 1))
+    return _pc_pair_set_order(second)
+
+
+def python_divisor_set_order(numbers: List[Int]) -> List[Int]:
+    """Reproduce arithmetic.divisor_range's CPython-3.13 set order.
+
+    The reference nests tuple sets, two-element integer sets and ``set |=``.
+    This is observably different from sorting divisors or from inserting each
+    divisor directly (for example 24 serializes ``...,8,24,12``).
+    """
+    var target = _pc_empty_int_merge_set()
+    for number_index in range(len(numbers)):
+        var number = numbers[number_index]
+        if number <= 0:
+            continue
+        var pairs = _pc_factor_pair_order(number)
+        for pair_index in range(len(pairs)):
+            var source = _pc_int_merge_set_from_pair(pairs[pair_index])
+            _pc_int_merge_set_merge(target, source)
+
+    var raw = List[Int]()
+    for index in range(len(target.slots)):
+        if target.slots[index] >= 0:
+            raw.append(target.slots[index])
+    var keep_one = len(raw) == 1 and raw[0] == 1
+    var result = List[Int]()
+    for index in range(len(raw)):
+        if raw[index] != 1 or keep_one:
+            result.append(raw[index])
+    return result^
+
+
 def _pc_signed_int_hash(value: Int) -> UInt64:
     # Python hashes integers as themselves, except -1 which is reserved as the
     # C-API error sentinel and therefore hashes to -2.  Conversion to UInt64

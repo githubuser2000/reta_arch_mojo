@@ -261,3 +261,16 @@ Die unveränderte Python-Referenz hatte beim Eingang bereits drei fehlschlagende
 - `check_markup_parity.sh`: **8/8** zentrale BBCode-/HTML-Fixtures bytegleich; `check_shell_parity.sh`: **5/5** Shell-Fixtures bytegleich; `check_compat_parity.sh` bestanden.
 - Der breite kalte `test_all.sh`-Lauf schloss die ersten **13** Suiten ohne Fehler ab und wurde während des folgenden Compilerziels bewusst beendet, statt einen unvollständigen Lauf als Gesamterfolg auszugeben.
 - `release_check.sh` erreichte nach Vollbuild und mehreren Katalogprüfungen den bereits dokumentierten Python-3.13.5-CSV-Harnessfall: Die Referenz verklebt Zeilen, während der native CSV-Renderer Zeilenumbrüche ausgibt. Dieser bekannte Harnessfall wird nicht als Stage-10l-Regression und auch nicht als Release-Gesamterfolg ausgegeben.
+
+## Stage 10m: komponierte Ganzzahlmodifikatoren und dynamische Selektorgrenzen
+
+- `test_prompt_table_execution.mojo`: **25/25** bestanden. Neu abgedeckt sind Teilervereinigungen für mehrere Werte, Bereiche und die nicht sortierte CPython-Folge `24 -> 2,3,4,6,8,24,12`.
+- `test_native_reta_cli.mojo`: **22/22** bestanden. Absolute `vN`-Selektoren heben die Laufzeitgrenze auf 1027 beziehungsweise 1029 an, während `v24` bei 1024 bleibt.
+- Angrenzende Kernsuiten: Row-Ranges **7/7**, Row-Filtering **4/4**, Tabellenvorbereitung **2/2**.
+- Reale normalisierte CSV-Parität gegen Python 3.13.5 mit `PYTHONHASHSEED=0`:
+  - `vielfache teiler mond 6 10`: **243/243** Datenzeilen identisch,
+  - `vielfache teiler mond 2-4`: **687/687** Datenzeilen identisch,
+  - `vielfache teiler mond 24`: **49/49** Datenzeilen identisch.
+- `reta-native` wurde aus dem Stage-10m-Quellstand erfolgreich neu gebaut.
+- Der große `test_generated_columns.mojo` überschritt beim erneuten Kompilieren das großzügige Compilerlimit; es kam zu keinem ausgeführten und fehlgeschlagenen Test.
+- Der breite `--alles`-Test wurde **nicht** gestartet. Gemäß Vorgabe darf er ausschließlich mit **90 Minuten Timeout** laufen; ein 30-Minuten-Lauf wurde weder angesetzt noch versucht.

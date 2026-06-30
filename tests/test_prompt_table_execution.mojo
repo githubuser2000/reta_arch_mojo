@@ -231,6 +231,68 @@ def test_fraction_divisors_and_reciprocal_multiples_are_native() raises:
 
 
 
+def test_divisor_union_preserves_cpython_set_merge_order() raises:
+    var multi = _plan("teiler mond 6 10")
+    assert_true(multi.handled)
+    assert_true(
+        "--vorhervonausschnitt=2,3,5,6,10,10,6"
+        in _tokens(multi)
+    )
+
+    var mixed_multi = _plan("vielfache teiler mond 6 10")
+    assert_true(mixed_multi.handled)
+    assert_true(
+        "--vorhervonausschnitt=2,3,5,6,10,10,6,v10,v6"
+        in _tokens(mixed_multi)
+    )
+
+    var range_plan = _plan("teiler mond 2-4")
+    assert_true(
+        "--vorhervonausschnitt=2,3,4,2-4" in _tokens(range_plan)
+    )
+
+    # 24 is the smallest common case where CPython's nested set-merge order
+    # differs from a sorted divisor list: 24 precedes 12.
+    var collision = _plan("teiler mond 24")
+    assert_true(
+        "--vorhervonausschnitt=2,3,4,6,8,24,12,24"
+        in _tokens(collision)
+    )
+
+
+def test_combined_integer_divisors_and_multiples_are_native() raises:
+    var german = _plan("vielfache teiler mond 12")
+    assert_true(german.handled)
+    assert_equal(len(german.invocations), 1)
+    assert_false("--vielfachevonzahlen=12" in _tokens(german))
+    assert_true(
+        "--vorhervonausschnitt=2,3,4,6,12,12,v12"
+        in _tokens(german)
+    )
+    assert_false("--oberesmaximum=" in _tokens(german))
+
+    var compact = _plan("v w mond 12")
+    assert_true(compact.handled)
+    assert_equal(_tokens(compact), _tokens(german))
+
+    var catalog = load_prompt_language_catalog("assets")
+    var english = plan_prompt_table_commands(
+        ["multiple", "divider", "moon", "12"],
+        "english",
+        catalog,
+    )
+    assert_true(english.handled)
+    assert_equal(len(english.invocations), 1)
+    assert_true("-language=english" in _tokens(english))
+    assert_true(
+        "--vorhervonausschnitt=2,3,4,6,12,12,v12"
+        in _tokens(english)
+    )
+
+    # The rational combination remains at the explicit compatibility boundary.
+    assert_false(_plan("vielfache teiler universum 1/2").handled)
+
+
 def test_legacy_fraction_rectangles_and_offsets_are_native() raises:
     var rectangle = _plan("universum 1/2-3/3")
     assert_true(rectangle.handled)

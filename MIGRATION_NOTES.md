@@ -350,3 +350,10 @@ Der Shellrenderer bestimmt die Spaltenbreite jetzt nach dem historischen Vorbere
 - `generate_html_main.mojo` besitzt Argumente, Environment, Override, `middle.alx`, Assets, Hierarchie und stdout. Nur die noch unportierte `--spalten --alles`-Mitteltabelle wird im Normalmodus als expliziter Python-Kindprozess erzeugt.
 - Die veraltete positive-Breiten-Sperre in `native_reta_tokens_supported` entfällt. Shell, HTML und BBCode mit Breite 40 laufen aus dem Prompt bytegleich vor jedem Python-Import.
 - Neue Regressionen prüfen fehlende `libpython`-NEEDED-Einträge, einen absichtlich ungültigen Referenzinterpreter im HTML-Overridepfad sowie Python-quellfreie Tabellen-, Completion- und Promptausführung.
+
+## Stage 10m – Ganzzahl-Modifikatorkomposition und dynamische Tabellenobergrenze
+
+- `vielfache` und `teiler` komponieren bei Ganzzahlen jetzt in einem besitzenden nativen Plan. Der Mischpfad fügt keine separate `--vielfachevonzahlen`-Option hinzu, weil sie die Teilervereinigung wieder schneiden würde.
+- Die Teilerreihenfolge bildet nicht bloß eine Ganzzahlmenge nach. Das Original verschachtelt Faktor-Tupelmengen, eine zweite Tupelkonvertierung, zweielementige Ganzzahlmengen und `set |=`. Der Port reproduziert dafür Tupelhash, Probing, direkte Add-Resizes, Merge-Resizes und den leeren Tabellenkopierpfad von CPython 3.13.
+- Absolute Selektoren mit eingebettetem `vN` bestimmen ihre Tabellenobergrenze vor dem eigentlichen Zeilenfilter. Die erste 1028-begrenzte Expansion liefert `max(Auswahl) + 1`; die zweite Expansion gegen diese neue Grenze erklärt historische Folgezeilen wie 1029 bei `v2-4`.
+- Die native CSV-Tabelle wird für solche Selektoren mit typisierten Leerzeilen erweitert, damit Generatoren auch oberhalb der physischen Zeile 1024 arbeiten können. Der dedizierte `--vielfachevonzahlen`-Pfad behält seine kurze Haupttabellengrenze.

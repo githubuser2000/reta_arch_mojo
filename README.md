@@ -177,6 +177,10 @@ Positive reine Zahlen, Bereiche, Listen und Brüche komponieren nun dieselben ty
 
 Stage 10l ersetzt die zentrale `pathlib`-Dateibrücke durch natives Mojo-I/O, gibt dem persistenten Completion-Arbeiter direkte stdin/stdout-Dateideskriptoren und portiert die äußere `generate_html`-Orchestrierung. Dessen Overridepfad ist vollständig Python-frei; nur die noch offene große `--spalten --alles`-Mitteltabelle bleibt im Normalmodus ein expliziter Referenzkindprozess. Positive Shell-, HTML- und BBCode-Breiten laufen nun auch aus dem Prompt vor jedem Python-Import. Details: [`STAGE10L_NATIVE_IO_ORCHESTRATION.md`](STAGE10L_NATIVE_IO_ORCHESTRATION.md).
 
+### Stage 10m: komponierte Ganzzahlmodifikatoren und dynamische `vN`-Grenzen
+
+Ganzzahlige `vielfache`- und `teiler`-Befehle werden nun auch kombiniert vollständig nativ geplant. Die sichtbare Teilervereinigung reproduziert die verschachtelte CPython-3.13-Semantik aus Faktor-Tupelmengen, zweielementigen Ganzzahlmengen und `set_merge`; dadurch bleibt selbst die Reihenfolge `24 -> 2,3,4,6,8,24,12` erhalten. Absolute `vN`-Selektoren heben die native Tabellenobergrenze wie Python aus `max(Auswahl) + 1` an und können die physische CSV-Tabelle für generierte Zeilen über 1024 erweitern. Details: [`STAGE10M_NATIVE_INTEGER_MODIFIER_COMPOSITION.md`](STAGE10M_NATIVE_INTEGER_MODIFIER_COMPOSITION.md).
+
 ### Stage 10j: wiederholte Katalogauswahl und Whitespace-genauer Shellumbruch
 
 Wiederholte `15_…`-/`16_15…`-Katalogauswahlen laufen nun vollständig nativ. Das sichtbare Legacy-Echo behält beide Aliasbündel, während der Generatorregisterpfad sie wie Python semantisch dedupliziert. Die vermeintliche Instanzbreitenlücke war ein Shell-Wrappingfehler: interne Leerzeichenläufe werden jetzt als eigene `textwrap`-Chunks gezählt und nur an Zeilengrenzen verworfen. Dadurch ist auch die lange Primzahlkreuz-Spalte mit `|  Darin …` bytegleich. Details: [`STAGE10J_NATIVE_DUPLICATE_CATALOG.md`](STAGE10J_NATIVE_DUPLICATE_CATALOG.md).

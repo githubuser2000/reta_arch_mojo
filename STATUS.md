@@ -5,15 +5,15 @@
 - Abgeschlossene Release-Stufen: **8/12 = 66,7 %**
 - Stufe 9: **BBCode, zentraler ANSI-Shellpfad und zentrale HTML-Pfade nativ; seltene Ausgabegrenzen offen**
 - Stufe 10: **native Kurzsprache, mehrsprachige verschachtelte Completion und Promptvorbereitung in Arbeit**
-- Geschätzter funktionaler Portierungsstand: **86–89 %**
+- Geschätzter funktionaler Portierungsstand: **87–90 %**
 - Konservativ vollständig native oder reproduzierbar generierte Originaldateien: **18/92 = 19,6 %**
 - Mindestens teilweise portierte Originaldateien: **46/92 = 50,0 %**
 - Gewichteter Quellzeilenstand: **ca. 29 %**
-- Nativer Mojo-Quellcode in `src/`: **18.153 Zeilen**
-- Davon im Paket `reta_mojo`: **16.479 Zeilen**
+- Nativer Mojo-Quellcode in `src/`: **18.595 Zeilen**
+- Davon im Paket `reta_mojo`: **16.921 Zeilen**
 - Native Mojo-Testdateien und -Probes: **52**
-- Native Testfunktionen: **254**
-- Aktuell fokussiert dokumentiert: **143/143 bestanden**
+- Native Testfunktionen: **258**
+- Aktuell fokussiert dokumentiert: **147/147 bestanden**
 - Prompt-Kurzsprache: **27/27 deutsche und englische Referenzkontexte bytegleich**
 - Promptvorbereitung: **23/23 deutsche und englische Referenzkontexte bytegleich**
 - Verschachtelte Completion: **12/12 Referenzkontexte und 12/12 schnelle Fixtures bytegleich**
@@ -68,6 +68,7 @@
 - besitzende Tabellenplanung in `prompt_table_execution.mojo` für **18 Promptfamilien**
 - Ganzzahlen einschließlich `0`, rein negative Selektoren, Reziproke und echte `n/m`-Achsen werden gemeinsam geplant
 - ganzzahlige `vielfache`, `teiler` und `einzeln` sind nativ
+- kombinierte ganzzahlige `vielfache`-/`teiler`-Pfade sind nativ; Teilervereinigung und rohe `vN`-Komposition behalten die verschachtelte CPython-Set-Reihenfolge
 - historische Bruchrechtecke und Versätze wie `1/2-3/3` und `4/5+2/2` sind nativ
 - stabile und kollidierende Ganzzahl-/Bruchausschlüsse, Bruchteiler sowie `v1/n`-/Reziprok-Vielfache sind nativ
 - CPython-kompatible `set[str]`-Reihenfolge für rohe Ganzzahlkomponenten und vorzeichenbehaftete Bruchachsen
@@ -75,9 +76,10 @@
 - `range`, `invertieren`, Ausgabeparameter und die historische Universum-Spaltenunterdrückung werden erhalten
 - `--nocolor` wirkt im Shellrenderer; ungültige explizite Ergebnispositionen öffnen nicht mehr alle Spalten
 - explizites `--oberesmaximum` hebt wie Python beide historischen Zeilengrenzen an; ohne Angabe gilt die korrekte Kurzgrenze 163
-- **18/18** Bruchparser-Referenzfälle, **23/23** Tabellenplanertests, **14/14** reale Bruch-/Modifikator-Tokenströme und **7/7** Prompt-Ausführungsfixtures bestanden
+- absolute eingebettete `vN`-Selektoren bestimmen wie Python vorab `max(Auswahl) + 1`, erweitern die native Tabelle über Zeile 1024 und bleiben vom kurzen `--vielfachevonzahlen`-Filter getrennt
+- **18/18** Bruchparser-Referenzfälle, **25/25** Tabellenplanertests, **14/14** reale Bruch-/Modifikator-Tokenströme und **7/7** Prompt-Ausführungsfixtures bestanden
 - native One-shot-Ausführung vor jedem Python-Import; Tabellenkern direkt im Promptprozess statt über `reta-native`-Kindprozess
-- konservativer Besitzervertrag für rohe `reta`-Befehle; **20/20** CLI-Tests und 16 isolierte numerische One-shot-Klassen bestanden
+- konservativer Besitzervertrag für rohe `reta`-Befehle; **22/22** CLI-Tests und 16 isolierte numerische One-shot-Klassen bestanden
 - getrennte Legacy-Echotokens für kanonische native Ausführung
 - vorbereitete Fragmentbreiten, vorhandene Bindestrichumbrüche und interne Leerzeichenläufe entsprechen der Python-`textwrap`-Reihenfolge
 - `a2`, `ap15`, `p12`, `p13`, `G2`, `B2`, `E2`, `T2`, `W2` und `u2` vollständig bytegleich

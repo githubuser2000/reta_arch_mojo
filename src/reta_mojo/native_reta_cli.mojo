@@ -5,7 +5,7 @@ from std.collections.string import atol
 from .input_semantics import parse_cli_tokens, CliParseResult, ParsedCliOption
 from .output_modes import canonicalize_output_mode
 from .runtime_aliases import load_runtime_alias_catalog, resolve_runtime_columns
-from .csv_table import read_semicolon_csv, select_zero_based_columns
+from .csv_table import CsvTable, read_semicolon_csv, select_zero_based_columns
 from .row_filtering import RowFilterConfig
 from .row_ranges import range_to_numbers
 from .table_preparation import select_display_lines, select_display_table
@@ -626,8 +626,11 @@ def native_reta_tokens_supported(tokens: List[String], csv_path: String) raises 
             return False
 
     var table = read_semicolon_csv(csv_path)
+    var effective_highest = effective_runtime_highest(
+        tokens, len(table.rows) - 1
+    )
     var plan = build_native_reta_plan(
-        tokens, table.maximum_columns, len(table.rows) - 1
+        tokens, table.maximum_columns, effective_highest
     )
     if len(plan.diagnostics) > 0:
         return False
@@ -637,6 +640,69 @@ def native_reta_tokens_supported(tokens: List[String], csv_path: String) raises 
     # Positive-width shell, HTML and BBCode rendering is owned by the native
     # renderer and covered by byte fixtures; no prompt-only Python gate remains.
     return True
+
+
+def _selector_value(token: String, prefix: String) -> String:
+    return String(StringSlice(token)[byte=prefix.byte_length():])
+
+
+def effective_runtime_highest(
+    tokens: List[String], baseline: Int
+) raises -> Int:
+    """Mirror parameter_runtime.upper_limit_from_arguments for native runs.
+
+    Absolute selectors are expanded before table construction.  Embedded
+    ``vN`` ranges use the historical finite 1028 generator and then raise the
+    runtime ceiling to ``max(selected) + 1``.  This is why ``v2-4`` can display
+    rows 1028 and 1029 even though the physical CSV ends at row 1024.
+    """
+    var highest = baseline
+    for index in range(len(tokens)):
+        var token = tokens[index]
+        var raw: String
+        if token.startswith("--vorhervonausschnitt="):
+            raw = _selector_value(token, "--vorhervonausschnitt=")
+        elif token.startswith("--thisrangebefore="):
+            raw = _selector_value(token, "--thisrangebefore=")
+        elif token.startswith("--range="):
+            raw = _selector_value(token, "--range=")
+        elif token.startswith("--oberesmaximum="):
+            highest = max(
+                highest,
+                atol(_selector_value(token, "--oberesmaximum=")),
+            )
+            continue
+        elif token.startswith("--uppermaximum="):
+            highest = max(
+                highest,
+                atol(_selector_value(token, "--uppermaximum=")),
+            )
+            continue
+        elif token.startswith("--maximum="):
+            highest = max(
+                highest,
+                atol(_selector_value(token, "--maximum=")),
+            )
+            continue
+        else:
+            continue
+
+        var selected = range_to_numbers(raw, False, 0)
+        for value in selected:
+            highest = max(highest, value + 1)
+    return highest
+
+
+def _extend_table_to_row(table: CsvTable, highest: Int) -> CsvTable:
+    if highest < len(table.rows):
+        return table.copy()
+    var rows = table.rows.copy()
+    while len(rows) <= highest:
+        var row = List[String]()
+        for _ in range(table.maximum_columns):
+            row.append("")
+        rows.append(row^)
+    return CsvTable(rows^, table.maximum_columns)
 
 
 def _requested_upper_maximum(tokens: List[String]) raises -> Int:
@@ -663,10 +729,35 @@ def _has_explicit_upper_maximum(tokens: List[String]) -> Bool:
     return False
 
 
+def has_absolute_multiple_row_selector(
+    positive_rows: List[String], negative_rows: List[String]
+) -> Bool:
+    """Detect legacy ``vN`` components inside an absolute row selector.
+
+    ``--vorhervonausschnitt=12,v12`` is not the same as the dedicated
+    ``--vielfachevonzahlen=12`` filter.  The embedded ``vN`` form expands over
+    the full generated-table ceiling (normally 1024), while the dedicated row
+    filter keeps the historical short main-table ceiling.  Both positive and
+    negative conditions matter for all-rows-minus-multiples selectors.
+    """
+    for index in range(len(positive_rows)):
+        if positive_rows[index].startswith("_a_v"):
+            return True
+    for index in range(len(negative_rows)):
+        if negative_rows[index].startswith("_a_v"):
+            return True
+    return False
+
+
 def run_native_reta(tokens: List[String], csv_path: String) raises -> String:
     var table = read_semicolon_csv(csv_path)
-    var maximum_rows = len(table.rows) - 1
-    var plan = build_native_reta_plan(tokens, table.maximum_columns, maximum_rows)
+    var maximum_rows = effective_runtime_highest(
+        tokens, len(table.rows) - 1
+    )
+    var plan = build_native_reta_plan(
+        tokens, table.maximum_columns, maximum_rows
+    )
+    table = _extend_table_to_row(table, plan.highest)
     var rows_were_set = len(plan.positive_rows) > 0 or len(plan.negative_rows) > 0
     # Resolve displayed source rows before generating derived columns.  The
     # Python implementation uses its last displayed line as the annotation
@@ -675,7 +766,12 @@ def run_native_reta(tokens: List[String], csv_path: String) raises -> String:
     # generated table and 163 for ordinary main-table rows.  Supplying an
     # explicit upper maximum assigns that value to both ceilings.
     var highest_multiple = min(plan.highest, 163)
-    if _has_explicit_upper_maximum(tokens):
+    if (
+        _has_explicit_upper_maximum(tokens)
+        or has_absolute_multiple_row_selector(
+            plan.positive_rows, plan.negative_rows
+        )
+    ):
         highest_multiple = plan.highest
     var selection = select_display_lines(
         RowFilterConfig(plan.highest, highest_multiple, rows_were_set),

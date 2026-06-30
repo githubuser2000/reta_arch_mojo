@@ -33,6 +33,47 @@ def test_row_polarity_cancellation_matches_python_all_rows() raises:
     assert_equal(empty_positive.negative_rows, ["_a_4"])
 
 
+def test_embedded_absolute_multiple_selector_uses_full_row_ceiling() raises:
+    var embedded = build_native_reta_plan(
+        ["-zeilen", "--vorhervonausschnitt=2,v12"], 746, 1024
+    )
+    assert_true(
+        has_absolute_multiple_row_selector(
+            embedded.positive_rows, embedded.negative_rows
+        )
+    )
+
+    var dedicated = build_native_reta_plan(
+        ["-zeilen", "--vielfachevonzahlen=12"], 746, 1024
+    )
+    assert_true(
+        not has_absolute_multiple_row_selector(
+            dedicated.positive_rows, dedicated.negative_rows
+        )
+    )
+
+
+def test_absolute_multiple_selector_raises_runtime_table_ceiling() raises:
+    assert_equal(
+        effective_runtime_highest(
+            ["-zeilen", "--vorhervonausschnitt=2,v6,v10"], 1024
+        ),
+        1027,
+    )
+    assert_equal(
+        effective_runtime_highest(
+            ["-zeilen", "--vorhervonausschnitt=2-4,v2-4"], 1024
+        ),
+        1029,
+    )
+    assert_equal(
+        effective_runtime_highest(
+            ["-zeilen", "--vorhervonausschnitt=24,v24"], 1024
+        ),
+        1024,
+    )
+
+
 def test_generated_only_selection_does_not_add_physical_default() raises:
     var plan = build_native_reta_plan(
         ["-spalten", "--bedeutung=primzahlkreuz"],

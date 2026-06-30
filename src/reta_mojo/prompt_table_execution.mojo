@@ -1,17 +1,20 @@
 """Native planning for prompt commands backed by the reta table core.
 
-This module owns the integer ``n`` path, integer multiple/divisor modifiers and
-positive rational ``n/m`` expressions, stable exclusion forms, reciprocal
-multiple expansion and fraction/divisor combinations.  The historical Python
-function mixes parsing, i18n, range algebra and table execution; here these
-concerns are split into typed planning stages.  True ``v n/m`` expansion remains
-at the compatibility boundary because the Python reference itself crashes for
-that form.
+This module owns the integer ``n`` path, integer multiple/divisor modifiers,
+combined integer divisor/multiple algebra, positive rational ``n/m`` expressions,
+stable exclusion forms, reciprocal multiple expansion and fraction/divisor
+combinations.  The historical Python function mixes parsing, i18n, range algebra
+and table execution; here these concerns are split into typed planning stages.
+True ``v n/m`` expansion remains at the compatibility boundary because the
+Python reference itself crashes for that form.
 """
 
 from std.collections import List
-from .number_theory import divisors
-from .prime_cross_columns import python_int_set_order, python_signed_int_set_order
+from .prime_cross_columns import (
+    python_divisor_set_order,
+    python_int_set_order,
+    python_signed_int_set_order,
+)
 from .prompt_fraction_execution import (
     create_prompt_fraction_range,
     parse_prompt_fraction,
@@ -355,6 +358,40 @@ def _base_multiple_tokens(
         selected.append("v" + row_parts[index])
     result.append("-zeilen")
     result.append("--vielfachevonzahlen=" + rows)
+    if counting:
+        result.append("--zaehlung=" + _join_rows(selected))
+    else:
+        result.append("--vorhervonausschnitt=" + _join_rows(selected))
+    if invert:
+        result.append("--invertieren")
+    result.append("-spalten")
+    return result^
+
+
+def _base_multiple_divisor_tokens(
+    language: String,
+    row_parts: List[String],
+    divisor_rows: List[String],
+    counting: Bool,
+    invert: Bool,
+) -> List[String]:
+    """Compose the stable legacy ``vielfache`` + ``teiler`` integer path.
+
+    Python first expands the positive integer inputs into their divisors, keeps
+    the original raw row components a second time, and finally appends the
+    ``vN`` selectors for the original inputs.  Unlike the pure multiples path,
+    the legacy mixed path deliberately omits ``--vielfachevonzahlen``: that option
+    would intersect the union and remove the added divisors.  The serialized row
+    order therefore matches the historical prompt command exactly.
+    """
+    var result = List[String]()
+    var normalized = normalize_prompt_language(language)
+    if normalized != "deutsch":
+        result.append("-language=" + normalized)
+    var selected = _copy_strings(divisor_rows)
+    for index in range(len(row_parts)):
+        selected.append("v" + row_parts[index])
+    result.append("-zeilen")
     if counting:
         result.append("--zaehlung=" + _join_rows(selected))
     else:
@@ -810,7 +847,11 @@ def plan_prompt_table_commands(
     var single_mode = _contains(canonical_words, "einzeln")
     if single_mode:
         multiple_mode = False
-    if multiple_mode and divisor_mode:
+    # Integer inputs have a stable combined legacy contract: divisors are
+    # selected first and the original values are then expanded as multiples.
+    # Rational combinations remain guarded because true ``v n/m`` still has no
+    # successful Python reference contract.
+    if multiple_mode and divisor_mode and has_fraction:
         unsupported = True
     if has_fraction and multiple_mode and not _fraction_multiple_supported(
         fraction_pairs
@@ -912,11 +953,11 @@ def plan_prompt_table_commands(
             and len(row_parts) > 0
         ):
             divisor_rows.append("")
-        for value_index in range(len(resolved_divisor_values)):
-            var values = divisors(resolved_divisor_values[value_index])
-            for divisor_index in range(len(values)):
-                if values[divisor_index] != 1:
-                    divisor_rows.append(String(values[divisor_index]))
+        var ordered_divisors = python_divisor_set_order(
+            resolved_divisor_values
+        )
+        for divisor_index in range(len(ordered_divisors)):
+            divisor_rows.append(String(ordered_divisors[divisor_index]))
 
         # A pure zero selector contributes no teiler invocation at all.  Zero
         # is retained only alongside a real positive value or an exclusion,
@@ -971,6 +1012,10 @@ def plan_prompt_table_commands(
         if zero_default_mode:
             integer_base = _base_table_tokens_without_maximum(
                 language, _join_rows(normal_rows), counting, invert
+            )
+        elif multiple_mode and divisor_mode:
+            integer_base = _base_multiple_divisor_tokens(
+                language, row_parts, normal_rows, counting, invert
             )
         elif multiple_mode:
             integer_base = _base_multiple_tokens(
