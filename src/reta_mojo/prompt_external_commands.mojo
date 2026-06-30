@@ -1,7 +1,8 @@
 """Native operating-system adapter for explicit prompt child commands.
 
-The historical prompt exposes three commands whose purpose is to start another
-program: ``shell``, ``python`` and ``math``.  Their dispatch belongs to Mojo;
+The historical prompt exposes explicit commands whose purpose is to start
+another program: ``shell``, ``python`` and ``math`` plus the still-unported
+``reta`` and atomic prompt-fallback paths.  Their dispatch belongs to Mojo;
 there is no reason to import ``mojo_bridge.py`` merely to spawn the requested
 child.  This module keeps the boundary explicit and byte-preserving: the
 spawned child inherits stdin, stdout, stderr and the complete environment.
@@ -223,3 +224,58 @@ def run_math_prompt_line_native(
         + shell_quote(program)
     )
     return _run_spawned_child(command)
+
+
+def _run_reference_python_script(
+    script_name: String,
+    arguments: List[String],
+    reference_root: String = "python_reference",
+) raises -> Int:
+    """Run one bundled Python compatibility entry point without embedding it."""
+    var command = (
+        _working_command_prefix(reference_root)
+        + shell_quote(prompt_python_executable())
+        + " "
+        + shell_quote(script_name)
+    )
+    for index in range(len(arguments)):
+        command += " " + shell_quote(arguments[index])
+    return _run_spawned_child(command)
+
+
+def run_reta_line_native(
+    line: String,
+    reference_root: String = "python_reference",
+) raises -> Int:
+    """Execute one unsupported raw ``reta`` line as the historical child CLI."""
+    var parsed = shell_split(line)
+    var arguments = List[String]()
+    var start = 0
+    if len(parsed) > 0 and parsed[0] == "reta":
+        start = 1
+    for index in range(start, len(parsed)):
+        arguments.append(parsed[index])
+    return _run_reference_python_script("reta.py", arguments, reference_root)
+
+
+def run_reta_prompt_fallback_native(
+    profile_arguments: List[String],
+    line: String,
+    reference_root: String = "python_reference",
+) raises -> Int:
+    """Execute one unported prompt command atomically in the legacy facade.
+
+    Profile arguments are already typed by the native controller.  Only the raw
+    command line is tokenized here, with the same POSIX ``shlex.split`` rules as
+    the previous ``mojo_bridge.run_reta_prompt_line_encoded`` implementation.
+    """
+    var arguments = List[String]()
+    for index in range(len(profile_arguments)):
+        if profile_arguments[index].byte_length() > 0:
+            arguments.append(profile_arguments[index])
+    var words = shell_split(line)
+    for index in range(len(words)):
+        arguments.append(words[index])
+    return _run_reference_python_script(
+        "retaPrompt.py", arguments, reference_root
+    )

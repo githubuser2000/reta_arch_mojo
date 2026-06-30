@@ -39,13 +39,11 @@ from reta_mojo.native_prompt_input import (
 from reta_mojo.prompt_external_commands import (
     run_math_prompt_line_native,
     run_python_prompt_line_native,
+    run_reta_line_native,
+    run_reta_prompt_fallback_native,
     run_shell_prompt_line_native,
 )
-from reta_mojo.prompt_python_bridge import (
-    read_prompt_line_encoded_bridge,
-    run_reta_line_bridge,
-    run_reta_prompt_line_encoded_bridge,
-)
+from reta_mojo.prompt_python_bridge import read_prompt_line_encoded_bridge
 from reta_mojo.native_reta_cli import (
     native_reta_tokens_supported,
     run_native_reta,
@@ -212,9 +210,9 @@ def _run_fallback(
     profile: PromptProfile,
     line: String,
 ) raises -> None:
-    var flags = fallback_profile_arguments(profile)
-    var encoded = _encode_fields(flags) + "\x1e" + line
-    run_reta_prompt_line_encoded_bridge(encoded)
+    _ = run_reta_prompt_fallback_native(
+        fallback_profile_arguments(profile), line
+    )
 
 
 def _run_native_table_tokens(
@@ -833,7 +831,7 @@ def _run_command(
     if command.kind == KIND_RETA:
         if _run_native_reta_prompt_command(command):
             return True
-        run_reta_line_bridge(command.raw)
+        _ = run_reta_line_native(command.raw)
         return True
 
     # Preserve the untouched source spelling at the compatibility boundary.

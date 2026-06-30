@@ -744,3 +744,26 @@ gleichen kleinen Ziel und bestand mit dem finalen Quellstand.
 Der optimierte monolithische `prompt_main.mojo`-Build erreichte in der
 Arbeitsumgebung erneut das 32-Minuten-Elaborationslimit ohne neue Diagnose. Auf
 dem Ryzen-7-Zielsystem wird er regulär durch `scripts/build.sh` gebaut.
+
+
+## Stage 12c4b: direkte Kindprozessgrenze für Restfallback und `reta`
+
+```text
+Mojo-Shlex-/Quoting-Unit-Tests:             6/6
+neuer reta-Kindprozess-Argumenttest:        1/1
+neuer atomarer Promptfallback-Test:         1/1
+Source-/Boundary-Gates:                     9/9
+```
+
+`prompt_external_commands_probe.mojo` kompiliert mit den beiden neuen Modi.
+Die Tests prüfen insbesondere leere Argumente, Apostrophquotierung, Unicode,
+typisierte Profilflags und das Arbeitsverzeichnis. `prompt_python_bridge.mojo`
+enthält danach nur noch einen Aufruf in `mojo_bridge.py`: den echten
+TTY-Readline-/Vi-/Completion-Eingang.
+
+Vier vorhandene externe Byteparitätsfälle (`shell`, `python`, `math` und
+nachgestellte Whitespace-Bytes) liefen im aktuellen Arbeitsstand erneut
+erfolgreich. Der kombinierte unveränderte `std.python`-FFI-Probe und der
+monolithische Promptcontroller wurden wegen der bekannten extrem langen
+Sandbox-Elaboration nicht erneut bis zum Ende gebaut; der vollständige Build
+erfolgt weiterhin über `scripts/build.sh` auf dem Zielsystem.

@@ -11,6 +11,8 @@ def test_hintere_commands_do_not_cross_python_bridge() -> None:
     assert "run_shell_prompt_line_native(command.raw)" in source
     assert "run_python_prompt_line_native(command.raw)" in source
     assert "run_math_prompt_line_native(command.raw)" in source
+    assert "run_reta_line_native(command.raw)" in source
+    assert "run_reta_prompt_fallback_native(" in source
 
 
 def test_raw_commands_bypass_compact_parser_before_payload_scan() -> None:
@@ -57,5 +59,21 @@ def test_prompt_controller_encapsulates_python_types() -> None:
     assert "from reta_mojo.prompt_python_bridge import" in controller
     assert "from std.python import Python" in adapter
     assert "read_prompt_line_encoded_bridge" in adapter
-    assert "run_reta_prompt_line_encoded_bridge" in adapter
-    assert "run_reta_line_bridge" in adapter
+    assert "run_reta_prompt_line_encoded_bridge" not in adapter
+    assert "run_reta_line_bridge" not in adapter
+    assert "run_reta_prompt_fallback_native" in controller
+    assert "run_reta_line_native" in controller
+
+
+def test_only_tty_input_remains_in_embedded_prompt_python_adapter() -> None:
+    root = Path(__file__).resolve().parents[1]
+    controller = (root / "src" / "prompt_main.mojo").read_text(encoding="utf-8")
+    adapter = (
+        root / "src" / "reta_mojo" / "prompt_python_bridge.mojo"
+    ).read_text(encoding="utf-8")
+    assert "run_reta_prompt_line_encoded_bridge" not in controller
+    assert "run_reta_line_bridge" not in controller
+    assert "bridge.run_reta_prompt_line_encoded" not in adapter
+    assert "bridge.run_reta_line" not in adapter
+    assert adapter.count("bridge.") == 1
+    assert "bridge.read_prompt_line_encoded(encoded)" in adapter

@@ -1,20 +1,21 @@
-# Status – Stage 12c3 integriert und Stage 12c4a abgeschlossen; Stufen 9, 10 und 12 in Arbeit
+# Status – Stage 12c4b abgeschlossen; Stufen 9, 10 und 12 in Arbeit
 
 - Zielversion: Mojo 1.0.0b2
 - Unterstützte Python-Umgebung für Installation/Referenzbrücken: 3.10–3.14; Setup bevorzugt Python 3.14
-- Vollständig abgeschlossene Release-Stufen: **9/12 = 75,0 %**; teilgewichtet mit Stage 12c4a: **9,57/12 = 79,8 %**
+- Vollständig abgeschlossene Release-Stufen: **9/12 = 75,0 %**; teilgewichtet mit Stage 12c4b: **9,58/12 = 79,8 %**
 - Stufe 9: **BBCode, zentraler ANSI-Shellpfad und zentrale HTML-Pfade nativ; seltene Ausgabegrenzen offen**
 - Stufe 10: **native Kurzsprache, mehrsprachige verschachtelte Completion und Promptvorbereitung in Arbeit**
 - Stufe 11: **11a–11j abgeschlossen; 10/10 Teilstufen = 100 %**
-- Stufe 12: **12a–12b abgeschlossen; 12c zu ca. 80 %; insgesamt ca. 57 %**
+- Stufe 12: **12a–12b abgeschlossen; 12c zu ca. 88 %; insgesamt ca. 58 %**
 - Geschätzter funktionaler Portierungsstand: **96–98 %**
 - Konservativ vollständig native oder reproduzierbar generierte Originaldateien: **33/92 = 35,9 %**
 - Mindestens teilweise portierte Originaldateien: **61/92 = 66,3 %**
 - Gewichteter Quellzeilenstand: **ca. 52 %**
-- Nativer Mojo-Quellcode in `src/`: **38.593 Zeilen**
-- Davon im Paket `reta_mojo`: **35.450 Zeilen**
+- Nativer Mojo-Quellcode in `src/`: **38.633 Zeilen**
+- Davon im Paket `reta_mojo`: **35.492 Zeilen**
 - Test-/Probe-Dateien: **96** (**86 Mojo**, **10 Python** einschließlich PTY-, Boundary-, Eingabe-, Rohbefehl- und Alles-Plan-Audits)
-- Native Mojo-Testfunktionen: **294**; Python-Testfunktionen: **24**
+- Native Mojo-Testfunktionen: **294**; Python-Testfunktionen: **27**
+- Stage-12c4b-Fokus: direkte Mojo-Kindprozessgrenze für nicht-native `reta`-Zeilen und atomare Promptfallbacks, typisierte Profilargumente, POSIX-Shlex-/Leerargument-/Unicode-Erhaltung und Reduktion von `prompt_python_bridge.mojo` auf genau den echten TTY-Readline-/Vi-/Completion-Eingang; Mojo-Parser **6/6**, neue Kindprozessproben **2/2** und Source-/Boundary-Gates **9/9**
 - Stage-12c4a-Fokus: vollständige Kapselung der verbleibenden Prompt-Python-Grenze in `prompt_python_bridge.mojo`, Entfernung von `std.python`-Typen aus `prompt_main.mojo`, Ersatz der konfliktierenden `dlopen`/`dlsym`-/`environ`-FFI durch den gekapselten libc-`system()`-Adapter sowie ein gemeinsamer FFI-Compilerprobe; Parser **6/6**, FFI-Probe **1/1**, Byteparität **7/7** und Source-/Boundary-Prüfungen **8/8**
 - Stage-12c3-Fokus: direkte native Ausführung der Rohbefehle `shell`, `python` und `math` über einen eng begrenzten libc-`system()`-Adapter ohne kollidierende `dlsym`-Deklaration, UTF-8-sicherer Shlex-Parser, früher Rohbefehl-Bypass vor dem Kompaktscanner sowie bytegleiche stdout-/stderr-/Umgebungsvererbung; Parser **6/6**, Rohbefehlssprache **5/5**, Python↔Mojo-Byteparität **7/7** und Source-/Boundary-Gates **4/4**, zusammen **22/22**
 - Stage-12c2-Fokus: zielabhängige Linux-/macOS-`TIOCGWINSZ`-Adapter, portabler `COLUMNS`-/80-Fallback, nativer Mojo-Eingabekanal für Pipes und umgeleitete Sessions, best-effort History ohne vorsorglichen Python-Import; Eingabe-/Historytests **3/3**, Pipe-/EOF-Proben **2/2**, Source-Ownership **2/2**, Geometrie **4/4** und Boundary-Audit **1/1**

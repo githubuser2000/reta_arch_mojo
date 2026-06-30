@@ -163,3 +163,60 @@ def test_python_preserves_stderr_bytes() -> None:
         reference.stderr,
     )
     assert native.stderr == bytes([101, 114, 114, 58, 0, 255])
+
+
+def _native_with_root(
+    mode: str, line: str, reference_root: Path
+) -> subprocess.CompletedProcess[bytes]:
+    assert PROBE.is_file(), f"missing native probe: {PROBE}"
+    return subprocess.run(
+        [str(PROBE), mode, line, str(reference_root)],
+        cwd=ROOT,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        env={**os.environ, "RETA_PYTHON": sys.executable},
+        check=False,
+    )
+
+
+def _write_argument_probe(path: Path) -> None:
+    path.write_text(
+        "import os, sys\n"
+        "out = sys.stdout.buffer\n"
+        "out.write(os.getcwd().encode('utf-8') + b'\\n')\n"
+        "out.write(b'\\0'.join(value.encode('utf-8') for value in sys.argv[1:]))\n",
+        encoding="utf-8",
+    )
+
+
+def test_unsupported_reta_line_uses_direct_typed_child_adapter(tmp_path: Path) -> None:
+    _write_argument_probe(tmp_path / "reta.py")
+    line = "reta --name='alpha beta' '' 'ä λ'"
+    native = _native_with_root("reta", line, tmp_path)
+    expected = (
+        str(tmp_path).encode("utf-8")
+        + b"\n--name=alpha beta\0\0"
+        + "ä λ".encode("utf-8")
+    )
+    assert (native.returncode, native.stdout, native.stderr) == (0, expected, b"")
+
+
+def test_atomic_prompt_fallback_preserves_profile_and_shell_words(
+    tmp_path: Path,
+) -> None:
+    _write_argument_probe(tmp_path / "retaPrompt.py")
+    line = "unknown --value='a b' '' 'ä λ'"
+    native = _native_with_root("fallback", line, tmp_path)
+    expected_arguments = [
+        "-vi",
+        "-language=english",
+        "-befehl",
+        "unknown",
+        "--value=a b",
+        "",
+        "ä λ",
+    ]
+    expected = str(tmp_path).encode("utf-8") + b"\n" + b"\0".join(
+        value.encode("utf-8") for value in expected_arguments
+    )
+    assert (native.returncode, native.stdout, native.stderr) == (0, expected, b"")

@@ -160,7 +160,7 @@ Der reguläre Build erzeugt `generate-html-native` ohne Python- oder Subprozessi
 Nach `scripts/build.sh` vergleicht `scripts/check_html_parity.sh` die native Ein-Zeilen-Mitteltabelle mit dem eingefrorenen CPython-Referenzfixture mit 805 Daten-/Generatorspalten.
 
 
-## Stage 12c1–12c4a: Terminalbreite, Promptframing, Pipe-Eingabe und Rohbefehle
+## Stage 12c1–12c4b: Terminalbreite, Promptframing, Eingabe und Kindprozessgrenzen
 
 Für die vollständige Kompilierung genügen ausschließlich:
 
@@ -182,7 +182,7 @@ Stage-12c-Prüfungen genügt ein einzelner Aufruf:
 bereits selbst auf. Ein zusätzlicher separater Aufruf dieser drei Skripte wäre
 nur eine Wiederholung.
 
-Der kleine FFI-Integrationsprobe kompiliert `std.python` zusammen mit dem
+Der kleine FFI-Integrationsprobe kompiliert die nur noch für TTY-Eingabe verwendete `std.python`-Brücke zusammen mit dem
 Kindprozessadapter und verhindert die in Stage 12c3 aufgetretene konfliktierende
 `dlsym`-Signatur. Der PTY-Test verwendet unverändert `bin/rpb a1`; es gibt
 keinen Ersatzbefehl für die Laufzeitsemantik.

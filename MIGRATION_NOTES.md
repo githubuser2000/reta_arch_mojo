@@ -530,3 +530,12 @@ Ein separater Fixture-Integritätstest verbietet nun `reta-Befehl:reta `, leere 
 - `scripts/build-heavy.sh` und `scripts/build.sh` genügen zum Kompilieren. Die
   `check_*`- und `test_*`-Skripte sind optionale Korrektheitsprüfungen und
   erzeugen keine zusätzlichen Release-Binaries.
+
+
+## Stage 12c4b – Restfallback und `reta` ohne eingebettetes CPython
+
+- `prompt_python_bridge.mojo` enthält nur noch den echten TTY-Readline-/Vi-/Completion-Eingang.
+- Nicht-native `reta`-Zeilen werden mit POSIX-Shlex-Semantik direkt an `reta.py` übergeben.
+- Atomare Promptfallbacks erhalten die typisierten Profilflags und die unveränderten Shellwörter direkt am Mojo-Kindprozessadapter.
+- Leere Argumente, Unicode, Arbeitsverzeichnis, Umgebung und unverarbeitete stdout-/stderr-Bytes bleiben erhalten.
+- Die Restalgorithmen sind damit noch Python-Kompatibilität, aber keine eingebettete Python-Brücke mehr.

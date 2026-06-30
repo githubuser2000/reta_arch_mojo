@@ -8,7 +8,7 @@ Dies ist ein inkrementeller, getesteter Port des hochgeladenen Python-Projekts `
 abgeschlossene Release-Stufen:       9 von 12 = 75,0 %
 Stufen 9/10/12:                       Ausgabe, Prompt/i18n und Releaseparität in Arbeit
 Stufe 11:                             11a–11j = 100 %
-Stufe 12:                             12a–12b fertig, 12c1–12c3 und 12c4a fertig = ca. 57 %
+Stufe 12:                             12a–12b fertig, 12c1–12c3 und 12c4a–12c4b fertig = ca. 58 %
 vollständig native Originaldateien:  33 von 92 = 35,9 %
 mindestens teilweise portiert:       61 von 92 = 66,3 %
 gewichteter Quellzeilenstand:         ca. 52 %
@@ -276,7 +276,7 @@ Details: [`TEST_RESULTS.md`](TEST_RESULTS.md).
 
 ## Nächster Portierungsblock
 
-Stufe 9 wird mit seltenen Terminal-/Rich-Sonderfällen fortgesetzt. Stufe 10 erweitert die bereits native Promptausführung und i18n-Laufzeit. Stufe 11 ist mit 11a–11j abgeschlossen. Stage 12a und 12b sind abgeschlossen: Sämtliche nativen Parallelpfade verwenden Mojo-Threads, und `generate_html` besitzt nun auch die vollständige `--alles`-Mitteltabelle. Stage 12c ist bis 12c4a fortgesetzt: `rpb a1` trennt Befehlszeile und Tabellenkopf wieder exakt, `--breite=0` verwendet die reale TTY-Breite, und Pipe-/Skripteingabe läuft über Mojos portables `input()` ohne vorsorglichen Python-Import. Die Rohbefehle `shell`, `python` und `math` laufen nun ebenfalls ohne Python-Brücke; die verbliebene Python-Grenze ist in einem einzigen Adapter gekapselt. Offen bleiben der native TTY-Editor, Restfallbacks sowie 12d–12e.
+Stufe 9 wird mit seltenen Terminal-/Rich-Sonderfällen fortgesetzt. Stufe 10 erweitert die bereits native Promptausführung und i18n-Laufzeit. Stufe 11 ist mit 11a–11j abgeschlossen. Stage 12a und 12b sind abgeschlossen: Sämtliche nativen Parallelpfade verwenden Mojo-Threads, und `generate_html` besitzt nun auch die vollständige `--alles`-Mitteltabelle. Stage 12c ist bis 12c4b fortgesetzt: `rpb a1` trennt Befehlszeile und Tabellenkopf wieder exakt, `--breite=0` verwendet die reale TTY-Breite, und Pipe-/Skripteingabe läuft über Mojos portables `input()` ohne vorsorglichen Python-Import. Die Rohbefehle `shell`, `python` und `math` laufen ohne Python-Brücke. Auch nicht-native `reta`-Zeilen und atomare Restfallbacks starten nun direkt am expliziten Mojo-Kindprozessadapter, statt zuerst CPython einzubetten. Im eingebetteten Prompt-Python-Adapter verbleibt nur der echte TTY-Readline-/Vi-/Completion-Eingang. Offen bleiben dessen native Ablösung, die eigentlichen Restalgorithmen sowie 12d–12e.
 
 ## Dokumentation
 
@@ -496,7 +496,7 @@ verwenden `0x5413`, macOS/Darwin `0x40087468`; sonst greifen `COLUMNS` und
 der historische 80-Spalten-Fallback. Für stdin-Pipes und umgeleitete Sessions
 liest `prompt_main.mojo` nun direkt mit Mojos eingebautem `input()` und
 persistiert History best effort. Python wird erst beim tatsächlichen
-TTY-Readline-/Vi-/Completion- oder Restfallback importiert. Die öffentlichen
+TTY-Readline-/Vi-/Completion-Eingang importiert. Die öffentlichen
 Promptbefehle ändern sich nicht. Details:
 [`STAGE12C2_NATIVE_PORTABLE_PROMPT_INPUT.md`](STAGE12C2_NATIVE_PORTABLE_PROMPT_INPUT.md).
 
@@ -514,3 +514,8 @@ Stage 12c4a kapselt die verbliebene Python-Grenze in
 `prompt_python_bridge.mojo` und behebt die erst im Gesamtbuild sichtbare
 `dlsym`-Signaturkollision. Details:
 [`STAGE12C4A_PROMPT_BRIDGE_INTEGRATION.md`](STAGE12C4A_PROMPT_BRIDGE_INTEGRATION.md).
+
+Stage 12c4b entfernt daraus die beiden reinen Spawn-Operationen: nicht-native
+`reta`-Zeilen und atomare Promptfallbacks laufen nun direkt über den typisierten
+Mojo-Kindprozessadapter. Details:
+[`STAGE12C4B_NATIVE_PROMPT_FALLBACK_CHILDREN.md`](STAGE12C4B_NATIVE_PROMPT_FALLBACK_CHILDREN.md).

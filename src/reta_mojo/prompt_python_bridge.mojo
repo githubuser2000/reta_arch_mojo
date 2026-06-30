@@ -1,15 +1,10 @@
 """Narrow compatibility adapter for the final prompt-only Python boundary.
 
-The native prompt controller does not import or expose ``PythonObject``.  Only
-three legacy operations remain behind this module:
-
-* GNU-Readline/Vi/completion input on a real TTY;
-* one atomic historical prompt fallback;
-* an explicitly unsupported raw ``reta`` invocation.
-
-Keeping those calls here prevents Python implementation types from leaking
-through the native controller and gives Stage 12c4 one auditable replacement
-surface.
+The native prompt controller does not import or expose ``PythonObject``.  After
+Stage 12c4b, only GNU-Readline/Vi/completion input on a real TTY remains behind
+this module.  Unsupported ``reta`` and atomic historical prompt fallbacks are
+started directly by the explicit Mojo child-process adapter instead of first
+embedding CPython merely to ask it to spawn another interpreter.
 """
 
 from std.python import Python, PythonObject
@@ -23,13 +18,3 @@ def _bridge() raises -> PythonObject:
 def read_prompt_line_encoded_bridge(encoded: String) raises -> String:
     var bridge = _bridge()
     return String(py=bridge.read_prompt_line_encoded(encoded))
-
-
-def run_reta_prompt_line_encoded_bridge(encoded: String) raises -> None:
-    var bridge = _bridge()
-    bridge.run_reta_prompt_line_encoded(encoded)
-
-
-def run_reta_line_bridge(line: String) raises -> None:
-    var bridge = _bridge()
-    bridge.run_reta_line(line)
