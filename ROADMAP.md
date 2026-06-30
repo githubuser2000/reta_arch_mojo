@@ -2,15 +2,15 @@
 
 Geplanter Umfang: **12 Release-Stufen**. Eine Stufe zählt erst als abgeschlossen, wenn Quellcode, Referenztests, Compilerziele, Dokumentation und ein source-only Archiv gemeinsam geprüft sind.
 
-## Fortschrittsmaße im aktuellen Stufe-9/10/11-Zwischenstand
+## Fortschrittsmaße nach Abschluss von Stufe 11
 
 | Maß | Stand | Aussage |
 |---|---:|---|
-| abgeschlossene Release-Stufen | **8/12 = 66,7 %** | Generator-/Meta- und Kombinationspfade sind abgeschlossen; Stufen 9, 10 und 11 sind aktiv |
-| vollständig native oder generierte Python-Dateien | **32/92 = 34,8 %** | Datei vollständig ersetzt oder als reproduzierbares Laufzeitasset abgebildet |
+| abgeschlossene Release-Stufen | **9/12 = 75,0 %** | Stufen 1–8 und die eigenständige Architektur-/Laufzeitstufe 11 sind abgeschlossen; Stufen 9, 10 und 12 bleiben aktiv |
+| vollständig native oder generierte Python-Dateien | **33/92 = 35,9 %** | Datei vollständig ersetzt oder als reproduzierbares Laufzeitasset abgebildet |
 | mindestens angegriffene Python-Dateien | **61/92 = 66,3 %** | vollständig oder teilweise nativ |
-| gewichtete Quellzeilen | **ca. 50 %** | konservative Schätzung unter Berücksichtigung der großen Teilports |
-| funktionaler Nutzerumfang | **ca. 92–94 %** | praktisch nutzbarer Reta-Umfang ohne Python-Algorithmus |
+| gewichtete Quellzeilen | **ca. 51 %** | konservative Schätzung unter Berücksichtigung der großen Teilports |
+| funktionaler Nutzerumfang | **ca. 93–95 %** | praktisch nutzbarer Reta-Umfang ohne Python-Algorithmus |
 
 Die Stufenquote ist höher als die Quellzeilenquote, weil die letzten Stufen besonders große dynamische Module bündeln: vollständige Ausgabeaufbereitung, Prompt-Sprache, i18n-Matrix, Architekturvalidierung und Parallelisierung.
 
@@ -46,8 +46,8 @@ Die Stufenquote ist höher als die Quellzeilenquote, weil die letzten Stufen bes
 10. **Vollständige Prompt-Sprache und i18n — ca. 92–95 %**
     Klammerbewusstes Tokenisieren, kompakte Kurzbefehle, CPython-Set-Reihenfolge, fünfsprachiger Completion-Katalog und persistenter Mojo-Completion-Arbeiter sind nativ. Mojo plant 18 Domänenfamilien plus EIGN/EIGR einschließlich Ganzzahl-, Reziprok- und `n/m`-Achsen, ganzzahliger Vielfachen/Teiler, historischer Bruchbereiche, stabiler Bruchausschlüsse, Bruchteiler und Reziprok-Vielfache. Vollständig besessene Einmalbefehle laufen vor jedem Python-Import und rufen den Tabellenkern im selben Mojo-Prozess auf. Eine getrennte Legacy-Präsentationsschicht besitzt sämtliche kompakten Tabellenfamilien und `mulpri`/`p`. Stage 10h ergänzt positive reine Zahlen-, Bereichs-, Listen- und Bruchkompositionen sowie 365 adressierbare Einträge des fünfsprachigen `15`-/`16`-Katalogs. Vorbereitete Fragmentbreiten, Bindestrichumbrüche, Zählungsmarkierungen und der historische nicht-zeilenorientierte Farbausgabestrom sind bytegenau modelliert. Stage 10i–10n ergänzen Null-/Negativ- und Kollisionsalgebra, wiederholte Katalogauswahl, mehrbereichige Abstände, native Datei-/Pipe-I/O, positive Promptbreiten, komponierte ganzzahlige Vielfachen-/Teilerpfade, verschachtelte CPython-Teiler-Setordnung und dynamische Obergrenzen absoluter `vN`-Selektoren. Offen bleiben echte `v n/m`-Vielfache mit Zähler größer 1, weitere hintere Sonderpfade, die große `--alles`-HTML-Mitteltabelle und die vollständige i18n-Laufzeit außerhalb des Promptvokabulars.
 
-11. **Architektursteuerung und Laufzeitnetze — 90 % (11a–11i von 11a–11j)**
-    Stage 11a portiert Architekturkarte und realen Modul-/Kapsel-Grenzgraph. Stage 11b ergänzt Verträge und Witnesses. Stage 11c portiert Kohärenz und Traces. Stage 11d ergänzt Impact und Migration. Stage 11e ergänzt Rehearsal und Aktivierung. Stage 11f portiert Gesamtvalidierung und Fortschritts-Overlay. Stage 11g portiert die reale SQLite-Persistenz. Stage 11h portiert das deterministische Ausführungsnetz. Stage 11i portiert Konfiguration, CPU-Erkennung, zehn reine Tabellen-/Zahlenkerne und zehn echte Linux-`fork`-Chunkpfade aus `parallel_execution.py`. Offen bleibt 11j: der dynamische `Prepare`-Objektgraph wird durch einen typisierten Zeilenvorbereitungskontext ersetzt und in den produktiven Tabellenlauf verdrahtet.
+11. **Architektursteuerung und Laufzeitnetze — abgeschlossen (11a–11j)**
+    Stage 11a portiert Architekturkarte und realen Modul-/Kapsel-Grenzgraph. Stage 11b ergänzt Verträge und Witnesses. Stage 11c portiert Kohärenz und Traces. Stage 11d ergänzt Impact und Migration. Stage 11e ergänzt Rehearsal und Aktivierung. Stage 11f portiert Gesamtvalidierung und Fortschritts-Overlay. Stage 11g portiert die reale SQLite-Persistenz. Stage 11h portiert das deterministische Ausführungsnetz. Stage 11i portiert Konfiguration, CPU-Erkennung und zehn reine Tabellen-/Zahlenkerne mit echtem Linux-`fork`-Backend. Stage 11j stellt den Standard auf native Mojo-Threads um, behält Prozesse als expliziten Isolationsmodus und ersetzt den dynamischen `WorkerPrepare`-/`deepcopy`-Objektgraphen durch einen besitzenden typisierten Zeilenvorbereitungskontext.
 
 12. **Bridge entfernen und Releaseparität — formal 0/5 = 0 %; technische Vorarbeiten ca. 10–15 %**
     Geplante Teilstufen: 12a Bridge-Inventur und harte No-Python-Laufzeitgates; 12b Abschluss seltener Stage-9-Renderergrenzen; 12c Abschluss seltener Stage-10-Prompt-/i18n-Grenzen; 12d vollständige Befehlsmatrix, Benchmarking und gezielte SIMD-Prüfung; 12e Packaging, reproduzierbare Releaseartefakte und Freigabe. Keine dieser fünf Teilstufen gilt bereits als formal abgeschlossen.
@@ -66,9 +66,9 @@ Die Zahl **12** ist die geplante Releasegliederung. Interne Teilpakete oder Fehl
 | 11f | 100 % | Gesamtvalidierung und Fortschritt |
 | 11g | 100 % | SQLite-Persistenz |
 | 11h | 100 % | Ausführungsnetz |
-| 11i | 100 % | reine Prozess-Chunk-Kerne |
-| 11j | 0 % | typisierter Prepare-Zeilenkontext und Produktionsintegration |
-| **Stufe 11** | **9/10 = 90 %** | ein klar abgegrenzter Integrationsblock offen |
+| 11i | 100 % | reine Thread-/Prozess-Chunk-Kerne |
+| 11j | 100 % | typisierter Prepare-Zeilenkontext, Threadstandard und Produktionsoberfläche |
+| **Stufe 11** | **10/10 = 100 %** | abgeschlossen |
 | 12a | 0 % formal | Bridge-Inventur und harte No-Python-Gates |
 | 12b | 0 % formal | seltene Renderergrenzen aus Stufe 9 |
 | 12c | 0 % formal | restliche Prompt-/i18n-Grenzen aus Stufe 10 |
@@ -158,7 +158,7 @@ Die Zahl **12** ist die geplante Releasegliederung. Interne Teilpakete oder Fehl
 - Canonical-JSON-Digests sind Python↔Mojo identisch, einschließlich Unicode.
 - Python liest von Mojo erzeugte Datenbanken und Mojo liest von Python erzeugte Sections und Garben-Snapshots.
 - 47/47 native Prüfungen und 5/5 sprachübergreifende Paritäts-/Interoperabilitätsprüfungen bestehen.
-- Batch-Schreibvorgänge bleiben seriell und transaktional; parallele Nutzlastvorbereitung folgt mit `parallel_execution.py`.
+- Batch-Schreibvorgänge bleiben seriell und transaktional; reine Nutzlast- und Zeilenvorbereitung kann seit Stage 11j threadparallel laufen.
 
 
 ## Stage 11h – natives deterministisches Ausführungsnetz
@@ -170,13 +170,13 @@ Die Zahl **12** ist die geplante Releasegliederung. Interne Teilpakete oder Fehl
 - Die statische Nutzlastgrenze besteht aus UTF-8-Text, kanonischem Metadaten-JSON und geprüften Operationskennungen statt Python-`Any`, `pickle` und dynamischem `importlib`.
 - Deterministische Reduktion stellt optional die ursprüngliche Taskreihenfolge wieder her.
 - 85/85 native Netzprüfungen, 15/15 Persistenzintegrationsprüfungen und 8/8 Python↔Mojo-Paritätsfälle bestehen.
-- Stage 11i portiert die reinen `parallel_execution.py`-Kerne; als letzter Block bleibt 11j mit typisiertem Prepare-Zeilenkontext und Produktionsverdrahtung.
+- Stage 11i portiert die reinen `parallel_execution.py`-Kerne; Stage 11j ergänzt den typisierten Prepare-Zeilenkontext und stellt den nativen Standard auf Threads um.
 
 
-## Stage 11i – native Prozess-Chunk-Kerne
+## Stage 11i – native Chunk-Kerne mit Prozessbasis
 
 - `parallel_execution.py` ist für die reinen, deterministischen Operationen als typisierte Mojo-Laufzeit verfügbar.
-- Zehn Tabellen-/Zahlenoperationen besitzen serielle Referenz- und echte `fork`-Chunkpfade.
+- Zehn Tabellen-/Zahlenoperationen besitzen serielle Referenz- und echte `fork`-Chunkpfade; Stage 11j ergänzt für dieselben Operationen den gemeinsamen Thread-Dispatcher.
 - Das interne Transportprotokoll ist längenpräfixierter UTF-8-Text und erhält Unicode, Leerzeilen sowie Trennzeichen ohne Pickle oder Python.
 - Ergebnisse werden unabhängig von der Workerreihenfolge in die Python-definierte Zeilen-/Zahlenindexordnung reduziert; Workerfehler propagieren über Exitcode und Pipe zum Supervisor.
 - Der native API liefert auch beim seriellen Rückfall einen typisierten Ergebniswert statt `None`.
@@ -184,13 +184,15 @@ Die Zahl **12** ist die geplante Releasegliederung. Interne Teilpakete oder Fehl
 - Die kompakte Promptankündigung besitzt nun eine explizite LF-Grenze; 6/6 zugehörige Tests bestehen.
 
 
-## Stage 11j – geplanter Abschluss von Stufe 11
+## Stage 11j – typisierte Thread-Zeilenvorbereitung und Abschluss von Stufe 11
 
 - `ParallelRowPreparationContext` ersetzt den dynamischen, per `deepcopy` transportierten Python-`Prepare`-Objektgraphen.
-- Header-, Religionsnummern- und Kombi-Kontext werden als explizite Werte modelliert.
-- Der produktive Tabellenlauf entscheidet anhand von Schwellwert und Workerzahl zwischen serieller und prozessbasierter Vorbereitung.
-- Paritätstests vergleichen den vollständigen vorbereiteten Zeilenstrom, nicht nur Einzelkernel.
-- Erst nach diesem Schritt wird Stufe 11 als 100 % abgeschlossen markiert.
+- Header-, Religionsnummern-, Kombi-, Breiten- und Wrappingkontext sind besitzende explizite Werte; globale Header-Tag-Mutation bleibt vor dem parallelen Bereich seriell.
+- `auto` und `threads` verwenden Mojos CPU-Workerthreads; `processes` bleibt als expliziter Linux-`fork`-Isolationsmodus erhalten.
+- Jeder Thread schreibt ausschließlich in seinen Chunkslot; die Reduktion sortiert danach deterministisch nach der ursprünglichen Python-Zeilennummer.
+- Python-Referenz, serielles Mojo und Thread-Mojo liefern für den vollständigen vorbereiteten Fixture-Zeilenstrom identische Bytes.
+- 36/36 Konfigurations-, 40/40 Zeilenvorbereitungs- und 2/2 Vollstrom-Paritätsprüfungen bestehen.
+- Stufe 11 ist mit 11a–11j vollständig abgeschlossen.
 
 
 ## Geplante Stage 12a–12e

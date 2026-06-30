@@ -432,7 +432,7 @@ Die öffentlichen Controller werden bewusst mit `--no-optimization` kompiliert. 
 
 Die wichtigste Typentscheidung betrifft JSON: Python nimmt beliebige Objekte entgegen; die native Grenze nimmt kanonischen UTF-8-JSON-Text entgegen. Die bekannten umschließenden Dokumente werden in Mojo mit der exakt sortierten Python-Schlüsselreihenfolge aufgebaut. So bleiben Digests und SQLite-Zeilen interoperabel, ohne dynamisches `Any` in die Architektur einzuführen.
 
-SQLite-Batchschreibvorgänge sind seriell und transaktional. Die Python-Optimierung, nur die reine JSON-/Digestvorbereitung prozessparallel auszuführen, wird erst zusammen mit `parallel_execution.py` portiert.
+SQLite-Batchschreibvorgänge bleiben seriell und transaktional. Reine In-Memory-Vorbereitung kann seit Stage 11j threadparallel laufen; Datenbankschreibvorgänge selbst werden nicht auf mehrere Worker verteilt.
 
 
 ## Stage 11h – natives deterministisches Ausführungsnetz
@@ -443,18 +443,29 @@ Der Python-Prozesspool wird nicht durch eine serielle Attrappe ersetzt. Der nati
 
 Die dynamische Python-Grenze aus `Any`, Pickle, lokalen Handlern und `importlib` wird bewusst nicht nachgebaut. Tasks tragen besitzende UTF-8-Nutzlasten, kanonisches Metadaten-JSON und eine geprüfte Operation beziehungsweise bekannte `callable_path`. Dadurch bleibt der Scheduler statisch prüfbar und kann später um Reta-spezifische Workeroperationen erweitert werden.
 
-Kanäle und Semaphoren sind zunächst nichtblockierende deterministische Zustandsobjekte. Sie werfen bei leerer/voller Grenze beziehungsweise geben bei nicht verfügbarer Ressource sofort zurück. Eine echte pthread-/Condition-Variable-Warteschicht wird zusammen mit den konkreten Langläufern aus `parallel_execution.py` ergänzt, statt bereits jetzt ungenutzte Threadsynchronisation vorzutäuschen.
+Kanäle und Semaphoren des Ausführungsnetzes bleiben nichtblockierende deterministische Zustandsobjekte. Die konkreten Stage-11j-Tabellenworker benötigen dort keine geteilte Warteschlange: Sie erhalten feste Chunkslots über Mojos Threadpool, schreiben disjunkt und synchronisieren an der `parallelize`-Barriere.
 
-`execution_run_snapshot_json()` verbindet Stage 11h mit der Stage-11g-Persistenz. Der Integrationstest persistiert einen echten Prozesslauf und dessen Auditspur in SQLite. Stage 11i setzt darauf mit den reinen Prozess-Chunk-Kernen auf; offen bleibt nur deren typisierte Produktionsintegration in Stage 11j.
+`execution_run_snapshot_json()` verbindet Stage 11h mit der Stage-11g-Persistenz. Der Integrationstest persistiert einen echten Prozesslauf und dessen Auditspur in SQLite. Stage 11i ergänzt reine Chunk-Kerne; Stage 11j ergänzt den typisierten Thread-Zeilenpfad. Der Stage-11h-Prozessmodus bleibt bewusst als isolierter Ausführungsmodus bestehen.
 
 
-## Stage 11i – native Prozess-Chunk-Kerne
+## Stage 11i – native Thread-/Prozess-Chunk-Kerne
 
-`reta_architecture/parallel_execution.py` wird nicht als dünne `multiprocessing`-Nachbildung portiert. Die neue Mojo-Schicht besitzt explizite Konfiguration, CPU-Erkennung, typisierte Ergebnisstatistiken und zehn reine Tabellen-/Zahlenkerne mit jeweils serieller Referenz und echtem Linux-`fork`-Pfad.
+`reta_architecture/parallel_execution.py` wird nicht als dünne `multiprocessing`-Nachbildung portiert. Die Mojo-Schicht besitzt explizite Konfiguration, CPU-Erkennung, typisierte Ergebnisstatistiken und zehn reine Tabellen-/Zahlenkerne mit serieller Referenz, nativem Threadpfad und echtem Linux-`fork`-Pfad.
 
 Der Python-Transport über Pickle und dynamische Objektgraphen wird durch ein längenpräfixiertes UTF-8-Protokoll ersetzt. Dadurch bleiben Unicode, Leerzeilen und beliebige Trennzeichen erhalten, während der Workervertrag statisch prüfbar bleibt. Die Reduktion erfolgt nach Chunkindex und ist damit unabhängig von der Reihenfolge, in der Kindprozesse beendet werden.
 
-Der große `Prepare`-Objektgraph wird bewusst nicht per `deepcopy` und Pickle imitiert. Stage 11j führt dafür `ParallelRowPreparationContext` ein und verdrahtet Header-, Religionsnummern- und Kombi-Kontext in den produktiven Tabellenpfad.
+Der große `Prepare`-Objektgraph wird bewusst nicht per `deepcopy` und Pickle imitiert. Stage 11j führt dafür `ParallelRowPreparationContext` ein und verdrahtet Header-, Religionsnummern- und Kombi-Kontext in einen eigenständigen nativen Tabellenpfad.
+
+
+## Stage 11j – typisierte native Thread-Zeilenvorbereitung
+
+Für reine CPU-Arbeit auf bereits im Mojo-Prozess befindlichen Tabellen ist `auto` nun threadbasiert. Threads teilen die unveränderlichen Eingaben und vermeiden Prozessstart, Copy-on-write-Seiten, Pipeprotokolle und Ergebnisdeserialisierung. Der Modus `processes` bleibt explizit verfügbar, wenn Adressraumisolation wichtiger ist als gemeinsamer Speicher.
+
+`ParallelRowPreparationContext` besitzt alle für Nichtkopfzeilen nötigen Tabellen-, Breiten-, Kombi- und Religionsnummerninformationen. Die Worker erhalten unveränderliche Eingaben, jeder Worker schreibt nur in seinen eigenen vorab angelegten `_PreparedChunk`, und die Hauptfaser reduziert nach dem ursprünglichen Zeilenindex. Dadurch braucht dieser Pfad weder Locks noch `deepcopy`, Pickle oder Python-Objektmutation. Header-Tag-Mutationen, SQLite-Schreibvorgänge und Ausgabe-I/O bleiben seriell.
+
+Der neue Pfad liegt absichtlich in `parallel_row_preparation.mojo`, getrennt vom inzwischen großen `parallel_execution.mojo`. Diese Modulgrenze reduziert Mojos Elaborationslast und macht kleine Zeilenänderungen unabhängig von den älteren Prozessprotokollen kompilierbar.
+
+Ein vorläufiger Lauf mit 20.000 Zeilen und acht Workern benötigte in der verwendeten Umgebung 4,12 s seriell und 3,22 s threadparallel bei identischer Prüfsumme. Kleine Eingaben bleiben über den Schwellwertmechanismus seriell, weil Schedulingkosten sonst den Nutzen übersteigen können.
 
 ### Korrektur der kompakten Prompt-Zeilengrenze
 

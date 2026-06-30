@@ -31,9 +31,27 @@ def main() raises:
     var process_config = make_parallel_config("processes", 2, 2, 1, "fork", "unit")
     assert_true(process_config.enabled_by_mode(), "process mode")
     checks += 1
+    assert_true(process_config.resolved_backend() == "processes", "process backend")
+    checks += 1
     assert_true(process_config.should_use_processes(4), "process threshold")
     checks += 1
     assert_true(not process_config.should_use_processes(0), "empty threshold")
+    checks += 1
+
+    var thread_config = make_parallel_config("threads", 2, 2, 1, "", "unit")
+    assert_true(thread_config.enabled_by_mode(), "thread mode")
+    checks += 1
+    assert_true(thread_config.resolved_backend() == "threads", "thread backend")
+    checks += 1
+    assert_true(thread_config.should_use_threads(4), "thread threshold")
+    checks += 1
+    assert_true(not thread_config.should_use_processes(4), "threads avoid fork")
+    checks += 1
+
+    var auto_config = make_parallel_config("auto", 2, 2, 1, "", "unit")
+    assert_true(auto_config.resolved_backend() == "threads", "auto prefers threads")
+    checks += 1
+    assert_true(auto_config.should_use_threads(4), "auto thread threshold")
     checks += 1
 
     var serial_config = make_parallel_config("off", 8, 2, 1, "fork", "unit")
@@ -83,7 +101,7 @@ def main() raises:
     var bundle_json = parallel_execution_bundle_snapshot_json(
         bootstrap_parallel_execution(process_config)
     )
-    assert_true(bundle_json.find("process_chunked_table_work") >= 0, "bundle strategy")
+    assert_true(bundle_json.find("thread_preferred_chunked_table_work") >= 0, "bundle strategy")
     checks += 1
     assert_true(bundle_json.find("prime_factors_in_processes") >= 0, "bundle morphism")
     checks += 1

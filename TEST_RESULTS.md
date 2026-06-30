@@ -507,7 +507,7 @@ Der fokussierte Lauf vermeidet die langen Gesamtbuilds:
 ```
 
 
-## Stage 11i: Native prozessbasierte Tabellenparallelisierung
+## Stage 11i: Native Thread-/Prozess-Tabellenparallelisierung
 
 ```text
 test_prompt_legacy_echo:                 6/6
@@ -535,4 +535,31 @@ Der fokussierte Lauf vermeidet die langen Gesamtbuilds:
 
 ```bash
 ./scripts/test_stage11i.sh
+```
+
+
+## Stage 11j: Typisierte Thread-Zeilenvorbereitung
+
+```text
+test_parallel_execution_config:             36/36
+test_parallel_row_preparation:               40/40
+Python↔seriell↔Thread-Vollstromparität:       2/2
+                                              -----
+                                              78/78
+```
+
+Zusätzlich bestätigt:
+
+- `auto` löst auf `threads` auf; `processes` bleibt explizit erhalten;
+- unveränderliche Eingaben, disjunkte Chunkslots und serielle indexstabile Reduktion;
+- vier absichtlich unsortierte Beispielzeilen werden mit zwei Threads in die Reihenfolge 1, 2, 3, 4 zurückgeführt;
+- Unicode-Codepunktbreite, Wrapping, harte Chunks, Religionsnummern und JSON-Snapshots;
+- vollständiger Python↔Mojo-Vollstromvergleich für seriellen und Threadpfad;
+- vorläufiger Benchmark mit 20.000 Zeilen: 4,12 s seriell, 3,22 s mit acht Threads, identische Prüfsumme.
+
+Der permanente breite Test `test_parallel_thread_backend.mojo` und der aktualisierte große `reta-mojo-parallel-execution`-Controller sind Teil des lokalen Stage-11j-/Gesamtbuilds. In dieser Umgebung überschritt ihre erneute gemeinsame Mojo-Elaboration selbst das verdoppelte Zeitlimit; die kleinen getrennten Stage-11j-Ziele wurden dagegen gebaut und ausgeführt. Ein ThreadSanitizer-Build ließ sich erstellen, sein Start scheiterte in der Sandbox vor Programmbeginn an einer 1-GiB-tcmalloc-Adressraumreservierung. Das ist kein bestandener TSan-Lauf und wird deshalb nicht in 78/78 eingerechnet.
+
+```bash
+./scripts/test_stage11j.sh
+./scripts/benchmark_parallel_row_preparation.sh 20000 8 128
 ```

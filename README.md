@@ -248,9 +248,9 @@ Siehe [`BINARIES.md`](BINARIES.md).
 Gesamtbestand:
 
 ```text
-67 native Testdateien und Probes
-275 native Testfunktionen
-292/292 aktuell fokussiert dokumentierte Mojo-Tests bestanden
+78 Test-/Probe-Dateien (75 Mojo, 3 Python)
+276 native Testfunktionen
+Stage 11i historisch 286/286; Stage 11j aktuell 78/78 fokussierte Prüfungen bestanden
 30 Generator- und 9 Kombi-CLI-Fälle in den Paritätssuiten
 8 schnelle Markup-Fixtures; 16 Fälle einzeln gegen Python validiert
 27 Kurzsprachen-, 23 Vorbereitung- und 12 Completion-Kontexte bytegleich
@@ -274,7 +274,7 @@ Details: [`TEST_RESULTS.md`](TEST_RESULTS.md).
 
 ## Nächster Portierungsblock
 
-Stufe 9 wird mit seltenen Terminal-/Rich-Sonderfällen fortgesetzt. Stufe 10 erweitert die bereits native Promptausführung und i18n-Laufzeit. In Stufe 11 sind Karte, Boundary-Graph, Verträge, Witnesses, Kohärenzmatrix, Trace-Navigation, Impact-Kalkül, Migrationsplan, Rehearsal, Aktivierung, Gesamtvalidierung, Fortschritts-Overlay, SQLite-Persistenz, Ausführungsnetz und die reinen Prozess-Chunk-Kerne nativ. Offen bleibt 11j mit dem typisierten Prepare-Zeilenkontext und seiner Produktionsverdrahtung.
+Stufe 9 wird mit seltenen Terminal-/Rich-Sonderfällen fortgesetzt. Stufe 10 erweitert die bereits native Promptausführung und i18n-Laufzeit. Stufe 11 ist mit 11a–11j abgeschlossen: Karte, Boundary-Graph, Verträge, Witnesses, Kohärenzmatrix, Trace-Navigation, Impact-Kalkül, Migrationsplan, Rehearsal, Aktivierung, Gesamtvalidierung, Fortschritts-Overlay, SQLite-Persistenz, Ausführungsnetz, hybride Thread-/Prozess-Chunk-Kerne und der typisierte Prepare-Zeilenkontext sind nativ. Als Nächstes folgen die fünf formalen Abschlussblöcke 12a–12e.
 
 ## Dokumentation
 
@@ -436,9 +436,9 @@ Der fokussierte Lauf besteht aus 47/47 nativen Prüfungen und 5/5 Python↔Mojo-
 Die statische Mojo-Grenze verwendet UTF-8-Text, kanonisches Metadaten-JSON und geprüfte Operationskennungen anstelle von Python-`Any`, Pickle und dynamischen Imports. Der fokussierte Lauf besteht aus 85/85 nativen Netzprüfungen, 15/15 Persistenzintegrationsprüfungen und 8/8 Python↔Mojo-Paritätsfällen. Details: [`STAGE11H_NATIVE_EXECUTION_NETWORK.md`](STAGE11H_NATIVE_EXECUTION_NETWORK.md).
 
 
-## Stage 11i: Native Prozess-Chunk-Kerne
+## Stage 11i: Native Thread-/Prozess-Chunk-Kerne
 
-Der reine Kern von `parallel_execution.py` läuft nun in Mojo. Zehn Tabellen- und Zahlenoperationen besitzen serielle Referenzpfade sowie echte Linux-`fork`-Chunkpfade. Das längenpräfixierte UTF-8-Protokoll erhält Unicode, eingebettete Zeilenumbrüche und Trennzeichen ohne Pickle oder Python. Ergebnisse werden unabhängig von der Schedulerreihenfolge wieder in die von Python definierte Zeilen-/Zahlenindexordnung zusammengesetzt; Filterwerte werden wie die Referenz dedupliziert.
+Der reine Kern von `parallel_execution.py` läuft nun in Mojo. Zehn Tabellen- und Zahlenoperationen besitzen serielle Referenzpfade, native Mojo-Thread-Chunks sowie echte Linux-`fork`-Chunkpfade. Das längenpräfixierte UTF-8-Protokoll erhält Unicode, eingebettete Zeilenumbrüche und Trennzeichen ohne Pickle oder Python. Ergebnisse werden unabhängig von der Schedulerreihenfolge wieder in die von Python definierte Zeilen-/Zahlenindexordnung zusammengesetzt; Filterwerte werden wie die Referenz dedupliziert.
 
 ```bash
 ./scripts/test_stage11i.sh
@@ -447,4 +447,18 @@ Der reine Kern von `parallel_execution.py` läuft nun in Mojo. Zehn Tabellen- un
 ./bin/reta-mojo-parallel-execution --prime-factors 12 18 25 49
 ```
 
-Die fokussierte Prüfung umfasst 6/6 Prompt-LF-Tests, 1/1 Fixture-Integritätstest, 29/29 Konfigurationsprüfungen, 55/55 Zeilenprozess-, 157/157 Zahlenprozess-, 26/26 Tabellen-Chunk-Prüfungen sowie 12/12 Python↔Mojo-Paritätsausgaben. Offen bleibt Stage 11j: der dynamische Python-`Prepare`-Objektgraph wird durch einen typisierten Zeilenvorbereitungskontext ersetzt und in den produktiven Tabellenlauf verdrahtet. Details: [`STAGE11I_NATIVE_PARALLEL_EXECUTION.md`](STAGE11I_NATIVE_PARALLEL_EXECUTION.md).
+Die historische Stage-11i-Prüfung umfasst 6/6 Prompt-LF-Tests, 1/1 Fixture-Integritätstest, 29/29 damalige Konfigurationsprüfungen, 55/55 Zeilenprozess-, 157/157 Zahlenprozess-, 26/26 Tabellen-Chunk-Prüfungen sowie 12/12 Python↔Mojo-Paritätsausgaben. Stage 11j stellt `auto` auf native Threads um und behält `processes` als expliziten Isolationsmodus. Details: [`STAGE11I_NATIVE_PARALLEL_EXECUTION.md`](STAGE11I_NATIVE_PARALLEL_EXECUTION.md).
+
+
+## Stage 11j: Typisierte Thread-Zeilenvorbereitung
+
+Der letzte dynamische `WorkerPrepare`-/`deepcopy`-Objektgraph ist durch `ParallelRowPreparationContext` ersetzt. Reine In-Memory-Kerne verwenden bei `auto` native Mojo-Threads; der explizite Modus `processes` bleibt für Adressraumisolation und Regressionstests erhalten. Jeder Thread schreibt ausschließlich in seinen vorab zugewiesenen Chunkslot, danach wird seriell nach der ursprünglichen Zeilennummer reduziert. SQLite-Schreibvorgänge, globale Header-Tag-Mutationen und Ausgabe-I/O bleiben bewusst seriell.
+
+```bash
+./scripts/test_stage11j.sh
+./bin/reta-mojo-row-preparation --summary 8 128 512
+./bin/reta-mojo-row-preparation --demo 2 2
+./bin/reta-mojo-parallel-execution --demo-threads 2 2
+```
+
+Die hier ausgeführten fokussierten Prüfungen umfassen 36/36 Konfigurationsfälle, 40/40 typisierte Zeilenvorbereitungsfälle und 2/2 Python↔seriell↔Thread-Vollstromparitätsfälle. Ein vorläufiger Lauf mit 20.000 Zeilen benötigte in dieser Umgebung 4,12 s seriell und 3,22 s mit acht Thread-Workern bei identischer Prüfsumme. Details: [`STAGE11J_NATIVE_THREADED_ROW_PREPARATION.md`](STAGE11J_NATIVE_THREADED_ROW_PREPARATION.md).

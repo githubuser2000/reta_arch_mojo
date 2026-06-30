@@ -17,7 +17,7 @@ reta-mojo-impact        reta-mojo-migration
 reta-mojo-rehearsal     reta-mojo-activation
 reta-mojo-validation    reta-mojo-progress
 reta-mojo-persistence     reta-mojo-execution-network
-reta-mojo-parallel-execution
+reta-mojo-parallel-execution  reta-mojo-row-preparation
 ```
 
 ## Wichtige Tabellenpfade
@@ -86,6 +86,9 @@ Der Umschalter ist absichtlich explizit, solange nicht sämtliche Tabellenfunkti
 ./bin/reta-mojo-execution-network --run-process fifo
 ./bin/reta-mojo-parallel-execution --summary
 ./bin/reta-mojo-parallel-execution --demo 2 2
+./bin/reta-mojo-parallel-execution --demo-threads 2 2
+./bin/reta-mojo-row-preparation --summary 8 128 512
+./bin/reta-mojo-row-preparation --demo 2 2
 ```
 
 ## Zuordnung
@@ -108,7 +111,8 @@ Der Umschalter ist absichtlich explizit, solange nicht sämtliche Tabellenfunkti
 | Gesamtvalidierung und Fortschritt | `target/bin/reta-mojo-validation`, `target/bin/reta-mojo-progress` | 51 Architekturchecks, 17 Schichten und Stage-42-Overlay mit Oberflächen-, Schritt-, Wellen- und Arbeitsrestnavigation nativ; Python/AST/Git nur bei Regeneration |
 | Persistenz | `target/bin/reta-mojo-persistence` | sechs SQLite-Tabellen, zwölf Morphismen, Python-kompatible SHA-256-Digests, Sections, Garben-Snapshots, Runs, Audit, Cache und Batchpfade vollständig nativ |
 | Ausführungsnetz | `target/bin/reta-mojo-execution-network` | FIFO/LIFO/Priorität, Kanäle, Semaphoren, deterministische Reduktion und echte Linux-`fork`-Worker vollständig nativ; statische UTF-8-Operationsgrenze |
-| Prozessbasierte Tabellenparallelisierung | `target/bin/reta-mojo-parallel-execution` | Konfiguration, CPU-Erkennung, zehn reine Tabellen-/Zahlenkerne und zehn echte `fork`-Chunkpfade nativ; finaler typisierter Prepare-Zeilenkontext folgt in 11j |
+| Hybride Tabellen-/Zahlenparallelisierung | `target/bin/reta-mojo-parallel-execution` | `auto`/`threads` über native Mojo-Threads; zehn reine Kerne; explizites `processes`-Backend mit echten Linux-`fork`-Chunks bleibt als Isolationsmodus |
+| Typisierte Zeilenvorbereitung | `target/bin/reta-mojo-row-preparation` | besitzender `ParallelRowPreparationContext`, disjunkte Chunkslots, deterministische Reduktion und Python↔seriell↔Thread-Parität ohne `deepcopy` oder Pickle |
 
 Lokale Installation der Launcher:
 

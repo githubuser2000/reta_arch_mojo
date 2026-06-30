@@ -1,4 +1,4 @@
-"""Command-line probe for native process-chunked parallel execution."""
+"""Command-line probe for native thread/process chunk execution."""
 
 from std.collections import List
 from std.collections.string import atol
@@ -24,9 +24,12 @@ def _usage():
     print("reta-mojo-parallel-execution")
     print("  --summary")
     print("  --config MODE WORKERS CHUNK_SIZE THRESHOLD [START_METHOD]")
-    print("  --demo [WORKERS] [CHUNK_SIZE]")
-    print("  --prime-factors NUMBER ...")
-    print("  --factor-pairs NUMBER ...")
+    print("  --demo [WORKERS] [CHUNK_SIZE]              # processes")
+    print("  --demo-threads [WORKERS] [CHUNK_SIZE]")
+    print("  --prime-factors NUMBER ...                 # auto/threads")
+    print("  --prime-factors-processes NUMBER ...")
+    print("  --factor-pairs NUMBER ...                  # auto/threads")
+    print("  --factor-pairs-processes NUMBER ...")
 
 
 def _numbers(args: List[String], start: Int) raises -> List[Int]:
@@ -45,9 +48,10 @@ def _join_ints(values: List[Int]) -> String:
     return output^
 
 
-def _demo(workers: Int, chunk_size: Int) raises:
+def _demo(mode: String, workers: Int, chunk_size: Int) raises:
+    var start_method = "fork" if mode == "processes" else ""
     var config = make_parallel_config(
-        "processes", workers, chunk_size, 1, "fork", "cli"
+        mode, workers, chunk_size, 1, start_method, "cli"
     )
     var rows = List[IndexedStringRow]()
     rows.append(IndexedStringRow(1, ['|{"":"eins","html":"<b>eins</b>","bbcode":"[b]eins[/b]"}|', "ä"]))
@@ -102,19 +106,30 @@ def main() raises:
         )
         print(parallel_config_snapshot_json(config))
         return
-    if args[1] == "--demo":
+    if args[1] == "--demo" or args[1] == "--demo-threads":
         var workers = atol(args[2]) if len(args) > 2 else 2
         var chunk_size = atol(args[3]) if len(args) > 3 else 2
-        _demo(workers, chunk_size)
+        var mode = "threads" if args[1] == "--demo-threads" else "processes"
+        _demo(mode, workers, chunk_size)
         return
-    if args[1] == "--prime-factors" and len(args) > 2:
-        var config = make_parallel_config("processes", 2, 1, 1, "fork", "cli")
+    if (
+        args[1] == "--prime-factors"
+        or args[1] == "--prime-factors-processes"
+    ) and len(args) > 2:
+        var mode = "processes" if args[1] == "--prime-factors-processes" else "auto"
+        var start_method = "fork" if mode == "processes" else ""
+        var config = make_parallel_config(mode, 2, 1, 1, start_method, "cli")
         var result = prime_factors_in_processes(_numbers(args, 2), config)
         for record in result.values:
             print(String(record.number) + ":" + _join_ints(record.values))
         return
-    if args[1] == "--factor-pairs" and len(args) > 2:
-        var config = make_parallel_config("processes", 2, 1, 1, "fork", "cli")
+    if (
+        args[1] == "--factor-pairs"
+        or args[1] == "--factor-pairs-processes"
+    ) and len(args) > 2:
+        var mode = "processes" if args[1] == "--factor-pairs-processes" else "auto"
+        var start_method = "fork" if mode == "processes" else ""
+        var config = make_parallel_config(mode, 2, 1, 1, start_method, "cli")
         var result = factor_pairs_in_processes(_numbers(args, 2), True, config)
         for record in result.values:
             print(String(record.number) + ":" + String(len(record.pairs)))

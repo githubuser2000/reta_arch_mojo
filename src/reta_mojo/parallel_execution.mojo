@@ -1,13 +1,15 @@
-"""Native process-chunked table and number preparation for Reta.
+"""Native threaded/process-chunked table and number preparation for Reta.
 
 This module ports the deterministic core of
-``reta_architecture.parallel_execution``.  Mutable column generation remains
-serial.  Pure row, cell and number transformations are split into indexed
-chunks, executed through native Linux ``fork`` workers and glued back in source
-order.  Payloads use an internal length-prefixed UTF-8 protocol; no Python,
-pickle or dynamic import boundary is involved.
+``reta_architecture.parallel_execution``. Mutable column generation and shared
+output boundaries remain serial. Pure row, cell and number transformations are
+split into indexed chunks. Native Mojo threads are the default because they can
+share immutable table storage without a Python GIL or pipe serialization. Linux
+``fork`` workers remain an explicit isolation backend. Results are always glued
+back in source order; no Python, pickle or dynamic import boundary is involved.
 """
 
+from std.algorithm import parallelize
 from std.collections import Dict, List, Set
 from std.collections.string import atol, ord
 from std.ffi import c_int, c_char, external_call
@@ -50,17 +52,40 @@ struct ParallelExecutionConfig(Copyable):
         return self.workers if self.workers > 0 else processor_core_counts().default_workers()
 
     def enabled_by_mode(self) -> Bool:
-        # ``auto`` was PyPy-only in the Python implementation.  Native Mojo has
-        # no interpreter/process-pickle penalty, so auto is active here.  An
-        # unknown spelling remains disabled exactly like the Python policy.
-        return self.mode == "auto" or self.mode == "processes"
+        # Native Mojo has no Python GIL. ``auto`` therefore resolves to shared-
+        # memory worker threads. ``processes`` remains available when crash or
+        # address-space isolation is explicitly preferred.
+        return (
+            self.mode == "auto"
+            or self.mode == "threads"
+            or self.mode == "processes"
+        )
 
-    def should_use_processes(self, item_count: Int) -> Bool:
+    def resolved_backend(self) -> String:
+        if self.mode == "processes":
+            return "processes"
+        if self.mode == "auto" or self.mode == "threads":
+            return "threads"
+        return "serial"
+
+    def should_use_parallel(self, item_count: Int) -> Bool:
         return (
             self.enabled_by_mode()
             and self.resolved_workers() > 1
             and item_count >= self.threshold
             and self.chunk_size > 0
+        )
+
+    def should_use_threads(self, item_count: Int) -> Bool:
+        return (
+            self.resolved_backend() == "threads"
+            and self.should_use_parallel(item_count)
+        )
+
+    def should_use_processes(self, item_count: Int) -> Bool:
+        return (
+            self.resolved_backend() == "processes"
+            and self.should_use_parallel(item_count)
         )
 
 
@@ -216,7 +241,14 @@ def _normalized_mode(value: String) -> String:
         or mode == "on"
         or mode == "true"
         or mode == "yes"
-        or mode == "process"
+        or mode == "thread"
+        or mode == "threads"
+        or mode == "threaded"
+        or mode == "parallel"
+    ):
+        return "threads"
+    if (
+        mode == "process"
         or mode == "processes"
         or mode == "multiprocess"
         or mode == "multiprocessing"
@@ -356,7 +388,7 @@ def extract_parallel_config_from_argv(
             mode = "off"
             recognised = True
         elif arg == "--parallel":
-            mode = "processes"
+            mode = "threads"
             recognised = True
         elif arg.startswith("--parallel="):
             mode = String(StringSlice(arg)[byte=11:])
@@ -507,9 +539,9 @@ def _sort_unique_ints(mut values: List[Int]) -> None:
     if len(values) < 2:
         return
     var write = 1
-    for read in range(1, len(values)):
-        if values[read] != values[write - 1]:
-            values[write] = values[read]
+    for read_index in range(1, len(values)):
+        if values[read_index] != values[write - 1]:
+            values[write] = values[read_index]
             write += 1
     while len(values) > write:
         _ = values.pop()
@@ -816,6 +848,7 @@ def parallel_config_snapshot_json(config: ParallelExecutionConfig) -> String:
     return (
         '{"class":"ParallelExecutionConfig","mode":"' + config.mode
         + '","enabled_by_mode":' + ("true" if config.enabled_by_mode() else "false")
+        + ',"resolved_backend":"' + config.resolved_backend() + '"'
         + ',"workers":' + workers
         + ',"resolved_workers":' + String(config.resolved_workers())
         + ',"chunk_size":' + String(config.chunk_size)
@@ -828,7 +861,7 @@ def parallel_config_snapshot_json(config: ParallelExecutionConfig) -> String:
 
 def parallel_execution_bundle_snapshot_json(bundle: ParallelExecutionBundle) -> String:
     return (
-        '{"class":"ParallelExecutionBundle","strategy":"process_chunked_table_work",'
+        '{"class":"ParallelExecutionBundle","strategy":"thread_preferred_chunked_table_work",'
         + '"execution_network":"reta_mojo.execution_network.ExecutionNetworkBundle",'
         + '"config":' + parallel_config_snapshot_json(bundle.config)
         + ',"processor_cores":' + processor_core_counts_snapshot_json(bundle.processor_cores)
@@ -838,7 +871,7 @@ def parallel_execution_bundle_snapshot_json(bundle: ParallelExecutionBundle) -> 
         + '"prepare_kombi_join_tables_in_processes","moon_numbers_in_processes",'
         + '"prime_factors_in_processes","filter_numbers_in_processes",'
         + '"factor_pairs_in_processes","normalize_column_buckets_in_processes"],'
-        + '"default_policy":"auto_on_native",'
+        + '"default_policy":"auto_threads_processes_explicit",'
         + '"default_workers":' + String(bundle.processor_cores.default_workers()) + "}"
     )
 
@@ -1213,11 +1246,46 @@ def _run_parallel_process_batch(
     return results^
 
 
-def _run_parallel_tasks(
-    tasks: List[ParallelChunkTask], workers: Int, start_method: String
+def _run_parallel_thread_tasks(
+    tasks: List[ParallelChunkTask], workers: Int
 ) raises -> List[ParallelChunkResult]:
-    if start_method.byte_length() > 0 and start_method != "fork":
-        raise Error("native parallel execution currently supports start_method=fork")
+    """Run chunk slots on Mojo's shared-memory CPU worker runtime."""
+    var results = List[ParallelChunkResult]()
+    var errors = List[String]()
+    for index in range(len(tasks)):
+        results.append(ParallelChunkResult(tasks[index].index, ""))
+        errors.append("")
+
+    @parameter
+    def worker(slot: Int):
+        try:
+            results[slot] = _parallel_chunk_worker(tasks[slot])
+        except error:
+            errors[slot] = String(error)
+
+    parallelize[worker](len(tasks), max(1, workers))
+    for index in range(len(errors)):
+        if errors[index].byte_length() > 0:
+            raise Error(
+                "native thread worker "
+                + String(index)
+                + " failed: "
+                + errors[index]
+            )
+    return results^
+
+
+def _run_parallel_tasks(
+    tasks: List[ParallelChunkTask],
+    workers: Int,
+    config: ParallelExecutionConfig,
+) raises -> List[ParallelChunkResult]:
+    if config.resolved_backend() == "threads":
+        return _run_parallel_thread_tasks(tasks, workers)
+    if config.resolved_backend() != "processes":
+        raise Error("parallel task runner requires threads or processes")
+    if config.start_method.byte_length() > 0 and config.start_method != "fork":
+        raise Error("native process execution currently supports start_method=fork")
     var results = List[ParallelChunkResult]()
     var start = 0
     while start < len(tasks):
@@ -1238,7 +1306,7 @@ def _chunk_count(item_count: Int, chunk_size: Int) -> Int:
 def _use_parallel_chunks(
     item_count: Int, config: ParallelExecutionConfig
 ) -> Bool:
-    return config.should_use_processes(item_count) and _chunk_count(
+    return config.should_use_parallel(item_count) and _chunk_count(
         item_count, config.chunk_size
     ) > 1
 
@@ -1265,7 +1333,7 @@ def decode_religion_rows_in_processes(
         chunk_index += 1
         start = end
     var workers = min(config.resolved_workers(), len(tasks))
-    var chunks = _run_parallel_tasks(tasks, workers, config.start_method)
+    var chunks = _run_parallel_tasks(tasks, workers, config)
     var decoded = List[IndexedStringRow]()
     for chunk in chunks:
         var chunk_rows = _decode_indexed_rows(chunk.payload)
@@ -1274,7 +1342,7 @@ def decode_religion_rows_in_processes(
     _sort_indexed_rows(decoded)
     return ReligionRowsResult(
         decoded^,
-        _stats("decode_religion_rows", workers, len(tasks), item_count, "processes", config),
+        _stats("decode_religion_rows", workers, len(tasks), item_count, config.resolved_backend(), config),
     )
 
 
@@ -1302,7 +1370,7 @@ def decode_kombi_rows_in_processes(
         chunk_index += 1
         start = end
     var workers = min(config.resolved_workers(), len(tasks))
-    var chunks = _run_parallel_tasks(tasks, workers, config.start_method)
+    var chunks = _run_parallel_tasks(tasks, workers, config)
     var decoded = List[DecodedKombiRow]()
     for chunk in chunks:
         var chunk_rows = _decode_kombi_rows(chunk.payload)
@@ -1311,7 +1379,7 @@ def decode_kombi_rows_in_processes(
     _sort_kombi_rows(decoded)
     return KombiRowsResult(
         decoded^,
-        _stats("decode_kombi_rows", workers, len(tasks), item_count, "processes", config),
+        _stats("decode_kombi_rows", workers, len(tasks), item_count, config.resolved_backend(), config),
     )
 
 
@@ -1333,7 +1401,7 @@ def moon_numbers_in_processes(
         chunk_index += 1
         start = end
     var workers = min(config.resolved_workers(), len(tasks))
-    var chunks = _run_parallel_tasks(tasks, workers, config.start_method)
+    var chunks = _run_parallel_tasks(tasks, workers, config)
     var records = List[MoonNumberRecord]()
     for chunk in chunks:
         var values = _decode_moon_records(chunk.payload)
@@ -1342,7 +1410,7 @@ def moon_numbers_in_processes(
     _sort_moon_records(records)
     return MoonOperationResult(
         records^,
-        _stats("moon_numbers", workers, len(tasks), item_count, "processes", config),
+        _stats("moon_numbers", workers, len(tasks), item_count, config.resolved_backend(), config),
     )
 
 
@@ -1364,7 +1432,7 @@ def prime_factors_in_processes(
         chunk_index += 1
         start = end
     var workers = min(config.resolved_workers(), len(tasks))
-    var chunks = _run_parallel_tasks(tasks, workers, config.start_method)
+    var chunks = _run_parallel_tasks(tasks, workers, config)
     var records = List[IntListRecord]()
     for chunk in chunks:
         var values = _decode_int_list_records(chunk.payload)
@@ -1373,7 +1441,7 @@ def prime_factors_in_processes(
     _sort_int_list_records(records)
     return IntListOperationResult(
         records^,
-        _stats("prime_factors", workers, len(tasks), item_count, "processes", config),
+        _stats("prime_factors", workers, len(tasks), item_count, config.resolved_backend(), config),
     )
 
 
@@ -1407,7 +1475,7 @@ def filter_numbers_in_processes(
         chunk_index += 1
         start = end
     var workers = min(config.resolved_workers(), len(tasks))
-    var chunks = _run_parallel_tasks(tasks, workers, config.start_method)
+    var chunks = _run_parallel_tasks(tasks, workers, config)
     var values = List[Int]()
     for chunk in chunks:
         var chunk_values = _decode_ints(chunk.payload)
@@ -1416,7 +1484,7 @@ def filter_numbers_in_processes(
     _sort_unique_ints(values)
     return NumberFilterResult(
         values^,
-        _stats("filter_numbers:" + mode, workers, len(tasks), item_count, "processes", config),
+        _stats("filter_numbers:" + mode, workers, len(tasks), item_count, config.resolved_backend(), config),
     )
 
 
@@ -1439,7 +1507,7 @@ def factor_pairs_in_processes(
         chunk_index += 1
         start = end
     var workers = min(config.resolved_workers(), len(tasks))
-    var chunks = _run_parallel_tasks(tasks, workers, config.start_method)
+    var chunks = _run_parallel_tasks(tasks, workers, config)
     var records = List[FactorPairRecord]()
     for chunk in chunks:
         var values = _decode_factor_pair_records(chunk.payload)
@@ -1448,7 +1516,7 @@ def factor_pairs_in_processes(
     _sort_factor_pair_records(records)
     return FactorPairOperationResult(
         records^,
-        _stats("factor_pairs", workers, len(tasks), item_count, "processes", config),
+        _stats("factor_pairs", workers, len(tasks), item_count, config.resolved_backend(), config),
     )
 
 
@@ -1650,7 +1718,7 @@ def select_columns_in_processes(
         chunk_index += 1
         start = end
     var workers = min(config.resolved_workers(), len(tasks))
-    var chunks = _run_parallel_tasks(tasks, workers, config.start_method)
+    var chunks = _run_parallel_tasks(tasks, workers, config)
     var rows = List[List[String]]()
     for chunk in chunks:
         var selected = _decode_csv_table(chunk.payload)
@@ -1658,7 +1726,7 @@ def select_columns_in_processes(
             rows.append(row.copy())
     return TableOperationResult(
         CsvTable(rows^, len(one_based_columns)),
-        _stats("select_columns", workers, len(tasks), item_count, "processes", config),
+        _stats("select_columns", workers, len(tasks), item_count, config.resolved_backend(), config),
     )
 
 
@@ -1685,7 +1753,7 @@ def max_cell_text_len_in_processes(
         chunk_index += 1
         start = end
     var workers = min(config.resolved_workers(), len(tasks))
-    var chunks = _run_parallel_tasks(tasks, workers, config.start_method)
+    var chunks = _run_parallel_tasks(tasks, workers, config)
     var merged = List[Int]()
     for chunk in chunks:
         var widths = _decode_widths(chunk.payload)
@@ -1699,7 +1767,7 @@ def max_cell_text_len_in_processes(
             result.append(ColumnWidth(column, merged[column]))
     return WidthOperationResult(
         result^,
-        _stats("max_cell_text_len", workers, len(tasks), item_count, "processes", config),
+        _stats("max_cell_text_len", workers, len(tasks), item_count, config.resolved_backend(), config),
     )
 
 
@@ -1710,7 +1778,7 @@ def normalize_column_buckets_in_processes(
     for bucket in buckets:
         item_count += len(bucket.positive) + len(bucket.negative)
     var chunk_size = 1 if item_count >= config.threshold and len(buckets) > 1 else config.chunk_size
-    if not config.should_use_processes(item_count) or len(buckets) <= 1:
+    if not config.should_use_parallel(item_count) or len(buckets) <= 1:
         return BucketOperationResult(
             normalize_column_buckets_serial(buckets),
             _stats("normalize_column_buckets", 1, 1 if len(buckets) > 0 else 0, item_count, "serial", config),
@@ -1730,7 +1798,7 @@ def normalize_column_buckets_in_processes(
         chunk_index += 1
         start = end
     var workers = min(config.resolved_workers(), len(tasks))
-    var chunks = _run_parallel_tasks(tasks, workers, config.start_method)
+    var chunks = _run_parallel_tasks(tasks, workers, config)
     var result = List[ColumnBucket]()
     for chunk in chunks:
         var values = _decode_buckets(chunk.payload)
@@ -1739,7 +1807,7 @@ def normalize_column_buckets_in_processes(
     _sort_buckets(result)
     return BucketOperationResult(
         result^,
-        _stats("normalize_column_buckets", workers, len(tasks), item_count, "processes", config),
+        _stats("normalize_column_buckets", workers, len(tasks), item_count, config.resolved_backend(), config),
     )
 
 
@@ -1769,7 +1837,7 @@ def prepare_kombi_join_tables_in_processes(
         chunk_index += 1
         start = end
     var workers = min(config.resolved_workers(), len(tasks))
-    var chunks = _run_parallel_tasks(tasks, workers, config.start_method)
+    var chunks = _run_parallel_tasks(tasks, workers, config)
     var kept = List[KombiJoinSelection]()
     var tables = List[CsvTable]()
     for chunk in chunks:
@@ -1781,7 +1849,7 @@ def prepare_kombi_join_tables_in_processes(
     return KombiJoinResult(
         kept^,
         tables^,
-        _stats("prepare_kombi_join_tables", workers, len(tasks), item_count, "processes", config),
+        _stats("prepare_kombi_join_tables", workers, len(tasks), item_count, config.resolved_backend(), config),
     )
 
 

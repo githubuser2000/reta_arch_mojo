@@ -96,18 +96,17 @@ der tatsächliche Bytevertrag portiert.
 
 Insgesamt sind damit **286/286** fokussierte Stage-11i-Prüfungen erfolgreich. Die Tests sind absichtlich auf mehrere kleine Executables verteilt, weil ein einziger großer Testcontroller unverhältnismäßige Compiler- und Linkerelaboration erzeugt.
 
-## Noch offen: Stage 11j
+## In Stage 11j abgeschlossen
 
 `prepare_rows_in_processes` der Python-Referenz kapselt einen großen dynamischen
 `Prepare`-Objektgraphen mit `deepcopy`-Zustand. Dieser Pfad wird nicht per
 Pickle-Protokoll imitiert. Stage 11j ersetzt ihn durch einen expliziten,
-typisierten `ParallelRowPreparationContext` und verdrahtet die neuen Kernel in
-den produktiven Tabellenlauf. Danach kann Stage 11 formal abgeschlossen
-werden.
+typisierten `ParallelRowPreparationContext`, native Mojo-Threads und eine
+deterministische Chunkslot-Reduktion. Stufe 11 ist damit formal abgeschlossen.
 
 ## SIMD/MMX-Grenze
 
-Stage 11i ist Prozessparallelisierung, nicht Vektorparallelisierung. Die
+Stage 11i führt Prozessparallelisierung ein; Stage 11j ergänzt Threadparallelisierung. Beides ist keine Vektorparallelisierung. Die
 meisten Operationen sind Stringparsing, verzweigte Datenstrukturen,
 SQLite-/Pipe-I/O und variable Listen. Diese Bereiche sind keine guten direkten
 MMX-Kandidaten. Alte x86-MMX-Instruktionen werden deshalb nicht als
