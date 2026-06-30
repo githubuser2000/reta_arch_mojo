@@ -13,7 +13,6 @@ kernel uses this adapter.
 from std.collections import List
 from std.collections.string import StringSlice
 from std.ffi import CStringSlice, c_int, external_call
-from std.memory import OpaquePointer, UnsafePointer, stack_allocation
 from std.os import getenv
 
 
@@ -155,83 +154,22 @@ def _decode_system_status(status: Int) -> Int:
     return (status >> 8) & 0xFF
 
 
-def _inherited_environment() raises -> OpaquePointer[MutUntrackedOrigin]:
-    """Resolve libc ``environ`` without introducing a C helper library."""
-    var null_string = Optional[CStringSlice[ImmutUntrackedOrigin]]()
-    var handle = external_call[
-        "dlopen", Optional[OpaquePointer[MutUntrackedOrigin]]
-    ](null_string, c_int(1))
-    if not handle:
-        raise Error("dlopen(NULL) failed while resolving environment")
-
-    var symbol_name = "environ\0"
-    var symbol = external_call[
-        "dlsym", Optional[OpaquePointer[MutUntrackedOrigin]]
-    ](handle[], CStringSlice(symbol_name))
-    if not symbol:
-        _ = external_call["dlclose", c_int](handle[])
-        raise Error("libc environ symbol is unavailable")
-
-    # ``dlsym`` returns the address of the global ``char **environ`` slot.
-    var slot = UnsafePointer[
-        OpaquePointer[MutUntrackedOrigin], MutUntrackedOrigin
-    ](unsafe_from_address=Int(symbol[]))
-    var environment = slot[0]
-    _ = external_call["dlclose", c_int](handle[])
-    return environment
-
-
 def _run_spawned_child(command: String) raises -> Int:
-    """Execute a safely quoted command with inherited byte streams.
+    """Execute one explicitly requested child command byte-preservingly.
 
-    ``std.subprocess.run`` captures text and strips trailing whitespace, so it
-    cannot reproduce the prompt's byte stream.  ``posix_spawn`` starts a small
-    ``/bin/sh -c`` wrapper without the unsafe fork-from-a-threaded-runtime path;
-    every actual argument is single-quoted before it reaches that wrapper.
+    libc ``system`` invokes ``/bin/sh -c`` synchronously and inherits the
+    complete environment plus stdin, stdout and stderr.  The command payload
+    is assembled exclusively from ``shell_quote``-escaped arguments.  Using
+    this standard C boundary avoids a second, conflicting declaration of
+    ``dlsym`` when the full prompt controller also imports ``std.python``.
     """
-    var shell = "/bin/sh\0"
-    var dash_c = "-c\0"
     var command_storage = command + "\0"
-    var arguments = stack_allocation[
-        4, Optional[OpaquePointer[MutUntrackedOrigin]]
-    ]()
-    # Build pointers in this scope: the three owning String values must remain
-    # alive until ``posix_spawn`` has copied the argv vector.
-    arguments[0] = OpaquePointer[MutUntrackedOrigin](
-        unsafe_from_address=Int(shell.as_bytes().unsafe_ptr())
+    var status = Int(
+        external_call["system", c_int](CStringSlice(command_storage))
     )
-    arguments[1] = OpaquePointer[MutUntrackedOrigin](
-        unsafe_from_address=Int(dash_c.as_bytes().unsafe_ptr())
-    )
-    arguments[2] = OpaquePointer[MutUntrackedOrigin](
-        unsafe_from_address=Int(command_storage.as_bytes().unsafe_ptr())
-    )
-    arguments[3] = None
-
-    var pid = stack_allocation[1, c_int]()
-    var null_pointer = Optional[OpaquePointer[MutUntrackedOrigin]]()
-    var environment = _inherited_environment()
-    var spawn_code = Int(
-        external_call["posix_spawn", c_int](
-            pid,
-            CStringSlice(shell),
-            null_pointer,
-            null_pointer,
-            arguments,
-            environment,
-        )
-    )
-    if spawn_code != 0:
-        raise Error("posix_spawn failed with code " + String(spawn_code))
-
-    var status = stack_allocation[1, c_int]()
-    var waited = Int(
-        external_call["waitpid", c_int](pid[0], status, c_int(0))
-    )
-    if waited != Int(pid[0]):
-        raise Error("waitpid failed for prompt child")
-    return _decode_system_status(Int(status[0]))
-
+    if status < 0:
+        raise Error("system failed while starting prompt child")
+    return _decode_system_status(status)
 
 def _working_command_prefix(reference_root: String) -> String:
     return "cd " + shell_quote(reference_root) + " && exec "

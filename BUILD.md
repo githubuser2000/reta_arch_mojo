@@ -160,18 +160,29 @@ Der reguläre Build erzeugt `generate-html-native` ohne Python- oder Subprozessi
 Nach `scripts/build.sh` vergleicht `scripts/check_html_parity.sh` die native Ein-Zeilen-Mitteltabelle mit dem eingefrorenen CPython-Referenzfixture mit 805 Daten-/Generatorspalten.
 
 
-## Stage 12c1–12c3: Terminalbreite, Promptframing, native Pipe-Eingabe und Rohbefehle
+## Stage 12c1–12c4a: Terminalbreite, Promptframing, Pipe-Eingabe und Rohbefehle
 
-Nach dem regulären Build prüft derselbe öffentliche Promptbefehl seine PTY-Parität bei mehreren Fensterbreiten:
+Für die vollständige Kompilierung genügen ausschließlich:
 
 ```bash
-./scripts/check_native_prompt_input.sh
-./scripts/check_prompt_external_commands.sh
+./scripts/build-heavy.sh
 ./scripts/build.sh
+```
+
+Die `check_*`- und `test_*`-Skripte sind keine Buildvoraussetzung. Sie prüfen
+optional die erzeugten Programme gegen Referenzfixtures. Für alle bisherigen
+Stage-12c-Prüfungen genügt ein einzelner Aufruf:
+
+```bash
 ./scripts/test_stage12c.sh
 ```
 
-Der kleine Eingabetest kompiliert Mojos portablen Pipe-/History-Kanal getrennt.
-Der PTY-Test verwendet `bin/rpb a1`; es gibt keinen abweichenden Test- oder
-Ersatzbefehl für die Laufzeitsemantik. Auf einem echten TTY bleibt die
-Readline-/Vi-/Completion-Grenze bis zur vollständigen 12c4-Parität erhalten.
+`test_stage12c.sh` ruft `check_native_prompt_input.sh`,
+`check_prompt_external_commands.sh` und `check_prompt_terminal_parity.sh`
+bereits selbst auf. Ein zusätzlicher separater Aufruf dieser drei Skripte wäre
+nur eine Wiederholung.
+
+Der kleine FFI-Integrationsprobe kompiliert `std.python` zusammen mit dem
+Kindprozessadapter und verhindert die in Stage 12c3 aufgetretene konfliktierende
+`dlsym`-Signatur. Der PTY-Test verwendet unverändert `bin/rpb a1`; es gibt
+keinen Ersatzbefehl für die Laufzeitsemantik.

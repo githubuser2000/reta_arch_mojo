@@ -28,3 +28,6 @@ for executable in "$TARGET_DIR"/*; do
     [ -x "$executable" ] || continue
     printf '  %s\n' "$executable"
 done
+
+printf '\nBuild abgeschlossen. Tests werden nicht automatisch ausgeführt.\n'
+printf 'Optionale Gesamtprüfung: scripts/test_stage12c.sh\n'

@@ -23,7 +23,7 @@ Der Mojo-Adapter reproduziert diese Grenze mit:
 - einem UTF-8-sicheren POSIX-Shlex-Parser;
 - exakter `partition(" ")[2]`-Nutzlastsemantik;
 - sicherem Einzelargument-Quoting für einen kleinen `/bin/sh -c`-Wrapper;
-- `posix_spawn` und `waitpid`;
+- einen synchronen, gekapselten libc-`system()`-Aufruf;
 - unvererbten beziehungsweise nicht umcodierten Byte-Streams;
 - vollständiger Umgebungsvererbung;
 - dem Projektinterpreter `.venv/bin/python` für `python`/`math`, sofern `RETA_PYTHON` nicht ausdrücklich gesetzt ist;
@@ -31,8 +31,7 @@ Der Mojo-Adapter reproduziert diese Grenze mit:
 
 Das ist absichtliche **Ausführung eines vom Nutzer verlangten
 Kindprogramms**, keine prozessbasierte Parallelisierung. Tabellen-, Zahlen- und
-Zeilenkerne bleiben vollständig threadbasiert. Der Boundary-Audit erlaubt
-`posix_spawn`/`waitpid` ausschließlich in diesem einen Adapter und verbietet
+Zeilenkerne bleiben vollständig threadbasiert. Der Boundary-Audit erlaubt libc-`system()` ausschließlich in diesem einen Adapter und verbietet
 weiterhin `fork`, `pipe` und `_exit` in nativen Mojo-Parallelpfaden.
 
 ## Unicode-Fehler im Kompaktparser

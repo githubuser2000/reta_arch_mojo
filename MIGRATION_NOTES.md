@@ -510,8 +510,23 @@ Ein separater Fixture-Integritätstest verbietet nun `reta-Befehl:reta `, leere 
 - `prompt_external_commands.mojo` bildet Python-`partition`, POSIX-`shlex.split`, Arbeitsverzeichnis, Umgebung und Rückgabecode explizit ab.
 - Der unveränderte Promptlauncher setzt intern `RETA_PYTHON` auf `.venv/bin/python`, sofern der Nutzer keinen Interpreter vorgibt; damit bleibt die frühere `sys.executable`-Wahl erhalten.
 - Der Adapter startet nur ausdrücklich vom Nutzer verlangte Kindprogramme; er ist keine Rückkehr zu Prozessparallelisierung.
-- `fork`, `pipe` und `_exit` bleiben durch den Boundary-Audit verboten; `posix_spawn`/`waitpid` sind ausschließlich in diesem einen Adapter erlaubt.
+- `fork`, `pipe` und `_exit` bleiben durch den Boundary-Audit verboten; der ausdrücklich angeforderte Kindprozessadapter verwendet ausschließlich den gekapselten libc-`system()`-Aufruf.
 - stdout und stderr werden nicht als Mojo-String dekodiert oder normalisiert. Nachgestellte Leerzeichen, mehrere Newlines, NUL und nicht-UTF-8-Bytes bleiben erhalten.
 - Rohe Befehle umgehen den kompakten Byte-Scanner vor jeder Nutzlasttransformation; dadurch stürzt `python print("ä λ")` nicht mehr an einer UTF-8-Bytegrenze ab.
 - Die historische CPython-Set-Reihenfolge der anschließenden Planungsdarstellung bleibt unverändert.
 - Fokussierte Prüfungen: **22/22**.
+
+## Stage 12c4a – Prompt-Bridge gekapselt und FFI-Integration repariert
+
+- `prompt_main.mojo` importiert keine `std.python`-Typen mehr.
+- Die drei verbleibenden Kompatibilitätsoperationen liegen ausschließlich in
+  `prompt_python_bridge.mojo`.
+- Der Stage-12c3-Kindprozessadapter verwendet kein `dlopen`/`dlsym` mehr. Die
+  frühere eigene `dlsym`-Signatur kollidierte erst im vollständigen
+  Promptcontroller mit der Signatur aus `std.python`.
+- Ein kleiner Compile-Integrationsprobe importiert absichtlich gleichzeitig
+  `std.python` und `prompt_external_commands.mojo`, damit dieser Fehler künftig
+  ohne den monolithischen Promptbuild sichtbar wird.
+- `scripts/build-heavy.sh` und `scripts/build.sh` genügen zum Kompilieren. Die
+  `check_*`- und `test_*`-Skripte sind optionale Korrektheitsprüfungen und
+  erzeugen keine zusätzlichen Release-Binaries.

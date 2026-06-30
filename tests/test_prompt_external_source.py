@@ -32,3 +32,30 @@ def test_prompt_launcher_preserves_project_python_interpreter() -> None:
     assert '[ -z "${RETA_PYTHON-}" ]' in source
     assert '[ -x "$ROOT/.venv/bin/python" ]' in source
     assert 'export RETA_PYTHON' in source
+
+
+def test_external_adapter_avoids_conflicting_dynamic_link_symbols() -> None:
+    root = Path(__file__).resolve().parents[1]
+    source = (
+        root / "src" / "reta_mojo" / "prompt_external_commands.mojo"
+    ).read_text(encoding="utf-8")
+    assert 'external_call["system", c_int]' in source
+    assert 'external_call["dlsym"' not in source
+    assert 'external_call["dlopen"' not in source
+    assert 'external_call["posix_spawn"' not in source
+    assert 'external_call["waitpid"' not in source
+
+
+def test_prompt_controller_encapsulates_python_types() -> None:
+    root = Path(__file__).resolve().parents[1]
+    controller = (root / "src" / "prompt_main.mojo").read_text(encoding="utf-8")
+    adapter = (
+        root / "src" / "reta_mojo" / "prompt_python_bridge.mojo"
+    ).read_text(encoding="utf-8")
+    assert "from std.python import" not in controller
+    assert "PythonObject" not in controller
+    assert "from reta_mojo.prompt_python_bridge import" in controller
+    assert "from std.python import Python" in adapter
+    assert "read_prompt_line_encoded_bridge" in adapter
+    assert "run_reta_prompt_line_encoded_bridge" in adapter
+    assert "run_reta_line_bridge" in adapter

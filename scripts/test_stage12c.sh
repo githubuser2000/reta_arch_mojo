@@ -5,4 +5,4 @@ cd "$ROOT"
 ./scripts/check_native_prompt_input.sh
 ./scripts/check_prompt_external_commands.sh
 ./scripts/check_prompt_terminal_parity.sh
-printf '%s\n' 'stage12c1/c2/c3 terminal-width, native input and raw-command tests complete'
+printf '%s\n' 'stage12c1/c2/c3/c4a terminal-width, native input, raw-command and FFI-integration tests complete'

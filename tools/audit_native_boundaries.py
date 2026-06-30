@@ -23,8 +23,11 @@ FORBIDDEN_PROCESS_PATTERNS = {
     "_exit": re.compile(r'external_call\[\s*["\']_exit["\']'),
 }
 EXPLICIT_CHILD_ADAPTER = ROOT / "src/reta_mojo/prompt_external_commands.mojo"
-SPAWN_PATTERN = re.compile(r'external_call\[\s*["\']posix_spawn["\']')
-WAIT_PATTERN = re.compile(r'external_call\[\s*["\']waitpid["\']')
+SYSTEM_PATTERN = re.compile(r'external_call\[\s*["\']system["\']')
+FRAGILE_DYNAMIC_LINK_PATTERNS = (
+    re.compile(r'external_call\[\s*["\']dlsym["\']'),
+    re.compile(r'external_call\[\s*["\']dlopen["\']'),
+)
 BRIDGE_IMPORT = re.compile(r"^from\s+std\.(python|subprocess)\s+import\s+", re.MULTILINE)
 
 
@@ -85,15 +88,20 @@ def audit() -> dict[str, object]:
     explicit_child_paths: list[str] = []
     for path in sorted((ROOT / "src").rglob("*.mojo")):
         text = path.read_text(encoding="utf-8")
-        has_spawn = bool(SPAWN_PATTERN.search(text))
-        has_wait = bool(WAIT_PATTERN.search(text))
-        if has_spawn or has_wait:
-            if path != EXPLICIT_CHILD_ADAPTER or not (has_spawn and has_wait):
+        has_system = bool(SYSTEM_PATTERN.search(text))
+        if has_system:
+            if path != EXPLICIT_CHILD_ADAPTER:
                 raise AssertionError(
-                    "posix_spawn/waitpid may only appear together in the explicit "
-                    f"prompt child adapter: {path.relative_to(ROOT)}"
+                    "libc system may only appear in the explicit prompt child "
+                    f"adapter: {path.relative_to(ROOT)}"
                 )
             explicit_child_paths.append(path.relative_to(ROOT).as_posix())
+        if path == EXPLICIT_CHILD_ADAPTER:
+            for pattern in FRAGILE_DYNAMIC_LINK_PATTERNS:
+                if pattern.search(text):
+                    raise AssertionError(
+                        "prompt child adapter must not use dynamic-link lookup"
+                    )
     if explicit_child_paths != [EXPLICIT_CHILD_ADAPTER.relative_to(ROOT).as_posix()]:
         raise AssertionError("explicit prompt child adapter is missing")
 

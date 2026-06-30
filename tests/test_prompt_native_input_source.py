@@ -17,5 +17,5 @@ def test_tty_editor_remains_compatibility_owned_until_key_parity() -> None:
     source = (root / "src" / "prompt_main.mojo").read_text(encoding="utf-8")
     read_line = source[source.index("def _read_line(") : source.index("def _run_fallback(")]
     assert "native_plain_input_requested" in read_line
-    assert "bridge.read_prompt_line_encoded" in read_line
-    assert read_line.index("native_plain_input_requested") < read_line.index("bridge.read_prompt_line_encoded")
+    assert "read_prompt_line_encoded_bridge" in read_line
+    assert read_line.index("native_plain_input_requested") < read_line.index("read_prompt_line_encoded_bridge")

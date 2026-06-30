@@ -10,7 +10,6 @@ explicit Python compatibility boundary atomically.
 from std.sys import argv
 from std.collections import List
 from std.collections.string import ord
-from std.python import Python, PythonObject
 from reta_mojo.prompt_language import (
     PromptExpansionResult,
     PromptLanguageCatalog,
@@ -41,6 +40,11 @@ from reta_mojo.prompt_external_commands import (
     run_math_prompt_line_native,
     run_python_prompt_line_native,
     run_shell_prompt_line_native,
+)
+from reta_mojo.prompt_python_bridge import (
+    read_prompt_line_encoded_bridge,
+    run_reta_line_bridge,
+    run_reta_prompt_line_encoded_bridge,
 )
 from reta_mojo.native_reta_cli import (
     native_reta_tokens_supported,
@@ -177,12 +181,6 @@ def _encode_fields(values: List[String]) -> String:
     return encoded^
 
 
-def _python_bridge() raises -> PythonObject:
-    """Import the compatibility bridge only when a legacy boundary is used."""
-    Python.add_to_path("python_reference")
-    return Python.import_module("mojo_bridge")
-
-
 def _read_line(
     profile: PromptProfile,
     session: NativePromptSession,
@@ -207,8 +205,7 @@ def _read_line(
     var words = prompt_completion_word_pool(catalog, profile.language)
     for index in range(len(words)):
         fields.append(words[index])
-    var bridge = _python_bridge()
-    return String(py=bridge.read_prompt_line_encoded(_encode_fields(fields)))
+    return read_prompt_line_encoded_bridge(_encode_fields(fields))
 
 
 def _run_fallback(
@@ -217,8 +214,7 @@ def _run_fallback(
 ) raises -> None:
     var flags = fallback_profile_arguments(profile)
     var encoded = _encode_fields(flags) + "\x1e" + line
-    var bridge = _python_bridge()
-    bridge.run_reta_prompt_line_encoded(encoded)
+    run_reta_prompt_line_encoded_bridge(encoded)
 
 
 def _run_native_table_tokens(
@@ -837,8 +833,7 @@ def _run_command(
     if command.kind == KIND_RETA:
         if _run_native_reta_prompt_command(command):
             return True
-        var bridge = _python_bridge()
-        bridge.run_reta_line(command.raw)
+        run_reta_line_bridge(command.raw)
         return True
 
     # Preserve the untouched source spelling at the compatibility boundary.

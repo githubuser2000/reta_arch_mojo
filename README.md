@@ -8,7 +8,7 @@ Dies ist ein inkrementeller, getesteter Port des hochgeladenen Python-Projekts `
 abgeschlossene Release-Stufen:       9 von 12 = 75,0 %
 Stufen 9/10/12:                       Ausgabe, Prompt/i18n und Releaseparität in Arbeit
 Stufe 11:                             11a–11j = 100 %
-Stufe 12:                             12a–12b fertig, 12c1–12c3 fertig = ca. 55 %
+Stufe 12:                             12a–12b fertig, 12c1–12c3 und 12c4a fertig = ca. 57 %
 vollständig native Originaldateien:  33 von 92 = 35,9 %
 mindestens teilweise portiert:       61 von 92 = 66,3 %
 gewichteter Quellzeilenstand:         ca. 52 %
@@ -276,7 +276,7 @@ Details: [`TEST_RESULTS.md`](TEST_RESULTS.md).
 
 ## Nächster Portierungsblock
 
-Stufe 9 wird mit seltenen Terminal-/Rich-Sonderfällen fortgesetzt. Stufe 10 erweitert die bereits native Promptausführung und i18n-Laufzeit. Stufe 11 ist mit 11a–11j abgeschlossen. Stage 12a und 12b sind abgeschlossen: Sämtliche nativen Parallelpfade verwenden Mojo-Threads, und `generate_html` besitzt nun auch die vollständige `--alles`-Mitteltabelle. Stage 12c ist bis 12c3 fortgesetzt: `rpb a1` trennt Befehlszeile und Tabellenkopf wieder exakt, `--breite=0` verwendet die reale TTY-Breite, und Pipe-/Skripteingabe läuft über Mojos portables `input()` ohne vorsorglichen Python-Import. Die Rohbefehle `shell`, `python` und `math` laufen nun ebenfalls ohne Python-Brücke. Offen bleiben 12c4 sowie 12d–12e.
+Stufe 9 wird mit seltenen Terminal-/Rich-Sonderfällen fortgesetzt. Stufe 10 erweitert die bereits native Promptausführung und i18n-Laufzeit. Stufe 11 ist mit 11a–11j abgeschlossen. Stage 12a und 12b sind abgeschlossen: Sämtliche nativen Parallelpfade verwenden Mojo-Threads, und `generate_html` besitzt nun auch die vollständige `--alles`-Mitteltabelle. Stage 12c ist bis 12c4a fortgesetzt: `rpb a1` trennt Befehlszeile und Tabellenkopf wieder exakt, `--breite=0` verwendet die reale TTY-Breite, und Pipe-/Skripteingabe läuft über Mojos portables `input()` ohne vorsorglichen Python-Import. Die Rohbefehle `shell`, `python` und `math` laufen nun ebenfalls ohne Python-Brücke; die verbliebene Python-Grenze ist in einem einzigen Adapter gekapselt. Offen bleiben der native TTY-Editor, Restfallbacks sowie 12d–12e.
 
 ## Dokumentation
 
@@ -506,7 +506,11 @@ Promptbefehle ändern sich nicht. Details:
 Die expliziten Promptbefehle `shell`, `python` und `math` überschreiten nicht
 mehr `mojo_bridge.py`. Ein enger Mojo-Systemadapter reproduziert die
 `shlex.split`-/Kindprozesssemantik, vererbt stdin/stdout/stderr und die
-Umgebung bytegetreu und verwendet `posix_spawn` statt eines
-Parallel-Prozesspfads. Rohe Unicode-Nutzlasten werden vor dem Kompaktscanner
+Umgebung bytegetreu und verwendet einen eng gekapselten libc-`system()`-Aufruf statt dynamischer `dlsym`-/`environ`-Auflösung. Rohe Unicode-Nutzlasten werden vor dem Kompaktscanner
 erkannt, sodass beispielsweise `python print("ä λ")` unverändert ausgeführt
 wird. Details: [`STAGE12C3_NATIVE_RAW_PROMPT_COMMANDS.md`](STAGE12C3_NATIVE_RAW_PROMPT_COMMANDS.md).
+
+Stage 12c4a kapselt die verbliebene Python-Grenze in
+`prompt_python_bridge.mojo` und behebt die erst im Gesamtbuild sichtbare
+`dlsym`-Signaturkollision. Details:
+[`STAGE12C4A_PROMPT_BRIDGE_INTEGRATION.md`](STAGE12C4A_PROMPT_BRIDGE_INTEGRATION.md).

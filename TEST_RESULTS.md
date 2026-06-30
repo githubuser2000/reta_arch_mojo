@@ -722,3 +722,25 @@ Zusätzlich bestätigt:
 ./scripts/check_prompt_external_commands.sh
 ./scripts/test_stage12c.sh
 ```
+
+## Stage 12c4a: FFI-Integration und gekapselte Promptbrücke
+
+```text
+prompt_external_commands parser:              6/6
+std.python + child-adapter compiler probe:     1/1
+Python↔Mojo external-command byte parity:      7/7
+Source-/Boundary-Prüfungen:                    8/8
+                                               ----
+                                               22/22
+```
+
+Der vollständige lokale Stage-12c3-Build hatte eine konfliktierende
+`dlsym`-Deklaration gefunden. Der Kindprozessadapter verwendet nun den
+gekap­selten libc-`system()`-Aufruf und benötigt weder `dlopen`, `dlsym`,
+manuellen `environ`-Zugriff, `posix_spawn` noch `waitpid`. Der kombinierte
+Compilerprobe importiert die letzte Python-Brücke und den Kindprozessadapter im
+gleichen kleinen Ziel und bestand mit dem finalen Quellstand.
+
+Der optimierte monolithische `prompt_main.mojo`-Build erreichte in der
+Arbeitsumgebung erneut das 32-Minuten-Elaborationslimit ohne neue Diagnose. Auf
+dem Ryzen-7-Zielsystem wird er regulär durch `scripts/build.sh` gebaut.

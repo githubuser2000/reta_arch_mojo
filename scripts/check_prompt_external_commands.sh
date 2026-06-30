@@ -5,16 +5,21 @@ cd "$ROOT"
 TEST_DIR=${RETA_TEST_TARGET_DIR:-"$ROOT/target/test-bin"}
 mkdir -p "$TEST_DIR"
 
-"$ROOT/bin/mojo-real" build -I src \
+"$ROOT/bin/mojo-real" build --no-optimization -j 4 -I src \
     tests/test_prompt_external_commands.mojo \
     -o "$TEST_DIR/test-prompt-external-commands"
 "$TEST_DIR/test-prompt-external-commands"
 
-"$ROOT/bin/mojo-real" build -I src \
+"$ROOT/bin/mojo-real" build --no-optimization -j 4 -I src \
+    tests/prompt_external_python_ffi_probe.mojo \
+    -o "$TEST_DIR/prompt-external-python-ffi-probe"
+"$TEST_DIR/prompt-external-python-ffi-probe" >/dev/null
+
+"$ROOT/bin/mojo-real" build --no-optimization -j 4 -I src \
     tests/prompt_external_commands_probe.mojo \
     -o "$TEST_DIR/prompt-external-commands-probe"
 
-"$ROOT/bin/mojo-real" build -I src \
+"$ROOT/bin/mojo-real" build --no-optimization -j 4 -I src \
     tests/test_prompt_raw_commands.mojo \
     -o "$TEST_DIR/test-prompt-raw-commands"
 "$TEST_DIR/test-prompt-raw-commands"
