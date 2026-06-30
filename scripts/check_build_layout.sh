@@ -31,7 +31,7 @@ for name in $expected; do
 done
 
 if [ "${RETA_CHECK_HEAVY:-0}" = "1" ]; then
-    for name in reta-mojo-schema reta-mojo-architecture reta-mojo-boundaries reta-mojo-contracts reta-mojo-witnesses reta-mojo-coherence reta-mojo-traces reta-mojo-impact reta-mojo-migration reta-mojo-rehearsal reta-mojo-activation reta-mojo-validation reta-mojo-progress; do
+    for name in reta-mojo-schema reta-mojo-architecture reta-mojo-boundaries reta-mojo-contracts reta-mojo-witnesses reta-mojo-coherence reta-mojo-traces reta-mojo-impact reta-mojo-migration reta-mojo-rehearsal reta-mojo-activation reta-mojo-validation reta-mojo-progress reta-mojo-persistence reta-mojo-execution-network reta-mojo-parallel-execution; do
         path="target/bin/$name"
         [ -x "$path" ] || { printf 'Fehler: schweres Executable fehlt: %s\n' "$path" >&2; exit 1; }
     done

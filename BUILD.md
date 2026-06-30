@@ -70,9 +70,12 @@ target/bin/reta-mojo-rehearsal
 target/bin/reta-mojo-activation
 target/bin/reta-mojo-validation
 target/bin/reta-mojo-progress
+target/bin/reta-mojo-persistence
+target/bin/reta-mojo-execution-network
+target/bin/reta-mojo-parallel-execution
 ```
 
-Die dreizehn Ziele enthalten sehr große generierte Konstantenstrukturen, Grenzgraphdaten, Architekturverträge, Witness-Matrizen, Kohärenzrouten, Trace-Netze, Impact-Routen, Migrationspläne, Rehearsal-Gates, Aktivierungstransaktionen, Gesamtvalidierungschecks und das Fortschritts-Overlay. Sie sind nicht für jeden normalen Build erforderlich; die Laufzeitpfade verwenden kompakte Katalogdateien.
+Die sechzehn Ziele enthalten sehr große generierte Konstantenstrukturen, Grenzgraphdaten, Architekturverträge, Witness-Matrizen, Kohärenzrouten, Trace-Netze, Impact-Routen, Migrationspläne, Rehearsal-Gates, Aktivierungstransaktionen, Gesamtvalidierungschecks, das Fortschritts-Overlay, die native SQLite-Persistenz das deterministische Ausführungsnetz und die prozessbasierten Tabellen-Chunk-Kerne. Sie sind nicht für jeden normalen Build erforderlich; die Laufzeitpfade verwenden kompakte Katalogdateien.
 
 ## Aufräumen
 
@@ -93,3 +96,40 @@ Die vollständigen Rehearsal- und Aktivierungsbundles werden in den fokussierten
 ## Stage 11f: Validierungs- und Fortschrittscontroller
 
 `architecture_validation.mojo` und `architecture_progress.mojo` werden in den fokussierten Tests normal optimiert kompiliert. Die beiden öffentlichen Query-Controller verwendet `scripts/build-heavy.sh` mit `--no-optimization`, damit die großen String-/Listen-Snapshots ohne unnötige O3-Elaboration schnell gebaut werden.
+
+
+## Stage 11g: SQLite- und SHA-256-Linkgrenze
+
+`reta-mojo-persistence` wird zusätzlich mit `-lsqlite3 -lcrypto` gelinkt. Benötigt werden die Systembibliotheken SQLite 3 und OpenSSL/libcrypto einschließlich der Linker-Symlinks der jeweiligen Entwicklungs-/Devel-Pakete. Der Laufzeitpfad enthält keinen Python-Import.
+
+Der gezielte Build und Test lautet:
+
+```bash
+./scripts/test_stage11g.sh
+```
+
+
+## Stage 11h: Ausführungsnetz und gezielter Fork-Build
+
+Der öffentliche Ausführungsnetz-Controller wird mit `--no-optimization -j 4` gebaut. Das vermeidet unnötige O3-Elaboration der C-ABI-, Pipe- und Snapshotpfade; die Worker selbst bleiben echte native Linux-`fork`-Prozesse. Es werden keine zusätzlichen Laufzeitbibliotheken außer libc benötigt.
+
+Der gezielte Build-, Integrations- und Paritätslauf lautet:
+
+```bash
+./scripts/test_stage11h.sh
+```
+
+Der Test koppelt das Ausführungsnetz zusätzlich an SQLite und SHA-256; nur dieses Integrationsziel wird daher mit `-lsqlite3 -lcrypto` gelinkt.
+
+
+## Stage 11i: Prozessbasierte Tabellen-Chunk-Kerne
+
+`reta-mojo-parallel-execution` wird gezielt mit `--no-optimization -j 4` gebaut. Die Worker verwenden Linux `fork`, private Pipes und `waitpid`; es wird keine zusätzliche Prozessbibliothek und keine Python-Laufzeit gelinkt. Das Protokoll besteht aus längenpräfixierten UTF-8-Feldern.
+
+Der fokussierte Lauf baut mehrere kleine Testprogramme statt eines großen Testmonolithen:
+
+```bash
+./scripts/test_stage11i.sh
+```
+
+Das Skript prüft zusätzlich die kompakte Prompt-Zeilengrenze, die Integrität der Goldendateien und Python↔Mojo-Parität. Die langen Gesamtbuilds `scripts/build-heavy.sh` und `scripts/build.sh` sind dafür nicht erforderlich.

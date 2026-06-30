@@ -15,6 +15,19 @@ def test_compact_announcement_german() raises:
     )
 
 
+def test_compact_announcement_line_has_exact_lf() raises:
+    var line = compact_prompt_announcement_line(
+        ["absicht", "15"], "a15", "deutsch"
+    )
+    assert_equal(
+        line,
+        "'absicht 15' ergibt sich aus 'a15' und ergibt danach reta-Befehl:\n",
+    )
+    assert_equal(line.byte_length(), compact_prompt_announcement(
+        ["absicht", "15"], "a15", "deutsch"
+    ).byte_length() + 1)
+
+
 def test_compact_announcement_english() raises:
     assert_equal(
         compact_prompt_announcement(["intention", "15"], "i15", "english"),

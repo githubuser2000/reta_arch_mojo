@@ -45,6 +45,13 @@ def compact_prompt_announcement(
     )
 
 
+def compact_prompt_announcement_line(
+    prepared_tokens: List[String], source: String, language: String
+) -> String:
+    """Render one complete announcement line including its LF boundary."""
+    return compact_prompt_announcement(prepared_tokens, source, language) + "\n"
+
+
 def legacy_table_echo_tokens(tokens: List[String]) -> List[String]:
     """Return historical display argv while retaining canonical execution argv."""
     var result = List[String]()

@@ -16,6 +16,8 @@ reta-mojo-coherence     reta-mojo-traces
 reta-mojo-impact        reta-mojo-migration
 reta-mojo-rehearsal     reta-mojo-activation
 reta-mojo-validation    reta-mojo-progress
+reta-mojo-persistence     reta-mojo-execution-network
+reta-mojo-parallel-execution
 ```
 
 ## Wichtige Tabellenpfade
@@ -78,6 +80,12 @@ Der Umschalter ist absichtlich explizit, solange nicht sämtliche Tabellenfunkti
 ./bin/reta-mojo-validation --check CategoryFunctorReferenceCheck
 ./bin/reta-mojo-progress --summary
 ./bin/reta-mojo-progress --surface reta.py
+./bin/reta-mojo-persistence --summary
+./bin/reta-mojo-persistence --demo /tmp/reta-persistence.db
+./bin/reta-mojo-execution-network --summary
+./bin/reta-mojo-execution-network --run-process fifo
+./bin/reta-mojo-parallel-execution --summary
+./bin/reta-mojo-parallel-execution --demo 2 2
 ```
 
 ## Zuordnung
@@ -98,6 +106,9 @@ Der Umschalter ist absichtlich explizit, solange nicht sämtliche Tabellenfunkti
 | Impact und Migration | `target/bin/reta-mojo-impact`, `target/bin/reta-mojo-migration` | Impact-Routen, Regression-Gates, geordnete Wellen, Schritte und Invarianten nativ; Python nur bei Regeneration |
 | Rehearsal und Aktivierung | `target/bin/reta-mojo-rehearsal`, `target/bin/reta-mojo-activation` | Trockenlauf-Moves, Gate-Suiten, Readiness-Cover, Commit-Gates, Rollbacks und Transaktionen nativ; Python nur bei Regeneration |
 | Gesamtvalidierung und Fortschritt | `target/bin/reta-mojo-validation`, `target/bin/reta-mojo-progress` | 51 Architekturchecks, 17 Schichten und Stage-42-Overlay mit Oberflächen-, Schritt-, Wellen- und Arbeitsrestnavigation nativ; Python/AST/Git nur bei Regeneration |
+| Persistenz | `target/bin/reta-mojo-persistence` | sechs SQLite-Tabellen, zwölf Morphismen, Python-kompatible SHA-256-Digests, Sections, Garben-Snapshots, Runs, Audit, Cache und Batchpfade vollständig nativ |
+| Ausführungsnetz | `target/bin/reta-mojo-execution-network` | FIFO/LIFO/Priorität, Kanäle, Semaphoren, deterministische Reduktion und echte Linux-`fork`-Worker vollständig nativ; statische UTF-8-Operationsgrenze |
+| Prozessbasierte Tabellenparallelisierung | `target/bin/reta-mojo-parallel-execution` | Konfiguration, CPU-Erkennung, zehn reine Tabellen-/Zahlenkerne und zehn echte `fork`-Chunkpfade nativ; finaler typisierter Prepare-Zeilenkontext folgt in 11j |
 
 Lokale Installation der Launcher:
 

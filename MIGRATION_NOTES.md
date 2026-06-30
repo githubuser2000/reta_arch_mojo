@@ -424,3 +424,40 @@ Die öffentlichen Controller werden bewusst mit `--no-optimization` kompiliert. 
 - Die native Kreuzvalidierung prüft Oberflächen-, Schritt- und Wellenbindungen sowie alle Statuszählungen.
 - Beide Query-Controller werden ohne Optimierung gebaut; die Bundletests bleiben normal optimiert.
 - Der im kompilierten Stage-11e-Arbeitsarchiv fehlende, aber manifestierte Stage-11e-Bericht wurde aus dem zuvor verifizierten Quellrelease wiederhergestellt.
+
+
+## Stage 11g – native SQLite-Persistenz
+
+`reta_architecture/persistence.py` ist nicht als statischer Snapshot, sondern als ausführende Laufzeitschicht portiert. Mojo bindet SQLite und SHA-256 direkt über die C-ABI ein. Die sechs Tabellen, zwölf öffentlichen Operationen, Einzel- und Batchpfade sowie Audit- und Cacheverhalten sind nativ.
+
+Die wichtigste Typentscheidung betrifft JSON: Python nimmt beliebige Objekte entgegen; die native Grenze nimmt kanonischen UTF-8-JSON-Text entgegen. Die bekannten umschließenden Dokumente werden in Mojo mit der exakt sortierten Python-Schlüsselreihenfolge aufgebaut. So bleiben Digests und SQLite-Zeilen interoperabel, ohne dynamisches `Any` in die Architektur einzuführen.
+
+SQLite-Batchschreibvorgänge sind seriell und transaktional. Die Python-Optimierung, nur die reine JSON-/Digestvorbereitung prozessparallel auszuführen, wird erst zusammen mit `parallel_execution.py` portiert.
+
+
+## Stage 11h – natives deterministisches Ausführungsnetz
+
+`reta_architecture/execution_network.py` ist als ausführende Mojo-Schicht portiert. Queue-Disziplinen, Kanäle, Semaphoren, Task-/Resulttypen, Snapshotbildung und deterministische Reduktion sind nicht generierte Metadaten, sondern tatsächliche Laufzeitlogik.
+
+Der Python-Prozesspool wird nicht durch eine serielle Attrappe ersetzt. Der native Linux-Pfad startet mit `fork()` echte Kindprozesse, gibt jedem Worker eine private Pipe, liest die vollständige UTF-8-Nutzlast und prüft den Exitstatus mit `waitpid()`. Gleichzeitig aktive Kinder werden durch `max_workers` begrenzt.
+
+Die dynamische Python-Grenze aus `Any`, Pickle, lokalen Handlern und `importlib` wird bewusst nicht nachgebaut. Tasks tragen besitzende UTF-8-Nutzlasten, kanonisches Metadaten-JSON und eine geprüfte Operation beziehungsweise bekannte `callable_path`. Dadurch bleibt der Scheduler statisch prüfbar und kann später um Reta-spezifische Workeroperationen erweitert werden.
+
+Kanäle und Semaphoren sind zunächst nichtblockierende deterministische Zustandsobjekte. Sie werfen bei leerer/voller Grenze beziehungsweise geben bei nicht verfügbarer Ressource sofort zurück. Eine echte pthread-/Condition-Variable-Warteschicht wird zusammen mit den konkreten Langläufern aus `parallel_execution.py` ergänzt, statt bereits jetzt ungenutzte Threadsynchronisation vorzutäuschen.
+
+`execution_run_snapshot_json()` verbindet Stage 11h mit der Stage-11g-Persistenz. Der Integrationstest persistiert einen echten Prozesslauf und dessen Auditspur in SQLite. Stage 11i setzt darauf mit den reinen Prozess-Chunk-Kernen auf; offen bleibt nur deren typisierte Produktionsintegration in Stage 11j.
+
+
+## Stage 11i – native Prozess-Chunk-Kerne
+
+`reta_architecture/parallel_execution.py` wird nicht als dünne `multiprocessing`-Nachbildung portiert. Die neue Mojo-Schicht besitzt explizite Konfiguration, CPU-Erkennung, typisierte Ergebnisstatistiken und zehn reine Tabellen-/Zahlenkerne mit jeweils serieller Referenz und echtem Linux-`fork`-Pfad.
+
+Der Python-Transport über Pickle und dynamische Objektgraphen wird durch ein längenpräfixiertes UTF-8-Protokoll ersetzt. Dadurch bleiben Unicode, Leerzeilen und beliebige Trennzeichen erhalten, während der Workervertrag statisch prüfbar bleibt. Die Reduktion erfolgt nach Chunkindex und ist damit unabhängig von der Reihenfolge, in der Kindprozesse beendet werden.
+
+Der große `Prepare`-Objektgraph wird bewusst nicht per `deepcopy` und Pickle imitiert. Stage 11j führt dafür `ParallelRowPreparationContext` ein und verdrahtet Header-, Religionsnummern- und Kombi-Kontext in den produktiven Tabellenpfad.
+
+### Korrektur der kompakten Prompt-Zeilengrenze
+
+Die frühere Mojo-Portierung hatte Richs internen Aufruf `Console.print(..., end="")` wörtlich kopiert. Das gerenderte Python-`Syntax`-Objekt beendet seine physische Zeile dennoch mit LF. Mojo gab dagegen die nächste `reta`-Zeile direkt anschließend aus. Die neue Funktion `compact_prompt_announcement_line()` macht den beobachtbaren Bytevertrag explizit und liefert genau eine vollständige Zeile einschließlich `\n`.
+
+Ein separater Fixture-Integritätstest verbietet nun `reta-Befehl:reta `, leere Referenzdateien und fehlende zweite Nutzlastzeilen. Damit wird nicht nur der konkrete Fehler, sondern auch seine bisherige Testlücke geschlossen.

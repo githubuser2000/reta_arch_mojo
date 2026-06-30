@@ -7,10 +7,10 @@ Dies ist ein inkrementeller, getesteter Port des hochgeladenen Python-Projekts `
 ```text
 abgeschlossene Release-Stufen:       8 von 12 = 66,7 %
 Stufen 9/10/11:                       Ausgabe, Prompt und Architektursteuerung in Arbeit
-vollständig native Originaldateien:  30 von 92 = 32,6 %
-mindestens teilweise portiert:       58 von 92 = 63,0 %
-gewichteter Quellzeilenstand:         ca. 47 %
-funktionaler Nutzerumfang:            ca. 88–91 %
+vollständig native Originaldateien:  32 von 92 = 34,8 %
+mindestens teilweise portiert:       61 von 92 = 66,3 %
+gewichteter Quellzeilenstand:         ca. 50 %
+funktionaler Nutzerumfang:            ca. 92–94 %
 ```
 
 Die Metriken messen Verschiedenes. Die Stufenquote ist höher, weil die noch offenen Stufen die größten dynamischen Python-Module bündeln. Der vollständige Plan steht in [`ROADMAP.md`](ROADMAP.md).
@@ -21,7 +21,7 @@ Die Metriken messen Verschiedenes. Die Stufenquote ist höher, weil die noch off
 RETA_MOJO_PYTHON="$(command -v python3.14)" ./scripts/setup_mojo.sh
 ```
 
-Das Skript erzeugt `.venv`, installiert den Modular-Mojo-Compiler und baut neun reguläre ELF-Programme nach `target/bin/`. Eine Aktivierung mit `source` ist nicht nötig.
+Das Skript erzeugt `.venv`, installiert den Modular-Mojo-Compiler und baut die regulären ELF-Programme nach `target/bin/`. Eine Aktivierung mit `source` ist nicht nötig.
 
 ```bash
 ./scripts/check_build_layout.sh
@@ -248,9 +248,9 @@ Siehe [`BINARIES.md`](BINARIES.md).
 Gesamtbestand:
 
 ```text
-66 native Testdateien und Probes
-274 native Testfunktionen
-245/245 aktuell fokussiert dokumentierte Mojo-Tests bestanden
+67 native Testdateien und Probes
+275 native Testfunktionen
+292/292 aktuell fokussiert dokumentierte Mojo-Tests bestanden
 30 Generator- und 9 Kombi-CLI-Fälle in den Paritätssuiten
 8 schnelle Markup-Fixtures; 16 Fälle einzeln gegen Python validiert
 27 Kurzsprachen-, 23 Vorbereitung- und 12 Completion-Kontexte bytegleich
@@ -274,7 +274,7 @@ Details: [`TEST_RESULTS.md`](TEST_RESULTS.md).
 
 ## Nächster Portierungsblock
 
-Stufe 9 wird mit seltenen Terminal-/Rich-Sonderfällen fortgesetzt. Stufe 10 erweitert die bereits native Promptausführung und i18n-Laufzeit. In Stufe 11 sind Karte, Boundary-Graph, Verträge, Witnesses, Kohärenzmatrix, Trace-Navigation, Impact-Kalkül, Migrationsplan, Rehearsal, Aktivierung, Gesamtvalidierung und Fortschritts-Overlay nativ; als Nächstes folgen Persistenz, Ausführungsnetz und Parallelisierung.
+Stufe 9 wird mit seltenen Terminal-/Rich-Sonderfällen fortgesetzt. Stufe 10 erweitert die bereits native Promptausführung und i18n-Laufzeit. In Stufe 11 sind Karte, Boundary-Graph, Verträge, Witnesses, Kohärenzmatrix, Trace-Navigation, Impact-Kalkül, Migrationsplan, Rehearsal, Aktivierung, Gesamtvalidierung, Fortschritts-Overlay, SQLite-Persistenz, Ausführungsnetz und die reinen Prozess-Chunk-Kerne nativ. Offen bleibt 11j mit dem typisierten Prepare-Zeilenkontext und seiner Produktionsverdrahtung.
 
 ## Dokumentation
 
@@ -405,3 +405,46 @@ Die beiden abschließenden reinen Architektursteuerungsschichten sind als getren
 ```
 
 Die Gesamtvalidierung steht auf `passed`. Das Fortschritts-Overlay ist intern vollständig konsistent und bewusst `attention`, weil genau die externe ursprüngliche Command-Parity-Baseline fehlt. Acht repräsentative Python↔Mojo-Abfragen sind byteidentisch; die Architekturkontrollregeneration umfasst zwölf Ziele. Details: [`STAGE11F_NATIVE_ARCHITECTURE_VALIDATION_PROGRESS.md`](STAGE11F_NATIVE_ARCHITECTURE_VALIDATION_PROGRESS.md).
+
+
+## Stage 11g: Native SQLite-Persistenz
+
+`persistence.py` ist nun als reale native SQLite-Laufzeitschicht portiert. Das Modul besitzt sechs Tabellen und zwölf Persistenzmorphismen für Kontexte, Sections, Garben-Snapshots, Ausführungsläufe, Audit und Cache. Stabile SHA-256-Digests stimmen mit der Python-Referenz überein; beide Implementierungen lesen die jeweils andere Datenbank.
+
+```bash
+./scripts/test_stage11g.sh
+./bin/reta-mojo-persistence --summary
+./bin/reta-mojo-persistence --demo /tmp/reta-persistence.db
+./bin/reta-mojo-persistence --inspect /tmp/reta-persistence.db
+```
+
+Der fokussierte Lauf besteht aus 47/47 nativen Prüfungen und 5/5 Python↔Mojo-Paritäts-/Interoperabilitätsprüfungen. Details: [`STAGE11G_NATIVE_PERSISTENCE.md`](STAGE11G_NATIVE_PERSISTENCE.md).
+
+
+## Stage 11h: Natives deterministisches Ausführungsnetz
+
+`execution_network.py` ist als reale Mojo-Laufzeitschicht portiert. FIFO-, LIFO- und Prioritätswarteschlangen, Halb-/Vollduplexkanäle, Semaphoren, Snapshotbildung und deterministische Reduktion laufen ohne Python. Der Prozessmodus startet unter Linux echte `fork`-Worker, transportiert UTF-8-Ergebnisse über private Pipes und propagiert Kindprozessfehler.
+
+```bash
+./scripts/test_stage11h.sh
+./bin/reta-mojo-execution-network --summary
+./bin/reta-mojo-execution-network --order priority
+./bin/reta-mojo-execution-network --run-process fifo
+./bin/reta-mojo-execution-network --task double_int 21
+```
+
+Die statische Mojo-Grenze verwendet UTF-8-Text, kanonisches Metadaten-JSON und geprüfte Operationskennungen anstelle von Python-`Any`, Pickle und dynamischen Imports. Der fokussierte Lauf besteht aus 85/85 nativen Netzprüfungen, 15/15 Persistenzintegrationsprüfungen und 8/8 Python↔Mojo-Paritätsfällen. Details: [`STAGE11H_NATIVE_EXECUTION_NETWORK.md`](STAGE11H_NATIVE_EXECUTION_NETWORK.md).
+
+
+## Stage 11i: Native Prozess-Chunk-Kerne
+
+Der reine Kern von `parallel_execution.py` läuft nun in Mojo. Zehn Tabellen- und Zahlenoperationen besitzen serielle Referenzpfade sowie echte Linux-`fork`-Chunkpfade. Das längenpräfixierte UTF-8-Protokoll erhält Unicode, eingebettete Zeilenumbrüche und Trennzeichen ohne Pickle oder Python. Ergebnisse werden unabhängig von der Schedulerreihenfolge wieder in die von Python definierte Zeilen-/Zahlenindexordnung zusammengesetzt; Filterwerte werden wie die Referenz dedupliziert.
+
+```bash
+./scripts/test_stage11i.sh
+./bin/reta-mojo-parallel-execution --summary
+./bin/reta-mojo-parallel-execution --demo 2 2
+./bin/reta-mojo-parallel-execution --prime-factors 12 18 25 49
+```
+
+Die fokussierte Prüfung umfasst 6/6 Prompt-LF-Tests, 1/1 Fixture-Integritätstest, 29/29 Konfigurationsprüfungen, 55/55 Zeilenprozess-, 157/157 Zahlenprozess-, 26/26 Tabellen-Chunk-Prüfungen sowie 12/12 Python↔Mojo-Paritätsausgaben. Offen bleibt Stage 11j: der dynamische Python-`Prepare`-Objektgraph wird durch einen typisierten Zeilenvorbereitungskontext ersetzt und in den produktiven Tabellenlauf verdrahtet. Details: [`STAGE11I_NATIVE_PARALLEL_EXECUTION.md`](STAGE11I_NATIVE_PARALLEL_EXECUTION.md).

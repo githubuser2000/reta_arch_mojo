@@ -3,10 +3,10 @@
 ## Testbestand
 
 ```text
-64 Mojo-Testdateien und -Probes
+67 Mojo-Testdateien und -Probes
 274 Testfunktionen insgesamt
 9 reguläre ELF-Compilerziele
-11 optionale schwere Metadaten-/Katalogziele
+16 optionale schwere Metadaten-/Katalog-/Laufzeitziele
 ```
 
 Der letzte vollständig abgeschlossene normale Stufe-7-Lauf ergab **145/145** Tests. Seitdem kamen Meta-, Bruch-, Kombi-, Markup- und Prompttests hinzu. Ein monolithischer Kaltlauf stößt in dieser Umgebung bei `test_csv_reference`, großen Asset-Compilern und wiederholten Python-Referenzstarts an das äußere Ausführungslimit. Deshalb werden die veränderten Programme zusätzlich einzeln gebaut und ausgeführt.
@@ -453,3 +453,86 @@ Zusätzlich bestanden:
 - sämtliche früheren Stage-11a–11e-Summaries mit den erwarteten Statuswerten
 
 Kein Stage-11f-Test und kein Stage-11f-Programmaufruf verwendete `--alles`.
+
+
+## Stage 11g: Native SQLite-Persistenz
+
+```text
+test_persistence: 47/47
+```
+
+Zusätzlich bestanden:
+
+- deterministische Python↔Mojo-Demoausgabe;
+- Python liest Section, Garben-Snapshot, Ausführungslauf, Audit und invalidierten Cache aus einer von Mojo erzeugten SQLite-Datei;
+- Mojo liest eine von Python erzeugte Section bytegleich;
+- Mojo liest einen von Python erzeugten Garben-Snapshot bytegleich;
+- Unicode-Digest Python↔Mojo identisch;
+- insgesamt **5/5** Paritäts-/Interoperabilitätsprüfungen;
+- Launcher, optimiertes Compilerziel und Buildlayout erfolgreich.
+
+Der fokussierte Lauf verwendet weder den langen Gesamtbuild noch `--alles`:
+
+```bash
+./scripts/test_stage11g.sh
+```
+
+
+## Stage 11h: Natives deterministisches Ausführungsnetz
+
+```text
+test_execution_network:              85/85
+test_execution_network_persistence:  15/15
+Python↔Mojo parity:                    8/8
+                                      -----
+                                     108/108
+```
+
+Zusätzlich bestanden:
+
+- echte Linux-`fork`-Worker mit privaten Pipes und `waitpid`;
+- parallele Workerbegrenzung durch `max_workers`;
+- FIFO-, LIFO- und Prioritätsordnung mit stabilem Taskindex-Tie-Break;
+- deterministische Eingabereihenfolge trotz abweichender Schedulerreihenfolge;
+- Unicode- und Zeilenumbruchnutzlasten über Prozessgrenzen;
+- Fehlerpropagation aus dem Workerprozess;
+- bounded Halb-/Vollduplexkanäle und Semaphorzustände;
+- Snapshotparität für Konfiguration, Tasks, Resultate, Bundle und Runs;
+- Persistieren eines echten Prozesslaufs, Audit-Roundtrip und Tabellenzähler über Stage 11g.
+
+Der fokussierte Lauf vermeidet die langen Gesamtbuilds:
+
+```bash
+./scripts/test_stage11h.sh
+```
+
+
+## Stage 11i: Native prozessbasierte Tabellenparallelisierung
+
+```text
+test_prompt_legacy_echo:                 6/6
+test_prompt_fixture_integrity:           1/1
+test_parallel_execution_config:         29/29
+test_parallel_row_processes:            55/55
+test_parallel_number_processes:        157/157
+test_parallel_table_execution:          26/26
+Python↔Mojo CLI-/Primfaktorparität:      12/12
+                                         -------
+                                        286/286
+```
+
+Zusätzlich bestätigt:
+
+- echte Linux-`fork`-Worker mit privaten Pipes und `waitpid`;
+- serielle und prozessbasierte Ergebnisse für Religion, Kombi, Mondzahlen, Primfaktoren, Zahlenfilter und Faktorpaare in gleicher Python-Referenzordnung einschließlich Filter-Deduplikation;
+- Tabellenprojektion, Zellbreiten, Bucket-Normalisierung und Kombi-Join über echte Chunks;
+- Unicode, eingebettete Zeilenumbrüche und delimiterhaltige Nutzlasten über das längenpräfixierte Protokoll;
+- typisierter serieller Rückfall statt Python-`None`;
+- CLI-Demolauf mit zwei Workern sowie 8/8 Demo- und 4/4 Primfaktor-Paritätsausgaben;
+- kompakte Promptankündigung endet exakt mit einem LF; alle zehn Goldendateien sind nichtleer und trennen Ankündigung von Nutzlast.
+
+Der fokussierte Lauf vermeidet die langen Gesamtbuilds:
+
+```bash
+./scripts/test_stage11i.sh
+```

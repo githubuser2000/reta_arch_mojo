@@ -30,7 +30,7 @@ from reta_mojo.prompt_table_execution import (
     plan_prompt_table_commands,
 )
 from reta_mojo.prompt_legacy_echo import (
-    compact_prompt_announcement,
+    compact_prompt_announcement_line,
     legacy_table_echo_tokens,
 )
 from reta_mojo.native_reta_cli import (
@@ -618,16 +618,15 @@ def _print_compact_announcement_if_needed(
         var visible_tokens = _compact_announcement_tokens(
             prepared_tokens, language, catalog
         )
-        var announcement = compact_prompt_announcement(
-            visible_tokens, source, language
+        # The Python Rich renderer produces one complete physical line here.
+        # Keep that byte-level contract explicit instead of inferring it from
+        # Rich's internal ``Console.print(..., end="")`` call.
+        print(
+            compact_prompt_announcement_line(
+                visible_tokens, source, language
+            ),
+            end="",
         )
-        # Rich-backed ``cliout`` in the Python reference does not append a
-        # newline for colored output.  Preserve that observable stream shape;
-        # colorless prompt invocations use normal line-oriented ``print``.
-        if _contains_token(prepared_tokens, "--nocolor"):
-            print(announcement)
-        else:
-            print(announcement, end="")
 
 
 def _run_command(

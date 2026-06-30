@@ -43,3 +43,12 @@ printf 'Erzeugt: %s\n' "$TARGET_DIR/reta-mojo-validation"
 printf 'Kompiliere natives Architektur-Fortschritts-Overlay ...\n'
 "$ROOT/bin/mojo-real" build --no-optimization -I src src/architecture_progress_main.mojo -o "$TARGET_DIR/reta-mojo-progress"
 printf 'Erzeugt: %s\n' "$TARGET_DIR/reta-mojo-progress"
+printf 'Kompiliere native SQLite-Persistenz ...\n'
+"$ROOT/bin/mojo-real" build -I src src/architecture_persistence_main.mojo -Xlinker -lsqlite3 -Xlinker -lcrypto -o "$TARGET_DIR/reta-mojo-persistence"
+printf 'Erzeugt: %s\n' "$TARGET_DIR/reta-mojo-persistence"
+printf 'Kompiliere natives deterministisches Ausführungsnetz ...\n'
+"$ROOT/bin/mojo-real" build --no-optimization -j 4 -I src src/architecture_execution_network_main.mojo -o "$TARGET_DIR/reta-mojo-execution-network"
+printf 'Erzeugt: %s\n' "$TARGET_DIR/reta-mojo-execution-network"
+printf 'Kompiliere native prozessbasierte Tabellenparallelisierung ...\n'
+"$ROOT/bin/mojo-real" build --no-optimization -j 4 -I src src/architecture_parallel_execution_main.mojo -o "$TARGET_DIR/reta-mojo-parallel-execution"
+printf 'Erzeugt: %s\n' "$TARGET_DIR/reta-mojo-parallel-execution"

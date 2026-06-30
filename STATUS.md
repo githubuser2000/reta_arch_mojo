@@ -5,15 +5,18 @@
 - Abgeschlossene Release-Stufen: **8/12 = 66,7 %**
 - Stufe 9: **BBCode, zentraler ANSI-Shellpfad und zentrale HTML-Pfade nativ; seltene Ausgabegrenzen offen**
 - Stufe 10: **native Kurzsprache, mehrsprachige verschachtelte Completion und Promptvorbereitung in Arbeit**
-- Stufe 11: **Architekturkarte, Grenzen, Verträge, Witnesses, Kohärenz, Traces, Impact, Migration, Rehearsal, Aktivierung, Gesamtvalidierung und Fortschritts-Overlay generiert nativ; Persistenz und Laufzeitnetze offen**
-- Geschätzter funktionaler Portierungsstand: **88–91 %**
-- Konservativ vollständig native oder reproduzierbar generierte Originaldateien: **30/92 = 32,6 %**
-- Mindestens teilweise portierte Originaldateien: **58/92 = 63,0 %**
-- Gewichteter Quellzeilenstand: **ca. 47 %**
-- Nativer Mojo-Quellcode in `src/`: **33.791 Zeilen**
-- Davon im Paket `reta_mojo`: **31.259 Zeilen**
-- Native Mojo-Testdateien und -Probes: **66**
-- Native Testfunktionen: **274**
+- Stufe 11: **11a–11i abgeschlossen; 9/10 Teilstufen = 90 %; typisierter finaler Prepare-Zeilenkontext und Produktionsverdrahtung in 11j offen**
+- Geschätzter funktionaler Portierungsstand: **92–94 %**
+- Konservativ vollständig native oder reproduzierbar generierte Originaldateien: **32/92 = 34,8 %**
+- Mindestens teilweise portierte Originaldateien: **61/92 = 66,3 %**
+- Gewichteter Quellzeilenstand: **ca. 50 %**
+- Nativer Mojo-Quellcode in `src/`: **37.659 Zeilen**
+- Davon im Paket `reta_mojo`: **34.648 Zeilen**
+- Test-/Probe-Dateien: **76** (**73 Mojo**, **3 Python** für Generator-/Fixture-Integrität)
+- Native Testfunktionen: **276**
+- Stage-11i-Fokus: zehn reine Tabellen-/Zahlenkerne und zehn echte Prozess-Chunkpfade, längenpräfixiertes UTF-8-Protokoll, **29/29** Konfigurations-, **55/55** Zeilenprozess-, **157/157** Zahlenprozess-, **26/26** Tabellen-, **12/12** Paritäts-, **6/6** Prompt-LF- und **1/1** Fixture-Integritätsprüfungen; insgesamt **286/286**, `prepare_rows_in_processes` folgt typisiert in 11j
+- Stage-11h-Fokus: typisierte FIFO-/LIFO-/Prioritätsplanung, Kanäle und Semaphoren, echte Linux-`fork`-Worker, deterministische Reduktion, **85/85** native Netzprüfungen, **15/15** Persistenzintegration und **8/8** Python↔Mojo-Paritätsfälle
+- Stage-11g-Fokus: echte SQLite-Persistenz mit **6 Tabellen**, **12 Morphismen**, **47/47** nativen Prüfungen und **5/5** Python↔Mojo-Paritäts-/Interoperabilitätsprüfungen; stabile Digests und Datenbanken sind beidseitig lesbar
 - Stage-11f-Fokus: Gesamtvalidierung **51/17/3.448**, Fortschritt **30/34/7/1**, native Tests **29/29**, Python↔Mojo-Abfragen **8/8 byteidentisch**, Generatoren **12/12** byteidentisch; Validierung `passed`, Fortschritts-Overlay konsistent `attention`
 - Stage-11e-Fokus: Rehearsal **7/34/34/7**, Aktivierung **7/34/34/34/7**, native Tests **30/30**, Python↔Mojo-Abfragen **11/11 byteidentisch**, Generatoren **10/10** byteidentisch und beide native Kreuzvalidierungen `passed`
 - Stage-11d-Fokus: Impact **34/34/10/34**, Migration **7/34/34/7**, native Tests **24/24**, Python↔Mojo-Abfragen **8/8 byteidentisch**, Generatoren **8/8** byteidentisch und beide Validierungen `passed`
@@ -25,7 +28,7 @@
 - Promptvorbereitung: **23/23 deutsche und englische Referenzkontexte bytegleich**
 - Verschachtelte Completion: **12/12 Referenzkontexte und 12/12 schnelle Fixtures bytegleich**
 - Reguläre Compilerziele: **9 ELF-Executables** unter `target/bin/`
-- Schwere optionale Compilerziele: Parameterschema, Kategorienkatalog, Architektur-Grenzgraph, Verträge, Witnesses, Kohärenz, Traces, Impact, Migration, Rehearsal, Aktivierung, Gesamtvalidierung und Fortschritts-Overlay über `scripts/build-heavy.sh`
+- Schwere optionale Compilerziele: Parameterschema, Kategorienkatalog, Architektur-Grenzgraph, Verträge, Witnesses, Kohärenz, Traces, Impact, Migration, Rehearsal, Aktivierung, Gesamtvalidierung, Fortschritts-Overlay, SQLite-Persistenz, Ausführungsnetz und Prozessparallelisierung über `scripts/build-heavy.sh`
 
 ## Stufe 7 abgeschlossen
 
@@ -103,6 +106,6 @@
 - seltene Terminalbreiten-, Rich- und kombinierte HTML-Metadatenfälle
 - echte `v n/m`-Vielfache mit Zähler größer 1 und weitere hintere Prompt-Sonderzweige
 - vollständige i18n-Laufzeit außerhalb des Promptvokabulars
-- Persistenz, Ausführungsnetz und Parallelisierung
+- finaler typisierter `Prepare`-Zeilenkontext und produktive Parallelverdrahtung (Stage 11j)
 
 Siehe [`ROADMAP.md`](ROADMAP.md) für alle zwölf Stufen.

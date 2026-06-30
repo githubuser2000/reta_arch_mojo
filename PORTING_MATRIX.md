@@ -5,7 +5,7 @@ Stand: 30. Juni 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der 
 - Ursprüngliche Python-Dateien: **92**
 - Ursprüngliche Python-Zeilen insgesamt: **48831**
 - Zusätzlicher Bridge-Adapter: **1 Python-Datei**
-- Quellzeilen der bereits angegriffenen Architekturmodule: **20414**
+- Quellzeilen der bereits angegriffenen Architekturmodule: **22387**
 - Native Mojo-Quellzeilen: siehe `src/` (inklusive generiertem Kategoriekatalog)
 
 | Python-Datei | Zeilen | Funktionen | Klassen | dynamische Aufrufe | Status | Mojo/Ziel | Anmerkung |
@@ -56,7 +56,7 @@ Stand: 30. Juni 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der 
 | `reta_architecture/completion_word.py` | 265 | 21 | 6 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/completion_word.py` | noch nicht nativ portiert |
 | `reta_architecture/concat_csv.py` | 305 | 18 | 2 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/concat_csv.py` | noch nicht nativ portiert |
 | `reta_architecture/console_io.py` | 349 | 41 | 6 | 0 | teilweise nativ | `src/reta_mojo/console_io.mojo` | reine Chunk-, Deduplikations-, Whitespace- und Debugformatierung nativ; Terminal-/Rich-I/O bleibt Systemgrenze |
-| `reta_architecture/execution_network.py` | 412 | 45 | 11 | 3 | Python-Referenz/Bridge | `python_reference/reta_architecture/execution_network.py` | noch nicht nativ portiert |
+| `reta_architecture/execution_network.py` | 412 | 45 | 11 | 3 | nativ | `src/reta_mojo/execution_network.mojo + src/architecture_execution_network_main.mojo` | typisierte FIFO-/LIFO-/Prioritätsplanung, nichtblockierende Kanal-/Semaphorgrenzen, deterministische Reduktion und echter Linux-fork-Prozesspfad nativ; Nutzlastgrenze ist UTF-8-Text mit expliziter Operationskennung |
 | `reta_architecture/facade.py` | 709 | 49 | 1 | 1 | Python-Referenz/Bridge | `python_reference/reta_architecture/facade.py` | noch nicht nativ portiert |
 | `reta_architecture/generated_columns.py` | 2010 | 38 | 3 | 0 | teilweise nativ | `src/reta_mojo/generated_columns.mojo` | vier Generatorfamilien zweisprachig nativ; restliche Generator- und Metaspalten folgen in Stufe 7 |
 | `reta_architecture/input_semantics.py` | 249 | 15 | 4 | 0 | teilweise nativ | `src/reta_mojo/input_semantics.mojo + row_ranges.mojo` | CLI-Normalisierung, Kommasyntax, Polarität, kanonische Spaltenauswahl und schemaabgeleitetes Prompt-Vokabular; dynamischer Prompt-Executor noch Bridge |
@@ -66,9 +66,9 @@ Stand: 30. Juni 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der 
 | `reta_architecture/output_semantics.py` | 155 | 13 | 3 | 8 | nativ | `src/reta_mojo/output_modes.mojo` | reine Modusauflösung und vollständige Tabellen-Flaganwendung |
 | `reta_architecture/output_syntax.py` | 409 | 13 | 8 | 3 | teilweise nativ | `src/reta_mojo/output_modes.mojo` | statische Syntax und Zeilenfarben |
 | `reta_architecture/package_integrity.py` | 232 | 9 | 1 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/package_integrity.py` | noch nicht nativ portiert |
-| `reta_architecture/parallel_execution.py` | 1076 | 53 | 6 | 10 | Python-Referenz/Bridge | `python_reference/reta_architecture/parallel_execution.py` | noch nicht nativ portiert |
+| `reta_architecture/parallel_execution.py` | 1076 | 53 | 6 | 10 | weitgehend nativ | `src/reta_mojo/parallel_execution.mojo + src/architecture_parallel_execution_main.mojo` | Konfiguration, CPU-Erkennung, zehn reine Tabellen-/Zahlenkerne und zehn echte Linux-fork-Chunkpfade nativ; typisierter finaler Prepare-Zeilenkontext und Produktionsverdrahtung bleiben Stage 11j |
 | `reta_architecture/parameter_runtime.py` | 894 | 11 | 1 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/parameter_runtime.py` | noch nicht nativ portiert |
-| `reta_architecture/persistence.py` | 485 | 27 | 3 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/persistence.py` | noch nicht nativ portiert |
+| `reta_architecture/persistence.py` | 485 | 27 | 3 | 0 | nativ | `src/reta_mojo/persistence.mojo + src/architecture_persistence_main.mojo` | SQLite-Schema, stabile SHA-256-Digests, Sections, Garben-Snapshots, Runs, Audit, Cache und Batch-Schreibpfade nativ; JSON-Grenze ist kanonischer UTF-8-Text |
 | `reta_architecture/presheaves.py` | 150 | 15 | 5 | 0 | teilweise nativ | `src/reta_mojo/presheaves.mojo` | typisierte String-Lokalsektionen und Restriktion |
 | `reta_architecture/program_workflow.py` | 379 | 12 | 1 | 4 | Python-Referenz/Bridge | `python_reference/reta_architecture/program_workflow.py` | noch nicht nativ portiert |
 | `reta_architecture/prompt_execution.py` | 2516 | 24 | 1 | 3 | Python-Referenz/Bridge | `python_reference/reta_architecture/prompt_execution.py` | noch nicht nativ portiert |
