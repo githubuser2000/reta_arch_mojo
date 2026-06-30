@@ -31,6 +31,8 @@ test_html_cell_metadata           4/4
 test_row_filtering_reference      3/3
 test_architecture_coherence      10/10
 test_architecture_traces           9/9
+test_architecture_impact          11/11
+test_architecture_migration       13/13
                                 -------
                                 162/162 bestanden
 ```
@@ -377,3 +379,28 @@ Zusätzlich bestanden:
 - `RETA_CHECK_HEAVY=1 ./scripts/check_build_layout.sh`: erfolgreich mit sieben schweren Zielen
 
 Kein Stage-11c-Test und kein Stage-11c-Programmaufruf verwendete `--alles`.
+
+
+## Stage 11d: Architektur-Impact und Migrationsplan
+
+Fokussierte native Builds und Läufe:
+
+```text
+test_architecture_impact       11/11, Build 11,63 s
+test_architecture_migration    13/13, Build 12,24 s
+reta-mojo-impact               Build 11,97 s
+reta-mojo-migration            Build 12,84 s
+                               -----
+                               24/24 Bedingungen
+```
+
+Zusätzlich bestanden:
+
+- Python↔Mojo-Ausgabeparität: **8/8 byteidentisch**
+- Architekturkontrollregeneration: **8/8 byteidentisch**
+- Impact- und Migrationsgenerator bei `PYTHONHASHSEED=0`, `1`, `42`, `random`: jeweils byteidentisch
+- Impactvalidierung: `passed`, alle fünf Fehlerlisten leer
+- Migrationsvalidierung: `passed`, alle sieben Fehlerlisten leer
+- beide öffentlichen Launcher mit Zusammenfassungs- und Namensabfragen erfolgreich
+
+Kein Stage-11d-Test und kein Stage-11d-Programmaufruf verwendete `--alles`.

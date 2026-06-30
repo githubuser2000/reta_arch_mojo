@@ -13,6 +13,7 @@ grundStrukHtml       grundStrukHtml.py
 generate_html          reta-mojo-boundaries
 reta-mojo-contracts     reta-mojo-witnesses
 reta-mojo-coherence     reta-mojo-traces
+reta-mojo-impact        reta-mojo-migration
 ```
 
 ## Wichtige Tabellenpfade
@@ -63,6 +64,10 @@ Der Umschalter ist absichtlich explizit, solange nicht sämtliche Tabellenfunkti
 ./bin/reta-mojo-coherence --route SchemaTopologyCapsule LocalSectionCapsule
 ./bin/reta-mojo-traces --summary
 ./bin/reta-mojo-traces --component reta.py
+./bin/reta-mojo-impact --summary
+./bin/reta-mojo-impact --source reta.py
+./bin/reta-mojo-migration --summary
+./bin/reta-mojo-migration --wave M3
 ```
 
 ## Zuordnung
@@ -80,6 +85,7 @@ Der Umschalter ist absichtlich explizit, solange nicht sämtliche Tabellenfunkti
 | Architekturkarte und Kapselgrenzen | `target/bin/reta-mojo-architecture`, `target/bin/reta-mojo-boundaries` | generierte Metadaten und Abfragen nativ; Python-AST-Scan nur bei Regeneration |
 | Architekturverträge und Witnesses | `target/bin/reta-mojo-contracts`, `target/bin/reta-mojo-witnesses` | kommutierende Verträge, Kapselgesetze, Repository-Anker und Nachweisnavigation nativ; Python nur bei Regeneration |
 | Kohärenz und Traces | `target/bin/reta-mojo-coherence`, `target/bin/reta-mojo-traces` | Kapsel-/Routenkohärenz und Legacy→Gesetz-Trace-Navigation nativ; Python nur bei Regeneration |
+| Impact und Migration | `target/bin/reta-mojo-impact`, `target/bin/reta-mojo-migration` | Impact-Routen, Regression-Gates, geordnete Wellen, Schritte und Invarianten nativ; Python nur bei Regeneration |
 
 Lokale Installation der Launcher:
 

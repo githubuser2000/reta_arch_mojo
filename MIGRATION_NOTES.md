@@ -395,3 +395,12 @@ Kategorienkatalog, Kapselkarte, Verträge und Witnesses werden nicht zu einem ei
 Die Compilergrenze bleibt absichtlich fein: Kohärenz und Traces werden nicht zusammen mit Kategorien, Karte, Verträgen und Witnesses in ein einziges Executable instanziiert. Die bereits validierten Querverweise werden als Snapshot übernommen; ein gemeinsamer Metamonolith würde nur die Compilerelaboration vervielfachen.
 
 Der Komponententrace bewahrt die gesamte Navigationskette `Legacy-Besitzer → Kapsel → Kategorie → Funktor/Transformation → Diagramm → Witness → Gesetz`. Damit ist die höhere mathematische Architektur erstmals nativ nicht nur katalogisiert, sondern entlang konkreter Reta-Besitzer navigierbar.
+
+
+## Stage 11d – Impact-Kalkül und geordnete Migration
+
+`architecture_impact.py` und `architecture_migration.py` sind reine Architekturmetadaten. Die Python-Bootstraps werden deshalb nur bei expliziter Regeneration ausgeführt; der resultierende Impact- und Migrationsgraph liegt anschließend als typisierte Mojo-Struktur vor.
+
+Das Python-`Mapping[str, str]` der Gate-Kommandos wird als geordnete `List[GateCommandSpec]` übertragen. Dadurch bleibt die Einfügereihenfolge erhalten, ohne an der Mojo-Laufzeit ein dynamisches Wörterbuch zu benötigen.
+
+Die öffentliche CLI bleibt bewusst kompakt. Ein erster breiter Controller mit vielen Präsentationszweigen verursachte erneut überproportionale Compilerelaboration, obwohl derselbe vollständige Datensatz in den fokussierten Tests in ungefähr zwölf Sekunden kompiliert. Impact und Migration werden daher getrennt gebaut und bieten die wichtigsten Namensabfragen direkt an.

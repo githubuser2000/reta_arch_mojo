@@ -7,9 +7,9 @@ Dies ist ein inkrementeller, getesteter Port des hochgeladenen Python-Projekts `
 ```text
 abgeschlossene Release-Stufen:       8 von 12 = 66,7 %
 Stufen 9/10/11:                       Ausgabe, Prompt und Architektursteuerung in Arbeit
-vollständig native Originaldateien:  24 von 92 = 26,1 %
-mindestens teilweise portiert:       52 von 92 = 56,5 %
-gewichteter Quellzeilenstand:         ca. 39 %
+vollständig native Originaldateien:  26 von 92 = 28,3 %
+mindestens teilweise portiert:       54 von 92 = 58,7 %
+gewichteter Quellzeilenstand:         ca. 41 %
 funktionaler Nutzerumfang:            ca. 88–91 %
 ```
 
@@ -232,6 +232,7 @@ Siehe [`BINARIES.md`](BINARIES.md).
 ./scripts/test_stage9.sh
 ./scripts/test_stage10.sh
 ./scripts/test_stage11c.sh
+./scripts/test_stage11d.sh
 ./scripts/check_architecture_control_generation.sh
 ./scripts/check_architecture_coherence_trace_parity.sh
 ./scripts/check_generated_column_parity.sh
@@ -246,9 +247,9 @@ Siehe [`BINARIES.md`](BINARIES.md).
 Gesamtbestand:
 
 ```text
-62 native Testdateien und Probes
+64 native Testdateien und Probes
 274 native Testfunktionen
-162/162 aktuell fokussiert dokumentierte Mojo-Tests bestanden
+186/186 aktuell fokussiert dokumentierte Mojo-Tests bestanden
 30 Generator- und 9 Kombi-CLI-Fälle in den Paritätssuiten
 8 schnelle Markup-Fixtures; 16 Fälle einzeln gegen Python validiert
 27 Kurzsprachen-, 23 Vorbereitung- und 12 Completion-Kontexte bytegleich
@@ -272,7 +273,7 @@ Details: [`TEST_RESULTS.md`](TEST_RESULTS.md).
 
 ## Nächster Portierungsblock
 
-Stufe 9 wird mit seltenen Terminal-/Rich-Sonderfällen fortgesetzt. Stufe 10 erweitert die bereits native Promptausführung und i18n-Laufzeit. In Stufe 11 sind Karte, Boundary-Graph, Verträge, Witnesses, Kohärenzmatrix und Trace-Navigation nativ; als Nächstes folgen ausführbare Gesamtvalidierung sowie Impact-/Migrationsschichten.
+Stufe 9 wird mit seltenen Terminal-/Rich-Sonderfällen fortgesetzt. Stufe 10 erweitert die bereits native Promptausführung und i18n-Laufzeit. In Stufe 11 sind Karte, Boundary-Graph, Verträge, Witnesses, Kohärenzmatrix, Trace-Navigation, Impact-Kalkül und Migrationsplan nativ; als Nächstes folgen Rehearsal, Aktivierung und ausführbare Gesamtvalidierung.
 
 ## Dokumentation
 
@@ -345,3 +346,22 @@ Die nächsten Metaebenen sind ebenfalls als getrennte Mojo-Bundles verfügbar:
 ```
 
 Die sechs Architekturkontrollgeneratoren regenerieren byteidentisch; acht repräsentative Python↔Mojo-Abfragen sind vollständig bytegleich. Details: [`STAGE11C_NATIVE_ARCHITECTURE_COHERENCE_TRACES.md`](STAGE11C_NATIVE_ARCHITECTURE_COHERENCE_TRACES.md).
+
+
+## Stage 11d: Impact-Kalkül und Migrationsplan
+
+Die nächsten beiden Architektursteuerungsschichten sind als getrennte, reproduzierbar generierte Mojo-Bundles verfügbar:
+
+- `architecture_impact.mojo`: 34 Impact-Quellen, 34 Verträge, 10 Regression-Gates und 34 Migrationskandidaten
+- `architecture_migration.mojo`: 7 geordnete Wellen, 34 Schritte, 34 Gate-Bindungen und 7 Natürlichkeitsinvarianten
+
+```bash
+./scripts/build-heavy.sh
+./bin/reta-mojo-impact --summary
+./bin/reta-mojo-impact --source reta.py
+./bin/reta-mojo-migration --summary
+./bin/reta-mojo-migration --wave M3
+./scripts/test_stage11d.sh
+```
+
+Beide Validierungen besitzen den Status `passed`. Acht repräsentative Python↔Mojo-Abfragen sind byteidentisch, und die Architekturkontrollregeneration umfasst nun acht byteidentische Generatorziele. Details: [`STAGE11D_NATIVE_ARCHITECTURE_IMPACT_MIGRATION.md`](STAGE11D_NATIVE_ARCHITECTURE_IMPACT_MIGRATION.md).

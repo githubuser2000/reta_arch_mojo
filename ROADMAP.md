@@ -47,7 +47,7 @@ Die Stufenquote ist höher als die Quellzeilenquote, weil die letzten Stufen bes
     Klammerbewusstes Tokenisieren, kompakte Kurzbefehle, CPython-Set-Reihenfolge, fünfsprachiger Completion-Katalog und persistenter Mojo-Completion-Arbeiter sind nativ. Mojo plant 18 Domänenfamilien plus EIGN/EIGR einschließlich Ganzzahl-, Reziprok- und `n/m`-Achsen, ganzzahliger Vielfachen/Teiler, historischer Bruchbereiche, stabiler Bruchausschlüsse, Bruchteiler und Reziprok-Vielfache. Vollständig besessene Einmalbefehle laufen vor jedem Python-Import und rufen den Tabellenkern im selben Mojo-Prozess auf. Eine getrennte Legacy-Präsentationsschicht besitzt sämtliche kompakten Tabellenfamilien und `mulpri`/`p`. Stage 10h ergänzt positive reine Zahlen-, Bereichs-, Listen- und Bruchkompositionen sowie 365 adressierbare Einträge des fünfsprachigen `15`-/`16`-Katalogs. Vorbereitete Fragmentbreiten, Bindestrichumbrüche, Zählungsmarkierungen und der historische nicht-zeilenorientierte Farbausgabestrom sind bytegenau modelliert. Stage 10i–10n ergänzen Null-/Negativ- und Kollisionsalgebra, wiederholte Katalogauswahl, mehrbereichige Abstände, native Datei-/Pipe-I/O, positive Promptbreiten, komponierte ganzzahlige Vielfachen-/Teilerpfade, verschachtelte CPython-Teiler-Setordnung und dynamische Obergrenzen absoluter `vN`-Selektoren. Offen bleiben echte `v n/m`-Vielfache mit Zähler größer 1, weitere hintere Sonderpfade, die große `--alles`-HTML-Mitteltabelle und die vollständige i18n-Laufzeit außerhalb des Promptvokabulars.
 
 11. **Architektursteuerung und Laufzeitnetze — in Arbeit**  
-    Stage 11a portiert Architekturkarte und realen Modul-/Kapsel-Grenzgraph. Stage 11b ergänzt Verträge und Witnesses. Stage 11c portiert 11 Kapselkohärenzen, 53 funktorielle Routen, 42 Natürlichkeits- und 22 Gesetzeskohärenzen sowie 34 Komponenten-, 11 Kapsel- und 42 Stufentraces mit 204 Route-Hops. Offen bleiben ausführbare Gesamtvalidierung, Impact, Migration, Aktivierung, Persistenz, Ausführungsnetz, Parallelisierung und Rehearsal.
+    Stage 11a portiert Architekturkarte und realen Modul-/Kapsel-Grenzgraph. Stage 11b ergänzt Verträge und Witnesses. Stage 11c portiert 11 Kapselkohärenzen, 53 funktorielle Routen, 42 Natürlichkeits- und 22 Gesetzeskohärenzen sowie 34 Komponenten-, 11 Kapsel- und 42 Stufentraces mit 204 Route-Hops. Stage 11d ergänzt 34 Impact-Quellen, 34 Verträge, 10 Gates, 34 Kandidaten sowie 7 Migrationswellen, 34 Schritte, 34 Gate-Bindungen und 7 Invarianten. Offen bleiben Rehearsal, Aktivierung, ausführbare Gesamtvalidierung, Fortschritts-Overlay, Persistenz, Ausführungsnetz und Parallelisierung.
 
 12. **Bridge entfernen und Releaseparität — offen**  
     Letzte Python-Grenzen entfernen, vollständige Befehlsmatrix, Leistungsprüfung, Packaging und Release.
@@ -95,3 +95,13 @@ Die Zahl **12** ist die geplante Releasegliederung. Interne Teilpakete oder Fehl
 - Acht repräsentative CLI-Abfragen sind Python↔Mojo byteidentisch.
 - Die Architekturkontrollregeneration umfasst nun sechs byteidentische Generatorziele.
 - Kohärenz und Traces bleiben getrennte schwere Compilerziele.
+
+
+## Stage 11d – nativer Impact-Kalkül und Migrationsplan
+
+- `architecture_impact.py` ist als typisierter Snapshot mit 34 Quellen, 34 Verträgen, 10 Regression-Gates und 34 Migrationskandidaten verfügbar.
+- `architecture_migration.py` ist als typisierter Snapshot mit 7 Wellen, 34 Schritten, 34 Gate-Bindungen und 7 Natürlichkeitsinvarianten verfügbar.
+- Beide Validierungen besitzen den Status `passed`.
+- Acht repräsentative CLI-Abfragen sind Python↔Mojo byteidentisch.
+- Die Architekturkontrollregeneration umfasst nun acht byteidentische Generatorziele.
+- Impact und Migration bleiben getrennte schwere Compilerziele.

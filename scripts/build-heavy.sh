@@ -25,3 +25,9 @@ printf 'Erzeugt: %s\n' "$TARGET_DIR/reta-mojo-coherence"
 printf 'Kompiliere native Architektur-Traces ...\n'
 "$ROOT/bin/mojo-real" build -I src src/architecture_traces_main.mojo -o "$TARGET_DIR/reta-mojo-traces"
 printf 'Erzeugt: %s\n' "$TARGET_DIR/reta-mojo-traces"
+printf 'Kompiliere nativen Architektur-Impact-Kalkül ...\n'
+"$ROOT/bin/mojo-real" build -I src src/architecture_impact_main.mojo -o "$TARGET_DIR/reta-mojo-impact"
+printf 'Erzeugt: %s\n' "$TARGET_DIR/reta-mojo-impact"
+printf 'Kompiliere nativen Architektur-Migrationsplan ...\n'
+"$ROOT/bin/mojo-real" build -I src src/architecture_migration_main.mojo -o "$TARGET_DIR/reta-mojo-migration"
+printf 'Erzeugt: %s\n' "$TARGET_DIR/reta-mojo-migration"
