@@ -663,3 +663,34 @@ Zusätzlich bestätigt:
 ./scripts/build.sh
 ./scripts/test_stage12c.sh
 ```
+
+
+## Stage 12c2: portabler nativer Prompt-Eingabekanal
+
+```text
+test_native_prompt_input:                 3/3
+Pipe-/EOF-Proben:                          2/2
+Source-Ownership/Lazy-Python:              2/2
+test_terminal_geometry:                    4/4
+Boundary-Audit:                            1/1
+native POSIX-Prozessprimitive:               0
+explizite Laufzeitbrücken:                    2
+```
+
+Zusätzlich bestätigt:
+
+- Linux/WSL und macOS verwenden getrennte `TIOCGWINSZ`-Requestwerte;
+- andere Ziele fallen ohne Tabellenlogikänderung auf `COLUMNS`/80 zurück;
+- stdin-Pipes und umgeleitete Eingabe verwenden Mojos eingebautes `input()`;
+- History schreibt nichtleere Zeilen best effort und behält Duplikate;
+- `prompt_main.mojo` importiert Python nicht mehr vorsorglich in `main()`;
+- ein echtes TTY behält bis zur vollständigen Vi-/Completion-Parität die
+  historische Readline-Grenze;
+- der große Promptcontroller überschritt erneut das verdoppelte
+  Compilerlimit, während alle neuen kleinen Module und Proben gebaut wurden.
+
+```bash
+./scripts/check_native_prompt_input.sh
+./scripts/build.sh
+./scripts/test_stage12c.sh
+```

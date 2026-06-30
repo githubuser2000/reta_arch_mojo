@@ -8,7 +8,7 @@ Dies ist ein inkrementeller, getesteter Port des hochgeladenen Python-Projekts `
 abgeschlossene Release-Stufen:       9 von 12 = 75,0 %
 Stufen 9/10/12:                       Ausgabe, Prompt/i18n und Releaseparität in Arbeit
 Stufe 11:                             11a–11j = 100 %
-Stufe 12:                             12a–12b fertig, 12c1 fertig = ca. 45 %
+Stufe 12:                             12a–12b fertig, 12c1–12c2 fertig = ca. 50 %
 vollständig native Originaldateien:  33 von 92 = 35,9 %
 mindestens teilweise portiert:       61 von 92 = 66,3 %
 gewichteter Quellzeilenstand:         ca. 52 %
@@ -276,7 +276,7 @@ Details: [`TEST_RESULTS.md`](TEST_RESULTS.md).
 
 ## Nächster Portierungsblock
 
-Stufe 9 wird mit seltenen Terminal-/Rich-Sonderfällen fortgesetzt. Stufe 10 erweitert die bereits native Promptausführung und i18n-Laufzeit. Stufe 11 ist mit 11a–11j abgeschlossen. Stage 12a und 12b sind abgeschlossen: Sämtliche nativen Parallelpfade verwenden Mojo-Threads, und `generate_html` besitzt nun auch die vollständige `--alles`-Mitteltabelle. Stage 12c hat mit 12c1 begonnen: `rpb a1` trennt Befehlszeile und Tabellenkopf wieder exakt, und `--breite=0` verwendet die reale TTY-Breite. Offen bleiben 12c2–12c4 sowie 12d–12e.
+Stufe 9 wird mit seltenen Terminal-/Rich-Sonderfällen fortgesetzt. Stufe 10 erweitert die bereits native Promptausführung und i18n-Laufzeit. Stufe 11 ist mit 11a–11j abgeschlossen. Stage 12a und 12b sind abgeschlossen: Sämtliche nativen Parallelpfade verwenden Mojo-Threads, und `generate_html` besitzt nun auch die vollständige `--alles`-Mitteltabelle. Stage 12c ist bis 12c2 fortgesetzt: `rpb a1` trennt Befehlszeile und Tabellenkopf wieder exakt, `--breite=0` verwendet die reale TTY-Breite, und Pipe-/Skripteingabe läuft über Mojos portables `input()` ohne vorsorglichen Python-Import. Offen bleiben 12c3–12c4 sowie 12d–12e.
 
 ## Dokumentation
 
@@ -487,3 +487,15 @@ bin/rpb a1
 ```
 
 Der native Promptcontroller beendet die sichtbare `reta`-Befehlszeile nun wie die Python-Referenz vor dem Tabellenkopf. `--breite=0` liest die aktuelle Terminalbreite per `ioctl(TIOCGWINSZ)` und reserviert anschließend die historischen sieben Spalten; die früher fest verdrahteten 80/73 Spalten sind entfernt. PTY-Proben prüfen 80, 120 und 200 Spalten. Details: [`STAGE12C1_NATIVE_TERMINAL_PROMPT_PARITY.md`](STAGE12C1_NATIVE_TERMINAL_PROMPT_PARITY.md).
+
+
+## Stage 12c2: Portabler nativer Prompt-Eingabekanal
+
+`ioctl(TIOCGWINSZ)` ist eine kleine OS-ABI-Grenze, nicht Python: Linux/WSL
+verwenden `0x5413`, macOS/Darwin `0x40087468`; sonst greifen `COLUMNS` und
+der historische 80-Spalten-Fallback. Für stdin-Pipes und umgeleitete Sessions
+liest `prompt_main.mojo` nun direkt mit Mojos eingebautem `input()` und
+persistiert History best effort. Python wird erst beim tatsächlichen
+TTY-Readline-/Vi-/Completion- oder Restfallback importiert. Die öffentlichen
+Promptbefehle ändern sich nicht. Details:
+[`STAGE12C2_NATIVE_PORTABLE_PROMPT_INPUT.md`](STAGE12C2_NATIVE_PORTABLE_PROMPT_INPUT.md).

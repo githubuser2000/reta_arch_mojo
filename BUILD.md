@@ -160,13 +160,17 @@ Der reguläre Build erzeugt `generate-html-native` ohne Python- oder Subprozessi
 Nach `scripts/build.sh` vergleicht `scripts/check_html_parity.sh` die native Ein-Zeilen-Mitteltabelle mit dem eingefrorenen CPython-Referenzfixture mit 805 Daten-/Generatorspalten.
 
 
-## Stage 12c1: Terminalbreite und Promptframing
+## Stage 12c1–12c2: Terminalbreite, Promptframing und native Pipe-Eingabe
 
 Nach dem regulären Build prüft derselbe öffentliche Promptbefehl seine PTY-Parität bei mehreren Fensterbreiten:
 
 ```bash
+./scripts/check_native_prompt_input.sh
 ./scripts/build.sh
 ./scripts/test_stage12c.sh
 ```
 
-Der Test verwendet `bin/rpb a1`; es gibt keinen abweichenden Test- oder Ersatzbefehl für die Laufzeitsemantik.
+Der kleine Eingabetest kompiliert Mojos portablen Pipe-/History-Kanal getrennt.
+Der PTY-Test verwendet `bin/rpb a1`; es gibt keinen abweichenden Test- oder
+Ersatzbefehl für die Laufzeitsemantik. Auf einem echten TTY bleibt die
+Readline-/Vi-/Completion-Grenze bis zur vollständigen 12c4-Parität erhalten.

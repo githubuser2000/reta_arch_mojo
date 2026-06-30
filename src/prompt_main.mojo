@@ -33,6 +33,10 @@ from reta_mojo.prompt_legacy_echo import (
     compact_prompt_announcement_line,
     legacy_table_echo_tokens,
 )
+from reta_mojo.native_prompt_input import (
+    native_plain_input_requested,
+    read_plain_prompt_line,
+)
 from reta_mojo.native_reta_cli import (
     native_reta_tokens_supported,
     run_native_reta,
@@ -168,14 +172,29 @@ def _encode_fields(values: List[String]) -> String:
     return encoded^
 
 
+def _python_bridge() raises -> PythonObject:
+    """Import the compatibility bridge only when a legacy boundary is used."""
+    Python.add_to_path("python_reference")
+    return Python.import_module("mojo_bridge")
+
+
 def _read_line(
-    bridge: PythonObject,
     profile: PromptProfile,
     session: NativePromptSession,
     catalog: PromptLanguageCatalog,
 ) raises -> String:
+    var prefix = prompt_prefix(session)
+    if native_plain_input_requested():
+        return read_plain_prompt_line(
+            prefix,
+            session.logging_enabled,
+            "~/.ReTaPromptHistory",
+        )
+
+    # Keep the historical readline/vi/completion behavior on a real TTY until
+    # the native line editor has exact key-binding and completion parity.
     var fields = List[String]()
-    fields.append(prompt_prefix(session))
+    fields.append(prefix)
     fields.append("1" if session.logging_enabled else "0")
     fields.append("1" if profile.vi_mode else "0")
     fields.append("~/.ReTaPromptHistory")
@@ -183,16 +202,17 @@ def _read_line(
     var words = prompt_completion_word_pool(catalog, profile.language)
     for index in range(len(words)):
         fields.append(words[index])
+    var bridge = _python_bridge()
     return String(py=bridge.read_prompt_line_encoded(_encode_fields(fields)))
 
 
 def _run_fallback(
-    bridge: PythonObject,
     profile: PromptProfile,
     line: String,
 ) raises -> None:
     var flags = fallback_profile_arguments(profile)
     var encoded = _encode_fields(flags) + "\x1e" + line
+    var bridge = _python_bridge()
     bridge.run_reta_prompt_line_encoded(encoded)
 
 
@@ -625,7 +645,6 @@ def _print_compact_announcement_if_needed(
 
 
 def _run_command(
-    bridge: PythonObject,
     profile: PromptProfile,
     line: String,
     mut session: NativePromptSession,
@@ -693,7 +712,7 @@ def _run_command(
             return True
         if addition.byte_length() > 0:
             stored += " " + addition
-        return _run_command(bridge, profile, stored, session, catalog)
+        return _run_command(profile, stored, session, catalog)
     if command.kind == KIND_DELETE_STORED:
         var selection = storage_payload(command)
         if selection.byte_length() > 0:
@@ -802,17 +821,21 @@ def _run_command(
             print(line_out)
         return True
     if command.kind == KIND_SHELL:
+        var bridge = _python_bridge()
         bridge.run_shell_prompt_line(command.raw)
         return True
     if command.kind == KIND_PYTHON:
+        var bridge = _python_bridge()
         bridge.run_python_prompt_line(command.raw)
         return True
     if command.kind == KIND_MATH:
+        var bridge = _python_bridge()
         bridge.run_math_prompt_line(command.raw)
         return True
     if command.kind == KIND_RETA:
         if _run_native_reta_prompt_command(command):
             return True
+        var bridge = _python_bridge()
         bridge.run_reta_line(command.raw)
         return True
 
@@ -820,7 +843,7 @@ def _run_command(
     # Native parsing already owns routing, but an unported operation must still
     # observe the Python reference's exact compact-command announcement and
     # later set normalisation.
-    _run_fallback(bridge, profile, line)
+    _run_fallback(profile, line)
     return True
 
 
@@ -991,8 +1014,6 @@ def main() raises:
         if _run_native_one_shot(startup.profile, line, prompt_catalog):
             return
 
-    Python.add_to_path("python_reference")
-    var bridge = Python.import_module("mojo_bridge")
     var session = new_prompt_session(startup.profile.logging_enabled)
 
     if startup.profile.show_intro and not startup.profile.one_shot:
@@ -1003,11 +1024,11 @@ def main() raises:
 
     if startup.profile.one_shot:
         var line = _one_shot_line(startup)
-        _ = _run_command(bridge, startup.profile, line, session, prompt_catalog)
+        _ = _run_command(startup.profile, line, session, prompt_catalog)
         return
 
     while True:
-        var line = _read_line(bridge, startup.profile, session, prompt_catalog)
+        var line = _read_line(startup.profile, session, prompt_catalog)
         if line == "\x04" or line == "\x03":
             break
         if session.store_next:
@@ -1026,7 +1047,7 @@ def main() raises:
                 print("Gespeichert:", stored_prompt_text(session))
             continue
         if not _run_command(
-            bridge, startup.profile, line, session, prompt_catalog
+            startup.profile, line, session, prompt_catalog
         ):
             break
         var executed = classify_prompt_command_localized(

@@ -28,7 +28,7 @@ einem LF, bevor der Tabellenrenderer beginnt.
 TTY-Breite zu verwenden und sieben Spalten für Rand- und Nummerierungslogik zu
 reservieren. Der frühere Mojo-Renderer verwendete die Konstanten 80/73.
 
-`terminal_geometry.mojo` fragt jetzt unter Linux die reale Fenstergröße per
+`terminal_geometry.mojo` fragt auf Linux die reale Fenstergröße per
 `ioctl(TIOCGWINSZ)` ab. Die Reihenfolge lautet:
 
 1. stdout,
@@ -63,3 +63,6 @@ ausgeführt.
 Callbacks. Offen bleiben insbesondere der native interaktive Eingabekanal,
 seltene hintere Promptzweige und die restliche i18n-Laufzeit. Deshalb gilt
 Stage 12c nach diesem Block als begonnen, nicht als abgeschlossen.
+
+
+Seit Stage 12c2 ist die ABI-Abhängigkeit explizit gekapselt: Linux/WSL und macOS verwenden getrennte `TIOCGWINSZ`-Requestwerte; andere Ziele nutzen `COLUMNS`/80.

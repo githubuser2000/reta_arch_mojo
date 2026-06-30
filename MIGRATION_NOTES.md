@@ -491,3 +491,14 @@ Ein separater Fixture-Integritätstest verbietet nun `reta-Befehl:reta `, leere 
 - Die öffentliche CLI bleibt unverändert. Weder ein zusätzlicher Schalter noch ein Ersatzbefehl ist nötig.
 - PTY-Tests prüfen exakt `bin/rpb a1` bei 80, 120 und 200 Spalten; Fixture-Gates verhindern erneut zusammengeklebte Befehls-/Tabellenzeilen.
 - Die `std.python`-Grenze des interaktiven Promptcallbacks bleibt für die folgenden 12c-Blöcke offen.
+
+## Stage 12c2 – portable Prompt-Eingabe und OS-Geometrieadapter
+
+- `terminal_geometry.mojo` unterscheidet Linux/WSL und macOS/Darwin statt die
+  Linux-Requestnummer stillschweigend als universell zu behandeln.
+- Nicht-TTY-Eingabe verwendet Mojos eingebautes `input()` und persistiert
+  History best effort; Python wird nicht mehr vorsorglich in `main()` geladen.
+- Auf echten TTYs bleibt die historische Readline-/Vi-/Completion-Grenze bis
+  zur vollständigen nativen Tasten- und Completion-Parität erhalten.
+- `RETA_PROMPT_PLAIN_INPUT=1` erzwingt optional den portablen schlichten
+  Eingabekanal, ohne öffentliche Befehlsargumente zu verändern.

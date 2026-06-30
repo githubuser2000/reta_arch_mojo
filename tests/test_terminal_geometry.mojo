@@ -1,8 +1,10 @@
 from std.testing import assert_equal, assert_true, TestSuite
+from std.sys.info import CompilationTarget
 from reta_mojo.terminal_geometry import (
     automatic_cell_width,
     effective_cell_width,
     terminal_columns,
+    terminal_geometry_backend,
 )
 
 
@@ -22,6 +24,15 @@ def test_effective_width_matches_legacy_clamp() raises:
 
 def test_terminal_columns_has_positive_fallback() raises:
     assert_true(terminal_columns() > 0)
+
+
+def test_backend_matches_compilation_target() raises:
+    if CompilationTarget.is_linux():
+        assert_equal(terminal_geometry_backend(), "linux-ioctl")
+    elif CompilationTarget.is_macos():
+        assert_equal(terminal_geometry_backend(), "darwin-ioctl")
+    else:
+        assert_equal(terminal_geometry_backend(), "environment-fallback")
 
 
 def main() raises:

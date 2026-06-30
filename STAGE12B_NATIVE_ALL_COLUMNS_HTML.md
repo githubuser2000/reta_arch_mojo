@@ -67,4 +67,4 @@ Teil des lokalen Gesamtbuilds.
 Nach Stage 12b verbleiben zwei explizite Laufzeitbrücken:
 
 1. `compat_main.mojo` – allgemeine Legacy-Kompatibilität, Ziel 12e;
-2. `prompt_main.mojo` – interaktiver Prompt-Callback, Ziel 12c.
+2. `prompt_main.mojo` – TTY-Readline/Vi/Completion und seltene Restbefehle, Ziel 12c4; Pipe-Eingabe ist seit 12c2 nativ.
