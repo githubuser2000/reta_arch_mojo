@@ -7,9 +7,9 @@ Dies ist ein inkrementeller, getesteter Port des hochgeladenen Python-Projekts `
 ```text
 abgeschlossene Release-Stufen:       8 von 12 = 66,7 %
 Stufen 9/10/11:                       Ausgabe, Prompt und Architektursteuerung in Arbeit
-vollständig native Originaldateien:  26 von 92 = 28,3 %
-mindestens teilweise portiert:       54 von 92 = 58,7 %
-gewichteter Quellzeilenstand:         ca. 41 %
+vollständig native Originaldateien:  30 von 92 = 32,6 %
+mindestens teilweise portiert:       58 von 92 = 63,0 %
+gewichteter Quellzeilenstand:         ca. 47 %
 funktionaler Nutzerumfang:            ca. 88–91 %
 ```
 
@@ -233,6 +233,7 @@ Siehe [`BINARIES.md`](BINARIES.md).
 ./scripts/test_stage10.sh
 ./scripts/test_stage11c.sh
 ./scripts/test_stage11d.sh
+./scripts/test_stage11e.sh
 ./scripts/check_architecture_control_generation.sh
 ./scripts/check_architecture_coherence_trace_parity.sh
 ./scripts/check_generated_column_parity.sh
@@ -247,9 +248,9 @@ Siehe [`BINARIES.md`](BINARIES.md).
 Gesamtbestand:
 
 ```text
-64 native Testdateien und Probes
+66 native Testdateien und Probes
 274 native Testfunktionen
-186/186 aktuell fokussiert dokumentierte Mojo-Tests bestanden
+245/245 aktuell fokussiert dokumentierte Mojo-Tests bestanden
 30 Generator- und 9 Kombi-CLI-Fälle in den Paritätssuiten
 8 schnelle Markup-Fixtures; 16 Fälle einzeln gegen Python validiert
 27 Kurzsprachen-, 23 Vorbereitung- und 12 Completion-Kontexte bytegleich
@@ -273,7 +274,7 @@ Details: [`TEST_RESULTS.md`](TEST_RESULTS.md).
 
 ## Nächster Portierungsblock
 
-Stufe 9 wird mit seltenen Terminal-/Rich-Sonderfällen fortgesetzt. Stufe 10 erweitert die bereits native Promptausführung und i18n-Laufzeit. In Stufe 11 sind Karte, Boundary-Graph, Verträge, Witnesses, Kohärenzmatrix, Trace-Navigation, Impact-Kalkül und Migrationsplan nativ; als Nächstes folgen Rehearsal, Aktivierung und ausführbare Gesamtvalidierung.
+Stufe 9 wird mit seltenen Terminal-/Rich-Sonderfällen fortgesetzt. Stufe 10 erweitert die bereits native Promptausführung und i18n-Laufzeit. In Stufe 11 sind Karte, Boundary-Graph, Verträge, Witnesses, Kohärenzmatrix, Trace-Navigation, Impact-Kalkül, Migrationsplan, Rehearsal, Aktivierung, Gesamtvalidierung und Fortschritts-Overlay nativ; als Nächstes folgen Persistenz, Ausführungsnetz und Parallelisierung.
 
 ## Dokumentation
 
@@ -362,6 +363,45 @@ Die nächsten beiden Architektursteuerungsschichten sind als getrennte, reproduz
 ./bin/reta-mojo-migration --summary
 ./bin/reta-mojo-migration --wave M3
 ./scripts/test_stage11d.sh
+./scripts/test_stage11e.sh
 ```
 
 Beide Validierungen besitzen den Status `passed`. Acht repräsentative Python↔Mojo-Abfragen sind byteidentisch, und die Architekturkontrollregeneration umfasst nun acht byteidentische Generatorziele. Details: [`STAGE11D_NATIVE_ARCHITECTURE_IMPACT_MIGRATION.md`](STAGE11D_NATIVE_ARCHITECTURE_IMPACT_MIGRATION.md).
+
+
+## Stage 11e: Rehearsal und Aktivierung
+
+Die Stage-35-/36-Metadaten sind als getrennte, reproduzierbare Mojo-Bundles verfügbar:
+
+- `architecture_rehearsal.mojo`: 7 Öffnungen, 34 Moves, 34 Gate-Suiten und 7 Readiness-Cover
+- `architecture_activation.mojo`: 7 Fenster, 34 Units, 34 Commit-Gates, 34 Rollbacks und 7 Transaktionen
+
+```bash
+./scripts/build-heavy.sh
+./bin/reta-mojo-rehearsal --summary
+./bin/reta-mojo-rehearsal --move REH35-MOVE-MIG34-01
+./bin/reta-mojo-activation --summary
+./bin/reta-mojo-activation --transaction ACT36-TX-M0
+./scripts/test_stage11e.sh
+```
+
+Beide gespeicherten Referenzvalidierungen und beide nativen Kreuzvalidierungen bestehen. Elf repräsentative Python↔Mojo-Abfragen sind byteidentisch; die Architekturkontrollregeneration umfasst zehn Ziele. Details: [`STAGE11E_NATIVE_ARCHITECTURE_REHEARSAL_ACTIVATION.md`](STAGE11E_NATIVE_ARCHITECTURE_REHEARSAL_ACTIVATION.md).
+
+
+## Stage 11f: Gesamtvalidierung und Fortschritts-Overlay
+
+Die beiden abschließenden reinen Architektursteuerungsschichten sind als getrennte, reproduzierbare Mojo-Bundles verfügbar:
+
+- `architecture_validation.mojo`: 51 Checks in 17 Schichten, 51 bestanden, 3.448 geprüfte Einzelobjekte
+- `architecture_progress.mojo`: 30 Oberflächen, 34 Schritte, 7 Wellen, ein dokumentierter Umweltblock
+
+```bash
+./scripts/build-heavy.sh
+./bin/reta-mojo-validation --summary
+./bin/reta-mojo-validation --check CategoryFunctorReferenceCheck
+./bin/reta-mojo-progress --summary
+./bin/reta-mojo-progress --surface reta.py
+./scripts/test_stage11f.sh
+```
+
+Die Gesamtvalidierung steht auf `passed`. Das Fortschritts-Overlay ist intern vollständig konsistent und bewusst `attention`, weil genau die externe ursprüngliche Command-Parity-Baseline fehlt. Acht repräsentative Python↔Mojo-Abfragen sind byteidentisch; die Architekturkontrollregeneration umfasst zwölf Ziele. Details: [`STAGE11F_NATIVE_ARCHITECTURE_VALIDATION_PROGRESS.md`](STAGE11F_NATIVE_ARCHITECTURE_VALIDATION_PROGRESS.md).

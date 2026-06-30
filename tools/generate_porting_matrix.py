@@ -28,6 +28,10 @@ NATIVE = {
     "reta_architecture/architecture_traces.py": ("generiert nativ", "src/reta_mojo/architecture_traces.mojo + tools/generate_architecture_traces.py", "34 Komponenten-, 11 Kapsel- und 42 Stufentraces mit 204 Route-Hops"),
     "reta_architecture/architecture_impact.py": ("generiert nativ", "src/reta_mojo/architecture_impact.mojo + tools/generate_architecture_impact.py", "34 Impact-Quellen, 34 Verträge, 10 Gates und 34 Migrationskandidaten; Validierung passed"),
     "reta_architecture/architecture_migration.py": ("generiert nativ", "src/reta_mojo/architecture_migration.mojo + tools/generate_architecture_migration.py", "7 Wellen, 34 Schritte, 34 Gate-Bindungen und 7 Invarianten; Validierung passed"),
+    "reta_architecture/architecture_rehearsal.py": ("generiert nativ", "src/reta_mojo/architecture_rehearsal.mojo + tools/generate_architecture_rehearsal.py", "7 Öffnungen, 34 Moves, 34 Gate-Suiten und 7 Cover; Referenz- und native Kreuzvalidierung passed"),
+    "reta_architecture/architecture_activation.py": ("generiert nativ", "src/reta_mojo/architecture_activation.mojo + tools/generate_architecture_activation.py", "7 Fenster, 34 Units, 34 Commit-Gates, 34 Rollbacks und 7 Transaktionen; Referenz- und native Kreuzvalidierung passed"),
+    "reta_architecture/architecture_validation.py": ("generiert nativ", "src/reta_mojo/architecture_validation.mojo + tools/generate_architecture_validation.py", "51 Checks, 17 Schichten und 3.448 geprüfte Objekte; Referenz- und native Kreuzvalidierung passed"),
+    "reta_architecture/architecture_progress.py": ("generiert nativ", "src/reta_mojo/architecture_progress.mojo + tools/generate_architecture_progress.py", "30 Oberflächen, 34 Schritte, 7 Wellen und ein dokumentierter Umweltblock; native Kreuzvalidierung konsistent"),
     "reta_architecture/console_io.py": ("teilweise nativ", "src/reta_mojo/console_io.mojo", "reine Chunk-, Deduplikations-, Whitespace- und Debugformatierung nativ; Terminal-/Rich-I/O bleibt Systemgrenze"),
     "reta_architecture/runtime_compat.py": ("teilweise nativ", "src/reta_mojo/runtime_compat.mojo + arithmetic.mojo", "Enums, fill_both und deterministische Arithmetik nativ; dynamische Python-Kompatibilität bleibt Bridge"),
     "reta_architecture/table_state.py": ("nativ", "src/reta_mojo/table_state.mojo", "typisierter Tabellenzustand, Abschnittsnamen und Zeilengrenzen"),
@@ -84,7 +88,7 @@ native_lines = sum(r[1] for r in original_rows if r[0] in NATIVE)
 total_lines = sum(r[1] for r in original_rows)
 content = [
     "# Portierungsmatrix Python → Mojo\n\n",
-    "Stand: 28. Juni 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der gebündelten Python-Kompatibilitätsreferenz.\n\n",
+    "Stand: 30. Juni 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der gebündelten Python-Kompatibilitätsreferenz.\n\n",
     f"- Ursprüngliche Python-Dateien: **{len(original_rows)}**\n",
     f"- Ursprüngliche Python-Zeilen insgesamt: **{total_lines}**\n",
     "- Zusätzlicher Bridge-Adapter: **1 Python-Datei**\n",

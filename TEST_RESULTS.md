@@ -3,10 +3,10 @@
 ## Testbestand
 
 ```text
-62 Mojo-Testdateien und -Probes
+64 Mojo-Testdateien und -Probes
 274 Testfunktionen insgesamt
 9 reguläre ELF-Compilerziele
-7 optionale schwere Metadaten-/Katalogziele
+11 optionale schwere Metadaten-/Katalogziele
 ```
 
 Der letzte vollständig abgeschlossene normale Stufe-7-Lauf ergab **145/145** Tests. Seitdem kamen Meta-, Bruch-, Kombi-, Markup- und Prompttests hinzu. Ein monolithischer Kaltlauf stößt in dieser Umgebung bei `test_csv_reference`, großen Asset-Compilern und wiederholten Python-Referenzstarts an das äußere Ausführungslimit. Deshalb werden die veränderten Programme zusätzlich einzeln gebaut und ausgeführt.
@@ -404,3 +404,52 @@ Zusätzlich bestanden:
 - beide öffentlichen Launcher mit Zusammenfassungs- und Namensabfragen erfolgreich
 
 Kein Stage-11d-Test und kein Stage-11d-Programmaufruf verwendete `--alles`.
+
+
+## Stage 11e: Architektur-Rehearsal und Aktivierung
+
+Fokussierte native Builds und Läufe:
+
+```text
+test_architecture_rehearsal     14/14, Build 13,92 s
+test_architecture_activation    16/16, Build 16,96 s
+reta-mojo-rehearsal             Build 14,55 s, --no-optimization
+reta-mojo-activation            Build 17,21 s, --no-optimization
+                                -----
+                                30/30 Bedingungen
+```
+
+Zusätzlich bestanden:
+
+- Python↔Mojo-Ausgabeparität: **11/11 byteidentisch**
+- Stage-11e-Generatorprüfung: **2/2 byteidentisch**
+- Architekturkontrollregeneration: **10/10 byteidentisch**
+- Rehearsal- und Aktivierungsgenerator bei `PYTHONHASHSEED=0`, `1`, `42`, `random`: jeweils byteidentisch
+- gespeicherte Referenzvalidierungen: beide `passed`
+- native Mojo-Kreuzvalidierungen: beide `passed`
+- beide öffentlichen Launcher mit Zusammenfassungs- und Namensabfragen erfolgreich
+
+Kein Stage-11e-Test und kein Stage-11e-Programmaufruf verwendete `--alles`.
+
+
+## Stage 11f: Gesamtvalidierung und Fortschritts-Overlay
+
+```text
+test_architecture_validation: 13/13, Build 6,32 s
+test_architecture_progress:   16/16, Build 7,78 s
+                              -----
+                               29/29
+```
+
+Zusätzlich bestanden:
+
+- Python↔Mojo-Abfrageparität: **8/8 byteidentisch**
+- Stage-11f-Generatorprüfung: **2/2 byteidentisch**
+- gesamte Architekturkontrollregeneration: **12/12 byteidentisch**
+- Generatoren bei `PYTHONHASHSEED=0`, `1`, `42`, `random`: jeweils byteidentisch
+- Paketintegritätszähler unabhängig von `__pycache__`/`.pyc` auf **457** reguläre Referenzdateien normalisiert; Gesamtsumme **3.448**
+- native Validierungs-Kreuzprüfung: `passed`
+- native Fortschritts-Kreuzprüfung: konsistentes `attention` mit genau `WIP42-01`
+- sämtliche früheren Stage-11a–11e-Summaries mit den erwarteten Statuswerten
+
+Kein Stage-11f-Test und kein Stage-11f-Programmaufruf verwendete `--alles`.

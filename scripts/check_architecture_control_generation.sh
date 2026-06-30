@@ -29,6 +29,18 @@ python3 tools/generate_architecture_impact.py \
 python3 tools/generate_architecture_migration.py \
   --reference-root python_reference \
   --output "$TMP_DIR/architecture_migration.mojo"
+python3 tools/generate_architecture_rehearsal.py \
+  --reference-root python_reference \
+  --output "$TMP_DIR/architecture_rehearsal.mojo"
+python3 tools/generate_architecture_activation.py \
+  --reference-root python_reference \
+  --output "$TMP_DIR/architecture_activation.mojo"
+python3 tools/generate_architecture_validation.py \
+  --reference-root python_reference \
+  --output "$TMP_DIR/architecture_validation.mojo"
+python3 tools/generate_architecture_progress.py \
+  --reference-root python_reference \
+  --output "$TMP_DIR/architecture_progress.mojo"
 
 cmp src/reta_mojo/architecture_map.mojo "$TMP_DIR/architecture_map.mojo"
 cmp src/reta_mojo/architecture_boundaries.mojo "$TMP_DIR/architecture_boundaries.mojo"
@@ -38,4 +50,8 @@ cmp src/reta_mojo/architecture_coherence.mojo "$TMP_DIR/architecture_coherence.m
 cmp src/reta_mojo/architecture_traces.mojo "$TMP_DIR/architecture_traces.mojo"
 cmp src/reta_mojo/architecture_impact.mojo "$TMP_DIR/architecture_impact.mojo"
 cmp src/reta_mojo/architecture_migration.mojo "$TMP_DIR/architecture_migration.mojo"
-printf '%s\n' 'architecture-control generation: 8/8 byte-identical'
+cmp src/reta_mojo/architecture_rehearsal.mojo "$TMP_DIR/architecture_rehearsal.mojo"
+cmp src/reta_mojo/architecture_activation.mojo "$TMP_DIR/architecture_activation.mojo"
+cmp src/reta_mojo/architecture_validation.mojo "$TMP_DIR/architecture_validation.mojo"
+cmp src/reta_mojo/architecture_progress.mojo "$TMP_DIR/architecture_progress.mojo"
+printf '%s\n' 'architecture-control generation: 12/12 byte-identical'

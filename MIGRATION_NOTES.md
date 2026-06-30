@@ -404,3 +404,23 @@ Der Komponententrace bewahrt die gesamte Navigationskette `Legacy-Besitzer → K
 Das Python-`Mapping[str, str]` der Gate-Kommandos wird als geordnete `List[GateCommandSpec]` übertragen. Dadurch bleibt die Einfügereihenfolge erhalten, ohne an der Mojo-Laufzeit ein dynamisches Wörterbuch zu benötigen.
 
 Die öffentliche CLI bleibt bewusst kompakt. Ein erster breiter Controller mit vielen Präsentationszweigen verursachte erneut überproportionale Compilerelaboration, obwohl derselbe vollständige Datensatz in den fokussierten Tests in ungefähr zwölf Sekunden kompiliert. Impact und Migration werden daher getrennt gebaut und bieten die wichtigsten Namensabfragen direkt an.
+
+
+## Stage 11e – Rehearsal und kontrollierte Aktivierung
+
+`architecture_rehearsal.py` und `architecture_activation.py` sind metadata-only und werden deshalb als reproduzierbare typisierte Snapshots portiert. Die Mojo-Laufzeit führt keine Migration aus; sie navigiert und validiert ausschließlich Öffnungen, Moves, Gates, Cover, Aktivierungseinheiten, Rollbacks und Transaktionen.
+
+Zusätzlich zum gespeicherten Python-Validierungsstatus prüfen neue native Funktionen die Beziehungen der erzeugten Listen direkt. Damit kann ein beschädigter oder unvollständiger Snapshot nicht allein wegen eines alten `passed`-Strings als gültig gelten.
+
+Die öffentlichen Controller werden bewusst mit `--no-optimization` kompiliert. Die optimierten Bundle-Tests zeigen, dass die Datentypen selbst normal kompilierbar sind; nur die Kombination aus großen Konstantenbäumen und argv-basierten Präsentationszweigen verursacht bei O3 unverhältnismäßige Elaborationszeit.
+
+
+## Stage 11f – Gesamtvalidierung und Fortschritts-Overlay
+
+- `architecture_validation.py` wird als vollständiger Stage-41-Snapshot generiert; Python bleibt nur für die explizite Regeneration der 51 Checks und 17 Schichten nötig.
+- Die native Validierung prüft Schichtreferenzen, Summen, Objektzählungen, eindeutige Namen und `failed_checks` erneut, statt nur den gespeicherten Status zu übernehmen.
+- `architecture_progress.py` wird aus der Referenz-AST-/Repositoryanalyse als Stage-42-Snapshot erzeugt.
+- Der Fortschrittsstatus `attention` ist beabsichtigt: Er bezeichnet `WIP42-01`, eine fehlende externe Command-Parity-Baseline, nicht eine inkonsistente Mojo-Portierung.
+- Die native Kreuzvalidierung prüft Oberflächen-, Schritt- und Wellenbindungen sowie alle Statuszählungen.
+- Beide Query-Controller werden ohne Optimierung gebaut; die Bundletests bleiben normal optimiert.
+- Der im kompilierten Stage-11e-Arbeitsarchiv fehlende, aber manifestierte Stage-11e-Bericht wurde aus dem zuvor verifizierten Quellrelease wiederhergestellt.

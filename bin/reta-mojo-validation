@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+set -eu
+ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+TARGET=${RETA_TARGET_DIR:-"$ROOT/target/bin"}/reta-mojo-validation
+if [ ! -x "$TARGET" ]; then
+    printf '%s\n' "Fehlendes Compilerziel: $TARGET" >&2
+    printf '%s\n' 'Erzeuge es mit: ./scripts/build-heavy.sh' >&2
+    exit 127
+fi
+cd "$ROOT"
+exec "$TARGET" "$@"

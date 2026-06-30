@@ -5,15 +5,17 @@
 - Abgeschlossene Release-Stufen: **8/12 = 66,7 %**
 - Stufe 9: **BBCode, zentraler ANSI-Shellpfad und zentrale HTML-Pfade nativ; seltene Ausgabegrenzen offen**
 - Stufe 10: **native Kurzsprache, mehrsprachige verschachtelte Completion und Promptvorbereitung in Arbeit**
-- Stufe 11: **Architekturkarte, Grenzen, Verträge, Witnesses, Kohärenz, Traces, Impact und Migration generiert nativ; Rehearsal, Aktivierung, Gesamtvalidierung und Laufzeitnetze offen**
+- Stufe 11: **Architekturkarte, Grenzen, Verträge, Witnesses, Kohärenz, Traces, Impact, Migration, Rehearsal, Aktivierung, Gesamtvalidierung und Fortschritts-Overlay generiert nativ; Persistenz und Laufzeitnetze offen**
 - Geschätzter funktionaler Portierungsstand: **88–91 %**
-- Konservativ vollständig native oder reproduzierbar generierte Originaldateien: **26/92 = 28,3 %**
-- Mindestens teilweise portierte Originaldateien: **54/92 = 58,7 %**
-- Gewichteter Quellzeilenstand: **ca. 41 %**
-- Nativer Mojo-Quellcode in `src/`: **30.403 Zeilen**
-- Davon im Paket `reta_mojo`: **28.176 Zeilen**
-- Native Mojo-Testdateien und -Probes: **64**
+- Konservativ vollständig native oder reproduzierbar generierte Originaldateien: **30/92 = 32,6 %**
+- Mindestens teilweise portierte Originaldateien: **58/92 = 63,0 %**
+- Gewichteter Quellzeilenstand: **ca. 47 %**
+- Nativer Mojo-Quellcode in `src/`: **33.791 Zeilen**
+- Davon im Paket `reta_mojo`: **31.259 Zeilen**
+- Native Mojo-Testdateien und -Probes: **66**
 - Native Testfunktionen: **274**
+- Stage-11f-Fokus: Gesamtvalidierung **51/17/3.448**, Fortschritt **30/34/7/1**, native Tests **29/29**, Python↔Mojo-Abfragen **8/8 byteidentisch**, Generatoren **12/12** byteidentisch; Validierung `passed`, Fortschritts-Overlay konsistent `attention`
+- Stage-11e-Fokus: Rehearsal **7/34/34/7**, Aktivierung **7/34/34/34/7**, native Tests **30/30**, Python↔Mojo-Abfragen **11/11 byteidentisch**, Generatoren **10/10** byteidentisch und beide native Kreuzvalidierungen `passed`
 - Stage-11d-Fokus: Impact **34/34/10/34**, Migration **7/34/34/7**, native Tests **24/24**, Python↔Mojo-Abfragen **8/8 byteidentisch**, Generatoren **8/8** byteidentisch und beide Validierungen `passed`
 - Stage-11c-Fokus: Kohärenz **11/53/42/22**, Traces **34/11/42/204**, native Tests **19/19**, Python↔Mojo-Abfragen **8/8 byteidentisch**, Generatoren **6/6** byteidentisch und beide Validierungen `passed`
 - Stage-11b-Fokus: Verträge **33/11/22**, bekannte Kategorien/Funktoren/Transformationen **26/77/42**, Witnesses **536/11/33/42/55**, Ankerauflösung **351/351**, beide Validierungen `passed`; Generatoren über vier Hash-Seeds byteidentisch
@@ -23,7 +25,7 @@
 - Promptvorbereitung: **23/23 deutsche und englische Referenzkontexte bytegleich**
 - Verschachtelte Completion: **12/12 Referenzkontexte und 12/12 schnelle Fixtures bytegleich**
 - Reguläre Compilerziele: **9 ELF-Executables** unter `target/bin/`
-- Schwere optionale Compilerziele: Parameterschema, Kategorienkatalog, Architektur-Grenzgraph, Verträge, Witnesses, Kohärenz, Traces, Impact und Migration über `scripts/build-heavy.sh`
+- Schwere optionale Compilerziele: Parameterschema, Kategorienkatalog, Architektur-Grenzgraph, Verträge, Witnesses, Kohärenz, Traces, Impact, Migration, Rehearsal, Aktivierung, Gesamtvalidierung und Fortschritts-Overlay über `scripts/build-heavy.sh`
 
 ## Stufe 7 abgeschlossen
 
@@ -101,6 +103,6 @@
 - seltene Terminalbreiten-, Rich- und kombinierte HTML-Metadatenfälle
 - echte `v n/m`-Vielfache mit Zähler größer 1 und weitere hintere Prompt-Sonderzweige
 - vollständige i18n-Laufzeit außerhalb des Promptvokabulars
-- Rehearsal, Aktivierung, dynamische Architekturvalidierung, Persistenz und Parallelisierung
+- Persistenz, Ausführungsnetz und Parallelisierung
 
 Siehe [`ROADMAP.md`](ROADMAP.md) für alle zwölf Stufen.

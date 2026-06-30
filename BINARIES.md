@@ -14,6 +14,8 @@ generate_html          reta-mojo-boundaries
 reta-mojo-contracts     reta-mojo-witnesses
 reta-mojo-coherence     reta-mojo-traces
 reta-mojo-impact        reta-mojo-migration
+reta-mojo-rehearsal     reta-mojo-activation
+reta-mojo-validation    reta-mojo-progress
 ```
 
 ## Wichtige Tabellenpfade
@@ -68,6 +70,14 @@ Der Umschalter ist absichtlich explizit, solange nicht sämtliche Tabellenfunkti
 ./bin/reta-mojo-impact --source reta.py
 ./bin/reta-mojo-migration --summary
 ./bin/reta-mojo-migration --wave M3
+./bin/reta-mojo-rehearsal --summary
+./bin/reta-mojo-rehearsal --move REH35-MOVE-MIG34-01
+./bin/reta-mojo-activation --summary
+./bin/reta-mojo-activation --transaction ACT36-TX-M0
+./bin/reta-mojo-validation --summary
+./bin/reta-mojo-validation --check CategoryFunctorReferenceCheck
+./bin/reta-mojo-progress --summary
+./bin/reta-mojo-progress --surface reta.py
 ```
 
 ## Zuordnung
@@ -86,6 +96,8 @@ Der Umschalter ist absichtlich explizit, solange nicht sämtliche Tabellenfunkti
 | Architekturverträge und Witnesses | `target/bin/reta-mojo-contracts`, `target/bin/reta-mojo-witnesses` | kommutierende Verträge, Kapselgesetze, Repository-Anker und Nachweisnavigation nativ; Python nur bei Regeneration |
 | Kohärenz und Traces | `target/bin/reta-mojo-coherence`, `target/bin/reta-mojo-traces` | Kapsel-/Routenkohärenz und Legacy→Gesetz-Trace-Navigation nativ; Python nur bei Regeneration |
 | Impact und Migration | `target/bin/reta-mojo-impact`, `target/bin/reta-mojo-migration` | Impact-Routen, Regression-Gates, geordnete Wellen, Schritte und Invarianten nativ; Python nur bei Regeneration |
+| Rehearsal und Aktivierung | `target/bin/reta-mojo-rehearsal`, `target/bin/reta-mojo-activation` | Trockenlauf-Moves, Gate-Suiten, Readiness-Cover, Commit-Gates, Rollbacks und Transaktionen nativ; Python nur bei Regeneration |
+| Gesamtvalidierung und Fortschritt | `target/bin/reta-mojo-validation`, `target/bin/reta-mojo-progress` | 51 Architekturchecks, 17 Schichten und Stage-42-Overlay mit Oberflächen-, Schritt-, Wellen- und Arbeitsrestnavigation nativ; Python/AST/Git nur bei Regeneration |
 
 Lokale Installation der Launcher:
 

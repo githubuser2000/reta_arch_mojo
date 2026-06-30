@@ -31,3 +31,15 @@ printf 'Erzeugt: %s\n' "$TARGET_DIR/reta-mojo-impact"
 printf 'Kompiliere nativen Architektur-Migrationsplan ...\n'
 "$ROOT/bin/mojo-real" build -I src src/architecture_migration_main.mojo -o "$TARGET_DIR/reta-mojo-migration"
 printf 'Erzeugt: %s\n' "$TARGET_DIR/reta-mojo-migration"
+printf 'Kompiliere native Architektur-Rehearsal-Schicht ...\n'
+"$ROOT/bin/mojo-real" build --no-optimization -I src src/architecture_rehearsal_main.mojo -o "$TARGET_DIR/reta-mojo-rehearsal"
+printf 'Erzeugt: %s\n' "$TARGET_DIR/reta-mojo-rehearsal"
+printf 'Kompiliere native Architektur-Aktivierungsschicht ...\n'
+"$ROOT/bin/mojo-real" build --no-optimization -I src src/architecture_activation_main.mojo -o "$TARGET_DIR/reta-mojo-activation"
+printf 'Erzeugt: %s\n' "$TARGET_DIR/reta-mojo-activation"
+printf 'Kompiliere native Architektur-Gesamtvalidierung ...\n'
+"$ROOT/bin/mojo-real" build --no-optimization -I src src/architecture_validation_main.mojo -o "$TARGET_DIR/reta-mojo-validation"
+printf 'Erzeugt: %s\n' "$TARGET_DIR/reta-mojo-validation"
+printf 'Kompiliere natives Architektur-Fortschritts-Overlay ...\n'
+"$ROOT/bin/mojo-real" build --no-optimization -I src src/architecture_progress_main.mojo -o "$TARGET_DIR/reta-mojo-progress"
+printf 'Erzeugt: %s\n' "$TARGET_DIR/reta-mojo-progress"

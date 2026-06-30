@@ -7,9 +7,9 @@ Geplanter Umfang: **12 Release-Stufen**. Eine Stufe zählt erst als abgeschlosse
 | Maß | Stand | Aussage |
 |---|---:|---|
 | abgeschlossene Release-Stufen | **8/12 = 66,7 %** | Generator-/Meta- und Kombinationspfade sind abgeschlossen; Stufen 9, 10 und 11 sind aktiv |
-| vollständig native oder generierte Python-Dateien | **24/92 = 26,1 %** | Datei vollständig ersetzt oder als reproduzierbares Laufzeitasset abgebildet |
-| mindestens angegriffene Python-Dateien | **52/92 = 56,5 %** | vollständig oder teilweise nativ |
-| gewichtete Quellzeilen | **ca. 39 %** | konservative Schätzung unter Berücksichtigung der großen Teilports |
+| vollständig native oder generierte Python-Dateien | **30/92 = 32,6 %** | Datei vollständig ersetzt oder als reproduzierbares Laufzeitasset abgebildet |
+| mindestens angegriffene Python-Dateien | **58/92 = 63,0 %** | vollständig oder teilweise nativ |
+| gewichtete Quellzeilen | **ca. 47 %** | konservative Schätzung unter Berücksichtigung der großen Teilports |
 | funktionaler Nutzerumfang | **ca. 88–91 %** | praktisch nutzbarer Reta-Umfang ohne Python-Algorithmus |
 
 Die Stufenquote ist höher als die Quellzeilenquote, weil die letzten Stufen besonders große dynamische Module bündeln: vollständige Ausgabeaufbereitung, Prompt-Sprache, i18n-Matrix, Architekturvalidierung und Parallelisierung.
@@ -47,7 +47,7 @@ Die Stufenquote ist höher als die Quellzeilenquote, weil die letzten Stufen bes
     Klammerbewusstes Tokenisieren, kompakte Kurzbefehle, CPython-Set-Reihenfolge, fünfsprachiger Completion-Katalog und persistenter Mojo-Completion-Arbeiter sind nativ. Mojo plant 18 Domänenfamilien plus EIGN/EIGR einschließlich Ganzzahl-, Reziprok- und `n/m`-Achsen, ganzzahliger Vielfachen/Teiler, historischer Bruchbereiche, stabiler Bruchausschlüsse, Bruchteiler und Reziprok-Vielfache. Vollständig besessene Einmalbefehle laufen vor jedem Python-Import und rufen den Tabellenkern im selben Mojo-Prozess auf. Eine getrennte Legacy-Präsentationsschicht besitzt sämtliche kompakten Tabellenfamilien und `mulpri`/`p`. Stage 10h ergänzt positive reine Zahlen-, Bereichs-, Listen- und Bruchkompositionen sowie 365 adressierbare Einträge des fünfsprachigen `15`-/`16`-Katalogs. Vorbereitete Fragmentbreiten, Bindestrichumbrüche, Zählungsmarkierungen und der historische nicht-zeilenorientierte Farbausgabestrom sind bytegenau modelliert. Stage 10i–10n ergänzen Null-/Negativ- und Kollisionsalgebra, wiederholte Katalogauswahl, mehrbereichige Abstände, native Datei-/Pipe-I/O, positive Promptbreiten, komponierte ganzzahlige Vielfachen-/Teilerpfade, verschachtelte CPython-Teiler-Setordnung und dynamische Obergrenzen absoluter `vN`-Selektoren. Offen bleiben echte `v n/m`-Vielfache mit Zähler größer 1, weitere hintere Sonderpfade, die große `--alles`-HTML-Mitteltabelle und die vollständige i18n-Laufzeit außerhalb des Promptvokabulars.
 
 11. **Architektursteuerung und Laufzeitnetze — in Arbeit**  
-    Stage 11a portiert Architekturkarte und realen Modul-/Kapsel-Grenzgraph. Stage 11b ergänzt Verträge und Witnesses. Stage 11c portiert 11 Kapselkohärenzen, 53 funktorielle Routen, 42 Natürlichkeits- und 22 Gesetzeskohärenzen sowie 34 Komponenten-, 11 Kapsel- und 42 Stufentraces mit 204 Route-Hops. Stage 11d ergänzt 34 Impact-Quellen, 34 Verträge, 10 Gates, 34 Kandidaten sowie 7 Migrationswellen, 34 Schritte, 34 Gate-Bindungen und 7 Invarianten. Offen bleiben Rehearsal, Aktivierung, ausführbare Gesamtvalidierung, Fortschritts-Overlay, Persistenz, Ausführungsnetz und Parallelisierung.
+    Stage 11a portiert Architekturkarte und realen Modul-/Kapsel-Grenzgraph. Stage 11b ergänzt Verträge und Witnesses. Stage 11c portiert 11 Kapselkohärenzen, 53 funktorielle Routen, 42 Natürlichkeits- und 22 Gesetzeskohärenzen sowie 34 Komponenten-, 11 Kapsel- und 42 Stufentraces mit 204 Route-Hops. Stage 11d ergänzt 34 Impact-Quellen, 34 Verträge, 10 Gates, 34 Kandidaten sowie 7 Migrationswellen, 34 Schritte, 34 Gate-Bindungen und 7 Invarianten. Stage 11e ergänzt 7 Rehearsal-Öffnungen, 34 Moves, 34 Gate-Suiten, 7 Cover sowie 7 Aktivierungsfenster, 34 Units, 34 Commit-Gates, 34 Rollbacks und 7 Transaktionen. Stage 11f portiert 51 Gesamtvalidierungschecks in 17 Schichten sowie das Stage-42-Fortschritts-Overlay mit 30 Oberflächen, 34 Schritten, 7 Wellen und einem dokumentierten Umweltblock. Offen bleiben Persistenz, Ausführungsnetz und Parallelisierung.
 
 12. **Bridge entfernen und Releaseparität — offen**  
     Letzte Python-Grenzen entfernen, vollständige Befehlsmatrix, Leistungsprüfung, Packaging und Release.
@@ -105,3 +105,24 @@ Die Zahl **12** ist die geplante Releasegliederung. Interne Teilpakete oder Fehl
 - Acht repräsentative CLI-Abfragen sind Python↔Mojo byteidentisch.
 - Die Architekturkontrollregeneration umfasst nun acht byteidentische Generatorziele.
 - Impact und Migration bleiben getrennte schwere Compilerziele.
+
+
+## Stage 11e – native Rehearsal- und Aktivierungsschicht
+
+- `architecture_rehearsal.py` ist als typisierter Snapshot mit 7 Öffnungen, 34 Moves, 34 Gate-Suiten und 7 Readiness-Covern verfügbar.
+- `architecture_activation.py` ist als typisierter Snapshot mit 7 Fenstern, 34 Units, 34 Commit-Gates, 34 Rollbacks und 7 Transaktionen verfügbar.
+- Beide Bundles besitzen neben dem gespeicherten Referenzstatus eine native Kreuzvalidierung der internen Beziehungen.
+- Elf repräsentative CLI-Abfragen sind Python↔Mojo byteidentisch.
+- Die Architekturkontrollregeneration umfasst nun zehn byteidentische Generatorziele.
+- Die öffentlichen Query-Controller werden gezielt ohne Optimierung gebaut; die Bundletests bleiben normal optimiert.
+
+
+## Stage 11f – native Gesamtvalidierung und Fortschritts-Overlay
+
+- `architecture_validation.py` ist als typisierter Snapshot mit 51 Checks, 17 Schichten und 3.448 geprüften Einzelobjekten verfügbar.
+- `architecture_progress.py` ist als typisierter Snapshot mit 30 Oberflächen, 34 Schritten, 7 Wellen und einem offenen Umweltblock verfügbar.
+- Die Validierung besitzt den Status `passed`; das Fortschritts-Overlay ist intern konsistent und bewusst `attention`, weil die externe Command-Parity-Baseline fehlt.
+- Beide Bundles besitzen native Kreuzvalidierungen ihrer internen Referenzen und Zählungen.
+- Acht repräsentative CLI-Abfragen sind Python↔Mojo byteidentisch.
+- Die Architekturkontrollregeneration umfasst nun zwölf byteidentische Generatorziele.
+- Die Query-Controller werden ohne Optimierung gebaut; die Bundletests bleiben normal optimiert.
