@@ -638,3 +638,28 @@ Der fokussierte Lauf lautet:
 ```bash
 ./scripts/test_stage12b.sh
 ```
+
+
+## Stage 12c1: native Terminalgeometrie und Prompt-Zeilengrenzen
+
+```text
+test_terminal_geometry:                    3/3
+Fixture-Integrität + Boundary-Audit:        2/2
+PTY-Probe-Pytest:                            1/1
+PTY-Geometrieprobe:             80→73, 120→113, 200→193
+kompakte Befehlsfixtures:                 11/11 mit separater reta-Zeile
+```
+
+Zusätzlich bestätigt:
+
+- `--breite=0` verwendet `ioctl(TIOCGWINSZ)` statt der früheren Konstanten 80/73;
+- stdout, stdin und stderr werden als TTY-Quellen geprüft, danach `COLUMNS` und der historische 80-Spalten-Fallback;
+- `bin/rpb a1` behält seinen Namen und seine Argumentsemantik;
+- die sichtbare `reta`-Befehlszeile besitzt genau vor dem Tabellenkopf eine physische LF-Grenze;
+- der PTY-Paritätstest vergleicht die sichtbaren Python- und Mojo-Zeilen bei 80, 120 und 200 Spalten bytegleich;
+- der letzte Ende-zu-Ende-Test benötigt den lokal neu gebauten großen Promptcontroller. Dessen monolithische Elaboration überschritt in der Sandbox auch 32 Minuten, während das getrennte Terminalmodul und 3/3 Geometrietests hier vollständig gebaut und ausgeführt wurden.
+
+```bash
+./scripts/build.sh
+./scripts/test_stage12c.sh
+```

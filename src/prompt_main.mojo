@@ -211,17 +211,12 @@ def _run_native_table_tokens(
         var command_line = String("reta")
         for index in range(len(display_tokens)):
             command_line += " " + display_tokens[index]
-        # The colored Python ``cliout`` compatibility path deliberately uses
-        # ``end=""``.  The visible reta echo and first table row therefore form
-        # one physical output line for both compact and long prompt commands.
-        # ``--nocolor`` goes through ordinary ``print`` and retains a newline.
-        if (
-            not _contains_token(tokens, "--nocolor")
-            and not command_echo_newline
-        ):
-            print(command_line, end="")
-        else:
-            print(command_line)
+        # Rich's ``Syntax`` renderable emits a complete physical line even
+        # though the Python helper calls ``Console.print(..., end="")``.
+        # Reproduce the observable byte stream, not the helper's internal
+        # keyword argument: the command echo always ends before the table.
+        _ = command_echo_newline  # retained in the typed plan for compatibility
+        print(command_line)
     print(
         run_native_reta(tokens, "python_reference/csv/religion.csv"),
         end="",

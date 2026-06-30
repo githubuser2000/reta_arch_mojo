@@ -5,12 +5,14 @@ Dies ist ein inkrementeller, getesteter Port des hochgeladenen Python-Projekts `
 ## Fortschritt
 
 ```text
-abgeschlossene Release-Stufen:       8 von 12 = 66,7 %
-Stufen 9/10/11:                       Ausgabe, Prompt und Architektursteuerung in Arbeit
-vollständig native Originaldateien:  32 von 92 = 34,8 %
+abgeschlossene Release-Stufen:       9 von 12 = 75,0 %
+Stufen 9/10/12:                       Ausgabe, Prompt/i18n und Releaseparität in Arbeit
+Stufe 11:                             11a–11j = 100 %
+Stufe 12:                             12a–12b fertig, 12c1 fertig = ca. 45 %
+vollständig native Originaldateien:  33 von 92 = 35,9 %
 mindestens teilweise portiert:       61 von 92 = 66,3 %
-gewichteter Quellzeilenstand:         ca. 50 %
-funktionaler Nutzerumfang:            ca. 92–94 %
+gewichteter Quellzeilenstand:         ca. 52 %
+funktionaler Nutzerumfang:            ca. 95–97 %
 ```
 
 Die Metriken messen Verschiedenes. Die Stufenquote ist höher, weil die noch offenen Stufen die größten dynamischen Python-Module bündeln. Der vollständige Plan steht in [`ROADMAP.md`](ROADMAP.md).
@@ -274,7 +276,7 @@ Details: [`TEST_RESULTS.md`](TEST_RESULTS.md).
 
 ## Nächster Portierungsblock
 
-Stufe 9 wird mit seltenen Terminal-/Rich-Sonderfällen fortgesetzt. Stufe 10 erweitert die bereits native Promptausführung und i18n-Laufzeit. Stufe 11 ist mit 11a–11j abgeschlossen. Stage 12a und 12b sind abgeschlossen: Sämtliche nativen Parallelpfade verwenden Mojo-Threads, und `generate_html` besitzt nun auch die vollständige `--alles`-Mitteltabelle. Als Nächstes folgen 12c–12e.
+Stufe 9 wird mit seltenen Terminal-/Rich-Sonderfällen fortgesetzt. Stufe 10 erweitert die bereits native Promptausführung und i18n-Laufzeit. Stufe 11 ist mit 11a–11j abgeschlossen. Stage 12a und 12b sind abgeschlossen: Sämtliche nativen Parallelpfade verwenden Mojo-Threads, und `generate_html` besitzt nun auch die vollständige `--alles`-Mitteltabelle. Stage 12c hat mit 12c1 begonnen: `rpb a1` trennt Befehlszeile und Tabellenkopf wieder exakt, und `--breite=0` verwendet die reale TTY-Breite. Offen bleiben 12c2–12c4 sowie 12d–12e.
 
 ## Dokumentation
 
@@ -475,3 +477,13 @@ Der synthetische Spaltenparameter `--alles` wird als reproduzierbarer zwölfteil
 ```
 
 Nach Stage 12b verbleiben nur noch die allgemeine Kompatibilitätsbrücke in `compat_main.mojo` und der interaktive Prompt-Callback in `prompt_main.mojo`. Details: [`STAGE12B_NATIVE_ALL_COLUMNS_HTML.md`](STAGE12B_NATIVE_ALL_COLUMNS_HTML.md).
+
+## Stage 12c1: Native Terminalgeometrie und exakte Prompt-Zeilengrenzen
+
+Der öffentliche Aufruf bleibt unverändert:
+
+```bash
+bin/rpb a1
+```
+
+Der native Promptcontroller beendet die sichtbare `reta`-Befehlszeile nun wie die Python-Referenz vor dem Tabellenkopf. `--breite=0` liest die aktuelle Terminalbreite per `ioctl(TIOCGWINSZ)` und reserviert anschließend die historischen sieben Spalten; die früher fest verdrahteten 80/73 Spalten sind entfernt. PTY-Proben prüfen 80, 120 und 200 Spalten. Details: [`STAGE12C1_NATIVE_TERMINAL_PROMPT_PARITY.md`](STAGE12C1_NATIVE_TERMINAL_PROMPT_PARITY.md).

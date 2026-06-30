@@ -11,6 +11,11 @@ from .html_cell_metadata import (
     html_cell_open,
     load_html_cell_catalog,
 )
+from .terminal_geometry import (
+    automatic_cell_width,
+    effective_cell_width,
+    terminal_columns,
+)
 
 
 def normalize_cell_whitespace(text: String) -> String:
@@ -773,9 +778,13 @@ def render_shell_table_with_width_reference(
     var highest = max(_maximum_row_number(row_numbers), numbering_highest)
     var number_width = _decimal_width(highest) + 1 if number_rows else 0
     var counting = counting_groups(highest)
-    # The historical runtime reserves seven terminal columns around table data.
-    var effective_width = width if width > 0 else max(1, 80 - 7)
-    var screen_width = 73 if not number_rows else 80
+    # ``--breite=0`` means: use the current terminal, reserving the same
+    # seven columns as the Python renderer.  A fixed 80/73 pair changed the
+    # public behaviour on every wider terminal.
+    var detected_columns = terminal_columns()
+    var automatic_width = automatic_cell_width(detected_columns)
+    var effective_width = effective_cell_width(width, detected_columns)
+    var screen_width = automatic_width if not number_rows else detected_columns
     var result = String()
     var page_start = data_start
     while page_start < total_columns:

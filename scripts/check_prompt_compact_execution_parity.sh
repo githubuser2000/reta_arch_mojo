@@ -37,6 +37,7 @@ check_case() {
     printf 'compact prompt parity: %s\n' "$label"
 }
 
+check_case a1 a1
 check_case a2 a2
 check_case ap15 ap15
 check_case p12 p12
@@ -48,4 +49,4 @@ check_case T2 T2
 check_case W2 W2
 check_case u2 u2
 
-printf '%s\n' 'compact prompt execution fixtures: 10/10 byte-identical'
+printf '%s\n' 'compact prompt execution fixtures: 11/11 byte-identical'

@@ -2,15 +2,15 @@
 
 Geplanter Umfang: **12 Release-Stufen**. Eine Stufe zählt erst als abgeschlossen, wenn Quellcode, Referenztests, Compilerziele, Dokumentation und ein source-only Archiv gemeinsam geprüft sind.
 
-## Fortschrittsmaße nach Abschluss von Stage 12a
+## Fortschrittsmaße nach Stage 12c1
 
 | Maß | Stand | Aussage |
 |---|---:|---|
-| abgeschlossene Release-Stufen | **9/12 = 75,0 %** | Stufen 1–8 und 11 sind abgeschlossen; Stufe 12 ist mit 12a zu 20 % abgeschlossen, während 9 und 10 noch Restpfade besitzen |
+| abgeschlossene Release-Stufen | **9/12 = 75,0 %** | Stufen 1–8 und 11 sind abgeschlossen; Stufe 12 ist mit 12a, 12b und dem ersten 12c-Block zu etwa 45 % abgeschlossen, während 9 und 10 noch Restpfade besitzen |
 | vollständig native oder generierte Python-Dateien | **33/92 = 35,9 %** | Datei vollständig ersetzt oder als reproduzierbares Laufzeitasset abgebildet |
 | mindestens angegriffene Python-Dateien | **61/92 = 66,3 %** | vollständig oder teilweise nativ |
 | gewichtete Quellzeilen | **ca. 52 %** | konservative Schätzung unter Berücksichtigung der großen Teilports |
-| funktionaler Nutzerumfang | **ca. 94–96 %** | praktisch nutzbarer Reta-Umfang ohne Python-Algorithmus |
+| funktionaler Nutzerumfang | **ca. 95–97 %** | praktisch nutzbarer Reta-Umfang ohne Python-Algorithmus |
 
 Die Stufenquote ist höher als die Quellzeilenquote, weil die letzten Stufen besonders große dynamische Module bündeln: vollständige Ausgabeaufbereitung, Prompt-Sprache, i18n-Matrix, Architekturvalidierung und Parallelisierung.
 
@@ -40,8 +40,8 @@ Die Stufenquote ist höher als die Quellzeilenquote, weil die letzten Stufen bes
 8. **Kombinationen und CSV-Verkettung — abgeschlossen**
    Vier gebrochen-rationale CSV-Prägarben, Galaxie-/Universum-Kombi-Join, 173 Aliase, 151 Relationsordnungen, Negativ- und Mehrfachauswahl.
 
-9. **Vollständige Tabellenaufbereitung und Ausgabe — ca. 94–96 %**
-   BBCode und der zentrale ANSI-Shellpfad sind für die geprüften deutschen und englischen Ausgaben bytegleich. HTML besitzt physische und semantische Zellmetadaten, tag-erhaltende Zellen, Wrapping und Seitenteilung. `--alles` und der vollständige `generate_html`-Pfad sind seit Stage 12b nativ. Offen bleiben seltene Rich-/Terminalsonderfälle.
+9. **Vollständige Tabellenaufbereitung und Ausgabe — ca. 96–97 %**
+   BBCode und der zentrale ANSI-Shellpfad sind für die geprüften deutschen und englischen Ausgaben bytegleich. HTML besitzt physische und semantische Zellmetadaten, tag-erhaltende Zellen, Wrapping und Seitenteilung. `--alles` und der vollständige `generate_html`-Pfad sind seit Stage 12b nativ. Dynamische TTY-Breite und Prompt-Zeilengrenzen sind seit 12c1 nativ; offen bleiben wenige Rich-/Terminalsonderfälle außerhalb dieses Pfads.
 
 10. **Vollständige Prompt-Sprache und i18n — ca. 92–95 %**
     Klammerbewusstes Tokenisieren, kompakte Kurzbefehle, CPython-Set-Reihenfolge, fünfsprachiger Completion-Katalog und persistenter Mojo-Completion-Arbeiter sind nativ. Mojo plant 18 Domänenfamilien plus EIGN/EIGR einschließlich Ganzzahl-, Reziprok- und `n/m`-Achsen, ganzzahliger Vielfachen/Teiler, historischer Bruchbereiche, stabiler Bruchausschlüsse, Bruchteiler und Reziprok-Vielfache. Vollständig besessene Einmalbefehle laufen vor jedem Python-Import und rufen den Tabellenkern im selben Mojo-Prozess auf. Eine getrennte Legacy-Präsentationsschicht besitzt sämtliche kompakten Tabellenfamilien und `mulpri`/`p`. Stage 10h ergänzt positive reine Zahlen-, Bereichs-, Listen- und Bruchkompositionen sowie 365 adressierbare Einträge des fünfsprachigen `15`-/`16`-Katalogs. Vorbereitete Fragmentbreiten, Bindestrichumbrüche, Zählungsmarkierungen und der historische nicht-zeilenorientierte Farbausgabestrom sind bytegenau modelliert. Stage 10i–10n ergänzen Null-/Negativ- und Kollisionsalgebra, wiederholte Katalogauswahl, mehrbereichige Abstände, native Datei-/Pipe-I/O, positive Promptbreiten, komponierte ganzzahlige Vielfachen-/Teilerpfade, verschachtelte CPython-Teiler-Setordnung und dynamische Obergrenzen absoluter `vN`-Selektoren. Offen bleiben echte `v n/m`-Vielfache mit Zähler größer 1, weitere hintere Sonderpfade und die vollständige i18n-Laufzeit außerhalb des Promptvokabulars.
@@ -49,8 +49,8 @@ Die Stufenquote ist höher als die Quellzeilenquote, weil die letzten Stufen bes
 11. **Architektursteuerung und Laufzeitnetze — abgeschlossen (11a–11j)**
     Stage 11a portiert Architekturkarte und realen Modul-/Kapsel-Grenzgraph. Stage 11b ergänzt Verträge und Witnesses. Stage 11c portiert Kohärenz und Traces. Stage 11d ergänzt Impact und Migration. Stage 11e ergänzt Rehearsal und Aktivierung. Stage 11f portiert Gesamtvalidierung und Fortschritts-Overlay. Stage 11g portiert die reale SQLite-Persistenz. Stage 11h portiert das deterministische Ausführungsnetz. Stage 11i portiert Konfiguration, CPU-Erkennung und zehn reine Tabellen-/Zahlenkerne. Stage 11j ersetzt den dynamischen `WorkerPrepare`-/`deepcopy`-Objektgraphen durch einen besitzenden typisierten Zeilenvorbereitungskontext. Stage 12a vereinheitlicht sämtliche nativen Parallelpfade auf typisierte Mojo-Threads und verbietet POSIX-Prozessprimitive per Gate.
 
-12. **Bridge entfernen und Releaseparität — 2/5 = 40 %**
-    Stage 12a ist abgeschlossen: Boundary-Inventur, harte No-Python-/No-Subprozess-Gates für Parallelmodule und vollständige native Threadmigration. Stage 12b portiert den zwölfteiligen `--alles`-Spaltenplan und entfernt den Python-Kindprozess aus `generate_html`. Geplant bleiben 12c Prompt-/i18n-Grenzen, 12d Befehlsmatrix/Benchmarks/SIMD und 12e Packaging/Freigabe.
+12. **Bridge entfernen und Releaseparität — ca. 45 %**
+    Stage 12a ist abgeschlossen: Boundary-Inventur, harte No-Python-/No-Subprozess-Gates für Parallelmodule und vollständige native Threadmigration. Stage 12b portiert den zwölfteiligen `--alles`-Spaltenplan und entfernt den Python-Kindprozess aus `generate_html`. Stage 12c1 portiert reale TTY-Geometrie und die exakte Prompt-Befehls-/Tabellengrenze. Offen bleiben 12c2–12c4, 12d Befehlsmatrix/Benchmarks/SIMD und 12e Packaging/Freigabe.
 
 Die Zahl **12** ist die geplante Releasegliederung. Interne Teilpakete oder Fehlerkorrekturen erhöhen diese Zahl nicht automatisch.
 
@@ -71,10 +71,10 @@ Die Zahl **12** ist die geplante Releasegliederung. Interne Teilpakete oder Fehl
 | **Stufe 11** | **10/10 = 100 %** | abgeschlossen |
 | 12a | 100 % | Bridge-Inventur, harte Boundary-Gates und vollständige Threadmigration |
 | 12b | 100 % | nativer `--alles`-Plan und Python-freies `generate_html` |
-| 12c | 0 % formal | restliche Prompt-/i18n-Grenzen aus Stufe 10 |
+| 12c | 25 % | 12c1 Terminalgeometrie/Promptframing fertig; interaktive Eingabe, Restzweige und i18n offen |
 | 12d | 0 % formal | Befehlsmatrix, Benchmarks und gezielte SIMD-Prüfung |
 | 12e | 0 % formal | Packaging und Freigabe |
-| **Stufe 12** | **2/5 = 40 %** | Stage 12a–12b abgeschlossen; 12c–12e offen |
+| **Stufe 12** | **ca. 45 %** | 12a–12b und 12c1 abgeschlossen; 12c2–12e offen |
 
 
 ## Stage 10n – native EIGN/EIGR-Eigenschaftsachsen
@@ -195,10 +195,11 @@ Die Zahl **12** ist die geplante Releasegliederung. Interne Teilpakete oder Fehl
 - Stufe 11 ist mit 11a–11j vollständig abgeschlossen.
 
 
-## Stage 12a–12b abgeschlossen; Stage 12c–12e geplant
+## Stage 12a–12b abgeschlossen; Stage 12c mit 12c1 begonnen
 
 - **12a – abgeschlossen:** vollständige Bridge-Inventur, Runtime-Gates, 0 native Prozessprimitive und 10 kanonische Thread-APIs.
 - **12b – abgeschlossen:** zwölfteiliger `--alles`-Spaltenplan und `generate_html` ohne Python-/Subprozessbrücke.
-- **12c:** echte `v n/m`-Vielfache, hintere Promptzweige und restliche i18n-Laufzeit aus Stufe 10 schließen.
+- **12c1 – abgeschlossen:** reale TTY-Breite für `--breite=0` und exakte physische Grenze zwischen Prompt-Befehlszeile und Tabelle.
+- **12c2–12c4:** interaktiven Prompt-Callback, echte `v n/m`-Vielfache, hintere Promptzweige und restliche i18n-Laufzeit aus Stufe 10 schließen.
 - **12d:** vollständige Befehlsmatrix, Leistungsprofile, Thread-/Speicheroptimierung und nur benchmarkgestützte SIMD-Kernel.
 - **12e:** reproduzierbares Packaging, Installationspfade, Release-Checks und finale Dokumentation.

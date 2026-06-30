@@ -24,3 +24,7 @@ def test_compact_prompt_fixtures_have_explicit_command_line_boundary() -> None:
         assert lines[1].startswith(("reta ", "12:", "13:")), (
             f"unexpected first payload line in {fixture.name}: {lines[1]!r}"
         )
+        if lines[1].startswith("reta "):
+            assert "\x1b[" not in lines[1], (
+                f"command echo and first table row are glued in {fixture.name}"
+            )

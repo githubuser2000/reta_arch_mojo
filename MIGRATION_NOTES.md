@@ -141,7 +141,7 @@ Entwicklungs- und Releasehelfer wie `coden`, `csvs` und `rpmake` gehören nicht 
 - Die historische ungewöhnliche Sortier-/Traversalreihenfolge bleibt erhalten. Der Generator bildet auch den alten Bool-als-Comparator-Effekt bewusst ab.
 - Deutsch und der internationale Katalog enthalten jeweils 151 Renderdatensätze und 84 Blätter. Englisch, Vietnamesisch, Chinesisch und Koreanisch teilen in der vorhandenen Referenz für diese Begriffe denselben internationalen Katalog.
 - Vier Ausgaben (`normal`/`blank`, Deutsch/Englisch) werden vollständig per `cmp` gegen Python geprüft.
-- `generate_html` ist nun ein Mojo-Einstiegspunkt. Die Berechnung des großen Tabellenmittelteils bleibt vorläufig in `reta.py`; die Dateikomposition und der Grundstrukturenabschnitt sind portiert.
+- `generate_html` ist ein Mojo-Einstiegspunkt. Seit Stage 12b werden auch der historische zwölfteilige `--alles`-Plan und der große Tabellenmittelteil direkt über `run_native_reta` ausgeführt; ein Python-Kindprozess ist nicht mehr beteiligt.
 - `middle.alx` bleibt als historischer Seiteneffekt erhalten. `head1.alx`, `religionen.js`, `head2.alx` und `footer.alx` liegen als bytegeprüfte Laufzeitassets unter `assets/html/`, nicht mehr nur im Python-Referenzbaum.
 - `RETA_GENERATE_HTML_MIDDLE_FILE` ist ausschließlich eine Integrationstest-Naht für einen kleinen, deterministischen Mittelteilsnapshot. `RETA_GENERATE_HTML_ROWS` begrenzt in Integrationstests den echten Tabellenlauf, ohne die normale historische CLI zu verändern.
 
@@ -169,7 +169,7 @@ Die kompilierten Dateien werden nicht in das Quellarchiv aufgenommen. In der ver
 
 ### Ausgabe- und Konsolenlogik
 
-Die reine Anwendung der sieben Ausgabemodi ist vollständig nativ. Auch deterministische Hilfen aus `console_io.py`, `runtime_compat.py`, `bbcode.py` und `html2text.py` sind übertragen. Terminalerkennung, Rich-Rendering und Prozess-I/O bleiben Systemgrenzen.
+Die reine Anwendung der sieben Ausgabemodi ist vollständig nativ. Auch deterministische Hilfen aus `console_io.py`, `runtime_compat.py`, `bbcode.py` und `html2text.py` sind übertragen. Die reine Terminalgeometrie ist seit Stage 12c1 nativ und verwendet `ioctl(TIOCGWINSZ)`; Rich-Eingabe/Styling und ausdrücklich angeforderte Interpreter-/Shellbefehle bleiben Systemgrenzen.
 
 ### `multis3`
 
@@ -301,7 +301,7 @@ Die Bruch-/Modifikatorparität wird als normalisierter geordneter CSV-Tokenstrom
 
 ## Stufe 10g – vorbereitete Rendererfragmente und kompakter Farbausgabestrom
 
-Der Shellrenderer bestimmt die Spaltenbreite jetzt nach dem historischen Vorbereitungsumbruch und nicht aus der Rohzelle. Vorhandene Bindestriche sind wie bei Python `textwrap` bevorzugte Umbruchstellen. Farbige Promptankündigungen und sichtbare `reta`-Echos verwenden die ursprüngliche `cliout`-Semantik ohne zusätzlichen Zeilenumbruch. Dadurch wechseln `bewusstsein`, `emotion`, `triebe`, `wirklichkeit` und `universum` in den vollständig nativen kompakten One-shot-Pfad. Reine Zahlenkürzel bleiben als eigenständige mehrteilige Komposition offen.
+Der Shellrenderer bestimmt die Spaltenbreite jetzt nach dem historischen Vorbereitungsumbruch und nicht aus der Rohzelle. Vorhandene Bindestriche sind wie bei Python `textwrap` bevorzugte Umbruchstellen. Farbige Promptankündigungen bewahren ihre historische Darstellung. Sichtbare `reta`-Echos enden dagegen wie der tatsächlich gerenderte Python-`Syntax`-Bytestrom mit einer physischen LF-Grenze vor der Tabelle. Dadurch wechseln `bewusstsein`, `emotion`, `triebe`, `wirklichkeit` und `universum` in den vollständig nativen kompakten One-shot-Pfad. Reine Zahlenkürzel bleiben als eigenständige mehrteilige Komposition offen.
 
 
 ## Stage 10h – numerische Komposition
@@ -481,3 +481,13 @@ Ein separater Fixture-Integritätstest verbietet nun `reta-Befehl:reta `, leere 
 - `native_reta_cli.mojo` besitzt `-spalten --alles` und `--onetable`; der HTML-Gesamtgenerator ruft den Tabellenkern direkt im selben Mojo-Prozess auf.
 - Das Ein-Zeilen-Fixture enthält 805 Daten-/Generatorspalten plus zwei Nummerierungszellen und wird nach dem lokalen Build bytegenau geprüft.
 - Der explizite Boundary-Bestand sinkt von drei auf zwei Runtime-Brücken.
+
+
+## Stage 12c1 – native Terminalgeometrie und Promptframing
+
+- `terminal_geometry.mojo` fragt stdout, stdin und stderr per Linux-`ioctl(TIOCGWINSZ)` ab und fällt anschließend auf `COLUMNS` beziehungsweise 80 zurück.
+- `--breite=0` verwendet wieder die reale Bildschirmbreite minus sieben historische Reservespalten; die feste 80/73-Annahme ist entfernt.
+- Der Promptcontroller bildet nicht das interne Rich-Argument `end=""`, sondern dessen beobachtbaren Bytestrom nach: Der sichtbare `reta`-Befehl endet vor dem ersten Tabellenkopf mit genau einem LF.
+- Die öffentliche CLI bleibt unverändert. Weder ein zusätzlicher Schalter noch ein Ersatzbefehl ist nötig.
+- PTY-Tests prüfen exakt `bin/rpb a1` bei 80, 120 und 200 Spalten; Fixture-Gates verhindern erneut zusammengeklebte Befehls-/Tabellenzeilen.
+- Die `std.python`-Grenze des interaktiven Promptcallbacks bleibt für die folgenden 12c-Blöcke offen.
