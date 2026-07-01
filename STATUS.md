@@ -1,20 +1,21 @@
-# Status – Stage 12c4h abgeschlossen; Stufen 9, 10 und 12 in Arbeit
+# Status – Stage 12c4i abgeschlossen; Stufen 9, 10 und 12 in Arbeit
 
 - Zielversion: Mojo 1.0.0b2
 - Unterstützte Python-Umgebung für Installation/Referenzbrücken: 3.10–3.14; Setup bevorzugt Python 3.14
-- Vollständig abgeschlossene Release-Stufen: **9/12 = 75,0 %**; teilgewichtet mit Stage 12c4h: **9,67/12 = 80,6 %**
+- Vollständig abgeschlossene Release-Stufen: **9/12 = 75,0 %**; teilgewichtet mit Stage 12c4i: **9,68/12 = 80,7 %**
 - Stufe 9: **BBCode, zentraler ANSI-Shellpfad und zentrale HTML-Pfade nativ; seltene Ausgabegrenzen offen**
 - Stufe 10: **native Kurzsprache, mehrsprachige verschachtelte Completion und Promptvorbereitung in Arbeit**
 - Stufe 11: **11a–11j abgeschlossen; 10/10 Teilstufen = 100 %**
-- Stufe 12: **12a–12b abgeschlossen; 12c zu ca. 99 %; insgesamt ca. 66 %**
+- Stufe 12: **12a–12b abgeschlossen; 12c zu ca. 99 %; insgesamt ca. 67 %**
 - Geschätzter funktionaler Portierungsstand: **96–98 %**
 - Konservativ vollständig native oder reproduzierbar generierte Originaldateien: **33/92 = 35,9 %**
 - Mindestens teilweise portierte Originaldateien: **61/92 = 66,3 %**
 - Gewichteter Quellzeilenstand: **ca. 52 %**
-- Nativer Mojo-Quellcode in `src/`: **39.836 Zeilen**
-- Davon im Paket `reta_mojo`: **36.698 Zeilen**
+- Nativer Mojo-Quellcode in `src/`: **39.858 Zeilen**
+- Davon im Paket `reta_mojo`: **36.720 Zeilen**
 - Test-/Probe-Dateien: **101** (**89 Mojo**, **12 Python** einschließlich PTY-, Boundary-, Eingabe-, Rohbefehl-, Reziprok-, klassischer Bruchplan-, Kompatibilitätslauncher- und Alles-Plan-Audits)
-- Native Mojo-Testfunktionen: **309**; Python-Testfunktionen: **44**
+- Native Mojo-Testfunktionen: **311**; Python-Testfunktionen: **44**
+- Stage-12c4i-Fokus: bytegleiche paginierte Shell-/HTML-/BBCode-Ausgabe; vorhandene ASCII-Bindestriche werden vor hartem Wortumbruch bevorzugt, und wirklich fehlende Shell-Fortsetzungsfragmente erhalten die neutrale Restfarbe; Renderer **13/13**, direkte deutsche/englische Mehrspaltenparität **6/6**, No-blank **13/13**, zentrale Markupfixtures **8/8**, Markup-oneTable **12/12**, CLI-/Ownership **25/25**, Kompatibilitätslauncher **10/10**, I/O-Boundary-Audit bestanden
 - Stage-12c4h-Fokus: native `--keineleereninhalte`-/`--noblankcontents`-Semantik mit Unicode-Schwelle kleiner zwei, seiten- und Sichtzeilen-lokaler Filterung für Shell/HTML/BBCode sowie logischer Filterung für CSV/Markdown/Emacs; Emacs-Primzahlpotenztrenner und physische HTML-Heading-Metadatenparität für `Manipulation (1)` korrigiert; No-blank-Fixtures **13/13 byteidentisch**, Rendererkern **3/3**, HTML-Katalog **5/5**, CLI-/Ownership **25/25**, bestehende Markupregression **8/8 + 12/12**, Kompatibilitätslauncher **10/10**
 - Stage-12c4g-Fokus: native HTML-/BBCode-Ein-Tabellen-Semantik für `--onetable`/`--endlessscreen`/`--endless`/`--dontwrap`; ein einziger Markup-Block bei positiver Breite, unveränderte Zellmetadaten und Zeilenfarben; Markup-oneTable **12/12** ohne Python, Renderer **11/11**, CLI-/Ownership **24/24**, gezielte Launcher-/Boundary-Pytests **11/11**; öffentliche Endarchitektur: nur `reta` erforderlich, `reta-native` optionaler Diagnosealias, `reta-mojo-compat` nach Entfernung des letzten Fallbacks entbehrlich
 - Stage-12c4e-Fokus: native-first historische `reta`-Oberfläche ohne eingebettetes CPython; strenger Ganzvektor-Ownership-Test, atomarer Referenzfallback, echter Exitstatus, `RETA_FORCE_REFERENCE=1`, Entfernung der falschen `--onetable`-Freigabe und physische Bereinigung der alten Prompt-FFI-Dateien; Launcher **10/10** nach Stage-12c4h-Erweiterung, native-first Python↔Mojo-Vertrag **12/12 byteidentisch**, damalige CLI-Ownership **22/22**, Kombi **9/9**, Markup **8/8**, Basistabellen **4/4**, aktive `std.python`-Brücken **0**
@@ -118,7 +119,7 @@
 
 ## Weiterhin an der Kompatibilitätsgrenze
 
-- wenige verbleibende Rich-/Terminalsonderfälle außerhalb der seit 12c1 dynamischen TTY-Breite
+- wenige verbleibende Rich-/Terminalsonderfälle außerhalb der seit 12c4i bytegleichen paginierten Kernpfade
 - echte `v n/m`-Vielfache mit Zähler größer 1 und weitere hintere Prompt-Sonderzweige
 - vollständige i18n-Laufzeit außerhalb des Promptvokabulars
 

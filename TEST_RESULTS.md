@@ -948,3 +948,35 @@ scripts/check_no_blank_contents.sh
 RETA_REFRESH_NO_BLANK_FIXTURES=1 \
   scripts/check_no_blank_contents_parity.sh
 ```
+
+
+## Stage 12c4i: paginierte Rendererparität
+
+```text
+Tabellenrenderer:                          13/13
+paginierte Shell-/HTML-/BBCode-Fixtures:    6/6 byteidentisch
+No-blank-Fixtures:                         13/13 byteidentisch
+zentrale HTML-/BBCode-Fixtures:             8/8 byteidentisch
+Markup-oneTable ohne Python:               12/12
+nativer CLI-/Ownership-Planer:             25/25
+Kompatibilitätslauncher:                   10/10
+nativer I/O-Boundary-Audit:                bestanden
+Source-/Boundary-Gates:                     15/15
+```
+
+Die sechs neuen Ströme prüfen Deutsch und Englisch jeweils in Shell, HTML und
+BBCode mit positiver Breite, horizontaler Seitenteilung und aktiver No-blank-
+Semantik. Die Referenzfixtures wurden mit `PYTHONHASHSEED=0` und dem
+projektlokalen Referenzinterpreter erzeugt. Der direkte Mojo-Tabellenkern ist in
+allen sechs Fällen byteidentisch.
+
+Zwei zuvor getrennt sichtbare Rich-/Textwrap-Abweichungen sind geschlossen:
+Vorhandene ASCII-Bindestriche werden vor hartem Überlangwortschnitt genutzt,
+und nur wirklich fehlende Shell-Fortsetzungsfragmente erhalten die neutrale
+alternierende Restfarbe. `readelf -d` zeigt am Kompatibilitätslauncher weiterhin
+nur `libKGENCompilerRTShared.so` und `libc.so.6`, nicht `libpython`.
+
+```bash
+scripts/check_paginated_rendering_parity.sh
+RETA_REFRESH_PAGINATED_FIXTURES=1 RETA_REFERENCE_PYTHON=/pfad/zur/referenz-python   scripts/check_paginated_rendering_parity.sh
+```

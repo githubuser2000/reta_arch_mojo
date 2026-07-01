@@ -628,3 +628,21 @@ abschließendes Komma erhalten.
   englischen Alias byteidentisch; Renderer **3/3**, HTML-Katalog **5/5** und
   CLI-/Ownership-Planer **25/25** sowie der vollständige Kompatibilitätslauncher
   **10/10** bestehen.
+
+
+## Stage 12c4i – paginierte Rendererparität
+
+- Der gemeinsame Shell-/Markup-Wortumbruch bevorzugt vorhandene ASCII-
+  Bindestriche vor einem harten Überlangwortschnitt. Damit entstehen dieselben
+  Fragmente wie im Python-Textwrap-/Hyphenationspfad.
+- Der Shellrenderer unterscheidet ein vorhandenes leeres Fragment von einer
+  Zelle ohne weiteres Fortsetzungsfragment. Nur der zweite Fall erhält die
+  neutrale alternierende Restfarbe.
+- Sechs versionierte deutsche und englische Shell-/HTML-/BBCode-Ströme mit
+  positiver Breite und horizontaler Seitenteilung sind byteidentisch.
+- Der neue Vertrag liegt in `scripts/check_paginated_rendering_parity.sh`; die
+  Fixture-Regeneration ist ausschließlich über
+  `RETA_REFRESH_PAGINATED_FIXTURES=1` möglich.
+- Renderer **13/13**, CLI-/Ownership **25/25**, Kompatibilitätslauncher
+  **10/10** und der native I/O-Boundary-Audit bestehen. Es gibt weiterhin
+  weder aktive `std.python`-Importe noch eine `libpython`-Abhängigkeit.

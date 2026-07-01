@@ -353,13 +353,30 @@ def _pad_cell(text: String, width: Int) -> String:
 
 
 def _append_long_word(mut result: List[String], word: String, width: Int) -> String:
-    """Append complete chunks and return the final chunk as current line."""
-    var chunks = hard_chunks(word, width)
-    if len(chunks) == 0:
-        return ""
-    for index in range(len(chunks) - 1):
-        result.append(chunks[index])
-    return chunks[len(chunks) - 1]
+    """Append TextWrapper-compatible long-word parts.
+
+    Python's ``textwrap`` prefers an existing ASCII hyphen as a break point
+    before falling back to hard chunks.  This distinction matters when a word
+    is moved to a fresh visual line: ``Wildkatzen-Außerirdische)`` at width 21
+    becomes ``Wildkatzen-`` / ``Außerirdische)`` rather than two arbitrary
+    21-codepoint chunks.
+    """
+    if width <= 0:
+        return word
+    var remainder = word
+    while codepoint_length(remainder) > width:
+        var hyphen_prefix = _hyphen_prefix_fitting(remainder, width)
+        if hyphen_prefix.byte_length() > 0:
+            result.append(hyphen_prefix)
+            remainder = _slice_after_ascii_prefix(remainder, hyphen_prefix)
+            continue
+        var chunks = hard_chunks(remainder, width)
+        if len(chunks) == 0:
+            return ""
+        for index in range(len(chunks) - 1):
+            result.append(chunks[index])
+        return chunks[len(chunks) - 1]
+    return remainder^
 
 
 def _hyphen_prefix_fitting(word: String, available: Int) -> String:
@@ -427,6 +444,7 @@ def _word_wrap_cell(text: String, width: Int) -> List[String]:
                 prefix.byte_length() == 0
                 and available > 0
                 and codepoint_length(word) > width
+                and not "-" in word
             ):
                 prefix = _codepoint_prefix(word, available)
             if prefix.byte_length() > 0:
@@ -819,6 +837,7 @@ def _shell_word_wrap_cell(text: String, width: Int) -> List[String]:
                 prefix.byte_length() == 0
                 and available > 0
                 and codepoint_length(word) > width
+                and not "-" in word
             ):
                 prefix = _codepoint_prefix(word, available)
             if prefix.byte_length() > 0:
@@ -1034,13 +1053,16 @@ def render_shell_table_with_width_reference(
                     )
                 for column_index in range(page_start, page_end):
                     var parts = _shell_word_wrap_cell(row[column_index], effective_width)
-                    var part = parts[visual_line] if visual_line < len(parts) else ""
+                    var has_fragment = visual_line < len(parts)
+                    var part = parts[visual_line] if has_fragment else ""
                     var column_width = _shell_column_width(
                         width_reference, column_index, effective_width
                     )
                     var padded = _shell_pad(part, column_width)
                     if color_rows:
-                        result += _shell_colorize(padded, number) + " "
+                        result += _shell_colorize(
+                            padded, number, not has_fragment
+                        ) + " "
                     else:
                         result += padded + " "
                 result += "\n"

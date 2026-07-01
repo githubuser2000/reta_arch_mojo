@@ -143,5 +143,41 @@ def test_bbcode_one_table_disables_horizontal_paging() raises:
         in single
     )
 
+def test_markup_wrap_prefers_existing_hyphen_on_fresh_line() raises:
+    var table = parse_semicolon_csv(
+        "; ;Heading\n"
+        + "1;1;(gefährliche Wildkatzen-Außerirdische)\n"
+    )
+    var bbcode = render_bbcode_table(table, [0, 1], True, 21, True)
+    assert_true("[td=\"\"](gefährliche [/td]" in bbcode)
+    assert_true("[td=\"\"]Wildkatzen- [/td]" in bbcode)
+    assert_true("[td=\"\"]Außerirdische)[/td]" in bbcode)
+    assert_false("Wildkatz[/td]" in bbcode)
+
+    var html = render_html_table_with_context(
+        table, table, [0, 1], [0], "german", True, 21, True
+    )
+    assert_true("> (gefährliche </td>" in html)
+    assert_true("> Wildkatzen- </td>" in html)
+    assert_true("> Außerirdische) </td>" in html)
+    assert_false("Wildkatz</td>" in html)
+
+
+def test_shell_missing_continuation_fragment_uses_rest_color() raises:
+    var table = parse_semicolon_csv(
+        "; ;A;B\n"
+        + "1;5;kurz;eins zwei drei vier fünf sechs\n"
+    )
+    var rendered = render_shell_table_with_width_reference(
+        table, table, [0, 5], True, 10, True
+    )
+    assert_true(
+        "\x1b[40m\x1b[37m    \x1b[0m\x1b[0m " in rendered
+    )
+    assert_false(
+        "\x1b[43m\x1b[30m    \x1b[0m\x1b[0m " in rendered
+    )
+
+
 def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()
