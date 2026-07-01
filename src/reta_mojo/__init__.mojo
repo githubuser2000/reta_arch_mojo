@@ -35,3 +35,5 @@ from .prime_universe_columns import *
 from .prompt_fraction_execution import *
 
 from .all_columns import *
+
+from .native_cli_startup import *

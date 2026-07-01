@@ -206,7 +206,7 @@ Die Zahl **12** ist die geplante Releasegliederung. Interne Teilpakete oder Fehl
 - **12c4b – abgeschlossen:** nicht-native `reta`-Zeilen und atomare Promptfallbacks direkt über den Mojo-Kindprozessadapter; nur der TTY-Editor bleibt eingebettet.
 - **12c4c – abgeschlossen:** `vielfache + teiler + 1/n`, Reziprok-Maximum, Spaltenzählung und reine `teiler 1/n`-Leerseite bytegenau nativ.
 - **12c4d – abgeschlossen:** nativer POSIX-TTY-Editor mit UTF-8, History, Completion und Emacs-/Vi-Kernbindings; klassische Bruch-No-ops und gemischte Tokens nativ; keine eingebettete Python-Laufzeit im Prompt.
-- **Rest-12c4:** echte `v n/m` mit Zähler größer eins, seltene fortgeschrittene Readline-Komfortfunktionen und die übrigen Prompt-/i18n-Algorithmen schließen.
+- **Rest-12c4:** echte `v n/m` mit Zähler größer eins, seltene fortgeschrittene Readline-Komfortfunktionen und die übrigen Prompt-/i18n-Algorithmen jenseits der nun nativen Start-/Hilfeoberfläche schließen.
 - **12d:** vollständige Befehlsmatrix, Leistungsprofile, Thread-/Speicheroptimierung und nur benchmarkgestützte SIMD-Kernel.
 - **12e:** reproduzierbares Packaging, Installationspfade, Release-Checks und finale Dokumentation.
 
@@ -260,3 +260,16 @@ Die Zahl **12** ist die geplante Releasegliederung. Interne Teilpakete oder Fehl
   Comprehensions bleiben atomarer Referenzfallback.
 - Sechs End-to-End-Ströme sind bytegleich; Parser **5/5**, Bereichsplaner
   **8/8** und CLI-/Ownership **29/29** bestehen.
+
+## Stage 12c4q – native Start-, Sprach- und Hilfeoberfläche
+
+- Leerer Aufruf und reine deutsche/englische Sprachwahl werden vor dem
+  Tabellenplan bytegenau nativ behandelt.
+- `-h`/`-help` lesen reproduzierbar generierte Hilferessourcen und benötigen
+  weder Python-Kindprozess noch eingebettetes CPython.
+- Mehrfache Hilfe und die historische Regel „erste Sprachwahl gewinnt“ bleiben
+  erhalten.
+- Hauptparameter ohne Nebenoption werden nicht mehr fälschlich als vollständige
+  Standardtabelle besessen.
+- Sieben End-to-End-Ströme, fünf Startmodultests und 30 CLI-/Ownership-Tests
+  sichern die Grenze ab.

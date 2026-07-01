@@ -713,6 +713,13 @@ def native_reta_tokens_supported(tokens: List[String], csv_path: String) raises 
     var parsed = parse_cli_tokens(tokens)
     if len(parsed.diagnostics) > 0 or len(parsed.positional) > 0:
         return False
+    # A main section or language selector without any subordinate option does
+    # not request a table.  The compatibility launcher handles the exact
+    # language-only no-output surface before this predicate; all other
+    # optionless vectors must remain on the reference path instead of silently
+    # rendering the complete default table.
+    if len(parsed.options) == 0:
+        return False
     for section_index in range(len(parsed.sections)):
         if not _native_cli_section_supported(parsed.sections[section_index]):
             return False

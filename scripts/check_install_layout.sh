@@ -10,6 +10,8 @@ DESTDIR=$STAGE PREFIX=/usr "$ROOT/scripts/install.sh" >"$TMP/install.log"
 
 [ -f "$STAGE/usr/share/reta/csv/religion.csv" ]
 [ -f "$STAGE/usr/share/reta/assets/parameter_aliases.tsv" ]
+[ -f "$STAGE/usr/share/reta/assets/reta_help_de.txt" ]
+[ -f "$STAGE/usr/share/reta/assets/reta_help_en.txt" ]
 [ -L "$STAGE/usr/lib/reta/python_reference/csv" ]
 [ -L "$STAGE/usr/lib/reta/assets" ]
 [ -L "$STAGE/usr/bin/reta" ]
@@ -37,6 +39,14 @@ set -- \
 )
 cmp "$TMP/reference.out" "$TMP/native.out"
 cmp "$TMP/reference.out" "$TMP/compat-reference.out"
+
+(
+    cd "$TMP"
+    RETA_PYTHON=/definitely/not/available "$STAGE/usr/bin/reta" -h         >"$TMP/installed-help-de.out"
+    RETA_PYTHON=/definitely/not/available "$STAGE/usr/bin/reta"         -language=english -h >"$TMP/installed-help-en.out"
+)
+cmp "$ROOT/assets/reta_help_de.txt" "$TMP/installed-help-de.out"
+cmp "$ROOT/assets/reta_help_en.txt" "$TMP/installed-help-en.out"
 
 DESTDIR=$STAGE PREFIX=/usr "$ROOT/scripts/uninstall.sh" >/dev/null
 [ ! -e "$STAGE/usr/lib/reta" ]

@@ -642,3 +642,11 @@ Ganzzahlarithmetik, Listen/Mengen/Tupel und einvariable Comprehensions über
 Comprehensionsyntax bleibt atomarer Referenzfallback. Sechs reale Tabellenströme
 sind bytegleich. Details:
 [`STAGE12C4P_NATIVE_INTEGER_EXPRESSIONS.md`](STAGE12C4P_NATIVE_INTEGER_EXPRESSIONS.md).
+
+Stage 12c4q übernimmt die Start-, Sprach- und Hilfeoberfläche vor der
+Tabellenplanung nativ. Leerer Aufruf, reine Sprachwahl und die vollständigen
+deutschen/englischen Hilfetexte sind bytegleich, ohne Python-Kindprozess. Der
+Ownership-Prüfer weist reine Hauptparameter ohne Nebenoption zurück, sodass
+`-language=english` oder `-zeilen` nicht mehr fälschlich die Standardtabelle
+ausgeben. Details:
+[`STAGE12C4Q_NATIVE_CLI_STARTUP_HELP.md`](STAGE12C4Q_NATIVE_CLI_STARTUP_HELP.md).

@@ -575,7 +575,7 @@ abschließendes Komma erhalten.
 
 - `compat_main.mojo` prüft den vollständigen historischen Argumentvektor mit `native_reta_tokens_supported`. Nur vollständig besessene Vektoren erreichen `run_native_reta`; jede unbekannte oder teilweise portierte Option fällt atomar auf die Referenz zurück.
 - Der Fallback verwendet den bereits gekapselten Kindprozessadapter, erhält Leerargumente, Unicode, Binärströme, Arbeitsverzeichnis und Exitstatus und bindet kein `libpython`.
-- Die leere Kommandozeile bleibt wegen Hilfe-/Defaultsemantik auf Python. `RETA_FORCE_REFERENCE=1` erzwingt die Referenz; `RETA_NATIVE=1` bleibt der explizite native Modus ohne Fallback.
+- Zum Stand 12c4e blieb die leere Kommandozeile wegen Hilfe-/Defaultsemantik auf Python. Stage 12c4q übernimmt leeren Aufruf, reine Sprachwahl und lokalisierte Hilfe nativ. `RETA_FORCE_REFERENCE=1` erzwingt weiterhin die Referenz; `RETA_NATIVE=1` bleibt der explizite native Modus ohne Fallback.
 - `--onetable` wurde in Stage 12c4e vorsorglich aus der nativen Supportliste entfernt, weil der Renderer diese Option damals noch nicht implementierte. Stage 12c4f führt sie für den Shellrenderer kontrolliert wieder ein.
 - `prompt_python_bridge.mojo` und der alte kombinierte Python-FFI-Probe sind nun auch physisch aus dem Releasebaum entfernt. Der Boundary-Audit meldet **0 aktive `std.python`-Brücken**, **1 expliziten Kindprozessadapter** und **0 verbotene Parallel-Prozessprimitive**.
 - Zwölf Referenzfälle laufen bei absichtlich ungültigem `RETA_PYTHON` byteidentisch. Damit ist nachgewiesen, dass physische, generierte, modale, Meta-, Bruch-, Kombi- und Markupfälle tatsächlich nativ ausgeführt werden.
@@ -704,3 +704,17 @@ abschließendes Komma erhalten.
   Referenzoberfläche verwendet `--uppermaximum`.
 - Der erneut vorhandene, unbenutzte `prompt_python_bridge.mojo` und eine leere
   temporäre Testdatei wurden entfernt.
+
+## Stage 12c4q
+
+- `native_cli_startup.mojo` übernimmt den leeren Aufruf, reine Sprachwahl und
+  lokalisierte Hilfe vor jeder Tabellenplanung.
+- Die deutschen und englischen Hilfetexte werden als unveränderliche Assets aus
+  der Python-Referenz generiert und unter `share/reta/assets` installiert.
+- `compat_main.mojo` und der native Prompt-One-shot-Pfad verwenden dieselbe
+  Startklassifikation; `RETA_FORCE_REFERENCE=1` bleibt vorrangig.
+- `native_reta_tokens_supported` verlangt für Tabellenbesitz mindestens eine
+  Nebenoption. Reine Hauptparameter können dadurch nicht mehr still die
+  Standardtabelle erzeugen.
+- Die wieder aufgetauchte tote Datei `prompt_python_bridge.mojo` wurde erneut
+  entfernt; aktive `std.python`-Importe bleiben bei null.

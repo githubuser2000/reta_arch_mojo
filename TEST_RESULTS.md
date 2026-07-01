@@ -3,9 +3,9 @@
 ## Testbestand
 
 ```text
-92 Mojo-Testdateien und -Probes
-15 Python-Testdateien
-395 Testfunktionen insgesamt (334 Mojo, 61 Python)
+93 Mojo-Testdateien und -Probes
+16 Python-Testdateien
+404 Testfunktionen insgesamt (340 Mojo, 64 Python)
 9 reguläre ELF-Compilerziele
 16 optionale schwere Metadaten-/Katalog-/Laufzeitziele
 ```
@@ -1179,3 +1179,30 @@ Comprehensions, arithmetische Einzelwerte, subtraktive Mengen, negative
 `range`-Schritte und generatorbasierte Spaltenreihenfolge. Nicht besessene
 Ausdrücke werden vor dem nativen Start zurückgewiesen und atomar über die
 Referenzoberfläche ausgeführt.
+
+## Stage 12c4q: native Start-, Sprach- und Hilfeoberfläche
+
+```text
+Native Start-/Hilfe-Parität:              7/7 byteidentisch
+Startmodul:                               5/5
+CLI-/Ownership-Planer:                  30/30
+Kompatibilitätslauncher:                18/18 in zwei Gruppen
+Hilferessourcen-Generator:                1/1
+Installationslayout-Pytests:              5/5
+Prompt-/Eingabe-Source-Gates:             9/9
+FHS-Installationsprobe:              bestanden
+aktive std.python-Brücken:                 0
+libpython-Abhängigkeiten:                  0
+```
+
+Die sieben vollständigen Streams prüfen den leeren Aufruf, reine deutsche und
+englische Sprachwahl, beide Hilfetexte, doppelte Hilfe und die historische
+Regel, dass die erste Sprachwahl gewinnt. Zusätzlich ist abgesichert, dass
+`-language=english` und reine Hauptparameter nicht mehr irrtümlich die native
+Standardtabelle auslösen.
+
+```bash
+python3 tools/generate_native_cli_help_assets.py --check
+scripts/check_native_cli_startup_parity.sh
+scripts/check_install_layout.sh
+```

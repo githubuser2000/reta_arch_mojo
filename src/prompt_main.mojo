@@ -43,6 +43,7 @@ from reta_mojo.native_reta_cli import (
     native_reta_tokens_supported,
     run_native_reta,
 )
+from reta_mojo.native_cli_startup import native_cli_startup
 from reta_mojo.resource_paths import asset_root, csv_resource, reference_root
 from reta_mojo.prompt_runtime import (
     KIND_EMPTY,
@@ -224,6 +225,10 @@ def _run_native_reta_prompt_command(command: PromptCommand) raises -> Bool:
     var tokens = List[String]()
     for index in range(1, len(command.words)):
         tokens.append(command.words[index])
+    var startup = native_cli_startup(tokens)
+    if startup.owned:
+        print(startup.output, end="")
+        return True
     var csv_path = csv_resource("religion.csv")
     if not native_reta_tokens_supported(tokens, csv_path):
         return False

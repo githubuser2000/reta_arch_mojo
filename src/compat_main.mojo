@@ -15,6 +15,7 @@ from reta_mojo.native_reta_cli import (
     native_reta_tokens_supported,
     run_native_reta,
 )
+from reta_mojo.native_cli_startup import native_cli_startup
 from reta_mojo.prompt_external_commands import run_reta_arguments_native
 from reta_mojo.resource_paths import csv_resource, reference_root
 
@@ -26,15 +27,20 @@ def main() raises:
     for index in range(1, len(raw)):
         arguments.append(String(raw[index]))
 
-    # The empty historical invocation has additional help/default semantics
-    # outside the native table subset.  Keep it on the reference path.  For
-    # non-empty vectors the ownership predicate rejects every unknown section,
-    # option, value pair, positional token and output mode before native work.
+    # Startup/help vectors are a separate native surface.  They must be
+    # classified before the table predicate: language-only invocations have an
+    # intentionally empty stream and must never be mistaken for "all rows and
+    # columns".  RETA_FORCE_REFERENCE still bypasses every native owner.
     var force_reference = getenv("RETA_FORCE_REFERENCE", "") == "1"
+    if not force_reference:
+        var startup = native_cli_startup(arguments)
+        if startup.owned:
+            print(startup.output, end="")
+            return
+
     var csv_path = csv_resource("religion.csv")
     if (
         not force_reference
-        and len(arguments) > 0
         and native_reta_tokens_supported(arguments, csv_path)
     ):
         print(run_native_reta(arguments, csv_path), end="")

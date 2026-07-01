@@ -197,3 +197,19 @@ atomar; unbekannte Optionen bleiben Ganzvektor-Fallback.
 Der Ownership-Prüfer validiert die vollständige Ausdrucksgrammatik, bevor der
 native Tabellenkern gestartet wird. Damit kann kein formal erkannter, aber
 semantisch ignorierter Generatorbereich mehr eine stille Teilmenge ausgeben.
+
+## Stage 12c4q – Start-, Sprach- und Hilfeoberfläche
+
+| Oberfläche | Native Ownership | Datenquelle |
+|---|---:|---|
+| leerer Aufruf | ja | typisierte Konstante |
+| `-language=english/german/deutsch` allein | ja | Startklassifikation |
+| deutsche `-h`/`-help` | ja | `assets/reta_help_de.txt` |
+| englische `-h`/`-help` | ja | `assets/reta_help_en.txt` |
+| mehrfache Hilfe | ja | Wiederholung des exakten Assets |
+| unbekannte Sprache/gemischte unbekannte Tokens | atomarer Fallback | Python-Referenz |
+| Hauptparameter ohne Nebenoption | kein Tabellenbesitz | Referenz/Leerlaufvertrag |
+
+Die Hilfetexte sind reproduzierbar generierte Laufzeitressourcen, keine
+handgepflegten Mojo-Stringkopien. Dadurch bleibt die Ausgabe bytegenau, ohne den
+großen Text in jedes importierende Executable einzubetten.

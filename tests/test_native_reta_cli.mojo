@@ -541,5 +541,24 @@ def test_collection_expressions_are_limited_to_numeric_row_options() raises:
         )
     )
 
+
+def test_optionless_sections_are_not_table_owned() raises:
+    var csv_path = "python_reference/csv/religion.csv"
+    for token in [
+        "-zeilen",
+        "-lines",
+        "-spalten",
+        "-columns",
+        "-ausgabe",
+        "-output",
+        "-kombination",
+        "-combination",
+        "-language=english",
+        "-language=german",
+    ]:
+        assert_false(
+            native_reta_tokens_supported([token], csv_path)
+        )
+
 def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()

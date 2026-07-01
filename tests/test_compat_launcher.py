@@ -25,13 +25,18 @@ def _run_compat(
 ) -> subprocess.CompletedProcess[bytes]:
     assert BINARY.is_file(), f"missing compatibility binary: {BINARY}"
     return subprocess.run(
-        [str(BINARY), *arguments],
+        [str(ROOT / "bin" / "mojo-runtime-exec"), str(BINARY), *arguments],
         cwd=cwd,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         env={
             **os.environ,
             "RETA_PYTHON": python or REFERENCE_PYTHON,
+            "RETA_REFERENCE_DIR": str(
+                (cwd / "python_reference")
+                if (cwd / "python_reference").is_dir()
+                else (ROOT / "python_reference")
+            ),
             **(extra_env or {}),
         },
         check=False,
@@ -321,10 +326,16 @@ def test_zero_column_widths_run_without_python_child() -> None:
             b"",
         )
 
-def test_empty_cli_remains_on_complete_reference_surface(tmp_path: Path) -> None:
+def test_force_reference_keeps_empty_cli_on_complete_reference_surface(
+    tmp_path: Path,
+) -> None:
     fake_python = tmp_path / "fake-python"
     _write_fake_python(fake_python, 19)
-    result = _run_compat([], python=str(fake_python))
+    result = _run_compat(
+        [],
+        python=str(fake_python),
+        extra_env={"RETA_FORCE_REFERENCE": "1"},
+    )
     expected = (ROOT / "python_reference").as_posix().encode() + b"\nreta.py"
     assert (result.returncode, result.stdout, result.stderr) == (19, expected, b"")
 
@@ -444,3 +455,36 @@ def test_compat_shell_launcher_preserves_project_interpreter() -> None:
     assert '[ -x "$ROOT/.venv/bin/python" ]' in source
     assert 'RETA_PYTHON="$ROOT/.venv/bin/python"' in source
     assert "export RETA_PYTHON" in source
+
+
+def test_native_startup_help_and_language_only_need_no_python_child() -> None:
+    cases = [
+        ([], b"Versuche Parameter -h\n"),
+        (["-language=english"], b""),
+        (["-language=german"], b""),
+        (["-h"], (ROOT / "assets" / "reta_help_de.txt").read_bytes()),
+        (
+            ["-language=english", "-help"],
+            (ROOT / "assets" / "reta_help_en.txt").read_bytes(),
+        ),
+        (
+            ["-help", "-h"],
+            (ROOT / "assets" / "reta_help_de.txt").read_bytes() * 2,
+        ),
+    ]
+    for arguments, expected in cases:
+        result = _run_compat(arguments, python="/definitely/not/available")
+        assert (result.returncode, result.stdout, result.stderr) == (
+            0,
+            expected,
+            b"",
+        )
+
+
+def test_optionless_main_sections_no_longer_render_default_table(tmp_path: Path) -> None:
+    fake_python = tmp_path / "fake-python"
+    _write_fake_python(fake_python, 23)
+    for arguments in (["-zeilen"], ["-spalten"], ["-ausgabe"]):
+        result = _run_compat(arguments, python=str(fake_python))
+        assert result.returncode == 23
+        assert b"\0".join(value.encode() for value in arguments) in result.stdout
