@@ -270,3 +270,24 @@ Deinstallation verwendet dieselben `PREFIX`, `DESTDIR`, `BINDIR`,
 ```bash
 sudo ./scripts/uninstall.sh
 ```
+
+## Portabler ELF-RUNPATH
+
+Mojo 1.0.0b2 ergänzt beim Linken automatisch den absoluten Pfad seiner lokalen
+`modular/lib`-Installation. Die Buildskripte rufen deshalb nach jedem Ziel
+`tools/sanitize_mojo_runpath.py` auf. Der ELF-Stringtabelleneintrag wird ohne
+Verschieben anderer Daten auf den portablen Vertrag gekürzt:
+
+```text
+$ORIGIN/../lib/mojo
+```
+
+Prüfung eines vorhandenen Binaries:
+
+```bash
+python3 tools/sanitize_mojo_runpath.py --check target/bin/reta-native
+readelf -d target/bin/reta-native | grep RUNPATH
+```
+
+Der Runtime-Starter `bin/mojo-runtime-exec` bleibt für ältere, noch nicht
+sanitisierte Binärdateien erhalten.

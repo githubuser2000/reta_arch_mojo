@@ -433,6 +433,71 @@ def test_non_owned_generator_expression_falls_back_atomically(
         )
         assert (result.returncode, result.stdout, result.stderr) == (23, expected, b"")
 
+
+def test_native_debug_and_nothing_controls_need_no_python_child() -> None:
+    cases = [
+        (["-debug"], b"Sprachenwahl: \ngerman\n"),
+        (["-debug", "-language=english"], b"Sprachenwahl: english\nnot german\n"),
+        (["-nichts"], b""),
+        (["-debug", "-nichts"], b"Sprachenwahl: \ngerman\n"),
+        (["-nichts", "-h"], (ROOT / "assets" / "reta_help_de.txt").read_bytes()),
+    ]
+    for arguments, expected in cases:
+        result = _run_compat(arguments, python="/definitely/not/available")
+        assert (result.returncode, result.stdout, result.stderr) == (0, expected, b"")
+
+
+def test_native_debug_and_nothing_table_vectors_match_reference() -> None:
+    cases = [
+        [
+            "-debug",
+            "-zeilen",
+            "--vorhervonausschnitt=1",
+            "-spalten",
+            "--religionen=sternpolygon",
+            "-ausgabe",
+            "--art=csv",
+        ],
+        [
+            "-nichts",
+            "-zeilen",
+            "--vorhervonausschnitt=1",
+            "-spalten",
+            "--religionen=sternpolygon",
+        ],
+        [
+            "-debug",
+            "-nichts",
+            "-zeilen",
+            "--vorhervonausschnitt=1",
+            "-spalten",
+            "--religionen=sternpolygon",
+        ],
+        [
+            "-nichts",
+            "-zeilen",
+            "--vorhervonausschnitt=1",
+            "-spalten",
+            "--religionen=sternpolygon",
+            "-ausgabe",
+            "--art=csv",
+        ],
+    ]
+    for arguments in cases:
+        native = _run_compat(arguments, python="/definitely/not/available")
+        reference = subprocess.run(
+            [REFERENCE_PYTHON, "reta.py", *arguments],
+            cwd=ROOT / "python_reference",
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=False,
+        )
+        assert (native.returncode, native.stdout, native.stderr) == (
+            reference.returncode,
+            reference.stdout,
+            reference.stderr,
+        )
+
 def test_compat_source_contains_no_embedded_python() -> None:
     source = (ROOT / "src" / "compat_main.mojo").read_text(encoding="utf-8")
     adapter = (
@@ -443,7 +508,8 @@ def test_compat_source_contains_no_embedded_python() -> None:
     assert "native_reta_tokens_supported(" in source
     assert 'getenv("RETA_FORCE_REFERENCE", "") == "1"' in source
     assert 'var csv_path = csv_resource("religion.csv")' in source
-    assert "run_native_reta(arguments, csv_path)" in source
+    assert "run_native_reta(controls.tokens, csv_path)" in source
+    assert "normalize_native_cli_controls(arguments)" in source
     assert "run_reta_arguments_native(arguments, reference_root())" in source
     assert 'external_call["exit", NoneType]' in source
     assert "def run_reta_arguments_native(" in adapter

@@ -8,7 +8,7 @@ Dies ist ein inkrementeller, getesteter Port des hochgeladenen Python-Projekts `
 abgeschlossene Release-Stufen:       9 von 12 = 75,0 %
 Stufen 9/10/12:                       Ausgabe, Prompt/i18n und Releaseparität in Arbeit
 Stufe 11:                             11a–11j = 100 %
-Stufe 12:                             12a–12b fertig, 12c zu ca. 99,6 % = ca. 67 %
+Stufe 12:                             12a–12b fertig, 12c zu ca. 99,9 % = ca. 67 %
 vollständig native Originaldateien:  33 von 92 = 35,9 %
 mindestens teilweise portiert:       61 von 92 = 66,3 %
 gewichteter Quellzeilenstand:         ca. 52 %
@@ -36,6 +36,8 @@ Das Skript erzeugt `.venv`, installiert den Modular-Mojo-Compiler und baut die r
 ```
 
 Details: [`BUILD.md`](BUILD.md).
+
+Nach jedem Build entfernt `tools/sanitize_mojo_runpath.py` den von Mojo selbst ergänzten absoluten Compilerpfad aus dem ELF-RUNPATH. Ausgelieferte Programme enthalten damit nur `$ORIGIN/../lib/mojo` und bleiben zwischen Rechnern übertragbar.
 
 ### Installation der CSV- und Assetdaten
 
@@ -664,3 +666,5 @@ python3 -m pytest -q tests/test_known_defects.py
 ```
 
 Stage 12c4r nutzt diesen Prozess erstmals für eine absichtliche Korrektur gegenüber dem Original: `rpb 'universum v2/3'` stürzt in Python mit `IndexError` ab, während Mojo ein an der realen Bruch-CSV-Form begrenztes Zähler×Nenner-Raster erzeugt. Details: [`STAGE12C4R_DEFECT_LEDGER_FRACTION_MULTIPLES.md`](STAGE12C4R_DEFECT_LEDGER_FRACTION_MULTIPLES.md).
+
+Stage 12c4s hat den Katalog rückwirkend gegen die bisherigen Migrations- und Testberichte geprüft. Er umfasst nun 35 bekannte Befunde; zwölf davon bilden den späteren Python-/PyPy3-Bereinigungsrückstand. `-debug` und `-nichts`/`-nothing` werden nativ behandelt, ohne `-nichts` mit dem echten stillen Renderer `--art=nichts` zu verwechseln. Details: [`STAGE12C4S_DEFECT_BACKFILL_NATIVE_CONTROL_MAINS.md`](STAGE12C4S_DEFECT_BACKFILL_NATIVE_CONTROL_MAINS.md).

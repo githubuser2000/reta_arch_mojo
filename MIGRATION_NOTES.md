@@ -727,3 +727,25 @@ abschließendes Komma erhalten.
 - `PY-OPEN-002` dokumentiert den `IndexError` bei `rpb 'universum v2/3'`. Mojo erweitert Zähler und Nenner unabhängig und schneidet sie an der realen CSV-Form ab.
 - Die physischen Domänen sind Emotion 7×7 (Zähler 2–8), Strukturgröße 16×16 (2–17), Galaxie 21×21 (2–22) und Universum 21×19 (2–20).
 - Ganzzahlige, reziproke und Universum-Gleichheitsprojektionen werden aus dem erzeugten Raster abgeleitet. Mehrdomänen- und gemischte `1/n`+`n/m`-Vielfache bleiben konservativer Ganzvektor-Fallback.
+
+## Stage 12c4s – rückwirkender Defektaudit und Kontroll-Hauptparameter
+
+- Der zentrale Defektkatalog wurde gegen elf historische Migrations-, Test- und
+  Stage-Quellen rückwärts geprüft. Er umfasst nun 35 verhaltensrelevante
+  Befunde; 12 davon bilden den späteren Python-/PyPy3-Bereinigungsrückstand.
+- Bestätigte Python-Abweichungen dürfen nicht mehr ausschließlich in Fließtext
+  stehen. Der Katalog enthält jetzt auch die fehlerhafte Dictionary-Invertierung,
+  die fließkommabasierte Mondzahlprüfung, die drei roten Baseline-Tests,
+  Hashreihenfolge-Aliase und die heterogene Primwiederholungsschnittstelle.
+- `-debug` wird als orthogonaler Präfix nativ ausgegeben. `-nichts`/`-nothing`
+  ist dagegen kein Ausgabeformat: Ohne wirksame Restargumente bleibt der Aufruf
+  leer, in einem echten Tabellenvektor wird der Hauptparameter wie in Python
+  ignoriert. Nur `--art=nichts` beziehungsweise `--type=nothing` aktiviert den
+  stillen Renderer.
+- Der tote, erneut im Archiv aufgetauchte `prompt_python_bridge.mojo` wurde
+  entfernt. Source-Gates erzwingen weiterhin null aktive `std.python`-Importe.
+- Der von Mojo 1.0.0b2 automatisch ergänzte absolute Runtimepfad wird nach jedem
+  Build durch `tools/sanitize_mojo_runpath.py` in-place entfernt. Der endgültige
+  ELF-Vertrag lautet ausschließlich `$ORIGIN/../lib/mojo`.
+- Der 20-Knoten-Kompatibilitäts-Pytest läuft wegen eines reproduzierten
+  Teardown-Hängers in 20 einzeln isolierten Pytest-Prozessen; die vier Gruppen dienen nur der Berichterstattung.

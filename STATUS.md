@@ -1,8 +1,7 @@
-# Status – Stage 12c4r abgeschlossen; Stufen 9, 10 und 12 in Arbeit
-
+# Status – Stage 12c4s abgeschlossen; Stufen 9, 10 und 12 in Arbeit
 - Zielversion: Mojo 1.0.0b2
 - Unterstützte Python-Umgebung für Installation/Referenzbrücken: 3.10–3.14; Setup bevorzugt Python 3.14
-- Vollständig abgeschlossene Release-Stufen: **9/12 = 75,0 %**; teilgewichtet mit Stage 12c4r: **9,77/12 = 81,4 %**
+- Vollständig abgeschlossene Release-Stufen: **9/12 = 75,0 %**; teilgewichtet mit Stage 12c4s: **9,78/12 = 81,5 %**
 - Stufe 9: **BBCode, zentraler ANSI-Shellpfad und zentrale HTML-Pfade nativ; seltene Ausgabegrenzen offen**
 - Stufe 10: **native Kurzsprache, mehrsprachige verschachtelte Completion und Promptvorbereitung in Arbeit**
 - Stufe 11: **11a–11j abgeschlossen; 10/10 Teilstufen = 100 %**
@@ -11,10 +10,10 @@
 - Konservativ vollständig native oder reproduzierbar generierte Originaldateien: **33/92 = 35,9 %**
 - Mindestens teilweise portierte Originaldateien: **61/92 = 66,3 %**
 - Gewichteter Quellzeilenstand: **ca. 52 %**
-- Nativer Mojo-Quellcode in `src/`: **41.577 Zeilen**
-- Davon im Paket `reta_mojo`: **38.424 Zeilen**
-- Test-/Probe-Dateien: **112** (**95 Mojo**, **17 Python** einschließlich PTY-, Boundary-, Eingabe-, Rohbefehl-, Reziprok-, klassischer Bruchplan-, Kompatibilitätslauncher- und Alles-Plan-Audits)
-- Native Mojo-Testfunktionen: **341**; Python-Testfunktionen: **66**
+- Nativer Mojo-Quellcode in `src/`: **41.650 Zeilen**
+- Davon im Paket `reta_mojo`: **38.488 Zeilen**
+- Test-/Probe-Dateien: **115**; native Mojo-Testfunktionen: **346**; Python-Testfunktionen: **76**
+- Stage-12c4s-Fokus: rückwirkender Vollaudit aller bisher verstreut dokumentierten verhaltensrelevanten Fehler; zentraler Katalog **35/35**, spätere Python-/PyPy3-Bereinigung **12** Punkte und reproduzierbare eingefrorene Python-Baseline **67 bestanden / 3 katalogisierte Fehler**. `-debug` sowie `-nichts`/`-nothing` sind vor der Tabellenplanung nativ; `-nichts` wird in echten Tabellenvektoren korrekt ignoriert und nicht mit `--art=nichts` verwechselt. Start-/Hilfe-/Kontrollparität **15/15**, Kontrollmodul **5/5**, Kompatibilitätslauncher **20/20**, CLI-/Ownership **30/30**. Alle Buildskripte entfernen den automatisch eingebetteten absoluten Mojo-RUNPATH auf `$ORIGIN/../lib/mojo`; aktive `std.python`-Brücken **0**, Quellmanifest **1064/1064**.
 - Stage-12c4r-Fokus: zentraler maschinenlesbarer Fehlerkatalog mit getrenntem Python-/Mojo-Status, Reproduktion, Belegen und späterem Python-Korrekturauftrag; echte Bruchvielfache wie `universum v2/3` werden trotz reproduzierbarem Python-`IndexError` nativ als datenformbegrenztes Zähler×Nenner-Raster ausgeführt. Python-Fehlerkatalog **14/14 konsistent**, spätere Python-Bereinigungsliste **6** Punkte, Ledger-Pytests **3/3**, Bruchvielfachenvertrag **12/12**, direkte Tabellenaufrufe **13/13**, Tabellenplaner **29/29**, klassische Bruchparität **18/18** und gemischte stabile Reziprokpläne **5/5**; aktive `std.python`-Brücken **0**.
 - Stage-12c4q-Fokus: native Start-, Sprach- und Hilfeoberfläche vor der Tabellenplanung; leerer Aufruf, reine deutsche/englische Sprachwahl, vollständige Hilfetexte, Mehrfachhilfe und erste-Sprachwahl-Regel ohne Python-Kindprozess. Reine Hauptparameter ohne Nebenoption werden nicht mehr fälschlich als Standardtabelle besessen. Startparität **7/7 byteidentisch**, Startmodul **5/5**, CLI-/Ownership **30/30**, Kompatibilitätslauncher **18/18**, Hilferessourcen **1/1**, Installationslayout **5/5** und Source-Gates **9/9**; aktive `std.python`-Brücken **0**.
 - Stage-12c4p-Fokus: sichere native Ganzzahlausdrücke und dokumentierte `range`-Comprehensions in Zeilenbereichen und Spaltenreihenfolge; Ganzzahlarithmetik einschließlich Python-konformem `//`/`%`, ein- bis dreiargumentigem `range`, negativen Schritten sowie additiver/subtraktiver Mengenkomposition. Nicht besessener Python-Code fällt atomar zurück statt still falsch nativ zu laufen. Ausdrucksparser **5/5**, Zeilenbereiche **8/8**, CLI-/Ownership **29/29**, Python↔Mojo-Probe **2/2**, sechs End-to-End-Ströme bytegleich und Prompt-/Boundary-Gates **10/10**; aktive `std.python`-Brücken **0**.
@@ -54,26 +53,20 @@
 - Verschachtelte Completion: **12/12 Referenzkontexte und 12/12 schnelle Fixtures bytegleich**
 - Reguläre Compilerziele: **9 ELF-Executables** unter `target/bin/`
 - Schwere optionale Compilerziele: Parameterschema, Kategorienkatalog, Architektur-Grenzgraph, Verträge, Witnesses, Kohärenz, Traces, Impact, Migration, Rehearsal, Aktivierung, Gesamtvalidierung, Fortschritts-Overlay, SQLite-Persistenz, Ausführungsnetz, thread-only Tabellen-/Zahlen-Chunks und typisierte Thread-Zeilenvorbereitung über `scripts/build-heavy.sh`
-
 ## Stufe 7 abgeschlossen
-
 - zwölf allgemeine Meta-/Konkretachsen aus `meta_columns.py`
 - jeweils zwei Spalten für `n` und `1/n`
 - exakte CPython-Mengenreihenfolge für alle **4.095** nichtleeren Teilmengen
 - deutsche und englische Aliasauflösung
 - historische Identitäts- und Übersetzungssonderfälle
-
 ## Stufe 8 abgeschlossen
-
 - vier gebrochen-rationale CSV-Prägarben: Universum, Galaxie, Emotion und Strukturgröße
 - nativer relationaler Kombi-Join für Galaxie und Universum
 - **173** zweisprachige Kombi-Aliase
 - **151** reproduzierbare Relationsordnungen
 - Negativauswahl, Mehrfachauswahl und gemischte Galaxie-/Universum-Abfragen
 - historische leere Segmente und abschließende Leerzeichen erhalten
-
 ## Stufe 9 weit fortgeschritten
-
 - BBCode mit historischer Zählungsfarbe, Zellabständen, Wortumbruch und Seitenteilung
 - HTML mit dynamischen Klassen für alle **746** physischen Haupttabellenspalten
 - physischer HTML-Katalog mit **1.496** Sprach-/Spalteneinträgen
@@ -82,9 +75,7 @@
 - bytegleiche deutsche und englische HTML-Ausgabe für physische Spalten, Primzahlwirkung, Meta-Spalten und gebrochenes Universum
 - nativer ANSI-Shellrenderer mit historischen Zeilenfarben, Wortumbruch, Seitenteilung und signifikanter Leerzeichenbehandlung
 - fünf bytegleiche Shell-Fixtures: Deutsch/Englisch, Breite 0/40, ohne Nummerierung und generierte Primzahlwirkung
-
 ## Stufe 10 begonnen
-
 - `prompt_language.mojo` als besitzender, mehrsprachiger Promptkatalog
 - **28.990** Completion-Werte in **549** Kontextsektionen
 - **200** lokalisierte Dispatch-Aliase
@@ -125,11 +116,8 @@
 - die historische Shell-Zählungsmarkierung `█` ist zentral im nativen Renderer modelliert
 - alle **165** katalogisierten deutschen `EIGN…`-/`EIGR…`-Eigenschaftsbefehle werden nativ geplant; CPython-Set-Reihenfolge, Ganzzahl-, Reziprok- und gemischte Zweit-`-zeilen`-Achsen bleiben erhalten
 - EIGR umgeht den defekten Python-`deepcopy(module)`-Wrapper über dessen expliziten, direkt lauffähigen `reta.py`-Argumentvertrag
-
 ## Weiterhin an der Kompatibilitätsgrenze
-
 - wenige verbleibende Rich-/Terminalsonderfälle außerhalb der seit 12c4i bytegleichen paginierten Kernpfade
 - echte `v n/m`-Vielfache mit Zähler größer 1 und weitere hintere Prompt-Sonderzweige
 - vollständige i18n-Laufzeit außerhalb des Promptvokabulars
-
 Siehe [`ROADMAP.md`](ROADMAP.md) für alle zwölf Stufen.

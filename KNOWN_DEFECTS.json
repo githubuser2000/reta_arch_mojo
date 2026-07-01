@@ -5,7 +5,8 @@
     "post_port_action": "Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_status=open oder python_status=candidate einzeln im Python-/PyPy3-Code behoben, gegen neue Soll-Fixtures geprüft und danach auf fixed gesetzt.",
     "compatibility_rule": "Eine beabsichtigte Mojo-Abweichung von Python benötigt einen defect-Eintrag, einen reproduzierbaren Auslöser und einen Test, der die Abweichung ausdrücklich festschreibt.",
     "scope": "Erfasst werden alle reproduzierbaren semantischen, Ausgabe-, Ownership-, Portabilitäts- und Testinfrastrukturfehler, die Verhalten oder Verlässlichkeit beeinflussen. Rein vorübergehende Tipp-, Syntax- oder Compilerfehler während einer noch nicht lauffähigen Änderung werden nur aufgenommen, wenn sie eine eigenständige Architektur- oder Vertragslücke offenlegen.",
-    "python_original_rule": "Jeder bestätigte oder plausible Fehler im Python-/PyPy3-Original erhält vor einer absichtlichen Mojo-Abweichung einen PY-OPEN- oder PY-CAND-Eintrag mit Reproduktion, Quellorten, Belegen und konkretem späterem Python-Arbeitsauftrag."
+    "python_original_rule": "Jeder bestätigte oder plausible Fehler im Python-/PyPy3-Original erhält vor einer absichtlichen Mojo-Abweichung einen PY-OPEN- oder PY-CAND-Eintrag mit Reproduktion, Quellorten, Belegen und konkretem späterem Python-Arbeitsauftrag.",
+    "audit_rule": "Vor jedem Release werden neue Testfehler und beobachtbare Python↔Mojo-Abweichungen gegen den Katalog geprüft. Ein bestätigter Befund darf nicht ausschließlich in Stage-Berichten, Konsolenausgaben oder Kommentaren verbleiben."
   },
   "defects": [
     {
@@ -263,12 +264,14 @@
       "mojo_locations": [
         "scripts/build.sh",
         "scripts/build-heavy.sh",
-        "bin/mojo-runtime-exec"
+        "bin/mojo-runtime-exec",
+        "tools/sanitize_mojo_runpath.py"
       ],
-      "current_contract": "Binaries nutzen $ORIGIN/../lib/mojo und die lokale Runtime-Erkennung.",
+      "current_contract": "Jeder Build kürzt den von Mojo automatisch ergänzten absoluten Compiler-RUNPATH in-place auf $ORIGIN/../lib/mojo; der Runtime-Starter bleibt als Altbinary-Fallback.",
       "post_port_fix": "Keine Python-Änderung erforderlich.",
       "evidence": [
-        "STAGE12C4L_PORTABLE_RUNTIME_RAW_MARKUP.md"
+        "STAGE12C4L_PORTABLE_RUNTIME_RAW_MARKUP.md",
+        "tests/test_sanitize_mojo_runpath.py"
       ]
     },
     {
@@ -315,6 +318,488 @@
       "evidence": [
         "STAGE12C4K_NATIVE_ZERO_COLUMN_WIDTHS.md"
       ]
+    },
+    {
+      "id": "PY-OPEN-003",
+      "title": "Dictionary-Invertierung verwirft frühere Quellschlüssel bei gemeinsamem Integerwert",
+      "origin": "python_reference",
+      "classification": "bug",
+      "severity": "medium",
+      "python_status": "open",
+      "mojo_status": "fixed",
+      "discovered_stage": "initial-port-audit",
+      "reproducer": "python3 -c \"from reta_architecture.arithmetic import invert_int_value_dict; print(invert_int_value_dict({'a':['1'],'b':['1']}))\"",
+      "python_locations": [
+        "python_reference/reta_architecture/arithmetic.py:126-137"
+      ],
+      "mojo_locations": [
+        "src/reta_mojo/arithmetic.mojo:200-221"
+      ],
+      "current_contract": "Python liefert für den Integerwert 1 nur den zuletzt besuchten Schlüssel; Mojo bewahrt alle verschiedenen Quellschlüssel typisiert.",
+      "post_port_fix": "In Python bei int_value statt beim ursprünglichen String value auf vorhandene Zielschlüssel prüfen und einen Regressionstest mit zwei Quellschlüsseln für denselben Integerwert ergänzen.",
+      "evidence": [
+        "MIGRATION_NOTES.md",
+        "STAGE12C4S_DEFECT_BACKFILL_NATIVE_CONTROL_MAINS.md"
+      ]
+    },
+    {
+      "id": "PY-CAND-004",
+      "title": "Mondzahl-Erkennung verwendet gerundete Fließkommawurzeln statt exakter Potenzprüfung",
+      "origin": "python_reference",
+      "classification": "bug_candidate",
+      "severity": "medium",
+      "python_status": "candidate",
+      "mojo_status": "fixed",
+      "discovered_stage": "initial-port-audit",
+      "reproducer": "Vergleiche moonNumber(n) mit exakter ganzzahliger Potenzprüfung an großen und potenznahen Ganzzahlen.",
+      "python_locations": [
+        "python_reference/reta_architecture/number_theory.py:18-29"
+      ],
+      "mojo_locations": [
+        "src/reta_mojo/number_theory.mojo:18-38"
+      ],
+      "current_contract": "Mojo akzeptiert eine Basis nur, wenn base**exponent exakt der Eingabe entspricht; Python rundet die Fließkommawurzel auf fünf Nachkommastellen.",
+      "post_port_fix": "Python auf eine begrenzte exakte Integerwurzel-/Potenzprüfung umstellen und zuvor einen Suchtest für falsch positive beziehungsweise negative Rundungsfälle festlegen.",
+      "evidence": [
+        "MIGRATION_NOTES.md",
+        "STAGE12C4S_DEFECT_BACKFILL_NATIVE_CONTROL_MAINS.md"
+      ]
+    },
+    {
+      "id": "PY-OPEN-004",
+      "title": "Zwei Python-Architekturtests erwarten veraltete dataDict-Größe 554 statt 556",
+      "origin": "python_reference_tests",
+      "classification": "test_bug",
+      "severity": "medium",
+      "python_status": "open",
+      "mojo_status": "not_applicable",
+      "discovered_stage": "upload-baseline",
+      "reproducer": "python3 -m pytest -q python_reference/tests/test_architecture_refactor.py",
+      "python_locations": [
+        "python_reference/tests/test_architecture_refactor.py:163",
+        "python_reference/tests/test_architecture_refactor.py:982",
+        "python_reference/tests/test_architecture_refactor.py:986"
+      ],
+      "mojo_locations": [],
+      "current_contract": "Die unveränderte Referenz erzeugt 556 Einträge; zwei Tests beziehungsweise mehrere Assertions halten noch 554 fest und schlagen reproduzierbar fehl.",
+      "post_port_fix": "Fachlich prüfen, welche zwei Einträge hinzugekommen sind, dann die erwarteten Snapshotgrößen samt erklärendem Fixture aktualisieren oder die unerwünschten Einträge an der Quelle entfernen.",
+      "evidence": [
+        "MIGRATION_NOTES.md",
+        "TEST_RESULTS.md",
+        "STAGE12C4S_DEFECT_BACKFILL_NATIVE_CONTROL_MAINS.md",
+        "scripts/check_documented_python_baseline.py"
+      ]
+    },
+    {
+      "id": "PY-OPEN-005",
+      "title": "Python-Workflowtest erwartet veralteten Orchestrierungsnamen load_/religion_table",
+      "origin": "python_reference_tests",
+      "classification": "test_bug",
+      "severity": "low",
+      "python_status": "open",
+      "mojo_status": "not_applicable",
+      "discovered_stage": "upload-baseline",
+      "reproducer": "python3 -m pytest -q python_reference/tests/test_architecture_refactor.py::ArchitectureRefactorTests::test_program_workflow_layer_is_explicit",
+      "python_locations": [
+        "python_reference/tests/test_architecture_refactor.py:732-740"
+      ],
+      "mojo_locations": [],
+      "current_contract": "Der aktuelle Snapshot enthält load_religion_table; der Test sucht noch den älteren Namen load_/religion_table.",
+      "post_port_fix": "Den fachlich gültigen Orchestrierungsnamen bestätigen und die Testassertion auf den aktuellen stabilen Namen aktualisieren.",
+      "evidence": [
+        "MIGRATION_NOTES.md",
+        "TEST_RESULTS.md",
+        "STAGE12C4S_DEFECT_BACKFILL_NATIVE_CONTROL_MAINS.md",
+        "scripts/check_documented_python_baseline.py"
+      ]
+    },
+    {
+      "id": "PY-CAND-005",
+      "title": "Kanonischer Parameteralias hängt bei set-Einträgen von Python-Hashreihenfolge ab",
+      "origin": "python_reference",
+      "classification": "bug_candidate",
+      "severity": "medium",
+      "python_status": "candidate",
+      "mojo_status": "fixed",
+      "discovered_stage": "schema-port",
+      "reproducer": "Erzeuge paraDict mit verschiedenen PYTHONHASHSEED-Werten und vergleiche den kanonischen Namen der set-basierten paraNdataMatrix-Einträge.",
+      "python_locations": [
+        "python_reference/i18n/words_runtime.py",
+        "python_reference/reta_architecture/semantics_builder.py"
+      ],
+      "mojo_locations": [
+        "src/reta_mojo/schema_catalog.mojo",
+        "tools/generate_schema_catalog.py"
+      ],
+      "current_contract": "Der Mojo-Snapshot sortiert ausschließlich ungeordnete Mengen numerisch beziehungsweise lexikographisch; geordnete Tupel bleiben unverändert.",
+      "post_port_fix": "Im Python-Schemabau für set-basierte Aliasgruppen eine fachlich definierte stabile Reihenfolge verwenden und Hash-Seed-Regressionen ergänzen.",
+      "evidence": [
+        "MIGRATION_NOTES.md",
+        "STAGE12C4S_DEFECT_BACKFILL_NATIVE_CONTROL_MAINS.md"
+      ]
+    },
+    {
+      "id": "PY-CAND-006",
+      "title": "Legacy-Primwiederholungsfunktion mischt Zahlen und Zeichenketten im selben Rückgabewert",
+      "origin": "python_reference",
+      "classification": "api_bug_candidate",
+      "severity": "low",
+      "python_status": "candidate",
+      "mojo_status": "fixed",
+      "discovered_stage": "initial-port-audit",
+      "reproducer": "python3 -c \"from reta_architecture.arithmetic import prime_repeat_legacy; print(prime_repeat_legacy([3,2,2,2]))\"",
+      "python_locations": [
+        "python_reference/reta_architecture/arithmetic.py:65-94"
+      ],
+      "mojo_locations": [
+        "src/reta_mojo/arithmetic.mojo"
+      ],
+      "current_contract": "Mojo trennt typisierte Primzahl/Anzahl-Paare von der reinen Stringdarstellung; Python behält vorerst die heterogene Legacy-Liste.",
+      "post_port_fix": "Verwendungen auf prime_repeat_pairs beziehungsweise eine explizite Label-Funktion migrieren und die heterogene Legacy-Schnittstelle anschließend deprecaten.",
+      "evidence": [
+        "MIGRATION_NOTES.md",
+        "STAGE12C4S_DEFECT_BACKFILL_NATIVE_CONTROL_MAINS.md"
+      ]
+    },
+    {
+      "id": "MOJO-FIXED-006",
+      "title": "-nichts wurde fälschlich als --art=nichts interpretiert und unterdrückte Tabellen",
+      "origin": "mojo_port",
+      "classification": "ownership_bug",
+      "severity": "high",
+      "python_status": "correct_reference",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c4s",
+      "reproducer": "reta -nichts -zeilen --vorhervonausschnitt=1 -spalten --religionen=sternpolygon",
+      "python_locations": [
+        "python_reference/reta_architecture/parameter_runtime.py:188-204"
+      ],
+      "mojo_locations": [
+        "src/reta_mojo/native_cli_controls.mojo",
+        "src/compat_main.mojo"
+      ],
+      "current_contract": "-nichts/-nothing ist ohne weitere wirksame Argumente still, wird innerhalb eines Tabellenvektors aber ignoriert; nur --art=nichts/--type=nothing wählt den stillen Renderer.",
+      "post_port_fix": "Keine Python-Änderung erforderlich.",
+      "evidence": [
+        "STAGE12C4S_DEFECT_BACKFILL_NATIVE_CONTROL_MAINS.md",
+        "tests/test_compat_launcher.py"
+      ]
+    },
+    {
+      "id": "MOJO-FIXED-007",
+      "title": "--nocolor war erkannt, wurde vom nativen Shellrenderer aber ignoriert",
+      "origin": "mojo_port",
+      "classification": "renderer_bug",
+      "severity": "medium",
+      "python_status": "correct_reference",
+      "mojo_status": "fixed",
+      "discovered_stage": "10c",
+      "reproducer": "reta ... -ausgabe --nocolor",
+      "python_locations": [],
+      "mojo_locations": [
+        "src/reta_mojo/table_rendering.mojo"
+      ],
+      "current_contract": "Das typisierte color_rows-Flag verhindert bei deaktivierter Farbe sämtliche ANSI-Farbsequenzen.",
+      "post_port_fix": "Keine Python-Änderung erforderlich.",
+      "evidence": [
+        "MIGRATION_NOTES.md"
+      ]
+    },
+    {
+      "id": "MOJO-FIXED-008",
+      "title": "Leere explizite Spaltenreihenfolge wurde als alle Spalten umgedeutet",
+      "origin": "mojo_port",
+      "classification": "selection_bug",
+      "severity": "high",
+      "python_status": "correct_reference",
+      "mojo_status": "fixed",
+      "discovered_stage": "10c",
+      "reproducer": "Explizite relative Spaltenposition anfordern, die nach der Generatorpipeline keine Ergebnisspalte trifft.",
+      "python_locations": [],
+      "mojo_locations": [
+        "src/reta_mojo/native_reta_cli.mojo",
+        "src/reta_mojo/all_columns_plan.mojo"
+      ],
+      "current_contract": "explicit_order_requested unterscheidet keine Anforderung von einer ausdrücklich angeforderten, aber leeren Auswahl.",
+      "post_port_fix": "Keine Python-Änderung erforderlich.",
+      "evidence": [
+        "MIGRATION_NOTES.md"
+      ]
+    },
+    {
+      "id": "MOJO-FIXED-009",
+      "title": "Promptankündigung und erste Tabellenzeile wurden ohne LF zusammengeklebt",
+      "origin": "mojo_port",
+      "classification": "serialization_bug",
+      "severity": "medium",
+      "python_status": "correct_reference",
+      "mojo_status": "fixed",
+      "discovered_stage": "10c/12c1",
+      "reproducer": "rpb 'a1'",
+      "python_locations": [],
+      "mojo_locations": [
+        "src/reta_mojo/prompt_controller.mojo",
+        "src/reta_mojo/compact_prompt.mojo"
+      ],
+      "current_contract": "Jede sichtbare reta-Befehlsankündigung endet vor der Tabellennutzlast mit genau einem LF.",
+      "post_port_fix": "Keine Python-Änderung erforderlich.",
+      "evidence": [
+        "MIGRATION_NOTES.md",
+        "STAGE12C1_NATIVE_TERMINAL_PROMPT_PARITY.md"
+      ]
+    },
+    {
+      "id": "MOJO-FIXED-010",
+      "title": "Kompakter Promptparser konnte bei rohen Unicode-Befehlen an UTF-8-Bytegrenzen abstürzen",
+      "origin": "mojo_port",
+      "classification": "unicode_bug",
+      "severity": "high",
+      "python_status": "correct_reference",
+      "mojo_status": "fixed",
+      "discovered_stage": "10f/12c3",
+      "reproducer": "Prompt: python print(\"ä λ\")",
+      "python_locations": [],
+      "mojo_locations": [
+        "src/reta_mojo/prompt_language.mojo",
+        "src/reta_mojo/prompt_controller.mojo"
+      ],
+      "current_contract": "Rohe Interpreter-/Shellbefehle umgehen den kompakten Byte-Scanner vor jeder Nutzlasttransformation.",
+      "post_port_fix": "Keine Python-Änderung erforderlich.",
+      "evidence": [
+        "STAGE10F_NATIVE_COMPACT_PROMPT.md",
+        "STAGE12C3_NATIVE_RAW_PROMPT_COMMANDS.md",
+        "MIGRATION_NOTES.md"
+      ]
+    },
+    {
+      "id": "MOJO-FIXED-011",
+      "title": "Eigene dlsym-Deklaration kollidierte im vollständigen Build mit Mojo-Rückgabetyp",
+      "origin": "mojo_port",
+      "classification": "integration_bug",
+      "severity": "high",
+      "python_status": "not_applicable",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c4a",
+      "reproducer": "Vollständiger gemeinsamer Build von Promptcontroller und früher prompt_python_bridge.mojo.",
+      "python_locations": [],
+      "mojo_locations": [
+        "src/reta_mojo/prompt_external_commands.mojo"
+      ],
+      "current_contract": "Die native Kindprozessgrenze verwendet keine abweichende eigene dlsym-Signatur und keine eingebettete CPython-Brücke.",
+      "post_port_fix": "Keine Python-Änderung erforderlich.",
+      "evidence": [
+        "STAGE12C4A_PROMPT_BRIDGE_INTEGRATION.md",
+        "MIGRATION_NOTES.md"
+      ]
+    },
+    {
+      "id": "MOJO-FIXED-012",
+      "title": "Gemischter Reziprokplan serialisierte --universum mit falscher Groß-/Kleinschreibung",
+      "origin": "mojo_port",
+      "classification": "cli_serialization_bug",
+      "severity": "medium",
+      "python_status": "correct_reference",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c4c",
+      "reproducer": "Promptfall mit gemischtem reziprokem Universumsmodifikator aus check_prompt_mixed_reciprocal_parity.sh.",
+      "python_locations": [],
+      "mojo_locations": [
+        "src/reta_mojo/prompt_table_execution.mojo"
+      ],
+      "current_contract": "Der native Plan verwendet den wirksamen historischen Parameter --Universum und ist bytegleich zur instrumentierten Referenz.",
+      "post_port_fix": "Keine Python-Änderung erforderlich.",
+      "evidence": [
+        "STAGE12C4C_NATIVE_MIXED_RECIPROCAL_MODIFIERS.md",
+        "TEST_RESULTS.md"
+      ]
+    },
+    {
+      "id": "MOJO-FIXED-013",
+      "title": "--onetable wurde vor vorhandener Rendererimplementierung fälschlich nativ beansprucht",
+      "origin": "mojo_port",
+      "classification": "ownership_bug",
+      "severity": "high",
+      "python_status": "correct_reference",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c4e",
+      "reproducer": "reta ... -ausgabe --onetable im Stage-12c4e-Vorstand",
+      "python_locations": [],
+      "mojo_locations": [
+        "src/reta_mojo/native_reta_cli.mojo",
+        "src/reta_mojo/table_rendering.mojo"
+      ],
+      "current_contract": "Ownership wird nur bei tatsächlich implementierter Ein-Tabellen-Semantik übernommen; die inzwischen portierten Fälle besitzen dedizierte Tests.",
+      "post_port_fix": "Keine Python-Änderung erforderlich.",
+      "evidence": [
+        "STAGE12C4E_NATIVE_FIRST_COMPAT.md",
+        "TEST_RESULTS.md"
+      ]
+    },
+    {
+      "id": "MOJO-FIXED-014",
+      "title": "Paginierter Renderer brach Überlangwörter und Fortsetzungsfarben abweichend",
+      "origin": "mojo_port",
+      "classification": "renderer_bug",
+      "severity": "medium",
+      "python_status": "correct_reference",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c4i",
+      "reproducer": "scripts/check_paginated_rendering_parity.sh",
+      "python_locations": [],
+      "mojo_locations": [
+        "src/reta_mojo/table_rendering.mojo"
+      ],
+      "current_contract": "Vorhandene ASCII-Bindestriche werden vor hartem Schnitt genutzt; nur wirklich fehlende Shellfragmente erhalten die neutrale Restfarbe.",
+      "post_port_fix": "Keine Python-Änderung erforderlich.",
+      "evidence": [
+        "STAGE12C4I_NATIVE_PAGINATED_RENDERING.md",
+        "TEST_RESULTS.md"
+      ]
+    },
+    {
+      "id": "MOJO-FIXED-015",
+      "title": "Globale Nullbreite verwendete feste 80/73 statt reale Terminalgeometrie",
+      "origin": "mojo_port",
+      "classification": "terminal_bug",
+      "severity": "medium",
+      "python_status": "correct_reference",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c1",
+      "reproducer": "PTY-Ausgabe von rpb a1 bei 120 oder 200 Terminalspalten.",
+      "python_locations": [],
+      "mojo_locations": [
+        "src/reta_mojo/terminal_geometry.mojo",
+        "src/reta_mojo/table_rendering.mojo"
+      ],
+      "current_contract": "Mojo fragt TIOCGWINSZ ab und fällt danach auf COLUMNS beziehungsweise den historischen 80-Spaltenwert zurück.",
+      "post_port_fix": "Keine Python-Änderung erforderlich.",
+      "evidence": [
+        "STAGE12C1_NATIVE_TERMINAL_PROMPT_PARITY.md",
+        "MIGRATION_NOTES.md"
+      ]
+    },
+    {
+      "id": "MOJO-FIXED-016",
+      "title": "Duplikatsperre entfernte sichtbare wiederholte Prompt-Katalogauswahl",
+      "origin": "mojo_port",
+      "classification": "prompt_semantics_bug",
+      "severity": "medium",
+      "python_status": "correct_reference",
+      "mojo_status": "fixed",
+      "discovered_stage": "10j",
+      "reproducer": "Wiederhole dasselbe numerische Aliasbündel in einem Promptkommando.",
+      "python_locations": [],
+      "mojo_locations": [
+        "src/reta_mojo/prompt_table_execution.mojo"
+      ],
+      "current_contract": "Das sichtbare Legacy-CLI-Token bewahrt Wiederholungen, während die semantische Generatoranforderung wie in Python dedupliziert bleibt.",
+      "post_port_fix": "Keine Python-Änderung erforderlich.",
+      "evidence": [
+        "STAGE10J_NATIVE_DUPLICATE_CATALOG.md",
+        "MIGRATION_NOTES.md"
+      ]
+    },
+    {
+      "id": "MOJO-FIXED-017",
+      "title": "Entfernte std.python-Promptbrücke tauchte wieder als tote Quelldatei im Archiv auf",
+      "origin": "packaging_source_tree",
+      "classification": "source_hygiene_bug",
+      "severity": "medium",
+      "python_status": "not_applicable",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c4s",
+      "reproducer": "test -e src/reta_mojo/prompt_python_bridge.mojo && grep -n std.python src/reta_mojo/prompt_python_bridge.mojo",
+      "python_locations": [],
+      "mojo_locations": [
+        "src/reta_mojo/prompt_python_bridge.mojo"
+      ],
+      "current_contract": "Die Datei ist entfernt; Source-Gates verlangen null prompt_python_bridge-Dateien und null aktive std.python-Importe.",
+      "post_port_fix": "Keine Python-Änderung erforderlich.",
+      "evidence": [
+        "STAGE12C4S_DEFECT_BACKFILL_NATIVE_CONTROL_MAINS.md",
+        "tests/test_prompt_external_source.py"
+      ]
+    },
+    {
+      "id": "TEST-OPEN-001",
+      "title": "Breiter direkter CSV-Paritätsharness verklebt unter einem Python-3.13-Lauf Referenzzeilen",
+      "origin": "test_infrastructure",
+      "classification": "test_harness_bug",
+      "severity": "medium",
+      "python_status": "not_applicable",
+      "mojo_status": "not_applicable",
+      "discovered_stage": "10c",
+      "reproducer": "scripts/check_native_table_parity.sh unter der in TEST_RESULTS.md beschriebenen Python-3.13.5-Umgebung.",
+      "python_locations": [
+        "scripts/check_native_table_parity.sh"
+      ],
+      "mojo_locations": [],
+      "current_contract": "Der breite Fall wird ausdrücklich nicht als bestanden gezählt; feste Byte-Fixtures und normalisierte geordnete CSV-Tokenströme prüfen die betroffenen Pfade separat.",
+      "post_port_fix": "Harness auf einen binärtreuen Referenzaufruf umstellen und erst danach den offenen Eintrag schließen.",
+      "evidence": [
+        "TEST_RESULTS.md"
+      ]
+    },
+    {
+      "id": "TEST-FIXED-001",
+      "title": "Promptfixtures konnten zusammengeklebte oder leere Referenznutzlasten akzeptieren",
+      "origin": "test_infrastructure",
+      "classification": "test_gap",
+      "severity": "medium",
+      "python_status": "not_applicable",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c1",
+      "reproducer": "Altes Fixture mit reta-Befehl:reta ohne folgende LF-Nutzlastzeile.",
+      "python_locations": [],
+      "mojo_locations": [
+        "tests/test_prompt_fixture_integrity.py"
+      ],
+      "current_contract": "Fixture-Gates verbieten zusammengeklebte Ankündigungen, leere Referenzdateien und fehlende zweite Nutzlastzeilen.",
+      "post_port_fix": "Keine Python-Änderung erforderlich.",
+      "evidence": [
+        "MIGRATION_NOTES.md",
+        "STAGE12C1_NATIVE_TERMINAL_PROMPT_PARITY.md"
+      ]
+    },
+    {
+      "id": "TEST-FIXED-002",
+      "title": "Gemeinsame Kompatibilitäts-Pytest-Prozesse konnten nach bestandenen Knoten im Teardown hängen",
+      "origin": "test_infrastructure",
+      "classification": "test_harness_bug",
+      "severity": "medium",
+      "python_status": "not_applicable",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c4s",
+      "reproducer": "RETA_COMPAT_BINARY=target/test-bin/reta-mojo-compat-bin python3 -m pytest -q tests/test_compat_launcher.py",
+      "python_locations": [
+        "tests/test_compat_launcher.py"
+      ],
+      "mojo_locations": [
+        "scripts/check_compat_launcher.sh"
+      ],
+      "current_contract": "Das Release-Gate startet jeden der 20 Kompatibilitätsknoten in einem eigenen Pytest-Prozess; die vier Gruppen strukturieren nur noch die Berichterstattung. Dadurch kann ein Teardown-Hänger keinen bereits bestandenen Nachbarknoten blockieren.",
+      "post_port_fix": "Keine Python-Produktivcodeänderung erforderlich.",
+      "evidence": [
+        "STAGE12C4S_DEFECT_BACKFILL_NATIVE_CONTROL_MAINS.md",
+        "scripts/check_compat_launcher.sh"
+      ]
     }
-  ]
+  ],
+  "audit": {
+    "last_full_backfill_stage": "12c4s",
+    "audited_sources": [
+      "MIGRATION_NOTES.md",
+      "TEST_RESULTS.md",
+      "STAGE10F_NATIVE_COMPACT_PROMPT.md",
+      "STAGE10J_NATIVE_DUPLICATE_CATALOG.md",
+      "STAGE12C1_NATIVE_TERMINAL_PROMPT_PARITY.md",
+      "STAGE12C3_NATIVE_RAW_PROMPT_COMMANDS.md",
+      "STAGE12C4A_PROMPT_BRIDGE_INTEGRATION.md",
+      "STAGE12C4C_NATIVE_MIXED_RECIPROCAL_MODIFIERS.md",
+      "STAGE12C4E_NATIVE_FIRST_COMPAT.md",
+      "STAGE12C4I_NATIVE_PAGINATED_RENDERING.md",
+      "STAGE12C4S_DEFECT_BACKFILL_NATIVE_CONTROL_MAINS.md"
+    ],
+    "scope_note": "Vollständig bezogen auf alle bis Stage 12c4s im Projekt bestätigten oder plausibel begründeten verhaltensrelevanten Befunde; unbekannte künftige Fehler können naturgemäß erst nach ihrer Entdeckung aufgenommen werden."
+  }
 }

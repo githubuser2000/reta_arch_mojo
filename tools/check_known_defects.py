@@ -47,6 +47,15 @@ def load() -> dict[str, Any]:
     data = json.loads(JSON_PATH.read_text(encoding="utf-8"))
     if data.get("schema_version") != 1:
         raise SystemExit("unsupported defect-ledger schema")
+    audit = data.get("audit")
+    if not isinstance(audit, dict):
+        raise SystemExit("audit must be an object")
+    sources = audit.get("audited_sources")
+    if not isinstance(sources, list) or not sources:
+        raise SystemExit("audit.audited_sources must be a non-empty list")
+    for source in sources:
+        if not (ROOT / source).exists():
+            raise SystemExit(f"missing audited source: {source}")
     defects = data.get("defects")
     if not isinstance(defects, list):
         raise SystemExit("defects must be a list")
@@ -92,6 +101,14 @@ def render(data: dict[str, Any]) -> str:
         "**Erfassungsumfang:** " + data["policy"]["scope"],
         "",
         "**Python-Originalregel:** " + data["policy"]["python_original_rule"],
+        "",
+        "**Release-Auditregel:** " + data["policy"]["audit_rule"],
+        "",
+        "## Rückwirkender Audit",
+        "",
+        f"- letzter vollständiger Rückwärtsaudit: `{data['audit']['last_full_backfill_stage']}`",
+        f"- geprüfte Quellen: **{len(data['audit']['audited_sources'])}**",
+        f"- Reichweite: {data['audit']['scope_note']}",
         "",
         "## Übersicht",
         "",

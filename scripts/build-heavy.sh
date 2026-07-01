@@ -7,6 +7,11 @@ mkdir -p "$TARGET_DIR"
 MOJO_RUNTIME_RPATH='$ORIGIN/../lib/mojo'
 "$ROOT/scripts/configure_mojo_runtime.sh" >/dev/null
 
+sanitize_binaries() {
+    python3 "$ROOT/tools/sanitize_mojo_runpath.py" "$TARGET_DIR" >/dev/null
+}
+trap sanitize_binaries EXIT
+
 printf 'Kompiliere schweres Parameterschema\n'
 "$ROOT/bin/mojo-real" build -I src src/schema_main.mojo -Xlinker -rpath -Xlinker "$MOJO_RUNTIME_RPATH" -o "$TARGET_DIR/reta-mojo-schema"
 printf 'Kompiliere schweren Architekturkatalog ...\n'

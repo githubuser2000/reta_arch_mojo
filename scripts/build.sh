@@ -15,6 +15,7 @@ build() {
     "$ROOT/bin/mojo-real" build "$@" "$source_file" \
         -Xlinker -rpath -Xlinker "$MOJO_RUNTIME_RPATH" \
         -o "$TARGET_DIR/$output_name"
+    python3 "$ROOT/tools/sanitize_mojo_runpath.py" "$TARGET_DIR/$output_name" >/dev/null
 }
 
 build src/main.mojo reta-mojo-native -I src

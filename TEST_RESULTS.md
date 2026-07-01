@@ -1233,3 +1233,44 @@ python3 tools/check_known_defects.py
 python3 -m pytest -q tests/test_known_defects.py
 scripts/check_prompt_true_fraction_multiples.sh
 ```
+
+## Stage 12c4s: rückwirkender Fehleraudit und native Kontroll-Hauptparameter
+
+```text
+zentraler Fehlerkatalog:                 35/35 konsistent
+spätere Python-/PyPy3-Arbeitspunkte:        12
+Katalog-/Reproduktions-Pytests:            8/8
+frozen Python baseline:        67 passed, 3 catalogued failures
+native Kontrollmodultests:                 5/5
+Start-/Hilfe-/Kontrollparität:           15/15 byteidentisch
+Kompatibilitätslauncher:                 20/20, jeder Knoten eigener Prozess
+Startmodul:                                5/5
+CLI-/Ownership-Planer:                   30/30
+Generatorbereiche:                         6/6 byteidentisch
+flache Spaltenbreiten:                    13/13 byteidentisch
+keineleereninhalte:                       13/13 byteidentisch
+Source-/Installations-/Runtime-/Defekt-Pytests: 32/32
+RUNPATH-Sanitizer:                          2/2
+aktive std.python-Brücken:                    0
+libpython-Abhängigkeiten:                     0
+Quellmanifest:                           1064/1064
+```
+
+Der Rückwärtsaudit nahm zwanzig ältere, bislang nur in Migrationsnotizen,
+Stage-Berichten oder Testergebnissen beschriebene Befunde in den zentralen
+Katalog auf. `scripts/check_documented_python_baseline.py` akzeptiert exakt die
+drei bekannten roten Python-Tests und scheitert bei jeder Veränderung der
+Fehlermenge.
+
+`-nichts`/`-nothing` wird nun wie im Python-Hauptparameterparser behandelt: Es
+ist allein still, wird in einem echten Tabellenvektor aber ignoriert. Der erste
+Mojo-Entwurf hatte es fälschlich in `--art=nichts` übersetzt; der neue
+End-to-End-Fall bestätigt die erhaltenen 1.877 Tabellenbytes.
+
+Der Kompatibilitäts-Pytest wurde in vier isolierte Prozesse geteilt, weil der
+gemeinsame Pytest-Prozesse nach bereits bestandenen Tests im Teardown hängen
+konnte. Die fachlich identischen 20 Knoten bestehen gruppiert vollständig.
+
+`tools/sanitize_mojo_runpath.py` entfernt nach jedem Build den von Mojo selbst
+ergänzten absoluten Compilerpfad und lässt ausschließlich
+`$ORIGIN/../lib/mojo` im ELF-RUNPATH zurück.

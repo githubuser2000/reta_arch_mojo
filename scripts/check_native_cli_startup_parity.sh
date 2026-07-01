@@ -28,12 +28,43 @@ compare() {
     printf '%-28s %7s Byte\n' "$label" "$(wc -c <"$TMP/native-$label")"
 }
 
-compare empty
-compare language-english -language=english
-compare language-german -language=german
-compare help-german -h
-compare help-english -language=english -help
-compare help-duplicate -help -h
-compare help-first-language -h -language=english -language=german
+GROUP=${RETA_STARTUP_PARITY_GROUP:-all}
+case "$GROUP" in
+    1)
+        compare empty
+        compare language-english -language=english
+        compare language-german -language=german
+        compare help-german -h
+        compare help-english -language=english -help
+        count=5
+        ;;
+    2)
+        compare help-duplicate -help -h
+        compare help-first-language -h -language=english -language=german
+        compare debug-german -debug
+        compare debug-english -debug -language=english
+        compare debug-help -debug -h
+        count=5
+        ;;
+    3)
+        compare nothing-only -nichts
+        compare nothing-help -nichts -h
+        compare nothing-table -nichts -zeilen --vorhervonausschnitt=1 -spalten --religionen=sternpolygon
+        compare debug-nothing-table -debug -nichts -zeilen --vorhervonausschnitt=1 -spalten --religionen=sternpolygon
+        compare explicit-output-wins -nichts -zeilen --vorhervonausschnitt=1 -spalten --religionen=sternpolygon -ausgabe --art=csv
+        count=5
+        ;;
+    all)
+        RETA_STARTUP_PARITY_GROUP=1 "$0"
+        RETA_STARTUP_PARITY_GROUP=2 "$0"
+        RETA_STARTUP_PARITY_GROUP=3 "$0"
+        printf '%s\n' 'Native Start-/Hilfe-/Kontroll-Parität: 15/15.'
+        exit 0
+        ;;
+    *)
+        printf 'Unbekannte RETA_STARTUP_PARITY_GROUP: %s\n' "$GROUP" >&2
+        exit 2
+        ;;
+esac
 
-printf '%s\n' 'Native Start-/Hilfe-Parität: 7/7.'
+printf 'Native Start-/Hilfe-/Kontroll-Parität Gruppe %s: %s/5.\n' "$GROUP" "$count"

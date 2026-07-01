@@ -16,6 +16,7 @@ from reta_mojo.native_reta_cli import (
     run_native_reta,
 )
 from reta_mojo.native_cli_startup import native_cli_startup
+from reta_mojo.native_cli_controls import normalize_native_cli_controls
 from reta_mojo.prompt_external_commands import run_reta_arguments_native
 from reta_mojo.resource_paths import csv_resource, reference_root
 
@@ -27,23 +28,31 @@ def main() raises:
     for index in range(1, len(raw)):
         arguments.append(String(raw[index]))
 
-    # Startup/help vectors are a separate native surface.  They must be
-    # classified before the table predicate: language-only invocations have an
-    # intentionally empty stream and must never be mistaken for "all rows and
-    # columns".  RETA_FORCE_REFERENCE still bypasses every native owner.
+    # Startup/help and the orthogonal -debug/-nichts control mains are
+    # classified before table ownership.  The controls are removed only for a
+    # fully native vector; an unknown combination still falls back atomically
+    # with its original argv intact.
     var force_reference = getenv("RETA_FORCE_REFERENCE", "") == "1"
+    var controls = normalize_native_cli_controls(arguments)
     if not force_reference:
-        var startup = native_cli_startup(arguments)
+        if controls.had_control and len(controls.tokens) == 0:
+            print(controls.debug_prefix, end="")
+            return
+        var startup = native_cli_startup(controls.tokens)
         if startup.owned:
-            print(startup.output, end="")
+            print(controls.debug_prefix + startup.output, end="")
             return
 
     var csv_path = csv_resource("religion.csv")
     if (
         not force_reference
-        and native_reta_tokens_supported(arguments, csv_path)
+        and native_reta_tokens_supported(controls.tokens, csv_path)
     ):
-        print(run_native_reta(arguments, csv_path), end="")
+        print(
+            controls.debug_prefix
+            + run_native_reta(controls.tokens, csv_path),
+            end="",
+        )
         return
 
     var status = run_reta_arguments_native(arguments, reference_root())

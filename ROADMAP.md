@@ -282,3 +282,21 @@ Die Zahl **12** ist die geplante Releasegliederung. Interne Teilpakete oder Fehl
 - Anders als der abstürzende Python-Altalgorithmus begrenzt Mojo jede Achse an der tatsächlichen Rechteckform ihrer CSV-Domäne.
 - Mehrere verschieden große Bruchdomänen sowie gemischte 1024er-Reziprok- und datenbegrenzte Bruchachsen bleiben atomarer Fallback.
 - Der Python-Absturz bleibt während der Referenzphase absichtlich reproduzierbar und wird nach Abschluss der Transpilierung anhand desselben Sollvertrags behoben.
+
+## Stage 12c4s – Defektvollständigkeit und native Kontroll-Hauptparameter
+
+- **abgeschlossen:** rückwirkender Audit der bisher verstreuten
+  verhaltensrelevanten Python-, Mojo-, Packaging- und Testbefunde;
+- **abgeschlossen:** 35 zentral katalogisierte Defekte/Eigenheiten und 12
+  konkrete spätere Python-/PyPy3-Arbeitspunkte;
+- **abgeschlossen:** reproduzierbare eingefrorene Python-Baseline mit exakt
+  67 bestandenen und drei katalogisierten roten Tests;
+- **abgeschlossen:** native `-debug`-, `-nichts`- und `-nothing`-Semantik vor
+  Start-/Hilfe-/Tabellenownership;
+- **abgeschlossen:** automatische Entfernung absoluter Mojo-Compiler-RUNPATHs
+  nach regulären und schweren Builds;
+- **als Nächstes:** verbleibende dynamische Prompt-Sitzungs-/Speicherbefehle und
+  die noch atomar zurückfallenden gemischten Bruchdomänen getrennt portieren;
+- **nach funktionalem Portabschluss:** `PYTHON_CLEANUP_BACKLOG.md` Punkt für
+  Punkt im Python-/PyPy3-Original abarbeiten und gemeinsame korrigierte
+  Sollfixtures für Python und Mojo festlegen.

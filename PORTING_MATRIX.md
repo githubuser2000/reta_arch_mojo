@@ -225,3 +225,16 @@ großen Text in jedes importierende Executable einzubetten.
 | mehrere Bruchdomänen | undefiniert/fehleranfällig | atomarer Fallback | gemeinsamen Domänenvertrag festlegen |
 | `1/n` und echtes `n/m` gemeinsam | verschiedene historische Obergrenzen | atomarer Fallback | explizite Mischsemantik festlegen |
 | Fehlerdokumentation | über Stage-Dateien verteilt | zentral in JSON + generiertem Markdown | nach Portabschluss offene Python-Einträge abarbeiten |
+
+## Stage 12c4s – Kontrolloberfläche und Fehlerbesitz
+
+| Teiloberfläche | Python-Vertrag | Mojo 12c4s | Status |
+|---|---|---|---|
+| `-debug` | einmaliger lokalisierter Präfix vor weiterer Ausgabe | nativ, bytegleich | abgeschlossen |
+| `-nichts`/`-nothing` allein | leerer Stream | nativ, leer | abgeschlossen |
+| `-nichts` in echter Tabelle | Hauptparameter wird ignoriert, normale Ausgabe | nativ, keine Verwechslung mit `--art=nichts` | abgeschlossen |
+| `--art=nichts`/`--type=nothing` | stiller Renderer | bestehender nativer Modus | abgeschlossen |
+| bekannte Python-Originalfehler | zuvor über Dokumente verteilt | 35-Einträge-Gesamtkatalog, 12-Punkte-Backlog | abgeschlossen |
+| Python-Baseline | 67 grün, 3 bekannte rote Tests | automatisch als genau diese Fehlermenge geprüft | abgeschlossen |
+| Mojo-ELF-RUNPATH | Compiler ergänzt absoluten Installationspfad | nach Build ausschließlich `$ORIGIN/../lib/mojo` | abgeschlossen |
+| unbekannte oder gemischte Kontrollsyntax | vollständige Python-Semantik | atomarer Originalargument-Fallback | beibehalten |
