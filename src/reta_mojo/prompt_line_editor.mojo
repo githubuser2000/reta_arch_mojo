@@ -6,7 +6,8 @@ so almost all interactive semantics are testable without a pseudo-terminal.
 """
 
 from std.collections import List
-from .prompt_language import PromptLanguageCatalog, prompt_completion_candidates
+from .prompt_language import PromptLanguageCatalog
+from .completion_nested import nested_completion_candidates_from_catalog
 
 
 @fieldwise_init
@@ -274,7 +275,7 @@ def editor_complete(
     language: String,
 ) -> PromptCompletionResult:
     var prefix = _slice(state.text, 0, state.cursor)
-    var candidates = prompt_completion_candidates(catalog, language, prefix)
+    var candidates = nested_completion_candidates_from_catalog(catalog, language, prefix)
     if len(candidates) == 0:
         return PromptCompletionResult(False, False, candidates^)
 

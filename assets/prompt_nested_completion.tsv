@@ -129,33 +129,36 @@ english	parameter	-lines	--time=--ranges=--thisrangebefore=--thisrangebefored
 english	parameter	-columns	--most_important_to_understand=--mostimportanttounderstand=--human=--Herrschaft=--macht=--MetaMetaPhysik_und_MetaChemie=--universe=--transcendentals=--structurals=--sphere=--spheres=--ball=--balls=--planet_(10_and_or_12)=--planet=--religions=--religion=--galaxy=--ancientscripts=--circle=--galaxies=--circles=--most_important_to_think_about=--mostImportantToClassify=--operations=--increment=--multiverse=--basic_structures=--particle-meta-physics=--particles=--scale=--structuresize=--size=--level=--organizations=--meta_vs_concrete_(universe)=--universeMetaConcrete=--prime_effect=--primeeffect=--economy=--pro_contra=--procontra=--light=--meaning=--fractional_galaxy_n/m=--gebrochengalaxie_fractionalgalaxy=--fractional_universe_n/m=--gebrochenuniversum_fractionaluniverse=--fractional-rational_numbered_emotions_n/m=--fractionedemotion=--fractional-rational_numbered_structure_sizes_n/m=--fractionalnumberedstructuresize=--symbols=--properties_n=--properties=--property=--concept=--concepts=--properties_1/n=--concept2=--concepts2=--multiplications=--continuum=--all=--=--width=--widths=--nonumbering--*=
 english	parameter	-combination	--galaxy=--universe=--*=
 english	parameter	-output	--nocolor--justtext--type=--onetable--columnorderandonlythese=--endlessscreen--endless--dontwrap--width=--widths=--noblankcontents--nonumbering--noheadings--*=
-english	value	-lines|all	
-english	value	-lines|yesterday	
-english	value	-lines|today	
-english	value	-lines|heightmaximum	
-english	value	-lines|moon	
-english	value	-lines|tomorrow	
-english	value	-lines|retrospectiverecount	0123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
-english	value	-lines|retrospectiverecountmultiples	0123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
-english	value	-lines|uppermaximum	0123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
+english	value	-lines|alles	
+english	value	-lines|gestern	
+english	value	-lines|heute	
+english	value	-lines|hoehemaximal	
+english	value	-lines|mond	
+english	value	-lines|morgen	
+english	value	-lines|nachtraeglichneuabzaehlung	
+english	value	-lines|nachtraeglichneuabzaehlungvielfache	
+english	value	-lines|oberesmaximum	
 english	value	-lines|planet	
-english	value	-lines|potenciesofnumbers	0123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
-english	value	-lines|primemultiples	0123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
-english	value	-lines|blacksun	
-english	value	-lines|sun	
+english	value	-lines|potenzenvonzahlen	
+english	value	-lines|primzahlvielfache	
+english	value	-lines|schwarzesonne	
+english	value	-lines|sonne	
+english	value	-lines|typ	
+english	value	-lines|vielfachevonzahlen	
+english	value	-lines|vorhervonausschnitt	
+english	value	-lines|vorhervonausschnittteiler	
+english	value	-lines|zaehlung	
+english	value	-lines|zeit	
+english	value	-lines|primzahlen	
+english	value	-lines|aussenerste	
+english	value	-lines|innenerste	
+english	value	-lines|aussenalle	
+english	value	-lines|innenalle	
+english	value	-lines|invertieren	
+english	value	-lines|SonneMitMondanteil	
 english	value	-lines|type	sunmoonplanetblacksunsunWithMoonParts*-sun-moon-planet-blacksun-sunWithMoonParts-*
-english	value	-lines|multiplesofnumbers	0123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
-english	value	-lines|thisrangebefore	0123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
-english	value	-lines|thisrangebeforedividers	
-english	value	-lines|ranges	0123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
-english	value	-lines|time	todayyesterdaytomorrow*-today-yesterday-tomorrow-*
 english	value	-lines|primenumbers	outsidefirstinsidefirstoutsideallinsideall*-outsidefirst-insidefirst-outsideall-insideall-*
-english	value	-lines|outsidefirst	
-english	value	-lines|insidefirst	
-english	value	-lines|outsideall	
-english	value	-lines|insideall	
-english	value	-lines|invert	
-english	value	-lines|sunWithMoonParts	
+english	value	-lines|time	todayyesterdaytomorrow*-today-yesterday-tomorrow-*
 english	value	-lines|*	sunmoonplanetblacksunsunWithMoonParts*-sun-moon-planet-blacksun-sunWithMoonParts-*outsidefirstinsidefirstoutsideallinsideall-outsidefirst-insidefirst-outsideall-insidealltodayyesterdaytomorrow-today-yesterday-tomorrow
 english	value	-output|*	bbcodehtmlcsvshellmarkdownemacsnothing
 english	value	-output|type	bbcodehtmlcsvshellmarkdownemacsnothing
@@ -235,33 +238,36 @@ vietnamese	parameter	-lines	--time=--ranges=--thisrangebefore=--thisrangebefo
 vietnamese	parameter	-columns	--most_important_to_understand=--mostimportanttounderstand=--human=--Herrschaft=--macht=--MetaMetaPhysik_und_MetaChemie=--universe=--transcendentals=--structurals=--sphere=--spheres=--ball=--balls=--planet_(10_and_or_12)=--planet=--religions=--religion=--galaxy=--ancientscripts=--circle=--galaxies=--circles=--most_important_to_think_about=--mostImportantToClassify=--operations=--increment=--multiverse=--basic_structures=--particle-meta-physics=--particles=--scale=--structuresize=--size=--level=--organizations=--meta_vs_concrete_(universe)=--universeMetaConcrete=--prime_effect=--primeeffect=--economy=--pro_contra=--procontra=--light=--meaning=--fractional_galaxy_n/m=--gebrochengalaxie_fractionalgalaxy=--fractional_universe_n/m=--gebrochenuniversum_fractionaluniverse=--fractional-rational_numbered_emotions_n/m=--fractionedemotion=--fractional-rational_numbered_structure_sizes_n/m=--fractionalnumberedstructuresize=--symbols=--properties_n=--properties=--property=--concept=--concepts=--properties_1/n=--concept2=--concepts2=--multiplications=--continuum=--all=--=--width=--widths=--nonumbering--*=
 vietnamese	parameter	-combination	--galaxy=--universe=--*=
 vietnamese	parameter	-output	--nocolor--justtext--type=--onetable--columnorderandonlythese=--endlessscreen--endless--dontwrap--width=--widths=--noblankcontents--nonumbering--noheadings--*=
-vietnamese	value	-lines|all	
-vietnamese	value	-lines|yesterday	
-vietnamese	value	-lines|today	
-vietnamese	value	-lines|heightmaximum	
-vietnamese	value	-lines|moon	
-vietnamese	value	-lines|tomorrow	
-vietnamese	value	-lines|retrospectiverecount	0123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
-vietnamese	value	-lines|retrospectiverecountmultiples	0123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
-vietnamese	value	-lines|uppermaximum	0123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
+vietnamese	value	-lines|alles	
+vietnamese	value	-lines|gestern	
+vietnamese	value	-lines|heute	
+vietnamese	value	-lines|hoehemaximal	
+vietnamese	value	-lines|mond	
+vietnamese	value	-lines|morgen	
+vietnamese	value	-lines|nachtraeglichneuabzaehlung	
+vietnamese	value	-lines|nachtraeglichneuabzaehlungvielfache	
+vietnamese	value	-lines|oberesmaximum	
 vietnamese	value	-lines|planet	
-vietnamese	value	-lines|potenciesofnumbers	0123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
-vietnamese	value	-lines|primemultiples	0123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
-vietnamese	value	-lines|blacksun	
-vietnamese	value	-lines|sun	
+vietnamese	value	-lines|potenzenvonzahlen	
+vietnamese	value	-lines|primzahlvielfache	
+vietnamese	value	-lines|schwarzesonne	
+vietnamese	value	-lines|sonne	
+vietnamese	value	-lines|typ	
+vietnamese	value	-lines|vielfachevonzahlen	
+vietnamese	value	-lines|vorhervonausschnitt	
+vietnamese	value	-lines|vorhervonausschnittteiler	
+vietnamese	value	-lines|zaehlung	
+vietnamese	value	-lines|zeit	
+vietnamese	value	-lines|primzahlen	
+vietnamese	value	-lines|aussenerste	
+vietnamese	value	-lines|innenerste	
+vietnamese	value	-lines|aussenalle	
+vietnamese	value	-lines|innenalle	
+vietnamese	value	-lines|invertieren	
+vietnamese	value	-lines|SonneMitMondanteil	
 vietnamese	value	-lines|type	sunmoonplanetblacksunsunWithMoonParts*-sun-moon-planet-blacksun-sunWithMoonParts-*
-vietnamese	value	-lines|multiplesofnumbers	0123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
-vietnamese	value	-lines|thisrangebefore	0123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
-vietnamese	value	-lines|thisrangebeforedividers	
-vietnamese	value	-lines|ranges	0123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
-vietnamese	value	-lines|time	todayyesterdaytomorrow*-today-yesterday-tomorrow-*
 vietnamese	value	-lines|primenumbers	outsidefirstinsidefirstoutsideallinsideall*-outsidefirst-insidefirst-outsideall-insideall-*
-vietnamese	value	-lines|outsidefirst	
-vietnamese	value	-lines|insidefirst	
-vietnamese	value	-lines|outsideall	
-vietnamese	value	-lines|insideall	
-vietnamese	value	-lines|invert	
-vietnamese	value	-lines|sunWithMoonParts	
+vietnamese	value	-lines|time	todayyesterdaytomorrow*-today-yesterday-tomorrow-*
 vietnamese	value	-lines|*	sunmoonplanetblacksunsunWithMoonParts*-sun-moon-planet-blacksun-sunWithMoonParts-*outsidefirstinsidefirstoutsideallinsideall-outsidefirst-insidefirst-outsideall-insidealltodayyesterdaytomorrow-today-yesterday-tomorrow
 vietnamese	value	-output|*	bbcodehtmlcsvshellmarkdownemacsnothing
 vietnamese	value	-output|type	bbcodehtmlcsvshellmarkdownemacsnothing
@@ -341,33 +347,36 @@ chinese	parameter	-lines	--time=--ranges=--thisrangebefore=--thisrangebefored
 chinese	parameter	-columns	--most_important_to_understand=--mostimportanttounderstand=--human=--Herrschaft=--macht=--MetaMetaPhysik_und_MetaChemie=--universe=--transcendentals=--structurals=--sphere=--spheres=--ball=--balls=--planet_(10_and_or_12)=--planet=--religions=--religion=--galaxy=--ancientscripts=--circle=--galaxies=--circles=--most_important_to_think_about=--mostImportantToClassify=--operations=--increment=--multiverse=--basic_structures=--particle-meta-physics=--particles=--scale=--structuresize=--size=--level=--organizations=--meta_vs_concrete_(universe)=--universeMetaConcrete=--prime_effect=--primeeffect=--economy=--pro_contra=--procontra=--light=--meaning=--fractional_galaxy_n/m=--gebrochengalaxie_fractionalgalaxy=--fractional_universe_n/m=--gebrochenuniversum_fractionaluniverse=--fractional-rational_numbered_emotions_n/m=--fractionedemotion=--fractional-rational_numbered_structure_sizes_n/m=--fractionalnumberedstructuresize=--symbols=--properties_n=--properties=--property=--concept=--concepts=--properties_1/n=--concept2=--concepts2=--multiplications=--continuum=--all=--=--width=--widths=--nonumbering--*=
 chinese	parameter	-combination	--galaxy=--universe=--*=
 chinese	parameter	-output	--nocolor--justtext--type=--onetable--columnorderandonlythese=--endlessscreen--endless--dontwrap--width=--widths=--noblankcontents--nonumbering--noheadings--*=
-chinese	value	-lines|all	
-chinese	value	-lines|yesterday	
-chinese	value	-lines|today	
-chinese	value	-lines|heightmaximum	
-chinese	value	-lines|moon	
-chinese	value	-lines|tomorrow	
-chinese	value	-lines|retrospectiverecount	0123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
-chinese	value	-lines|retrospectiverecountmultiples	0123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
-chinese	value	-lines|uppermaximum	0123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
+chinese	value	-lines|alles	
+chinese	value	-lines|gestern	
+chinese	value	-lines|heute	
+chinese	value	-lines|hoehemaximal	
+chinese	value	-lines|mond	
+chinese	value	-lines|morgen	
+chinese	value	-lines|nachtraeglichneuabzaehlung	
+chinese	value	-lines|nachtraeglichneuabzaehlungvielfache	
+chinese	value	-lines|oberesmaximum	
 chinese	value	-lines|planet	
-chinese	value	-lines|potenciesofnumbers	0123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
-chinese	value	-lines|primemultiples	0123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
-chinese	value	-lines|blacksun	
-chinese	value	-lines|sun	
+chinese	value	-lines|potenzenvonzahlen	
+chinese	value	-lines|primzahlvielfache	
+chinese	value	-lines|schwarzesonne	
+chinese	value	-lines|sonne	
+chinese	value	-lines|typ	
+chinese	value	-lines|vielfachevonzahlen	
+chinese	value	-lines|vorhervonausschnitt	
+chinese	value	-lines|vorhervonausschnittteiler	
+chinese	value	-lines|zaehlung	
+chinese	value	-lines|zeit	
+chinese	value	-lines|primzahlen	
+chinese	value	-lines|aussenerste	
+chinese	value	-lines|innenerste	
+chinese	value	-lines|aussenalle	
+chinese	value	-lines|innenalle	
+chinese	value	-lines|invertieren	
+chinese	value	-lines|SonneMitMondanteil	
 chinese	value	-lines|type	sunmoonplanetblacksunsunWithMoonParts*-sun-moon-planet-blacksun-sunWithMoonParts-*
-chinese	value	-lines|multiplesofnumbers	0123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
-chinese	value	-lines|thisrangebefore	0123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
-chinese	value	-lines|thisrangebeforedividers	
-chinese	value	-lines|ranges	0123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
-chinese	value	-lines|time	todayyesterdaytomorrow*-today-yesterday-tomorrow-*
 chinese	value	-lines|primenumbers	outsidefirstinsidefirstoutsideallinsideall*-outsidefirst-insidefirst-outsideall-insideall-*
-chinese	value	-lines|outsidefirst	
-chinese	value	-lines|insidefirst	
-chinese	value	-lines|outsideall	
-chinese	value	-lines|insideall	
-chinese	value	-lines|invert	
-chinese	value	-lines|sunWithMoonParts	
+chinese	value	-lines|time	todayyesterdaytomorrow*-today-yesterday-tomorrow-*
 chinese	value	-lines|*	sunmoonplanetblacksunsunWithMoonParts*-sun-moon-planet-blacksun-sunWithMoonParts-*outsidefirstinsidefirstoutsideallinsideall-outsidefirst-insidefirst-outsideall-insidealltodayyesterdaytomorrow-today-yesterday-tomorrow
 chinese	value	-output|*	bbcodehtmlcsvshellmarkdownemacsnothing
 chinese	value	-output|type	bbcodehtmlcsvshellmarkdownemacsnothing
@@ -447,33 +456,36 @@ korean	parameter	-lines	--time=--ranges=--thisrangebefore=--thisrangebeforedi
 korean	parameter	-columns	--most_important_to_understand=--mostimportanttounderstand=--human=--Herrschaft=--macht=--MetaMetaPhysik_und_MetaChemie=--universe=--transcendentals=--structurals=--sphere=--spheres=--ball=--balls=--planet_(10_and_or_12)=--planet=--religions=--religion=--galaxy=--ancientscripts=--circle=--galaxies=--circles=--most_important_to_think_about=--mostImportantToClassify=--operations=--increment=--multiverse=--basic_structures=--particle-meta-physics=--particles=--scale=--structuresize=--size=--level=--organizations=--meta_vs_concrete_(universe)=--universeMetaConcrete=--prime_effect=--primeeffect=--economy=--pro_contra=--procontra=--light=--meaning=--fractional_galaxy_n/m=--gebrochengalaxie_fractionalgalaxy=--fractional_universe_n/m=--gebrochenuniversum_fractionaluniverse=--fractional-rational_numbered_emotions_n/m=--fractionedemotion=--fractional-rational_numbered_structure_sizes_n/m=--fractionalnumberedstructuresize=--symbols=--properties_n=--properties=--property=--concept=--concepts=--properties_1/n=--concept2=--concepts2=--multiplications=--continuum=--all=--=--width=--widths=--nonumbering--*=
 korean	parameter	-combination	--galaxy=--universe=--*=
 korean	parameter	-output	--nocolor--justtext--type=--onetable--columnorderandonlythese=--endlessscreen--endless--dontwrap--width=--widths=--noblankcontents--nonumbering--noheadings--*=
-korean	value	-lines|all	
-korean	value	-lines|yesterday	
-korean	value	-lines|today	
-korean	value	-lines|heightmaximum	
-korean	value	-lines|moon	
-korean	value	-lines|tomorrow	
-korean	value	-lines|retrospectiverecount	0123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
-korean	value	-lines|retrospectiverecountmultiples	0123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
-korean	value	-lines|uppermaximum	0123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
+korean	value	-lines|alles	
+korean	value	-lines|gestern	
+korean	value	-lines|heute	
+korean	value	-lines|hoehemaximal	
+korean	value	-lines|mond	
+korean	value	-lines|morgen	
+korean	value	-lines|nachtraeglichneuabzaehlung	
+korean	value	-lines|nachtraeglichneuabzaehlungvielfache	
+korean	value	-lines|oberesmaximum	
 korean	value	-lines|planet	
-korean	value	-lines|potenciesofnumbers	0123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
-korean	value	-lines|primemultiples	0123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
-korean	value	-lines|blacksun	
-korean	value	-lines|sun	
+korean	value	-lines|potenzenvonzahlen	
+korean	value	-lines|primzahlvielfache	
+korean	value	-lines|schwarzesonne	
+korean	value	-lines|sonne	
+korean	value	-lines|typ	
+korean	value	-lines|vielfachevonzahlen	
+korean	value	-lines|vorhervonausschnitt	
+korean	value	-lines|vorhervonausschnittteiler	
+korean	value	-lines|zaehlung	
+korean	value	-lines|zeit	
+korean	value	-lines|primzahlen	
+korean	value	-lines|aussenerste	
+korean	value	-lines|innenerste	
+korean	value	-lines|aussenalle	
+korean	value	-lines|innenalle	
+korean	value	-lines|invertieren	
+korean	value	-lines|SonneMitMondanteil	
 korean	value	-lines|type	sunmoonplanetblacksunsunWithMoonParts*-sun-moon-planet-blacksun-sunWithMoonParts-*
-korean	value	-lines|multiplesofnumbers	0123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
-korean	value	-lines|thisrangebefore	0123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
-korean	value	-lines|thisrangebeforedividers	
-korean	value	-lines|ranges	0123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
-korean	value	-lines|time	todayyesterdaytomorrow*-today-yesterday-tomorrow-*
 korean	value	-lines|primenumbers	outsidefirstinsidefirstoutsideallinsideall*-outsidefirst-insidefirst-outsideall-insideall-*
-korean	value	-lines|outsidefirst	
-korean	value	-lines|insidefirst	
-korean	value	-lines|outsideall	
-korean	value	-lines|insideall	
-korean	value	-lines|invert	
-korean	value	-lines|sunWithMoonParts	
+korean	value	-lines|time	todayyesterdaytomorrow*-today-yesterday-tomorrow-*
 korean	value	-lines|*	sunmoonplanetblacksunsunWithMoonParts*-sun-moon-planet-blacksun-sunWithMoonParts-*outsidefirstinsidefirstoutsideallinsideall-outsidefirst-insidefirst-outsideall-insidealltodayyesterdaytomorrow-today-yesterday-tomorrow
 korean	value	-output|*	bbcodehtmlcsvshellmarkdownemacsnothing
 korean	value	-output|type	bbcodehtmlcsvshellmarkdownemacsnothing

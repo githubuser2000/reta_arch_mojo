@@ -1,6 +1,7 @@
 from std.sys import argv
 from reta_mojo.csv_table import read_text_file
-from reta_mojo.prompt_language import load_prompt_language_catalog, prompt_completion_candidates
+from reta_mojo.prompt_language import load_prompt_language_catalog
+from reta_mojo.completion_nested import nested_completion_candidates_from_catalog
 
 
 def main() raises:
@@ -18,6 +19,6 @@ def main() raises:
         if len(fields) != 2:
             continue
         print("@@@" + String(fields[0]))
-        var values = prompt_completion_candidates(catalog, language, String(fields[1]))
+        var values = nested_completion_candidates_from_catalog(catalog, language, String(fields[1]))
         for index in range(len(values)):
             print(values[index])

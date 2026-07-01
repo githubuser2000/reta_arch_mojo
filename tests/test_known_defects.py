@@ -64,9 +64,11 @@ def test_backfill_audit_covers_all_previously_scattered_confirmed_defects() -> N
         "MOJO-FIXED-016",
         "MOJO-FIXED-017",
         "MOJO-FIXED-018",
+        "MOJO-FIXED-019",
         "TEST-OPEN-001",
         "TEST-FIXED-001",
         "TEST-FIXED-002",
+        "TEST-FIXED-003",
     }
     assert expected <= ids
     assert data["audit"]["last_full_backfill_stage"] == "12c4s"

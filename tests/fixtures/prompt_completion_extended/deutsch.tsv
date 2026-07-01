@@ -1,0 +1,33 @@
+root-a	a
+root-abs	abs
+root-re	re
+root-reta	reta
+root-reta-space	reta 
+main-z	reta -z
+main-zeilen	reta -zeilen
+main-zeilen-space	reta -zeilen 
+line-param-t	reta -zeilen --t
+line-type-empty	reta -zeilen --typ=
+line-type-so	reta -zeilen --typ=so
+line-type-comma	reta -zeilen --typ=sonne,
+line-type-comma-mo	reta -zeilen --typ=sonne,mo
+line-time-he	reta -zeilen --zeit=he
+line-prime-close	reta -zeilen --primz=p
+line-canonical-max	reta -zeilen --oberesmaximum=2
+main-spalten-space	reta -spalten 
+columns-w	reta -spalten --w
+columns-mensch	reta -spalten --menschliches=
+main-output-space	reta -ausgabe 
+output-a	reta -ausgabe --a
+output-type-empty	reta -ausgabe --art=
+output-type-h	reta -ausgabe --art=h
+output-width-2	reta -ausgabe --breite=2
+output-width-comma	reta -ausgabe --breiten=20,
+main-combi-space	reta -kombination 
+combi-g	reta -kombination --g
+combi-galaxy-empty	reta -kombination --galaxie=
+combi-galaxy-tier	reta -kombination --galaxie=tier
+unknown-after-reta	reta foo
+non-reta-two	prim foo
+leading-space	  reta -ausgabe --art=h
+multiple-space	reta   -ausgabe   --art=h

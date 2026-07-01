@@ -1,0 +1,34 @@
+root-a	a
+root-pri	pri
+root-re	re
+root-reta	reta
+root-reta-space	reta 
+main-l	reta -l
+main-lines	reta -lines
+main-lines-space	reta -lines 
+line-param-t	reta -lines --t
+line-type-empty	reta -lines --type=
+line-type-su	reta -lines --type=su
+line-type-comma	reta -lines --type=sun,
+line-type-comma-mo	reta -lines --type=sun,mo
+line-time-to	reta -lines --time=to
+line-prime-close	reta -lines --primes=p
+line-translated-max	reta -lines --uppermaximum=2
+line-canonical-max	reta -lines --oberesmaximum=2
+main-columns-space	reta -columns 
+columns-w	reta -columns --w
+columns-human	reta -columns --human=
+main-output-space	reta -output 
+output-t	reta -output --t
+output-type-empty	reta -output --type=
+output-type-h	reta -output --type=h
+output-width-2	reta -output --width=2
+output-width-comma	reta -output --widths=20,
+main-combi-space	reta -combination 
+combi-g	reta -combination --g
+combi-galaxy-empty	reta -combination --galaxy=
+combi-galaxy-ani	reta -combination --galaxy=ani
+unknown-after-reta	reta foo
+non-reta-two	prime foo
+leading-space	  reta -output --type=h
+multiple-space	reta   -output   --type=h

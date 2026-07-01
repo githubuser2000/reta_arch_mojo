@@ -1,18 +1,19 @@
-# Status – Stage 12c4t abgeschlossen; Stufen 9, 10 und 12 in Arbeit
+# Status – Stage 12c4u abgeschlossen; Stufen 9, 10 und 12 in Arbeit
 - Zielversion: Mojo 1.0.0b2
 - Unterstützte Python-Umgebung für Installation/Referenzbrücken: 3.10–3.14; Setup bevorzugt Python 3.14
-- Vollständig abgeschlossene Release-Stufen: **9/12 = 75,0 %**; teilgewichtet mit Stage 12c4t: **9,79/12 = 81,6 %**
+- Vollständig abgeschlossene Release-Stufen: **9/12 = 75,0 %**; teilgewichtet mit Stage 12c4u: **9,80/12 = 81,7 %**
 - Stufe 9: **BBCode, zentraler ANSI-Shellpfad und zentrale HTML-Pfade nativ; seltene Ausgabegrenzen offen**
-- Stufe 10: **native Kurzsprache, mehrsprachige verschachtelte Completion und Promptvorbereitung in Arbeit**
+- Stufe 10: **native Kurzsprache und mehrsprachige verschachtelte Completion; hintere Prompt-/i18n-Restpfade in Arbeit**
 - Stufe 11: **11a–11j abgeschlossen; 10/10 Teilstufen = 100 %**
 - Stufe 12: **12a–12b abgeschlossen; 12c zu ca. 99,9 %; insgesamt ca. 67,2 %**
 - Geschätzter funktionaler Portierungsstand: **96–98 %**
-- Konservativ vollständig native oder reproduzierbar generierte Originaldateien: **35/92 = 38,0 %**
-- Mindestens teilweise portierte Originaldateien: **63/92 = 68,5 %**
-- Gewichteter Quellzeilenstand: **ca. 52,6 %**
-- Nativer Mojo-Quellcode in `src/`: **42.048 Zeilen**
-- Davon im Paket `reta_mojo`: **38.886 Zeilen**
-- Test-/Probe-Dateien: **117**; native Mojo-Testfunktionen: **351**; Python-Testfunktionen: **78**
+- Konservativ vollständig native oder reproduzierbar generierte Originaldateien: **38/92 = 41,3 %**
+- Mindestens teilweise portierte Originaldateien: **66/92 = 71,7 %**
+- Gewichteter Quellzeilenstand: **ca. 54,2 %**
+- Nativer Mojo-Quellcode in `src/`: **42.749 Zeilen**
+- Davon im Paket `reta_mojo`: **39.587 Zeilen**
+- Test-/Probe-Dateien: **120**; native Mojo-Testfunktionen: **359**; Python-Testfunktionen: **82**
+- Stage-12c4u-Fokus: vollständiger nativer Besitz von `completion_runtime.py`, `completion_nested.py` und `libs/nestedAlx.py` in zwei typisierten Mojo-Modulen; Root-/Haupt-/Nebenparameter-/Wertzustände, Kommafragmente, Nicht-`reta`-Rekursion, Unicode-skalare Fuzzy-Reihenfolge, `difflib`-nahe Tippfehlerordnung, Morphismusbundle und Snapshots. Die alte zweite Zustandsmaschine wurde aus dem häufig importierten `prompt_language.mojo` entfernt. Runtime **3/3**, Zustandsmaschine **5/5**, Prompt-Language **16/16**, bisherige Parität **12/12** und erweiterte Deutsch-/Englisch-Parität **67/67**. Der Generatorfehler `MOJO-FIXED-019` ist behoben; Fehlerkatalog **39/39**; der aktuelle fünfsprachige Katalog enthält **25.834 Werte in 561 Sektionen**. Geschätzter Funktionsumfang bleibt **96–98 %**, strenger Dateibesitz steigt auf **41,3 %**, gewichteter Quellzeilenersatz auf **54,2 %**.
 - Stage-12c4t-Fokus: allgemeine Stage-40-Wortvervollständigung und historische `word_completerAlx`-Fassade nativ; UTF-8-Bytecursor, Unicode-skalare negative Startpositionen, `WORD`-/Satzmodus, Groß-/Kleinschreibung, Middle-Match sowie typisierte Anzeige-/Metadaten, besitzender `ArchitectureWordCompleter`, dynamisch erneuerbare Wortlisten sowie ein expliziter Präfixadapter für native Muster. Unit-Tests **5/5**, Python↔Mojo-Parität **10/10 byteidentisch**. Der dabei bestätigte Python-Kandidat `PY-CAND-007` dokumentiert die ASCII-/Unicode-Trennung von `prompt_toolkit` innerhalb deutscher Wörter; Fehlerkatalog **37/37**, spätere Python-/PyPy3-Arbeitspunkte **13**, aktive `std.python`-Brücken **0**, Quellmanifest **1065/1065**.
 - Stage-12c4s-Fokus: rückwirkender Vollaudit aller bisher verstreut dokumentierten verhaltensrelevanten Fehler; zentraler Katalog **35/35**, spätere Python-/PyPy3-Bereinigung **12** Punkte und reproduzierbare eingefrorene Python-Baseline **67 bestanden / 3 katalogisierte Fehler**. `-debug` sowie `-nichts`/`-nothing` sind vor der Tabellenplanung nativ; `-nichts` wird in echten Tabellenvektoren korrekt ignoriert und nicht mit `--art=nichts` verwechselt. Start-/Hilfe-/Kontrollparität **15/15**, Kontrollmodul **5/5**, Kompatibilitätslauncher **20/20**, CLI-/Ownership **30/30**. Alle Buildskripte entfernen den automatisch eingebetteten absoluten Mojo-RUNPATH auf `$ORIGIN/../lib/mojo`; aktive `std.python`-Brücken **0**, Quellmanifest **1064/1064**.
 - Stage-12c4r-Fokus: zentraler maschinenlesbarer Fehlerkatalog mit getrenntem Python-/Mojo-Status, Reproduktion, Belegen und späterem Python-Korrekturauftrag; echte Bruchvielfache wie `universum v2/3` werden trotz reproduzierbarem Python-`IndexError` nativ als datenformbegrenztes Zähler×Nenner-Raster ausgeführt. Python-Fehlerkatalog **14/14 konsistent**, spätere Python-Bereinigungsliste **6** Punkte, Ledger-Pytests **3/3**, Bruchvielfachenvertrag **12/12**, direkte Tabellenaufrufe **13/13**, Tabellenplaner **29/29**, klassische Bruchparität **18/18** und gemischte stabile Reziprokpläne **5/5**; aktive `std.python`-Brücken **0**.
@@ -78,7 +79,7 @@
 - fünf bytegleiche Shell-Fixtures: Deutsch/Englisch, Breite 0/40, ohne Nummerierung und generierte Primzahlwirkung
 ## Stufe 10 begonnen
 - `prompt_language.mojo` als besitzender, mehrsprachiger Promptkatalog
-- **28.990** Completion-Werte in **549** Kontextsektionen
+- **25.834** Completion-Werte in **561** Kontextsektionen
 - **200** lokalisierte Dispatch-Aliase
 - **95** Ein-Zeichen-Ersetzungen
 - **370** numerische Kurzbefehlszeilen

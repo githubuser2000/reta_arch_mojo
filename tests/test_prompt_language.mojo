@@ -1,5 +1,6 @@
 from std.testing import assert_equal, assert_true, assert_false, TestSuite
 from reta_mojo.prompt_language import *
+from reta_mojo.completion_nested import nested_completion_candidates_from_catalog
 
 
 def _catalog() raises -> PromptLanguageCatalog:
@@ -50,31 +51,31 @@ def test_numeric_shortcuts() raises:
 
 def test_root_completion() raises:
     var catalog = _catalog()
-    var values = prompt_completion_candidates(catalog, "deutsch", "pri")
+    var values = nested_completion_candidates_from_catalog(catalog, "deutsch", "pri")
     assert_true("prim" in values)
     assert_true("prim24" in values)
 
 
 def test_main_and_parameter_completion() raises:
     var catalog = _catalog()
-    var mains = prompt_completion_candidates(catalog, "deutsch", "reta ")
+    var mains = nested_completion_candidates_from_catalog(catalog, "deutsch", "reta ")
     assert_true("-zeilen" in mains)
     assert_true("-spalten" in mains)
-    var params = prompt_completion_candidates(catalog, "english", "reta -output ")
+    var params = nested_completion_candidates_from_catalog(catalog, "english", "reta -output ")
     assert_true("--type=" in params)
     assert_true("--width=" in params)
 
 
 def test_nested_value_completion() raises:
     var catalog = _catalog()
-    var output_values = prompt_completion_candidates(catalog, "english", "reta -output --type=h")
+    var output_values = nested_completion_candidates_from_catalog(catalog, "english", "reta -output --type=h")
     assert_equal(len(output_values), 3)
     assert_equal(output_values[0], "html")
     assert_equal(output_values[1], "shell")
     assert_equal(output_values[2], "nothing")
-    var comma_values = prompt_completion_candidates(catalog, "deutsch", "reta -zeilen --typ=sonne,mo")
+    var comma_values = nested_completion_candidates_from_catalog(catalog, "deutsch", "reta -zeilen --typ=sonne,mo")
     assert_true("mond" in comma_values)
-    var combination_values = prompt_completion_candidates(catalog, "english", "reta -combination --galaxy=ani")
+    var combination_values = nested_completion_candidates_from_catalog(catalog, "english", "reta -combination --galaxy=ani")
     assert_true(len(combination_values) > 0)
 
 

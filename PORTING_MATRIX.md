@@ -27,7 +27,7 @@ Stand: 1. Juli 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der g
 | `libs/lib4tables_Enum.py` | 37 | 0 | 0 | 0 | generiert nativ | `src/reta_mojo/tag_schema.mojo + tag_schema_catalog.mojo` | sieben Tagarten und vollständige Tabellen-Tag-Zuordnung |
 | `libs/lib4tables_concat.py` | 252 | 35 | 1 | 0 | Python-Referenz/Bridge | `python_reference/libs/lib4tables_concat.py` | noch nicht nativ portiert |
 | `libs/lib4tables_prepare.py` | 313 | 26 | 1 | 0 | teilweise nativ | `src/reta_mojo/table_preparation.mojo + row_filtering.mojo` | deterministische Zeilenauswahl und Vorbereitung nativ; Generatorverkettung noch Bridge |
-| `libs/nestedAlx.py` | 24 | 0 | 0 | 0 | Python-Referenz/Bridge | `python_reference/libs/nestedAlx.py` | noch nicht nativ portiert |
+| `libs/nestedAlx.py` | 24 | 0 | 0 | 0 | nativ | `src/reta_mojo/completion_nested.mojo` | historische Fassade, Bootstrap und Morphismusvertrag vollständig nativ |
 | `libs/tableHandling.py` | 68 | 0 | 0 | 0 | teilweise nativ | `src/reta_mojo/table_state.mojo + table_wrapping.mojo + output_modes.mojo` | deterministischer Tabellenzustand, Umbruch und Ausgabemodi; große Tabellenberechnung noch Bridge |
 | `libs/word_completerAlx.py` | 10 | 0 | 0 | 0 | nativ | `src/reta_mojo/completion_word.mojo` | historische `WordCompleter`-Fassade durch typisierten Stage-40-Morphismus ersetzt |
 | `mojo_bridge.py` | 394 | 19 | 0 | 0 | Python-Referenz/Bridge | `python_reference/mojo_bridge.py` | noch nicht nativ portiert |
@@ -52,8 +52,8 @@ Stand: 1. Juli 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der g
 | `reta_architecture/category_theory.py` | 1441 | 53 | 8 | 0 | generiert nativ | `src/reta_mojo/category_theory.mojo` | 26 Kategorien, 77 Funktoren, 42 Transformationen |
 | `reta_architecture/column_selection.py` | 119 | 7 | 1 | 0 | teilweise nativ | `src/reta_mojo/column_selection.mojo` | 24 typisierte Bucket-Koordinaten und Bucket-Erzeugung; Legacy-Programmbindung noch Bridge |
 | `reta_architecture/combi_join.py` | 712 | 12 | 2 | 4 | Python-Referenz/Bridge | `python_reference/reta_architecture/combi_join.py` | noch nicht nativ portiert |
-| `reta_architecture/completion_nested.py` | 589 | 37 | 9 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/completion_nested.py` | noch nicht nativ portiert |
-| `reta_architecture/completion_runtime.py` | 192 | 8 | 2 | 1 | Python-Referenz/Bridge | `python_reference/reta_architecture/completion_runtime.py` | noch nicht nativ portiert |
+| `reta_architecture/completion_nested.py` | 589 | 37 | 9 | 0 | nativ | `src/reta_mojo/completion_nested.mojo` | vollständige hierarchische Zustandsmaschine, Unicode-Fuzzy-Suche, Näheordnung, Kommafragmente, Snapshots und produktive Editorintegration |
+| `reta_architecture/completion_runtime.py` | 192 | 8 | 2 | 1 | generiert nativ | `src/reta_mojo/completion_runtime.mojo + assets/prompt_nested_completion.tsv + scripts/generate_prompt_nested_catalog.py` | besitzender Laufzeitbundle, Sektionen, Startbefehle, Kontextindizes und Snapshots ohne Python-Objektgraph |
 | `reta_architecture/completion_word.py` | 265 | 21 | 6 | 0 | nativ | `src/reta_mojo/completion_word.mojo` | Wortgrenzen, Präfix-/Middle-Match, Unicode-Startpositionen, besitzender Completer, erneuerbare Quellen, Muster-Präfixadapter, Snapshot und Dekorationen nativ; aktueller prompt_toolkit-Unicode-Istzustand bewusst konserviert |
 | `reta_architecture/concat_csv.py` | 305 | 18 | 2 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/concat_csv.py` | noch nicht nativ portiert |
 | `reta_architecture/console_io.py` | 349 | 41 | 6 | 0 | weitgehend nativ | `src/reta_mojo/console_io.mojo + terminal_geometry.mojo` | Chunk-, Deduplikations-, Whitespace-, Debugformatierung und reale TTY-Geometrie nativ; Rich-Eingabe/Styling bleibt Systemgrenze |
@@ -248,3 +248,14 @@ großen Text in jedes importierende Executable einzubetten.
 | `libs/word_completerAlx.py` | historische Fassade durch denselben Morphismusvertrag ersetzt | Metadaten- und Bootstrap-Vertrag im nativen Test |
 
 Damit steigen vollständig native/reproduzierbare Originaldateien auf **35/92 = 38,0 %** und mindestens teilweise portierte Dateien auf **63/92 = 68,5 %**. Der Python-Istzustand der ASCII-/Unicode-Wortgrenze bleibt als `PY-CAND-007` ausdrücklich konserviert, bis Python und Mojo gemeinsam auf eine korrigierte Unicode-Semantik migriert werden.
+
+
+## Stage 12c4u – native verschachtelte Completion-Besitzer
+
+| Originaldatei | Mojo-Besitz | Verifikation |
+|---|---|---|
+| `reta_architecture/completion_runtime.py` | `completion_runtime.mojo` plus reproduzierbarer fünfsprachiger TSV-Katalog | 3/3 Runtime-Tests |
+| `reta_architecture/completion_nested.py` | `completion_nested.mojo` mit typisierter Zustandsmaschine, Unicode-Fuzzy- und Näheordnung | 5/5 native Tests, 67/67 erweiterte Paritätskontexte |
+| `libs/nestedAlx.py` | Fassade im selben nativen Morphismusbundle | Bootstrap-/Snapshot-Vertrag im nativen Test |
+
+Damit steigen vollständig native/reproduzierbare Originaldateien auf **38/92 = 41,3 %**, mindestens teilweise portierte Dateien auf **66/92 = 71,7 %** und der gewichtete Quellzeilenstand auf **ca. 54,2 %**. Der funktionale Nutzerumfang bleibt bei **96–98 %**, weil diese Stage bereits vorhandene Funktionalität in die korrekten nativen Besitzer überführt und deren Randsemantik verbreitert.

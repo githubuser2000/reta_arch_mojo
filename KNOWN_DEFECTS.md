@@ -18,12 +18,12 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 ## Rückwirkender Audit
 
 - letzter vollständiger Rückwärtsaudit: `12c4s`
-- geprüfte Quellen: **12**
-- Reichweite: Vollständig bezogen auf alle bis Stage 12c4t im Projekt bestätigten oder plausibel begründeten verhaltensrelevanten Befunde; unbekannte künftige Fehler können naturgemäß erst nach ihrer Entdeckung aufgenommen werden.
+- geprüfte Quellen: **13**
+- Reichweite: Vollständig bezogen auf alle bis Stage 12c4u im Projekt bestätigten oder plausibel begründeten verhaltensrelevanten Befunde; unbekannte künftige Fehler können naturgemäß erst nach ihrer Entdeckung aufgenommen werden.
 
 ## Übersicht
 
-- Einträge insgesamt: **37**
+- Einträge insgesamt: **39**
 - offene bestätigte Python-Fehler: **5**
 - zu entscheidende Python-Fehlerkandidaten: **7**
 - bereits im Python-Baum behobene Fehler: **3**
@@ -484,6 +484,20 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 - Mojo-Orte: `scripts/update_source_manifest.sh`
 - Belege: `STAGE12C4T_NATIVE_WORD_COMPLETION.md`, `tests/test_known_defects.py`, `scripts/update_source_manifest.sh`
 
+### MOJO-FIXED-019 – Prompt-Kataloggenerator verwendete übersetzte Zeilenwerte statt der wirksamen Python-Schlüssel
+
+- Ursprung: `mojo_port_generator`
+- Klasse / Schwere: `completion_catalog_semantics_bug` / `medium`
+- Python-Status: `correct_reference`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c4u`
+- Reproduktion: `scripts/check_completion_nested_parity.sh; der englische Kontext 'reta -lines --primes=p' muss Python-konform 'primenumbers' und 'primzahlen' anbieten.`
+- heutiger Vertrag: Der Generator übernimmt für allgemeine Zeilenwertkontexte die tatsächlichen Python-Dictionary-Schlüssel und überschreibt ausschließlich die drei vom Original lokalisierten Spezialdomänen. Die erweiterte Deutsch-/Englisch-Probe ist in 67/67 Kontexten byteidentisch.
+- spätere Python-Aktion: Keine Python-Änderung erforderlich; Python ist hier die korrekte Referenz.
+- Python-Orte: `python_reference/reta_architecture/completion_runtime.py`, `python_reference/reta_architecture/completion_nested.py`
+- Mojo-Orte: `scripts/generate_prompt_nested_catalog.py`, `assets/prompt_nested_completion.tsv`, `src/reta_mojo/completion_nested.mojo`
+- Belege: `STAGE12C4U_NATIVE_NESTED_COMPLETION.md`, `scripts/check_completion_nested_parity.sh`, `TEST_RESULTS.md`, `tests/test_completion_native_ownership.py`
+
 ### TEST-OPEN-001 – Breiter direkter CSV-Paritätsharness verklebt unter einem Python-3.13-Lauf Referenzzeilen
 
 - Ursprung: `test_infrastructure`
@@ -523,3 +537,16 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 - Python-Orte: `tests/test_compat_launcher.py`
 - Mojo-Orte: `scripts/check_compat_launcher.sh`
 - Belege: `STAGE12C4S_DEFECT_BACKFILL_NATIVE_CONTROL_MAINS.md`, `scripts/check_compat_launcher.sh`
+
+### TEST-FIXED-003 – Prompt-Katalogcheck setzte eine nicht ausgelieferte Projekt-.venv voraus
+
+- Ursprung: `test_infrastructure`
+- Klasse / Schwere: `source_archive_portability_bug` / `medium`
+- Python-Status: `not_applicable`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c4u`
+- Reproduktion: `Source-only-Archiv ohne .venv entpacken und scripts/check_prompt_language_catalog.sh ausführen.`
+- heutiger Vertrag: Der Reproduzierbarkeitscheck verwendet RETA_PYTHON, andernfalls die lokale .venv nur falls vorhanden und schließlich systemweites python3. Er läuft dadurch auch aus einem sauberen Source-only-Archiv.
+- spätere Python-Aktion: Keine Python-Produktivcodeänderung erforderlich.
+- Mojo-Orte: `scripts/check_prompt_language_catalog.sh`
+- Belege: `STAGE12C4U_NATIVE_NESTED_COMPLETION.md`, `scripts/check_prompt_language_catalog.sh`, `tests/test_completion_native_ownership.py`

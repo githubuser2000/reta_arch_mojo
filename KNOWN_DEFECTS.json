@@ -767,6 +767,34 @@
       ]
     },
     {
+      "id": "MOJO-FIXED-019",
+      "title": "Prompt-Kataloggenerator verwendete übersetzte Zeilenwerte statt der wirksamen Python-Schlüssel",
+      "origin": "mojo_port_generator",
+      "classification": "completion_catalog_semantics_bug",
+      "severity": "medium",
+      "python_status": "correct_reference",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c4u",
+      "reproducer": "scripts/check_completion_nested_parity.sh; der englische Kontext 'reta -lines --primes=p' muss Python-konform 'primenumbers' und 'primzahlen' anbieten.",
+      "python_locations": [
+        "python_reference/reta_architecture/completion_runtime.py",
+        "python_reference/reta_architecture/completion_nested.py"
+      ],
+      "mojo_locations": [
+        "scripts/generate_prompt_nested_catalog.py",
+        "assets/prompt_nested_completion.tsv",
+        "src/reta_mojo/completion_nested.mojo"
+      ],
+      "current_contract": "Der Generator übernimmt für allgemeine Zeilenwertkontexte die tatsächlichen Python-Dictionary-Schlüssel und überschreibt ausschließlich die drei vom Original lokalisierten Spezialdomänen. Die erweiterte Deutsch-/Englisch-Probe ist in 67/67 Kontexten byteidentisch.",
+      "post_port_fix": "Keine Python-Änderung erforderlich; Python ist hier die korrekte Referenz.",
+      "evidence": [
+        "STAGE12C4U_NATIVE_NESTED_COMPLETION.md",
+        "scripts/check_completion_nested_parity.sh",
+        "TEST_RESULTS.md",
+        "tests/test_completion_native_ownership.py"
+      ]
+    },
+    {
       "id": "TEST-OPEN-001",
       "title": "Breiter direkter CSV-Paritätsharness verklebt unter einem Python-3.13-Lauf Referenzzeilen",
       "origin": "test_infrastructure",
@@ -829,6 +857,28 @@
         "STAGE12C4S_DEFECT_BACKFILL_NATIVE_CONTROL_MAINS.md",
         "scripts/check_compat_launcher.sh"
       ]
+    },
+    {
+      "id": "TEST-FIXED-003",
+      "title": "Prompt-Katalogcheck setzte eine nicht ausgelieferte Projekt-.venv voraus",
+      "origin": "test_infrastructure",
+      "classification": "source_archive_portability_bug",
+      "severity": "medium",
+      "python_status": "not_applicable",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c4u",
+      "reproducer": "Source-only-Archiv ohne .venv entpacken und scripts/check_prompt_language_catalog.sh ausführen.",
+      "python_locations": [],
+      "mojo_locations": [
+        "scripts/check_prompt_language_catalog.sh"
+      ],
+      "current_contract": "Der Reproduzierbarkeitscheck verwendet RETA_PYTHON, andernfalls die lokale .venv nur falls vorhanden und schließlich systemweites python3. Er läuft dadurch auch aus einem sauberen Source-only-Archiv.",
+      "post_port_fix": "Keine Python-Produktivcodeänderung erforderlich.",
+      "evidence": [
+        "STAGE12C4U_NATIVE_NESTED_COMPLETION.md",
+        "scripts/check_prompt_language_catalog.sh",
+        "tests/test_completion_native_ownership.py"
+      ]
     }
   ],
   "audit": {
@@ -845,8 +895,9 @@
       "STAGE12C4E_NATIVE_FIRST_COMPAT.md",
       "STAGE12C4I_NATIVE_PAGINATED_RENDERING.md",
       "STAGE12C4S_DEFECT_BACKFILL_NATIVE_CONTROL_MAINS.md",
-      "STAGE12C4T_NATIVE_WORD_COMPLETION.md"
+      "STAGE12C4T_NATIVE_WORD_COMPLETION.md",
+      "STAGE12C4U_NATIVE_NESTED_COMPLETION.md"
     ],
-    "scope_note": "Vollständig bezogen auf alle bis Stage 12c4t im Projekt bestätigten oder plausibel begründeten verhaltensrelevanten Befunde; unbekannte künftige Fehler können naturgemäß erst nach ihrer Entdeckung aufgenommen werden."
+    "scope_note": "Vollständig bezogen auf alle bis Stage 12c4u im Projekt bestätigten oder plausibel begründeten verhaltensrelevanten Befunde; unbekannte künftige Fehler können naturgemäß erst nach ihrer Entdeckung aufgenommen werden."
   }
 }

@@ -9,13 +9,20 @@ abgeschlossene Release-Stufen:       9 von 12 = 75,0 %
 Stufen 9/10/12:                       Ausgabe, Prompt/i18n und Releaseparität in Arbeit
 Stufe 11:                             11a–11j = 100 %
 Stufe 12:                             12a–12b fertig, 12c zu ca. 99,9 % = ca. 67,2 %
-vollständig native Originaldateien:  35 von 92 = 38,0 %
-mindestens teilweise portiert:       63 von 92 = 68,5 %
-gewichteter Quellzeilenstand:         ca. 52,6 %
+vollständig native Originaldateien:  38 von 92 = 41,3 %
+mindestens teilweise portiert:       66 von 92 = 71,7 %
+gewichteter Quellzeilenstand:         ca. 54,2 %
 funktionaler Nutzerumfang:            ca. 96–98 %
 ```
 
-Die Metriken messen Verschiedenes. Die Stufenquote ist höher, weil die noch offenen Stufen die größten dynamischen Python-Module bündeln. Der vollständige Plan steht in [`ROADMAP.md`](ROADMAP.md).
+Die Metriken messen **orthogonale Bezugsgrößen** und sind nicht als ein einziges wechselndes Gesamtprozent zu lesen:
+
+- **96–98 % geschätzte Funktionsabdeckung**: Anteil der praktisch relevanten Befehls- und Verhaltensfamilien mit einem nativen Pfad. Der atomare Fallback ist nur eine Sicherheitsgrenze und wird nicht als transpiliert gezählt.
+- **41,3 % vollständiger Dateibesitz**: Nur Dateien, deren gesamter wirksamer Vertrag nativ oder reproduzierbar generiert ersetzt ist.
+- **54,2 % gewichteter Quellzeilenstand**: konservative Schätzung auch für große Teilports.
+- **81,7 % Stufenfortschritt**: gewichtete Releaseplanung; eine Stufe kann weit fortgeschritten sein, obwohl große historische Python-Besitzer noch sichtbar bleiben.
+
+Der Port ist daher nicht von über 90 % auf rund 54 % zurückgefallen. Die frühere Zahl bezeichnete die Funktionsoberfläche, die strengere Zahl den Quellersatz. Der vollständige Plan steht in [`ROADMAP.md`](ROADMAP.md).
 
 ## Installation mit Python 3.14
 
@@ -60,6 +67,8 @@ historische Projektstruktur ohne Datenkopie. Details:
 [`STAGE12C4M_FHS_RESOURCE_INSTALLATION.md`](STAGE12C4M_FHS_RESOURCE_INSTALLATION.md).
 
 ## Stufen 7–10: Generatoren, Kombinationen, Markup und Prompt
+
+Stage 12c4u besitzt nun auch die vollständige verschachtelte Completion-Laufzeit und ihre historische Fassade nativ; Details: [`STAGE12C4U_NATIVE_NESTED_COMPLETION.md`](STAGE12C4U_NATIVE_NESTED_COMPLETION.md).
 
 ### Native normale Reta-Syntax
 
@@ -163,7 +172,7 @@ Die derzeit bytegleich geprüften HTML-Generatorpfade umfassen Primzahlwirkung, 
 
 ## Stufe 10: native Prompt-Sprache
 
-Die vordere Promptverarbeitung läuft nun in Mojo: klammerbewusstes Tokenisieren, kompakte Kurzbefehle, Ein-Zeichen-Ersetzungen, CPython-kompatible Mengenordnung und kontextabhängige Completion. Ein reproduzierbarer Katalog bündelt 28.990 Completion-Werte in 549 Sektionen und enthält fünf Sprachen sowie 1.355 Vokabularaliase.
+Die vordere Promptverarbeitung läuft nun in Mojo: klammerbewusstes Tokenisieren, kompakte Kurzbefehle, Ein-Zeichen-Ersetzungen, CPython-kompatible Mengenordnung und kontextabhängige Completion. Ein reproduzierbarer Katalog bündelt 25.834 Completion-Werte in 561 Sektionen und enthält fünf Sprachen sowie 1.355 Vokabularaliase.
 
 Seit Stage 12c4d liest auch ein reales Terminal vollständig nativ: Ein reiner Mojo-Editor besitzt UTF-8-Cursorlogik, History und verschachtelte Completion; ein kleiner POSIX-Adapter kapselt `termios`, ANSI-Tastenfolgen und Linux-/macOS-`FIONREAD`. Übliche Emacs- und Vi-Kernbindings sind vorhanden. Der frühere GNU-Readline-/CPython-Eingang und der zusätzliche Completion-Kindprozess sind für den Controller nicht mehr erforderlich. Noch nicht portierte Fachoperationen erhalten am expliziten Kindprozessfallback weiterhin unverändert die ursprüngliche Eingabezeile.
 

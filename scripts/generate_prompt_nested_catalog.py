@@ -173,8 +173,11 @@ def main() -> None:
         line_map = data["line_map"]
         line_parameters = set(data["line_parameters"])
         line_values: dict[str, list[str]] = {}
-        for translated in line_map.values():
-            key = str(translated)
+        # The historical Python state machine iterates the dictionary keys,
+        # not its translated values.  Keep those canonical keys exactly; the
+        # three special localized value domains are overwritten below.
+        for canonical in line_map.keys():
+            key = str(canonical)
             line_values[key] = [str(n) for n in range(100)] if "--" + key + "=" in line_parameters else [""]
         line_values[str(line_map["typ"])] = list(data["line_types"]) + ["-" + str(v) for v in data["line_types"]]
         line_values[str(line_map["primzahlen"])] = list(data["line_prime_types"]) + ["-" + str(v) for v in data["line_prime_types"]]

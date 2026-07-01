@@ -10,8 +10,8 @@ from std.sys import argv
 from reta_mojo.prompt_language import (
     load_prompt_language_catalog,
     normalize_prompt_language,
-    prompt_completion_candidates,
 )
+from reta_mojo.completion_nested import nested_completion_candidates_from_catalog
 
 
 def _without_line_ending(text: String) -> String:
@@ -48,7 +48,7 @@ def main() raises:
             break
 
         var text = _without_line_ending(raw)
-        var values = prompt_completion_candidates(catalog, language, text)
+        var values = nested_completion_candidates_from_catalog(catalog, language, text)
         var response = String(len(values)) + "\n"
         for index in range(len(values)):
             response += values[index] + "\n"

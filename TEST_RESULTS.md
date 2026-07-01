@@ -167,7 +167,7 @@ Ein Pseudoterminaltest bestätigte die tatsächliche interaktive Ergänzung:
 reta -ausgabe --art=htm<Tab>  →  reta -ausgabe --art=html
 ```
 
-Der fünfsprachige Katalog wird in ein temporäres Verzeichnis regeneriert und byteweise gegen die eingecheckten Assets verglichen. Abgedeckt sind 28.990 Completion-Werte in 549 Sektionen, 200 Dispatch-Aliase, 95 Kurzersetzungen, 370 numerische Kurzbefehlszeilen und 1.355 Vokabularaliase.
+Der fünfsprachige Katalog wird in ein temporäres Verzeichnis regeneriert und byteweise gegen die eingecheckten Assets verglichen. Abgedeckt sind 25.834 Completion-Werte in 561 Sektionen, 200 Dispatch-Aliase, 95 Kurzersetzungen, 370 numerische Kurzbefehlszeilen und 1.355 Vokabularaliase.
 
 Der kombinierte `test_stage10.sh`-Kaltlauf wurde einmal nach den bereits bestandenen Sprach-, Laufzeit-, Katalog-, Kurzsprachen- und Fixtureprüfungen vom äußeren Limit beendet. Die noch ausstehende Workerprüfung und die später ergänzten Vorbereitungstests wurden anschließend separat vollständig bestanden. Deshalb wird kein unvollständiger Sammellauf als Gesamterfolg ausgegeben; die obigen Zahlen stammen aus den jeweils abgeschlossenen Einzelprüfungen.
 
@@ -1310,3 +1310,24 @@ kompiliert, getestet und gegen Python verglichen.
 Die abschließende Entpackprüfung fand und behob zusätzlich `MOJO-FIXED-018`:
 verschachtelte `.pytest_cache`-Dateien werden nicht mehr in das Quellmanifest
 aufgenommen. Das cachefreie Archiv verifiziert nun alle 1065 Manifesteinträge.
+
+
+## Stage 12c4u – native verschachtelte Completion
+
+```text
+scripts/check_completion_runtime.sh          3/3 bestanden
+scripts/check_completion_nested.sh           5/5 bestanden
+test_prompt_language.mojo                   16/16 bestanden
+scripts/check_prompt_completion_parity.sh   12/12 Kontexte byteidentisch
+scripts/check_completion_nested_parity.sh   67/67 Kontexte byteidentisch
+  deutsch                                    33/33
+  englisch                                   34/34
+```
+
+Die erweiterte Matrix enthält Root-, Hauptparameter-, Nebenparameter- und Wertkontexte, Kommafragmente, Nicht-`reta`-Rekursion, deutsche Umlaute und englische Tippfehlernähe. Sie entdeckte und schloss die bytebasierte Unicode-Reihenfolge sowie den falschen englischen Zeilenwert-Kontext des Kataloggenerators. Der regenerierte fünfsprachige Bestand umfasst 25.834 Werte in 561 Sektionen, 200 Dispatch-Aliase, 95 Kurzersetzungen, 370 numerische Kurzbefehlszeilen und 1.355 Vokabularaliase.
+
+Produktiver Completion-Build: `prompt_completion_main.mojo` wurde sauber in **8,64 s** kompiliert und mit dem englischen `--primes=p`-Kontext ausgeführt. Die entfernte Doppelimplementierung in `prompt_language.mojo` wird durch dessen **16/16** Tests abgesichert.
+
+Der Nutzer meldet für sein Zielsystem seit 12c4r ungefähr doppelte Buildgeschwindigkeit. Ein separater sauberer Sandbox-Gesamtbuild erzeugte die ersten drei Standardziele fehlerfrei und lief beim unveränderten `reta-native` in das 60-Minuten-Umgebungslimit; es trat keine Compilerdiagnose auf.
+
+Source-only-Katalogcheck: `check_prompt_language_catalog.sh` regeneriert den fünfsprachigen Bestand nun ohne Projekt-`.venv`; `TEST-FIXED-003` ist geschlossen.

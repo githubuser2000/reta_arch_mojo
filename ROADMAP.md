@@ -2,14 +2,14 @@
 
 Geplanter Umfang: **12 Release-Stufen**. Eine Stufe zählt erst als abgeschlossen, wenn Quellcode, Referenztests, Compilerziele, Dokumentation und ein source-only Archiv gemeinsam geprüft sind.
 
-## Fortschrittsmaße nach Stage 12c4t
+## Fortschrittsmaße nach Stage 12c4u
 
 | Maß | Stand | Aussage |
 |---|---:|---|
-| abgeschlossene Release-Stufen | **9/12 = 75,0 %** | Stufen 1–8 und 11 sind abgeschlossen; Stufe 12 ist mit 12a, 12b, 12c1–12c3 und 12c4a–12c4t zu etwa 67,2 % abgeschlossen, während 9 und 10 noch Restpfade besitzen |
-| vollständig native oder generierte Python-Dateien | **35/92 = 38,0 %** | Datei vollständig ersetzt oder als reproduzierbares Laufzeitasset abgebildet |
-| mindestens angegriffene Python-Dateien | **63/92 = 68,5 %** | vollständig oder teilweise nativ |
-| gewichtete Quellzeilen | **ca. 52,6 %** | konservative Schätzung unter Berücksichtigung der großen Teilports |
+| abgeschlossene Release-Stufen | **9/12 = 75,0 %** | Stufen 1–8 und 11 sind abgeschlossen; Stufe 12 ist mit 12a, 12b, 12c1–12c3 und 12c4a–12c4u zu etwa 67,2 % abgeschlossen, während 9 und 10 noch Restpfade besitzen |
+| vollständig native oder generierte Python-Dateien | **38/92 = 41,3 %** | Datei vollständig ersetzt oder als reproduzierbares Laufzeitasset abgebildet |
+| mindestens angegriffene Python-Dateien | **66/92 = 71,7 %** | vollständig oder teilweise nativ |
+| gewichtete Quellzeilen | **ca. 54,2 %** | konservative Schätzung unter Berücksichtigung der großen Teilports |
 | funktionaler Nutzerumfang | **ca. 96–98 %** | praktisch nutzbarer Reta-Umfang ohne Python-Algorithmus |
 
 Die Stufenquote ist höher als die Quellzeilenquote, weil die letzten Stufen besonders große dynamische Module bündeln: vollständige Ausgabeaufbereitung, Prompt-Sprache, i18n-Matrix, Architekturvalidierung und Parallelisierung.
@@ -43,8 +43,8 @@ Die Stufenquote ist höher als die Quellzeilenquote, weil die letzten Stufen bes
 9. **Vollständige Tabellenaufbereitung und Ausgabe — ca. 97–98 %**
    BBCode und der zentrale ANSI-Shellpfad sind für die geprüften deutschen und englischen Ausgaben bytegleich. HTML besitzt physische und semantische Zellmetadaten, tag-erhaltende Zellen, Wrapping und Seitenteilung; die Ein-Tabellen-Aliase sind seit 12c4g auch für HTML und BBCode bytegleich nativ. Seit 12c4i stimmen außerdem vorhandene Bindestrichtrennung und Shell-Restfarben in paginierten deutschen und englischen Kernströmen bytegleich. `--alles` und der vollständige `generate_html`-Pfad sind seit Stage 12b nativ. Dynamische TTY-Breite und Prompt-Zeilengrenzen sind seit 12c1 nativ; offen bleiben wenige Rich-/Terminalsonderfälle außerhalb dieses Pfads.
 
-10. **Vollständige Prompt-Sprache und i18n — ca. 92–95 %**
-    Klammerbewusstes Tokenisieren, kompakte Kurzbefehle, CPython-Set-Reihenfolge, fünfsprachiger Completion-Katalog und persistenter Mojo-Completion-Arbeiter sind nativ. Mojo plant 18 Domänenfamilien plus EIGN/EIGR einschließlich Ganzzahl-, Reziprok- und `n/m`-Achsen, ganzzahliger Vielfachen/Teiler, historischer Bruchbereiche, stabiler Bruchausschlüsse, Bruchteiler und Reziprok-Vielfache. Vollständig besessene Einmalbefehle laufen vor jedem Python-Import und rufen den Tabellenkern im selben Mojo-Prozess auf. Eine getrennte Legacy-Präsentationsschicht besitzt sämtliche kompakten Tabellenfamilien und `mulpri`/`p`. Stage 10h ergänzt positive reine Zahlen-, Bereichs-, Listen- und Bruchkompositionen sowie 365 adressierbare Einträge des fünfsprachigen `15`-/`16`-Katalogs. Vorbereitete Fragmentbreiten, Bindestrichumbrüche, Zählungsmarkierungen und der historische nicht-zeilenorientierte Farbausgabestrom sind bytegenau modelliert. Stage 10i–10n ergänzen Null-/Negativ- und Kollisionsalgebra, wiederholte Katalogauswahl, mehrbereichige Abstände, native Datei-/Pipe-I/O, positive Promptbreiten, komponierte ganzzahlige Vielfachen-/Teilerpfade, verschachtelte CPython-Teiler-Setordnung und dynamische Obergrenzen absoluter `vN`-Selektoren. Offen bleiben echte `v n/m`-Vielfache mit Zähler größer 1, weitere hintere Sonderpfade und die vollständige i18n-Laufzeit außerhalb des Promptvokabulars.
+10. **Vollständige Prompt-Sprache und i18n — ca. 95–97 %**
+    Klammerbewusstes Tokenisieren, kompakte Kurzbefehle, CPython-Set-Reihenfolge, fünfsprachiger Completion-Katalog und persistenter Mojo-Completion-Arbeiter sind nativ. Mojo plant 18 Domänenfamilien plus EIGN/EIGR einschließlich Ganzzahl-, Reziprok- und `n/m`-Achsen, ganzzahliger Vielfachen/Teiler, historischer Bruchbereiche, stabiler Bruchausschlüsse, Bruchteiler und Reziprok-Vielfache. Vollständig besessene Einmalbefehle laufen vor jedem Python-Import und rufen den Tabellenkern im selben Mojo-Prozess auf. Eine getrennte Legacy-Präsentationsschicht besitzt sämtliche kompakten Tabellenfamilien und `mulpri`/`p`. Stage 10h ergänzt positive reine Zahlen-, Bereichs-, Listen- und Bruchkompositionen sowie 365 adressierbare Einträge des fünfsprachigen `15`-/`16`-Katalogs. Vorbereitete Fragmentbreiten, Bindestrichumbrüche, Zählungsmarkierungen und der historische nicht-zeilenorientierte Farbausgabestrom sind bytegenau modelliert. Stage 10i–10n ergänzen Null-/Negativ- und Kollisionsalgebra, wiederholte Katalogauswahl, mehrbereichige Abstände, native Datei-/Pipe-I/O, positive Promptbreiten, komponierte ganzzahlige Vielfachen-/Teilerpfade, verschachtelte CPython-Teiler-Setordnung und dynamische Obergrenzen absoluter `vN`-Selektoren. Echte `v n/m`-Vielfache mit Zähler größer 1 sind seit Stage 12c4r nativ. Seit Stage 12c4u besitzen auch Completion-Runtime und verschachtelte Zustandsmaschine eigene native Module. Offen bleiben weitere hintere Sitzungssonderpfade und die vollständige i18n-Laufzeit außerhalb des Promptvokabulars.
 
 11. **Architektursteuerung und Laufzeitnetze — abgeschlossen (11a–11j)**
     Stage 11a portiert Architekturkarte und realen Modul-/Kapsel-Grenzgraph. Stage 11b ergänzt Verträge und Witnesses. Stage 11c portiert Kohärenz und Traces. Stage 11d ergänzt Impact und Migration. Stage 11e ergänzt Rehearsal und Aktivierung. Stage 11f portiert Gesamtvalidierung und Fortschritts-Overlay. Stage 11g portiert die reale SQLite-Persistenz. Stage 11h portiert das deterministische Ausführungsnetz. Stage 11i portiert Konfiguration, CPU-Erkennung und zehn reine Tabellen-/Zahlenkerne. Stage 11j ersetzt den dynamischen `WorkerPrepare`-/`deepcopy`-Objektgraphen durch einen besitzenden typisierten Zeilenvorbereitungskontext. Stage 12a vereinheitlicht sämtliche nativen Parallelpfade auf typisierte Mojo-Threads und verbietet POSIX-Prozessprimitive per Gate.
@@ -71,10 +71,10 @@ Die Zahl **12** ist die geplante Releasegliederung. Interne Teilpakete oder Fehl
 | **Stufe 11** | **10/10 = 100 %** | abgeschlossen |
 | 12a | 100 % | Bridge-Inventur, harte Boundary-Gates und vollständige Threadmigration |
 | 12b | 100 % | nativer `--alles`-Plan und Python-freies `generate_html` |
-| 12c | 99 % | 12c1–12c3 fertig; 12c4a–12c4c kapseln und verkleinern die Promptgrenze; 12c4d entfernt die Prompt-Python-Laufzeit; 12c4e schaltet den historischen Tabellenlauncher native-first; 12c4f besitzt die Shell-Ein-Tabellen- und Justtext-Ausgabegruppe; 12c4g besitzt Markup-oneTable; 12c4h No-blank; 12c4i paginierte Kernparität |
+| 12c | 99,9 % | 12c1–12c3 fertig; 12c4a–12c4t verkleinern Prompt-/Tabellenfallbacks und besitzen Renderer-, Kontroll-, Bruch- sowie Wort-Completion-Pfade; 12c4u besitzt Completion-Runtime und verschachtelte Zustandsmaschine vollständig nativ |
 | 12d | 0 % formal | Befehlsmatrix, Benchmarks und gezielte SIMD-Prüfung |
 | 12e | 0 % formal | Packaging und Freigabe |
-| **Stufe 12** | **ca. 67 %** | 12a–12b, 12c1–12c3 und 12c4a–12c4i abgeschlossen; echte `v n/m`, Restalgorithmen sowie 12d–12e offen |
+| **Stufe 12** | **ca. 67 %** | 12a–12b, 12c1–12c3 und 12c4a–12c4u abgeschlossen; Restalgorithmen sowie 12d–12e offen |
 
 
 ## Stage 10n – native EIGN/EIGR-Eigenschaftsachsen

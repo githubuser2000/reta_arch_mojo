@@ -220,7 +220,7 @@ Die Dreifach-Faktorisierung aus `multis3.py` ist nativ. Die Referenz lieferte ei
 
 ### Katalog statt Laufzeitimport
 
-Die Prompt-Completion wird nicht durch einen Python-Import zur Laufzeit erzeugt. `generate_prompt_nested_catalog.py` extrahiert die wirksame Referenzoberfläche für Deutsch, Englisch, Vietnamesisch, Chinesisch und Koreanisch in kompakte TSV-Assets. 28.990 einzelne Completion-Werte werden dabei in 549 Kontextsektionen gruppiert. Separate Dateien halten 170 Dispatch-Aliase, 95 Ein-Zeichen-Ersetzungen, 370 numerische Kurzbefehlszeilen und 1.355 Vokabularaliase.
+Die Prompt-Completion wird nicht durch einen Python-Import zur Laufzeit erzeugt. `generate_prompt_nested_catalog.py` extrahiert die wirksame Referenzoberfläche für Deutsch, Englisch, Vietnamesisch, Chinesisch und Koreanisch in kompakte TSV-Assets. 25.834 einzelne Completion-Werte werden dabei in 561 Kontextsektionen gruppiert. Separate Dateien halten 200 Dispatch-Aliase, 95 Ein-Zeichen-Ersetzungen, 370 numerische Kurzbefehlszeilen und 1.355 Vokabularaliase.
 
 Der Generator unterstützt ein alternatives Ausgabeverzeichnis. `check_prompt_language_catalog.sh` regeneriert deshalb alle Dateien in einem temporären Verzeichnis und vergleicht sie byteweise mit dem Releasebestand.
 
@@ -774,3 +774,13 @@ abschließendes Komma erhalten.
 - `MOJO-FIXED-018`: Der Manifestgenerator verwirft `.pytest_cache` nun auf
   jeder Verzeichnistiefe. Dadurch ist das cachefreie Releasearchiv unmittelbar
   gegen `SOURCE_MANIFEST.sha256` prüfbar.
+
+
+## Stage 12c4u – eigenständige native Completion-Besitzer
+
+Die bereits im Promptpfad genutzte verschachtelte Completion wurde aus dem allgemeinen `prompt_language`-Besitz in zwei explizite Module überführt. `completion_runtime.mojo` ersetzt den dynamischen Laufzeit-Builder und `completion_nested.mojo` die vollständige Kontextzustandsmaschine einschließlich der historischen `nestedAlx`-Fassade. Der TTY-Editor, die Completion-CLI und beide Paritätsproben importieren den neuen Besitzer direkt.
+Die frühere zweite Zustandsmaschine wurde aus `prompt_language.mojo` gelöscht, sodass nur noch ein nativer Completion-Besitzer kompiliert und gepflegt wird.
+
+Die Fuzzy-Suche arbeitet nun über Unicode-Skalare statt UTF-8-Bytes. Außerdem übernimmt der Kataloggenerator bei englischen Zeilenwerten die tatsächlichen Python-Dictionary-Schlüssel; nur die drei vom Original lokalisierten Spezialdomänen werden danach überschrieben. Dieser ältere Mojo-Generatorfehler ist als `MOJO-FIXED-019` katalogisiert.
+
+Validiert wurden 3/3 Runtime-Tests, 5/5 Zustandsmaschinentests, 12/12 bestehende sowie 67/67 erweiterte sprachübergreifende Completion-Kontexte.
