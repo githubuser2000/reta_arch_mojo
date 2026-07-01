@@ -244,9 +244,7 @@ def test_fraction_divisors_and_reciprocal_multiples_are_native() raises:
     var pure_reciprocal_divisor = _plan("universum teiler 1/2")
     assert_true(pure_reciprocal_divisor.handled)
     assert_equal(len(pure_reciprocal_divisor.invocations), 1)
-    assert_true(
-        "--vorhervonausschnitt=2," in _tokens(pure_reciprocal_divisor)
-    )
+    assert_true("--vorhervonausschnitt=2," in _tokens(pure_reciprocal_divisor))
 
     var multiples_plan = _plan("universum vielfache 1/2")
     assert_true(multiples_plan.handled)
@@ -257,7 +255,17 @@ def test_fraction_divisors_and_reciprocal_multiples_are_native() raises:
 
     # The Python reference itself raises IndexError for true v-n/m expansion.
     assert_false(_plan("universum v2/3").handled)
-    assert_false(_plan("mond 1/2").handled)
+
+    # Proper fractions are a stable historical no-op for the five classic
+    # integer-backed families.  Owning that no-op avoids an unnecessary
+    # Python fallback without inventing a table invocation.
+    var classic_moon = _plan("mond 1/2")
+    assert_true(classic_moon.handled)
+    assert_equal(len(classic_moon.invocations), 0)
+    assert_equal(len(_plan("richtung 2/3").invocations), 0)
+    assert_equal(len(_plan("primzahlkreuz 2/4").invocations), 0)
+    assert_equal(len(_plan("alles -1/2").invocations), 0)
+    assert_equal(len(_plan("thomas 1/2,-1/4").invocations), 0)
 
 
 def test_divisor_union_preserves_cpython_set_merge_order() raises:
@@ -313,12 +321,8 @@ def test_combined_integer_divisors_and_multiples_are_native() raises:
     assert_equal(len(reciprocal.invocations), 1)
     assert_true("--vorhervonausschnitt=2,4,6,8,10" in _tokens(reciprocal))
     assert_true(",1018,1020,1022" in _tokens(reciprocal))
-    assert_true(
-        "--spaltenreihenfolgeundnurdiese=1" in _tokens(reciprocal)
-    )
-    assert_false(
-        "--spaltenreihenfolgeundnurdiese=1,2" in _tokens(reciprocal)
-    )
+    assert_true("--spaltenreihenfolgeundnurdiese=1" in _tokens(reciprocal))
+    assert_false("--spaltenreihenfolgeundnurdiese=1,2" in _tokens(reciprocal))
     assert_false("--oberesmaximum=" in _tokens(reciprocal))
 
     var prefixed = _plan("universum v1/2 teiler")
@@ -354,9 +358,7 @@ def test_combined_integer_divisors_and_multiples_are_native() raises:
     _emit_mixed_reciprocal_reference("universum vielfache 1/2")
     _emit_mixed_reciprocal_reference("universum vielfache teiler 1/2")
     _emit_mixed_reciprocal_reference("universum v1/2 teiler")
-    _emit_mixed_reciprocal_reference(
-        "universum vielfache teiler 1/2,-1/4"
-    )
+    _emit_mixed_reciprocal_reference("universum vielfache teiler 1/2,-1/4")
     _emit_mixed_reciprocal_reference("universum vielfache teiler 2/3")
     _emit_mixed_reciprocal_reference("universum v2/3 teiler")
 

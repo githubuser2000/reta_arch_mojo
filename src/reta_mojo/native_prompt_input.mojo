@@ -1,12 +1,15 @@
-"""Portable native prompt input for non-interactive and plain-input sessions.
+"""Native prompt input for pipes, plain sessions and interactive terminals.
 
-The historical TTY editor still uses the Python/readline compatibility boundary
-until vi editing and completion callbacks have native parity.  Piped stdin and
-an explicitly requested plain editor use Mojo's built-in ``input`` function,
-so batch prompt sessions no longer initialize Python merely to read a line.
+Piped stdin uses Mojo's built-in ``input`` path.  Real terminals use the native
+POSIX adapter and pure Mojo line editor, including UTF-8 editing, persistent
+history, Emacs/Vi navigation and nested completion.  No embedded Python runtime
+is required to read prompt input.
 """
 
+from std.collections import List
 from std.os import getenv, isatty
+from .prompt_language import PromptLanguageCatalog
+from .prompt_terminal_input import read_terminal_prompt_line
 
 
 comptime PROMPT_EOF = "\x04"
@@ -24,11 +27,9 @@ def _truthy_environment(value: String) -> Bool:
 
 def native_plain_input_requested() -> Bool:
     """Return true for pipes or an explicit portable plain-input request."""
-    if not isatty(0):
+    if not isatty(0) or not isatty(1):
         return True
-    return _truthy_environment(
-        String(getenv("RETA_PROMPT_PLAIN_INPUT", ""))
-    )
+    return _truthy_environment(String(getenv("RETA_PROMPT_PLAIN_INPUT", "")))
 
 
 def expanded_history_path(path: String) -> String:
@@ -70,3 +71,50 @@ def read_plain_prompt_line(
         return line
     except:
         return PROMPT_EOF
+
+
+def load_prompt_history(path: String) -> List[String]:
+    """Load the persistent readline-compatible one-command-per-line history."""
+    var result = List[String]()
+    try:
+        var file = open(expanded_history_path(path), "r")
+        var text = file.read()
+        file.close()
+        for line_slice in text.split("\n"):
+            var line = String(line_slice)
+            if line.endswith("\r"):
+                line = String(
+                    StringSlice(line)[byte = 0 : line.byte_length() - 1]
+                )
+            if line.byte_length() > 0:
+                result.append(line^)
+    except:
+        pass
+    return result^
+
+
+def read_native_prompt_line(
+    prompt: String,
+    catalog: PromptLanguageCatalog,
+    language: String,
+    vi_mode: Bool = False,
+    history_enabled: Bool = False,
+    history_path: String = "~/.ReTaPromptHistory",
+) raises -> String:
+    """Read one prompt line through the appropriate fully native input path."""
+    if native_plain_input_requested():
+        return read_plain_prompt_line(prompt, history_enabled, history_path)
+
+    var history = load_prompt_history(history_path)
+    var result = read_terminal_prompt_line(
+        prompt, history, catalog, language, vi_mode
+    )
+    if not result.native_ready:
+        return read_plain_prompt_line(prompt, history_enabled, history_path)
+    if result.interrupted:
+        return "\x03"
+    if result.eof:
+        return PROMPT_EOF
+    if history_enabled:
+        _ = append_prompt_history(history_path, result.line)
+    return result.line

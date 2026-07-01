@@ -45,7 +45,7 @@ target/bin/grundStrukHtml-native
 target/bin/generate-html-native
 ```
 
-`reta-prompt-complete` ist der persistente native Completion-Arbeiter für die interaktive Readline-Grenze und besitzt seine stdin/stdout-Dateideskriptoren ohne eingebettetes CPython. `reta-mojo-table` ist bewusst leicht und enthält Tabellenzustand, Wrapping und CSV-Inspektion. Das vollständige Tag-Schema liegt in `reta-mojo-tags`. Diese Trennung vermeidet einen unnötigen Compiler-Monolithen.
+`reta-prompt-complete` bleibt als persistenter eigenständiger Completion-Arbeiter und Kompatibilitäts-/Testziel erhalten. Der reguläre interaktive Prompt verwendet seit Stage 12c4d Completion direkt im nativen TTY-Editor und benötigt weder diesen Arbeiter noch eingebettetes CPython. `reta-mojo-table` ist bewusst leicht und enthält Tabellenzustand, Wrapping und CSV-Inspektion. Das vollständige Tag-Schema liegt in `reta-mojo-tags`. Diese Trennung vermeidet einen unnötigen Compiler-Monolithen.
 
 ## Schwere generierte Ziele
 
@@ -160,7 +160,7 @@ Der reguläre Build erzeugt `generate-html-native` ohne Python- oder Subprozessi
 Nach `scripts/build.sh` vergleicht `scripts/check_html_parity.sh` die native Ein-Zeilen-Mitteltabelle mit dem eingefrorenen CPython-Referenzfixture mit 805 Daten-/Generatorspalten.
 
 
-## Stage 12c1–12c4c: Terminalbreite, Promptframing, Eingabe, Kindprozess- und Reziprokgrenzen
+## Stage 12c1–12c4d: Terminalbreite, nativer TTY-Editor, Kindprozess- und Bruchgrenzen
 
 Für die vollständige Kompilierung genügen ausschließlich:
 
@@ -178,11 +178,8 @@ Stage-12c-Prüfungen genügt ein einzelner Aufruf:
 ```
 
 `test_stage12c.sh` ruft `check_native_prompt_input.sh`,
-`check_prompt_external_commands.sh`, `check_prompt_mixed_reciprocal_parity.sh` und `check_prompt_terminal_parity.sh`
-bereits selbst auf. Ein zusätzlicher separater Aufruf dieser vier Skripte wäre
+`check_prompt_external_commands.sh`, `check_prompt_mixed_reciprocal_parity.sh`, `check_prompt_classic_fraction_parity.sh` und `check_prompt_terminal_parity.sh`
+bereits selbst auf. Ein zusätzlicher separater Aufruf dieser fünf Skripte wäre
 nur eine Wiederholung.
 
-Der kleine FFI-Integrationsprobe kompiliert die nur noch für TTY-Eingabe verwendete `std.python`-Brücke zusammen mit dem
-Kindprozessadapter und verhindert die in Stage 12c3 aufgetretene konfliktierende
-`dlsym`-Signatur. Der PTY-Test verwendet unverändert `bin/rpb a1`; es gibt
-keinen Ersatzbefehl für die Laufzeitsemantik.
+Der Promptcontroller besitzt seit Stage 12c4d keine `std.python`-Brücke mehr. Kleine Editor-, History- und PTY-Probes prüfen UTF-8, verschachtelte Completion, Mehrzeilen-Wrapping, Emacs-/Vi-Kernbindings, Ctrl-C/Ctrl-D und zwei aufeinanderfolgende Rohmodussitzungen. Der öffentliche PTY-Test verwendet unverändert `bin/rpb a1`; es gibt keinen Ersatzbefehl für die Laufzeitsemantik.

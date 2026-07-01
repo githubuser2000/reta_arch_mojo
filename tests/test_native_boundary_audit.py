@@ -7,4 +7,4 @@ def test_native_boundary_audit() -> None:
     assert result["thread_module_count"] == 3
     assert result["canonical_thread_api_count"] == 10
     assert result["explicit_child_process_adapter_count"] == 1
-    assert result["active_bridge_count"] == 2
+    assert result["active_bridge_count"] == 1

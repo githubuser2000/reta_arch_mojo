@@ -1,20 +1,21 @@
-# Status – Stage 12c4c abgeschlossen; Stufen 9, 10 und 12 in Arbeit
+# Status – Stage 12c4d abgeschlossen; Stufen 9, 10 und 12 in Arbeit
 
 - Zielversion: Mojo 1.0.0b2
 - Unterstützte Python-Umgebung für Installation/Referenzbrücken: 3.10–3.14; Setup bevorzugt Python 3.14
-- Vollständig abgeschlossene Release-Stufen: **9/12 = 75,0 %**; teilgewichtet mit Stage 12c4c: **9,59/12 = 79,9 %**
+- Vollständig abgeschlossene Release-Stufen: **9/12 = 75,0 %**; teilgewichtet mit Stage 12c4d: **9,61/12 = 80,1 %**
 - Stufe 9: **BBCode, zentraler ANSI-Shellpfad und zentrale HTML-Pfade nativ; seltene Ausgabegrenzen offen**
 - Stufe 10: **native Kurzsprache, mehrsprachige verschachtelte Completion und Promptvorbereitung in Arbeit**
 - Stufe 11: **11a–11j abgeschlossen; 10/10 Teilstufen = 100 %**
-- Stufe 12: **12a–12b abgeschlossen; 12c zu ca. 90 %; insgesamt ca. 59 %**
+- Stufe 12: **12a–12b abgeschlossen; 12c zu ca. 94 %; insgesamt ca. 61 %**
 - Geschätzter funktionaler Portierungsstand: **96–98 %**
 - Konservativ vollständig native oder reproduzierbar generierte Originaldateien: **33/92 = 35,9 %**
 - Mindestens teilweise portierte Originaldateien: **61/92 = 66,3 %**
 - Gewichteter Quellzeilenstand: **ca. 52 %**
-- Nativer Mojo-Quellcode in `src/`: **38.651 Zeilen**
-- Davon im Paket `reta_mojo`: **35.510 Zeilen**
-- Test-/Probe-Dateien: **96** (**86 Mojo**, **10 Python** einschließlich PTY-, Boundary-, Eingabe-, Rohbefehl-, Reziprok-Plan- und Alles-Plan-Audits)
-- Native Mojo-Testfunktionen: **294**; Python-Testfunktionen: **27**
+- Nativer Mojo-Quellcode in `src/`: **39.514 Zeilen**
+- Davon im Paket `reta_mojo`: **36.405 Zeilen**
+- Test-/Probe-Dateien: **99** (**88 Mojo**, **11 Python** einschließlich PTY-, Boundary-, Eingabe-, Rohbefehl-, Reziprok-, klassischer Bruchplan- und Alles-Plan-Audits)
+- Native Mojo-Testfunktionen: **299**; Python-Testfunktionen: **34**
+- Stage-12c4d-Fokus: vollständig nativer POSIX-TTY-Editor ohne eingebettetes CPython, UTF-8-sicherer Editorzustand, History, verschachtelte Completion, Emacs-/Vi-Kernbindings und Terminalwiederherstellung; zusätzlich klassische Bruch-No-ops sowie gemischte Kommatokens wie `mond 1/2,3`; Editor **4/4**, History **4/4**, PTY **6/6**, Eingabe-/Boundary-Gates **12/12**, klassische Python↔Mojo-Pläne **8/8 byteidentisch**, Hash-Seeds **3/3** und Tabellenplaner **28/28**
 - Stage-12c4c-Fokus: native Komposition von `vielfache`/`teiler` mit stabilen Reziprokbrüchen `1/n`, exakte semantische Befehlszählung für Universum-Spalten, Entfernung des fälschlichen Reziprok-`--oberesmaximum`, historische `teiler 1/n`-Leerseite, exaktes `--Universum`-Casing und ein vollständiger Python↔Mojo-Argumentvergleich über **7** Fälle; Pläne **7/7 byteidentisch**, Python-Referenz stabil über drei Hash-Seeds, native Tabellenplaner-Suite **28/28**, Source-/Boundary-Gates **7/7**
 - Stage-12c4b-Fokus: direkte Mojo-Kindprozessgrenze für nicht-native `reta`-Zeilen und atomare Promptfallbacks, typisierte Profilargumente, POSIX-Shlex-/Leerargument-/Unicode-Erhaltung und Reduktion von `prompt_python_bridge.mojo` auf genau den echten TTY-Readline-/Vi-/Completion-Eingang; Mojo-Parser **6/6**, neue Kindprozessproben **2/2** und Source-/Boundary-Gates **9/9**
 - Stage-12c4a-Fokus: vollständige Kapselung der verbleibenden Prompt-Python-Grenze in `prompt_python_bridge.mojo`, Entfernung von `std.python`-Typen aus `prompt_main.mojo`, Ersatz der konfliktierenden `dlopen`/`dlsym`-/`environ`-FFI durch den gekapselten libc-`system()`-Adapter sowie ein gemeinsamer FFI-Compilerprobe; Parser **6/6**, FFI-Probe **1/1**, Byteparität **7/7** und Source-/Boundary-Prüfungen **8/8**
@@ -81,7 +82,7 @@
 - native Expansion kompakter Befehle wie `a15`, `ap15`, `15a`, `p12`, `(1 2)` und `uv3/2`
 - exakte CPython-3.13-Set-Reihenfolge bei `PYTHONHASHSEED=0`, einschließlich des Unterschieds zwischen `set(iterable)` und Set-Merge
 - persistenter nativer Completion-Arbeiter `reta-prompt-complete` mit direkter stdin/stdout-`FileHandle`-I/O
-- GNU Readline bleibt nur Terminal-/Tastaturgrenze; Kandidaten und Kontextauflösung kommen aus Mojo
+- nativer POSIX-TTY-Editor mit deterministischem Mehrzeilen-Wrapping; der eigenständige Completion-Arbeiter bleibt nur als kompatibles Test-/Werkzeugziel erhalten
 - interaktiver Pseudoterminaltest ergänzt `reta -ausgabe --art=htm<Tab>` zu `html`
 - nativer Bruchparser für die vordere `prompt_execution.py`-Strecke einschließlich Bereichsbildung, Reziprok- und Ganzzahlerkennung
 - native Fachbefehle `primfaktorenvergleich`, `abstand` und `abstandPrim`; Abstände besitzen keine Zweibereichsgrenze mehr und reproduzieren CPython-`set[frozenset[int]]`- sowie Difference-Reihenfolgen

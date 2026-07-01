@@ -558,3 +558,14 @@ Promptbefehle statt nur Tabellenfamilien; ein kompaktes `v1/n` trägt deshalb wi
 in der Python-Vorbereitung einen impliziten `vielfache`-Befehl bei. Der
 historische leere Ganzzahlanteil von reinem `teiler 1/n` bleibt als
 abschließendes Komma erhalten.
+
+
+## Stage 12c4d – nativer TTY-Editor und klassische Bruchfamilien
+
+- `prompt_python_bridge.mojo` und der kombinierte `std.python`-Promptprobe sind entfernt. `prompt_main.mojo` ruft für Pipe-, Plain- und echte TTY-Eingabe ausschließlich Mojo-Module auf.
+- `prompt_line_editor.mojo` trennt UTF-8-sichere Puffer-/Cursoroperationen, History und verschachtelte Completion von der Betriebssystemgrenze.
+- `prompt_terminal_input.mojo` kapselt `termios`, `FIONREAD` und byteweise `FileDescriptor`-I/O. Emacs-/Vi-Kernbindings, Ctrl-C/Ctrl-D, Kandidatenanzeige und Terminalwiederherstellung laufen nativ.
+- Die Neuzeichnung verwendet explizite CRLF-Wraps und einen mehrzeiligen Renderzustand. Dadurch werden lange Promptbefehle über Terminalzeilengrenzen hinweg gelöscht, neu gezeichnet und positioniert; ein 16-Spalten-PTY-Test öffnet anschließend im selben Prozess eine zweite Rohmodussitzung.
+- Ist stdin oder stdout kein TTY oder wurde `RETA_PROMPT_PLAIN_INPUT=1` gesetzt, verwendet der Controller den portablen Mojo-`input()`-Pfad ohne ANSI-Steuersequenzen.
+- Reine echte Brüche bei `mond`, `richtung`, `primzahlkreuz`, `alles` und `thomas` sind wie in der Python-Referenz erfolgreiche leere Pläne. Gemischte Tokens wie `mond 1/2,3` bewahren zugleich Bruch- und Ganzzahlanteil.
+- Im Laufzeitinventar verbleibt nur noch die allgemeine `compat_main.mojo`-Brücke; die weiterhin nicht portierten Promptfachzweige werden als explizite Kindprozesse gestartet und betten kein CPython ein.

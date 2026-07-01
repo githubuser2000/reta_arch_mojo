@@ -18,7 +18,6 @@ from reta_mojo.prompt_language import (
     expand_prompt_replacements,
     load_prompt_language_catalog,
     is_prompt_numeric_shortcut,
-    prompt_completion_word_pool,
     prompt_root_commands,
     prompt_vocabulary_alias,
     prepare_prompt_tokens,
@@ -32,10 +31,7 @@ from reta_mojo.prompt_legacy_echo import (
     compact_prompt_announcement_line,
     legacy_table_echo_tokens,
 )
-from reta_mojo.native_prompt_input import (
-    native_plain_input_requested,
-    read_plain_prompt_line,
-)
+from reta_mojo.native_prompt_input import read_native_prompt_line
 from reta_mojo.prompt_external_commands import (
     run_math_prompt_line_native,
     run_python_prompt_line_native,
@@ -43,7 +39,6 @@ from reta_mojo.prompt_external_commands import (
     run_reta_prompt_fallback_native,
     run_shell_prompt_line_native,
 )
-from reta_mojo.prompt_python_bridge import read_prompt_line_encoded_bridge
 from reta_mojo.native_reta_cli import (
     native_reta_tokens_supported,
     run_native_reta,
@@ -170,40 +165,19 @@ def _print_commands(
     print()
 
 
-def _encode_fields(values: List[String]) -> String:
-    var encoded = String()
-    for index in range(len(values)):
-        if index > 0:
-            encoded += "\x1f"
-        encoded += values[index]
-    return encoded^
-
-
 def _read_line(
     profile: PromptProfile,
     session: NativePromptSession,
     catalog: PromptLanguageCatalog,
 ) raises -> String:
-    var prefix = prompt_prefix(session)
-    if native_plain_input_requested():
-        return read_plain_prompt_line(
-            prefix,
-            session.logging_enabled,
-            "~/.ReTaPromptHistory",
-        )
-
-    # Keep the historical readline/vi/completion behavior on a real TTY until
-    # the native line editor has exact key-binding and completion parity.
-    var fields = List[String]()
-    fields.append(prefix)
-    fields.append("1" if session.logging_enabled else "0")
-    fields.append("1" if profile.vi_mode else "0")
-    fields.append("~/.ReTaPromptHistory")
-    fields.append(profile.language)
-    var words = prompt_completion_word_pool(catalog, profile.language)
-    for index in range(len(words)):
-        fields.append(words[index])
-    return read_prompt_line_encoded_bridge(_encode_fields(fields))
+    return read_native_prompt_line(
+        prompt_prefix(session),
+        catalog,
+        profile.language,
+        profile.vi_mode,
+        session.logging_enabled,
+        "~/.ReTaPromptHistory",
+    )
 
 
 def _run_fallback(
@@ -224,9 +198,9 @@ def _run_native_table_tokens(
     if len(tokens) == 0:
         return False
     if not suppress_command_echo:
-        var display_tokens = (
-            legacy_table_echo_tokens(tokens) if historical_echo else tokens.copy()
-        )
+        var display_tokens = legacy_table_echo_tokens(
+            tokens
+        ) if historical_echo else tokens.copy()
         var command_line = String("reta")
         for index in range(len(display_tokens)):
             command_line += " " + display_tokens[index]
@@ -332,9 +306,7 @@ def _integer_argument_words(values: List[String]) -> List[String]:
 def _has_mulpri(
     values: List[String], language: String, catalog: PromptLanguageCatalog
 ) -> Bool:
-    var mulpri = prompt_vocabulary_alias(
-        catalog, language, "command", "mulpri"
-    )
+    var mulpri = prompt_vocabulary_alias(catalog, language, "command", "mulpri")
     var short = prompt_vocabulary_alias(catalog, language, "command", "p")
     return _contains_token(values, mulpri) or _contains_token(values, short)
 
@@ -392,11 +364,9 @@ def _run_native_mulpri(
     )
     for index in range(len(multi_lines)):
         if multi_lines[index].endswith("[]") and index < len(numbers):
-            var prime_word = (
-                "Primzahl"
-                if profile_language_is_german(language)
-                else "prime_number"
-            )
+            var prime_word = "Primzahl" if profile_language_is_german(
+                language
+            ) else "prime_number"
             print(
                 String(numbers[index])
                 + ": "
@@ -636,9 +606,7 @@ def _print_compact_announcement_if_needed(
         # Keep that byte-level contract explicit instead of inferring it from
         # Rich's internal ``Console.print(..., end="")`` call.
         print(
-            compact_prompt_announcement_line(
-                visible_tokens, source, language
-            ),
+            compact_prompt_announcement_line(visible_tokens, source, language),
             end="",
         )
 
@@ -741,11 +709,11 @@ def _run_command(
     )
     var numeric_default = _is_pure_numeric_prompt(raw_tokens)
     var planning_tokens = (
-        prepared.tokens.copy()
-        if historical_echo
+        prepared.tokens.copy() if historical_echo
         or numeric_default
-        or _contains_numeric_shortcut(raw_tokens, profile.language, catalog)
-        else normalized_tokens.copy()
+        or _contains_numeric_shortcut(
+            raw_tokens, profile.language, catalog
+        ) else normalized_tokens.copy()
     )
     var quiet_echo = _quiet_prompt_echo(
         planning_tokens, profile.language, catalog
@@ -758,9 +726,10 @@ def _run_command(
     var table_plan = plan_prompt_table_commands(
         planning_tokens, profile.language, catalog
     )
-    var owns_mulpri = _has_mulpri(
-        planning_tokens, profile.language, catalog
-    ) and len(_integer_argument_words(planning_tokens)) > 0
+    var owns_mulpri = (
+        _has_mulpri(planning_tokens, profile.language, catalog)
+        and len(_integer_argument_words(planning_tokens)) > 0
+    )
     var owns_table = table_plan.handled
     if (historical_echo or numeric_default) and (owns_table or owns_mulpri):
         if not _historical_prompt_execution_supported(
@@ -902,11 +871,11 @@ def _run_native_one_shot(
     )
     var numeric_default = _is_pure_numeric_prompt(raw_tokens)
     var planning_tokens = (
-        prepared.tokens.copy()
-        if historical_echo
+        prepared.tokens.copy() if historical_echo
         or numeric_default
-        or _contains_numeric_shortcut(raw_tokens, profile.language, catalog)
-        else normalized_tokens.copy()
+        or _contains_numeric_shortcut(
+            raw_tokens, profile.language, catalog
+        ) else normalized_tokens.copy()
     )
     var quiet_echo = _quiet_prompt_echo(
         planning_tokens, profile.language, catalog
@@ -914,9 +883,10 @@ def _run_native_one_shot(
     var table_plan = plan_prompt_table_commands(
         planning_tokens, profile.language, catalog
     )
-    var owns_mulpri = _has_mulpri(
-        planning_tokens, profile.language, catalog
-    ) and len(_integer_argument_words(planning_tokens)) > 0
+    var owns_mulpri = (
+        _has_mulpri(planning_tokens, profile.language, catalog)
+        and len(_integer_argument_words(planning_tokens)) > 0
+    )
     var owns_table = table_plan.handled
     if (historical_echo or numeric_default) and (owns_table or owns_mulpri):
         if not _historical_prompt_execution_supported(
@@ -1041,9 +1011,7 @@ def main() raises:
                 delete_stored_selection(session, line)
                 print("Gespeichert:", stored_prompt_text(session))
             continue
-        if not _run_command(
-            startup.profile, line, session, prompt_catalog
-        ):
+        if not _run_command(startup.profile, line, session, prompt_catalog):
             break
         var executed = classify_prompt_command_localized(
             line, startup.profile.language, prompt_catalog

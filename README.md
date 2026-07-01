@@ -8,7 +8,7 @@ Dies ist ein inkrementeller, getesteter Port des hochgeladenen Python-Projekts `
 abgeschlossene Release-Stufen:       9 von 12 = 75,0 %
 Stufen 9/10/12:                       Ausgabe, Prompt/i18n und Releaseparität in Arbeit
 Stufe 11:                             11a–11j = 100 %
-Stufe 12:                             12a–12b fertig, 12c1–12c3 und 12c4a–12c4c fertig = ca. 59 %
+Stufe 12:                             12a–12b fertig, 12c1–12c3 und 12c4a–12c4d fertig = ca. 61 %
 vollständig native Originaldateien:  33 von 92 = 35,9 %
 mindestens teilweise portiert:       61 von 92 = 66,3 %
 gewichteter Quellzeilenstand:         ca. 52 %
@@ -143,7 +143,7 @@ Die derzeit bytegleich geprüften HTML-Generatorpfade umfassen Primzahlwirkung, 
 
 Die vordere Promptverarbeitung läuft nun in Mojo: klammerbewusstes Tokenisieren, kompakte Kurzbefehle, Ein-Zeichen-Ersetzungen, CPython-kompatible Mengenordnung und kontextabhängige Completion. Ein reproduzierbarer Katalog bündelt 28.990 Completion-Werte in 549 Sektionen und enthält fünf Sprachen sowie 1.355 Vokabularaliase.
 
-Der zusätzliche Compilerprozess `reta-prompt-complete` bleibt während einer interaktiven Sitzung aktiv. GNU Readline übermittelt nur den vollständigen Eingabepuffer; Fuzzy-Suche, Parameterkontext und Kommawert-Completion werden nativ in Mojo berechnet. Noch nicht portierte Fachoperationen erhalten an der Kompatibilitätsgrenze weiterhin unverändert die ursprüngliche Eingabezeile.
+Seit Stage 12c4d liest auch ein reales Terminal vollständig nativ: Ein reiner Mojo-Editor besitzt UTF-8-Cursorlogik, History und verschachtelte Completion; ein kleiner POSIX-Adapter kapselt `termios`, ANSI-Tastenfolgen und Linux-/macOS-`FIONREAD`. Übliche Emacs- und Vi-Kernbindings sind vorhanden. Der frühere GNU-Readline-/CPython-Eingang und der zusätzliche Completion-Kindprozess sind für den Controller nicht mehr erforderlich. Noch nicht portierte Fachoperationen erhalten am expliziten Kindprozessfallback weiterhin unverändert die ursprüngliche Eingabezeile.
 
 Geprüft sind 27 kompakte deutsch/englische Kurzsprachenkontexte, 23 vollständige Vorbereitungskontexte und 12 verschachtelte Completion-Kontexte bytegleich zur Python-Referenz.
 
@@ -276,7 +276,7 @@ Details: [`TEST_RESULTS.md`](TEST_RESULTS.md).
 
 ## Nächster Portierungsblock
 
-Stufe 9 wird mit seltenen Terminal-/Rich-Sonderfällen fortgesetzt. Stufe 10 erweitert die bereits native Promptausführung und i18n-Laufzeit. Stufe 11 ist mit 11a–11j abgeschlossen. Stage 12a und 12b sind abgeschlossen: Sämtliche nativen Parallelpfade verwenden Mojo-Threads, und `generate_html` besitzt nun auch die vollständige `--alles`-Mitteltabelle. Stage 12c ist bis 12c4c fortgesetzt: `rpb a1` trennt Befehlszeile und Tabellenkopf wieder exakt, `--breite=0` verwendet die reale TTY-Breite, und Pipe-/Skripteingabe läuft über Mojos portables `input()` ohne vorsorglichen Python-Import. Die Rohbefehle `shell`, `python` und `math` laufen ohne Python-Brücke. Auch nicht-native `reta`-Zeilen und atomare Restfallbacks starten direkt am expliziten Mojo-Kindprozessadapter. Stabile Kombinationen aus `vielfache`, `teiler` und `1/n` werden nun wieder aus diesem Fallback herausgezogen und vollständig nativ geplant. Im eingebetteten Prompt-Python-Adapter verbleibt nur der echte TTY-Readline-/Vi-/Completion-Eingang. Offen bleiben dessen native Ablösung, echte `v n/m` mit Zähler größer eins, weitere Restalgorithmen sowie 12d–12e.
+Stufe 9 wird mit seltenen Terminal-/Rich-Sonderfällen fortgesetzt. Stufe 10 erweitert die bereits native Promptausführung und i18n-Laufzeit. Stufe 11 ist mit 11a–11j abgeschlossen. Stage 12a und 12b sind abgeschlossen: Sämtliche nativen Parallelpfade verwenden Mojo-Threads, und `generate_html` besitzt nun auch die vollständige `--alles`-Mitteltabelle. Stage 12c ist bis 12c4d fortgesetzt: `rpb a1` trennt Befehlszeile und Tabellenkopf wieder exakt, `--breite=0` verwendet die reale TTY-Breite, und Pipe-, Skript- sowie echte TTY-Eingabe laufen nativ in Mojo. Die Rohbefehle `shell`, `python` und `math`, nicht-native `reta`-Zeilen und atomare Restfallbacks starten direkt am expliziten Mojo-Kindprozessadapter. Stabile Kombinationen aus `vielfache`, `teiler` und `1/n`, klassische Bruch-No-ops und gemischte Tokens wie `mond 1/2,3` werden nativ geplant. Der Prompt besitzt keine eingebettete Python-Laufzeit mehr. Offen bleiben echte `v n/m` mit Zähler größer eins, weitere Restalgorithmen, die allgemeine Kompatibilitätsbrücke sowie 12d–12e.
 
 ## Dokumentation
 
@@ -524,3 +524,10 @@ Stage 12c4c übernimmt die stabile Kombination `vielfache + teiler + 1/n`,
 korrigiert die Reziprok-Maximum- und Universum-Spaltenparität und bewahrt den
 historischen leeren `teiler 1/n`-Anteil. Details:
 [`STAGE12C4C_NATIVE_MIXED_RECIPROCAL_MODIFIERS.md`](STAGE12C4C_NATIVE_MIXED_RECIPROCAL_MODIFIERS.md).
+
+Stage 12c4d ersetzt schließlich auch den echten TTY-Readline-Eingang durch einen
+UTF-8-sicheren Mojo-Zeileneditor mit History, verschachtelter Completion,
+Emacs-/Vi-Kernbindings und einer gekapselten POSIX-`termios`-Grenze. Außerdem
+sind die klassischen Bruch-No-ops und gemischte Bruch-/Ganzzahl-Kommatokens
+nativ. Details:
+[`STAGE12C4D_NATIVE_TTY_EDITOR.md`](STAGE12C4D_NATIVE_TTY_EDITOR.md).

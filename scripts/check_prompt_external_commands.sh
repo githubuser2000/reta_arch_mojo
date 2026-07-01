@@ -11,11 +11,6 @@ mkdir -p "$TEST_DIR"
 "$TEST_DIR/test-prompt-external-commands"
 
 "$ROOT/bin/mojo-real" build --no-optimization -j 4 -I src \
-    tests/prompt_external_python_ffi_probe.mojo \
-    -o "$TEST_DIR/prompt-external-python-ffi-probe"
-"$TEST_DIR/prompt-external-python-ffi-probe" >/dev/null
-
-"$ROOT/bin/mojo-real" build --no-optimization -j 4 -I src \
     tests/prompt_external_commands_probe.mojo \
     -o "$TEST_DIR/prompt-external-commands-probe"
 

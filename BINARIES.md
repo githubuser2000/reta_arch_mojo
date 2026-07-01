@@ -98,7 +98,7 @@ Der Umschalter ist absichtlich explizit, solange nicht sämtliche Tabellenfunkti
 | `reta-native`, `RETA_NATIVE=1 ./reta` | `target/bin/reta-native` | erster nativer Tabellenpfad |
 | normale `reta`-Ausführung | `target/bin/reta-mojo-compat-bin` | vollständige historische Oberfläche |
 | `rp`, `rpl`, `rpb`, `rpe`, `retaPrompt*` | `target/bin/reta-prompt-native` | explizite One-shots, besessene Tabellen, sämtliche kompakte Tabellenfamilien sowie reine Zahlen-/Bruch-, Null-/Negativ-, Ausschluss- und wiederholte 15/16-Katalogkompositionen laufen ohne Python-/`reta-native`-Kindprozess; echte `v n/m`-Vielfache mit Zähler größer 1 und seltene hintere Sonderzweige bleiben an der Bridge |
-| interaktive verschachtelte Completion | `target/bin/reta-prompt-complete` | persistenter Mojo-Arbeiter; Readline ist nur Terminalgrenze |
+| eigenständige verschachtelte Completion | `target/bin/reta-prompt-complete` | persistenter Mojo-Arbeiter als Kompatibilitäts-/Testziel; der interaktive TTY-Editor vervollständigt direkt |
 | `grundStrukHtml*` | `target/bin/grundStrukHtml-native` | Renderer nativ |
 | `generate_html` | `target/bin/generate-html-native` | vollständig nativ einschließlich `--alles`-Mitteltabelle |
 | Tabellenzustand/CSV/Wrapping | `target/bin/reta-mojo-table` | nativ |

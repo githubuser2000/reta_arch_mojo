@@ -48,32 +48,34 @@ def test_external_adapter_avoids_conflicting_dynamic_link_symbols() -> None:
     assert 'external_call["waitpid"' not in source
 
 
-def test_prompt_controller_encapsulates_python_types() -> None:
+def test_prompt_controller_has_no_embedded_python_boundary() -> None:
     root = Path(__file__).resolve().parents[1]
     controller = (root / "src" / "prompt_main.mojo").read_text(encoding="utf-8")
-    adapter = (
-        root / "src" / "reta_mojo" / "prompt_python_bridge.mojo"
-    ).read_text(encoding="utf-8")
+    prompt_modules = [
+        path.read_text(encoding="utf-8")
+        for path in (root / "src" / "reta_mojo").glob("prompt*.mojo")
+    ]
     assert "from std.python import" not in controller
     assert "PythonObject" not in controller
-    assert "from reta_mojo.prompt_python_bridge import" in controller
-    assert "from std.python import Python" in adapter
-    assert "read_prompt_line_encoded_bridge" in adapter
-    assert "run_reta_prompt_line_encoded_bridge" not in adapter
-    assert "run_reta_line_bridge" not in adapter
+    assert "prompt_python_bridge" not in controller
+    assert not (root / "src" / "reta_mojo" / "prompt_python_bridge.mojo").exists()
+    assert all("from std.python import" not in source for source in prompt_modules)
     assert "run_reta_prompt_fallback_native" in controller
     assert "run_reta_line_native" in controller
 
 
-def test_only_tty_input_remains_in_embedded_prompt_python_adapter() -> None:
+def test_native_tty_input_is_the_prompt_controller_boundary() -> None:
     root = Path(__file__).resolve().parents[1]
     controller = (root / "src" / "prompt_main.mojo").read_text(encoding="utf-8")
-    adapter = (
-        root / "src" / "reta_mojo" / "prompt_python_bridge.mojo"
+    native_input = (
+        root / "src" / "reta_mojo" / "native_prompt_input.mojo"
     ).read_text(encoding="utf-8")
-    assert "run_reta_prompt_line_encoded_bridge" not in controller
-    assert "run_reta_line_bridge" not in controller
-    assert "bridge.run_reta_prompt_line_encoded" not in adapter
-    assert "bridge.run_reta_line" not in adapter
-    assert adapter.count("bridge.") == 1
-    assert "bridge.read_prompt_line_encoded(encoded)" in adapter
+    terminal_input = (
+        root / "src" / "reta_mojo" / "prompt_terminal_input.mojo"
+    ).read_text(encoding="utf-8")
+    assert "read_native_prompt_line" in controller
+    assert "read_terminal_prompt_line" in native_input
+    assert "prompt_line_editor" in terminal_input
+    assert "tcgetattr" in terminal_input
+    assert "cfmakeraw" in terminal_input
+    assert "tcsetattr" in terminal_input

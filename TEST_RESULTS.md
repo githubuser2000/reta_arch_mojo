@@ -803,3 +803,29 @@ Der vollständige Python-Testlauf zeigte zusätzlich **86 bestandene**,
 bereits vorhandene veraltete Python-Snapshotzahlen oder in diesem Lauf nicht
 neu gebaute beziehungsweise wegen fehlender `libKGENCompilerRTShared.so` nicht
 startbare ältere Mojo-Probes, nicht den Stage-12c4c-Quellpfad.
+
+
+## Stage 12c4d: nativer TTY-Editor und klassische Bruch-No-ops
+
+```text
+reiner Mojo-Zeileneditor:                     4/4
+History-/Plain-Input-Unit-Tests:               4/4
+reale PTY-End-to-End-Fälle:                    6/6
+Python-Eingabe-/Source-/Boundary-Gates:       12/12
+Promptadapter-Mojo-Suiten:                 6/6 + 5/5
+Promptadapter-/Boundary-Pytests:              16/16
+klassische Python↔Mojo-Bruchpläne:             8/8 byteidentisch
+Hash-Seeds 0, 1, 42:                           3/3 identisch
+native Tabellenplaner-Suite:                 28/28
+```
+
+Der sechste PTY-Fall erzwingt 16 Terminalspalten, editiert über eine physische Wrapgrenze, schließt die erste Eingabe ab und aktiviert im selben Prozess den Rohmodus für eine zweite Eingabe erneut. Damit werden nicht nur Pufferwerte, sondern Terminalwiederherstellung und mehrzeilige Renderzustände geprüft.
+
+Der Boundary-Audit meldet nach Entfernung von `prompt_python_bridge.mojo` genau **eine** aktive `std.python`-Brücke (`compat_main.mojo`), **einen** expliziten Kindprozessadapter und weiterhin **null** verbotene Prozessprimitive in den Parallelmodulen.
+
+Der vollständige `prompt_main.mojo`-Link überschritt in der Sandbox auch unoptimiert 40 Minuten ohne Compilerdiagnose. Die veränderten Editor-, Terminal-, History- und Tabellenmodule sowie ihre ausführbaren PTY-/Paritätsprobes wurden dagegen mit Mojo 1.0.0b2 kompiliert und ausgeführt. Der verbindliche Zielsystemlauf bleibt:
+
+```bash
+scripts/build-heavy.sh
+scripts/build.sh
+```

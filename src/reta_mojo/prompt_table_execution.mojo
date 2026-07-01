@@ -190,6 +190,27 @@ def _is_table_command(canonical: String) -> Bool:
     )
 
 
+def _only_classic_integer_table_commands(words: List[String]) -> Bool:
+    """Return true when every selected table family ignores proper fractions."""
+    var found = False
+    for index in range(len(words)):
+        var canonical = words[index]
+        if not _is_table_command(canonical):
+            continue
+        if not (
+            canonical == "mond"
+            or canonical == "richtung"
+            or canonical == "r"
+            or canonical == "primzahlkreuz"
+            or canonical == "alles"
+            or canonical == "thomas"
+            or canonical == "t"
+        ):
+            return False
+        found = True
+    return found
+
+
 def _is_fraction_table_command(canonical: String) -> Bool:
     return (
         canonical == "emotion"
@@ -793,8 +814,52 @@ def plan_prompt_table_commands(
             continue
         if _is_fraction_expression(token):
             has_fraction = True
-            if not _parse_fraction_token(token, fraction_pairs):
-                unsupported = True
+            var mixed_integer_parts = List[String]()
+            var mixed_parts = split_top_level_commas(token)
+            for mixed_index in range(len(mixed_parts)):
+                var mixed_part = String(mixed_parts[mixed_index])
+                if mixed_part.byte_length() == 0:
+                    unsupported = True
+                    continue
+                if _is_fraction_expression(mixed_part):
+                    if not _parse_fraction_token(mixed_part, fraction_pairs):
+                        unsupported = True
+                else:
+                    mixed_integer_parts.append(mixed_part)
+
+            # The reference accepts a fraction and ordinary row selectors in
+            # one comma token (for example ``mond 1/2,3``).  Fractions feed the
+            # rational axes while the integer components retain the ordinary
+            # set/subtraction algebra and source-component order.
+            if len(mixed_integer_parts) > 0:
+                var integer_expression = _join_rows(mixed_integer_parts)
+                try:
+                    if not is_row_range(integer_expression):
+                        unsupported = True
+                    else:
+                        for mixed_index in range(len(mixed_integer_parts)):
+                            var part = mixed_integer_parts[mixed_index]
+                            row_part_attempts.append(part)
+                            if part.startswith("-") and part.byte_length() > 1:
+                                saw_integer_component_exclusion = True
+                                try:
+                                    var excluded_values = range_to_numbers(
+                                        String(part[byte=1:]), False, 0
+                                    )
+                                    for excluded_value in excluded_values:
+                                        _append_unique_int(
+                                            excluded_row_values, excluded_value
+                                        )
+                                except:
+                                    pass
+                        var values = range_to_numbers(
+                            integer_expression, False, 0
+                        )
+                        for value in values:
+                            row_values.append(value)
+                            maximum = max(maximum, value)
+                except:
+                    unsupported = True
             continue
         if _is_table_command(canonical) or _is_control_command(canonical):
             continue
@@ -1019,9 +1084,8 @@ def plan_prompt_table_commands(
     for index in range(len(canonical_words)):
         var canonical = canonical_words[index]
         if (
-            (_is_table_command(canonical) or _is_control_command(canonical))
-            and not _contains(distinct_prompt_commands, canonical)
-        ):
+            _is_table_command(canonical) or _is_control_command(canonical)
+        ) and not _contains(distinct_prompt_commands, canonical):
             distinct_prompt_commands.append(canonical)
     if (
         _fraction_multiple_mode(fraction_pairs)
@@ -1455,10 +1519,20 @@ def plan_prompt_table_commands(
             True,
         )
 
+    var classic_fraction_noop = (
+        has_fraction
+        and has_positive_fraction
+        and len(invocations) == 0
+        and len(numeric15_values) == 0
+        and len(numeric16_values) == 0
+        and not has_property_command
+        and _only_classic_integer_table_commands(canonical_words)
+    )
     return PromptTablePlan(
         len(invocations) > 0
         or (has_fraction and not has_positive_fraction)
-        or has_property_command,
+        or has_property_command
+        or classic_fraction_noop,
         invocations^,
     )
 

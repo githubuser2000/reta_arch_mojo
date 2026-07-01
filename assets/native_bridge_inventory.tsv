@@ -1,3 +1,2 @@
 path	kind	status	purpose	target_stage
 src/compat_main.mojo	std.python	active	legacy command compatibility bridge	12e
-src/reta_mojo/prompt_python_bridge.mojo	std.python	active	TTY readline/vi/completion only	12c4
