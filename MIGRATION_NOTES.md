@@ -587,4 +587,26 @@ abschließendes Komma erhalten.
 - `--justtext` ist nativ das farblose Alias von `--nocolor`.
 - `--breite=0 --onetable` verwendet die längste vollständige Zelle und erzeugt deshalb keinen automatischen Terminalumbruch. Positive Breiten behalten das historische Minimum 21; eine vorkommende Nullbreite sperrt spätere Breitenwerte.
 - Der Wortumbruch übernimmt bei überlangen Wörtern den verbleibenden Platz der aktuellen Zeile Unicode-sicher, entsprechend Python `textwrap`.
-- HTML/BBCode mit Ein-Tabellen-Alias bleiben bis zur vollständigen Markup-Whitespace-/Metadatenparität atomarer Referenzfallback.
+- Zum damaligen Stand 12c4f blieben HTML/BBCode mit Ein-Tabellen-Alias noch atomarer Referenzfallback; Stage 12c4g hat diese Markup-Whitespace-/Metadatenparität inzwischen nativ geschlossen.
+
+
+## Stage 12c4g – Markup-oneTable und Launcher-Endzustand
+
+- `render_html_table_with_context()` und
+  `render_bbcode_table_with_width_reference()` besitzen nun das typisierte
+  `one_table`-Planfeld.
+- Bei positiver Breite deaktivieren alle vier historischen Aliase die
+  horizontale HTML-/BBCode-Seitenteilung; Breite null bleibt bytegleich.
+- `native_reta_tokens_supported()` akzeptiert diese Argumentvektoren jetzt
+  konservativ, sodass der normale `reta`-Launcher keinen Python-Kindprozess
+  startet.
+- Sechs versionierte Markup-oneTable-Fixtures bilden zwölf Alias-/Sprach-/
+  Breitenfälle ab und werden mit absichtlich ungültigem `RETA_PYTHON` geprüft.
+- Die im hochgeladenen Baum erneut vorhandenen, aber unbenutzten Dateien
+  `prompt_python_bridge.mojo` und `prompt_external_python_ffi_probe.mojo` sind
+  physisch entfernt; die vorhandenen Source-Gates verlangen ihre Abwesenheit.
+- Während der Migration bleiben `reta`, `reta-native` und
+  `reta-mojo-compat` getrennt. Nach vollständiger Transpilierung ist nur
+  `reta` als öffentlicher Startname erforderlich. `reta-native` kann optional
+  als Diagnosealias bestehen bleiben; `reta-mojo-compat` kann in Stage 12e
+  entfallen oder auf `reta` verweisen.

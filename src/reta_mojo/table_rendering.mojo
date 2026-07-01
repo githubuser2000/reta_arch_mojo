@@ -396,6 +396,7 @@ def render_bbcode_table_with_width_reference(
     row_numbers: List[Int],
     number_rows: Bool = True,
     width: Int = 0,
+    one_table: Bool = False,
 ) -> String:
     """Render BBCode with legacy wrapping, paging and significant spaces."""
     if len(table.rows) == 0:
@@ -407,7 +408,7 @@ def render_bbcode_table_with_width_reference(
     var screen_width = 80 - _decimal_width(_maximum_row_number(row_numbers)) - 1
     while page_start < total_columns:
         var page_end = page_start
-        if width <= 0:
+        if width <= 0 or one_table:
             page_end = total_columns
         else:
             var sum_widths = 0
@@ -460,9 +461,10 @@ def render_bbcode_table(
     row_numbers: List[Int],
     number_rows: Bool = True,
     width: Int = 0,
+    one_table: Bool = False,
 ) -> String:
     return render_bbcode_table_with_width_reference(
-        table, table, row_numbers, number_rows, width
+        table, table, row_numbers, number_rows, width, one_table
     )
 
 
@@ -493,6 +495,7 @@ def render_html_table_with_context(
     language: String,
     number_rows: Bool = True,
     width: Int = 0,
+    one_table: Bool = False,
 ) raises -> String:
     if len(table.rows) == 0:
         return ""
@@ -504,7 +507,7 @@ def render_html_table_with_context(
     var screen_width = 80 - _decimal_width(_maximum_row_number(row_numbers)) - 1
     while page_start < total_columns:
         var page_end = page_start
-        if width <= 0:
+        if width <= 0 or one_table:
             page_end = total_columns
         else:
             var sum_widths = 0
@@ -927,7 +930,12 @@ def render_table_with_width_reference(
         return render_html_table(table, row_numbers)
     if mode == "bbcode":
         return render_bbcode_table_with_width_reference(
-            table, width_reference, row_numbers, number_rows, width
+            table,
+            width_reference,
+            row_numbers,
+            number_rows,
+            width,
+            one_table,
         )
     if mode == "nichts":
         return ""
@@ -968,6 +976,7 @@ def render_table_with_native_context(
             language,
             number_rows,
             width,
+            one_table,
         )
     return render_table_with_width_reference(
         table,

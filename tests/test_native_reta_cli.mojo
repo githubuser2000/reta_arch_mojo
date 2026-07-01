@@ -285,10 +285,10 @@ def test_prompt_fast_path_accepts_owned_output_stream_flags() raises:
         )
 
 
-def test_prompt_fast_path_keeps_markup_onetable_on_reference() raises:
+def test_prompt_fast_path_accepts_markup_onetable() raises:
     for output_mode in ["html", "bbcode"]:
         assert_true(
-            not native_reta_tokens_supported(
+            native_reta_tokens_supported(
                 [
                     "-zeilen",
                     "--vorhervonausschnitt=1-2",

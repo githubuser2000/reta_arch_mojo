@@ -161,23 +161,26 @@ def test_shell_onetable_runs_without_python_child() -> None:
     )
 
 
-def test_markup_onetable_remains_atomic_python_fallback(tmp_path: Path) -> None:
-    fake_python = tmp_path / "fake-python"
-    _write_fake_python(fake_python, 23)
-    arguments = [
-        "-zeilen",
-        "--vorhervonausschnitt=1-2",
-        "-spalten",
-        "--religionen=sternpolygon",
-        "-ausgabe",
-        "--art=html",
-        "--onetable",
-    ]
-    result = _run_compat(arguments, python=str(fake_python))
-    expected = (ROOT / "python_reference").as_posix().encode() + b"\n" + b"\0".join(
-        value.encode() for value in ["reta.py", *arguments]
-    )
-    assert (result.returncode, result.stdout, result.stderr) == (23, expected, b"")
+def test_markup_onetable_runs_without_python_child() -> None:
+    fixtures = ROOT / "tests" / "fixtures" / "markup_onetable"
+    for output_mode in ("html", "bbcode"):
+        arguments = [
+            "-zeilen",
+            "--vorhervonausschnitt=1-2",
+            "-spalten",
+            "--religionen=sternpolygon",
+            "-ausgabe",
+            f"--art={output_mode}",
+            "--breite=40",
+            "--onetable",
+        ]
+        native = _run_compat(arguments, python="/definitely/not/available")
+        expected = (fixtures / f"{output_mode}-de-width40.out").read_bytes()
+        assert (native.returncode, native.stdout, native.stderr) == (
+            0,
+            expected,
+            b"",
+        )
 
 
 def test_empty_cli_remains_on_complete_reference_surface(tmp_path: Path) -> None:

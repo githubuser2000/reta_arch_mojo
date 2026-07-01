@@ -890,3 +890,33 @@ bewusst abgelehnt und vollständig an die Referenz übergeben.
 ```bash
 scripts/check_native_output_stream_parity.sh
 ```
+
+
+## Stage 12c4g: native HTML-/BBCode-Ein-Tabellen-Semantik
+
+```text
+Markup-oneTable-Fixtures ohne Python:        12/12
+Tabellenrenderer:                            11/11
+nativer CLI-/Ownership-Planer:              24/24
+gezielte Launcher-/Source-/Boundary-Pytests: 11/11
+bestehende zentrale Markup-Fixtures:          8/8
+aktive std.python-Brücken:                      0
+```
+
+Die zwölf neuen Fälle umfassen HTML und BBCode, sämtliche vier historischen
+Ein-Tabellen-Aliase, deutsche und englische Syntax sowie Breite null. Jeder
+native-first Lauf setzt `RETA_PYTHON` auf einen absichtlich nicht existierenden
+Pfad. Die sechs versionierten Ausgabefixtures wurden zuvor mit
+`PYTHONHASHSEED=0` direkt gegen die Python-Referenz verifiziert.
+
+Der normale positive-Breitenpfad erzeugt ohne Alias weiterhin mehrere
+`<table>`-/`[table]`-Blöcke. Mit `onetable`, `endlessscreen`, `endless` oder
+`dontwrap` enthält genau ein Block sämtliche ausgewählten Spalten, während
+Zellumbruch, HTML-Klassen, Symbolmetadaten, Zählungsspalten und Zeilenfarben
+bytegleich bleiben.
+
+```bash
+scripts/check_native_markup_onetable_parity.sh
+RETA_REFRESH_MARKUP_ONETABLE_FIXTURES=1 \
+  scripts/check_native_markup_onetable_parity.sh
+```

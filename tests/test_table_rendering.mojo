@@ -125,5 +125,23 @@ def test_shell_one_table_zero_width_never_wraps() raises:
     assert_false("\n   mit mehreren Woertern" in rendered)
 
 
+
+def test_bbcode_one_table_disables_horizontal_paging() raises:
+    var table = parse_semicolon_csv(
+        "; ;AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA;"
+        + "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB;"
+        + "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC\n"
+        + "1;1;a;b;c\n"
+    )
+    var paged = render_bbcode_table(table, [0, 1], True, 40)
+    var single = render_bbcode_table(table, [0, 1], True, 40, True)
+    assert_true(paged.count("[table]") > 1)
+    assert_equal(single.count("[table]"), 1)
+    assert_true(
+        "[td=\"\"]AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA[/td] "
+        + "[td=\"\"]BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB[/td] "
+        in single
+    )
+
 def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()

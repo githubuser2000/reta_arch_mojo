@@ -30,7 +30,9 @@ kompilierten ELF-Binaries entstehen durch `scripts/build.sh` beziehungsweise
 
 Kurzzuordnung:
 
-- `bin/reta`, `bin/reta-native`, `bin/reta-mojo-compat`: Tabellenlauncher;
+- `bin/reta`: öffentlicher native-first Tabellenlauncher; vollständig besessene Argumente laufen in Mojo, Restargumente fallen während der Migration atomar auf Python zurück;
+- `bin/reta-native`: strikter nativer Entwickler-/Diagnosepfad ohne Ownership-Prüfung und ohne Python-Fallback;
+- `bin/reta-mojo-compat`: expliziter Übergangsname für denselben native-first Kompatibilitätskern, den `bin/reta` normalerweise startet;
 - `bin/rp`, `rpl`, `rpb`, `rpe`, `retaPrompt*`: Symlinks/Profile desselben nativen Promptprogramms;
 - `bin/prim`, `prim24`, `multis`, `multis3`, `modulo`, `math`: Komfortstarter mit vorbereiteten Promptbefehlen;
 - `bin/grundStrukHtml`, `generate_html`: HTML-Werkzeuge;
@@ -65,7 +67,22 @@ RETA_NATIVE=1 ./reta -zeilen --vorhervonausschnitt=1-3 \
   -ausgabe --art=csv --breite=40
 ```
 
-`RETA_NATIVE=1` erzwingt den nativen Pfad. Die normale `./reta`-Ausführung entscheidet seit Stage 12c4e konservativ selbst; Stage 12c4f besitzt zusätzlich die Shell-Ein-Tabellen- und Justtext-Ausgabe; `RETA_FORCE_REFERENCE=1` erzwingt die vollständige Python-Referenz.
+`RETA_NATIVE=1` erzwingt den nativen Pfad. Die normale `./reta`-Ausführung entscheidet seit Stage 12c4e konservativ selbst; Stage 12c4f besitzt zusätzlich die Shell-Ein-Tabellen- und Justtext-Ausgabe; Stage 12c4g erweitert die Ein-Tabellen-Aliase auf HTML und BBCode; `RETA_FORCE_REFERENCE=1` erzwingt die vollständige Python-Referenz.
+
+## Zielzustand nach vollständiger Transpilierung
+
+Für die normale Nutzung wird dann nur noch **ein öffentlicher Startname** benötigt:
+
+```text
+reta
+```
+
+`reta-native` kann als optionaler Diagnosealias erhalten bleiben, um den strikt
+nativen Pfad ausdrücklich zu erzwingen. `reta-mojo-compat` ist nach Entfernung
+des letzten Python-Fallbacks semantisch überflüssig; Stage 12e kann den Namen
+löschen oder nur als rückwärtskompatiblen Symlink auf `reta` behalten. Auch die
+zwei heutigen Compilerziele `reta-native` und `reta-mojo-compat-bin` können dann
+zu einem einzigen Releasebinary `target/bin/reta` zusammengeführt werden.
 
 ## Native Inspektionsprogramme
 

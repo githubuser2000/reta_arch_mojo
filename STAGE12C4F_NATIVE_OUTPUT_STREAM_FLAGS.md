@@ -21,12 +21,11 @@ Breitenparameter auf null gesperrt.
 
 ## Konservative Formatgrenze
 
-Die neue Ownership-Freigabe gilt für den Shell-/Terminalrenderer. HTML und
-BBCode verwenden weiterhin einen separaten Legacy-Formatter, dessen komplette
-Whitespace- und Metadatenparität noch nicht für `oneTable` bewiesen ist.
-Kombinationen aus HTML/BBCode und einem Ein-Tabellen-Alias fallen deshalb
-weiterhin atomar auf die Python-Referenz zurück. Es gibt keine teilweise native
-Ausführung.
+In Stage 12c4f galt die Ownership-Freigabe zunächst nur für den
+Shell-/Terminalrenderer. HTML und BBCode blieben bis zum bytegenauen Nachweis
+atomarer Referenzfallback. **Stage 12c4g hat diese konservative Grenze
+anschließend aufgehoben** und besitzt die Ein-Tabellen-Semantik nun auch für
+beide Markupformate.
 
 ## Zusätzliche Paritätskorrektur
 

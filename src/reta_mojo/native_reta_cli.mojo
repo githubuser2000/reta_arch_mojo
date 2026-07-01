@@ -690,14 +690,9 @@ def native_reta_tokens_supported(tokens: List[String], csv_path: String) raises 
     var mode = canonicalize_output_mode(plan.output_mode)
     if mode.byte_length() == 0:
         return False
-    # The four historical one-table aliases currently own the terminal
-    # pagination path.  HTML/BBCode use a separate legacy formatter whose
-    # whitespace and metadata contract is not yet fully native, so keep those
-    # combinations on the atomic reference fallback.
-    if plan.one_table and mode != "shell":
-        return False
-    # Positive-width shell, HTML and BBCode rendering is otherwise owned by
-    # the native renderer and covered by byte fixtures.
+    # Shell, HTML and BBCode now share the historical one-table ownership
+    # contract: the four aliases disable horizontal page splitting while
+    # preserving each format's wrapping and metadata rules.
     return True
 
 
