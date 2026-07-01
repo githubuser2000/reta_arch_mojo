@@ -66,7 +66,7 @@ Die native `divisor_range()`- und Bucket-Normalisierung arbeitet momentan determ
 
 ## 12. Kompatibilitätsprozess
 
-`compat_main.mojo` startet die Python-Referenz in einem separaten Prozess. Ein direkter CPython-In-Process-Aufruf funktionierte für kleine Module, blieb bei der kompletten Reta-Laufzeit wegen globalem Zustand und Laufzeitressourcen beim Beenden hängen. Prozessisolation ist hier die robustere Übergangsarchitektur.
+`compat_main.mojo` ist seit Stage 12c4e native-first. Ein konservativer Ganzvektor-Prüfer führt vollständig unterstützte historische Argumente im selben Mojo-Prozess aus. Nur unbekannte oder teilweise portierte Semantik startet die Python-Referenz als separaten Prozess; `RETA_FORCE_REFERENCE=1` erzwingt diesen Pfad. Ein eingebetteter CPython-In-Process-Aufruf wird nicht mehr verwendet. Prozessisolation bleibt für die Restoberfläche die robuste Übergangsarchitektur.
 
 ## 13. Bekannte Baseline-Abweichungen des Uploads
 
@@ -568,4 +568,14 @@ abschließendes Komma erhalten.
 - Die Neuzeichnung verwendet explizite CRLF-Wraps und einen mehrzeiligen Renderzustand. Dadurch werden lange Promptbefehle über Terminalzeilengrenzen hinweg gelöscht, neu gezeichnet und positioniert; ein 16-Spalten-PTY-Test öffnet anschließend im selben Prozess eine zweite Rohmodussitzung.
 - Ist stdin oder stdout kein TTY oder wurde `RETA_PROMPT_PLAIN_INPUT=1` gesetzt, verwendet der Controller den portablen Mojo-`input()`-Pfad ohne ANSI-Steuersequenzen.
 - Reine echte Brüche bei `mond`, `richtung`, `primzahlkreuz`, `alles` und `thomas` sind wie in der Python-Referenz erfolgreiche leere Pläne. Gemischte Tokens wie `mond 1/2,3` bewahren zugleich Bruch- und Ganzzahlanteil.
-- Im Laufzeitinventar verbleibt nur noch die allgemeine `compat_main.mojo`-Brücke; die weiterhin nicht portierten Promptfachzweige werden als explizite Kindprozesse gestartet und betten kein CPython ein.
+- Am Abschluss von Stage 12c4d verblieb nur noch die allgemeine `compat_main.mojo`-Brücke; Stage 12c4e entfernt auch deren eingebettete CPython-Laufzeit. Weiterhin nicht portierte Promptfachzweige werden als explizite Kindprozesse gestartet.
+
+
+## Stage 12c4e – native-first Kompatibilitätslauncher ohne eingebettetes CPython
+
+- `compat_main.mojo` prüft den vollständigen historischen Argumentvektor mit `native_reta_tokens_supported`. Nur vollständig besessene Vektoren erreichen `run_native_reta`; jede unbekannte oder teilweise portierte Option fällt atomar auf die Referenz zurück.
+- Der Fallback verwendet den bereits gekapselten Kindprozessadapter, erhält Leerargumente, Unicode, Binärströme, Arbeitsverzeichnis und Exitstatus und bindet kein `libpython`.
+- Die leere Kommandozeile bleibt wegen Hilfe-/Defaultsemantik auf Python. `RETA_FORCE_REFERENCE=1` erzwingt die Referenz; `RETA_NATIVE=1` bleibt der explizite native Modus ohne Fallback.
+- `--onetable` wurde aus der nativen Supportliste entfernt, weil der Renderer diese Option noch nicht implementiert. Dadurch kann sie nicht mehr fälschlich teilweise nativ interpretiert werden.
+- `prompt_python_bridge.mojo` und der alte kombinierte Python-FFI-Probe sind nun auch physisch aus dem Releasebaum entfernt. Der Boundary-Audit meldet **0 aktive `std.python`-Brücken**, **1 expliziten Kindprozessadapter** und **0 verbotene Parallel-Prozessprimitive**.
+- Zwölf Referenzfälle laufen bei absichtlich ungültigem `RETA_PYTHON` byteidentisch. Damit ist nachgewiesen, dass physische, generierte, modale, Meta-, Bruch-, Kombi- und Markupfälle tatsächlich nativ ausgeführt werden.

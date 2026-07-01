@@ -12,7 +12,7 @@ if [ ! -x target/bin/reta-prompt-native ]; then
     "$ROOT/bin/mojo-real" build -I src src/prompt_main.mojo -o target/bin/reta-prompt-native
 fi
 if [ ! -x target/bin/reta-mojo-compat-bin ]; then
-    "$ROOT/bin/mojo-real" build src/compat_main.mojo -o target/bin/reta-mojo-compat-bin
+    "$ROOT/bin/mojo-real" build --no-optimization -j 4 -I src src/compat_main.mojo -o target/bin/reta-mojo-compat-bin
 fi
 if [ ! -x target/bin/reta-prompt-complete ]; then
     "$ROOT/bin/mojo-real" build -I src src/prompt_completion_main.mojo -o target/bin/reta-prompt-complete

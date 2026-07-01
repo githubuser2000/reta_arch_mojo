@@ -576,7 +576,6 @@ def _native_output_option_supported(name: String) -> Bool:
         or name == "keineueberschriften"
         or name == "noheadings"
         or name == "nocolor"
-        or name == "onetable"
         or name == "spaltenreihenfolgeundnurdiese"
         or name == "columnorderandonlythese"
         or name == "columnorder"
@@ -621,7 +620,6 @@ def native_reta_tokens_supported(tokens: List[String], csv_path: String) raises 
                 or option.name == "keineueberschriften"
                 or option.name == "noheadings"
                 or option.name == "nocolor"
-                or option.name == "onetable"
             )
             if not output_flag and len(option.values) == 0:
                 return False

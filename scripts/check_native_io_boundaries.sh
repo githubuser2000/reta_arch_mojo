@@ -8,14 +8,14 @@ mkdir -p "$TMP/python_reference"
 ln -s "$ROOT/assets" "$TMP/assets"
 ln -s "$ROOT/python_reference/csv" "$TMP/python_reference/csv"
 
-for source in     src/reta_mojo/csv_table.mojo     src/prompt_completion_main.mojo     src/generate_html_main.mojo; do
+for source in     src/reta_mojo/csv_table.mojo     src/prompt_completion_main.mojo     src/generate_html_main.mojo     src/compat_main.mojo; do
     if grep -q '^from std.python import' "$source"; then
         printf 'Unerwarteter std.python-Import: %s\n' "$source" >&2
         exit 1
     fi
 done
 
-for binary in reta-native reta-prompt-complete generate-html-native; do
+for binary in reta-native reta-prompt-complete generate-html-native reta-mojo-compat-bin; do
     test -x "$ROOT/target/bin/$binary" || {
         printf 'Fehlendes natives I/O-Binary: %s\n' "$binary" >&2
         exit 1

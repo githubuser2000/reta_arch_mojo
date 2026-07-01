@@ -8,7 +8,7 @@ Dies ist ein inkrementeller, getesteter Port des hochgeladenen Python-Projekts `
 abgeschlossene Release-Stufen:       9 von 12 = 75,0 %
 Stufen 9/10/12:                       Ausgabe, Prompt/i18n und Releaseparität in Arbeit
 Stufe 11:                             11a–11j = 100 %
-Stufe 12:                             12a–12b fertig, 12c1–12c3 und 12c4a–12c4d fertig = ca. 61 %
+Stufe 12:                             12a–12b fertig, 12c1–12c3 und 12c4a–12c4e fertig = ca. 63 %
 vollständig native Originaldateien:  33 von 92 = 35,9 %
 mindestens teilweise portiert:       61 von 92 = 66,3 %
 gewichteter Quellzeilenstand:         ca. 52 %
@@ -57,7 +57,7 @@ RETA_NATIVE=1 ./reta \
   -ausgabe --art=markdown --breite=40
 ```
 
-Ohne `RETA_NATIVE=1` bleibt `./reta` auf der vollständigen Kompatibilitätsoberfläche. Das verhindert, dass noch nicht portierte Optionen stillschweigend anders behandelt werden.
+`./reta` ist seit Stage 12c4e **native-first**: Ein strenger Ownership-Test führt nur vollständig unterstützte Argumentvektoren direkt im Mojo-Tabellenkern aus. Sobald eine Option oder ein Wert nicht vollständig besessen wird, fällt der gesamte Aufruf unverändert auf die Python-Referenz zurück. `RETA_FORCE_REFERENCE=1 ./reta ...` erzwingt diese Referenz; `RETA_NATIVE=1 ./reta ...` erzwingt weiterhin den nativen Pfad ohne Fallback.
 
 Auch die tatsächlichen englischen Namen werden unterstützt:
 
@@ -276,7 +276,7 @@ Details: [`TEST_RESULTS.md`](TEST_RESULTS.md).
 
 ## Nächster Portierungsblock
 
-Stufe 9 wird mit seltenen Terminal-/Rich-Sonderfällen fortgesetzt. Stufe 10 erweitert die bereits native Promptausführung und i18n-Laufzeit. Stufe 11 ist mit 11a–11j abgeschlossen. Stage 12a und 12b sind abgeschlossen: Sämtliche nativen Parallelpfade verwenden Mojo-Threads, und `generate_html` besitzt nun auch die vollständige `--alles`-Mitteltabelle. Stage 12c ist bis 12c4d fortgesetzt: `rpb a1` trennt Befehlszeile und Tabellenkopf wieder exakt, `--breite=0` verwendet die reale TTY-Breite, und Pipe-, Skript- sowie echte TTY-Eingabe laufen nativ in Mojo. Die Rohbefehle `shell`, `python` und `math`, nicht-native `reta`-Zeilen und atomare Restfallbacks starten direkt am expliziten Mojo-Kindprozessadapter. Stabile Kombinationen aus `vielfache`, `teiler` und `1/n`, klassische Bruch-No-ops und gemischte Tokens wie `mond 1/2,3` werden nativ geplant. Der Prompt besitzt keine eingebettete Python-Laufzeit mehr. Offen bleiben echte `v n/m` mit Zähler größer eins, weitere Restalgorithmen, die allgemeine Kompatibilitätsbrücke sowie 12d–12e.
+Stufe 9 wird mit seltenen Terminal-/Rich-Sonderfällen fortgesetzt. Stufe 10 erweitert die bereits native Promptausführung und i18n-Laufzeit. Stufe 11 ist mit 11a–11j abgeschlossen. Stage 12a und 12b sind abgeschlossen: Sämtliche nativen Parallelpfade verwenden Mojo-Threads, und `generate_html` besitzt nun auch die vollständige `--alles`-Mitteltabelle. Stage 12c ist bis 12c4e fortgesetzt: `rpb a1` trennt Befehlszeile und Tabellenkopf wieder exakt, `--breite=0` verwendet die reale TTY-Breite, und Pipe-, Skript- sowie echte TTY-Eingabe laufen nativ in Mojo. Die Rohbefehle `shell`, `python` und `math`, nicht-native `reta`-Zeilen und atomare Restfallbacks starten direkt am expliziten Mojo-Kindprozessadapter. Stabile Kombinationen aus `vielfache`, `teiler` und `1/n`, klassische Bruch-No-ops und gemischte Tokens wie `mond 1/2,3` werden nativ geplant. Weder Prompt noch historischer Tabellenlauncher betten Python ein; vollständig besessene `./reta`-Argumentvektoren laufen automatisch nativ, während Restsemantik atomar als Referenzkindprozess ausgeführt wird. Offen bleiben echte `v n/m` mit Zähler größer eins, weitere Restalgorithmen sowie 12d–12e.
 
 ## Dokumentation
 
@@ -531,3 +531,12 @@ Emacs-/Vi-Kernbindings und einer gekapselten POSIX-`termios`-Grenze. Außerdem
 sind die klassischen Bruch-No-ops und gemischte Bruch-/Ganzzahl-Kommatokens
 nativ. Details:
 [`STAGE12C4D_NATIVE_TTY_EDITOR.md`](STAGE12C4D_NATIVE_TTY_EDITOR.md).
+
+
+Stage 12c4e entfernt schließlich auch die letzte eingebettete Python-Laufzeit aus
+`compat_main.mojo`. Der historische `./reta`-Name wählt jetzt konservativ
+native Ausführung oder einen atomaren Python-Kindprozessfallback; es gibt keine
+aktive `std.python`-Brücke mehr. Zwölf physische, generierte, modale, Meta-,
+Bruch-, Kombi- und Markupfälle laufen mit absichtlich ungültigem
+`RETA_PYTHON` bytegleich zur Referenz. Details:
+[`STAGE12C4E_NATIVE_FIRST_COMPAT.md`](STAGE12C4E_NATIVE_FIRST_COMPAT.md).

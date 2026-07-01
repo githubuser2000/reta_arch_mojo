@@ -22,7 +22,7 @@ reta-mojo-parallel-execution  reta-mojo-row-preparation
 
 ## Wichtige Tabellenpfade
 
-Vollständige Kompatibilität über die Python-Referenz:
+Native-first historische Oberfläche mit atomarem Python-Fallback für noch nicht besessene Argumentvektoren:
 
 ```bash
 ./reta -zeilen --vorhervonausschnitt=1-3 \
@@ -45,7 +45,7 @@ RETA_NATIVE=1 ./reta -zeilen --vorhervonausschnitt=1-3 \
   -ausgabe --art=csv --breite=40
 ```
 
-Der Umschalter ist absichtlich explizit, solange nicht sämtliche Tabellenfunktionen nativ sind.
+`RETA_NATIVE=1` erzwingt den nativen Pfad. Die normale `./reta`-Ausführung entscheidet seit Stage 12c4e konservativ selbst; `RETA_FORCE_REFERENCE=1` erzwingt die vollständige Python-Referenz.
 
 ## Native Inspektionsprogramme
 
@@ -96,7 +96,7 @@ Der Umschalter ist absichtlich explizit, solange nicht sämtliche Tabellenfunkti
 | Oberfläche | Compilerziel | Grenze |
 |---|---|---|
 | `reta-native`, `RETA_NATIVE=1 ./reta` | `target/bin/reta-native` | erster nativer Tabellenpfad |
-| normale `reta`-Ausführung | `target/bin/reta-mojo-compat-bin` | vollständige historische Oberfläche |
+| normale `reta`-Ausführung | `target/bin/reta-mojo-compat-bin` | native-first bei vollständig besessenen Argumentvektoren; sonst atomarer Python-Kindprozessfallback; kein eingebettetes CPython |
 | `rp`, `rpl`, `rpb`, `rpe`, `retaPrompt*` | `target/bin/reta-prompt-native` | explizite One-shots, besessene Tabellen, sämtliche kompakte Tabellenfamilien sowie reine Zahlen-/Bruch-, Null-/Negativ-, Ausschluss- und wiederholte 15/16-Katalogkompositionen laufen ohne Python-/`reta-native`-Kindprozess; echte `v n/m`-Vielfache mit Zähler größer 1 und seltene hintere Sonderzweige bleiben an der Bridge |
 | eigenständige verschachtelte Completion | `target/bin/reta-prompt-complete` | persistenter Mojo-Arbeiter als Kompatibilitäts-/Testziel; der interaktive TTY-Editor vervollständigt direkt |
 | `grundStrukHtml*` | `target/bin/grundStrukHtml-native` | Renderer nativ |

@@ -160,7 +160,7 @@ Der reguläre Build erzeugt `generate-html-native` ohne Python- oder Subprozessi
 Nach `scripts/build.sh` vergleicht `scripts/check_html_parity.sh` die native Ein-Zeilen-Mitteltabelle mit dem eingefrorenen CPython-Referenzfixture mit 805 Daten-/Generatorspalten.
 
 
-## Stage 12c1–12c4d: Terminalbreite, nativer TTY-Editor, Kindprozess- und Bruchgrenzen
+## Stage 12c1–12c4e: Terminalbreite, nativer TTY-Editor, native-first Kompatibilität, Kindprozess- und Bruchgrenzen
 
 Für die vollständige Kompilierung genügen ausschließlich:
 
@@ -178,8 +178,10 @@ Stage-12c-Prüfungen genügt ein einzelner Aufruf:
 ```
 
 `test_stage12c.sh` ruft `check_native_prompt_input.sh`,
-`check_prompt_external_commands.sh`, `check_prompt_mixed_reciprocal_parity.sh`, `check_prompt_classic_fraction_parity.sh` und `check_prompt_terminal_parity.sh`
-bereits selbst auf. Ein zusätzlicher separater Aufruf dieser fünf Skripte wäre
+`check_prompt_external_commands.sh`, `check_prompt_mixed_reciprocal_parity.sh`, `check_prompt_classic_fraction_parity.sh`, `check_compat_launcher.sh`, die beiden Gruppen von `check_compat_native_first_parity.sh` und `check_prompt_terminal_parity.sh`
+bereits selbst auf. Ein zusätzlicher separater Aufruf dieser Stage-Prüfungen wäre
 nur eine Wiederholung.
 
 Der Promptcontroller besitzt seit Stage 12c4d keine `std.python`-Brücke mehr. Kleine Editor-, History- und PTY-Probes prüfen UTF-8, verschachtelte Completion, Mehrzeilen-Wrapping, Emacs-/Vi-Kernbindings, Ctrl-C/Ctrl-D und zwei aufeinanderfolgende Rohmodussitzungen. Der öffentliche PTY-Test verwendet unverändert `bin/rpb a1`; es gibt keinen Ersatzbefehl für die Laufzeitsemantik.
+
+Der historische Tabellenlauncher ist seit Stage 12c4e native-first und bindet kein `libpython`. `RETA_FORCE_REFERENCE=1` erzwingt den atomaren Referenzkindprozess; ohne Override entscheidet der strenge Ganzvektor-Ownership-Test. `scripts/check_compat_launcher.sh` prüft Argumente, Binärströme und Exitstatus, während `scripts/check_compat_native_first_parity.sh` zwölf Referenzfälle mit absichtlich ungültigem `RETA_PYTHON` vergleicht.

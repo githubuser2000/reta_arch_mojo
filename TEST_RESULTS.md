@@ -829,3 +829,42 @@ Der vollständige `prompt_main.mojo`-Link überschritt in der Sandbox auch unopt
 scripts/build-heavy.sh
 scripts/build.sh
 ```
+
+
+## Stage 12c4e: native-first historische `reta`-Oberfläche
+
+```text
+Kompatibilitätslauncher-Pytests:             8/8
+native-first Python↔Mojo-Vertrag:           12/12 byteidentisch
+native CLI Ownership-Tests:                 22/22
+Kombi-Parität über den Launcher:              9/9
+Markup-Parität über den Launcher:             8/8
+Basistabellen-Parität über den Launcher:      4/4
+aktive std.python-Brücken:                      0
+explizite Kindprozessadapter:                    1
+verbotene Parallel-Prozessprimitive:             0
+```
+
+Der Launcher-Test prüft unveränderte Argumentvektoren mit Leerargumenten,
+Unicode und gemischten Quotes, Binärdaten auf stdout/stderr, das
+Referenzarbeitsverzeichnis und den echten Kindprozess-Exitstatus. Die leere
+Kommandozeile, `--onetable` und `RETA_FORCE_REFERENCE=1` werden als atomare
+Fallbackfälle geprüft.
+
+Die zwölf native-first Referenzfälle setzen `RETA_PYTHON` auf einen absichtlich
+nicht vorhandenen Pfad. Erfolgreiche physische, englische, Generator-, Modal-,
+Primzahlkreuz-, Primzahlwirkungs-, Meta-, Bruch-, Kombi-, BBCode-, HTML- und
+Spaltenreihenfolgefälle können daher nicht aus einem unbemerkten Python-Fallback
+stammen. stdout und stderr sind jeweils byteidentisch zur Referenz.
+
+`readelf -d` zeigt am neuen `reta-mojo-compat-bin` nur Mojo-Runtime und libc,
+aber kein `libpython`. Der strenge Ownership-Test wurde zugleich korrigiert:
+`--onetable` gilt nicht mehr fälschlich als nativ unterstützt und fällt bis zu
+seiner echten Rendererimplementierung vollständig zurück.
+
+```bash
+scripts/check_compat_launcher.sh
+RETA_COMPAT_PARITY_GROUP=1 scripts/check_compat_native_first_parity.sh
+RETA_COMPAT_PARITY_GROUP=2 scripts/check_compat_native_first_parity.sh
+scripts/test_stage12c.sh
+```

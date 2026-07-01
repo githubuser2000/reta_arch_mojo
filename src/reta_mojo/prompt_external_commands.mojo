@@ -1,14 +1,15 @@
-"""Native operating-system adapter for explicit prompt child commands.
+"""Native operating-system adapter for explicit compatibility children.
 
 The historical prompt exposes explicit commands whose purpose is to start
-another program: ``shell``, ``python`` and ``math`` plus the still-unported
-``reta`` and atomic prompt-fallback paths.  Their dispatch belongs to Mojo;
-there is no reason to import ``mojo_bridge.py`` merely to spawn the requested
-child.  This module keeps the boundary explicit and byte-preserving: the
-spawned child inherits stdin, stdout, stderr and the complete environment.
+another program: ``shell``, ``python`` and ``math`` plus still-unported
+``reta`` and atomic prompt-fallback paths.  The general ``reta`` compatibility
+launcher uses the same boundary.  Their dispatch belongs to Mojo; importing
+CPython merely to ask it to spawn a second interpreter is both slower and a
+needless runtime dependency.
 
-This is process *execution*, not process-based parallelism.  No table or number
-kernel uses this adapter.
+The adapter is explicit and byte-preserving: every child inherits stdin,
+stdout, stderr and the complete environment.  This is process *execution*, not
+process-based parallelism.  No table or number kernel uses this adapter.
 """
 
 from std.collections import List
@@ -160,9 +161,9 @@ def _run_spawned_child(command: String) raises -> Int:
 
     libc ``system`` invokes ``/bin/sh -c`` synchronously and inherits the
     complete environment plus stdin, stdout and stderr.  The command payload
-    is assembled exclusively from ``shell_quote``-escaped arguments.  Using
-    this standard C boundary avoids a second, conflicting declaration of
-    ``dlsym`` when the full prompt controller also imports ``std.python``.
+    is assembled exclusively from ``shell_quote``-escaped arguments.  The
+    single standard C boundary is shared by the prompt and the historical CLI
+    compatibility launcher; neither executable embeds CPython.
     """
     var command_storage = command + "\0"
     var status = Int(
@@ -241,6 +242,19 @@ def _run_reference_python_script(
     for index in range(len(arguments)):
         command += " " + shell_quote(arguments[index])
     return _run_spawned_child(command)
+
+
+def run_reta_arguments_native(
+    arguments: List[String],
+    reference_root: String = "python_reference",
+) raises -> Int:
+    """Run the historical ``reta.py`` CLI through the explicit child boundary.
+
+    The caller already owns the argument vector, so no delimiter encoding or
+    shell parsing is involved.  Empty arguments and Unicode are retained by
+    quoting each element independently.
+    """
+    return _run_reference_python_script("reta.py", arguments, reference_root)
 
 
 def run_reta_line_native(
