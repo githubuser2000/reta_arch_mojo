@@ -341,8 +341,9 @@ def test_compat_source_contains_no_embedded_python() -> None:
     assert "PythonObject" not in source
     assert "native_reta_tokens_supported(" in source
     assert 'getenv("RETA_FORCE_REFERENCE", "") == "1"' in source
-    assert "run_native_reta(arguments, _REFERENCE_CSV)" in source
-    assert "run_reta_arguments_native(arguments)" in source
+    assert 'var csv_path = csv_resource("religion.csv")' in source
+    assert "run_native_reta(arguments, csv_path)" in source
+    assert "run_reta_arguments_native(arguments, reference_root())" in source
     assert 'external_call["exit", NoneType]' in source
     assert "def run_reta_arguments_native(" in adapter
 

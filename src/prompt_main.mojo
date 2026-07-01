@@ -43,6 +43,7 @@ from reta_mojo.native_reta_cli import (
     native_reta_tokens_supported,
     run_native_reta,
 )
+from reta_mojo.resource_paths import asset_root, csv_resource, reference_root
 from reta_mojo.prompt_runtime import (
     KIND_EMPTY,
     KIND_EXIT,
@@ -185,7 +186,7 @@ def _run_fallback(
     line: String,
 ) raises -> None:
     _ = run_reta_prompt_fallback_native(
-        fallback_profile_arguments(profile), line
+        fallback_profile_arguments(profile), line, reference_root()
     )
 
 
@@ -211,7 +212,7 @@ def _run_native_table_tokens(
         _ = command_echo_newline  # retained in the typed plan for compatibility
         print(command_line)
     print(
-        run_native_reta(tokens, "python_reference/csv/religion.csv"),
+        run_native_reta(tokens, csv_resource("religion.csv")),
         end="",
     )
     return True
@@ -223,7 +224,7 @@ def _run_native_reta_prompt_command(command: PromptCommand) raises -> Bool:
     var tokens = List[String]()
     for index in range(1, len(command.words)):
         tokens.append(command.words[index])
-    var csv_path = String("python_reference/csv/religion.csv")
+    var csv_path = csv_resource("religion.csv")
     if not native_reta_tokens_supported(tokens, csv_path):
         return False
     print(run_native_reta(tokens, csv_path), end="")
@@ -964,7 +965,7 @@ def main() raises:
     for index in range(2, len(args)):
         startup_args.append(String(args[index]))
     var startup = parse_prompt_startup(profile_name, startup_args)
-    var prompt_catalog = load_prompt_language_catalog("assets")
+    var prompt_catalog = load_prompt_language_catalog(asset_root())
 
     for index in range(len(startup.diagnostics)):
         print("Hinweis:", startup.diagnostics[index])

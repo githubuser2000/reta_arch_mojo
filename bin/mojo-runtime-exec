@@ -7,6 +7,42 @@ if command -v readlink >/dev/null 2>&1; then
 fi
 ROOT=$(CDPATH= cd -- "$(dirname -- "$SELF")/.." && pwd)
 
+# Source-tree and FHS-install resource contract. Explicit caller overrides win.
+if [ -z "${RETA_ROOT-}" ]; then
+    RETA_ROOT=$ROOT
+    export RETA_ROOT
+fi
+if [ -z "${RETA_REFERENCE_DIR-}" ]; then
+    RETA_REFERENCE_DIR=$ROOT/python_reference
+    export RETA_REFERENCE_DIR
+fi
+if [ -z "${RETA_SHARE_DIR-}" ]; then
+    prefix_root=$(CDPATH= cd -- "$ROOT/../.." 2>/dev/null && pwd || true)
+    if [ -n "$prefix_root" ]; then
+        installed_share=$prefix_root/share/reta
+        if [ -d "$installed_share/csv" ] && [ -d "$installed_share/assets" ]; then
+            RETA_SHARE_DIR=$installed_share
+            export RETA_SHARE_DIR
+        fi
+    fi
+fi
+if [ -z "${RETA_DATA_DIR-}" ]; then
+    if [ -n "${RETA_SHARE_DIR-}" ]; then
+        RETA_DATA_DIR=$RETA_SHARE_DIR/csv
+    else
+        RETA_DATA_DIR=$ROOT/python_reference/csv
+    fi
+    export RETA_DATA_DIR
+fi
+if [ -z "${RETA_ASSET_DIR-}" ]; then
+    if [ -n "${RETA_SHARE_DIR-}" ]; then
+        RETA_ASSET_DIR=$RETA_SHARE_DIR/assets
+    else
+        RETA_ASSET_DIR=$ROOT/assets
+    fi
+    export RETA_ASSET_DIR
+fi
+
 if [ "$#" -lt 1 ]; then
     printf 'Verwendung: %s PROGRAMM [ARGUMENTE ...]\n' "$0" >&2
     exit 2

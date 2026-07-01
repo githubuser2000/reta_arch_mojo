@@ -122,3 +122,42 @@ keinen gemischten Teilpfad. Positive und explizite Nullbreiten benutzen denselbe
 typisierten Breitenplan. HTML/BBCode wählen anhand von `color_rows` zwischen
 Rich-kompatibel normalisierter Serialisierung und dem rohen `print`-Vertrag;
 beide Pfade bleiben vollständig im nativen Renderer.
+
+
+## Stage 12c4m – Ressourcen- und Installationsbesitz
+
+| Ressource/Oberfläche | Quellbaum | `/usr/local` manuell | `/usr` Paket | Override |
+|---|---|---|---|---|
+| CSV-Kataloge | `python_reference/csv` | `/usr/local/share/reta/csv` | `/usr/share/reta/csv` | `RETA_DATA_DIR` |
+| HTML-/TSV-Assets | `assets` | `/usr/local/share/reta/assets` | `/usr/share/reta/assets` | `RETA_ASSET_DIR` |
+| Python-Referenz | `python_reference` | `/usr/local/lib/reta/python_reference` | `/usr/lib/reta/python_reference` | `RETA_REFERENCE_DIR` |
+| Mojo-ELF-Ziele | `target/bin` | `/usr/local/lib/reta/target/bin` | `/usr/lib/reta/target/bin` | – |
+| Mojo-Runtime | `target/lib/mojo` | `/usr/local/lib/reta/target/lib/mojo` | `/usr/lib/reta/target/lib/mojo` | `RETA_MOJO_RUNTIME_LIBDIR` |
+
+`src/reta_mojo/resource_paths.mojo` besitzt die Pfadentscheidung für alle
+nativen CSV- und Assetleser. Es wird kein absoluter Quell-, Build- oder
+Installationspfad einkompiliert. `bin/mojo-runtime-exec` setzt die passenden
+Wurzeln für Quellbaum und installierte FHS-Struktur; explizite Overrides haben
+Vorrang. Die historischen Pfade `python_reference/csv` und `assets` bleiben in
+der privaten Installation als relative Symlinks erhalten, sodass native und
+noch nicht portierte Referenzpfade dieselben physischen Daten benutzen.
+
+
+## Stage 12c4n – vollständiger `--alles`-HTMLbesitz
+
+| Teilpfad | Referenz | Native Umsetzung |
+|---|---:|---:|
+| sichtbare Volltabellenspalten | 807 | 807 |
+| Daten-/Generatorspalten | 805 | 805 |
+| ungültige Bruchkoordinaten | verworfen | verworfen |
+| HTML-Metadatenkatalog | 1.626 semantische Einträge | reproduzierbar geladen |
+| Deutsch, eine Datenzeile | 301.206 Byte | bytegleich |
+| Englisch, eine Datenzeile | 295.215 Byte | bytegleich |
+
+`fraction_concat_columns.mojo` validiert gebrochen-rationale Anforderungen an
+der tatsächlichen CSV-Form. `generated_table_columns.mojo` stellt die
+historische Reihenfolge einschließlich `PrimCSV` wieder her.
+`html_cell_metadata.mojo` kombiniert semantische Überschriftenidentitäten mit
+der exakten 805-Spalten-Referenzposition, sobald die vollständige Ansicht
+gerendert wird. Mond- und Kombinationszellen behalten ihre beabsichtigten
+HTML-Listenstrukturen.

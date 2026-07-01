@@ -49,5 +49,45 @@ def test_non_universe_integer_does_not_append_coordinate() raises:
     assert_equal(value, table.rows[2][10])
 
 
+
+def test_requests_outside_fraction_csv_shape_are_ignored() raises:
+    var table = read_semicolon_csv("python_reference/csv/religion.csv")
+    var generated = generate_fraction_concat_columns(
+        table,
+        [
+            FractionColumnRequest("galaxy", 21),
+            FractionColumnRequest("galaxy", 22),
+            FractionColumnRequest("universe", 19),
+            FractionColumnRequest("universe", 20),
+            FractionColumnRequest("universe", 21),
+            FractionColumnRequest("emotion", 7),
+            FractionColumnRequest("emotion", 8),
+            FractionColumnRequest("size", 16),
+            FractionColumnRequest("size", 17),
+        ],
+        1,
+        "html",
+        "german",
+    )
+    var headings = List[String]()
+    for column_index in range(len(generated.columns)):
+        headings.append(generated.columns[column_index][0])
+    assert_equal(
+        headings,
+        [
+            "n/21 Galaxie",
+            "21/n Galaxie",
+            "n/19 Universum",
+            "19/n Universum",
+            "20/n Universum",
+            "21/n Universum",
+            "n/7 Emotion",
+            "7/n Emotion",
+            "n/16 Strukturgroesse",
+            "16/n Strukturgroesse",
+        ],
+    )
+
+
 def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()

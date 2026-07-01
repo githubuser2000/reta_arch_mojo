@@ -9,6 +9,7 @@ fraction CSV matrix.
 
 from std.collections import List
 from .csv_table import CsvTable, read_semicolon_csv
+from .resource_paths import csv_resource
 from .generated_aliases import FractionColumnRequest
 
 
@@ -90,12 +91,29 @@ def _sort_fraction_requests(mut values: List[FractionColumnRequest]):
 
 def _domain_source_path(domain: String) -> String:
     if domain == "galaxy":
-        return "python_reference/csv/gebrochen-rational-galaxie.csv"
+        return csv_resource("gebrochen-rational-galaxie.csv")
     if domain == "emotion":
-        return "python_reference/csv/gebrochen-rational-emotionen.csv"
+        return csv_resource("gebrochen-rational-emotionen.csv")
     if domain == "size":
-        return "python_reference/csv/gebrochen-rational-strukturgroesse.csv"
-    return "python_reference/csv/gebrochen-rational-universum.csv"
+        return csv_resource("gebrochen-rational-strukturgroesse.csv")
+    return csv_resource("gebrochen-rational-universum.csv")
+
+
+def _fraction_request_limit(domain: String, reciprocal: Int) raises -> Int:
+    """Return the largest denominator physically present in the source CSV.
+
+    Python attaches the matrix as-is for ``n/d`` and transposes it for ``d/n``.
+    The selectable heading count is therefore the first-row width in the direct
+    direction and the row count in the reciprocal direction.  Requests beyond
+    that shape are silently ignored; emitting synthetic empty headings was the
+    source of 56 spurious ``--alles`` columns.
+    """
+    var source = read_semicolon_csv(_domain_source_path(domain))
+    if reciprocal != 0:
+        return len(source.rows)
+    if len(source.rows) == 0:
+        return 0
+    return len(source.rows[0])
 
 
 def _domain_first_column(domain: String) -> Int:
@@ -250,6 +268,10 @@ def generate_fraction_concat_columns(
             for index in range(len(ordered)):
                 var request = ordered[index].copy()
                 if _domain_rank(request.domain) != domain_rank:
+                    continue
+                if request.denominator > _fraction_request_limit(
+                    request.domain, reciprocal
+                ):
                     continue
                 emitted.append(request.copy())
                 reciprocal_flags.append(reciprocal)

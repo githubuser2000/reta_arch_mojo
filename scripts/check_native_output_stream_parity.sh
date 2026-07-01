@@ -7,8 +7,7 @@ mkdir -p "$TMP"
 trap 'rm -rf "$TMP"' EXIT HUP INT TERM
 
 COMPAT=${RETA_COMPAT_BINARY:-"$ROOT/target/test-bin/reta-mojo-compat-bin"}
-REFERENCE_PY=${RETA_REFERENCE_PYTHON:-"$ROOT/.venv/bin/python"}
-[ -x "$REFERENCE_PY" ] || REFERENCE_PY=python3
+REFERENCE_PY=${RETA_REFERENCE_PYTHON:-python3}
 [ -x "$COMPAT" ] || {
     printf 'Fehlender nativer Kompatibilitätslauncher: %s\n' "$COMPAT" >&2
     exit 1

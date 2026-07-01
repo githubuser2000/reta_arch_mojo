@@ -8,6 +8,9 @@ ROOT = Path(__file__).resolve().parents[1]
 REQUIRED_LIBRARIES = (
     "libKGENCompilerRTShared.so",
     "libAsyncRTMojoBindings.so",
+    "libMSupportGlobals.so",
+    "libAsyncRTRuntimeGlobals.so",
+    "libNVPTX.so",
 )
 
 

@@ -8,6 +8,7 @@ German/English command aliases in compiled source code.
 from std.collections import List
 from std.collections.string import atol
 from .csv_table import read_text_file
+from .resource_paths import asset_resource
 
 
 @fieldwise_init
@@ -187,7 +188,7 @@ def _meta_request_bit(value: MetaColumnRequest) -> Int:
 
 def sort_meta_requests_by_python_set(
     mut values: List[MetaColumnRequest],
-    path: String = "assets/meta_request_order.tsv",
+    path: String = "",
 ) raises:
     """Reproduce legacy CPython ``set`` iteration for the final subset.
 
@@ -205,7 +206,8 @@ def sort_meta_requests_by_python_set(
     if mask == 0:
         return
     var wanted = String(mask) + "\t"
-    var text = read_text_file(path)
+    var source_path = path if path.byte_length() > 0 else asset_resource("meta_request_order.tsv")
+    var text = read_text_file(source_path)
     var lines = text.split("\n")
     for line_index in range(len(lines)):
         var line = String(lines[line_index])

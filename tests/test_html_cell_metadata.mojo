@@ -7,7 +7,7 @@ from reta_mojo.table_rendering import render_html_table_with_context
 def test_physical_and_generated_catalog_sizes() raises:
     var catalog = load_html_cell_catalog()
     assert_equal(len(catalog.entries), 1496)
-    assert_equal(len(catalog.headings), 16)
+    assert_equal(len(catalog.headings), 1626)
 
 
 def test_physical_heading_is_reindexed() raises:
@@ -46,20 +46,54 @@ def test_generated_heading_metadata_uses_semantic_key() raises:
     assert_true("p3_1_Galaxieabsicht" in opening)
 
 
+def test_duplicate_heading_prefers_exact_all_columns_position() raises:
+    var catalog = load_html_cell_catalog()
+    var human_open = html_cell_open(
+        catalog, "german", -999999, 162, True, "Moral-Thema"
+    )
+    var love_open = html_cell_open(
+        catalog, "german", -999999, 167, True, "Moral-Thema"
+    )
+    assert_true("p3_0_Moral" in human_open)
+    assert_true("p3_0_Liebe_(7)" in love_open)
+
+
+def test_all_columns_position_map_overrides_mismatched_source_identity() raises:
+    var catalog = load_html_cell_catalog()
+    var opening = html_cell_open(
+        catalog,
+        "german",
+        46,
+        43,
+        True,
+        "intentionally different",
+        True,
+    )
+    assert_true("p3_0_alpha_beta" in opening)
+
+
 def test_html_preserves_deliberate_tags_and_escapes_comparisons() raises:
     var table = parse_semicolon_csv(
-        "Meta für n\n<ul><li>A < 5 & B > 0</li></ul><br>End\n"
+        "Meta für n;Text;Generated\n"
+        + "\"<ul><li>A < 5 & B > 0 & \"\"quoted\"\"</li></ul><br>End\";"
+        + "\"A < 5 & B > 0 & \"\"quoted\"\"\";"
+        + "\"<ul><li>A -> B & \"\"quoted\"\"</li></ul>\"\n"
     )
     var rendered = render_html_table_with_context(
         table,
         table,
         [0, 1],
-        [-999999],
+        [0, 1, 746],
         "german",
         False,
         0,
     )
-    assert_true("<ul><li>A &lt; 5 &amp; B &gt; 0</li></ul><br>End" in rendered)
+    assert_true(
+        "<ul><li>A &lt; 5 &amp; B &gt; 0 &amp; &quot;quoted&quot;</li></ul><br>End"
+        in rendered
+    )
+    assert_true("A &lt; 5 &amp; B &gt; 0 &amp; &quot;quoted&quot;" in rendered)
+    assert_true("<ul><li>A -> B &amp; \"quoted\"</li></ul>" in rendered)
     assert_true("p3_0_meta" in rendered)
 
 

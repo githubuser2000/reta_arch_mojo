@@ -13,6 +13,7 @@ here deliberately:
 from std.collections import List
 from std.collections.string import atol
 from .csv_table import CsvTable, read_semicolon_csv, read_text_file
+from .resource_paths import asset_resource, csv_resource
 
 
 @fieldwise_init
@@ -43,9 +44,10 @@ struct KombiJoinResult(Copyable):
 
 
 def load_kombi_alias_catalog(
-    path: String = "assets/kombi_aliases.tsv"
+    path: String = ""
 ) raises -> KombiAliasCatalog:
-    var text = read_text_file(path)
+    var source_path = path if path.byte_length() > 0 else asset_resource("kombi_aliases.tsv")
+    var text = read_text_file(source_path)
     var lines = text.split("\n")
     var entries = List[KombiAliasEntry]()
     for line_index in range(len(lines)):
@@ -147,10 +149,11 @@ def _requests_for_kind(
 def _relation_rows(
     kind: String,
     number: Int,
-    path: String = "assets/kombi_relation_order.tsv",
+    path: String = "",
 ) raises -> List[Int]:
     var wanted = kind + "\t" + String(number) + "\t"
-    var text = read_text_file(path)
+    var source_path = path if path.byte_length() > 0 else asset_resource("kombi_relation_order.tsv")
+    var text = read_text_file(source_path)
     var lines = text.split("\n")
     for line_index in range(len(lines)):
         var line = String(lines[line_index])
@@ -230,14 +233,17 @@ def _decorate_source_cell(
     source: CsvTable, source_row: Int, column: Int, main_number: Int
 ) raises -> String:
     var expression = String(_cell(source, source_row, 0).strip())
-    var raw = String(_cell(source, source_row, column).strip())
+    var raw_source = _cell(source, source_row, column)
+    var raw = String(raw_source.strip())
+    var meaningful_trailing_space = raw_source.endswith(" ")
     if expression.byte_length() == 0 or raw.byte_length() == 0:
         return ""
+    var separator = "  (" if meaningful_trailing_space else " ("
     var reduced = _remove_current_number_from_expression(expression, main_number)
     if reduced.byte_length() == 0:
         # ``removeOneNumber`` leaves the space after the removed ``)``.
-        return " " + raw + " (" + expression + ")"
-    return "(" + reduced + ") " + raw + " (" + expression + ")"
+        return " " + raw + separator + expression + ")"
+    return "(" + reduced + ") " + raw + separator + expression + ")"
 
 
 def _joined_cell_for_request(
@@ -246,6 +252,7 @@ def _joined_cell_for_request(
     selected_in_kind: Int,
     main_number: Int,
     preserve_trailing_space: Bool,
+    output_mode: String,
 ) raises -> String:
     var relation_rows = _relation_rows(request.kind, main_number)
     var pieces = List[String]()
@@ -266,6 +273,21 @@ def _joined_cell_for_request(
             continue
         else:
             pieces.append(value^)
+    if output_mode == "html":
+        var html_result = String("<ul>")
+        for index in range(len(pieces)):
+            if pieces[index].byte_length() > 0:
+                html_result += "<li>" + pieces[index] + "</li>"
+        html_result += "</ul>"
+        return html_result^
+    if output_mode == "bbcode":
+        var bbcode_result = String("[list]")
+        for index in range(len(pieces)):
+            if pieces[index].byte_length() > 0:
+                bbcode_result += "[*]" + pieces[index]
+        bbcode_result += "[/list]"
+        return bbcode_result^
+
     var result = String()
     for index in range(len(pieces)):
         if index > 0:
@@ -297,9 +319,9 @@ def _append_column(table: CsvTable, values: List[String]) -> CsvTable:
 
 def _source_path(kind: String) -> String:
     return (
-        "python_reference/csv/kombi.csv"
+        csv_resource("kombi.csv")
         if kind == "galaxy"
-        else "python_reference/csv/kombi-meta.csv"
+        else csv_resource("kombi-meta.csv")
     )
 
 
@@ -307,6 +329,7 @@ def apply_kombi_join_columns(
     table: CsvTable,
     requests: List[KombiColumnRequest],
     last_row: Int,
+    output_mode: String = "shell",
 ) raises -> KombiJoinResult:
     var ordered = requests.copy()
     sort_kombi_requests(ordered)
@@ -326,14 +349,18 @@ def apply_kombi_join_columns(
             for row_index in range(len(table.rows)):
                 if row_index == 0:
                     var heading_prefix = String(_cell(source, 0, 0).strip())
-                    var heading = String(_cell(source, 0, request.column).strip())
+                    var heading_source = _cell(source, 0, request.column)
+                    var heading = String(heading_source.strip())
                     if heading_prefix.byte_length() > 0 and heading.byte_length() > 0:
+                        var heading_separator = (
+                            "  (" if heading_source.endswith(" ") else " ("
+                        )
                         heading = (
                             "("
                             + heading_prefix
                             + ") "
                             + heading
-                            + " ("
+                            + heading_separator
                             + heading_prefix
                             + ")"
                         )
@@ -346,6 +373,7 @@ def apply_kombi_join_columns(
                             len(selected),
                             row_index,
                             emitted + 1 < len(ordered),
+                            output_mode,
                         )
                     )
                 else:

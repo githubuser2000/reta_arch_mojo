@@ -243,7 +243,12 @@ def render_emacs_table(table: CsvTable) -> String:
 
 
 def _html_escape(text: String) -> String:
-    return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+    return (
+        text.replace("&", "&amp;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+        .replace("\"", "&quot;")
+    )
 
 
 def _html_ascii_letter(code: Int) -> Bool:
@@ -254,24 +259,70 @@ def _html_slice_bytes(text: String, start: Int, end: Int) -> String:
     return String(StringSlice(text)[byte=start:end])
 
 
-def _html_escape_preserving_tags(text: String) -> String:
-    """Escape text while retaining deliberate HTML tags from CSV generators."""
+def _html_contains_deliberate_tag(text: String) -> Bool:
+    var bytes = text.as_bytes()
+    var cursor = 0
+    while cursor + 1 < len(bytes):
+        if Int(bytes[cursor]) != 60:
+            cursor += 1
+            continue
+        var next_code = Int(bytes[cursor + 1])
+        var tag_start = (
+            _html_ascii_letter(next_code)
+            or next_code == 33
+            or next_code == 63
+        )
+        if (
+            next_code == 47
+            and cursor + 2 < len(bytes)
+            and _html_ascii_letter(Int(bytes[cursor + 2]))
+        ):
+            tag_start = True
+        if tag_start:
+            return True
+        cursor += 1
+    return False
+
+
+def _html_escape_preserving_tags(
+    text: String, trusted_generator: Bool = False
+) -> String:
+    """Escape plain cells, while retaining deliberate generator markup.
+
+    Python's HTML generator treats a payload containing real tags as trusted
+    markup: tag delimiters, quotes and standalone ``>`` characters remain
+    verbatim.  Ampersands and comparison ``<`` characters outside tags still
+    need escaping.  Plain cells use the complete HTML escaping contract.
+    """
+    if not trusted_generator and not _html_contains_deliberate_tag(text):
+        return _html_escape(text)
+
+    var preserve_raw_quotes = (
+        trusted_generator
+        and (text.find("<ul") >= 0 or text.find("<li") >= 0)
+    )
     var result = String()
     var cursor = 0
     var plain_start = 0
     var bytes = text.as_bytes()
     while cursor < len(bytes):
         var code = Int(bytes[cursor])
-        if code != 38 and code != 60 and code != 62:
+        if code != 34 and code != 38 and code != 60 and code != 62:
             cursor += 1
             continue
         if cursor > plain_start:
             result += _html_slice_bytes(text, plain_start, cursor)
-        if code == 38:
+        if code == 34:
+            result += "\"" if preserve_raw_quotes else "&quot;"
+            cursor += 1
+        elif code == 38:
             result += "&amp;"
             cursor += 1
         elif code == 62:
-            result += "&gt;"
+            if cursor > 0 and Int(bytes[cursor - 1]) == 45:
+                result += ">"
+            else:
+                result += "&gt;"
             cursor += 1
         else:
             var tag_start = False
@@ -290,10 +341,7 @@ def _html_escape_preserving_tags(text: String) -> String:
                     tag_start = True
             if tag_start:
                 var closing = cursor + 1
-                while (
-                    closing < len(bytes)
-                    and Int(bytes[closing]) != 62
-                ):
+                while closing < len(bytes) and Int(bytes[closing]) != 62:
                     closing += 1
                 if closing < len(bytes):
                     result += _html_slice_bytes(text, cursor, closing + 1)
@@ -874,6 +922,10 @@ def render_html_table_with_context(
     if len(table.rows) == 0:
         return ""
     var catalog = load_html_cell_catalog()
+    # ``--alles`` currently consists of 805 data columns plus the two legacy
+    # numbering columns.  Its HTML classes are position-dependent in Python,
+    # so use the frozen all-columns position map only for that exact layout.
+    var all_columns_reference_layout = len(source_columns) == 805
     var data_start = 2 if number_rows else 0
     var total_columns = len(table.rows[0])
     var result = String()
@@ -1025,9 +1077,13 @@ def render_html_table_with_context(
                             source_position + 2,
                             is_heading,
                             semantic_heading,
+                            all_columns_reference_layout,
                         )
+                        var trusted_generator = source_column > 745
                         result += _html_cell_payload(
-                            _html_escape_preserving_tags(part)
+                            _html_escape_preserving_tags(
+                                part, trusted_generator
+                            )
                         ) + "</td>"
                     else:
                         result += html_cell_open(
@@ -1037,13 +1093,16 @@ def render_html_table_with_context(
                             source_position + 2,
                             is_heading,
                             semantic_heading,
+                            all_columns_reference_layout,
                         ) + "\n"
+                        var trusted_generator = source_column > 745
                         var column_width = _markup_wrapped_column_width(
                             width_reference, column_index, requested_width,
                             not color_rows,
                         )
                         result += _html_escape_preserving_tags(
-                            _pad_cell_raw(part, column_width)
+                            _pad_cell_raw(part, column_width),
+                            trusted_generator,
                         ) + "\n</td>\n "
                 if color_rows:
                     result += " </tr>\n"

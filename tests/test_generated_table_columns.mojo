@@ -156,5 +156,49 @@ def test_prim_csv_html_empty_row_uses_empty_list() raises:
     assert_true(generated.table.rows[2][base].endswith("</li></ul>"))
 
 
+def test_prim_csv_precedes_fractional_concat_columns() raises:
+    var table = read_semicolon_csv("python_reference/csv/religion.csv")
+    var base = table.maximum_columns
+    var selected = List[Int]()
+    var modal = List[ModalConcept]()
+    var meta = List[MetaColumnRequest]()
+    var fractions: List[FractionColumnRequest] = [
+        FractionColumnRequest("universe", 2)
+    ]
+    var commands: List[String] = ["PrimCSV"]
+    var generated = apply_native_generated_columns(
+        table, selected, modal, meta, fractions, commands, "german", "csv", 3
+    )
+    assert_equal(len(generated.generated_names), 3)
+    assert_equal(generated.generated_names[0], "PrimCSV")
+    assert_equal(
+        generated.generated_names[1],
+        "readConcatCsv:universe,2,0",
+    )
+    assert_equal(
+        generated.generated_names[2],
+        "readConcatCsv:universe,2,1",
+    )
+    assert_equal(generated.output_columns, [base, base + 1, base + 2])
+    assert_equal(
+        generated.table.rows[0][base],
+        "Primzahlvielfache, nicht generiert",
+    )
+    assert_true("n/2" in generated.table.rows[0][base + 1])
+    assert_true("2/n" in generated.table.rows[0][base + 2])
+
+
+def test_moon_without_factors_keeps_markup_container() raises:
+    var table = read_semicolon_csv("python_reference/csv/religion.csv")
+    assert_equal(
+        moon_relation_value(table, 1, 44, "html", "german"),
+        "<ul>kein Mond</ul>",
+    )
+    assert_equal(
+        moon_relation_value(table, 1, 56, "bbcode", "english"),
+        "[list]no moon[/list]",
+    )
+
+
 def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()

@@ -9,6 +9,7 @@ families implemented here.
 
 from std.collections import List
 from .csv_table import CsvTable, read_semicolon_csv
+from .resource_paths import csv_resource
 from .number_theory import moon_number
 from .generated_aliases import (
     FractionColumnRequest,
@@ -108,9 +109,10 @@ def _prime_csv_column(
     last_row: Int,
     output_mode: String,
     language: String,
-    path: String = "python_reference/csv/primenumbers.csv",
+    path: String = "",
 ) raises -> List[String]:
-    var source = read_semicolon_csv(path)
+    var source_path = path if path.byte_length() > 0 else csv_resource("primenumbers.csv")
+    var source = read_semicolon_csv(source_path)
     var values = List[String]()
     values.append(_prime_csv_heading(language))
     for row_index in range(1, len(main_table.rows)):
@@ -219,6 +221,10 @@ def moon_relation_value(
     var bases = moon[0].copy()
     var exponents_minus_two = moon[1].copy()
     if len(bases) == 0:
+        if output_mode == "html":
+            return "<ul>" + labels[2] + "</ul>"
+        if output_mode == "bbcode":
+            return "[list]" + labels[2] + "[/list]"
         return labels[2]
 
     var result = String()
@@ -600,6 +606,22 @@ def apply_native_generated_columns(
     var generated_names = List[String]()
     var stop = min(last_row, len(table.rows) - 1)
 
+    # Python attaches concatTable == 1 before the four fractional CSV
+    # families.  This ordering is observable in ``--alles`` and keeps the
+    # described-prime column directly after the physical selection.
+    # readConcatCsv(concatTable == 1): the legacy described-prime table is
+    # appended before the generated-column morphism chain.
+    if _contains_generated_command(generated_commands, "PrimCSV"):
+        result = _append_generated(
+            result,
+            _prime_csv_column(result, stop, output_mode, language),
+            output_columns,
+            generated_names,
+            "PrimCSV",
+        )
+
+    # The fractional galaxy/universe/emotion/size presheaves follow the
+    # described-prime table and precede the generated-column morphism chain.
     # _concat_csv_inputs: fractional galaxy/universe/emotion/size presheaves
     # are glued before the generated-column morphism chain.
     var fraction_columns = generate_fraction_concat_columns(
@@ -627,17 +649,6 @@ def apply_native_generated_columns(
         result = propagate_multiples_column(result, 90, stop, output_mode)
     if _contains_column_generated(selected_columns, 19):
         result = propagate_multiples_column(result, 19, stop, output_mode)
-
-    # readConcatCsv(concatTable == 1): the legacy described-prime table is
-    # appended before the generated-column morphism chain.
-    if _contains_generated_command(generated_commands, "PrimCSV"):
-        result = _append_generated(
-            result,
-            _prime_csv_column(result, stop, output_mode, language),
-            output_columns,
-            generated_names,
-            "PrimCSV",
-        )
 
     # concatModallogik appends one column per generated concept pair.
     result = apply_modal_logic_columns(

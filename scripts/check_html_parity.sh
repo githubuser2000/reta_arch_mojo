@@ -83,6 +83,7 @@ test -s middle.alx
 
 RETA_GENERATE_HTML_ROWS=1 ./target/bin/generate-html-native -language=english \
     > "$TMP/full-real-small-en"
+cmp tests/fixtures/generate_html/middle-all-row1-en.html middle.alx
 cat assets/html/head1.alx assets/html/religionen.js assets/html/head2.alx \
     middle.alx "$TMP/python-blank-en" assets/html/footer.alx \
     > "$TMP/full-real-small-reference-en"

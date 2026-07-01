@@ -209,3 +209,64 @@ nur eine Wiederholung.
 Der Promptcontroller besitzt seit Stage 12c4d keine `std.python`-Brücke mehr. Kleine Editor-, History- und PTY-Probes prüfen UTF-8, verschachtelte Completion, Mehrzeilen-Wrapping, Emacs-/Vi-Kernbindings, Ctrl-C/Ctrl-D und zwei aufeinanderfolgende Rohmodussitzungen. Der öffentliche PTY-Test verwendet unverändert `bin/rpb a1`; es gibt keinen Ersatzbefehl für die Laufzeitsemantik.
 
 Der historische Tabellenlauncher ist seit Stage 12c4e native-first und bindet kein `libpython`. `RETA_FORCE_REFERENCE=1` erzwingt den atomaren Referenzkindprozess; ohne Override entscheidet der strenge Ganzvektor-Ownership-Test. `scripts/check_compat_launcher.sh` prüft Argumente, Binärströme und Exitstatus, während `scripts/check_compat_native_first_parity.sh` zwölf Referenzfälle mit absichtlich ungültigem `RETA_PYTHON` vergleicht. Stage 12c4f ergänzt `scripts/check_native_output_stream_parity.sh` für die vier Shell-Ein-Tabellen-Aliase, `justtext`, englische Syntax und Breite-null-No-wrap. Stage 12c4h ergänzt die formatübergreifende No-blank-Parität; Stage 12c4i prüft mit `scripts/check_paginated_rendering_parity.sh` sechs deutsche/englische Shell-/HTML-/BBCode-Mehrspaltenströme. Stage 12c4j ergänzt `scripts/check_column_widths_parity.sh` für positive individuelle Spaltenbreiten; Stage 12c4k ergänzt explizite Nullbreiten. Stage 12c4l prüft mit `scripts/check_markup_nocolor_parity.sh` den rohen HTML-/BBCode-Serializer in zwölf Bytefällen und mit `tests/test_mojo_runtime_path.py` die portable Laufzeitauflösung.
+
+## Stage 12c4m: Installation unter `/usr/local` oder `/usr`
+
+Unveränderliche CSV- und Katalogdaten werden nicht in `bin` oder `lib`
+installiert. Das FHS-konforme Standardlayout einer manuellen Installation ist:
+
+```text
+/usr/local/bin
+/usr/local/lib/reta
+/usr/local/share/reta/csv
+/usr/local/share/reta/assets
+```
+
+Nach dem Build:
+
+```bash
+sudo ./scripts/install.sh
+```
+
+Ein Distributionspaket verwendet stattdessen ein Staging-Verzeichnis und den
+Präfix `/usr`:
+
+```bash
+DESTDIR="$pkgdir" PREFIX=/usr ./scripts/install.sh
+```
+
+Dann liegen die Tabellen unter `/usr/share/reta/csv`. Die öffentliche
+`/usr/bin`-Ebene enthält nur relative Symlinks zu den privaten Launchern unter
+`/usr/lib/reta/bin`. Der Python-Kompatibilitätsbaum behält seinen historischen
+Pfad `python_reference/csv` als relativen Symlink auf die kanonischen
+Shared-Data-Dateien.
+
+Benutzerinstallation ohne Administratorrechte:
+
+```bash
+PREFIX="$HOME/.local" ./scripts/install.sh
+```
+
+Fedora-/RPM-konformes privates Programmverzeichnis:
+
+```bash
+DESTDIR="$RPM_BUILD_ROOT" PREFIX=/usr LIBEXECDIR=/usr/libexec/reta \
+  ./scripts/install.sh
+```
+
+Die Daten bleiben unabhängig davon unter `/usr/share/reta`.
+
+Prüfung des vollständigen Staging-Vertrags:
+
+```bash
+./scripts/check_resource_paths.sh
+./scripts/check_install_layout.sh
+python3 -m pytest -q tests/test_install_layout.py tests/test_mojo_runtime_path.py
+```
+
+Deinstallation verwendet dieselben `PREFIX`, `DESTDIR`, `BINDIR`,
+`LIBEXECDIR` und `DATADIR`-Werte:
+
+```bash
+sudo ./scripts/uninstall.sh
+```

@@ -16,9 +16,8 @@ from reta_mojo.native_reta_cli import (
     run_native_reta,
 )
 from reta_mojo.prompt_external_commands import run_reta_arguments_native
+from reta_mojo.resource_paths import csv_resource, reference_root
 
-
-comptime _REFERENCE_CSV = "python_reference/csv/religion.csv"
 
 
 def main() raises:
@@ -32,15 +31,16 @@ def main() raises:
     # non-empty vectors the ownership predicate rejects every unknown section,
     # option, value pair, positional token and output mode before native work.
     var force_reference = getenv("RETA_FORCE_REFERENCE", "") == "1"
+    var csv_path = csv_resource("religion.csv")
     if (
         not force_reference
         and len(arguments) > 0
-        and native_reta_tokens_supported(arguments, _REFERENCE_CSV)
+        and native_reta_tokens_supported(arguments, csv_path)
     ):
-        print(run_native_reta(arguments, _REFERENCE_CSV), end="")
+        print(run_native_reta(arguments, csv_path), end="")
         return
 
-    var status = run_reta_arguments_native(arguments)
+    var status = run_reta_arguments_native(arguments, reference_root())
     # ``main`` cannot return an integer status.  Terminate through the stable
     # C runtime boundary so the compatibility executable mirrors its child.
     _ = external_call["exit", NoneType](c_int(status))

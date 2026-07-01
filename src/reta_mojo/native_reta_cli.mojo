@@ -5,6 +5,7 @@ from std.collections.string import ord
 from .input_semantics import parse_cli_tokens, CliParseResult, ParsedCliOption
 from .output_modes import canonicalize_output_mode
 from .runtime_aliases import load_runtime_alias_catalog, resolve_runtime_columns
+from .resource_paths import asset_resource
 from .csv_table import CsvTable, read_semicolon_csv, select_zero_based_columns
 from .row_filtering import RowFilterConfig
 from .row_ranges import range_to_numbers
@@ -323,9 +324,9 @@ def _process_row_option(
 
 def build_native_reta_plan(tokens: List[String], maximum_columns: Int, maximum_rows: Int) raises -> NativeRetaPlan:
     var parsed = parse_cli_tokens(tokens)
-    var aliases = load_runtime_alias_catalog("assets/parameter_aliases.tsv")
-    var generated_aliases = load_generated_alias_catalog("assets/generated_aliases.tsv")
-    var kombi_aliases = load_kombi_alias_catalog("assets/kombi_aliases.tsv")
+    var aliases = load_runtime_alias_catalog(asset_resource("parameter_aliases.tsv"))
+    var generated_aliases = load_generated_alias_catalog(asset_resource("generated_aliases.tsv"))
+    var kombi_aliases = load_kombi_alias_catalog(asset_resource("kombi_aliases.tsv"))
     var language = String("german")
     # Language affects the generated alias matrix itself, so resolve it before
     # processing any column option rather than after the option loop.
@@ -924,7 +925,7 @@ def run_native_reta(tokens: List[String], csv_path: String) raises -> String:
     table = generated.table.copy()
     var output_columns = generated.output_columns.copy()
     var kombi = apply_kombi_join_columns(
-        table, plan.kombi_requests, display_last_row
+        table, plan.kombi_requests, display_last_row, plan.output_mode
     )
     table = kombi.table.copy()
     for kombi_index in range(len(kombi.output_columns)):

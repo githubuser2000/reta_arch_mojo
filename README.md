@@ -8,7 +8,7 @@ Dies ist ein inkrementeller, getesteter Port des hochgeladenen Python-Projekts `
 abgeschlossene Release-Stufen:       9 von 12 = 75,0 %
 Stufen 9/10/12:                       Ausgabe, Prompt/i18n und Releaseparität in Arbeit
 Stufe 11:                             11a–11j = 100 %
-Stufe 12:                             12a–12b fertig, 12c1–12c3 und 12c4a–12c4f fertig = ca. 64 %
+Stufe 12:                             12a–12b fertig, 12c zu ca. 99,5 % = ca. 67 %
 vollständig native Originaldateien:  33 von 92 = 35,9 %
 mindestens teilweise portiert:       61 von 92 = 66,3 %
 gewichteter Quellzeilenstand:         ca. 52 %
@@ -36,6 +36,26 @@ Das Skript erzeugt `.venv`, installiert den Modular-Mojo-Compiler und baut die r
 ```
 
 Details: [`BUILD.md`](BUILD.md).
+
+### Installation der CSV- und Assetdaten
+
+Für eine manuelle Installation ist `/usr/local` der Standard:
+
+```bash
+./scripts/build-heavy.sh
+./scripts/build.sh
+sudo ./scripts/install.sh
+```
+
+Die CSV-Dateien liegen dann unter `/usr/local/share/reta/csv`. Ein
+Distributionspaket verwendet `DESTDIR="$pkgdir" PREFIX=/usr` und installiert
+sie unter `/usr/share/reta/csv`. Eine Installation ohne Root verwendet
+`PREFIX="$HOME/.local"` und damit `$HOME/.local/share/reta/csv`. Private
+Mojo-Programme und der verbleibende Python-Kompatibilitätsbaum liegen
+standardmäßig getrennt unter `lib/reta`; Fedora-/RPM-Pakete können
+`LIBEXECDIR=/usr/libexec/reta` setzen. Relative Symlinks erhalten die
+historische Projektstruktur ohne Datenkopie. Details:
+[`STAGE12C4M_FHS_RESOURCE_INSTALLATION.md`](STAGE12C4M_FHS_RESOURCE_INSTALLATION.md).
 
 ## Stufen 7–10: Generatoren, Kombinationen, Markup und Prompt
 
@@ -590,3 +610,19 @@ Laufzeitbibliotheken, nicht die CSV-Dateien. Gleichzeitig ist der rohe
 HTML-/BBCode-Serializer von `--nocolor` einschließlich signifikanter
 Leerraumläufe, Einzel- und Nullbreiten nativ. Details:
 [`STAGE12C4L_PORTABLE_RUNTIME_RAW_MARKUP.md`](STAGE12C4L_PORTABLE_RUNTIME_RAW_MARKUP.md).
+
+
+Stage 12c4m trennt Quellbaum, private Laufzeit und unveränderliche Daten nach
+FHS. CSV-Dateien liegen je nach `PREFIX` unter `share/reta/csv`, während
+relative Symlinks die historischen Pfade `python_reference/csv` und `assets`
+erhalten. `DESTDIR`, `/usr`, `/usr/local`, `$HOME/.local` und Fedora-`libexec`
+sind getestet. Details:
+[`STAGE12C4M_FHS_RESOURCE_INSTALLATION.md`](STAGE12C4M_FHS_RESOURCE_INSTALLATION.md).
+
+Stage 12c4n korrigiert den vollständigen nativen `--alles`-Plan von 863 auf die
+807 Referenzspalten. Unmögliche Bruchkoordinaten werden anhand der realen
+CSV-Form verworfen, `PrimCSV` steht wieder an der historischen Position und
+die semantischen HTML-Metadaten umfassen 1.626 deutsch/englische Einträge.
+Die vollständige Ein-Zeilen-Ausgabe von `generate_html` ist deutsch und
+englisch bytegleich. Details:
+[`STAGE12C4N_ALL_COLUMNS_HTML_PARITY.md`](STAGE12C4N_ALL_COLUMNS_HTML_PARITY.md).

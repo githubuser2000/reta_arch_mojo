@@ -47,7 +47,8 @@ oder verwendet bei leichten Zielen den dokumentierten `mojo run`-Fallback.
 ## Portable Binärübergabe zwischen Rechnern
 
 Die kompilierten Programme hängen nicht an einem einkompilierten CSV-Ort. Sie
-benötigen vor dem Start die beiden dynamischen Modular-Laufzeitbibliotheken.
+benötigen vor dem Start die private Modular-Laufzeitclosure (derzeit fünf
+`.so`-Dateien).
 Der gemeinsame portable Ort ist `target/lib/mojo`, relativ zum Projekt, nicht
 ein identischer absoluter Home-Pfad.
 
@@ -59,6 +60,13 @@ ein identischer absoluter Home-Pfad.
 `scripts/build.sh` und `scripts/build-heavy.sh` betten zusätzlich
 `$ORIGIN/../lib/mojo` als relativen `RUNPATH` ein. Die Launcher verwenden
 `mojo-runtime-exec` als Abwärtskompatibilität für bereits vorhandene Binaries.
+
+Bei einer manuellen Installation liegen die unveränderlichen Daten unter
+`/usr/local/share/reta/{csv,assets}` und die privaten Programme unter
+`/usr/local/lib/reta`. Ein Distributionspaket mit `PREFIX=/usr` verwendet
+entsprechend `/usr/share/reta` und `/usr/lib/reta`; Fedora-/RPM-Pakete können
+private Programme mit `LIBEXECDIR=/usr/libexec/reta` ablegen. `/usr/bin`
+enthält nur die öffentlichen relativen Launcher-Symlinks.
 
 ## Wichtige Tabellenpfade
 

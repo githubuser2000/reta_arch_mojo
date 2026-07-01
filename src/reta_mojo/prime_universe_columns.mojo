@@ -7,6 +7,7 @@ multiplication columns remain a separate Stage-7 substage.
 from std.collections import List
 from std.collections.string import atol
 from .csv_table import CsvTable, read_semicolon_csv, read_text_file
+from .resource_paths import asset_resource, csv_resource
 from .arithmetic import factor_pairs
 from .types import IntPair
 
@@ -567,21 +568,23 @@ def generate_fractional_prime_universe_columns(
     last_row: Int,
     output_mode: String,
     language: String,
-    pair_catalog_path: String = "assets/fraction_pairs.tsv",
-    fraction_csv_path: String = "python_reference/csv/gebrochen-rational-galaxie.csv",
+    pair_catalog_path: String = "",
+    fraction_csv_path: String = "",
 ) raises -> FractionPrimeUniverseColumns:
     var coordinates = _pu_fractional_coordinates(commands)
     if len(coordinates) == 0:
         return FractionPrimeUniverseColumns(
             coordinates^, List[List[String]]()
         )
+    var pair_path = pair_catalog_path if pair_catalog_path.byte_length() > 0 else asset_resource("fraction_pairs.tsv")
     var entries = load_fraction_pair_entries(
-        pair_catalog_path, coordinates, last_row
+        pair_path, coordinates, last_row
     )
     # The legacy lookup intentionally uses the galaxy fraction table for both
     # galaxy and universe proper-fraction content; universe identity is added
     # only for integer/reciprocal factors from the physical table.
-    var fraction_table = read_semicolon_csv(fraction_csv_path)
+    var fraction_path = fraction_csv_path if fraction_csv_path.byte_length() > 0 else csv_resource("gebrochen-rational-galaxie.csv")
+    var fraction_table = read_semicolon_csv(fraction_path)
     var columns = List[List[String]]()
     for index in range(len(coordinates)):
         columns.append(

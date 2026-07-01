@@ -9,6 +9,7 @@ normalised rational coordinates and stops on the first repeated fraction.
 
 from std.collections import List
 from .csv_table import CsvTable, read_semicolon_csv
+from .resource_paths import csv_resource
 from .generated_aliases import MetaColumnRequest
 
 
@@ -567,14 +568,15 @@ def generate_meta_columns(
     last_row: Int,
     output_mode: String,
     language: String,
-    fraction_csv_path: String = "python_reference/csv/gebrochen-rational-universum.csv",
+    fraction_csv_path: String = "",
 ) raises -> MetaColumnsResult:
     var columns = List[List[String]]()
     var emitted_requests = List[MetaColumnRequest]()
     var inversions = List[Int]()
     if len(requests) == 0:
         return MetaColumnsResult(emitted_requests^, inversions^, columns^)
-    var fraction_table = read_semicolon_csv(fraction_csv_path)
+    var source_path = fraction_csv_path if fraction_csv_path.byte_length() > 0 else csv_resource("gebrochen-rational-universum.csv")
+    var fraction_table = read_semicolon_csv(source_path)
     for request_index in range(len(requests)):
         var request = requests[request_index].copy()
         if (

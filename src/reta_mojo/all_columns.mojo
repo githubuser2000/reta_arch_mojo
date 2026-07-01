@@ -8,6 +8,7 @@ legacy bucket values and their deterministic order.
 from std.collections import List
 from std.collections.string import atol
 from .csv_table import read_text_file
+from .resource_paths import asset_resource
 from .generated_aliases import (
     FractionColumnRequest,
     MetaColumnRequest,
@@ -62,7 +63,7 @@ def _pair_all(payload: String) raises -> Tuple[Int, Int]:
 
 
 def load_all_column_selection(
-    path: String = "assets/all_columns_plan.tsv",
+    path: String = "",
 ) raises -> AllColumnSelection:
     var columns = List[Int]()
     var modal_concepts = List[ModalConcept]()
@@ -72,7 +73,8 @@ def load_all_column_selection(
     var meta_requests = List[MetaColumnRequest]()
     var source_entries = 0
 
-    var lines = read_text_file(path).split("\n")
+    var source_path = path if path.byte_length() > 0 else asset_resource("all_columns_plan.tsv")
+    var lines = read_text_file(source_path).split("\n")
     for line_index in range(len(lines)):
         var line = String(lines[line_index])
         if line.byte_length() == 0 or line.startswith("#"):

@@ -3,8 +3,9 @@
 ## Testbestand
 
 ```text
-67 Mojo-Testdateien und -Probes
-274 Testfunktionen insgesamt
+90 Mojo-Testdateien und -Probes
+14 Python-Testdateien
+380 Testfunktionen insgesamt (323 Mojo, 57 Python)
 9 reguläre ELF-Compilerziele
 16 optionale schwere Metadaten-/Katalog-/Laufzeitziele
 ```
@@ -41,6 +42,36 @@ In den oben gezählten Einzelsuiten gab es keinen Testfehler. Zwei breitere Samm
 
 - `scripts/test_prompt_bins.sh` erreichte bei wiederholten Python-Referenzstarts das äußere Laufzeitlimit und lieferte deshalb keinen abgeschlossenen Gesamtlauf.
 - `scripts/check_native_table_parity.sh` trifft unter dem lokal verwendeten Python 3.13.5 auf eine Referenzharness-Abweichung: Die direkte Python-CSV-Ausgabe verklebt Zeilen, während der native CSV-Renderer sie mit Zeilenumbrüchen ausgibt. Die Stage-10c-Pfade werden deshalb zusätzlich über feste Byte-Fixtures und normalisierte geordnete CSV-Tokenströme geprüft. Dieser breite Harnessfall ist offen und wird nicht als Paritätserfolg ausgegeben.
+
+
+## Stage 12c4m/n: Installation und vollständige HTML-Tabelle
+
+```text
+Installationslayout /usr:                 bestanden
+Installationslayout /usr/local:           bestanden
+Installationslayout $HOME/.local:         bestanden
+Fedora-LIBEXECDIR=/usr/libexec/reta:      bestanden
+Runtime-Pfadtests:                        4/4
+Bruchkoordinaten:                         4/4
+Generatorreihenfolge und Mond-Markup:     9/9
+HTML-Metadaten:                           7/7
+Kombi-Join:                               5/5
+vollständiges HTML Deutsch:               807 Spalten, bytegleich
+vollständiges HTML Englisch:              807 Spalten, bytegleich
+Basistabelle CSV/Markdown/Emacs:           4/4 bytegleich
+positive Einzelbreiten:                  12/12 bytegleich
+explizite Nullbreiten:                    12/12 bytegleich
+paginierte Shell/HTML/BBCode:              6/6 bytegleich
+keineleereninhalte:                       13/13 bytegleich
+rohes HTML/BBCode --nocolor:              12/12 bytegleich
+Markup-oneTable:                          12/12 bytegleich
+Kombi-CSV:                                 9/9 bytegleich
+Source-/Installations-Pytests:            19/19
+```
+
+Die CSV-Dateien liegen physisch nur unter `share/reta/csv`; die private
+Python-Referenz erreicht dieselben Dateien über einen relativen Symlink. Die
+vollständigen HTML-Fixtures enthalten je 807 Überschrifts- und 807 Datenzellen.
 
 ## Stufe 7: Generator- und Metaspalten
 
@@ -1063,4 +1094,35 @@ bewahrt exakte interne und nachgestellte Padding-Leerzeichen.
 ```bash
 scripts/check_markup_nocolor_parity.sh
 python3 -m pytest -q tests/test_mojo_runtime_path.py
+```
+
+
+## Stage 12c4m: FHS-Ressourceninstallation
+
+```text
+Ressourcenresolver:                         3/3
+Installations-/Runtime-Pytests:             8/8
+Kompatibilitätslauncher:                   14/14
+FHS-Staging nach /usr:                  bestanden
+Start aus fremdem Arbeitsverzeichnis:   bestanden
+native installierte CSV-Ausgabe:        bytegleich
+installierter Python-Fallback:          bytegleich
+Deinstallation:                         bestanden
+Basistabellenparität:                       4/4
+positive Einzelbreiten:                    12/12
+explizite Nullbreiten:                     12/12
+rohes HTML/BBCode --nocolor:               12/12
+```
+
+Die Paketprobe installiert die kanonischen Daten genau einmal nach
+`/usr/share/reta/{csv,assets}`. Private Programme und der verbleibende
+Referenzbaum liegen unter `/usr/lib/reta`; relative Symlinks erhalten die
+historischen Projektpfade. Die gleiche Probe deckt den manuellen Standard
+`/usr/local`, eine Benutzerinstallation mit `$HOME/.local`, `DESTDIR`-Staging
+und die symmetrische Deinstallation ab.
+
+```bash
+./scripts/check_resource_paths.sh
+./scripts/check_install_layout.sh
+python3 -m pytest -q tests/test_install_layout.py tests/test_mojo_runtime_path.py
 ```

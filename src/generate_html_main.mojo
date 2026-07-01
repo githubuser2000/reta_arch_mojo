@@ -13,6 +13,7 @@ from std.sys import argv
 from reta_mojo.csv_table import read_text_file
 from reta_mojo.grundstrukturen_html import render_grundstrukturen_html
 from reta_mojo.native_reta_cli import run_native_reta
+from reta_mojo.resource_paths import asset_resource, csv_resource
 
 
 def _language_from_arguments(
@@ -72,7 +73,7 @@ def _generate_middle(language: String) raises -> String:
     if row_limit.byte_length() > 0:
         tokens.append("-zeilen")
         tokens.append("--vorhervonausschnitt=" + row_limit)
-    var middle = run_native_reta(tokens, "python_reference/csv/religion.csv")
+    var middle = run_native_reta(tokens, csv_resource("religion.csv"))
     _write_text_file("middle.alx", middle)
     return middle^
 
@@ -88,11 +89,11 @@ def main() raises:
     var hierarchy_html = render_grundstrukturen_html(True, language)
     var middle = _generate_middle(language)
     var document = (
-        read_text_file("assets/html/head1.alx")
-        + read_text_file("assets/html/religionen.js")
-        + read_text_file("assets/html/head2.alx")
+        read_text_file(asset_resource("html/head1.alx"))
+        + read_text_file(asset_resource("html/religionen.js"))
+        + read_text_file(asset_resource("html/head2.alx"))
         + middle
         + hierarchy_html
-        + read_text_file("assets/html/footer.alx")
+        + read_text_file(asset_resource("html/footer.alx"))
     )
     _write_stdout(document)

@@ -6,8 +6,15 @@ ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 is_runtime_dir() {
     candidate=$1
     [ -d "$candidate" ] || return 1
-    [ -f "$candidate/libKGENCompilerRTShared.so" ] || return 1
-    [ -f "$candidate/libAsyncRTMojoBindings.so" ] || return 1
+    for library in \
+        libKGENCompilerRTShared.so \
+        libAsyncRTMojoBindings.so \
+        libMSupportGlobals.so \
+        libAsyncRTRuntimeGlobals.so \
+        libNVPTX.so
+    do
+        [ -f "$candidate/$library" ] || return 1
+    done
 }
 
 emit_if_runtime() {
@@ -26,6 +33,9 @@ if [ -n "${RETA_MOJO_RUNTIME_LIBDIR-}" ]; then
         "$RETA_MOJO_RUNTIME_LIBDIR" >&2
     exit 2
 fi
+
+# Configured or installed private runtime.
+emit_if_runtime "$ROOT/target/lib/mojo"
 
 # Project-local installations. Both lib/ and lib64/ are used by common venvs.
 for candidate in \

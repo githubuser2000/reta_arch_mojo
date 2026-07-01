@@ -54,5 +54,25 @@ def test_universe_heading_keeps_meta_prefix() raises:
     assert_true(heading.endswith("Gegentranszendentalien)"))
 
 
+def test_html_join_uses_nonempty_list_items() raises:
+    var table = read_semicolon_csv("python_reference/csv/religion.csv")
+    var joined = apply_kombi_join_columns(
+        table,
+        [
+            KombiColumnRequest("galaxy", 1),
+            KombiColumnRequest("galaxy", 2),
+        ],
+        1,
+        "html",
+    )
+    var animals = joined.table.rows[1][joined.output_columns[0]]
+    var jobs = joined.table.rows[1][joined.output_columns[1]]
+    assert_true(animals.startswith("<ul><li>"))
+    assert_true(animals.endswith("</li></ul>"))
+    assert_true(jobs.startswith("<ul><li> Zauberkünstler"))
+    assert_true(jobs.find("<li></li>") < 0)
+    assert_true(jobs.find(" | ") < 0)
+
+
 def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()

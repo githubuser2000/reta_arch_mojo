@@ -5,6 +5,7 @@ from std.collections.string import atol
 from reta_mojo.table_state import create_table_state
 from reta_mojo.table_wrapping import default_text_wrap_runtime, wrap_cell_text
 from reta_mojo.csv_table import read_semicolon_csv
+from reta_mojo.resource_paths import csv_resource
 
 
 def main() raises:
@@ -43,7 +44,7 @@ def main() raises:
         return
 
     if command == "--mojo-csv-info":
-        var path = String("python_reference/csv/religion.csv")
+        var path = csv_resource("religion.csv")
         if len(args) >= 3:
             path = String(args[2])
         var table = read_semicolon_csv(path)

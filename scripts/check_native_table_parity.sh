@@ -12,8 +12,7 @@ run_pair() {
     label=$1
     mode=$2
     shift 2
-    REFERENCE_PY=${RETA_REFERENCE_PYTHON:-"$ROOT/.venv/bin/python"}
-    [ -x "$REFERENCE_PY" ] || REFERENCE_PY=python3
+    REFERENCE_PY=${RETA_REFERENCE_PYTHON:-python3}
     "$REFERENCE_PY" python_reference/reta.py "$@" -ausgabe "--art=$mode" --breite=40 >"$TMPDIR_BASE/python-$label"
     "$NATIVE" "$@" -ausgabe "--art=$mode" --breite=40 >"$TMPDIR_BASE/mojo-$label"
     cmp "$TMPDIR_BASE/python-$label" "$TMPDIR_BASE/mojo-$label"
@@ -29,8 +28,7 @@ run_pair deutsch-markdown markdown $COMMON
 # shellcheck disable=SC2086
 run_pair deutsch-emacs emacs $COMMON
 
-REFERENCE_PY=${RETA_REFERENCE_PYTHON:-"$ROOT/.venv/bin/python"}
-[ -x "$REFERENCE_PY" ] || REFERENCE_PY=python3
+REFERENCE_PY=${RETA_REFERENCE_PYTHON:-python3}
 "$REFERENCE_PY" python_reference/reta.py \
     -language=english -lines --thisrangebefore=1-3 \
     -columns --religions=starpolygon -output --type=csv --width=40 \
