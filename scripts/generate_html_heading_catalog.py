@@ -19,7 +19,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 REFERENCE = ROOT / "python_reference" / "reta.py"
 OUTPUT = ROOT / "assets" / "html_heading_catalog.tsv"
-CELL_RE = re.compile(r"(<td[^>]*>)(.*?)</td>")
+CELL_RE = re.compile(r"(<td[^>]*>)(.*?)</td>", re.S)
+ROW_RE = re.compile(r"<tr[^>]*>.*?</tr>", re.S)
 
 CASES: list[tuple[str, list[str]]] = [
     ("german", ["-zeilen", "--vorhervonausschnitt=1-3", "-spalten", "--bedeutung=primzahlkreuz"]),
@@ -30,6 +31,10 @@ CASES: list[tuple[str, list[str]]] = [
     ("english", ["-language=english", "-lines", "--thisrangebefore=1-3", "-columns", "--universeMetaConcrete=meta"]),
     ("german", ["-zeilen", "--vorhervonausschnitt=1-3", "-spalten", "--gebrochenuniversum=2"]),
     ("english", ["-language=english", "-lines", "--thisrangebefore=1-3", "-columns", "--fractional_universe_n/m=2"]),
+    # Physical aliases can carry legacy HTML metadata from a different
+    # all-columns position.  Their semantic heading is the stable bridge key.
+    ("german", ["-zeilen", "--vorhervonausschnitt=1-3", "-spalten", "--Menschliches=manipulation"]),
+    ("english", ["-language=english", "-lines", "--thisrangebefore=1-3", "-columns", "--human=manipulation"]),
 ]
 
 
@@ -43,26 +48,30 @@ def render(language: str, args: list[str]) -> tuple[list[tuple[str, str]], list[
     env = dict(os.environ)
     env["PYTHONHASHSEED"] = "0"
     output = subprocess.check_output(command, cwd=ROOT, env=env, text=True)
-    rows = [line for line in output.splitlines() if line.startswith("<tr")]
+    rows = ROW_RE.findall(output)
     if len(rows) < 2:
         raise RuntimeError(f"expected heading and body row for: {' '.join(args)}")
     return CELL_RE.findall(rows[0]), CELL_RE.findall(rows[1])
 
 
+def append_case(lines: list[str], language: str, args: list[str]) -> None:
+    headings, bodies = render(language, args)
+    if len(headings) != len(bodies):
+        raise RuntimeError(f"cell mismatch for {language}: {len(headings)}/{len(bodies)}")
+    for rendered_column, ((heading_open, payload), (body_open, _)) in enumerate(zip(headings, bodies, strict=True)):
+        if rendered_column < 2:
+            continue
+        heading = normalize(payload)
+        fields = (language, str(rendered_column), heading, heading_open, body_open)
+        if any("\t" in value or "\n" in value or "\r" in value for value in fields):
+            raise RuntimeError(f"invalid TSV field for {language}:{rendered_column}")
+        lines.append("\t".join(fields))
+
+
 def main() -> None:
     lines = ["# language\treference_rendered_column\theading_text\theading_open\tbody_open"]
     for language, args in CASES:
-        headings, bodies = render(language, args)
-        if len(headings) != len(bodies):
-            raise RuntimeError(f"cell mismatch for {language}: {len(headings)}/{len(bodies)}")
-        for rendered_column, ((heading_open, payload), (body_open, _)) in enumerate(zip(headings, bodies, strict=True)):
-            if rendered_column < 2:
-                continue
-            heading = normalize(payload)
-            fields = (language, str(rendered_column), heading, heading_open, body_open)
-            if any("\t" in value or "\n" in value or "\r" in value for value in fields):
-                raise RuntimeError(f"invalid TSV field for {language}:{rendered_column}")
-            lines.append("\t".join(fields))
+        append_case(lines, language, args)
     OUTPUT.write_text("\n".join(lines) + "\n", encoding="utf-8")
     print(f"wrote {OUTPUT.relative_to(ROOT)}: {len(lines) - 1} entries")
 

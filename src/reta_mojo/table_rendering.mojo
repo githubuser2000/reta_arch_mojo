@@ -54,6 +54,49 @@ def _normal_table(table: CsvTable) -> CsvTable:
     return CsvTable(rows^, table.maximum_columns)
 
 
+def _cell_fragment_visible(text: String, no_blank_contents: Bool) -> Bool:
+    var clean = String(text.strip())
+    if no_blank_contents:
+        return codepoint_length(clean) >= 2
+    return clean.byte_length() > 0
+
+
+def _row_range_visible(
+    row: List[String],
+    start: Int,
+    end: Int,
+    no_blank_contents: Bool,
+) -> Bool:
+    for column_index in range(start, end):
+        if _cell_fragment_visible(row[column_index], no_blank_contents):
+            return True
+    return False
+
+
+def _filter_no_blank_rows(
+    table: CsvTable,
+    row_numbers: List[Int],
+    data_start: Int,
+    no_blank_contents: Bool,
+) -> Tuple[CsvTable, List[Int]]:
+    if not no_blank_contents:
+        return table.copy(), row_numbers.copy()
+    var rows = List[List[String]]()
+    var numbers = List[Int]()
+    for row_index in range(len(table.rows)):
+        var row = table.rows[row_index].copy()
+        if _row_range_visible(
+            row, data_start, len(row), no_blank_contents
+        ):
+            rows.append(row^)
+            numbers.append(
+                row_numbers[row_index]
+                if row_index < len(row_numbers)
+                else row_index
+            )
+    return CsvTable(rows^, table.maximum_columns), numbers^
+
+
 def _decimal_width(value: Int) -> Int:
     var number = abs(value)
     var width = 1
@@ -144,7 +187,32 @@ def render_markdown_table(table: CsvTable) -> String:
     return result^
 
 
-def render_emacs_table(table: CsvTable) -> String:
+def _emacs_prime_power_separator(number: Int) -> Bool:
+    """Match the legacy org-table separator after non-prime prime powers."""
+    if number <= 1:
+        return False
+    var factors = prime_factors(number)
+    if len(factors) <= 1:
+        return False
+    var first = factors[0]
+    for index in range(1, len(factors)):
+        if factors[index] != first:
+            return False
+    return True
+
+
+def _append_emacs_separator(mut result: String, columns: Int) -> None:
+    result += "|"
+    for column_index in range(columns):
+        result += "----"
+        result += "+" if column_index + 1 < columns else "|"
+    result += "\n"
+
+
+def render_emacs_table_with_rows(
+    table: CsvTable,
+    row_numbers: List[Int],
+) -> String:
     var result = String()
     if len(table.rows) == 0:
         return result^
@@ -157,13 +225,21 @@ def render_emacs_table(table: CsvTable) -> String:
                 result += " "
             result += "|"
         result += "\n"
-        if row_index == 0:
-            result += "|"
-            for column_index in range(len(row)):
-                result += "----"
-                result += "+" if column_index + 1 < len(row) else "|"
-            result += "\n"
+        var number = (
+            row_numbers[row_index]
+            if row_index < len(row_numbers)
+            else row_index
+        )
+        if row_index == 0 or _emacs_prime_power_separator(number):
+            _append_emacs_separator(result, len(row))
     return result^
+
+
+def render_emacs_table(table: CsvTable) -> String:
+    var row_numbers = List[Int]()
+    for row_index in range(len(table.rows)):
+        row_numbers.append(row_index)
+    return render_emacs_table_with_rows(table, row_numbers^)
 
 
 def _html_escape(text: String) -> String:
@@ -397,6 +473,7 @@ def render_bbcode_table_with_width_reference(
     number_rows: Bool = True,
     width: Int = 0,
     one_table: Bool = False,
+    no_blank_contents: Bool = False,
 ) -> String:
     """Render BBCode with legacy wrapping, paging and significant spaces."""
     if len(table.rows) == 0:
@@ -432,6 +509,24 @@ def render_bbcode_table_with_width_reference(
                         len(_word_wrap_cell(row[column_index], width)),
                     )
             for visual_line in range(row_height):
+                if no_blank_contents:
+                    var visible = False
+                    for column_index in range(page_start, page_end):
+                        var visible_parts = _word_wrap_cell(
+                            row[column_index], width
+                        )
+                        var visible_part = (
+                            visible_parts[visual_line]
+                            if visual_line < len(visible_parts)
+                            else ""
+                        )
+                        if _cell_fragment_visible(
+                            visible_part, no_blank_contents
+                        ):
+                            visible = True
+                            break
+                    if not visible:
+                        continue
                 var number = row_numbers[row_index] if row_index < len(row_numbers) else row_index
                 result += colored_row_begin("bbcode", number)
                 var is_heading = number == 0
@@ -462,9 +557,16 @@ def render_bbcode_table(
     number_rows: Bool = True,
     width: Int = 0,
     one_table: Bool = False,
+    no_blank_contents: Bool = False,
 ) -> String:
     return render_bbcode_table_with_width_reference(
-        table, table, row_numbers, number_rows, width, one_table
+        table,
+        table,
+        row_numbers,
+        number_rows,
+        width,
+        one_table,
+        no_blank_contents,
     )
 
 
@@ -496,6 +598,7 @@ def render_html_table_with_context(
     number_rows: Bool = True,
     width: Int = 0,
     one_table: Bool = False,
+    no_blank_contents: Bool = False,
 ) raises -> String:
     if len(table.rows) == 0:
         return ""
@@ -533,6 +636,24 @@ def render_html_table_with_context(
                         len(_word_wrap_cell(row[column_index], width)),
                     )
             for visual_line in range(row_height):
+                if no_blank_contents:
+                    var visible = False
+                    for column_index in range(page_start, page_end):
+                        var visible_parts = _word_wrap_cell(
+                            row[column_index], width
+                        )
+                        var visible_part = (
+                            visible_parts[visual_line]
+                            if visual_line < len(visible_parts)
+                            else ""
+                        )
+                        if _cell_fragment_visible(
+                            visible_part, no_blank_contents
+                        ):
+                            visible = True
+                            break
+                    if not visible:
+                        continue
                 var number = (
                     row_numbers[row_index]
                     if row_index < len(row_numbers)
@@ -554,7 +675,7 @@ def render_html_table_with_context(
                     var number_text = (
                         ""
                         if is_heading or visual_line > 0
-                        else row[1]
+                        else String(row[1].strip())
                     )
                     result += _html_cell_payload(
                         _html_escape(number_text)
@@ -781,18 +902,21 @@ def _shell_column_width(table: CsvTable, column: Int, width: Int) -> Int:
 
 
 def _shell_page_row_has_content(
-    row: List[String], page_start: Int, page_end: Int
+    row: List[String],
+    page_start: Int,
+    page_end: Int,
+    no_blank_contents: Bool = False,
 ) -> Bool:
-    for column_index in range(page_start, page_end):
-        if String(row[column_index].strip()).byte_length() > 0:
-            return True
-    return False
+    return _row_range_visible(
+        row, page_start, page_end, no_blank_contents
+    )
 
 def _shell_page_has_data(
     table: CsvTable,
     row_numbers: List[Int],
     page_start: Int,
     page_end: Int,
+    no_blank_contents: Bool = False,
 ) -> Bool:
     for row_index in range(len(table.rows)):
         var number = (
@@ -801,7 +925,10 @@ def _shell_page_has_data(
             else row_index
         )
         if number != 0 and _shell_page_row_has_content(
-            table.rows[row_index], page_start, page_end
+            table.rows[row_index],
+            page_start,
+            page_end,
+            no_blank_contents,
         ):
             return True
     return False
@@ -816,6 +943,7 @@ def render_shell_table_with_width_reference(
     color_rows: Bool = True,
     numbering_highest: Int = 0,
     one_table: Bool = False,
+    no_blank_contents: Bool = False,
 ) -> String:
     """Render the legacy ANSI terminal table, including paging and wrapping."""
     if len(table.rows) == 0:
@@ -856,14 +984,18 @@ def render_shell_table_with_width_reference(
         if page_end == page_start:
             page_end += 1
         if page_start > data_start and not _shell_page_has_data(
-            table, row_numbers, page_start, page_end
+            table,
+            row_numbers,
+            page_start,
+            page_end,
+            no_blank_contents,
         ):
             result += "\n"
         for row_index in range(len(table.rows)):
             var row = table.rows[row_index].copy()
             var number = row_numbers[row_index] if row_index < len(row_numbers) else row_index
             if number != 0 and not _shell_page_row_has_content(
-                row, page_start, page_end
+                row, page_start, page_end, no_blank_contents
             ):
                 continue
             var row_height = 1
@@ -873,6 +1005,24 @@ def render_shell_table_with_width_reference(
                     len(_shell_word_wrap_cell(row[column_index], effective_width)),
                 )
             for visual_line in range(row_height):
+                if no_blank_contents:
+                    var visible = False
+                    for column_index in range(page_start, page_end):
+                        var visible_parts = _shell_word_wrap_cell(
+                            row[column_index], effective_width
+                        )
+                        var visible_part = (
+                            visible_parts[visual_line]
+                            if visual_line < len(visible_parts)
+                            else ""
+                        )
+                        if _cell_fragment_visible(
+                            visible_part, no_blank_contents
+                        ):
+                            visible = True
+                            break
+                    if not visible:
+                        continue
                 if number_rows:
                     var counting_marker = (
                         number > 0
@@ -919,15 +1069,26 @@ def render_table_with_width_reference(
     color_rows: Bool = True,
     numbering_highest: Int = 0,
     one_table: Bool = False,
+    no_blank_contents: Bool = False,
 ) -> String:
+    var filtered = _filter_no_blank_rows(
+        table,
+        row_numbers,
+        2 if number_rows else 0,
+        no_blank_contents,
+    )
+    var flat_table = filtered[0].copy()
+    var flat_row_numbers = filtered[1].copy()
     if mode == "csv":
-        return render_csv_table(table)
+        return render_csv_table(flat_table)
     if mode == "markdown":
-        return render_markdown_table(table)
+        return render_markdown_table(flat_table)
     if mode == "emacs":
-        return render_emacs_table(table)
+        return render_emacs_table_with_rows(
+            flat_table, flat_row_numbers
+        )
     if mode == "html":
-        return render_html_table(table, row_numbers)
+        return render_html_table(flat_table, flat_row_numbers)
     if mode == "bbcode":
         return render_bbcode_table_with_width_reference(
             table,
@@ -936,6 +1097,7 @@ def render_table_with_width_reference(
             number_rows,
             width,
             one_table,
+            no_blank_contents,
         )
     if mode == "nichts":
         return ""
@@ -949,8 +1111,9 @@ def render_table_with_width_reference(
             color_rows,
             numbering_highest,
             one_table,
+            no_blank_contents,
         )
-    return render_plain_table(table)
+    return render_plain_table(flat_table)
 
 
 
@@ -966,6 +1129,7 @@ def render_table_with_native_context(
     color_rows: Bool = True,
     numbering_highest: Int = 0,
     one_table: Bool = False,
+    no_blank_contents: Bool = False,
 ) raises -> String:
     if mode == "html":
         return render_html_table_with_context(
@@ -977,6 +1141,7 @@ def render_table_with_native_context(
             number_rows,
             width,
             one_table,
+            no_blank_contents,
         )
     return render_table_with_width_reference(
         table,
@@ -988,6 +1153,7 @@ def render_table_with_native_context(
         color_rows,
         numbering_highest,
         one_table,
+        no_blank_contents,
     )
 
 def render_table(

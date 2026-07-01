@@ -920,3 +920,31 @@ scripts/check_native_markup_onetable_parity.sh
 RETA_REFRESH_MARKUP_ONETABLE_FIXTURES=1 \
   scripts/check_native_markup_onetable_parity.sh
 ```
+
+
+## Stage 12c4h: native `keineleereninhalte`-Semantik
+
+```text
+No-blank-Rendererkern:                       3/3
+HTML-Metadatenkatalog:                       5/5
+nativer CLI-/Ownership-Planer:              25/25
+No-blank Python↔Mojo-Fixtures:              13/13 byteidentisch
+Kompatibilitätslauncher:                    10/10
+bestehende Markup-Fixtures:                  8/8
+bestehende Markup-oneTable-Fixtures:        12/12
+HTML-Heading-Katalog:                        reproduzierbar
+```
+
+Die 13 Fixtures prüfen Shell, HTML, BBCode, CSV, Markdown und Emacs jeweils
+vor und nach `--keineleereninhalte` sowie `--noblankcontents` in englischem
+HTML. `reta-native` besitzt keinen Python-Fallback. Die gesonderte Ownership-
+Suite bestätigt, dass der native-first Launcher dieselben Argumentvektoren
+konservativ als vollständig Mojo-besessen erkennt. Der Launcher-Test nutzt
+einen explizit konfigurierbaren Referenzinterpreter und besteht 10/10; der
+No-blank-Fall setzt `RETA_PYTHON` absichtlich auf einen nicht vorhandenen Pfad.
+
+```bash
+scripts/check_no_blank_contents.sh
+RETA_REFRESH_NO_BLANK_FIXTURES=1 \
+  scripts/check_no_blank_contents_parity.sh
+```

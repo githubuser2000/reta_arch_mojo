@@ -55,6 +55,7 @@ struct NativeRetaPlan(Copyable):
     var include_headings: Bool
     var color_rows: Bool
     var one_table: Bool
+    var no_blank_contents: Bool
     var positive_rows: List[String]
     var negative_rows: List[String]
     var columns: List[Int]
@@ -308,6 +309,7 @@ def build_native_reta_plan(tokens: List[String], maximum_columns: Int, maximum_r
     var include_headings = True
     var color_rows = True
     var one_table = False
+    var no_blank_contents = False
     var positive_rows = List[String]()
     var negative_rows = List[String]()
     var positive_columns = List[Int]()
@@ -368,6 +370,11 @@ def build_native_reta_plan(tokens: List[String], maximum_columns: Int, maximum_r
                 include_headings = False
             elif option.name == "nocolor" or option.name == "justtext":
                 color_rows = False
+            elif (
+                option.name == "keineleereninhalte"
+                or option.name == "noblankcontents"
+            ):
+                no_blank_contents = True
             elif (
                 option.name == "onetable"
                 or option.name == "endlessscreen"
@@ -515,6 +522,7 @@ def build_native_reta_plan(tokens: List[String], maximum_columns: Int, maximum_r
         include_headings,
         color_rows,
         one_table,
+        no_blank_contents,
         resolved_positive_rows^,
         resolved_negative_rows^,
         columns^,
@@ -598,6 +606,8 @@ def _native_output_option_supported(name: String) -> Bool:
         or name == "noheadings"
         or name == "nocolor"
         or name == "justtext"
+        or name == "keineleereninhalte"
+        or name == "noblankcontents"
         or name == "onetable"
         or name == "endlessscreen"
         or name == "endless"
@@ -647,6 +657,8 @@ def native_reta_tokens_supported(tokens: List[String], csv_path: String) raises 
                 or option.name == "noheadings"
                 or option.name == "nocolor"
                 or option.name == "justtext"
+                or option.name == "keineleereninhalte"
+                or option.name == "noblankcontents"
                 or option.name == "onetable"
                 or option.name == "endlessscreen"
                 or option.name == "endless"
@@ -912,4 +924,5 @@ def run_native_reta(tokens: List[String], csv_path: String) raises -> String:
         plan.color_rows,
         numbering_highest,
         plan.one_table,
+        plan.no_blank_contents,
     )

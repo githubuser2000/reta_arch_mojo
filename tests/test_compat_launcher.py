@@ -13,6 +13,7 @@ _configured_binary = Path(
     )
 )
 BINARY = (ROOT / _configured_binary).resolve() if not _configured_binary.is_absolute() else _configured_binary
+REFERENCE_PYTHON = os.environ.get("RETA_REFERENCE_PYTHON", sys.executable)
 
 
 def _run_compat(
@@ -30,7 +31,7 @@ def _run_compat(
         stderr=subprocess.PIPE,
         env={
             **os.environ,
-            "RETA_PYTHON": python or sys.executable,
+            "RETA_PYTHON": python or REFERENCE_PYTHON,
             **(extra_env or {}),
         },
         check=False,
@@ -86,7 +87,7 @@ def test_supported_historical_cli_runs_without_python_child() -> None:
     ]
     native = _run_compat(arguments, python="/definitely/not/available")
     reference = subprocess.run(
-        [sys.executable, "reta.py", *arguments],
+        [REFERENCE_PYTHON, "reta.py", *arguments],
         cwd=ROOT / "python_reference",
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
@@ -108,7 +109,7 @@ def test_compat_launcher_matches_reference_table_bytes() -> None:
     ]
     native = _run_compat(arguments)
     reference = subprocess.run(
-        [sys.executable, "reta.py", *arguments],
+        [REFERENCE_PYTHON, "reta.py", *arguments],
         cwd=ROOT / "python_reference",
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
@@ -148,7 +149,7 @@ def test_shell_onetable_runs_without_python_child() -> None:
     ]
     native = _run_compat(arguments, python="/definitely/not/available")
     reference = subprocess.run(
-        [sys.executable, "reta.py", *arguments],
+        [REFERENCE_PYTHON, "reta.py", *arguments],
         cwd=ROOT / "python_reference",
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
@@ -181,6 +182,29 @@ def test_markup_onetable_runs_without_python_child() -> None:
             expected,
             b"",
         )
+
+
+def test_no_blank_contents_runs_without_python_child() -> None:
+    arguments = [
+        "-zeilen",
+        "--vorhervonausschnitt=1-20",
+        "-spalten",
+        "--Menschliches=manipulation",
+        "-ausgabe",
+        "--art=html",
+        "--breite=40",
+        "--onetable",
+        "--keineleereninhalte",
+    ]
+    native = _run_compat(arguments, python="/definitely/not/available")
+    expected = (
+        ROOT / "tests" / "fixtures" / "no_blank_contents" / "html-noempty.out"
+    ).read_bytes()
+    assert (native.returncode, native.stdout, native.stderr) == (
+        0,
+        expected,
+        b"",
+    )
 
 
 def test_empty_cli_remains_on_complete_reference_surface(tmp_path: Path) -> None:

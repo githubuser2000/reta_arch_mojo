@@ -285,6 +285,28 @@ def test_prompt_fast_path_accepts_owned_output_stream_flags() raises:
         )
 
 
+def test_no_blank_contents_is_typed_and_owned() raises:
+    for option in ["keineleereninhalte", "noblankcontents"]:
+        var plan = build_native_reta_plan(
+            ["-ausgabe", "--" + option], 746, 1024
+        )
+        assert_true(plan.no_blank_contents)
+        assert_true(
+            native_reta_tokens_supported(
+                [
+                    "-zeilen",
+                    "--vorhervonausschnitt=1-20",
+                    "-spalten",
+                    "--Menschliches=manipulation",
+                    "-ausgabe",
+                    "--art=emacs",
+                    "--" + option,
+                ],
+                "python_reference/csv/religion.csv",
+            )
+        )
+
+
 def test_prompt_fast_path_accepts_markup_onetable() raises:
     for output_mode in ["html", "bbcode"]:
         assert_true(

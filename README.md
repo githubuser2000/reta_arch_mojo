@@ -276,7 +276,7 @@ Details: [`TEST_RESULTS.md`](TEST_RESULTS.md).
 
 ## Nächster Portierungsblock
 
-Stufe 9 wird mit seltenen Terminal-/Rich-Sonderfällen fortgesetzt. Stufe 10 erweitert die bereits native Promptausführung und i18n-Laufzeit. Stufe 11 ist mit 11a–11j abgeschlossen. Stage 12a und 12b sind abgeschlossen: Sämtliche nativen Parallelpfade verwenden Mojo-Threads, und `generate_html` besitzt nun auch die vollständige `--alles`-Mitteltabelle. Stage 12c ist bis 12c4g fortgesetzt: `rpb a1` trennt Befehlszeile und Tabellenkopf wieder exakt, `--breite=0` verwendet die reale TTY-Breite, und Pipe-, Skript- sowie echte TTY-Eingabe laufen nativ in Mojo. Die Rohbefehle `shell`, `python` und `math`, nicht-native `reta`-Zeilen und atomare Restfallbacks starten direkt am expliziten Mojo-Kindprozessadapter. Stabile Kombinationen aus `vielfache`, `teiler` und `1/n`, klassische Bruch-No-ops und gemischte Tokens wie `mond 1/2,3` werden nativ geplant. Weder Prompt noch historischer Tabellenlauncher betten Python ein; vollständig besessene `./reta`-Argumentvektoren laufen automatisch nativ, während Restsemantik atomar als Referenzkindprozess ausgeführt wird. Offen bleiben echte `v n/m` mit Zähler größer eins, weitere Restalgorithmen sowie 12d–12e.
+Stufe 9 wird mit seltenen Terminal-/Rich-Sonderfällen fortgesetzt. Stufe 10 erweitert die bereits native Promptausführung und i18n-Laufzeit. Stufe 11 ist mit 11a–11j abgeschlossen. Stage 12a und 12b sind abgeschlossen: Sämtliche nativen Parallelpfade verwenden Mojo-Threads, und `generate_html` besitzt nun auch die vollständige `--alles`-Mitteltabelle. Stage 12c ist bis 12c4h fortgesetzt: `rpb a1` trennt Befehlszeile und Tabellenkopf wieder exakt, `--breite=0` verwendet die reale TTY-Breite, und Pipe-, Skript- sowie echte TTY-Eingabe laufen nativ in Mojo. Die Rohbefehle `shell`, `python` und `math`, nicht-native `reta`-Zeilen und atomare Restfallbacks starten direkt am expliziten Mojo-Kindprozessadapter. Stabile Kombinationen aus `vielfache`, `teiler` und `1/n`, klassische Bruch-No-ops und gemischte Tokens wie `mond 1/2,3` werden nativ geplant. Weder Prompt noch historischer Tabellenlauncher betten Python ein; vollständig besessene `./reta`-Argumentvektoren laufen automatisch nativ, während Restsemantik atomar als Referenzkindprozess ausgeführt wird. Offen bleiben echte `v n/m` mit Zähler größer eins, weitere Restalgorithmen sowie 12d–12e.
 
 ## Dokumentation
 
@@ -552,3 +552,11 @@ Alle Markup-Spalten bleiben nun in einem einzigen `<table>`-/`[table]`-Block;
 Metadaten, Wrapping und Zeilenfarben sind bytegleich. Der historische `reta`-
 Launcher besitzt diese Kombinationen ohne Python-Kindprozess. Details:
 [`STAGE12C4G_NATIVE_MARKUP_ONETABLE.md`](STAGE12C4G_NATIVE_MARKUP_ONETABLE.md).
+
+Stage 12c4h übernimmt `--keineleereninhalte` und `--noblankcontents` in den
+nativen Tabellenplan. Die historische Filterentscheidung wird für Shell, HTML
+und BBCode pro Seite und umgebrochener Sichtzeile sowie für CSV, Markdown und
+Emacs pro logischer Tabellenzeile ausgeführt. Der native-first Launcher besteht
+mit diesem neuen Pfad 10/10 Prüfungen; der No-blank-Fall läuft dabei mit einem
+absichtlich ungültigen Python-Pfad. Details:
+[`STAGE12C4H_NATIVE_NO_BLANK_CONTENTS.md`](STAGE12C4H_NATIVE_NO_BLANK_CONTENTS.md).

@@ -610,3 +610,21 @@ abschließendes Komma erhalten.
   `reta` als öffentlicher Startname erforderlich. `reta-native` kann optional
   als Diagnosealias bestehen bleiben; `reta-mojo-compat` kann in Stage 12e
   entfallen oder auf `reta` verweisen.
+
+
+## Stage 12c4h – native No-blank-Inhalte
+
+- `NativeRetaPlan.no_blank_contents` besitzt `--keineleereninhalte` und den
+  englischen Alias `--noblankcontents`.
+- Die Referenzschwelle ist exakt: getrimmte sichtbare Fragmente mit weniger als
+  zwei Unicode-Codepoints gelten als leer. Das betrifft vor allem `?`, aber
+  auch andere einstellige Platzhalter.
+- Shell, HTML und BBCode filtern pro horizontaler Seite und pro umgebrochener
+  Sichtzeile. CSV, Markdown, Emacs und Plain filtern die logische Datenzeile.
+- Der Emacs-Renderer besitzt nun die historischen Trenner nach nichtprimen
+  Primzahlpotenzen. Der HTML-Pfad entfernt die interne Nummernausrichtung und
+  verwendet für `Manipulation (1)` die semantische Heading-Metadatenbrücke.
+- 13 versionierte Python-Fixtures sind über alle sechs Ausgabearten und den
+  englischen Alias byteidentisch; Renderer **3/3**, HTML-Katalog **5/5** und
+  CLI-/Ownership-Planer **25/25** sowie der vollständige Kompatibilitätslauncher
+  **10/10** bestehen.

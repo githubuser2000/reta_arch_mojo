@@ -99,6 +99,37 @@ def html_cell_open(
     heading_text: String = "",
 ) -> String:
     var canonical_language = _canonical_html_language(language)
+
+    # Parameter aliases use physical CSV indices, while the legacy HTML layer
+    # first reorders and augments columns.  For catalogued semantic headings,
+    # the heading text is therefore a stronger identity than the raw index.
+    # Later duplicate keys intentionally win, matching Python's dict overwrite.
+    var found = False
+    var reference_rendered_column = 0
+    var heading_open = String()
+    var body_open = String()
+    if heading_text.byte_length() > 0:
+        for index in range(len(catalog.headings)):
+            var heading_entry = catalog.headings[index].copy()
+            if (
+                heading_entry.language == canonical_language
+                and heading_entry.heading_text == heading_text
+            ):
+                found = True
+                reference_rendered_column = (
+                    heading_entry.reference_rendered_column
+                )
+                heading_open = heading_entry.heading_open
+                body_open = heading_entry.body_open
+    if found:
+        if not heading:
+            return body_open^
+        return _reindex_heading_open(
+            heading_open,
+            reference_rendered_column,
+            rendered_column,
+        )
+
     for index in range(len(catalog.entries)):
         var entry = catalog.entries[index].copy()
         if (
@@ -112,30 +143,4 @@ def html_cell_open(
                 source_column + 2,
                 rendered_column,
             )
-
-    # Generator columns do not have a stable physical source index.  Their
-    # heading is the semantic key.  Do not return immediately: duplicate keys
-    # intentionally use the final entry, matching Python's dict overwrite.
-    var found = False
-    var reference_rendered_column = 0
-    var heading_open = String()
-    var body_open = String()
-    for index in range(len(catalog.headings)):
-        var entry = catalog.headings[index].copy()
-        if (
-            entry.language == canonical_language
-            and entry.heading_text == heading_text
-        ):
-            found = True
-            reference_rendered_column = entry.reference_rendered_column
-            heading_open = entry.heading_open
-            body_open = entry.body_open
-    if found:
-        if not heading:
-            return body_open^
-        return _reindex_heading_open(
-            heading_open,
-            reference_rendered_column,
-            rendered_column,
-        )
     return "<td>"

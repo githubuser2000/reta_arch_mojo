@@ -7,7 +7,7 @@ from reta_mojo.table_rendering import render_html_table_with_context
 def test_physical_and_generated_catalog_sizes() raises:
     var catalog = load_html_cell_catalog()
     assert_equal(len(catalog.entries), 1496)
-    assert_equal(len(catalog.headings), 14)
+    assert_equal(len(catalog.headings), 16)
 
 
 def test_physical_heading_is_reindexed() raises:
@@ -15,6 +15,21 @@ def test_physical_heading_is_reindexed() raises:
     var opening = html_cell_open(catalog, "german", 6, 3, True, "")
     assert_true(" r_3 " in opening)
     assert_true("p3_0_Sternpolygon" in opening)
+
+
+def test_physical_alias_can_use_semantic_heading_metadata() raises:
+    var catalog = load_html_cell_catalog()
+    var opening = html_cell_open(
+        catalog,
+        "german",
+        153,
+        2,
+        True,
+        "Manipulation (1)",
+    )
+    assert_true(" r_2 " in opening)
+    assert_true("p3_0_Manipulation" in opening)
+    assert_true("Wichtigstes_zum_gedanklich_einordnen" not in opening)
 
 
 def test_generated_heading_metadata_uses_semantic_key() raises:

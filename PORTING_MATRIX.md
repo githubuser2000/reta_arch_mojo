@@ -1,10 +1,10 @@
 # Portierungsmatrix Python → Mojo
 
-Stand: 30. Juni 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der gebündelten Python-Kompatibilitätsreferenz.
+Stand: 1. Juli 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der gebündelten Python-Kompatibilitätsreferenz.
 
 - Ursprüngliche Python-Dateien: **92**
 - Ursprüngliche Python-Zeilen insgesamt: **48831**
-- Zusätzlicher Bridge-Adapter: **1 Python-Datei**
+- Eingebettete Python-Brücken: **0**; expliziter Mojo-Kindprozessadapter: **1**
 - Quellzeilen der bereits angegriffenen Architekturmodule: **22387**
 - Native Mojo-Quellzeilen: siehe `src/` (inklusive generiertem Kategoriekatalog)
 
@@ -34,7 +34,7 @@ Stand: 30. Juni 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der 
 | `multis.py` | 34 | 2 | 0 | 0 | nativ | `src/reta_mojo/arithmetic.mojo + prompt_runtime.mojo` | Faktorpaare und öffentliche multis-CLI nativ |
 | `multis3.py` | 34 | 1 | 0 | 0 | nativ | `src/reta_mojo/arithmetic.mojo + prompt_runtime.mojo` | Dreifach-Faktorisierung nativ; deterministische lexikographische Ausgabe statt Set-Reihenfolge |
 | `reta.py` | 214 | 19 | 1 | 3 | teilweise nativ | `src/reta_native_main.mojo + src/reta_mojo/native_reta_cli.mojo` | häufige deutsche und englische Tabellenaufrufe nativ; vollständige Legacy-Oberfläche bleibt über RETA_NATIVE=0 kompatibel |
-| `retaPrompt.py` | 130 | 10 | 0 | 3 | weitgehend nativ | `src/prompt_main.mojo + reta_mojo/prompt_runtime.mojo + terminal_geometry.mojo + native_prompt_input.mojo` | Controller, One-shots, Sitzungszustand, Befehls-/Tabellenframing, dynamische TTY-Breite und Pipe-/Skripteingabe nativ; nur der echte TTY-Line-Editor bleibt eingebettete Bridge, Restfallbacks starten direkt am Mojo-Kindprozessadapter |
+| `retaPrompt.py` | 130 | 10 | 0 | 3 | weitgehend nativ | `src/prompt_main.mojo + reta_mojo/prompt_runtime.mojo + terminal_geometry.mojo + native_prompt_input.mojo` | Controller, One-shots, Sitzungszustand, Befehls-/Tabellenframing, dynamische TTY-Breite, Pipe-/Skript- und echter TTY-Editor nativ; Restfallbacks starten direkt am Mojo-Kindprozessadapter, ohne eingebettetes CPython |
 | `reta_architecture/__init__.py` | 598 | 0 | 0 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/__init__.py` | noch nicht nativ portiert |
 | `reta_architecture/architecture_activation.py` | 600 | 20 | 9 | 0 | generiert nativ | `src/reta_mojo/architecture_activation.mojo + tools/generate_architecture_activation.py` | 7 Fenster, 34 Units, 34 Commit-Gates, 34 Rollbacks und 7 Transaktionen; Referenz- und native Kreuzvalidierung passed |
 | `reta_architecture/architecture_boundaries.py` | 343 | 20 | 8 | 0 | generiert nativ | `src/reta_mojo/architecture_boundaries.mojo + tools/generate_architecture_boundaries.py` | 161 Modulbesitzer, 279 Importkanten, 37 Kapselkanten und 11 Grenzobjekte |
@@ -87,9 +87,9 @@ Stand: 30. Juni 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der 
 | `reta_architecture/split_i18n.py` | 33 | 1 | 0 | 3 | Python-Referenz/Bridge | `python_reference/reta_architecture/split_i18n.py` | noch nicht nativ portiert |
 | `reta_architecture/table_adapters.py` | 419 | 60 | 2 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/table_adapters.py` | noch nicht nativ portiert |
 | `reta_architecture/table_generation.py` | 298 | 8 | 2 | 2 | teilweise nativ | `src/reta_mojo/csv_table.mojo + native_reta_cli.mojo` | CSV-Grundtabelle, Spaltenprojektion und einfacher Ende-zu-Ende-Tabellenpfad nativ |
-| `reta_architecture/table_output.py` | 769 | 24 | 3 | 2 | weitgehend nativ | `src/reta_mojo/table_rendering.mojo + terminal_geometry.mojo` | CSV/Markdown/Emacs sowie zentrale HTML/BBCode/ANSI-Pfade nativ; `--breite=0` nutzt reale TTY-Geometrie; wenige Rich-Sonderfälle offen |
+| `reta_architecture/table_output.py` | 769 | 24 | 3 | 2 | weitgehend nativ | `src/reta_mojo/table_rendering.mojo + terminal_geometry.mojo` | CSV/Markdown/Emacs sowie zentrale HTML/BBCode/ANSI-Pfade nativ; `--breite=0`, formatübergreifendes `oneTable` und `keineleereninhalte` nativ; Emacs-Primzahlpotenztrenner bytegleich, wenige Rich-/Hyphenations-Sonderfälle offen |
 | `reta_architecture/table_preparation.py` | 475 | 19 | 3 | 1 | weitgehend nativ | `src/reta_mojo/table_preparation.mojo + parallel_row_preparation.mojo` | Zeilenauswahl, Tabellenprojektion, Unicode-sicherer Zellenumbruch und typisierte serielle/threadbasierte Vorbereitung unabhängiger Datenzeilen nativ; globale Header-Tag-Mutation bleibt bewusst seriell |
-| `reta_architecture/table_runtime.py` | 310 | 42 | 4 | 2 | teilweise nativ | `src/reta_mojo/native_reta_cli.mojo + table_preparation.mojo` | typisierter nativer Laufzeitplan für häufige Zeilen-, Spalten- und Ausgabeparameter einschließlich formatübergreifender `oneTable`- und `justtext`-Semantik |
+| `reta_architecture/table_runtime.py` | 310 | 42 | 4 | 2 | teilweise nativ | `src/reta_mojo/native_reta_cli.mojo + table_preparation.mojo` | typisierter nativer Laufzeitplan für häufige Zeilen-, Spalten- und Ausgabeparameter einschließlich formatübergreifender `oneTable`-, `justtext`- und `keineleereninhalte`-Semantik |
 | `reta_architecture/table_state.py` | 137 | 8 | 4 | 1 | nativ | `src/reta_mojo/table_state.mojo` | typisierter Tabellenzustand, Abschnittsnamen und Zeilengrenzen |
 | `reta_architecture/table_wrapping.py` | 200 | 16 | 3 | 1 | teilweise nativ | `src/reta_mojo/table_wrapping.mojo` | Unicode-sicherer harter Umbruch und Breitenlogik nativ; Wörterbuchtrennung bleibt externe Grenze |
 | `reta_architecture/tag_schema.py` | 694 | 5 | 2 | 0 | generiert nativ | `src/reta_mojo/tag_schema.mojo + tag_schema_catalog.mojo` | Primär- und Kombi-Tag-Schemata mit Vorwärts-/Rückabbildung |
