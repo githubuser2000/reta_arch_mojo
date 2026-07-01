@@ -342,6 +342,86 @@ def test_width_keeps_legacy_minimum_and_zero_lock() raises:
     assert_equal(zero_locked.width, 0)
 
 
+
+def test_explicit_column_widths_are_typed_replaced_and_owned() raises:
+    var plan = build_native_reta_plan(
+        [
+            "-ausgabe",
+            "--breiten=5,10",
+            "--widths=7,abc,-2,0",
+            "--art=html",
+        ],
+        746,
+        1024,
+    )
+    assert_equal(len(plan.widths), 2)
+    assert_equal(plan.widths[0], 7)
+    assert_equal(plan.widths[1], 0)
+
+    for output_mode in ["shell", "html", "bbcode"]:
+        assert_true(
+            native_reta_tokens_supported(
+                [
+                    "-zeilen",
+                    "--vorhervonausschnitt=1",
+                    "-spalten",
+                    "--religionen=sternpolygon",
+                    "-ausgabe",
+                    "--art=" + output_mode,
+                    "--breiten=5,10",
+                ],
+                "python_reference/csv/religion.csv",
+            )
+        )
+
+    for output_mode in ["csv", "markdown", "emacs"]:
+        assert_true(
+            not native_reta_tokens_supported(
+                [
+                    "-zeilen",
+                    "--vorhervonausschnitt=1",
+                    "-spalten",
+                    "--religionen=sternpolygon",
+                    "-ausgabe",
+                    "--art=" + output_mode,
+                    "--widths=5,10",
+                ],
+                "python_reference/csv/religion.csv",
+            )
+        )
+
+    assert_true(
+        not native_reta_tokens_supported(
+            [
+                "-zeilen",
+                "--vorhervonausschnitt=1",
+                "-spalten",
+                "--religionen=sternpolygon",
+                "-ausgabe",
+                "--art=shell",
+                "--breiten=0,8",
+            ],
+            "python_reference/csv/religion.csv",
+        )
+    )
+
+    for output_mode in ["html", "bbcode"]:
+        assert_true(
+            not native_reta_tokens_supported(
+                [
+                    "-zeilen",
+                    "--vorhervonausschnitt=1",
+                    "-spalten",
+                    "--religionen=sternpolygon",
+                    "-ausgabe",
+                    "--art=" + output_mode,
+                    "--breiten=5,10",
+                    "--nocolor",
+                ],
+                "python_reference/csv/religion.csv",
+            )
+        )
+
 def test_prompt_fast_path_rejects_unknown_row_operator() raises:
     assert_true(
         not native_reta_tokens_supported(

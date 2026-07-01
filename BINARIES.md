@@ -67,7 +67,7 @@ RETA_NATIVE=1 ./reta -zeilen --vorhervonausschnitt=1-3 \
   -ausgabe --art=csv --breite=40
 ```
 
-`RETA_NATIVE=1` erzwingt den nativen Pfad. Die normale `./reta`-Ausführung entscheidet seit Stage 12c4e konservativ selbst; Stage 12c4f besitzt zusätzlich die Shell-Ein-Tabellen- und Justtext-Ausgabe; Stage 12c4g erweitert die Ein-Tabellen-Aliase auf HTML und BBCode; Stage 12c4h/12c4i besitzen No-blank und die paginierten Kernrenderer; `RETA_FORCE_REFERENCE=1` erzwingt die vollständige Python-Referenz.
+`RETA_NATIVE=1` erzwingt den nativen Pfad. Die normale `./reta`-Ausführung entscheidet seit Stage 12c4e konservativ selbst; Stage 12c4f besitzt zusätzlich die Shell-Ein-Tabellen- und Justtext-Ausgabe; Stage 12c4g erweitert die Ein-Tabellen-Aliase auf HTML und BBCode; Stage 12c4h/12c4i besitzen No-blank und die paginierten Kernrenderer; Stage 12c4j besitzt positive individuelle Shell-/HTML-/BBCode-Spaltenbreiten; `RETA_FORCE_REFERENCE=1` erzwingt die vollständige Python-Referenz.
 
 ## Zielzustand nach vollständiger Transpilierung
 

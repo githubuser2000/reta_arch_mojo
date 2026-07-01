@@ -1,8 +1,8 @@
-# Status – Stage 12c4i abgeschlossen; Stufen 9, 10 und 12 in Arbeit
+# Status – Stage 12c4j abgeschlossen; Stufen 9, 10 und 12 in Arbeit
 
 - Zielversion: Mojo 1.0.0b2
 - Unterstützte Python-Umgebung für Installation/Referenzbrücken: 3.10–3.14; Setup bevorzugt Python 3.14
-- Vollständig abgeschlossene Release-Stufen: **9/12 = 75,0 %**; teilgewichtet mit Stage 12c4i: **9,68/12 = 80,7 %**
+- Vollständig abgeschlossene Release-Stufen: **9/12 = 75,0 %**; teilgewichtet mit Stage 12c4j: **9,69/12 = 80,8 %**
 - Stufe 9: **BBCode, zentraler ANSI-Shellpfad und zentrale HTML-Pfade nativ; seltene Ausgabegrenzen offen**
 - Stufe 10: **native Kurzsprache, mehrsprachige verschachtelte Completion und Promptvorbereitung in Arbeit**
 - Stufe 11: **11a–11j abgeschlossen; 10/10 Teilstufen = 100 %**
@@ -11,10 +11,11 @@
 - Konservativ vollständig native oder reproduzierbar generierte Originaldateien: **33/92 = 35,9 %**
 - Mindestens teilweise portierte Originaldateien: **61/92 = 66,3 %**
 - Gewichteter Quellzeilenstand: **ca. 52 %**
-- Nativer Mojo-Quellcode in `src/`: **39.858 Zeilen**
-- Davon im Paket `reta_mojo`: **36.720 Zeilen**
+- Nativer Mojo-Quellcode in `src/`: **40.014 Zeilen**
+- Davon im Paket `reta_mojo`: **36.876 Zeilen**
 - Test-/Probe-Dateien: **101** (**89 Mojo**, **12 Python** einschließlich PTY-, Boundary-, Eingabe-, Rohbefehl-, Reziprok-, klassischer Bruchplan-, Kompatibilitätslauncher- und Alles-Plan-Audits)
-- Native Mojo-Testfunktionen: **311**; Python-Testfunktionen: **44**
+- Native Mojo-Testfunktionen: **314**; Python-Testfunktionen: **46**
+- Stage-12c4j-Fokus: native positive Einzelspaltenbreiten über `--breiten`/`--widths` für Shell, HTML und BBCode, typisierte Ersetzungs- und Fallbacksemantik, globale Breite-null-Kombination sowie korrigiertes Shell-Seitenbudget; Breitenfixtures **12/12 byteidentisch**, Renderer **15/15**, CLI-/Ownership **26/26**, Kompatibilitätslauncher **12/12**, Source-/Boundary-Gates **14/14**, aktive `std.python`-Brücken **0**
 - Stage-12c4i-Fokus: bytegleiche paginierte Shell-/HTML-/BBCode-Ausgabe; vorhandene ASCII-Bindestriche werden vor hartem Wortumbruch bevorzugt, und wirklich fehlende Shell-Fortsetzungsfragmente erhalten die neutrale Restfarbe; Renderer **13/13**, direkte deutsche/englische Mehrspaltenparität **6/6**, No-blank **13/13**, zentrale Markupfixtures **8/8**, Markup-oneTable **12/12**, CLI-/Ownership **25/25**, Kompatibilitätslauncher **10/10**, I/O-Boundary-Audit bestanden
 - Stage-12c4h-Fokus: native `--keineleereninhalte`-/`--noblankcontents`-Semantik mit Unicode-Schwelle kleiner zwei, seiten- und Sichtzeilen-lokaler Filterung für Shell/HTML/BBCode sowie logischer Filterung für CSV/Markdown/Emacs; Emacs-Primzahlpotenztrenner und physische HTML-Heading-Metadatenparität für `Manipulation (1)` korrigiert; No-blank-Fixtures **13/13 byteidentisch**, Rendererkern **3/3**, HTML-Katalog **5/5**, CLI-/Ownership **25/25**, bestehende Markupregression **8/8 + 12/12**, Kompatibilitätslauncher **10/10**
 - Stage-12c4g-Fokus: native HTML-/BBCode-Ein-Tabellen-Semantik für `--onetable`/`--endlessscreen`/`--endless`/`--dontwrap`; ein einziger Markup-Block bei positiver Breite, unveränderte Zellmetadaten und Zeilenfarben; Markup-oneTable **12/12** ohne Python, Renderer **11/11**, CLI-/Ownership **24/24**, gezielte Launcher-/Boundary-Pytests **11/11**; öffentliche Endarchitektur: nur `reta` erforderlich, `reta-native` optionaler Diagnosealias, `reta-mojo-compat` nach Entfernung des letzten Fallbacks entbehrlich

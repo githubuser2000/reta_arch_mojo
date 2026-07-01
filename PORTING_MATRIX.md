@@ -104,3 +104,18 @@ Stand: 1. Juli 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der g
 | `tests/test_command_parity.py` | 298 | 11 | 1 | 0 | Python-Referenz/Bridge | `python_reference/tests/test_command_parity.py` | noch nicht nativ portiert |
 | `tests/test_py_reta_truth_matrix.py` | 20 | 3 | 0 | 0 | Python-Referenz/Bridge | `python_reference/tests/test_py_reta_truth_matrix.py` | noch nicht nativ portiert |
 | `tests/test_py_reta_truth_output_invariants.py` | 35 | 4 | 0 | 0 | Python-Referenz/Bridge | `python_reference/tests/test_py_reta_truth_output_invariants.py` | noch nicht nativ portiert |
+
+
+## Stage 12c4j – Breitenbesitz
+
+| Oberfläche | positive `breiten/widths` | Nullwert in Liste | `nocolor`-Markup |
+|---|---:|---:|---:|
+| Shell | nativ | Referenzfallback | nativ |
+| HTML | nativ | Referenzfallback | Referenzfallback |
+| BBCode | nativ | Referenzfallback | Referenzfallback |
+| CSV | Referenzfallback | Referenzfallback | – |
+| Markdown | Referenzfallback | Referenzfallback | – |
+| Emacs | Referenzfallback | Referenzfallback | – |
+
+Der Ownership-Prüfer entscheidet über den vollständigen Argumentvektor; es gibt
+keinen gemischten Teilpfad.

@@ -209,3 +209,11 @@ Die Zahl **12** ist die geplante Releasegliederung. Interne Teilpakete oder Fehl
 - **Rest-12c4:** echte `v n/m` mit Zähler größer eins, seltene fortgeschrittene Readline-Komfortfunktionen und die übrigen Prompt-/i18n-Algorithmen schließen.
 - **12d:** vollständige Befehlsmatrix, Leistungsprofile, Thread-/Speicheroptimierung und nur benchmarkgestützte SIMD-Kernel.
 - **12e:** reproduzierbares Packaging, Installationspfade, Release-Checks und finale Dokumentation.
+
+
+## Stage 12c4j – individuelle Spaltenbreiten
+
+- `--breiten` und `--widths` sind für positive Werte in Shell, HTML und BBCode nativ.
+- Die Liste adressiert ausgewählte Datenspalten, wird durch spätere Vorkommen ersetzt und fällt für fehlende Einträge auf die globale Breite zurück.
+- Nullwerte, CSV/Markdown/Emacs und Raw-Markup bleiben bis zu ihren eigenen visuellen Zeilenports atomarer Referenzfallback.
+- Der native-first-Vertrag ist über 12 Bytefixtures, 26 Ownership- und 12 Launchertests abgesichert.

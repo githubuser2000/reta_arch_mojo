@@ -567,3 +567,11 @@ Python-Referenz vor einem harten Überlangwortschnitt genutzt; fehlende
 Shell-Fortsetzungsfragmente erhalten die neutrale Restfarbe. Sechs deutsche und
 englische Mehrspaltenströme sind byteidentisch. Details:
 [`STAGE12C4I_NATIVE_PAGINATED_RENDERING.md`](STAGE12C4I_NATIVE_PAGINATED_RENDERING.md).
+
+
+Stage 12c4j übernimmt positive individuelle Spaltenbreiten über `--breiten`
+und `--widths` für Shell, HTML und BBCode. Die Breitenliste ist typisiert,
+spaltenbezogen, ersetzbar und mit globaler Breite null kombinierbar. Noch nicht
+vollständig besessene Nullbreiten-, flache Ausgabe- und Raw-Markup-Kombinationen
+fallen weiterhin atomar auf die Referenz zurück. Details:
+[`STAGE12C4J_NATIVE_COLUMN_WIDTHS.md`](STAGE12C4J_NATIVE_COLUMN_WIDTHS.md).

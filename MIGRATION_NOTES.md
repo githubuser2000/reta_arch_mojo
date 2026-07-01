@@ -646,3 +646,12 @@ abschließendes Komma erhalten.
 - Renderer **13/13**, CLI-/Ownership **25/25**, Kompatibilitätslauncher
   **10/10** und der native I/O-Boundary-Audit bestehen. Es gibt weiterhin
   weder aktive `std.python`-Importe noch eine `libpython`-Abhängigkeit.
+
+
+## Stage 12c4j
+
+- `NativeRetaPlan.widths` besitzt die historischen Aliase `breiten` und `widths` als typisierte `List[Int]`.
+- Shell, HTML und BBCode verwenden pro ausgewählter Datenspalte eine eigene Wrap- und Seitenbreite.
+- Der Shell-Seitenplan zählt die Nummerierungstrennung nicht länger doppelt.
+- Positive Breiten sind native-first; Nullwerte, CSV/Markdown/Emacs und HTML/BBCode mit ausgeschalteter Farbe bleiben konservativer Ganzvektor-Fallback.
+- Zwölf Referenzfixtures sind byteidentisch; der Launcher enthält weiterhin weder `std.python` noch `libpython`.

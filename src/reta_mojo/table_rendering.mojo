@@ -477,6 +477,24 @@ def _wrapped_column_width(table: CsvTable, column: Int, width: Int) -> Int:
     return maximum
 
 
+def _column_wrap_width(
+    column: Int,
+    data_start: Int,
+    default_width: Int,
+    widths: List[Int],
+) -> Int:
+    """Return the legacy per-selected-column preparation width.
+
+    ``--breiten`` indexes only data columns.  The two synthetic numbering
+    columns, when present, therefore do not consume entries from the list.
+    Missing entries fall back to the ordinary ``--breite`` value.
+    """
+    var position = column - data_start
+    if position >= 0 and position < len(widths):
+        return widths[position]
+    return default_width
+
+
 def _maximum_row_number(row_numbers: List[Int]) -> Int:
     var highest = 0
     for index in range(len(row_numbers)):
@@ -492,6 +510,7 @@ def render_bbcode_table_with_width_reference(
     width: Int = 0,
     one_table: Bool = False,
     no_blank_contents: Bool = False,
+    widths: List[Int] = List[Int](),
 ) -> String:
     """Render BBCode with legacy wrapping, paging and significant spaces."""
     if len(table.rows) == 0:
@@ -508,7 +527,12 @@ def render_bbcode_table_with_width_reference(
         else:
             var sum_widths = 0
             while page_end < total_columns:
-                var column_width = _wrapped_column_width(width_reference, page_end, width)
+                var requested_width = _column_wrap_width(
+                    page_end, data_start, width, widths
+                )
+                var column_width = _wrapped_column_width(
+                    width_reference, page_end, requested_width
+                )
                 var candidate = sum_widths + column_width + 1
                 if page_end > page_start and candidate >= screen_width:
                     break
@@ -520,18 +544,23 @@ def render_bbcode_table_with_width_reference(
         for row_index in range(len(table.rows)):
             var row = table.rows[row_index].copy()
             var row_height = 1
-            if width > 0:
-                for column_index in range(page_start, page_end):
-                    row_height = max(
-                        row_height,
-                        len(_word_wrap_cell(row[column_index], width)),
-                    )
+            for column_index in range(page_start, page_end):
+                var requested_width = _column_wrap_width(
+                    column_index, data_start, width, widths
+                )
+                row_height = max(
+                    row_height,
+                    len(_word_wrap_cell(row[column_index], requested_width)),
+                )
             for visual_line in range(row_height):
                 if no_blank_contents:
                     var visible = False
                     for column_index in range(page_start, page_end):
+                        var requested_width = _column_wrap_width(
+                            column_index, data_start, width, widths
+                        )
                         var visible_parts = _word_wrap_cell(
-                            row[column_index], width
+                            row[column_index], requested_width
                         )
                         var visible_part = (
                             visible_parts[visual_line]
@@ -559,9 +588,16 @@ def render_bbcode_table_with_width_reference(
                     )
                     result += "[/td]"
                 for column_index in range(page_start, page_end):
-                    var parts = _word_wrap_cell(row[column_index], width)
+                    var requested_width = _column_wrap_width(
+                        column_index, data_start, width, widths
+                    )
+                    var parts = _word_wrap_cell(
+                        row[column_index], requested_width
+                    )
                     var part = parts[visual_line] if visual_line < len(parts) else ""
-                    var column_width = _wrapped_column_width(width_reference, column_index, width)
+                    var column_width = _wrapped_column_width(
+                        width_reference, column_index, requested_width
+                    )
                     result += "[td=\"\"]" + _pad_cell(part, column_width) + "[/td] "
                 result += "[/tr]\n"
         result += "[/table]\n"
@@ -576,6 +612,7 @@ def render_bbcode_table(
     width: Int = 0,
     one_table: Bool = False,
     no_blank_contents: Bool = False,
+    widths: List[Int] = List[Int](),
 ) -> String:
     return render_bbcode_table_with_width_reference(
         table,
@@ -585,6 +622,7 @@ def render_bbcode_table(
         width,
         one_table,
         no_blank_contents,
+        widths,
     )
 
 
@@ -617,6 +655,7 @@ def render_html_table_with_context(
     width: Int = 0,
     one_table: Bool = False,
     no_blank_contents: Bool = False,
+    widths: List[Int] = List[Int](),
 ) raises -> String:
     if len(table.rows) == 0:
         return ""
@@ -633,8 +672,11 @@ def render_html_table_with_context(
         else:
             var sum_widths = 0
             while page_end < total_columns:
+                var requested_width = _column_wrap_width(
+                    page_end, data_start, width, widths
+                )
                 var column_width = _wrapped_column_width(
-                    width_reference, page_end, width
+                    width_reference, page_end, requested_width
                 )
                 var candidate = sum_widths + column_width + 1
                 if page_end > page_start and candidate >= screen_width:
@@ -647,18 +689,23 @@ def render_html_table_with_context(
         for row_index in range(len(table.rows)):
             var row = table.rows[row_index].copy()
             var row_height = 1
-            if width > 0:
-                for column_index in range(page_start, page_end):
-                    row_height = max(
-                        row_height,
-                        len(_word_wrap_cell(row[column_index], width)),
-                    )
+            for column_index in range(page_start, page_end):
+                var requested_width = _column_wrap_width(
+                    column_index, data_start, width, widths
+                )
+                row_height = max(
+                    row_height,
+                    len(_word_wrap_cell(row[column_index], requested_width)),
+                )
             for visual_line in range(row_height):
                 if no_blank_contents:
                     var visible = False
                     for column_index in range(page_start, page_end):
+                        var requested_width = _column_wrap_width(
+                            column_index, data_start, width, widths
+                        )
                         var visible_parts = _word_wrap_cell(
-                            row[column_index], width
+                            row[column_index], requested_width
                         )
                         var visible_part = (
                             visible_parts[visual_line]
@@ -699,7 +746,12 @@ def render_html_table_with_context(
                         _html_escape(number_text)
                     ) + "</td>"
                 for column_index in range(page_start, page_end):
-                    var parts = _word_wrap_cell(row[column_index], width)
+                    var requested_width = _column_wrap_width(
+                        column_index, data_start, width, widths
+                    )
+                    var parts = _word_wrap_cell(
+                        row[column_index], requested_width
+                    )
                     var part = (
                         parts[visual_line] if visual_line < len(parts) else ""
                     )
@@ -908,7 +960,15 @@ def _shell_column_width(table: CsvTable, column: Int, width: Int) -> Int:
     cannot progressively narrow the same cell.
     """
     if width <= 0:
-        return 0
+        var unwrapped_maximum = 0
+        for row_index in range(len(table.rows)):
+            unwrapped_maximum = max(
+                unwrapped_maximum,
+                codepoint_length(
+                    String(table.rows[row_index][column].strip())
+                ),
+            )
+        return unwrapped_maximum
     var maximum = 0
     for row_index in range(len(table.rows)):
         var clean = String(table.rows[row_index][column].strip())
@@ -963,6 +1023,7 @@ def render_shell_table_with_width_reference(
     numbering_highest: Int = 0,
     one_table: Bool = False,
     no_blank_contents: Bool = False,
+    widths: List[Int] = List[Int](),
 ) -> String:
     """Render the legacy ANSI terminal table, including paging and wrapping."""
     if len(table.rows) == 0:
@@ -990,10 +1051,16 @@ def render_shell_table_with_width_reference(
     var page_start = data_start
     while page_start < total_columns:
         var page_end = total_columns if one_table else page_start
-        var sum_widths = number_width + (1 if number_rows else 0)
+        # ``number_width`` already contains the legacy separator column.
+        # Starting one column farther right made exact-fit data pages break
+        # one column too early (notably ``--breite=0 --breiten=...``).
+        var sum_widths = number_width
         while not one_table and page_end < total_columns:
+            var requested_width = _column_wrap_width(
+                page_end, data_start, effective_width, widths
+            )
             var column_width = _shell_column_width(
-                width_reference, page_end, effective_width
+                width_reference, page_end, requested_width
             )
             var candidate = sum_widths + column_width + 1
             if page_end > page_start and candidate >= screen_width:
@@ -1019,16 +1086,24 @@ def render_shell_table_with_width_reference(
                 continue
             var row_height = 1
             for column_index in range(page_start, page_end):
+                var requested_width = _column_wrap_width(
+                    column_index, data_start, effective_width, widths
+                )
                 row_height = max(
                     row_height,
-                    len(_shell_word_wrap_cell(row[column_index], effective_width)),
+                    len(_shell_word_wrap_cell(
+                        row[column_index], requested_width
+                    )),
                 )
             for visual_line in range(row_height):
                 if no_blank_contents:
                     var visible = False
                     for column_index in range(page_start, page_end):
+                        var requested_width = _column_wrap_width(
+                            column_index, data_start, effective_width, widths
+                        )
                         var visible_parts = _shell_word_wrap_cell(
-                            row[column_index], effective_width
+                            row[column_index], requested_width
                         )
                         var visible_part = (
                             visible_parts[visual_line]
@@ -1052,11 +1127,16 @@ def render_shell_table_with_width_reference(
                         number, visual_line, number_width, counting_marker
                     )
                 for column_index in range(page_start, page_end):
-                    var parts = _shell_word_wrap_cell(row[column_index], effective_width)
+                    var requested_width = _column_wrap_width(
+                        column_index, data_start, effective_width, widths
+                    )
+                    var parts = _shell_word_wrap_cell(
+                        row[column_index], requested_width
+                    )
                     var has_fragment = visual_line < len(parts)
                     var part = parts[visual_line] if has_fragment else ""
                     var column_width = _shell_column_width(
-                        width_reference, column_index, effective_width
+                        width_reference, column_index, requested_width
                     )
                     var padded = _shell_pad(part, column_width)
                     if color_rows:
@@ -1092,6 +1172,7 @@ def render_table_with_width_reference(
     numbering_highest: Int = 0,
     one_table: Bool = False,
     no_blank_contents: Bool = False,
+    widths: List[Int] = List[Int](),
 ) -> String:
     var filtered = _filter_no_blank_rows(
         table,
@@ -1120,6 +1201,7 @@ def render_table_with_width_reference(
             width,
             one_table,
             no_blank_contents,
+            widths,
         )
     if mode == "nichts":
         return ""
@@ -1134,6 +1216,7 @@ def render_table_with_width_reference(
             numbering_highest,
             one_table,
             no_blank_contents,
+            widths,
         )
     return render_plain_table(flat_table)
 
@@ -1152,6 +1235,7 @@ def render_table_with_native_context(
     numbering_highest: Int = 0,
     one_table: Bool = False,
     no_blank_contents: Bool = False,
+    widths: List[Int] = List[Int](),
 ) raises -> String:
     if mode == "html":
         return render_html_table_with_context(
@@ -1164,6 +1248,7 @@ def render_table_with_native_context(
             width,
             one_table,
             no_blank_contents,
+            widths,
         )
     return render_table_with_width_reference(
         table,
@@ -1176,6 +1261,7 @@ def render_table_with_native_context(
         numbering_highest,
         one_table,
         no_blank_contents,
+        widths,
     )
 
 def render_table(

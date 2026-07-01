@@ -179,5 +179,49 @@ def test_shell_missing_continuation_fragment_uses_rest_color() raises:
     )
 
 
+
+def test_explicit_column_widths_wrap_data_columns_independently() raises:
+    var table = parse_semicolon_csv(
+        "; ;A;B;C\n"
+        + "1;1;abcdef;ghijklmnop;qrstuv\n"
+    )
+    var widths = [3, 5]
+
+    var shell = render_shell_table_with_width_reference(
+        table, table, [0, 1], True, 8, False, 0, True, False, widths
+    )
+    assert_true("abc ghijk qrstuv" in shell)
+    assert_true("def lmnop" in shell)
+
+    var bbcode = render_bbcode_table(
+        table, [0, 1], True, 8, True, False, widths
+    )
+    assert_true("[td=\"\"]abc[/td]" in bbcode)
+    assert_true("[td=\"\"]def[/td]" in bbcode)
+    assert_true("[td=\"\"]ghijk[/td]" in bbcode)
+    assert_true("[td=\"\"]lmnop[/td]" in bbcode)
+
+    var html = render_html_table_with_context(
+        table, table, [0, 1], [0, 1, 2], "german",
+        True, 8, True, False, widths
+    )
+    assert_true("> abc </td>" in html)
+    assert_true("> def </td>" in html)
+    assert_true("> ghijk </td>" in html)
+    assert_true("> lmnop </td>" in html)
+
+
+def test_explicit_zero_width_keeps_only_that_column_unwrapped() raises:
+    var table = parse_semicolon_csv(
+        "; ;A;B\n"
+        + "1;1;alpha beta gamma;one two three\n"
+    )
+    var rendered = render_shell_table_with_width_reference(
+        table, table, [0, 1], True, 5, False, 0, True, False, [0, 5]
+    )
+    assert_true("alpha beta gamma one" in rendered)
+    assert_true("two" in rendered)
+    assert_false("\n   beta gamma" in rendered)
+
 def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()

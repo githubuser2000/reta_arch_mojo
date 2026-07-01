@@ -207,6 +207,75 @@ def test_no_blank_contents_runs_without_python_child() -> None:
     )
 
 
+
+def test_positive_column_widths_run_without_python_child() -> None:
+    fixtures = ROOT / "tests" / "fixtures" / "column_widths"
+    for output_mode in ("shell", "html", "bbcode"):
+        arguments = [
+            "-zeilen",
+            "--vorhervonausschnitt=1-2",
+            "-spalten",
+            "--religionen=sternpolygon",
+            "--Menschliches=manipulation",
+            "-ausgabe",
+            f"--art={output_mode}",
+            "--breiten=5,10",
+        ]
+        native = _run_compat(arguments, python="/definitely/not/available")
+        expected = (fixtures / f"de-{output_mode}-basic.out").read_bytes()
+        assert (native.returncode, native.stdout, native.stderr) == (
+            0,
+            expected,
+            b"",
+        )
+
+
+def test_unowned_column_width_edge_cases_fall_back_atomically(
+    tmp_path: Path,
+) -> None:
+    fake_python = tmp_path / "fake-python"
+    _write_fake_python(fake_python, 23)
+    cases = [
+        [
+            "-zeilen",
+            "--vorhervonausschnitt=1",
+            "-spalten",
+            "--religionen=sternpolygon",
+            "-ausgabe",
+            "--art=csv",
+            "--breiten=5,10",
+        ],
+        [
+            "-zeilen",
+            "--vorhervonausschnitt=1",
+            "-spalten",
+            "--religionen=sternpolygon",
+            "-ausgabe",
+            "--art=html",
+            "--breiten=5,10",
+            "--nocolor",
+        ],
+        [
+            "-zeilen",
+            "--vorhervonausschnitt=1",
+            "-spalten",
+            "--religionen=sternpolygon",
+            "-ausgabe",
+            "--art=shell",
+            "--breiten=0,8",
+        ],
+    ]
+    for arguments in cases:
+        result = _run_compat(arguments, python=str(fake_python))
+        expected = (ROOT / "python_reference").as_posix().encode() + b"\n" + b"\0".join(
+            value.encode() for value in ["reta.py", *arguments]
+        )
+        assert (result.returncode, result.stdout, result.stderr) == (
+            23,
+            expected,
+            b"",
+        )
+
 def test_empty_cli_remains_on_complete_reference_surface(tmp_path: Path) -> None:
     fake_python = tmp_path / "fake-python"
     _write_fake_python(fake_python, 19)

@@ -1,7 +1,7 @@
 """Native subset of the historical Reta command-line table pipeline."""
 
 from std.collections import List
-from std.collections.string import atol
+from std.collections.string import ord
 from .input_semantics import parse_cli_tokens, CliParseResult, ParsedCliOption
 from .output_modes import canonicalize_output_mode
 from .runtime_aliases import load_runtime_alias_catalog, resolve_runtime_columns
@@ -50,6 +50,7 @@ struct NativeRetaPlan(Copyable):
     var language: String
     var output_mode: String
     var width: Int
+    var widths: List[Int]
     var highest: Int
     var number_rows: Bool
     var include_headings: Bool
@@ -115,6 +116,39 @@ def _contains_string_native(values: List[String], wanted: String) -> Bool:
         if values[index] == wanted:
             return True
     return False
+
+
+def _is_unsigned_decimal_native(text: String) -> Bool:
+    if text.byte_length() == 0:
+        return False
+    for index in range(text.byte_length()):
+        var value = ord(text[byte=index])
+        if value < 48 or value > 57:
+            return False
+    return True
+
+
+def _parse_unsigned_decimal_native(text: String) -> Int:
+    var result = 0
+    for index in range(text.byte_length()):
+        result = result * 10 + ord(text[byte=index]) - 48
+    return result
+
+
+def _replace_explicit_widths(
+    option: ParsedCliOption, mut widths: List[Int]
+):
+    """Mirror the legacy ``--breiten`` parser.
+
+    Every occurrence replaces the preceding list.  Only unsigned decimal
+    entries survive; negative and non-decimal fragments are ignored rather
+    than becoming zero-width columns.
+    """
+    widths.clear()
+    for value_index in range(len(option.values)):
+        var value = option.values[value_index].copy()
+        if not value.negative and _is_unsigned_decimal_native(value.text):
+            widths.append(_parse_unsigned_decimal_native(value.text))
 
 
 def _append_unique_string_native(mut values: List[String], value: String):
@@ -303,6 +337,7 @@ def build_native_reta_plan(tokens: List[String], maximum_columns: Int, maximum_r
             language = String(StringSlice(token)[byte=9:])
     var output_mode = String("shell")
     var width = 21
+    var widths = List[Int]()
     var width_locked_zero = False
     var highest = maximum_rows
     var number_rows = True
@@ -364,6 +399,8 @@ def build_native_reta_plan(tokens: List[String], maximum_columns: Int, maximum_r
                         width_locked_zero = True
                     else:
                         width = max(width, requested_width)
+            elif option.name == "breiten" or option.name == "widths":
+                _replace_explicit_widths(option, widths)
             elif option.name == "keinenummerierung" or option.name == "nonumbering":
                 number_rows = False
             elif option.name == "keineueberschriften" or option.name == "noheadings":
@@ -411,6 +448,9 @@ def build_native_reta_plan(tokens: List[String], maximum_columns: Int, maximum_r
                         width_locked_zero = True
                     else:
                         width = max(width, requested_width)
+                continue
+            if option.name == "breiten" or option.name == "widths":
+                _replace_explicit_widths(option, widths)
                 continue
             if option.name == "keinenummerierung" or option.name == "nonumbering":
                 number_rows = False
@@ -517,6 +557,7 @@ def build_native_reta_plan(tokens: List[String], maximum_columns: Int, maximum_r
         language^,
         output_mode^,
         width,
+        widths^,
         highest,
         number_rows,
         include_headings,
@@ -600,6 +641,8 @@ def _native_output_option_supported(name: String) -> Bool:
         or name == "type"
         or name == "breite"
         or name == "width"
+        or name == "breiten"
+        or name == "widths"
         or name == "keinenummerierung"
         or name == "nonumbering"
         or name == "keineueberschriften"
@@ -674,7 +717,10 @@ def native_reta_tokens_supported(tokens: List[String], csv_path: String) raises 
                 or option.name == "all"
             )
             var column_value_option = (
-                option.name == "breite" or option.name == "width"
+                option.name == "breite"
+                or option.name == "width"
+                or option.name == "breiten"
+                or option.name == "widths"
             )
             if column_value_option and len(option.values) == 0:
                 return False
@@ -701,6 +747,29 @@ def native_reta_tokens_supported(tokens: List[String], csv_path: String) raises 
         return False
     var mode = canonicalize_output_mode(plan.output_mode)
     if mode.byte_length() == 0:
+        return False
+    # Per-column widths are fully owned for the three legacy rich renderers.
+    # CSV/Markdown/Emacs use a separate visual-row expansion contract and stay
+    # on the atomic reference path until that remaining block is ported.
+    if (
+        len(plan.widths) > 0
+        and mode != "shell"
+        and mode != "html"
+        and mode != "bbcode"
+    ):
+        return False
+    # Zero entries have additional historical edge semantics: in paged
+    # shell mode an oversized unwrapped column may be skipped, while the
+    # markup preparation path has distinct exact-fit wrapping.  Keep those
+    # invocations atomic until that separate compatibility block is ported.
+    for width_index in range(len(plan.widths)):
+        if plan.widths[width_index] == 0:
+            return False
+    # In the Python reference ``--nocolor`` switches HTML/BBCode from
+    # Rich's whitespace-normalized stream to the raw multiline serializer.
+    # That separate byte contract is not owned by the current native markup
+    # renderer yet, so keep the whole invocation on the atomic reference path.
+    if (mode == "html" or mode == "bbcode") and not plan.color_rows:
         return False
     # Shell, HTML and BBCode now share the historical one-table ownership
     # contract: the four aliases disable horizontal page splitting while
@@ -925,4 +994,5 @@ def run_native_reta(tokens: List[String], csv_path: String) raises -> String:
         numbering_highest,
         plan.one_table,
         plan.no_blank_contents,
+        plan.widths,
     )

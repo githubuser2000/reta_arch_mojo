@@ -980,3 +980,32 @@ nur `libKGENCompilerRTShared.so` und `libc.so.6`, nicht `libpython`.
 scripts/check_paginated_rendering_parity.sh
 RETA_REFRESH_PAGINATED_FIXTURES=1 RETA_REFERENCE_PYTHON=/pfad/zur/referenz-python   scripts/check_paginated_rendering_parity.sh
 ```
+
+
+## Stage 12c4j: individuelle positive Spaltenbreiten
+
+```text
+Spaltenbreiten Python↔Mojo:              12/12 byteidentisch
+Tabellenrenderer:                        15/15
+nativer CLI-/Ownership-Planer:           26/26
+Kompatibilitätslauncher:                 12/12
+paginierte Rendererparität:               6/6
+No-blank-Parität:                        13/13
+zentrale HTML-/BBCode-Fixtures:           8/8
+Markup-oneTable ohne Python:             12/12
+Source-/Boundary-Gates:                  14/14
+nativer I/O-Boundary-Audit:              bestanden
+```
+
+Die zwölf neuen Referenzströme prüfen `--breiten`/`--widths` in deutscher und
+englischer Shell-, HTML- und BBCode-Ausgabe, mit globaler Nullbreite und mit
+Ersetzen einer früheren Breitenliste. Positive Breiten laufen im
+native-first-Launcher bei absichtlich ungültigem `RETA_PYTHON`. Nullwerte in
+der Einzelbreitenliste, flache Ausgabearten und rohes Markup mit `--nocolor`
+bleiben bewusst atomarer Referenzfallback.
+
+```bash
+scripts/check_column_widths_parity.sh
+RETA_REFRESH_COLUMN_WIDTH_FIXTURES=1 \
+  scripts/check_column_widths_parity.sh
+```
