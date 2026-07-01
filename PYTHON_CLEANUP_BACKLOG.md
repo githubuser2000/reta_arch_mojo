@@ -11,7 +11,7 @@ Arbeitsliste für die Phase nach dem vollständigen Mojo-Port.
 4. Python und Mojo gegen denselben korrigierten Sollvertrag prüfen.
 5. Den Eintrag in `KNOWN_DEFECTS.json` auf `fixed` setzen.
 
-Offene oder zu entscheidende Einträge: **12**
+Offene oder zu entscheidende Einträge: **13**
 
 ## 1. PY-OPEN-001 – Beliebige Codeausführung durch eval in Ganzzahlmengen-Ausdrücken
 
@@ -68,7 +68,18 @@ Offene oder zu entscheidende Einträge: **12**
 - Python-Orte: `python_reference/reta_architecture/prompt_execution.py`
 - Belege: `STAGE12C4C_NATIVE_MIXED_RECIPROCAL_MODIFIERS.md`
 
-## 6. QUIRK-001 – Nullbreiten besitzen formatabhängige historische Sondersemantik
+## 6. PY-CAND-007 – Standard-Wortgrenze der Promptvervollständigung trennt ASCII und Unicode innerhalb deutscher Wörter
+
+- Priorität: `medium`
+- Python-Status: `candidate`
+- Mojo-Status: `compatibility_preserved`
+- Reproduktion: `python3 -c "from reta_architecture.completion_word import *; d=Document('grö'); print(repr(word_before_cursor(d))); print([x.text for x in iter_word_completions(['größe'], d)])"`
+- heutiger Vertrag: Mojo reproduziert vorerst prompt_toolkits ASCII-/Nicht-ASCII-Klassengrenze und damit den beobachtbaren Python-Istzustand; UTF-8-Cursor und negative Startpositionen bleiben dennoch codepunktkorrekt.
+- Python-Arbeitsauftrag: Für den Python-WordCompleter eine explizite Unicode-Wortgrenze verwenden, neue Soll-Fixtures für deutsche und weitere Unicode-Wörter anlegen und Python sowie Mojo anschließend gemeinsam auf das korrigierte Verhalten umstellen.
+- Python-Orte: `python_reference/reta_architecture/completion_word.py:82-94`
+- Belege: `STAGE12C4T_NATIVE_WORD_COMPLETION.md`, `tests/test_documented_python_defects.py`, `scripts/check_completion_word_parity.py`
+
+## 7. QUIRK-001 – Nullbreiten besitzen formatabhängige historische Sondersemantik
 
 - Priorität: `low`
 - Python-Status: `intentional_for_now`
@@ -79,7 +90,7 @@ Offene oder zu entscheidende Einträge: **12**
 - Python-Orte: `python_reference/reta_architecture/table_wrapping.py`, `python_reference/reta_architecture/table_output.py`
 - Belege: `STAGE12C4K_NATIVE_ZERO_COLUMN_WIDTHS.md`
 
-## 7. PY-OPEN-003 – Dictionary-Invertierung verwirft frühere Quellschlüssel bei gemeinsamem Integerwert
+## 8. PY-OPEN-003 – Dictionary-Invertierung verwirft frühere Quellschlüssel bei gemeinsamem Integerwert
 
 - Priorität: `medium`
 - Python-Status: `open`
@@ -90,7 +101,7 @@ Offene oder zu entscheidende Einträge: **12**
 - Python-Orte: `python_reference/reta_architecture/arithmetic.py:126-137`
 - Belege: `MIGRATION_NOTES.md`, `STAGE12C4S_DEFECT_BACKFILL_NATIVE_CONTROL_MAINS.md`
 
-## 8. PY-CAND-004 – Mondzahl-Erkennung verwendet gerundete Fließkommawurzeln statt exakter Potenzprüfung
+## 9. PY-CAND-004 – Mondzahl-Erkennung verwendet gerundete Fließkommawurzeln statt exakter Potenzprüfung
 
 - Priorität: `medium`
 - Python-Status: `candidate`
@@ -101,7 +112,7 @@ Offene oder zu entscheidende Einträge: **12**
 - Python-Orte: `python_reference/reta_architecture/number_theory.py:18-29`
 - Belege: `MIGRATION_NOTES.md`, `STAGE12C4S_DEFECT_BACKFILL_NATIVE_CONTROL_MAINS.md`
 
-## 9. PY-OPEN-004 – Zwei Python-Architekturtests erwarten veraltete dataDict-Größe 554 statt 556
+## 10. PY-OPEN-004 – Zwei Python-Architekturtests erwarten veraltete dataDict-Größe 554 statt 556
 
 - Priorität: `medium`
 - Python-Status: `open`
@@ -112,7 +123,7 @@ Offene oder zu entscheidende Einträge: **12**
 - Python-Orte: `python_reference/tests/test_architecture_refactor.py:163`, `python_reference/tests/test_architecture_refactor.py:982`, `python_reference/tests/test_architecture_refactor.py:986`
 - Belege: `MIGRATION_NOTES.md`, `TEST_RESULTS.md`, `STAGE12C4S_DEFECT_BACKFILL_NATIVE_CONTROL_MAINS.md`, `scripts/check_documented_python_baseline.py`
 
-## 10. PY-OPEN-005 – Python-Workflowtest erwartet veralteten Orchestrierungsnamen load_/religion_table
+## 11. PY-OPEN-005 – Python-Workflowtest erwartet veralteten Orchestrierungsnamen load_/religion_table
 
 - Priorität: `low`
 - Python-Status: `open`
@@ -123,7 +134,7 @@ Offene oder zu entscheidende Einträge: **12**
 - Python-Orte: `python_reference/tests/test_architecture_refactor.py:732-740`
 - Belege: `MIGRATION_NOTES.md`, `TEST_RESULTS.md`, `STAGE12C4S_DEFECT_BACKFILL_NATIVE_CONTROL_MAINS.md`, `scripts/check_documented_python_baseline.py`
 
-## 11. PY-CAND-005 – Kanonischer Parameteralias hängt bei set-Einträgen von Python-Hashreihenfolge ab
+## 12. PY-CAND-005 – Kanonischer Parameteralias hängt bei set-Einträgen von Python-Hashreihenfolge ab
 
 - Priorität: `medium`
 - Python-Status: `candidate`
@@ -134,7 +145,7 @@ Offene oder zu entscheidende Einträge: **12**
 - Python-Orte: `python_reference/i18n/words_runtime.py`, `python_reference/reta_architecture/semantics_builder.py`
 - Belege: `MIGRATION_NOTES.md`, `STAGE12C4S_DEFECT_BACKFILL_NATIVE_CONTROL_MAINS.md`
 
-## 12. PY-CAND-006 – Legacy-Primwiederholungsfunktion mischt Zahlen und Zeichenketten im selben Rückgabewert
+## 13. PY-CAND-006 – Legacy-Primwiederholungsfunktion mischt Zahlen und Zeichenketten im selben Rückgabewert
 
 - Priorität: `low`
 - Python-Status: `candidate`

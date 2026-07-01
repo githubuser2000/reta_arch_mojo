@@ -2,14 +2,14 @@
 
 Geplanter Umfang: **12 Release-Stufen**. Eine Stufe zählt erst als abgeschlossen, wenn Quellcode, Referenztests, Compilerziele, Dokumentation und ein source-only Archiv gemeinsam geprüft sind.
 
-## Fortschrittsmaße nach Stage 12c4i
+## Fortschrittsmaße nach Stage 12c4t
 
 | Maß | Stand | Aussage |
 |---|---:|---|
-| abgeschlossene Release-Stufen | **9/12 = 75,0 %** | Stufen 1–8 und 11 sind abgeschlossen; Stufe 12 ist mit 12a, 12b, 12c1–12c3 und 12c4a–12c4i zu etwa 67 % abgeschlossen, während 9 und 10 noch Restpfade besitzen |
-| vollständig native oder generierte Python-Dateien | **33/92 = 35,9 %** | Datei vollständig ersetzt oder als reproduzierbares Laufzeitasset abgebildet |
-| mindestens angegriffene Python-Dateien | **61/92 = 66,3 %** | vollständig oder teilweise nativ |
-| gewichtete Quellzeilen | **ca. 52 %** | konservative Schätzung unter Berücksichtigung der großen Teilports |
+| abgeschlossene Release-Stufen | **9/12 = 75,0 %** | Stufen 1–8 und 11 sind abgeschlossen; Stufe 12 ist mit 12a, 12b, 12c1–12c3 und 12c4a–12c4t zu etwa 67,2 % abgeschlossen, während 9 und 10 noch Restpfade besitzen |
+| vollständig native oder generierte Python-Dateien | **35/92 = 38,0 %** | Datei vollständig ersetzt oder als reproduzierbares Laufzeitasset abgebildet |
+| mindestens angegriffene Python-Dateien | **63/92 = 68,5 %** | vollständig oder teilweise nativ |
+| gewichtete Quellzeilen | **ca. 52,6 %** | konservative Schätzung unter Berücksichtigung der großen Teilports |
 | funktionaler Nutzerumfang | **ca. 96–98 %** | praktisch nutzbarer Reta-Umfang ohne Python-Algorithmus |
 
 Die Stufenquote ist höher als die Quellzeilenquote, weil die letzten Stufen besonders große dynamische Module bündeln: vollständige Ausgabeaufbereitung, Prompt-Sprache, i18n-Matrix, Architekturvalidierung und Parallelisierung.
@@ -50,7 +50,7 @@ Die Stufenquote ist höher als die Quellzeilenquote, weil die letzten Stufen bes
     Stage 11a portiert Architekturkarte und realen Modul-/Kapsel-Grenzgraph. Stage 11b ergänzt Verträge und Witnesses. Stage 11c portiert Kohärenz und Traces. Stage 11d ergänzt Impact und Migration. Stage 11e ergänzt Rehearsal und Aktivierung. Stage 11f portiert Gesamtvalidierung und Fortschritts-Overlay. Stage 11g portiert die reale SQLite-Persistenz. Stage 11h portiert das deterministische Ausführungsnetz. Stage 11i portiert Konfiguration, CPU-Erkennung und zehn reine Tabellen-/Zahlenkerne. Stage 11j ersetzt den dynamischen `WorkerPrepare`-/`deepcopy`-Objektgraphen durch einen besitzenden typisierten Zeilenvorbereitungskontext. Stage 12a vereinheitlicht sämtliche nativen Parallelpfade auf typisierte Mojo-Threads und verbietet POSIX-Prozessprimitive per Gate.
 
 12. **Bridge entfernen und Releaseparität — ca. 64 %**
-    Stage 12a ist abgeschlossen: Boundary-Inventur, harte No-Python-/No-Subprozess-Gates für Parallelmodule und vollständige native Threadmigration. Stage 12b portiert den zwölfteiligen `--alles`-Spaltenplan und entfernt den Python-Kindprozess aus `generate_html`. Stage 12c1 portiert reale TTY-Geometrie und die exakte Prompt-Befehls-/Tabellengrenze. Stage 12c2 kapselt Linux/macOS-Geometrie und verwendet für Pipes Mojos portablen Eingabekanal mit verzögertem Python-Import. Stage 12c3 führt `shell`, `python` und `math` direkt aus Mojo aus und lässt rohe Unicode-Nutzlasten vor dem Kompaktscanner unangetastet. Stage 12c4a kapselt die verbleibende Python-Grenze in einem einzelnen Adapter und beseitigt die im Gesamtbuild sichtbare FFI-Signaturkollision. Stage 12c4b verlegt nicht-native `reta`-Zeilen und atomare Promptfallbacks aus dem eingebetteten CPython in den expliziten Mojo-Kindprozessadapter. Stage 12c4c holt die stabilen gemischten Reziprok-Modifier `vielfache + teiler + 1/n` aus diesem Fallback zurück und korrigiert deren exakten Argumentvertrag. Stage 12c4d ersetzt auch den TTY-Readline-/Vi-/Completion-Eingang durch einen nativen UTF-8-Editor mit POSIX-`termios`, History und verschachtelter Completion und besitzt klassische Bruch-No-ops sowie gemischte Bruch-/Ganzzahl-Kommatokens. Stage 12c4e entfernt die letzte eingebettete Python-Laufzeit aus `compat_main.mojo`: Der historische `reta`-Launcher führt vollständig besessene Argumentvektoren direkt nativ aus und startet nur für unbekannte oder teilweise portierte Semantik einen atomaren Referenzkindprozess. Stage 12c4f besitzt die Shell-Ausgabegruppe `onetable`/`endless*`/`dontwrap`/`justtext`, Breite-null-No-wrap und den Python-kompatiblen Überlangwortumbruch. Stage 12c4g übernimmt dieselbe Ein-Tabellen-Semantik für HTML und BBCode. Stage 12c4h besitzt die seitenlokale `keineleereninhalte`-Semantik; Stage 12c4i schließt Bindestrichumbruch und Restfarben der paginierten Shell-/HTML-/BBCode-Kernpfade. Offen bleiben echte `v n/m` mit Zähler größer eins, weitere Restalgorithmen sowie 12d–12e.
+    Stage 12a ist abgeschlossen: Boundary-Inventur, harte No-Python-/No-Subprozess-Gates für Parallelmodule und vollständige native Threadmigration. Stage 12b portiert den zwölfteiligen `--alles`-Spaltenplan und entfernt den Python-Kindprozess aus `generate_html`. Stage 12c1 portiert reale TTY-Geometrie und die exakte Prompt-Befehls-/Tabellengrenze. Stage 12c2 kapselt Linux/macOS-Geometrie und verwendet für Pipes Mojos portablen Eingabekanal mit verzögertem Python-Import. Stage 12c3 führt `shell`, `python` und `math` direkt aus Mojo aus und lässt rohe Unicode-Nutzlasten vor dem Kompaktscanner unangetastet. Stage 12c4a kapselt die verbleibende Python-Grenze in einem einzelnen Adapter und beseitigt die im Gesamtbuild sichtbare FFI-Signaturkollision. Stage 12c4b verlegt nicht-native `reta`-Zeilen und atomare Promptfallbacks aus dem eingebetteten CPython in den expliziten Mojo-Kindprozessadapter. Stage 12c4c holt die stabilen gemischten Reziprok-Modifier `vielfache + teiler + 1/n` aus diesem Fallback zurück und korrigiert deren exakten Argumentvertrag. Stage 12c4d ersetzt auch den TTY-Readline-/Vi-/Completion-Eingang durch einen nativen UTF-8-Editor mit POSIX-`termios`, History und verschachtelter Completion und besitzt klassische Bruch-No-ops sowie gemischte Bruch-/Ganzzahl-Kommatokens. Stage 12c4e entfernt die letzte eingebettete Python-Laufzeit aus `compat_main.mojo`: Der historische `reta`-Launcher führt vollständig besessene Argumentvektoren direkt nativ aus und startet nur für unbekannte oder teilweise portierte Semantik einen atomaren Referenzkindprozess. Stage 12c4f besitzt die Shell-Ausgabegruppe `onetable`/`endless*`/`dontwrap`/`justtext`, Breite-null-No-wrap und den Python-kompatiblen Überlangwortumbruch. Stage 12c4g übernimmt dieselbe Ein-Tabellen-Semantik für HTML und BBCode. Stage 12c4h besitzt die seitenlokale `keineleereninhalte`-Semantik; Stage 12c4i schließt Bindestrichumbruch und Restfarben der paginierten Shell-/HTML-/BBCode-Kernpfade. Stage 12c4r besitzt echte `v n/m` mit Zähler größer eins und einen zentralen Defektkatalog; Stage 12c4s auditiert diesen rückwirkend und übernimmt die Kontroll-Hauptparameter. Stage 12c4t portiert die allgemeine Wortvervollständigung und ihre Legacy-Fassade. Offen bleiben weitere dynamische Prompt-/Sitzungspfade, gemischte Bruchdomänen sowie 12d–12e.
 
 Die Zahl **12** ist die geplante Releasegliederung. Interne Teilpakete oder Fehlerkorrekturen erhöhen diese Zahl nicht automatisch.
 
@@ -195,7 +195,7 @@ Die Zahl **12** ist die geplante Releasegliederung. Interne Teilpakete oder Fehl
 - Stufe 11 ist mit 11a–11j vollständig abgeschlossen.
 
 
-## Stage 12a–12b abgeschlossen; Stage 12c bis 12c4f fortgesetzt
+## Stage 12a–12b abgeschlossen; Stage 12c bis 12c4t fortgesetzt
 
 - **12a – abgeschlossen:** vollständige Bridge-Inventur, Runtime-Gates, 0 native Prozessprimitive und 10 kanonische Thread-APIs.
 - **12b – abgeschlossen:** zwölfteiliger `--alles`-Spaltenplan und `generate_html` ohne Python-/Subprozessbrücke.
@@ -206,7 +206,7 @@ Die Zahl **12** ist die geplante Releasegliederung. Interne Teilpakete oder Fehl
 - **12c4b – abgeschlossen:** nicht-native `reta`-Zeilen und atomare Promptfallbacks direkt über den Mojo-Kindprozessadapter; nur der TTY-Editor bleibt eingebettet.
 - **12c4c – abgeschlossen:** `vielfache + teiler + 1/n`, Reziprok-Maximum, Spaltenzählung und reine `teiler 1/n`-Leerseite bytegenau nativ.
 - **12c4d – abgeschlossen:** nativer POSIX-TTY-Editor mit UTF-8, History, Completion und Emacs-/Vi-Kernbindings; klassische Bruch-No-ops und gemischte Tokens nativ; keine eingebettete Python-Laufzeit im Prompt.
-- **Rest-12c4:** echte `v n/m` mit Zähler größer eins, seltene fortgeschrittene Readline-Komfortfunktionen und die übrigen Prompt-/i18n-Algorithmen jenseits der nun nativen Start-/Hilfeoberfläche schließen.
+- **Rest-12c4:** verbleibende dynamische Prompt-Sitzungs-/Speicherbefehle, seltene Rich-/Readline-Komfortgrenzen, vollständige i18n-Laufzeit und atomar zurückfallende Mischdomänen schließen.
 - **12d:** vollständige Befehlsmatrix, Leistungsprofile, Thread-/Speicheroptimierung und nur benchmarkgestützte SIMD-Kernel.
 - **12e:** reproduzierbares Packaging, Installationspfade, Release-Checks und finale Dokumentation.
 
@@ -300,3 +300,18 @@ Die Zahl **12** ist die geplante Releasegliederung. Interne Teilpakete oder Fehl
 - **nach funktionalem Portabschluss:** `PYTHON_CLEANUP_BACKLOG.md` Punkt für
   Punkt im Python-/PyPy3-Original abarbeiten und gemeinsame korrigierte
   Sollfixtures für Python und Mojo festlegen.
+
+
+## Stage 12c4t – native Wortvervollständigung
+
+- `reta_architecture/completion_word.py` und die Legacy-Fassade
+  `libs/word_completerAlx.py` besitzen eine typisierte Mojo-Laufzeit.
+- UTF-8-Cursor bleiben Bytepositionen des nativen Editors; sichtbare
+  `start_position`-Werte werden wie in Python in Unicode-Skalaren gezählt.
+- Präfix-, Middle-, `WORD`- und Satzmodus sowie Anzeige-/Metadatenersetzung
+  sind ohne Python-Objekte verfügbar.
+- Zehn Python↔Mojo-Datensätze sind byteidentisch; fünf native Unit-Tests
+  bestehen.
+- `PY-CAND-007` hält fest, dass prompt_toolkits Standardregex deutsche Wörter
+  an ASCII-/Unicode-Grenzen trennt. Mojo konserviert dies bis zur gemeinsamen
+  Python-/Mojo-Bereinigung.

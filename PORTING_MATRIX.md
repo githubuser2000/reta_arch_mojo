@@ -29,7 +29,7 @@ Stand: 1. Juli 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der g
 | `libs/lib4tables_prepare.py` | 313 | 26 | 1 | 0 | teilweise nativ | `src/reta_mojo/table_preparation.mojo + row_filtering.mojo` | deterministische Zeilenauswahl und Vorbereitung nativ; Generatorverkettung noch Bridge |
 | `libs/nestedAlx.py` | 24 | 0 | 0 | 0 | Python-Referenz/Bridge | `python_reference/libs/nestedAlx.py` | noch nicht nativ portiert |
 | `libs/tableHandling.py` | 68 | 0 | 0 | 0 | teilweise nativ | `src/reta_mojo/table_state.mojo + table_wrapping.mojo + output_modes.mojo` | deterministischer Tabellenzustand, Umbruch und Ausgabemodi; große Tabellenberechnung noch Bridge |
-| `libs/word_completerAlx.py` | 10 | 0 | 0 | 0 | Python-Referenz/Bridge | `python_reference/libs/word_completerAlx.py` | noch nicht nativ portiert |
+| `libs/word_completerAlx.py` | 10 | 0 | 0 | 0 | nativ | `src/reta_mojo/completion_word.mojo` | historische `WordCompleter`-Fassade durch typisierten Stage-40-Morphismus ersetzt |
 | `mojo_bridge.py` | 394 | 19 | 0 | 0 | Python-Referenz/Bridge | `python_reference/mojo_bridge.py` | noch nicht nativ portiert |
 | `multis.py` | 34 | 2 | 0 | 0 | nativ | `src/reta_mojo/arithmetic.mojo + prompt_runtime.mojo` | Faktorpaare und öffentliche multis-CLI nativ |
 | `multis3.py` | 34 | 1 | 0 | 0 | nativ | `src/reta_mojo/arithmetic.mojo + prompt_runtime.mojo` | Dreifach-Faktorisierung nativ; deterministische lexikographische Ausgabe statt Set-Reihenfolge |
@@ -54,7 +54,7 @@ Stand: 1. Juli 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der g
 | `reta_architecture/combi_join.py` | 712 | 12 | 2 | 4 | Python-Referenz/Bridge | `python_reference/reta_architecture/combi_join.py` | noch nicht nativ portiert |
 | `reta_architecture/completion_nested.py` | 589 | 37 | 9 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/completion_nested.py` | noch nicht nativ portiert |
 | `reta_architecture/completion_runtime.py` | 192 | 8 | 2 | 1 | Python-Referenz/Bridge | `python_reference/reta_architecture/completion_runtime.py` | noch nicht nativ portiert |
-| `reta_architecture/completion_word.py` | 265 | 21 | 6 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/completion_word.py` | noch nicht nativ portiert |
+| `reta_architecture/completion_word.py` | 265 | 21 | 6 | 0 | nativ | `src/reta_mojo/completion_word.mojo` | Wortgrenzen, Präfix-/Middle-Match, Unicode-Startpositionen, besitzender Completer, erneuerbare Quellen, Muster-Präfixadapter, Snapshot und Dekorationen nativ; aktueller prompt_toolkit-Unicode-Istzustand bewusst konserviert |
 | `reta_architecture/concat_csv.py` | 305 | 18 | 2 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/concat_csv.py` | noch nicht nativ portiert |
 | `reta_architecture/console_io.py` | 349 | 41 | 6 | 0 | weitgehend nativ | `src/reta_mojo/console_io.mojo + terminal_geometry.mojo` | Chunk-, Deduplikations-, Whitespace-, Debugformatierung und reale TTY-Geometrie nativ; Rich-Eingabe/Styling bleibt Systemgrenze |
 | `reta_architecture/execution_network.py` | 412 | 45 | 11 | 3 | nativ | `src/reta_mojo/execution_network.mojo + src/architecture_execution_network_main.mojo` | typisierte FIFO-/LIFO-/Prioritätsplanung, Kanal-/Semaphorgrenzen, native Mojo-Threads und deterministische Reduktion; 0 POSIX-Prozessprimitive; Nutzlastgrenze ist UTF-8-Text mit expliziter Operationskennung |
@@ -238,3 +238,13 @@ großen Text in jedes importierende Executable einzubetten.
 | Python-Baseline | 67 grün, 3 bekannte rote Tests | automatisch als genau diese Fehlermenge geprüft | abgeschlossen |
 | Mojo-ELF-RUNPATH | Compiler ergänzt absoluten Installationspfad | nach Build ausschließlich `$ORIGIN/../lib/mojo` | abgeschlossen |
 | unbekannte oder gemischte Kontrollsyntax | vollständige Python-Semantik | atomarer Originalargument-Fallback | beibehalten |
+
+
+## Stage 12c4t – native Wortvervollständigung
+
+| Originaldatei | Mojo-Besitz | Verifikation |
+|---|---|---|
+| `reta_architecture/completion_word.py` | vollständige typisierte Completion-Laufzeit in `src/reta_mojo/completion_word.mojo` | 5/5 Unit-Tests, 10/10 Python↔Mojo byteidentisch |
+| `libs/word_completerAlx.py` | historische Fassade durch denselben Morphismusvertrag ersetzt | Metadaten- und Bootstrap-Vertrag im nativen Test |
+
+Damit steigen vollständig native/reproduzierbare Originaldateien auf **35/92 = 38,0 %** und mindestens teilweise portierte Dateien auf **63/92 = 68,5 %**. Der Python-Istzustand der ASCII-/Unicode-Wortgrenze bleibt als `PY-CAND-007` ausdrücklich konserviert, bis Python und Mojo gemeinsam auf eine korrigierte Unicode-Semantik migriert werden.

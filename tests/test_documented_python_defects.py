@@ -46,3 +46,23 @@ def test_float_moon_number_candidate_is_not_silently_forgotten() -> None:
     assert "num ** (1 / i)" in source
     assert "round(oneResult * 100000)" in source
     assert "PY-CAND-004" in _defect_ids()
+
+
+def test_prompt_toolkit_unicode_word_boundary_candidate_is_backlogged() -> None:
+    code = (
+        "from reta_architecture.completion_word import Document, word_before_cursor, "
+        "iter_word_completions;"
+        "d=Document('grö');"
+        "print(repr(word_before_cursor(d)));"
+        "print([x.text for x in iter_word_completions(['größe'], d)])"
+    )
+    result = subprocess.run(
+        ["python3", "-c", code],
+        cwd=ROOT / "python_reference",
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=True,
+        text=True,
+    )
+    assert result.stdout.splitlines() == ["'ö'", "[]"]
+    assert "PY-CAND-007" in _defect_ids()

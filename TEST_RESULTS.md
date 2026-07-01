@@ -1274,3 +1274,39 @@ konnte. Die fachlich identischen 20 Knoten bestehen gruppiert vollständig.
 `tools/sanitize_mojo_runpath.py` entfernt nach jedem Build den von Mojo selbst
 ergänzten absoluten Compilerpfad und lässt ausschließlich
 `$ORIGIN/../lib/mojo` im ELF-RUNPATH zurück.
+
+
+## Stage 12c4t: native Wortvervollständigung
+
+```text
+native Completion-Unit-Tests:          5/5
+Python↔Mojo-Paritätsdatensätze:       10/10 byteidentisch
+Python-Unicode-Defektreproduktion:     1/1
+zentraler Fehlerkatalog:              37/37 konsistent
+spätere Python-/PyPy3-Arbeitspunkte:     13
+aktive std.python-Brücken:                0
+Quellmanifest:                       1065/1065
+regulärer Build:          3 Ziele gebaut; Sandbox-Timeout beim 4. Ziel
+```
+
+Die Paritätsprobe deckt Präfix-, Middle-, Ignore-case-, Unicode-, `WORD`- und
+Satzmodus ab. Der Unicode-Fall reproduziert ausdrücklich den heutigen
+`prompt_toolkit`-Vertrag: Bei `grö` ist das aktuelle Standardwort nur `ö`;
+`größe` wird deshalb nicht vorgeschlagen. Dieser Befund ist als
+`PY-CAND-007` katalogisiert und nicht als stiller Mojo-Unterschied kaschiert.
+
+```bash
+scripts/check_completion_word.sh
+python3 -m pytest -q tests/test_documented_python_defects.py tests/test_known_defects.py
+```
+
+
+Hinweis zu Stage 12c4t: `scripts/build.sh` erzeugte in zwei Läufen die ersten
+drei regulären Executables ohne Compilerfehler. Die Sandbox brach anschließend
+die Kompilation des unveränderten `reta-native` nach 20 beziehungsweise 40
+Minuten ab. Der neue Completion-Baustein wurde unabhängig davon vollständig
+kompiliert, getestet und gegen Python verglichen.
+
+Die abschließende Entpackprüfung fand und behob zusätzlich `MOJO-FIXED-018`:
+verschachtelte `.pytest_cache`-Dateien werden nicht mehr in das Quellmanifest
+aufgenommen. Das cachefreie Archiv verifiziert nun alle 1065 Manifesteinträge.

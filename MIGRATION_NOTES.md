@@ -749,3 +749,28 @@ abschließendes Komma erhalten.
   ELF-Vertrag lautet ausschließlich `$ORIGIN/../lib/mojo`.
 - Der 20-Knoten-Kompatibilitäts-Pytest läuft wegen eines reproduzierten
   Teardown-Hängers in 20 einzeln isolierten Pytest-Prozessen; die vier Gruppen dienen nur der Berichterstattung.
+
+
+## Stage 12c4t – native Stage-40-Wortvervollständigung
+
+- `completion_word.mojo` ersetzt den allgemeinen Python-`WordCompleter`-Kern
+  und die Legacy-Fassade `word_completerAlx.py` durch besitzende Typen.
+- Der native `ArchitectureWordCompleter` besitzt Konfiguration und Wortsektion,
+  kann von nativen Produzenten erneuert werden und stellt die Stage-40-
+  Snapshotmetadaten bereit. Benutzerdefinierte native Muster liefern ihre
+  Restriktion über `iter_word_completions_from_prefix`, statt ein untypisiertes
+  Python-Regexobjekt im Completer zu halten.
+- Der Cursor ist wie im nativen Editor eine UTF-8-Byteposition; die an
+  Completion-Konsumenten gemeldete negative Startposition zählt dagegen
+  Unicode-Skalare wie Python.
+- Die historische Präfixkürzung auf Kandidatenlänge und der ungewöhnliche
+  Middle-Match werden absichtlich reproduziert.
+- Die aktive Python-Laufzeit übernimmt prompt_toolkits ASCII-basierte
+  Standardwortregex. Dadurch wird `grö` in die Klassen `gr` und `ö` getrennt
+  und `größe` nicht vervollständigt. `PY-CAND-007` hält diesen wahrscheinlichen
+  Originalfehler für die spätere gemeinsame Korrektur fest; Mojo bleibt bis
+  dahin kompatibel.
+
+- `MOJO-FIXED-018`: Der Manifestgenerator verwirft `.pytest_cache` nun auf
+  jeder Verzeichnistiefe. Dadurch ist das cachefreie Releasearchiv unmittelbar
+  gegen `SOURCE_MANIFEST.sha256` prüfbar.

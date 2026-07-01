@@ -8,10 +8,10 @@ Dies ist ein inkrementeller, getesteter Port des hochgeladenen Python-Projekts `
 abgeschlossene Release-Stufen:       9 von 12 = 75,0 %
 Stufen 9/10/12:                       Ausgabe, Prompt/i18n und Releaseparität in Arbeit
 Stufe 11:                             11a–11j = 100 %
-Stufe 12:                             12a–12b fertig, 12c zu ca. 99,9 % = ca. 67 %
-vollständig native Originaldateien:  33 von 92 = 35,9 %
-mindestens teilweise portiert:       61 von 92 = 66,3 %
-gewichteter Quellzeilenstand:         ca. 52 %
+Stufe 12:                             12a–12b fertig, 12c zu ca. 99,9 % = ca. 67,2 %
+vollständig native Originaldateien:  35 von 92 = 38,0 %
+mindestens teilweise portiert:       63 von 92 = 68,5 %
+gewichteter Quellzeilenstand:         ca. 52,6 %
 funktionaler Nutzerumfang:            ca. 96–98 %
 ```
 
@@ -668,3 +668,5 @@ python3 -m pytest -q tests/test_known_defects.py
 Stage 12c4r nutzt diesen Prozess erstmals für eine absichtliche Korrektur gegenüber dem Original: `rpb 'universum v2/3'` stürzt in Python mit `IndexError` ab, während Mojo ein an der realen Bruch-CSV-Form begrenztes Zähler×Nenner-Raster erzeugt. Details: [`STAGE12C4R_DEFECT_LEDGER_FRACTION_MULTIPLES.md`](STAGE12C4R_DEFECT_LEDGER_FRACTION_MULTIPLES.md).
 
 Stage 12c4s hat den Katalog rückwirkend gegen die bisherigen Migrations- und Testberichte geprüft. Er umfasst nun 35 bekannte Befunde; zwölf davon bilden den späteren Python-/PyPy3-Bereinigungsrückstand. `-debug` und `-nichts`/`-nothing` werden nativ behandelt, ohne `-nichts` mit dem echten stillen Renderer `--art=nichts` zu verwechseln. Details: [`STAGE12C4S_DEFECT_BACKFILL_NATIVE_CONTROL_MAINS.md`](STAGE12C4S_DEFECT_BACKFILL_NATIVE_CONTROL_MAINS.md).
+
+Stage 12c4t portiert die allgemeine Wortvervollständigung aus `reta_architecture/completion_word.py` sowie die historische `word_completerAlx`-Fassade. UTF-8-Bytecursor, Unicode-skalare Startpositionen, `WORD`-/Satzmodus, Middle-Match, besitzender Completer, erneuerbare Wortquellen, Muster-Präfixadapter und dekorierte Anzeige-/Metadaten sind nativ; fünf Unit-Tests und zehn byteidentische Python↔Mojo-Proben bestehen. Der Katalog enthält nun 37 Befunde und 13 spätere Python-/PyPy3-Arbeitspunkte. `PY-CAND-007` dokumentiert die vom Original geerbte ASCII-/Unicode-Trennung innerhalb deutscher Wörter. Details: [`STAGE12C4T_NATIVE_WORD_COMPLETION.md`](STAGE12C4T_NATIVE_WORD_COMPLETION.md).

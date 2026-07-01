@@ -63,6 +63,7 @@ def test_backfill_audit_covers_all_previously_scattered_confirmed_defects() -> N
         "MOJO-FIXED-015",
         "MOJO-FIXED-016",
         "MOJO-FIXED-017",
+        "MOJO-FIXED-018",
         "TEST-OPEN-001",
         "TEST-FIXED-001",
         "TEST-FIXED-002",
@@ -77,3 +78,10 @@ def test_removed_python_bridge_cannot_reappear_unnoticed() -> None:
     assert not (ROOT / "src" / "reta_mojo" / "prompt_python_bridge.mojo").exists()
     sources = (ROOT / "src").rglob("*.mojo")
     assert all("from std.python import" not in path.read_text(encoding="utf-8") for path in sources)
+
+
+def test_source_manifest_excludes_nested_pytest_caches() -> None:
+    script = (ROOT / "scripts" / "update_source_manifest.sh").read_text(encoding="utf-8")
+    assert "-name '.pytest_cache'" in script
+    manifest = (ROOT / "SOURCE_MANIFEST.sha256").read_text(encoding="utf-8")
+    assert "/.pytest_cache/" not in manifest

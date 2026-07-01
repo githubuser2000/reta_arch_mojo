@@ -18,14 +18,14 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 ## Rückwirkender Audit
 
 - letzter vollständiger Rückwärtsaudit: `12c4s`
-- geprüfte Quellen: **11**
-- Reichweite: Vollständig bezogen auf alle bis Stage 12c4s im Projekt bestätigten oder plausibel begründeten verhaltensrelevanten Befunde; unbekannte künftige Fehler können naturgemäß erst nach ihrer Entdeckung aufgenommen werden.
+- geprüfte Quellen: **12**
+- Reichweite: Vollständig bezogen auf alle bis Stage 12c4t im Projekt bestätigten oder plausibel begründeten verhaltensrelevanten Befunde; unbekannte künftige Fehler können naturgemäß erst nach ihrer Entdeckung aufgenommen werden.
 
 ## Übersicht
 
-- Einträge insgesamt: **35**
+- Einträge insgesamt: **37**
 - offene bestätigte Python-Fehler: **5**
-- zu entscheidende Python-Fehlerkandidaten: **6**
+- zu entscheidende Python-Fehlerkandidaten: **7**
 - bereits im Python-Baum behobene Fehler: **3**
 
 ## Einträge
@@ -138,6 +138,20 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 - spätere Python-Aktion: Keine weitere Aktion; Bruch-CSV-Parität beibehalten.
 - Python-Orte: `python_reference/reta_architecture/parameter_runtime.py`
 - Belege: `python_reference/STAGE19_CHANGES.md`
+
+### PY-CAND-007 – Standard-Wortgrenze der Promptvervollständigung trennt ASCII und Unicode innerhalb deutscher Wörter
+
+- Ursprung: `python_reference`
+- Klasse / Schwere: `completion_unicode_segmentation` / `medium`
+- Python-Status: `candidate`
+- Mojo-Status: `compatibility_preserved`
+- entdeckt in: `12c4t`
+- Reproduktion: `python3 -c "from reta_architecture.completion_word import *; d=Document('grö'); print(repr(word_before_cursor(d))); print([x.text for x in iter_word_completions(['größe'], d)])"`
+- heutiger Vertrag: Mojo reproduziert vorerst prompt_toolkits ASCII-/Nicht-ASCII-Klassengrenze und damit den beobachtbaren Python-Istzustand; UTF-8-Cursor und negative Startpositionen bleiben dennoch codepunktkorrekt.
+- spätere Python-Aktion: Für den Python-WordCompleter eine explizite Unicode-Wortgrenze verwenden, neue Soll-Fixtures für deutsche und weitere Unicode-Wörter anlegen und Python sowie Mojo anschließend gemeinsam auf das korrigierte Verhalten umstellen.
+- Python-Orte: `python_reference/reta_architecture/completion_word.py:82-94`
+- Mojo-Orte: `src/reta_mojo/completion_word.mojo`
+- Belege: `STAGE12C4T_NATIVE_WORD_COMPLETION.md`, `tests/test_documented_python_defects.py`, `scripts/check_completion_word_parity.py`
 
 ### MOJO-FIXED-001 – Generator-Comprehensions wurden nativ beansprucht, aber ignoriert
 
@@ -456,6 +470,19 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 - spätere Python-Aktion: Keine Python-Änderung erforderlich.
 - Mojo-Orte: `src/reta_mojo/prompt_python_bridge.mojo`
 - Belege: `STAGE12C4S_DEFECT_BACKFILL_NATIVE_CONTROL_MAINS.md`, `tests/test_prompt_external_source.py`
+
+### MOJO-FIXED-018 – Quellmanifest nahm verschachtelte pytest-Cachedateien auf
+
+- Ursprung: `packaging_source_tree`
+- Klasse / Schwere: `source_manifest_hygiene_bug` / `medium`
+- Python-Status: `not_applicable`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c4t`
+- Reproduktion: `mkdir -p python_reference/.pytest_cache/v/cache && scripts/update_source_manifest.sh && grep '/.pytest_cache/' SOURCE_MANIFEST.sha256`
+- heutiger Vertrag: Der Manifestgenerator verwirft .pytest_cache-Verzeichnisse auf jeder Baumtiefe; das entpackte releasefähige Archiv kann sein Manifest ohne Cacheartefakte vollständig prüfen.
+- spätere Python-Aktion: Keine Python-Produktivcodeänderung erforderlich.
+- Mojo-Orte: `scripts/update_source_manifest.sh`
+- Belege: `STAGE12C4T_NATIVE_WORD_COMPLETION.md`, `tests/test_known_defects.py`, `scripts/update_source_manifest.sh`
 
 ### TEST-OPEN-001 – Breiter direkter CSV-Paritätsharness verklebt unter einem Python-3.13-Lauf Referenzzeilen
 
