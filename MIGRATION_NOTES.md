@@ -688,3 +688,19 @@ abschließendes Komma erhalten.
   und der Kompatibilitätslauncher laufen ohne Python-Kindprozess.
 - Der im Eingangsarchiv erneut vorhandene tote `prompt_python_bridge.mojo` ist
   wieder physisch entfernt; aktive `std.python`-Importe bleiben bei null.
+
+## Stage 12c4p
+
+- `integer_expressions.mojo` implementiert eine sichere Teilmenge des früheren
+  `eval`-Vertrags für reine Ganzzahlen.
+- `row_ranges.mojo` wertet dokumentierte Listen-/Mengen-/Tupelausdrücke und
+  einvariable `range`-Comprehensions nativ aus.
+- `native_reta_cli.mojo` übernimmt diese Syntax nur nach vollständiger
+  Validierung; nicht unterstützte Python-Ausdrücke werden als Ganzvektor an die
+  Referenz weitergereicht.
+- Generatorausdrücke funktionieren zusätzlich in
+  `--spaltenreihenfolgeundnurdiese` und den englischen Aliasen.
+- Der irrtümlich native englische Alias `--maximum` wurde entfernt; die
+  Referenzoberfläche verwendet `--uppermaximum`.
+- Der erneut vorhandene, unbenutzte `prompt_python_bridge.mojo` und eine leere
+  temporäre Testdatei wurden entfernt.

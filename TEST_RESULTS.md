@@ -3,9 +3,9 @@
 ## Testbestand
 
 ```text
-90 Mojo-Testdateien und -Probes
-14 Python-Testdateien
-382 Testfunktionen insgesamt (325 Mojo, 57 Python)
+92 Mojo-Testdateien und -Probes
+15 Python-Testdateien
+395 Testfunktionen insgesamt (334 Mojo, 61 Python)
 9 reguläre ELF-Compilerziele
 16 optionale schwere Metadaten-/Katalog-/Laufzeitziele
 ```
@@ -1157,3 +1157,25 @@ setzen ihre Trenner nach jedem physischen Überschriftenfragment.
 ```bash
 scripts/check_flat_column_widths_parity.sh
 ```
+
+## Stage 12c4p: sichere Ganzzahlausdrücke und Generatorbereiche
+
+```text
+Ganzzahl-Ausdrucksparser:                 5/5
+Zeilenbereichsparser:                     8/8
+CLI-/Ownership-Planer:                  29/29
+Python↔Mojo-Ausdrucksprobe:               2/2
+Generatorbereich-End-to-End:              6/6 byteidentisch
+Prompt-/Boundary-Gates:                 10/10
+flache Einzelbreiten:                   13/13 byteidentisch
+positive Shell/HTML/BBCode-Breiten:     12/12 byteidentisch
+explizite Nullbreiten:                  12/12 byteidentisch
+keineleereninhalte:                     13/13 byteidentisch
+Basistabellen CSV/Markdown/Emacs:         4/4 byteidentisch
+```
+
+Die sechs neuen Referenzströme umfassen deutsche und englische
+Comprehensions, arithmetische Einzelwerte, subtraktive Mengen, negative
+`range`-Schritte und generatorbasierte Spaltenreihenfolge. Nicht besessene
+Ausdrücke werden vor dem nativen Start zurückgewiesen und atomar über die
+Referenzoberfläche ausgeführt.

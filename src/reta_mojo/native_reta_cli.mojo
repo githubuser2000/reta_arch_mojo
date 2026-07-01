@@ -8,7 +8,7 @@ from .runtime_aliases import load_runtime_alias_catalog, resolve_runtime_columns
 from .resource_paths import asset_resource
 from .csv_table import CsvTable, read_semicolon_csv, select_zero_based_columns
 from .row_filtering import RowFilterConfig
-from .row_ranges import range_to_numbers
+from .row_ranges import range_to_numbers, parse_explicit_int_set
 from .table_preparation import select_display_lines, select_display_table
 from .table_rendering import (
     add_numbering_columns,
@@ -602,7 +602,6 @@ def _native_row_option_supported(name: String) -> Bool:
         or name == "invert"
         or name == "oberesmaximum"
         or name == "uppermaximum"
-        or name == "maximum"
         or name == "vorhervonausschnitt"
         or name == "thisrangebefore"
         or name == "range"
@@ -633,6 +632,48 @@ def _native_row_option_supported(name: String) -> Bool:
         or name == "primzahlen"
         or name == "primenumbers"
         or name == "primes"
+    )
+
+
+def _looks_like_collection_expression(text: String) -> Bool:
+    var stripped = String(text.strip())
+    if stripped.byte_length() < 2:
+        return False
+    var first = ord(stripped[byte=0])
+    return first == 40 or first == 91 or first == 123
+
+
+def _safe_collection_expression_supported(text: String) raises -> Bool:
+    if not _looks_like_collection_expression(text):
+        return True
+    return parse_explicit_int_set(text).valid
+
+
+def _row_option_accepts_collection_expression(name: String) -> Bool:
+    return (
+        name == "vorhervonausschnitt"
+        or name == "thisrangebefore"
+        or name == "range"
+        or name == "vorhervonausschnittvielfache"
+        or name == "multiplerange"
+        or name == "zaehlung"
+        or name == "zählung"
+        or name == "ranges"
+        or name == "counting"
+        or name == "nachtraeglichneuabzaehlung"
+        or name == "retrospectiverecount"
+        or name == "position"
+        or name == "nachtraeglichneuabzaehlungvielfache"
+        or name == "retrospectiverecountmultiples"
+        or name == "multipleposition"
+        or name == "potenzenvonzahlen"
+        or name == "potenciesofnumbers"
+        or name == "powers"
+        or name == "primzahlvielfache"
+        or name == "primemultiples"
+        or name == "vielfachevonzahlen"
+        or name == "multiplesofnumbers"
+        or name == "multiples"
     )
 
 
@@ -680,6 +721,13 @@ def native_reta_tokens_supported(tokens: List[String], csv_path: String) raises 
         if _section_is_lines(option.section):
             if not _native_row_option_supported(option.name):
                 return False
+            for value_index in range(len(option.values)):
+                var row_value = option.values[value_index].text
+                if _looks_like_collection_expression(row_value) and (
+                    not _row_option_accepts_collection_expression(option.name)
+                    or not _safe_collection_expression_supported(row_value)
+                ):
+                    return False
             var row_flag = (
                 option.name == "alles"
                 or option.name == "all"
@@ -694,6 +742,16 @@ def native_reta_tokens_supported(tokens: List[String], csv_path: String) raises 
         elif _section_is(option.section, "ausgabe", "output"):
             if not _native_output_option_supported(option.name):
                 return False
+            if (
+                option.name == "spaltenreihenfolgeundnurdiese"
+                or option.name == "columnorderandonlythese"
+                or option.name == "columnorder"
+            ):
+                for value_index in range(len(option.values)):
+                    if not _safe_collection_expression_supported(
+                        option.values[value_index].text
+                    ):
+                        return False
             var output_flag = (
                 option.name == "keinenummerierung"
                 or option.name == "nonumbering"

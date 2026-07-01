@@ -1,4 +1,4 @@
-from std.testing import assert_equal, assert_true, TestSuite
+from std.testing import assert_equal, assert_true, assert_false, TestSuite
 from std.collections import List
 from reta_mojo.native_reta_cli import *
 
@@ -455,6 +455,89 @@ def test_prompt_fast_path_rejects_missing_required_row_value() raises:
         not native_reta_tokens_supported(
             ["-zeilen", "--vorhervonausschnitt"],
             "python_reference/csv/religion.csv",
+        )
+    )
+
+
+def test_safe_generator_ranges_and_column_order_are_owned() raises:
+    var csv_path = "python_reference/csv/religion.csv"
+    var row_tokens = List[String]()
+    for token in [
+        "-zeilen",
+        "--vorhervonausschnitt={2*n for n in range(2,5)},10",
+        "--oberesmaximum=20",
+        "-spalten",
+        "--Menschliches=motivation",
+        "-ausgabe",
+        "--art=csv",
+        "--breite=0",
+    ]:
+        row_tokens.append(String(token))
+    assert_true(native_reta_tokens_supported(row_tokens, csv_path))
+    assert_equal(effective_runtime_highest(row_tokens, 12), 20)
+
+    var order_plan = build_native_reta_plan(
+        [
+            "-spalten",
+            "--Bedeutung=gestirn",
+            "-ausgabe",
+            "--spaltenreihenfolgeundnurdiese=[3*n for n in range(2)]",
+        ],
+        746,
+        1024,
+    )
+    assert_equal(order_plan.explicit_positions, [2])
+
+
+def test_unsupported_eval_surface_falls_back_atomically() raises:
+    var csv_path = "python_reference/csv/religion.csv"
+    assert_false(
+        native_reta_tokens_supported(
+            [
+                "-zeilen",
+                "--vorhervonausschnitt=[n for n in range(3) if n]",
+                "-spalten",
+                "--religionen=sternpolygon",
+            ],
+            csv_path,
+        )
+    )
+    assert_false(
+        native_reta_tokens_supported(
+            [
+                "-zeilen",
+                "--vorhervonausschnitt=[__import__('os').system('true')]",
+                "-spalten",
+                "--religionen=sternpolygon",
+            ],
+            csv_path,
+        )
+    )
+
+
+def test_collection_expressions_are_limited_to_numeric_row_options() raises:
+    var csv_path = "python_reference/csv/religion.csv"
+    assert_false(
+        native_reta_tokens_supported(
+            [
+                "-zeilen",
+                "--zeit=[n for n in range(3)]",
+                "-spalten",
+                "--religionen=sternpolygon",
+            ],
+            csv_path,
+        )
+    )
+    assert_false(
+        native_reta_tokens_supported(
+            [
+                "-lines",
+                "--maximum=20",
+                "-columns",
+                "--religions=starpolygon",
+                "-language=english",
+            ],
+            csv_path,
         )
     )
 

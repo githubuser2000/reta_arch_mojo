@@ -350,6 +350,78 @@ def test_force_reference_override_keeps_full_legacy_surface(tmp_path: Path) -> N
     )
     assert (result.returncode, result.stdout, result.stderr) == (17, expected, b"")
 
+
+def test_safe_generator_ranges_run_without_python_child() -> None:
+    cases = [
+        [
+            "-zeilen",
+            "--vorhervonausschnitt={2*n for n in range(2,5)},10",
+            "--oberesmaximum=20",
+            "-spalten",
+            "--Menschliches=motivation",
+            "-ausgabe",
+            "--art=csv",
+            "--breite=0",
+        ],
+        [
+            "-zeilen",
+            "--vorhervonausschnitt=[n for n in range(9,0,-3)]",
+            "--oberesmaximum=20",
+            "-spalten",
+            "--religionen=sternpolygon",
+            "-ausgabe",
+            "--art=emacs",
+            "--breite=0",
+        ],
+        [
+            "-zeilen",
+            "--vorhervonausschnitt=1",
+            "-spalten",
+            "--Bedeutung=gestirn",
+            "-ausgabe",
+            "--spaltenreihenfolgeundnurdiese=[n for n in range(1,3)]",
+            "--art=csv",
+            "--breite=0",
+        ],
+    ]
+    for arguments in cases:
+        native = _run_compat(arguments, python="/definitely/not/available")
+        reference = subprocess.run(
+            [REFERENCE_PYTHON, "reta.py", *arguments],
+            cwd=ROOT / "python_reference",
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=False,
+        )
+        assert (native.returncode, native.stdout, native.stderr) == (
+            reference.returncode,
+            reference.stdout,
+            reference.stderr,
+        )
+
+
+def test_non_owned_generator_expression_falls_back_atomically(
+    tmp_path: Path,
+) -> None:
+    fake_python = tmp_path / "fake-python"
+    _write_fake_python(fake_python, 23)
+    cases = [
+        "[n for n in range(3) if n]",
+        "[9223372036854775807+1]",
+    ]
+    for expression in cases:
+        arguments = [
+            "-zeilen",
+            f"--vorhervonausschnitt={expression}",
+            "-spalten",
+            "--religionen=sternpolygon",
+        ]
+        result = _run_compat(arguments, python=str(fake_python))
+        expected = (ROOT / "python_reference").as_posix().encode() + b"\n" + b"\0".join(
+            value.encode() for value in ["reta.py", *arguments]
+        )
+        assert (result.returncode, result.stdout, result.stderr) == (23, expected, b"")
+
 def test_compat_source_contains_no_embedded_python() -> None:
     source = (ROOT / "src" / "compat_main.mojo").read_text(encoding="utf-8")
     adapter = (

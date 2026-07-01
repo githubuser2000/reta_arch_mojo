@@ -22,4 +22,4 @@ fi
 RETA_COMPAT_BINARY="$TEST_DIR/reta-mojo-compat-bin" \
 PYTHONPATH=. python3 -m pytest -q tests/test_compat_launcher.py
 
-printf '%s\n' 'Nativer Kompatibilitätslauncher: 14/14 ohne eingebettetes CPython.'
+printf '%s\n' 'Nativer Kompatibilitätslauncher: 16/16 ohne eingebettetes CPython.'

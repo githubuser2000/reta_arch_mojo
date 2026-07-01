@@ -21,8 +21,18 @@ def test_explicit_sets() raises:
     assert_true(parsed.valid)
     _contains_all(parsed.values, [1, 2, -3])
     assert_false(parse_explicit_int_set("{1, x}").valid)
-    # Security difference from Python eval: expressions are rejected.
-    assert_false(parse_explicit_int_set("{1, 1+1}").valid)
+    # Arithmetic is evaluated by the native parser, never by Python eval.
+    var arithmetic = parse_explicit_int_set("{1, 1+1}")
+    assert_true(arithmetic.valid)
+    _contains_all(arithmetic.values, [1, 2])
+
+
+def test_safe_generator_ranges() raises:
+    _contains_all(range_to_numbers("{2*n for n in range(2,5)},10"), [4, 6, 8, 10])
+    _contains_all(range_to_numbers("[2*3]"), [6])
+    _contains_all(range_to_numbers("(1)"), [1])
+    _contains_all(range_to_numbers("-[n for n in range(1,4)],1-5"), [4, 5])
+    assert_equal(len(range_to_numbers("[1/2]")), 0)
 
 
 def test_simple_range() raises:

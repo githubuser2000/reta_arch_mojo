@@ -181,3 +181,19 @@ Fortsetzungszeilen wiederholt, Quellzeilennummern nicht. Markdown-/Emacs-
 Sichtzeile. CSV besitzt zusätzlich den exakten historischen Leerfeld-,
 Randwhitespace- und unnummerierten `;;`-Strukturvertrag. Der native Ownership-Prüfer akzeptiert diese Vektoren
 atomar; unbekannte Optionen bleiben Ganzvektor-Fallback.
+
+## Stage 12c4p – Ganzzahlausdrücke und Generatorbereiche
+
+| Syntax | Native Ownership |
+|---|---:|
+| Ganzzahlliterale und `+ - * // % **` | ja |
+| Listen-/Mengen-/Tupelanzeige | ja |
+| eine Variable über `range(…)` | ja |
+| additive/subtraktive Zeilenauswahl | ja |
+| Generator in Spaltenreihenfolge | ja |
+| `/`, beliebige Aufrufe/Importe/Attribute | atomarer Fallback |
+| bedingte oder verschachtelte Comprehension | atomarer Fallback |
+
+Der Ownership-Prüfer validiert die vollständige Ausdrucksgrammatik, bevor der
+native Tabellenkern gestartet wird. Damit kann kein formal erkannter, aber
+semantisch ignorierter Generatorbereich mehr eine stille Teilmenge ausgeben.

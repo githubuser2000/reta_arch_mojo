@@ -1,12 +1,14 @@
 """Native Mojo implementation of Reta's row-range language.
 
-This module deliberately replaces Python's eval-based set parser with a strict
-integer-literal parser. Accepted Reta syntax remains the same for legitimate
-inputs, while executable Python expressions are no longer accepted.
+This module replaces Python's eval-based set parser with a finite native
+integer-expression grammar.  Documented calculations and one-variable
+``range`` comprehensions remain compatible, while arbitrary executable Python
+syntax is rejected and left to the atomic reference fallback.
 """
 
 from std.collections import List, Set
 from std.collections.string import atol, ord
+from .integer_expressions import parse_integer_collection
 
 
 @fieldwise_init
@@ -97,34 +99,9 @@ def split_top_level_commas(text: String) -> List[String]:
 
 
 def parse_explicit_int_set(raw_text: String) raises -> ParsedIntSet:
-    """Parse Python-like tuple/list/set literals containing integers only."""
-    var text = String(raw_text.strip())
-    var empty = Set[Int]()
-    if text.byte_length() < 2:
-        return ParsedIntSet(False, empty^)
-
-    var first = ord(text[byte=0])
-    var last = ord(text[byte=text.byte_length() - 1])
-    var matched = (first == 40 and last == 41) or (first == 91 and last == 93) or (first == 123 and last == 125)
-    if not matched:
-        return ParsedIntSet(False, empty^)
-
-    var body = _slice(text, 1, text.byte_length() - 1)
-    body = String(body.strip())
-    var values = Set[Int]()
-    if body.byte_length() == 0:
-        return ParsedIntSet(True, values^)
-
-    var parts = split_top_level_commas(body)
-    for index in range(len(parts)):
-        var token = String(parts[index].strip())
-        # Python permits a trailing comma in tuple/list/set literals.
-        if token.byte_length() == 0 and index == len(parts) - 1:
-            continue
-        if not _is_signed_integer(token):
-            return ParsedIntSet(False, Set[Int]())
-        values.add(atol(token))
-    return ParsedIntSet(True, values^)
+    """Parse the safe integer subset of the historical eval-based syntax."""
+    var parsed = parse_integer_collection(raw_text)
+    return ParsedIntSet(parsed.valid, parsed.values.copy())
 
 
 def _consume_digits(text: String, position: Int) -> Int:

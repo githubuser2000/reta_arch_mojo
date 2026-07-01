@@ -247,3 +247,16 @@ Die Zahl **12** ist die geplante Releasegliederung. Interne Teilpakete oder Fehl
   Überschriften-/Primzahlpotenztrenner, CSV-Randwhitespace und die unnummerierten leeren `;;`-Strukturfelder bytegenau.
 - Dreizehn deutsche/englische Referenzströme und der native-first Launcher laufen
   ohne Python-Kindprozess.
+
+## Stage 12c4p – sichere native Generatorbereiche
+
+- Ein endlicher Mojo-Ausdrucksparser ersetzt den bisher nur scheinbar nativen
+  Besitz geklammerter Python-artiger Ganzzahlbereiche.
+- Nativ sind Ganzzahlarithmetik, Listen/Mengen/Tupel und einvariable
+  Comprehensions über `range` mit ein bis drei Argumenten.
+- Additive und subtraktive Zeilenbereiche sowie generatorbasierte
+  `--spaltenreihenfolgeundnurdiese` verwenden denselben Parser.
+- Beliebiger Python-Code, Gleitkommaausdrücke, Bedingungen und verschachtelte
+  Comprehensions bleiben atomarer Referenzfallback.
+- Sechs End-to-End-Ströme sind bytegleich; Parser **5/5**, Bereichsplaner
+  **8/8** und CLI-/Ownership **29/29** bestehen.

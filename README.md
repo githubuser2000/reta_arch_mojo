@@ -634,3 +634,11 @@ Fortsetzungsnummerierung, wiederholte Überschriftentrenner, explizite
 Nullbreiten und die seltenen CSV-Leerraumbytes des Python-`textwrap`-/Rich-
 Pfads. Dreizehn deutsche und englische Referenzströme sind byteidentisch; zusätzlich sind unnummerierte CSV-Ströme mit den zwei historischen leeren Strukturfeldern (`;;`) abgesichert. Details:
 [`STAGE12C4O_NATIVE_FLAT_COLUMN_WIDTHS.md`](STAGE12C4O_NATIVE_FLAT_COLUMN_WIDTHS.md).
+
+Stage 12c4p übernimmt die dokumentierten Python-artigen Ganzzahlausdrücke in
+Zeilenbereichen sicher nativ. Ein endlicher Mojo-Parser unterstützt
+Ganzzahlarithmetik, Listen/Mengen/Tupel und einvariable Comprehensions über
+`range`; beliebiger Python-Code, Gleitkomma- und komplexere
+Comprehensionsyntax bleibt atomarer Referenzfallback. Sechs reale Tabellenströme
+sind bytegleich. Details:
+[`STAGE12C4P_NATIVE_INTEGER_EXPRESSIONS.md`](STAGE12C4P_NATIVE_INTEGER_EXPRESSIONS.md).
