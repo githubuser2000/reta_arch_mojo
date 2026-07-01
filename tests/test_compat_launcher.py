@@ -253,32 +253,50 @@ def test_markup_nocolor_runs_without_python_child() -> None:
         )
 
 
-def test_unowned_column_width_edge_cases_fall_back_atomically(
-    tmp_path: Path,
-) -> None:
-    fake_python = tmp_path / "fake-python"
-    _write_fake_python(fake_python, 23)
-    cases = [
-        [
+def test_flat_column_widths_run_without_python_child() -> None:
+    fixtures = ROOT / "tests" / "fixtures" / "flat_column_widths"
+    for output_mode in ("csv", "markdown", "emacs"):
+        arguments = [
             "-zeilen",
-            "--vorhervonausschnitt=1",
+            "--vorhervonausschnitt=1-2",
             "-spalten",
             "--religionen=sternpolygon",
+            "--Menschliches=manipulation",
             "-ausgabe",
-            "--art=csv",
+            f"--art={output_mode}",
             "--breiten=5,10",
-        ],
-    ]
-    for arguments in cases:
-        result = _run_compat(arguments, python=str(fake_python))
-        expected = (ROOT / "python_reference").as_posix().encode() + b"\n" + b"\0".join(
-            value.encode() for value in ["reta.py", *arguments]
-        )
-        assert (result.returncode, result.stdout, result.stderr) == (
-            23,
+        ]
+        native = _run_compat(arguments, python="/definitely/not/available")
+        expected = (fixtures / f"de-{output_mode}-basic.out").read_bytes()
+        assert (native.returncode, native.stdout, native.stderr) == (
+            0,
             expected,
             b"",
         )
+
+    bare_arguments = [
+        "-zeilen",
+        "--vorhervonausschnitt=1",
+        "-spalten",
+        "--religionen=sternpolygon",
+        "--Menschliches=manipulation",
+        "-ausgabe",
+        "--art=csv",
+        "--breiten=5,10",
+        "--keineueberschriften",
+        "--keinenummerierung",
+    ]
+    bare_native = _run_compat(
+        bare_arguments, python="/definitely/not/available"
+    )
+    bare_expected = (
+        fixtures / "de-csv-unnumbered-nohead.out"
+    ).read_bytes()
+    assert (
+        bare_native.returncode,
+        bare_native.stdout,
+        bare_native.stderr,
+    ) == (0, bare_expected, b"")
 
 
 def test_zero_column_widths_run_without_python_child() -> None:

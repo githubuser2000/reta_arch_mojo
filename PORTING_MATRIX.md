@@ -87,9 +87,9 @@ Stand: 1. Juli 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der g
 | `reta_architecture/split_i18n.py` | 33 | 1 | 0 | 3 | Python-Referenz/Bridge | `python_reference/reta_architecture/split_i18n.py` | noch nicht nativ portiert |
 | `reta_architecture/table_adapters.py` | 419 | 60 | 2 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/table_adapters.py` | noch nicht nativ portiert |
 | `reta_architecture/table_generation.py` | 298 | 8 | 2 | 2 | teilweise nativ | `src/reta_mojo/csv_table.mojo + native_reta_cli.mojo` | CSV-Grundtabelle, Spaltenprojektion und einfacher Ende-zu-Ende-Tabellenpfad nativ |
-| `reta_architecture/table_output.py` | 769 | 24 | 3 | 2 | weitgehend nativ | `src/reta_mojo/table_rendering.mojo + terminal_geometry.mojo` | CSV/Markdown/Emacs sowie zentrale HTML/BBCode/ANSI-Pfade nativ; `--breite=0`, formatübergreifendes `oneTable` und `keineleereninhalte` nativ; Emacs-Primzahlpotenztrenner sowie paginierte Bindestrichtrennung und Shell-Restfarben bytegleich; nur seltene Rich-Sonderfälle außerhalb der Kernpfade offen |
+| `reta_architecture/table_output.py` | 769 | 24 | 3 | 2 | weitgehend nativ | `src/reta_mojo/table_rendering.mojo + terminal_geometry.mojo` | CSV/Markdown/Emacs sowie zentrale HTML/BBCode/ANSI-Pfade nativ; individuelle positive und nullhaltige Spaltenbreiten sind formatübergreifend nativ; `--breite=0`, formatübergreifendes `oneTable` und `keineleereninhalte` nativ; Emacs-Primzahlpotenztrenner sowie paginierte Bindestrichtrennung und Shell-Restfarben bytegleich; nur seltene Rich-Sonderfälle außerhalb der Kernpfade offen |
 | `reta_architecture/table_preparation.py` | 475 | 19 | 3 | 1 | weitgehend nativ | `src/reta_mojo/table_preparation.mojo + parallel_row_preparation.mojo` | Zeilenauswahl, Tabellenprojektion, Unicode-sicherer Zellenumbruch und typisierte serielle/threadbasierte Vorbereitung unabhängiger Datenzeilen nativ; globale Header-Tag-Mutation bleibt bewusst seriell |
-| `reta_architecture/table_runtime.py` | 310 | 42 | 4 | 2 | teilweise nativ | `src/reta_mojo/native_reta_cli.mojo + table_preparation.mojo` | typisierter nativer Laufzeitplan für häufige Zeilen-, Spalten- und Ausgabeparameter einschließlich formatübergreifender `oneTable`-, `justtext`- und `keineleereninhalte`-Semantik |
+| `reta_architecture/table_runtime.py` | 310 | 42 | 4 | 2 | teilweise nativ | `src/reta_mojo/native_reta_cli.mojo + table_preparation.mojo` | typisierter nativer Laufzeitplan für häufige Zeilen-, Spalten- und Ausgabeparameter einschließlich formatübergreifender Einzelspaltenbreiten-, `oneTable`-, `justtext`- und `keineleereninhalte`-Semantik |
 | `reta_architecture/table_state.py` | 137 | 8 | 4 | 1 | nativ | `src/reta_mojo/table_state.mojo` | typisierter Tabellenzustand, Abschnittsnamen und Zeilengrenzen |
 | `reta_architecture/table_wrapping.py` | 200 | 16 | 3 | 1 | teilweise nativ | `src/reta_mojo/table_wrapping.mojo` | Unicode-sicherer harter Umbruch, vorhandene Bindestrichtrennung und Breitenlogik nativ; echte Wörterbuchtrennung ohne vorhandenen Bindestrich bleibt externe Grenze |
 | `reta_architecture/tag_schema.py` | 694 | 5 | 2 | 0 | generiert nativ | `src/reta_mojo/tag_schema.mojo + tag_schema_catalog.mojo` | Primär- und Kombi-Tag-Schemata mit Vorwärts-/Rückabbildung |
@@ -161,3 +161,23 @@ historische Reihenfolge einschließlich `PrimCSV` wieder her.
 der exakten 805-Spalten-Referenzposition, sobald die vollständige Ansicht
 gerendert wird. Mond- und Kombinationszellen behalten ihre beabsichtigten
 HTML-Listenstrukturen.
+
+
+## Stage 12c4o – formatübergreifender Breitenbesitz
+
+| Oberfläche | positive `breiten/widths` | Nullwert in Liste | physische Fortsetzungszeilen |
+|---|---:|---:|---:|
+| Shell | nativ | nativ | nativ |
+| HTML | nativ | nativ | nativ |
+| BBCode | nativ | nativ | nativ |
+| CSV | nativ | nativ | nativ |
+| Markdown | nativ | nativ | nativ |
+| Emacs/Org | nativ | nativ | nativ |
+
+Der flache Renderer erzwingt weiterhin globale Breite null, wertet eine
+ausdrückliche Breitenliste aber pro Datenspalte aus. Zählgruppen werden auf
+Fortsetzungszeilen wiederholt, Quellzeilennummern nicht. Markdown-/Emacs-
+Überschriftentrenner und Emacs-Primzahlpotenztrenner folgen jeder physischen
+Sichtzeile. CSV besitzt zusätzlich den exakten historischen Leerfeld-,
+Randwhitespace- und unnummerierten `;;`-Strukturvertrag. Der native Ownership-Prüfer akzeptiert diese Vektoren
+atomar; unbekannte Optionen bleiben Ganzvektor-Fallback.

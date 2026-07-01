@@ -1,20 +1,21 @@
-# Status – Stage 12c4n abgeschlossen; Stufen 9, 10 und 12 in Arbeit
+# Status – Stage 12c4o abgeschlossen; Stufen 9, 10 und 12 in Arbeit
 
 - Zielversion: Mojo 1.0.0b2
 - Unterstützte Python-Umgebung für Installation/Referenzbrücken: 3.10–3.14; Setup bevorzugt Python 3.14
-- Vollständig abgeschlossene Release-Stufen: **9/12 = 75,0 %**; teilgewichtet mit Stage 12c4n: **9,73/12 = 81,1 %**
+- Vollständig abgeschlossene Release-Stufen: **9/12 = 75,0 %**; teilgewichtet mit Stage 12c4o: **9,74/12 = 81,2 %**
 - Stufe 9: **BBCode, zentraler ANSI-Shellpfad und zentrale HTML-Pfade nativ; seltene Ausgabegrenzen offen**
 - Stufe 10: **native Kurzsprache, mehrsprachige verschachtelte Completion und Promptvorbereitung in Arbeit**
 - Stufe 11: **11a–11j abgeschlossen; 10/10 Teilstufen = 100 %**
-- Stufe 12: **12a–12b abgeschlossen; 12c zu ca. 99,5 %; insgesamt ca. 67 %**
+- Stufe 12: **12a–12b abgeschlossen; 12c zu ca. 99,6 %; insgesamt ca. 67 %**
 - Geschätzter funktionaler Portierungsstand: **96–98 %**
 - Konservativ vollständig native oder reproduzierbar generierte Originaldateien: **33/92 = 35,9 %**
 - Mindestens teilweise portierte Originaldateien: **61/92 = 66,3 %**
 - Gewichteter Quellzeilenstand: **ca. 52 %**
-- Nativer Mojo-Quellcode in `src/`: **40.575 Zeilen**
-- Davon im Paket `reta_mojo`: **37.433 Zeilen**
+- Nativer Mojo-Quellcode in `src/`: **40.844 Zeilen**
+- Davon im Paket `reta_mojo`: **37.702 Zeilen**
 - Test-/Probe-Dateien: **104** (**90 Mojo**, **14 Python** einschließlich PTY-, Boundary-, Eingabe-, Rohbefehl-, Reziprok-, klassischer Bruchplan-, Kompatibilitätslauncher- und Alles-Plan-Audits)
-- Native Mojo-Testfunktionen: **323**; Python-Testfunktionen: **57**
+- Native Mojo-Testfunktionen: **325**; Python-Testfunktionen: **57**
+- Stage-12c4o-Fokus: native individuelle `--breiten`/`--widths` nun auch für CSV, Markdown und Emacs/Org; gemeinsamer physischer Zeilenexpander mit wiederholter Zählgruppe, nur erster Quellzeilennummer, Überschriften-/Primzahlpotenztrennern pro Sichtzeile, expliziten Nullbreiten sowie exakter CSV-Randwhitespace-, Leerfeld- und unnummerierter `;;`-Struktursemantik. Flache Breitenfixtures **12/12 byteidentisch** plus kombinierte Randfälle **5/5**, Renderer **20/20**, CLI-/Ownership **26/26**, Kompatibilitätslauncher **14/14**; positive Breiten **12/12**, Nullbreiten **12/12**, Rohmarkup **12/12**, Paginierung **6/6** und No-blank **13/13** bleiben grün; aktive `std.python`-Brücken **0**.
 - Stage-12c4n-Fokus: vollständiger nativer `--alles`-HTMLpfad mit exakt **807** statt zuvor 863 Spalten; **56** außerhalb der realen Bruch-CSV-Form liegende Anforderungen entfernt, `PrimCSV` vor Bruchverkettungen eingeordnet, semantischer deutsch/englischer HTML-Katalog mit **1.626** Einträgen, exakte Positionsauflösung für mehrdeutige Überschriften sowie korrektes Mond-/Kombi-Listenmarkup und `&quot;`-Maskierung. Vollständiges `generate_html` Deutsch **301.206 Byte** und Englisch **295.215 Byte** jeweils bytegleich; Bruch **4/4**, Generatoren **9/9**, Metadaten **7/7**, Kombi **5/5**, angrenzende Breiten-/Markup-/Paginierungsparität **76/76**.
 - Stage-12c4m-Fokus: zentrale native Ressourcenauflösung ohne einkompilierten CSV-/Assetpfad; FHS-konforme Installation nach `/usr/local/share/reta` beziehungsweise paketverwaltet `/usr/share/reta`, private Programme unter `lib/reta`, historische Quellbaumstruktur über relative Symlinks, `PREFIX`/`DESTDIR`/Benutzerinstallation und Deinstallation; Ressourcenresolver **3/3**, Installations-/Runtime-Pytests **9/9**, FHS-Staging einschließlich fremdem Arbeitsverzeichnis, nativer CSV-Ausgabe und Python-Fallback bestanden; Basistabellen **4/4**, positive Breiten **12/12**, Nullbreiten **12/12**, Rohmarkup **12/12**, Kompatibilitätslauncher **14/14**
 - Stage-12c4l-Fokus: portable Mojo-ELF-Laufzeit über den projektrelativen Vertrag `target/lib/mojo`, zusätzlichen `$ORIGIN/../lib/mojo`-RUNPATH und automatischen Runtime-Starter; das Problem übertragener Binärdateien lag an zwei dynamischen Modular-Bibliotheken, nicht an CSV-Pfaden oder CPU-Befehlen. HTML/BBCode mit `--nocolor` besitzen nun den rohen Python-`print`-Vertrag einschließlich interner Leerraumläufe, exaktem Padding und physischer HTML-Zeilenstruktur; Markup-Parität **12/12 byteidentisch**, Renderer **18/18**, CLI-/Ownership **26/26**, Kompatibilitätslauncher **14/14**, Runtime-Pfadtests **4/4**, positive Breiten **12/12**, Nullbreiten **12/12**, paginierte Renderer **6/6**, No-blank **13/13**, Markup-oneTable **12/12**, Source-/Boundary-Pytests **14/14**, aktive `std.python`-Brücken **0**

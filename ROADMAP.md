@@ -236,3 +236,14 @@ Die Zahl **12** ist die geplante Releasegliederung. Interne Teilpakete oder Fehl
 - Bestehende Binaries werden durch `bin/mojo-runtime-exec` ohne Neukompilierung lauffähig.
 - HTML und BBCode mit `--nocolor` besitzen den exakten rohen `print`-Vertrag, einschließlich interner Leerraumläufe und physischer HTML-Zeilenstruktur.
 - Zwölf Markupströme, 18 Renderertests, 26 Ownershiptests, 14 Launchertests und vier Runtimepfadtests sichern die Stufe ab.
+
+
+## Stage 12c4o – Einzelspaltenbreiten in flachen Formaten
+
+- CSV, Markdown und Emacs/Org besitzen `--breiten`/`--widths` nativ.
+- Positive, ersetzte und explizit nullhaltige Listen verwenden denselben
+  typisierten Breitenplan wie Shell, HTML und BBCode.
+- Der gemeinsame Zeilenexpander reproduziert Nummerierungsfortsetzungen,
+  Überschriften-/Primzahlpotenztrenner, CSV-Randwhitespace und die unnummerierten leeren `;;`-Strukturfelder bytegenau.
+- Dreizehn deutsche/englische Referenzströme und der native-first Launcher laufen
+  ohne Python-Kindprozess.

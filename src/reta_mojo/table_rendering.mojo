@@ -150,41 +150,104 @@ def _csv_quote_minimal(text: String) -> String:
     return value^
 
 
-def render_csv_table(table: CsvTable) -> String:
-    """Match Python ``csv.writer(delimiter=';')`` with LF line endings."""
+def render_csv_table(
+    table: CsvTable, number_rows: Bool = True
+) -> String:
+    """Match Python ``csv.writer(delimiter=';')`` with LF line endings.
+
+    The legacy CSV exporter retains two empty structural numbering fields even
+    when ``--keinenummerierung`` hides their contents.  In that unnumbered
+    path the selected data has not passed through ``add_numbering_columns``,
+    so normalize its source whitespace here as Rich/csv did historically.
+    """
     var result = String()
     for row_index in range(len(table.rows)):
         var row = table.rows[row_index].copy()
+        if not number_rows:
+            result += ";;"
         for column_index in range(len(row)):
             if column_index > 0:
                 result += ";"
             var value = row[column_index]
-            if column_index == 1:
+            if not number_rows:
+                value = normalize_cell_whitespace(value)
+            elif column_index == 1:
                 value += " "
             result += _csv_quote_minimal(value)
         result += "\n"
     return result^
 
 
-def render_markdown_table(table: CsvTable) -> String:
+def _render_flat_width_csv_table(
+    table: CsvTable, number_rows: Bool
+) -> String:
+    """Render prepared width fragments like the legacy Rich CSV path.
+
+    Missing prepared data fragments are padded by the configured column width
+    before Rich collapses whitespace; the observable CSV field is therefore a
+    single space rather than an empty string.
+    """
+    var result = String()
+    var data_start = 2 if number_rows else 0
+    for row_index in range(len(table.rows)):
+        var row = table.rows[row_index].copy()
+        if not number_rows:
+            result += ";;"
+        for column_index in range(len(row)):
+            if column_index > 0:
+                result += ";"
+            var value = row[column_index]
+            if column_index == 1 and number_rows:
+                value += " "
+            elif (
+                column_index >= data_start
+                and column_index + 1 < len(row)
+                and value.byte_length() == 0
+            ):
+                value = " "
+            result += _csv_quote_minimal(value)
+        result += "\n"
+    return result^
+
+
+def render_markdown_table_with_rows(
+    table: CsvTable,
+    row_numbers: List[Int],
+    number_rows: Bool = True,
+) -> String:
     var result = String()
     if len(table.rows) == 0:
         return result^
     for row_index in range(len(table.rows)):
         var row = table.rows[row_index].copy()
+        var number = (
+            row_numbers[row_index]
+            if row_index < len(row_numbers)
+            else row_index
+        )
         result += "|"
         for column_index in range(len(row)):
             result += row[column_index]
-            if row_index == 0 or column_index != 0:
+            if number == 0 or not number_rows or column_index != 0:
                 result += " "
             result += "|"
         result += "\n"
-        if row_index == 0:
+        # The Python renderer emits the Markdown separator after every visual
+        # fragment of the logical heading row, not merely after the first
+        # physical output line.
+        if number == 0:
             result += "|"
             for _ in range(len(row)):
                 result += ":--:|"
             result += "\n"
     return result^
+
+
+def render_markdown_table(table: CsvTable) -> String:
+    var row_numbers = List[Int]()
+    for row_index in range(len(table.rows)):
+        row_numbers.append(row_index)
+    return render_markdown_table_with_rows(table, row_numbers^)
 
 
 def _emacs_prime_power_separator(number: Int) -> Bool:
@@ -212,25 +275,29 @@ def _append_emacs_separator(mut result: String, columns: Int) -> None:
 def render_emacs_table_with_rows(
     table: CsvTable,
     row_numbers: List[Int],
+    number_rows: Bool = True,
 ) -> String:
     var result = String()
     if len(table.rows) == 0:
         return result^
     for row_index in range(len(table.rows)):
         var row = table.rows[row_index].copy()
-        result += "|"
-        for column_index in range(len(row)):
-            result += row[column_index]
-            if row_index == 0 or column_index != 0:
-                result += " "
-            result += "|"
-        result += "\n"
         var number = (
             row_numbers[row_index]
             if row_index < len(row_numbers)
             else row_index
         )
-        if row_index == 0 or _emacs_prime_power_separator(number):
+        result += "|"
+        for column_index in range(len(row)):
+            result += row[column_index]
+            if number == 0 or not number_rows or column_index != 0:
+                result += " "
+            result += "|"
+        result += "\n"
+        # Like Markdown, a wrapped logical heading remains a heading on every
+        # physical line.  Prime-power separators likewise follow every visual
+        # fragment of the corresponding data row in the legacy loop.
+        if number == 0 or _emacs_prime_power_separator(number):
             _append_emacs_separator(result, len(row))
     return result^
 
@@ -1502,6 +1569,197 @@ def render_shell_table_with_width_reference(
         page_start = page_end
     return result^
 
+def _flat_width_text(text: String) -> String:
+    """Normalize native combination sentinels before flat-format wrapping."""
+    return (
+        text.replace("@@RETA_COMBI_LEADING_SPACE@@", " ")
+        .replace("@@RETA_COMBI_TRAILING_SPACE@@", " ")
+    )
+
+
+def _flat_word_wrap_cell(text: String, width: Int) -> List[String]:
+    """Match Python preparation plus Rich normalization for flat formats.
+
+    Wrapping decisions use the original whitespace widths, while visible
+    fragments collapse internal whitespace to one space.  CPython's
+    ``TextWrapper`` exposes one exceptional trailing space when a separator
+    exactly fills the line immediately before an overlong word; CSV preserves
+    that byte, whereas Markdown and Emacs normalize it later.
+    """
+    var clean = normalize_cell_whitespace(text)
+    var result = List[String]()
+    if width <= 0:
+        result.append(clean)
+        return result^
+
+    var words = List[String]()
+    var separator_widths = List[Int]()
+    _split_markup_words(text, words, separator_widths)
+    if len(words) == 0:
+        result.append(clean)
+        return result^
+
+    var raw_width = 0
+    for index in range(len(words)):
+        raw_width += codepoint_length(words[index]) + separator_widths[index]
+    if raw_width <= width:
+        result.append(clean)
+        return result^
+
+    var current = String()
+    var current_raw_width = 0
+    for index in range(len(words)):
+        var word = words[index]
+        var separator_width = separator_widths[index]
+        var word_width = codepoint_length(word)
+        if current.byte_length() == 0:
+            if word_width <= width:
+                current = word
+                current_raw_width = word_width
+            else:
+                current = _append_long_word(result, word, width)
+                current_raw_width = codepoint_length(current)
+        elif current_raw_width + separator_width + word_width <= width:
+            current += " " + word
+            current_raw_width += separator_width + word_width
+        else:
+            var available = width - current_raw_width - separator_width
+            var prefix = _hyphen_prefix_fitting(word, available)
+            if (
+                prefix.byte_length() == 0
+                and available > 0
+                and word_width > width
+                and not "-" in word
+            ):
+                prefix = _codepoint_prefix(word, available)
+            if prefix.byte_length() > 0:
+                current += " " + prefix
+                result.append(current^)
+                var remainder = _slice_after_ascii_prefix(word, prefix)
+                if codepoint_length(remainder) <= width:
+                    current = remainder^
+                else:
+                    current = _append_long_word(result, remainder, width)
+                current_raw_width = codepoint_length(current)
+            else:
+                # ``TextWrapper._handle_long_word`` appends an empty prefix
+                # when no width remains.  Its later whitespace cleanup then
+                # leaves the preceding separator observable, but only because
+                # the pending next chunk itself is overlong.
+                if (
+                    current_raw_width + separator_width == width
+                    and word_width > width
+                ):
+                    current += " "
+                result.append(current^)
+                if word_width <= width:
+                    current = word^
+                else:
+                    current = _append_long_word(result, word, width)
+                current_raw_width = codepoint_length(current)
+    if current.byte_length() > 0 or len(result) == 0:
+        result.append(current^)
+    return result^
+
+
+def _find_row_number_index(row_numbers: List[Int], wanted: Int) -> Int:
+    for index in range(len(row_numbers)):
+        if row_numbers[index] == wanted:
+            return index
+    return -1
+
+
+def _expand_flat_width_rows(
+    table: CsvTable,
+    width_reference: CsvTable,
+    row_numbers: List[Int],
+    filtered_table: CsvTable,
+    filtered_row_numbers: List[Int],
+    number_rows: Bool,
+    no_blank_contents: Bool,
+    widths: List[Int],
+    preserve_csv_spaces: Bool,
+) -> Tuple[CsvTable, List[Int]]:
+    """Expand logical rows for CSV/Markdown/Emacs ``--breiten`` output.
+
+    Those formats force the ordinary global text width to zero, but explicit
+    per-data-column widths still run through the historical preparation
+    wrapper.  The counting-group column repeats on continuation lines, whereas
+    the source-row number is shown only on the first visual line.
+    """
+    if len(widths) == 0 or len(filtered_table.rows) == 0:
+        return filtered_table.copy(), filtered_row_numbers.copy()
+
+    var data_start = 2 if number_rows else 0
+    var rows = List[List[String]]()
+    var numbers = List[Int]()
+    var reference_offset = max(
+        0, len(width_reference.rows) - len(table.rows)
+    )
+
+    for filtered_index in range(len(filtered_table.rows)):
+        var row = filtered_table.rows[filtered_index].copy()
+        var number = (
+            filtered_row_numbers[filtered_index]
+            if filtered_index < len(filtered_row_numbers)
+            else filtered_index
+        )
+        var source_index = _find_row_number_index(row_numbers, number)
+        if source_index < 0:
+            source_index = filtered_index
+        var reference_index = source_index + reference_offset
+        if reference_index >= len(width_reference.rows):
+            reference_index = min(filtered_index, len(width_reference.rows) - 1)
+        var reference_row = width_reference.rows[reference_index].copy()
+
+        var row_height = 1
+        for column_index in range(data_start, len(row)):
+            var requested_width = _column_wrap_width(
+                column_index, data_start, 0, widths
+            )
+            var parts = _flat_word_wrap_cell(
+                _flat_width_text(reference_row[column_index]),
+                requested_width,
+            )
+            row_height = max(row_height, len(parts))
+
+        for visual_line in range(row_height):
+            var physical = List[String]()
+            if number_rows:
+                physical.append(row[0] if len(row) > 0 else "")
+                physical.append(
+                    row[1]
+                    if len(row) > 1 and visual_line == 0
+                    else ""
+                )
+
+            var visible = False
+            for column_index in range(data_start, len(row)):
+                var requested_width = _column_wrap_width(
+                    column_index, data_start, 0, widths
+                )
+                var parts = _flat_word_wrap_cell(
+                    _flat_width_text(reference_row[column_index]),
+                    requested_width,
+                )
+                var part = (
+                    parts[visual_line]
+                    if visual_line < len(parts)
+                    else ""
+                )
+                if not preserve_csv_spaces:
+                    part = normalize_cell_whitespace(part)
+                physical.append(part)
+                if _cell_fragment_visible(part, no_blank_contents):
+                    visible = True
+
+            if visible:
+                rows.append(physical^)
+                numbers.append(number)
+
+    return CsvTable(rows^, filtered_table.maximum_columns), numbers^
+
+
 def render_plain_table(table: CsvTable) -> String:
     var result = String()
     for row_index in range(len(table.rows)):
@@ -1535,13 +1793,31 @@ def render_table_with_width_reference(
     )
     var flat_table = filtered[0].copy()
     var flat_row_numbers = filtered[1].copy()
+    if mode == "csv" or mode == "markdown" or mode == "emacs":
+        var expanded = _expand_flat_width_rows(
+            table,
+            width_reference,
+            row_numbers,
+            flat_table,
+            flat_row_numbers,
+            number_rows,
+            no_blank_contents,
+            widths,
+            mode == "csv",
+        )
+        flat_table = expanded[0].copy()
+        flat_row_numbers = expanded[1].copy()
     if mode == "csv":
-        return render_csv_table(flat_table)
+        if len(widths) > 0:
+            return _render_flat_width_csv_table(flat_table, number_rows)
+        return render_csv_table(flat_table, number_rows)
     if mode == "markdown":
-        return render_markdown_table(flat_table)
+        return render_markdown_table_with_rows(
+            flat_table, flat_row_numbers, number_rows
+        )
     if mode == "emacs":
         return render_emacs_table_with_rows(
-            flat_table, flat_row_numbers
+            flat_table, flat_row_numbers, number_rows
         )
     if mode == "html":
         return render_html_table(flat_table, flat_row_numbers)

@@ -7,6 +7,10 @@ def test_numbering_and_csv() raises:
     var table = parse_semicolon_csv("H1;H2\na  b;x\nc;y\n")
     var numbered = add_numbering_columns(table, [0, 1, 2])
     assert_equal(render_csv_table(numbered), "; ;H1;H2\n1;1 ;a b;x\n1;2 ;c;y\n")
+    assert_equal(
+        render_csv_table(table, False),
+        ";;H1;H2\n;;a b;x\n;;c;y\n",
+    )
 
 
 def test_markdown_and_emacs_headers() raises:
@@ -303,6 +307,86 @@ def test_markup_nocolor_uses_raw_serializer() raises:
     assert_true('>\nA\n</td>\n ' in raw_html)
     assert_true('</tr>\n\n</table>\n\n' in raw_html)
     assert_false('>\nA\n</td>\n ' in rich_html)
+
+
+def test_flat_csv_widths_preserve_legacy_space_fragments() raises:
+    var table = parse_semicolon_csv(
+        ";;A B;C\n"
+        + "1;1;oder Bösartigkeit;xy\n"
+    )
+    assert_equal(
+        render_table_with_width_reference(
+            table, table, [0, 1], "csv", 0, True, False, 0,
+            False, False, [5, 2]
+        ),
+        "; ;A B;C\n"
+        + "1;1 ;oder ;xy\n"
+        + "1; ;Bösar;\n"
+        + "1; ;tigke;\n"
+        + "1; ;it;\n",
+    )
+
+    var unnumbered = parse_semicolon_csv(
+        "A;B\n"
+        + "oder Bösartigkeit;xy\n"
+    )
+    assert_equal(
+        render_table_with_width_reference(
+            unnumbered, unnumbered, [0, 1], "csv", 0, False, False, 0,
+            False, False, [5, 2]
+        ),
+        ";;A;B\n"
+        + ";;oder ;xy\n"
+        + ";;Bösar;\n"
+        + ";;tigke;\n"
+        + ";;it;\n",
+    )
+
+
+def test_flat_markdown_and_emacs_repeat_wrapped_heading_contract() raises:
+    var table = parse_semicolon_csv(
+        ";;Religionen;andere Sternpolygone\n"
+        + "1;1;Magie;Voodoo\n"
+    )
+    var markdown = render_table_with_width_reference(
+        table, table, [0, 1], "markdown", 0, True, False, 0,
+        False, False, [5, 10]
+    )
+    assert_true(
+        "| | |Relig |andere Ste |\n|:--:|:--:|:--:|:--:|\n"
+        + "| | |ionen |rnpolygone |\n|:--:|:--:|:--:|:--:|\n"
+        in markdown
+    )
+    assert_true("|1|1 |Magie |Voodoo |\n" in markdown)
+
+    var emacs = render_table_with_width_reference(
+        table, table, [0, 1], "emacs", 0, True, False, 0,
+        False, False, [5, 10]
+    )
+    assert_true(
+        "| | |Relig |andere Ste |\n|----+----+----+----|\n"
+        + "| | |ionen |rnpolygone |\n|----+----+----+----|\n"
+        in emacs
+    )
+    assert_true("|1|1 |Magie |Voodoo |\n" in emacs)
+
+    var unnumbered = parse_semicolon_csv(
+        "A;B\n"
+        + "oder Bösartigkeit;xy\n"
+    )
+    var unnumbered_markdown = render_table_with_width_reference(
+        unnumbered, unnumbered, [0, 1], "markdown", 0, False, False, 0,
+        False, False, [5, 2]
+    )
+    assert_true("|oder |xy |\n" in unnumbered_markdown)
+    assert_true("|Bösar | |\n" in unnumbered_markdown)
+
+    var unnumbered_emacs = render_table_with_width_reference(
+        unnumbered, unnumbered, [0, 1], "emacs", 0, False, False, 0,
+        False, False, [5, 2]
+    )
+    assert_true("|oder |xy |\n" in unnumbered_emacs)
+    assert_true("|Bösar | |\n" in unnumbered_emacs)
 
 def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()

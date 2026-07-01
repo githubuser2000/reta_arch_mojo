@@ -749,16 +749,9 @@ def native_reta_tokens_supported(tokens: List[String], csv_path: String) raises 
     var mode = canonicalize_output_mode(plan.output_mode)
     if mode.byte_length() == 0:
         return False
-    # Per-column widths are fully owned for the three legacy rich renderers.
-    # CSV/Markdown/Emacs use a separate visual-row expansion contract and stay
-    # on the atomic reference path until that remaining block is ported.
-    if (
-        len(plan.widths) > 0
-        and mode != "shell"
-        and mode != "html"
-        and mode != "bbcode"
-    ):
-        return False
+    # Per-column widths are owned for all renderers.  CSV, Markdown and Emacs
+    # force the global width to zero but still expand logical rows according to
+    # explicitly supplied data-column widths.
     # Explicit zero entries are owned as true no-wrap columns.  The renderer
     # reproduces both the historical shell pagination truncation and the raw
     # whitespace/exact-fit distinction of HTML and BBCode preparation.

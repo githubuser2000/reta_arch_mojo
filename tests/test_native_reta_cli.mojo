@@ -376,7 +376,7 @@ def test_explicit_column_widths_are_typed_replaced_and_owned() raises:
 
     for output_mode in ["csv", "markdown", "emacs"]:
         assert_true(
-            not native_reta_tokens_supported(
+            native_reta_tokens_supported(
                 [
                     "-zeilen",
                     "--vorhervonausschnitt=1",

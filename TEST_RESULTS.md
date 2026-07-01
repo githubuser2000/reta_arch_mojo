@@ -5,7 +5,7 @@
 ```text
 90 Mojo-Testdateien und -Probes
 14 Python-Testdateien
-380 Testfunktionen insgesamt (323 Mojo, 57 Python)
+382 Testfunktionen insgesamt (325 Mojo, 57 Python)
 9 reguläre ELF-Compilerziele
 16 optionale schwere Metadaten-/Katalog-/Laufzeitziele
 ```
@@ -1125,4 +1125,35 @@ und die symmetrische Deinstallation ab.
 ./scripts/check_resource_paths.sh
 ./scripts/check_install_layout.sh
 python3 -m pytest -q tests/test_install_layout.py tests/test_mojo_runtime_path.py
+```
+
+
+## Stage 12c4o: flache individuelle Spaltenbreiten
+
+```text
+CSV/Markdown/Emacs Python↔Mojo:          13/13 byteidentisch
+zusätzliche kombinierte Randfälle:          4/4 byteidentisch
+Tabellenrenderer:                        20/20
+nativer CLI-/Ownership-Planer:           26/26
+Kompatibilitätslauncher:                 14/14
+positive Shell/HTML/BBCode-Breiten:      12/12 byteidentisch
+explizite Shell/HTML/BBCode-Nullbreiten: 12/12 byteidentisch
+rohes HTML/BBCode --nocolor:             12/12 byteidentisch
+paginierte Rendererparität:               6/6 byteidentisch
+keineleereninhalte:                      13/13 byteidentisch
+aktive std.python-Brücken:                0
+```
+
+Die dreizehn neuen Ströme prüfen CSV, Markdown und Emacs mit deutscher und
+englischer Syntax, positiven Breiten, `0,8` und dem Ersetzen einer früheren
+Liste. Die flachen Formate behalten globale Breite null, expandieren aber jede
+logische Zeile entsprechend der ausdrücklich angegebenen Datenspaltenbreiten.
+CSV bewahrt zusätzlich die historischen Leerfeld- und exakten
+Randwhitespacebytes. Auch `--keinenummerierung` behält die zwei leeren
+strukturellen CSV-Felder (`;;`) und behandelt die erste Datenspalte nicht als
+Nummerierungsspalte; Markdown und Emacs normalisieren sichtbaren Leerraum und
+setzen ihre Trenner nach jedem physischen Überschriftenfragment.
+
+```bash
+scripts/check_flat_column_widths_parity.sh
 ```

@@ -8,7 +8,7 @@ Dies ist ein inkrementeller, getesteter Port des hochgeladenen Python-Projekts `
 abgeschlossene Release-Stufen:       9 von 12 = 75,0 %
 Stufen 9/10/12:                       Ausgabe, Prompt/i18n und Releaseparität in Arbeit
 Stufe 11:                             11a–11j = 100 %
-Stufe 12:                             12a–12b fertig, 12c zu ca. 99,5 % = ca. 67 %
+Stufe 12:                             12a–12b fertig, 12c zu ca. 99,6 % = ca. 67 %
 vollständig native Originaldateien:  33 von 92 = 35,9 %
 mindestens teilweise portiert:       61 von 92 = 66,3 %
 gewichteter Quellzeilenstand:         ca. 52 %
@@ -626,3 +626,11 @@ die semantischen HTML-Metadaten umfassen 1.626 deutsch/englische Einträge.
 Die vollständige Ein-Zeilen-Ausgabe von `generate_html` ist deutsch und
 englisch bytegleich. Details:
 [`STAGE12C4N_ALL_COLUMNS_HTML_PARITY.md`](STAGE12C4N_ALL_COLUMNS_HTML_PARITY.md).
+
+
+Stage 12c4o übernimmt individuelle `--breiten`/`--widths` nun auch für CSV,
+Markdown und Emacs/Org. Der gemeinsame flache Zeilenexpander reproduziert
+Fortsetzungsnummerierung, wiederholte Überschriftentrenner, explizite
+Nullbreiten und die seltenen CSV-Leerraumbytes des Python-`textwrap`-/Rich-
+Pfads. Dreizehn deutsche und englische Referenzströme sind byteidentisch; zusätzlich sind unnummerierte CSV-Ströme mit den zwei historischen leeren Strukturfeldern (`;;`) abgesichert. Details:
+[`STAGE12C4O_NATIVE_FLAT_COLUMN_WIDTHS.md`](STAGE12C4O_NATIVE_FLAT_COLUMN_WIDTHS.md).

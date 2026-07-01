@@ -674,3 +674,17 @@ abschließendes Komma erhalten.
 - `build.sh` und `build-heavy.sh` linken zusätzlich mit `$ORIGIN/../lib/mojo`. CSV-Dateien werden weiterhin zur Laufzeit relativ zur Projektwurzel gelesen und erhalten keinen einkompilierten Ort.
 - Der rohe HTML-/BBCode-Pfad von `--nocolor` bewahrt interne Leerraumläufe, exaktes `ljust`-Padding und die physischen Newlines des Python-`print`-Pfads.
 - Die Ownership-Sperre für farbloses Markup ist entfernt; der Kompatibilitätslauncher führt diese Argumentvektoren ohne Python-Kindprozess aus.
+
+
+## Stage 12c4o
+
+- `--breiten`/`--widths` sind nun auch in CSV, Markdown und Emacs/Org nativ.
+- Ein gemeinsamer flacher Zeilenexpander trennt logische von physischen
+  Ausgabezeilen und erhält die historischen Nummerierungs- und Trennerregeln.
+- CSV serialisiert fehlende mittlere Fortsetzungsfelder und den seltenen
+  exakten `textwrap`-Randwhitespace bytegleich; unnummeriertes CSV behält seine zwei leeren Strukturfelder (`;;`). Markdown/Emacs normalisieren
+  dieselben Fragmente vor der Ausgabe.
+- Der atomare Ownership-Prüfer gibt diese Aufrufe frei; dreizehn Referenzfälle
+  und der Kompatibilitätslauncher laufen ohne Python-Kindprozess.
+- Der im Eingangsarchiv erneut vorhandene tote `prompt_python_bridge.mojo` ist
+  wieder physisch entfernt; aktive `std.python`-Importe bleiben bei null.
