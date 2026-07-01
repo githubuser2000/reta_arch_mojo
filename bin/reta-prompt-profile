@@ -15,6 +15,6 @@ if [ -z "${RETA_PYTHON-}" ] && [ -x "$ROOT/.venv/bin/python" ]; then
 fi
 cd "$ROOT"
 if [ -x "$ROOT/target/bin/reta-prompt-native" ]; then
-    exec "$ROOT/target/bin/reta-prompt-native" "$PROFILE" "$@"
+    exec "$ROOT/bin/mojo-runtime-exec" "$ROOT/target/bin/reta-prompt-native" "$PROFILE" "$@"
 fi
 exec "$ROOT/bin/mojo-real" run -I "$ROOT/src" "$ROOT/src/prompt_main.mojo" "$PROFILE" "$@"

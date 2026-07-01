@@ -11,6 +11,6 @@ if [ -z "${RETA_PYTHON-}" ] && [ -x "$ROOT/.venv/bin/python" ]; then
 fi
 cd "$ROOT"
 if [ -x "$ROOT/target/bin/reta-mojo-compat-bin" ]; then
-    exec "$ROOT/target/bin/reta-mojo-compat-bin" "$@"
+    exec "$ROOT/bin/mojo-runtime-exec" "$ROOT/target/bin/reta-mojo-compat-bin" "$@"
 fi
 exec "$ROOT/bin/mojo-real" run "$ROOT/src/compat_main.mojo" "$@"

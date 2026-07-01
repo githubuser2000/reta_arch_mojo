@@ -7,6 +7,6 @@ fi
 ROOT=$(CDPATH= cd -- "$(dirname -- "$SELF")/.." && pwd)
 cd "$ROOT"
 if [ -x "$ROOT/target/bin/generate-html-native" ]; then
-    exec "$ROOT/target/bin/generate-html-native" "$@"
+    exec "$ROOT/bin/mojo-runtime-exec" "$ROOT/target/bin/generate-html-native" "$@"
 fi
 exec "$ROOT/bin/mojo-real" run -I "$ROOT/src" "$ROOT/src/generate_html_main.mojo" "$@"

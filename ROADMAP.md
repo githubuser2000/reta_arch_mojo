@@ -225,5 +225,14 @@ Die Zahl **12** ist die geplante Releasegliederung. Interne Teilpakete oder Fehl
 - Eine Nullbreite deaktiviert den Wortumbruch nur für die zugehörige ausgewählte Datenspalte; fehlende Listeneinträge verwenden weiterhin die globale Breite.
 - Markup misst historische Rohleerzeichen für die Umbruchentscheidung, serialisiert den Zelltext jedoch normalisiert.
 - Shell besitzt die Referenzsemantik überbreiter Nullspalten einschließlich einmaligem Überspringen auf der ersten Datenseite und Abbruch späterer horizontaler Seiten.
-- CSV/Markdown/Emacs sowie HTML/BBCode mit `--nocolor` bleiben atomarer Referenzfallback.
+- CSV/Markdown/Emacs bleiben atomarer Referenzfallback; HTML/BBCode mit `--nocolor` wurden in Stage 12c4l übernommen.
 - Der Vertrag ist über 12 Nullbreitenfixtures, 17 Renderertests, 26 Ownership- und 13 Launchertests abgesichert.
+
+
+## Stage 12c4l – portable Runtime und rohes Markup
+
+- Übernommene Mojo-ELF-Dateien starten ohne identischen absoluten `.venv`-Pfad.
+- Builds betten `$ORIGIN/../lib/mojo` ein; `target/lib/mojo` wird lokal auf die zwei Modular-Laufzeitbibliotheken verknüpft.
+- Bestehende Binaries werden durch `bin/mojo-runtime-exec` ohne Neukompilierung lauffähig.
+- HTML und BBCode mit `--nocolor` besitzen den exakten rohen `print`-Vertrag, einschließlich interner Leerraumläufe und physischer HTML-Zeilenstruktur.
+- Zwölf Markupströme, 18 Renderertests, 26 Ownershiptests, 14 Launchertests und vier Runtimepfadtests sichern die Stufe ab.

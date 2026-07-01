@@ -352,6 +352,22 @@ def _pad_cell(text: String, width: Int) -> String:
     return text
 
 
+def _pad_cell_raw(text: String, width: Int) -> String:
+    """Preserve the exact ``str.ljust`` contract of ``--nocolor`` markup."""
+    var result = text
+    while width > 0 and codepoint_length(result) < width:
+        result += " "
+    return result^
+
+
+def _raw_number_field(text: String, width: Int) -> String:
+    """Return ``(text + " ").rjust(width)`` without Python."""
+    var result = text + " "
+    while codepoint_length(result) < width:
+        result = " " + result
+    return result^
+
+
 def _append_long_word(mut result: List[String], word: String, width: Int) -> String:
     """Append TextWrapper-compatible long-word parts.
 
@@ -525,6 +541,117 @@ def _word_wrap_cell(text: String, width: Int) -> List[String]:
     return result^
 
 
+
+def _raw_markup_word_wrap_cell(text: String, width: Int) -> List[String]:
+    """Wrap like Python ``textwrap`` while retaining internal space runs.
+
+    The raw HTML/BBCode path used by ``--nocolor`` bypasses Rich, therefore
+    the prepared fragments themselves—not only their source widths—must keep
+    significant runs of spaces.  Control whitespace is normalized to ASCII
+    spaces, matching ``TextWrapper.replace_whitespace``.
+    """
+    var clean = String(text.strip())
+    var result = List[String]()
+    if width <= 0 or codepoint_length(clean) <= width:
+        result.append(clean)
+        return result^
+
+    var words = List[String]()
+    var separators = List[String]()
+    var bytes = clean.as_bytes()
+    var cursor = 0
+    var pending_spaces = String()
+    while cursor < len(bytes):
+        while cursor < len(bytes):
+            var code = Int(bytes[cursor])
+            if code != 9 and code != 10 and code != 13 and code != 32:
+                break
+            pending_spaces += " "
+            cursor += 1
+        if cursor >= len(bytes):
+            break
+        var start = cursor
+        while cursor < len(bytes):
+            var code = Int(bytes[cursor])
+            if code == 9 or code == 10 or code == 13 or code == 32:
+                break
+            cursor += 1
+        words.append(String(StringSlice(clean)[byte=start:cursor]))
+        separators.append("" if len(words) == 1 else pending_spaces)
+        pending_spaces = String()
+
+    var current = String()
+    for index in range(len(words)):
+        var word = words[index]
+        var separator = separators[index]
+        var separator_width = codepoint_length(separator)
+        if current.byte_length() == 0:
+            if codepoint_length(word) <= width:
+                current = word
+            else:
+                current = _append_long_word(result, word, width)
+        elif (
+            codepoint_length(current)
+            + separator_width
+            + codepoint_length(word)
+            <= width
+        ):
+            current += separator + word
+        else:
+            var available = width - codepoint_length(current) - separator_width
+            var prefix = _hyphen_prefix_fitting(word, available)
+            if (
+                prefix.byte_length() == 0
+                and available > 0
+                and codepoint_length(word) > width
+                and not "-" in word
+            ):
+                prefix = _codepoint_prefix(word, available)
+            if prefix.byte_length() > 0:
+                current += separator + prefix
+                result.append(current^)
+                var remainder = _slice_after_ascii_prefix(word, prefix)
+                if codepoint_length(remainder) <= width:
+                    current = remainder^
+                else:
+                    current = _append_long_word(result, remainder, width)
+            else:
+                result.append(current^)
+                if codepoint_length(word) <= width:
+                    current = word^
+                else:
+                    current = _append_long_word(result, word, width)
+    if current.byte_length() > 0 or len(result) == 0:
+        result.append(current^)
+    return result^
+
+
+def _markup_word_wrap_cell(
+    text: String, width: Int, preserve_whitespace: Bool
+) -> List[String]:
+    if preserve_whitespace:
+        return _raw_markup_word_wrap_cell(text, width)
+    return _word_wrap_cell(text, width)
+
+
+def _markup_wrapped_column_width(
+    table: CsvTable,
+    column: Int,
+    width: Int,
+    preserve_whitespace: Bool,
+) -> Int:
+    if width <= 0:
+        return 0
+    var maximum = 0
+    for row_index in range(len(table.rows)):
+        var parts = _markup_word_wrap_cell(
+            table.rows[row_index][column], width, preserve_whitespace
+        )
+        for part_index in range(len(parts)):
+            maximum = max(maximum, codepoint_length(parts[part_index]))
+    return maximum
+
+
 def _wrapped_column_width(table: CsvTable, column: Int, width: Int) -> Int:
     if width <= 0:
         return 0
@@ -570,6 +697,7 @@ def render_bbcode_table_with_width_reference(
     one_table: Bool = False,
     no_blank_contents: Bool = False,
     widths: List[Int] = List[Int](),
+    color_rows: Bool = True,
 ) -> String:
     """Render BBCode with legacy wrapping, paging and significant spaces."""
     if len(table.rows) == 0:
@@ -578,7 +706,9 @@ def render_bbcode_table_with_width_reference(
     var total_columns = len(table.rows[0])
     var result = String()
     var page_start = data_start
-    var screen_width = 80 - _decimal_width(_maximum_row_number(row_numbers)) - 1
+    var maximum_row_number = _maximum_row_number(row_numbers)
+    var raw_number_width = _decimal_width(maximum_row_number) + 1
+    var screen_width = 80 - _decimal_width(maximum_row_number) - 1
     while page_start < total_columns:
         var page_end = page_start
         if width <= 0 or one_table:
@@ -589,8 +719,8 @@ def render_bbcode_table_with_width_reference(
                 var requested_width = _column_wrap_width(
                     page_end, data_start, width, widths
                 )
-                var column_width = _wrapped_column_width(
-                    width_reference, page_end, requested_width
+                var column_width = _markup_wrapped_column_width(
+                    width_reference, page_end, requested_width, not color_rows
                 )
                 var candidate = sum_widths + column_width + 1
                 if page_end > page_start and candidate >= screen_width:
@@ -609,7 +739,11 @@ def render_bbcode_table_with_width_reference(
                 )
                 row_height = max(
                     row_height,
-                    len(_word_wrap_cell(width_reference.rows[row_index][column_index], requested_width)),
+                    len(_markup_word_wrap_cell(
+                        width_reference.rows[row_index][column_index],
+                        requested_width,
+                        not color_rows,
+                    )),
                 )
             for visual_line in range(row_height):
                 if no_blank_contents:
@@ -618,9 +752,10 @@ def render_bbcode_table_with_width_reference(
                         var requested_width = _column_wrap_width(
                             column_index, data_start, width, widths
                         )
-                        var visible_parts = _word_wrap_cell(
+                        var visible_parts = _markup_word_wrap_cell(
                             width_reference.rows[row_index][column_index],
                             requested_width,
+                            not color_rows,
                         )
                         var visible_part = (
                             visible_parts[visual_line]
@@ -641,25 +776,40 @@ def render_bbcode_table_with_width_reference(
                     result += _bbcode_counting_cell(row[0], is_heading)
                 if number_rows and len(row) > 1:
                     result += "[td=\"\"]"
-                    result += (
-                        " "
-                        if is_heading or visual_line > 0
-                        else row[1] + " "
-                    )
+                    if color_rows:
+                        result += (
+                            " "
+                            if is_heading or visual_line > 0
+                            else row[1] + " "
+                        )
+                    else:
+                        result += _raw_number_field(
+                            ""
+                            if is_heading or visual_line > 0
+                            else String(row[1].strip()),
+                            raw_number_width,
+                        )
                     result += "[/td]"
                 for column_index in range(page_start, page_end):
                     var requested_width = _column_wrap_width(
                         column_index, data_start, width, widths
                     )
-                    var parts = _word_wrap_cell(
+                    var parts = _markup_word_wrap_cell(
                         width_reference.rows[row_index][column_index],
                         requested_width,
+                        not color_rows,
                     )
                     var part = parts[visual_line] if visual_line < len(parts) else ""
-                    var column_width = _wrapped_column_width(
-                        width_reference, column_index, requested_width
+                    var column_width = _markup_wrapped_column_width(
+                        width_reference, column_index, requested_width,
+                        not color_rows,
                     )
-                    result += "[td=\"\"]" + _pad_cell(part, column_width) + "[/td] "
+                    var rendered_part = (
+                        _pad_cell(part, column_width)
+                        if color_rows
+                        else _pad_cell_raw(part, column_width)
+                    )
+                    result += "[td=\"\"]" + rendered_part + "[/td] "
                 result += "[/tr]\n"
         result += "[/table]\n"
         page_start = page_end
@@ -674,6 +824,7 @@ def render_bbcode_table(
     one_table: Bool = False,
     no_blank_contents: Bool = False,
     widths: List[Int] = List[Int](),
+    color_rows: Bool = True,
 ) -> String:
     return render_bbcode_table_with_width_reference(
         table,
@@ -684,6 +835,7 @@ def render_bbcode_table(
         one_table,
         no_blank_contents,
         widths,
+        color_rows,
     )
 
 
@@ -717,6 +869,7 @@ def render_html_table_with_context(
     one_table: Bool = False,
     no_blank_contents: Bool = False,
     widths: List[Int] = List[Int](),
+    color_rows: Bool = True,
 ) raises -> String:
     if len(table.rows) == 0:
         return ""
@@ -725,7 +878,9 @@ def render_html_table_with_context(
     var total_columns = len(table.rows[0])
     var result = String()
     var page_start = data_start
-    var screen_width = 80 - _decimal_width(_maximum_row_number(row_numbers)) - 1
+    var maximum_row_number = _maximum_row_number(row_numbers)
+    var raw_number_width = _decimal_width(maximum_row_number) + 1
+    var screen_width = 80 - _decimal_width(maximum_row_number) - 1
     while page_start < total_columns:
         var page_end = page_start
         if width <= 0 or one_table:
@@ -736,8 +891,8 @@ def render_html_table_with_context(
                 var requested_width = _column_wrap_width(
                     page_end, data_start, width, widths
                 )
-                var column_width = _wrapped_column_width(
-                    width_reference, page_end, requested_width
+                var column_width = _markup_wrapped_column_width(
+                    width_reference, page_end, requested_width, not color_rows
                 )
                 var candidate = sum_widths + column_width + 1
                 if page_end > page_start and candidate >= screen_width:
@@ -756,7 +911,11 @@ def render_html_table_with_context(
                 )
                 row_height = max(
                     row_height,
-                    len(_word_wrap_cell(width_reference.rows[row_index][column_index], requested_width)),
+                    len(_markup_word_wrap_cell(
+                        width_reference.rows[row_index][column_index],
+                        requested_width,
+                        not color_rows,
+                    )),
                 )
             for visual_line in range(row_height):
                 if no_blank_contents:
@@ -765,9 +924,10 @@ def render_html_table_with_context(
                         var requested_width = _column_wrap_width(
                             column_index, data_start, width, widths
                         )
-                        var visible_parts = _word_wrap_cell(
+                        var visible_parts = _markup_word_wrap_cell(
                             width_reference.rows[row_index][column_index],
                             requested_width,
+                            not color_rows,
                         )
                         var visible_part = (
                             visible_parts[visual_line]
@@ -787,33 +947,59 @@ def render_html_table_with_context(
                     else row_index
                 )
                 var is_heading = number == 0
-                result += colored_row_begin("html", number).replace("\n", "")
-                if number_rows and len(row) > 0:
-                    result += " " + _html_counting_open(
-                        catalog, language, row[0], is_heading
-                    )
-                    result += _html_cell_payload(
-                        _html_escape("" if is_heading else row[0])
-                    ) + "</td>"
-                if number_rows and len(row) > 1:
-                    result += " " + html_cell_open(
-                        catalog, language, -1, 1, is_heading, ""
-                    )
-                    var number_text = (
-                        ""
-                        if is_heading or visual_line > 0
-                        else String(row[1].strip())
-                    )
-                    result += _html_cell_payload(
-                        _html_escape(number_text)
-                    ) + "</td>"
+                if color_rows:
+                    result += colored_row_begin("html", number).replace("\n", "")
+                    if number_rows and len(row) > 0:
+                        result += " " + _html_counting_open(
+                            catalog, language, row[0], is_heading
+                        )
+                        result += _html_cell_payload(
+                            _html_escape("" if is_heading else row[0])
+                        ) + "</td>"
+                    if number_rows and len(row) > 1:
+                        result += " " + html_cell_open(
+                            catalog, language, -1, 1, is_heading, ""
+                        )
+                        var number_text = (
+                            ""
+                            if is_heading or visual_line > 0
+                            else String(row[1].strip())
+                        )
+                        result += _html_cell_payload(
+                            _html_escape(number_text)
+                        ) + "</td>"
+                else:
+                    # With ``--nocolor`` Python bypasses Rich's Syntax stream.
+                    # Each legacy chunk is printed verbatim and receives one
+                    # additional newline from ``print``.
+                    result += colored_row_begin("html", number)
+                    if number_rows and len(row) > 0:
+                        result += _html_counting_open(
+                            catalog, language, row[0], is_heading
+                        ) + "\n"
+                        result += _html_escape(
+                            " " if is_heading else row[0]
+                        ) + "\n</td>\n"
+                    if number_rows and len(row) > 1:
+                        result += html_cell_open(
+                            catalog, language, -1, 1, is_heading, ""
+                        ) + "\n"
+                        result += _html_escape(
+                            _raw_number_field(
+                                ""
+                                if is_heading or visual_line > 0
+                                else String(row[1].strip()),
+                                raw_number_width,
+                            )
+                        ) + "\n</td>\n"
                 for column_index in range(page_start, page_end):
                     var requested_width = _column_wrap_width(
                         column_index, data_start, width, widths
                     )
-                    var parts = _word_wrap_cell(
+                    var parts = _markup_word_wrap_cell(
                         width_reference.rows[row_index][column_index],
                         requested_width,
+                        not color_rows,
                     )
                     var part = (
                         parts[visual_line] if visual_line < len(parts) else ""
@@ -831,22 +1017,44 @@ def render_html_table_with_context(
                         and column_index < len(table.rows[0])
                         else ""
                     )
-                    result += " " + html_cell_open(
-                        catalog,
-                        language,
-                        source_column,
-                        source_position + 2,
-                        is_heading,
-                        semantic_heading,
-                    )
-                    result += _html_cell_payload(
-                        _html_escape_preserving_tags(part)
-                    ) + "</td>"
-                result += " </tr>\n"
-        result += "</table>\n"
+                    if color_rows:
+                        result += " " + html_cell_open(
+                            catalog,
+                            language,
+                            source_column,
+                            source_position + 2,
+                            is_heading,
+                            semantic_heading,
+                        )
+                        result += _html_cell_payload(
+                            _html_escape_preserving_tags(part)
+                        ) + "</td>"
+                    else:
+                        result += html_cell_open(
+                            catalog,
+                            language,
+                            source_column,
+                            source_position + 2,
+                            is_heading,
+                            semantic_heading,
+                        ) + "\n"
+                        var column_width = _markup_wrapped_column_width(
+                            width_reference, column_index, requested_width,
+                            not color_rows,
+                        )
+                        result += _html_escape_preserving_tags(
+                            _pad_cell_raw(part, column_width)
+                        ) + "\n</td>\n "
+                if color_rows:
+                    result += " </tr>\n"
+                else:
+                    result += "</tr>\n\n"
+        if color_rows:
+            result += "</table>\n"
+        else:
+            result += "</table>\n\n"
         page_start = page_end
     return result^
-
 
 
 def _shell_colorize(text: String, number: Int, rest: Bool = False) -> String:
@@ -1288,6 +1496,7 @@ def render_table_with_width_reference(
             one_table,
             no_blank_contents,
             widths,
+            color_rows,
         )
     if mode == "nichts":
         return ""
@@ -1335,6 +1544,7 @@ def render_table_with_native_context(
             one_table,
             no_blank_contents,
             widths,
+            color_rows,
         )
     return render_table_with_width_reference(
         table,

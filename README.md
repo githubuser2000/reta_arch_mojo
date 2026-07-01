@@ -580,3 +580,13 @@ für überbreite ungebrochene Nullspalten; HTML und BBCode trennen rohe
 Leerraummessung von normalisierter Serialisierung. Zwölf neue Referenzströme
 sind byteidentisch. Details:
 [`STAGE12C4K_NATIVE_ZERO_COLUMN_WIDTHS.md`](STAGE12C4K_NATIVE_ZERO_COLUMN_WIDTHS.md).
+
+Stage 12c4l macht übertragene Mojo-ELF-Dateien unabhängig vom absoluten
+Compilerpfad des Buildrechners. Alle Builds erhalten den relativen RUNPATH
+`$ORIGIN/../lib/mojo`; `scripts/configure_mojo_runtime.sh` füllt den
+projektrelativen Ort `target/lib/mojo`, und `bin/mojo-runtime-exec` kann auch
+ältere Binaries über `LD_LIBRARY_PATH` starten. Das betrifft die Modular-
+Laufzeitbibliotheken, nicht die CSV-Dateien. Gleichzeitig ist der rohe
+HTML-/BBCode-Serializer von `--nocolor` einschließlich signifikanter
+Leerraumläufe, Einzel- und Nullbreiten nativ. Details:
+[`STAGE12C4L_PORTABLE_RUNTIME_RAW_MARKUP.md`](STAGE12C4L_PORTABLE_RUNTIME_RAW_MARKUP.md).

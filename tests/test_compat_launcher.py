@@ -230,6 +230,29 @@ def test_positive_column_widths_run_without_python_child() -> None:
         )
 
 
+def test_markup_nocolor_runs_without_python_child() -> None:
+    fixtures = ROOT / "tests" / "fixtures" / "markup_nocolor"
+    for output_mode in ("html", "bbcode"):
+        arguments = [
+            "-zeilen",
+            "--vorhervonausschnitt=1-2",
+            "-spalten",
+            "--religionen=sternpolygon",
+            "--Menschliches=manipulation",
+            "-ausgabe",
+            f"--art={output_mode}",
+            "--breiten=5,10",
+            "--nocolor",
+        ]
+        native = _run_compat(arguments, python="/definitely/not/available")
+        expected = (fixtures / f"de-{output_mode}-widths.out").read_bytes()
+        assert (native.returncode, native.stdout, native.stderr) == (
+            0,
+            expected,
+            b"",
+        )
+
+
 def test_unowned_column_width_edge_cases_fall_back_atomically(
     tmp_path: Path,
 ) -> None:
@@ -244,16 +267,6 @@ def test_unowned_column_width_edge_cases_fall_back_atomically(
             "-ausgabe",
             "--art=csv",
             "--breiten=5,10",
-        ],
-        [
-            "-zeilen",
-            "--vorhervonausschnitt=1",
-            "-spalten",
-            "--religionen=sternpolygon",
-            "-ausgabe",
-            "--art=html",
-            "--breiten=5,10",
-            "--nocolor",
         ],
     ]
     for arguments in cases:

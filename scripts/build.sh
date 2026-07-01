@@ -4,13 +4,17 @@ ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 cd "$ROOT"
 TARGET_DIR=${RETA_TARGET_DIR:-"$ROOT/target/bin"}
 mkdir -p "$TARGET_DIR"
+MOJO_RUNTIME_RPATH='$ORIGIN/../lib/mojo'
+"$ROOT/scripts/configure_mojo_runtime.sh" >/dev/null
 
 build() {
     source_file=$1
     output_name=$2
     shift 2
     printf 'Kompiliere %-35s -> %s\n' "$source_file" "$output_name"
-    "$ROOT/bin/mojo-real" build "$@" "$source_file" -o "$TARGET_DIR/$output_name"
+    "$ROOT/bin/mojo-real" build "$@" "$source_file" \
+        -Xlinker -rpath -Xlinker "$MOJO_RUNTIME_RPATH" \
+        -o "$TARGET_DIR/$output_name"
 }
 
 build src/main.mojo reta-mojo-native -I src

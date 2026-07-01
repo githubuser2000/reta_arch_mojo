@@ -37,10 +37,28 @@ Kurzzuordnung:
 - `bin/prim`, `prim24`, `multis`, `multis3`, `modulo`, `math`: Komfortstarter mit vorbereiteten Promptbefehlen;
 - `bin/grundStrukHtml`, `generate_html`: HTML-Werkzeuge;
 - `bin/reta-mojo-*`: Architektur-, Prüf-, Persistenz- und Parallelisierungswerkzeuge;
-- `bin/mojo-real`: Auswahl des echten Modular-Mojo-Compilers.
+- `bin/mojo-real`: Auswahl des echten Modular-Mojo-Compilers;
+- `bin/mojo-runtime-exec`: startet kompilierte Mojo-ELF-Dateien mit der lokal erkannten Runtime, auch wenn ihr älterer absoluter `RUNPATH` von einem anderen Rechner stammt.
 
 Fehlt ein Ziel in `target/bin/`, meldet der Launcher den nötigen Buildschritt
 oder verwendet bei leichten Zielen den dokumentierten `mojo run`-Fallback.
+
+
+## Portable Binärübergabe zwischen Rechnern
+
+Die kompilierten Programme hängen nicht an einem einkompilierten CSV-Ort. Sie
+benötigen vor dem Start die beiden dynamischen Modular-Laufzeitbibliotheken.
+Der gemeinsame portable Ort ist `target/lib/mojo`, relativ zum Projekt, nicht
+ein identischer absoluter Home-Pfad.
+
+```bash
+./scripts/configure_mojo_runtime.sh
+./reta --help
+```
+
+`scripts/build.sh` und `scripts/build-heavy.sh` betten zusätzlich
+`$ORIGIN/../lib/mojo` als relativen `RUNPATH` ein. Die Launcher verwenden
+`mojo-runtime-exec` als Abwärtskompatibilität für bereits vorhandene Binaries.
 
 ## Wichtige Tabellenpfade
 
@@ -67,7 +85,7 @@ RETA_NATIVE=1 ./reta -zeilen --vorhervonausschnitt=1-3 \
   -ausgabe --art=csv --breite=40
 ```
 
-`RETA_NATIVE=1` erzwingt den nativen Pfad. Die normale `./reta`-Ausführung entscheidet seit Stage 12c4e konservativ selbst; Stage 12c4f besitzt zusätzlich die Shell-Ein-Tabellen- und Justtext-Ausgabe; Stage 12c4g erweitert die Ein-Tabellen-Aliase auf HTML und BBCode; Stage 12c4h/12c4i besitzen No-blank und die paginierten Kernrenderer; Stage 12c4j besitzt positive individuelle Shell-/HTML-/BBCode-Spaltenbreiten; `RETA_FORCE_REFERENCE=1` erzwingt die vollständige Python-Referenz.
+`RETA_NATIVE=1` erzwingt den nativen Pfad. Die normale `./reta`-Ausführung entscheidet seit Stage 12c4e konservativ selbst; Stage 12c4f besitzt zusätzlich die Shell-Ein-Tabellen- und Justtext-Ausgabe; Stage 12c4g erweitert die Ein-Tabellen-Aliase auf HTML und BBCode; Stage 12c4h/12c4i besitzen No-blank und die paginierten Kernrenderer; Stage 12c4j/12c4k besitzen positive und explizite Nullbreiten; Stage 12c4l besitzt zusätzlich rohes HTML/BBCode mit `--nocolor` und eine rechnerübergreifende Mojo-Runtimeauflösung; `RETA_FORCE_REFERENCE=1` erzwingt die vollständige Python-Referenz.
 
 ## Zielzustand nach vollständiger Transpilierung
 

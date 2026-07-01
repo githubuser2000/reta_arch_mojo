@@ -665,3 +665,12 @@ abschließendes Komma erhalten.
 - Zwölf neue Nullbreitenfixtures decken `0`, `0,8`, `5,0` und `0,0` für Shell, HTML und BBCode ab.
 - Der tote `prompt_python_bridge.mojo` samt veraltetem FFI-Probeimport wurde entfernt; alle aktiven Promptmodule sind wieder physisch frei von `std.python`.
 - CSV/Markdown/Emacs und farbloses HTML/BBCode bleiben weiterhin atomarer Ganzvektor-Fallback.
+
+
+## Stage 12c4l
+
+- Der vermeintliche Datenpfadfehler übernommener Binaries wurde auf die ELF-Dynamikgrenze eingegrenzt: `libKGENCompilerRTShared.so` und `libAsyncRTMojoBindings.so` waren wegen eines fremden absoluten `RUNPATH` nicht auffindbar.
+- `scripts/find_mojo_runtime.sh`, `scripts/configure_mojo_runtime.sh` und `bin/mojo-runtime-exec` bilden eine portable Runtimeauflösung. Der stabile Vertrag ist `target/lib/mojo`; absolute Installationspfade bleiben rechnerlokal.
+- `build.sh` und `build-heavy.sh` linken zusätzlich mit `$ORIGIN/../lib/mojo`. CSV-Dateien werden weiterhin zur Laufzeit relativ zur Projektwurzel gelesen und erhalten keinen einkompilierten Ort.
+- Der rohe HTML-/BBCode-Pfad von `--nocolor` bewahrt interne Leerraumläufe, exaktes `ljust`-Padding und die physischen Newlines des Python-`print`-Pfads.
+- Die Ownership-Sperre für farbloses Markup ist entfernt; der Kompatibilitätslauncher führt diese Argumentvektoren ohne Python-Kindprozess aus.

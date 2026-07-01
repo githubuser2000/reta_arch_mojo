@@ -1038,3 +1038,29 @@ scripts/check_column_zero_widths_parity.sh
 RETA_REFRESH_COLUMN_ZERO_WIDTH_FIXTURES=1 \
   scripts/check_column_zero_widths_parity.sh
 ```
+
+
+## Stage 12c4l: portable Runtime und rohes HTML/BBCode
+
+```text
+Markup --nocolor Python↔Mojo:             12/12 byteidentisch
+Tabellenrenderer:                         18/18
+nativer CLI-/Ownership-Planer:            26/26
+Kompatibilitätslauncher:                  14/14
+portable Runtime-Pfadtests:                4/4
+positive Breiten Python↔Mojo:             12/12 byteidentisch
+explizite Nullbreiten Python↔Mojo:        12/12 byteidentisch
+paginierte Rendererparität:                6/6
+No-blank-Parität:                         13/13
+Markup-oneTable ohne Python:              12/12
+```
+
+Die zwölf neuen Markupfälle umfassen Deutsch und Englisch, globale Breite,
+positive Einzelbreiten, explizite Nullbreiten, globale Breite null und
+`--keineleereninhalte`. HTML bewahrt den mehrzeiligen Rohserializer; BBCode
+bewahrt exakte interne und nachgestellte Padding-Leerzeichen.
+
+```bash
+scripts/check_markup_nocolor_parity.sh
+python3 -m pytest -q tests/test_mojo_runtime_path.py
+```

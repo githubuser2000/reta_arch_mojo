@@ -275,5 +275,34 @@ def test_shell_oversized_zero_width_reproduces_legacy_page_truncation() raises:
     assert_false(long_cell in truncated)
     assert_false("truncated" in truncated)
 
+
+def test_markup_nocolor_uses_raw_serializer() raises:
+    var table = parse_semicolon_csv(
+        "; ;A;B\n"
+        + "1;1;x;yy\n"
+    )
+    var raw_bbcode = render_bbcode_table_with_width_reference(
+        table, table, [0, 1], True, 8, True, False, [5, 4], False
+    )
+    var rich_bbcode = render_bbcode_table_with_width_reference(
+        table, table, [0, 1], True, 8, True, False, [5, 4], True
+    )
+    assert_true('[td=""]  [/td]' in raw_bbcode)
+    assert_true('[td=""]1 [/td]' in raw_bbcode)
+    assert_false('[td=""]  [/td]' in rich_bbcode)
+
+    var raw_html = render_html_table_with_context(
+        table, table, [0, 1], [0, 1], "german",
+        True, 8, True, False, [5, 4], False
+    )
+    var rich_html = render_html_table_with_context(
+        table, table, [0, 1], [0, 1], "german",
+        True, 8, True, False, [5, 4], True
+    )
+    assert_true('<table border=0 id="bigtable">\n<tr ' in raw_html)
+    assert_true('>\nA\n</td>\n ' in raw_html)
+    assert_true('</tr>\n\n</table>\n\n' in raw_html)
+    assert_false('>\nA\n</td>\n ' in rich_html)
+
 def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()

@@ -7,29 +7,29 @@ fi
 ROOT=$(CDPATH= cd -- "$(dirname -- "$SELF")/.." && pwd)
 if [ "${1-}" = "--mojo-schema" ] || [ "${1-}" = "--mojo-columns" ] || [ "${1-}" = "--mojo-alias" ] || [ "${1-}" = "--mojo-parse-cli" ] || [ "${1-}" = "--mojo-vocabulary" ]; then
     if [ -x "$ROOT/target/bin/reta-mojo-schema" ]; then
-        exec "$ROOT/target/bin/reta-mojo-schema" "$@"
+        exec "$ROOT/bin/mojo-runtime-exec" "$ROOT/target/bin/reta-mojo-schema" "$@"
     fi
     exec "$ROOT/bin/mojo-real" run -I "$ROOT/src" "$ROOT/src/schema_main.mojo" "$@"
 fi
 if [ "${1-}" = "--mojo-architecture" ]; then
     if [ -x "$ROOT/target/bin/reta-mojo-architecture" ]; then
-        exec "$ROOT/target/bin/reta-mojo-architecture"
+        exec "$ROOT/bin/mojo-runtime-exec" "$ROOT/target/bin/reta-mojo-architecture"
     fi
     exec "$ROOT/bin/mojo-real" run -I "$ROOT/src" "$ROOT/src/architecture_main.mojo"
 fi
 if [ "${1-}" = "--mojo-tags" ] || [ "${1-}" = "--mojo-tag-columns" ]; then
     if [ -x "$ROOT/target/bin/reta-mojo-tags" ]; then
-        exec "$ROOT/target/bin/reta-mojo-tags" "$@"
+        exec "$ROOT/bin/mojo-runtime-exec" "$ROOT/target/bin/reta-mojo-tags" "$@"
     fi
     exec "$ROOT/bin/mojo-real" run -I "$ROOT/src" "$ROOT/src/tags_main.mojo" "$@"
 fi
 if [ "${1-}" = "--mojo-table-state" ] || [ "${1-}" = "--mojo-wrap" ] || [ "${1-}" = "--mojo-csv-info" ]; then
     if [ -x "$ROOT/target/bin/reta-mojo-table" ]; then
-        exec "$ROOT/target/bin/reta-mojo-table" "$@"
+        exec "$ROOT/bin/mojo-runtime-exec" "$ROOT/target/bin/reta-mojo-table" "$@"
     fi
     exec "$ROOT/bin/mojo-real" run -I "$ROOT/src" "$ROOT/src/table_main.mojo" "$@"
 fi
 if [ -x "$ROOT/target/bin/reta-mojo-native" ]; then
-    exec "$ROOT/target/bin/reta-mojo-native" "$@"
+    exec "$ROOT/bin/mojo-runtime-exec" "$ROOT/target/bin/reta-mojo-native" "$@"
 fi
 exec "$ROOT/bin/mojo-real" run -I "$ROOT/src" "$ROOT/src/main.mojo" "$@"

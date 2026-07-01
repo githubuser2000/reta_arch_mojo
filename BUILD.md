@@ -7,6 +7,7 @@
 ```text
 bin/                     versionierte Launcher
 target/bin/              reguläre ELF-Executables
+target/lib/mojo/         lokale Links auf die Mojo-Laufzeitbibliotheken
 target/tests*/           kompilierte Testprogramme
 .venv/                   lokaler Mojo-Compiler und Runtime
 src/                     Mojo-Quellen
@@ -23,6 +24,29 @@ Nur Compiler installieren:
 ```bash
 RETA_SKIP_BUILD=1 RETA_MOJO_PYTHON="$(command -v python3.14)" ./scripts/setup_mojo.sh
 ```
+
+## Portable Mojo-Laufzeit
+
+Mojo-ELF-Dateien benötigen `libKGENCompilerRTShared.so` und
+`libAsyncRTMojoBindings.so`. Das ist unabhängig von den CSV-Dateien. Absolute
+Compilerpfade im ELF-`RUNPATH` sind zwischen Rechnern nicht portabel; deshalb
+betten alle Builds zusätzlich `$ORIGIN/../lib/mojo` ein und richten den
+projektrelativen Ort `target/lib/mojo` ein.
+
+```bash
+./scripts/configure_mojo_runtime.sh
+```
+
+Die automatische Erkennung kann bei Bedarf überschrieben werden:
+
+```bash
+RETA_MOJO_RUNTIME_LIBDIR=/pfad/zu/modular/lib \
+  ./scripts/configure_mojo_runtime.sh
+```
+
+Die öffentlichen Launcher verwenden zusätzlich `bin/mojo-runtime-exec`. Damit
+laufen auch ältere übernommene ELF-Dateien, deren einzig vorhandener `RUNPATH`
+noch auf den Rechner zeigt, auf dem sie kompiliert wurden.
 
 ## Regulärer Build
 
@@ -184,4 +208,4 @@ nur eine Wiederholung.
 
 Der Promptcontroller besitzt seit Stage 12c4d keine `std.python`-Brücke mehr. Kleine Editor-, History- und PTY-Probes prüfen UTF-8, verschachtelte Completion, Mehrzeilen-Wrapping, Emacs-/Vi-Kernbindings, Ctrl-C/Ctrl-D und zwei aufeinanderfolgende Rohmodussitzungen. Der öffentliche PTY-Test verwendet unverändert `bin/rpb a1`; es gibt keinen Ersatzbefehl für die Laufzeitsemantik.
 
-Der historische Tabellenlauncher ist seit Stage 12c4e native-first und bindet kein `libpython`. `RETA_FORCE_REFERENCE=1` erzwingt den atomaren Referenzkindprozess; ohne Override entscheidet der strenge Ganzvektor-Ownership-Test. `scripts/check_compat_launcher.sh` prüft Argumente, Binärströme und Exitstatus, während `scripts/check_compat_native_first_parity.sh` zwölf Referenzfälle mit absichtlich ungültigem `RETA_PYTHON` vergleicht. Stage 12c4f ergänzt `scripts/check_native_output_stream_parity.sh` für die vier Shell-Ein-Tabellen-Aliase, `justtext`, englische Syntax und Breite-null-No-wrap. Stage 12c4h ergänzt die formatübergreifende No-blank-Parität; Stage 12c4i prüft mit `scripts/check_paginated_rendering_parity.sh` sechs deutsche/englische Shell-/HTML-/BBCode-Mehrspaltenströme. Stage 12c4j ergänzt `scripts/check_column_widths_parity.sh` für positive individuelle Spaltenbreiten und deren native-first-Grenze.
+Der historische Tabellenlauncher ist seit Stage 12c4e native-first und bindet kein `libpython`. `RETA_FORCE_REFERENCE=1` erzwingt den atomaren Referenzkindprozess; ohne Override entscheidet der strenge Ganzvektor-Ownership-Test. `scripts/check_compat_launcher.sh` prüft Argumente, Binärströme und Exitstatus, während `scripts/check_compat_native_first_parity.sh` zwölf Referenzfälle mit absichtlich ungültigem `RETA_PYTHON` vergleicht. Stage 12c4f ergänzt `scripts/check_native_output_stream_parity.sh` für die vier Shell-Ein-Tabellen-Aliase, `justtext`, englische Syntax und Breite-null-No-wrap. Stage 12c4h ergänzt die formatübergreifende No-blank-Parität; Stage 12c4i prüft mit `scripts/check_paginated_rendering_parity.sh` sechs deutsche/englische Shell-/HTML-/BBCode-Mehrspaltenströme. Stage 12c4j ergänzt `scripts/check_column_widths_parity.sh` für positive individuelle Spaltenbreiten; Stage 12c4k ergänzt explizite Nullbreiten. Stage 12c4l prüft mit `scripts/check_markup_nocolor_parity.sh` den rohen HTML-/BBCode-Serializer in zwölf Bytefällen und mit `tests/test_mojo_runtime_path.py` die portable Laufzeitauflösung.

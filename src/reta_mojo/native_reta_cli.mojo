@@ -761,12 +761,9 @@ def native_reta_tokens_supported(tokens: List[String], csv_path: String) raises 
     # Explicit zero entries are owned as true no-wrap columns.  The renderer
     # reproduces both the historical shell pagination truncation and the raw
     # whitespace/exact-fit distinction of HTML and BBCode preparation.
-    # In the Python reference ``--nocolor`` switches HTML/BBCode from
-    # Rich's whitespace-normalized stream to the raw multiline serializer.
-    # That separate byte contract is not owned by the current native markup
-    # renderer yet, so keep the whole invocation on the atomic reference path.
-    if (mode == "html" or mode == "bbcode") and not plan.color_rows:
-        return False
+    # ``--nocolor`` is also owned for HTML/BBCode: the Python reference bypasses
+    # Rich in that mode, so the native renderer selects its exact raw multiline
+    # serializer instead of the whitespace-normalized colored stream.
     # Shell, HTML and BBCode now share the historical one-table ownership
     # contract: the four aliases disable horizontal page splitting while
     # preserving each format's wrapping and metadata rules.
