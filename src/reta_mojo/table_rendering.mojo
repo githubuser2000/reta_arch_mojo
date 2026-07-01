@@ -417,28 +417,87 @@ def _codepoint_prefix(text: String, wanted: Int) -> String:
     return result^
 
 
+def _split_markup_words(
+    text: String,
+    mut words: List[String],
+    mut separator_widths: List[Int],
+) -> None:
+    """Split text while retaining the width of legacy whitespace runs.
+
+    The historical preparation path asks ``textwrap`` whether a cell needs
+    wrapping before Rich normalizes its visible whitespace.  Consequently a
+    raw fragment such as ``"(14)  (n)"`` wraps at width eight even though the
+    serialized markup later contains only one visible space.  The ordinary
+    normalized word list loses that distinction, so keep the source separator
+    widths for line-breaking while still emitting normalized fragments.
+    """
+    var clean = String(text.strip())
+    var bytes = clean.as_bytes()
+    var cursor = 0
+    var pending_width = 0
+    while cursor < len(bytes):
+        while cursor < len(bytes):
+            var code = Int(bytes[cursor])
+            if code != 9 and code != 10 and code != 13 and code != 32:
+                break
+            pending_width += 1
+            cursor += 1
+        if cursor >= len(bytes):
+            break
+        var start = cursor
+        while cursor < len(bytes):
+            var code = Int(bytes[cursor])
+            if code == 9 or code == 10 or code == 13 or code == 32:
+                break
+            cursor += 1
+        words.append(String(StringSlice(clean)[byte=start:cursor]))
+        separator_widths.append(0 if len(words) == 1 else pending_width)
+        pending_width = 0
+
+
 def _word_wrap_cell(text: String, width: Int) -> List[String]:
     var clean = normalize_cell_whitespace(text)
     var result = List[String]()
-    if width <= 0 or codepoint_length(clean) <= width:
+    if width <= 0:
         result.append(clean)
         return result^
-    var words = clean.split()
+    var words = List[String]()
+    var separator_widths = List[Int]()
+    _split_markup_words(text, words, separator_widths)
+    if len(words) == 0:
+        result.append(clean)
+        return result^
+
+    # Use the raw source width for the wrap decision.  Visible output remains
+    # normalized, matching the HTML/BBCode serializers.
+    var raw_width = 0
+    for index in range(len(words)):
+        raw_width += codepoint_length(words[index]) + separator_widths[index]
+    if raw_width <= width:
+        result.append(clean)
+        return result^
+
     var current = String()
     for index in range(len(words)):
-        var word = String(words[index])
+        var word = words[index]
+        var separator_width = separator_widths[index]
         if current.byte_length() == 0:
             if codepoint_length(word) <= width:
-                current = word^
+                current = word
             else:
                 current = _append_long_word(result, word, width)
-        elif codepoint_length(current) + 1 + codepoint_length(word) <= width:
+        elif (
+            codepoint_length(current)
+            + separator_width
+            + codepoint_length(word)
+            <= width
+        ):
             current += " " + word
         else:
             # Python's stdlib ``textwrap`` keeps ``break_on_hyphens=True``.
             # If an existing hyphen prefix still fits on the current line, it
             # is consumed there before the remainder starts the next line.
-            var available = width - codepoint_length(current) - 1
+            var available = width - codepoint_length(current) - separator_width
             var prefix = _hyphen_prefix_fitting(word, available)
             if (
                 prefix.byte_length() == 0
@@ -550,7 +609,7 @@ def render_bbcode_table_with_width_reference(
                 )
                 row_height = max(
                     row_height,
-                    len(_word_wrap_cell(row[column_index], requested_width)),
+                    len(_word_wrap_cell(width_reference.rows[row_index][column_index], requested_width)),
                 )
             for visual_line in range(row_height):
                 if no_blank_contents:
@@ -560,7 +619,8 @@ def render_bbcode_table_with_width_reference(
                             column_index, data_start, width, widths
                         )
                         var visible_parts = _word_wrap_cell(
-                            row[column_index], requested_width
+                            width_reference.rows[row_index][column_index],
+                            requested_width,
                         )
                         var visible_part = (
                             visible_parts[visual_line]
@@ -592,7 +652,8 @@ def render_bbcode_table_with_width_reference(
                         column_index, data_start, width, widths
                     )
                     var parts = _word_wrap_cell(
-                        row[column_index], requested_width
+                        width_reference.rows[row_index][column_index],
+                        requested_width,
                     )
                     var part = parts[visual_line] if visual_line < len(parts) else ""
                     var column_width = _wrapped_column_width(
@@ -695,7 +756,7 @@ def render_html_table_with_context(
                 )
                 row_height = max(
                     row_height,
-                    len(_word_wrap_cell(row[column_index], requested_width)),
+                    len(_word_wrap_cell(width_reference.rows[row_index][column_index], requested_width)),
                 )
             for visual_line in range(row_height):
                 if no_blank_contents:
@@ -705,7 +766,8 @@ def render_html_table_with_context(
                             column_index, data_start, width, widths
                         )
                         var visible_parts = _word_wrap_cell(
-                            row[column_index], requested_width
+                            width_reference.rows[row_index][column_index],
+                            requested_width,
                         )
                         var visible_part = (
                             visible_parts[visual_line]
@@ -750,7 +812,8 @@ def render_html_table_with_context(
                         column_index, data_start, width, widths
                     )
                     var parts = _word_wrap_cell(
-                        row[column_index], requested_width
+                        width_reference.rows[row_index][column_index],
+                        requested_width,
                     )
                     var part = (
                         parts[visual_line] if visual_line < len(parts) else ""
@@ -763,9 +826,9 @@ def render_html_table_with_context(
                         else -999999
                     )
                     var semantic_heading = (
-                        width_reference.rows[0][column_index]
-                        if len(width_reference.rows) > 0
-                        and column_index < len(width_reference.rows[0])
+                        table.rows[0][column_index]
+                        if len(table.rows) > 0
+                        and column_index < len(table.rows[0])
                         else ""
                     )
                     result += " " + html_cell_open(
@@ -1049,8 +1112,10 @@ def render_shell_table_with_width_reference(
     var screen_width = automatic_width if not number_rows else detected_columns
     var result = String()
     var page_start = data_start
+    var terminate_pages = False
     while page_start < total_columns:
         var page_end = total_columns if one_table else page_start
+        var skip_initial_oversized_zero = False
         # ``number_width`` already contains the legacy separator column.
         # Starting one column farther right made exact-fit data pages break
         # one column too early (notably ``--breite=0 --breiten=...``).
@@ -1063,10 +1128,31 @@ def render_shell_table_with_width_reference(
                 width_reference, page_end, requested_width
             )
             var candidate = sum_widths + column_width + 1
+            # Preserve the legacy zero-width pagination edge case.  A truly
+            # unwrapped column that cannot fit as the first column of a page is
+            # not force-rendered: the very first data column is skipped once,
+            # while the same condition on a later page terminates the remaining
+            # horizontal stream.  This oddity is observable in the Python CLI
+            # and therefore belongs to byte-compatible native execution.
+            if (
+                page_end == page_start
+                and requested_width == 0
+                and candidate >= screen_width
+            ):
+                if page_start == data_start:
+                    skip_initial_oversized_zero = True
+                else:
+                    terminate_pages = True
+                break
             if page_end > page_start and candidate >= screen_width:
                 break
             sum_widths = candidate
             page_end += 1
+        if terminate_pages:
+            break
+        if skip_initial_oversized_zero:
+            page_start += 1
+            continue
         if page_end == page_start:
             page_end += 1
         if page_start > data_start and not _shell_page_has_data(

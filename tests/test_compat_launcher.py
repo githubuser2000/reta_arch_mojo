@@ -255,15 +255,6 @@ def test_unowned_column_width_edge_cases_fall_back_atomically(
             "--breiten=5,10",
             "--nocolor",
         ],
-        [
-            "-zeilen",
-            "--vorhervonausschnitt=1",
-            "-spalten",
-            "--religionen=sternpolygon",
-            "-ausgabe",
-            "--art=shell",
-            "--breiten=0,8",
-        ],
     ]
     for arguments in cases:
         result = _run_compat(arguments, python=str(fake_python))
@@ -272,6 +263,29 @@ def test_unowned_column_width_edge_cases_fall_back_atomically(
         )
         assert (result.returncode, result.stdout, result.stderr) == (
             23,
+            expected,
+            b"",
+        )
+
+
+def test_zero_column_widths_run_without_python_child() -> None:
+    fixtures = ROOT / "tests" / "fixtures" / "column_zero_widths"
+    for output_mode in ("shell", "html", "bbcode"):
+        arguments = [
+            "-zeilen",
+            "--vorhervonausschnitt=1",
+            "-spalten",
+            "--religionen=sternpolygon",
+            "--Menschliches=manipulation",
+            "-ausgabe",
+            f"--art={output_mode}",
+            "--breite=12",
+            "--breiten=0,8",
+        ]
+        native = _run_compat(arguments, python="/definitely/not/available")
+        expected = (fixtures / f"de-{output_mode}-zero-first-plus.out").read_bytes()
+        assert (native.returncode, native.stdout, native.stderr) == (
+            0,
             expected,
             b"",
         )

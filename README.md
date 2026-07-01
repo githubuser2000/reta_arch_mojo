@@ -571,7 +571,12 @@ englische Mehrspaltenströme sind byteidentisch. Details:
 
 Stage 12c4j übernimmt positive individuelle Spaltenbreiten über `--breiten`
 und `--widths` für Shell, HTML und BBCode. Die Breitenliste ist typisiert,
-spaltenbezogen, ersetzbar und mit globaler Breite null kombinierbar. Noch nicht
-vollständig besessene Nullbreiten-, flache Ausgabe- und Raw-Markup-Kombinationen
-fallen weiterhin atomar auf die Referenz zurück. Details:
+spaltenbezogen, ersetzbar und mit globaler Breite null kombinierbar. Details:
 [`STAGE12C4J_NATIVE_COLUMN_WIDTHS.md`](STAGE12C4J_NATIVE_COLUMN_WIDTHS.md).
+
+Stage 12c4k übernimmt zusätzlich explizite Nullwerte innerhalb dieser
+Breitenliste. Shell reproduziert dabei auch die historische Seitenabbruchlogik
+für überbreite ungebrochene Nullspalten; HTML und BBCode trennen rohe
+Leerraummessung von normalisierter Serialisierung. Zwölf neue Referenzströme
+sind byteidentisch. Details:
+[`STAGE12C4K_NATIVE_ZERO_COLUMN_WIDTHS.md`](STAGE12C4K_NATIVE_ZERO_COLUMN_WIDTHS.md).

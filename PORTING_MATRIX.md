@@ -106,16 +106,18 @@ Stand: 1. Juli 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der g
 | `tests/test_py_reta_truth_output_invariants.py` | 35 | 4 | 0 | 0 | Python-Referenz/Bridge | `python_reference/tests/test_py_reta_truth_output_invariants.py` | noch nicht nativ portiert |
 
 
-## Stage 12c4j – Breitenbesitz
+## Stage 12c4k – Breitenbesitz
 
 | Oberfläche | positive `breiten/widths` | Nullwert in Liste | `nocolor`-Markup |
 |---|---:|---:|---:|
-| Shell | nativ | Referenzfallback | nativ |
-| HTML | nativ | Referenzfallback | Referenzfallback |
-| BBCode | nativ | Referenzfallback | Referenzfallback |
+| Shell | nativ | nativ | nativ |
+| HTML | nativ | nativ | Referenzfallback |
+| BBCode | nativ | nativ | Referenzfallback |
 | CSV | Referenzfallback | Referenzfallback | – |
 | Markdown | Referenzfallback | Referenzfallback | – |
 | Emacs | Referenzfallback | Referenzfallback | – |
 
 Der Ownership-Prüfer entscheidet über den vollständigen Argumentvektor; es gibt
-keinen gemischten Teilpfad.
+keinen gemischten Teilpfad. Positive und explizite Nullbreiten benutzen denselben
+typisierten Breitenplan; nur die jeweilige Renderersemantik unterscheidet
+zwischen begrenztem Wrap und ungebrochener Spalte.

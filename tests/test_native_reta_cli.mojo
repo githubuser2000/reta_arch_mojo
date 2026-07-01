@@ -390,20 +390,21 @@ def test_explicit_column_widths_are_typed_replaced_and_owned() raises:
             )
         )
 
-    assert_true(
-        not native_reta_tokens_supported(
-            [
-                "-zeilen",
-                "--vorhervonausschnitt=1",
-                "-spalten",
-                "--religionen=sternpolygon",
-                "-ausgabe",
-                "--art=shell",
-                "--breiten=0,8",
-            ],
-            "python_reference/csv/religion.csv",
+    for output_mode in ["shell", "html", "bbcode"]:
+        assert_true(
+            native_reta_tokens_supported(
+                [
+                    "-zeilen",
+                    "--vorhervonausschnitt=1",
+                    "-spalten",
+                    "--religionen=sternpolygon",
+                    "-ausgabe",
+                    "--art=" + output_mode,
+                    "--breiten=0,8",
+                ],
+                "python_reference/csv/religion.csv",
+            )
         )
-    )
 
     for output_mode in ["html", "bbcode"]:
         assert_true(

@@ -217,3 +217,13 @@ Die Zahl **12** ist die geplante Releasegliederung. Interne Teilpakete oder Fehl
 - Die Liste adressiert ausgewählte Datenspalten, wird durch spätere Vorkommen ersetzt und fällt für fehlende Einträge auf die globale Breite zurück.
 - Nullwerte, CSV/Markdown/Emacs und Raw-Markup bleiben bis zu ihren eigenen visuellen Zeilenports atomarer Referenzfallback.
 - Der native-first-Vertrag ist über 12 Bytefixtures, 26 Ownership- und 12 Launchertests abgesichert.
+
+
+## Stage 12c4k – explizite Nullbreiten
+
+- `0` innerhalb `--breiten`/`--widths` ist für Shell, HTML und BBCode nativ.
+- Eine Nullbreite deaktiviert den Wortumbruch nur für die zugehörige ausgewählte Datenspalte; fehlende Listeneinträge verwenden weiterhin die globale Breite.
+- Markup misst historische Rohleerzeichen für die Umbruchentscheidung, serialisiert den Zelltext jedoch normalisiert.
+- Shell besitzt die Referenzsemantik überbreiter Nullspalten einschließlich einmaligem Überspringen auf der ersten Datenseite und Abbruch späterer horizontaler Seiten.
+- CSV/Markdown/Emacs sowie HTML/BBCode mit `--nocolor` bleiben atomarer Referenzfallback.
+- Der Vertrag ist über 12 Nullbreitenfixtures, 17 Renderertests, 26 Ownership- und 13 Launchertests abgesichert.

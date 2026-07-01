@@ -758,13 +758,9 @@ def native_reta_tokens_supported(tokens: List[String], csv_path: String) raises 
         and mode != "bbcode"
     ):
         return False
-    # Zero entries have additional historical edge semantics: in paged
-    # shell mode an oversized unwrapped column may be skipped, while the
-    # markup preparation path has distinct exact-fit wrapping.  Keep those
-    # invocations atomic until that separate compatibility block is ported.
-    for width_index in range(len(plan.widths)):
-        if plan.widths[width_index] == 0:
-            return False
+    # Explicit zero entries are owned as true no-wrap columns.  The renderer
+    # reproduces both the historical shell pagination truncation and the raw
+    # whitespace/exact-fit distinction of HTML and BBCode preparation.
     # In the Python reference ``--nocolor`` switches HTML/BBCode from
     # Rich's whitespace-normalized stream to the raw multiline serializer.
     # That separate byte contract is not owned by the current native markup
@@ -958,12 +954,20 @@ def run_native_reta(tokens: List[String], csv_path: String) raises -> String:
     var width_reference = selected.copy()
     var width_reference_rows = selected_rows.copy()
     if plan.number_rows:
+        # Preserve raw source whitespace for the preparation-width contract.
+        # HTML/BBCode serialize normalized cells, but their historical wrapping
+        # decision is made before that normalization (notably for exact-fit
+        # double-space fragments such as ``(14)  (n)``).
         width_reference = add_numbering_columns(
             width_reference,
             width_reference_rows,
+            False,
+        )
+        selected = add_numbering_columns(
+            selected,
+            selected_rows,
             plan.output_mode != "shell",
         )
-        selected = width_reference.copy()
     if (
         not plan.include_headings
         and len(selected_rows) > 0

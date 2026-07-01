@@ -655,3 +655,13 @@ abschließendes Komma erhalten.
 - Der Shell-Seitenplan zählt die Nummerierungstrennung nicht länger doppelt.
 - Positive Breiten sind native-first; Nullwerte, CSV/Markdown/Emacs und HTML/BBCode mit ausgeschalteter Farbe bleiben konservativer Ganzvektor-Fallback.
 - Zwölf Referenzfixtures sind byteidentisch; der Launcher enthält weiterhin weder `std.python` noch `libpython`.
+
+
+## Stage 12c4k
+
+- Nullwerte innerhalb `NativeRetaPlan.widths` sind für Shell, HTML und BBCode kein Fallbackgrund mehr.
+- Die sichtbare Markup-Tabelle und ihre rohe Breitenreferenz werden getrennt aufgebaut: Ausgabe-Whitespace bleibt normalisiert, die historische Umbruchentscheidung verwendet die ursprünglichen Leerraumläufe.
+- Der Shellrenderer reproduziert die Referenzgrenze einer überbreiten ungebrochenen Nullspalte: auf der ersten Datenseite wird sie einmal übersprungen, auf späteren Seiten beendet sie den horizontalen Reststrom.
+- Zwölf neue Nullbreitenfixtures decken `0`, `0,8`, `5,0` und `0,0` für Shell, HTML und BBCode ab.
+- Der tote `prompt_python_bridge.mojo` samt veraltetem FFI-Probeimport wurde entfernt; alle aktiven Promptmodule sind wieder physisch frei von `std.python`.
+- CSV/Markdown/Emacs und farbloses HTML/BBCode bleiben weiterhin atomarer Ganzvektor-Fallback.

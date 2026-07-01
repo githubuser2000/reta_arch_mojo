@@ -223,5 +223,57 @@ def test_explicit_zero_width_keeps_only_that_column_unwrapped() raises:
     assert_true("two" in rendered)
     assert_false("\n   beta gamma" in rendered)
 
+
+def test_markup_exact_fit_uses_raw_whitespace_for_wrap_decision() raises:
+    var visible = parse_semicolon_csv(
+        "; ;A;B\n"
+        + "1;1;first;(14) (n)\n"
+    )
+    var raw = parse_semicolon_csv(
+        "; ;A;B\n"
+        + "1;1;first;(14)  (n)\n"
+    )
+    var bbcode = render_bbcode_table_with_width_reference(
+        visible, raw, [0, 1], True, 8, True, False, [0, 8]
+    )
+    assert_true("[td=\"\"](14)[/td]" in bbcode)
+    assert_true("[td=\"\"](n) [/td]" in bbcode)
+    assert_false("[td=\"\"](14) (n)[/td]" in bbcode)
+
+    var html = render_html_table_with_context(
+        visible, raw, [0, 1], [0, 1], "german",
+        True, 8, True, False, [0, 8]
+    )
+    assert_true("> (14) </td>" in html)
+    assert_true("> (n) </td>" in html)
+    assert_false("> (14) (n) </td>" in html)
+
+
+def test_shell_oversized_zero_width_reproduces_legacy_page_truncation() raises:
+    var long_cell = (
+        "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz"
+        + "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz"
+    )
+    var first_zero = parse_semicolon_csv(
+        "; ;A;B\n1;1;" + long_cell + ";kept\n"
+    )
+    var skipped = render_shell_table_with_width_reference(
+        first_zero, first_zero, [0, 1], True, 8, False, 0, False,
+        False, [0, 8]
+    )
+    assert_false(long_cell in skipped)
+    assert_true("kept" in skipped)
+
+    var second_zero = parse_semicolon_csv(
+        "; ;A;B;C\n1;1;kept;" + long_cell + ";truncated\n"
+    )
+    var truncated = render_shell_table_with_width_reference(
+        second_zero, second_zero, [0, 1], True, 8, False, 0, False,
+        False, [8, 0, 8]
+    )
+    assert_true("kept" in truncated)
+    assert_false(long_cell in truncated)
+    assert_false("truncated" in truncated)
+
 def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()

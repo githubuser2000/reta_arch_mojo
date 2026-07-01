@@ -1000,12 +1000,41 @@ nativer I/O-Boundary-Audit:              bestanden
 Die zwölf neuen Referenzströme prüfen `--breiten`/`--widths` in deutscher und
 englischer Shell-, HTML- und BBCode-Ausgabe, mit globaler Nullbreite und mit
 Ersetzen einer früheren Breitenliste. Positive Breiten laufen im
-native-first-Launcher bei absichtlich ungültigem `RETA_PYTHON`. Nullwerte in
-der Einzelbreitenliste, flache Ausgabearten und rohes Markup mit `--nocolor`
-bleiben bewusst atomarer Referenzfallback.
+native-first-Launcher bei absichtlich ungültigem `RETA_PYTHON`. In Stage
+12c4j blieben Nullwerte in der Einzelbreitenliste noch atomarer
+Referenzfallback; Stage 12c4k übernimmt diese Fälle. Flache Ausgabearten und
+rohes Markup mit `--nocolor` bleiben weiterhin Referenzfallback.
 
 ```bash
 scripts/check_column_widths_parity.sh
 RETA_REFRESH_COLUMN_WIDTH_FIXTURES=1 \
   scripts/check_column_widths_parity.sh
+```
+
+
+## Stage 12c4k: explizite Nullbreiten
+
+```text
+Nullbreiten Python↔Mojo:                 12/12 byteidentisch
+positive Breiten Python↔Mojo:            12/12 byteidentisch
+Tabellenrenderer:                         17/17
+nativer CLI-/Ownership-Planer:            26/26
+Kompatibilitätslauncher:                  13/13
+paginierte Rendererparität:                6/6
+No-blank-Parität:                         13/13
+Markup-oneTable ohne Python:              12/12
+Source-Gates:                             13/13
+nativer I/O-Boundary-Audit:               bestanden
+```
+
+Die Nullbreitenmatrix prüft für Shell, HTML und BBCode jeweils `0`, `0,8`,
+`5,0` und `0,0`. Sie deckt damit sowohl ungebrochene Einzelspalten als auch
+die historische Shell-Seitenabbruchsemantik und die getrennte rohe
+Markup-Breitenmessung ab. Der native-first-Launcher wird dabei mit einem
+absichtlich nicht vorhandenen `RETA_PYTHON` ausgeführt.
+
+```bash
+scripts/check_column_zero_widths_parity.sh
+RETA_REFRESH_COLUMN_ZERO_WIDTH_FIXTURES=1 \
+  scripts/check_column_zero_widths_parity.sh
 ```
