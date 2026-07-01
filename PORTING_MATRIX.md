@@ -213,3 +213,15 @@ semantisch ignorierter Generatorbereich mehr eine stille Teilmenge ausgeben.
 Die Hilfetexte sind reproduzierbar generierte Laufzeitressourcen, keine
 handgepflegten Mojo-Stringkopien. Dadurch bleibt die Ausgabe bytegenau, ohne den
 großen Text in jedes importierende Executable einzubetten.
+
+## Stage 12c4r – Defektbesitz und Bruchvielfachengrenze
+
+| Oberfläche | Python-/PyPy3-Original | Mojo 12c4r | spätere Aktion |
+|---|---|---|---|
+| `universum v2/3` | `IndexError` in `zeiln1234create` | natives 10×7-Bruchraster plus Ganzzahl-, Reziprok- und Gleichheitsprojektion | Python auf denselben Vertrag umstellen |
+| `emotion v2/3` | derselbe Fehlerpfad | Zähler 2,4,6,8; Nenner 3,6 | Python domänenspezifisch begrenzen |
+| `groesse v2/3` | derselbe Fehlerpfad | Zähler 2…16; Nenner 3…15 | Python domänenspezifisch begrenzen |
+| `motive v2/3` | derselbe Fehlerpfad | Zähler 2…22; Nenner 3…21 | Python domänenspezifisch begrenzen |
+| mehrere Bruchdomänen | undefiniert/fehleranfällig | atomarer Fallback | gemeinsamen Domänenvertrag festlegen |
+| `1/n` und echtes `n/m` gemeinsam | verschiedene historische Obergrenzen | atomarer Fallback | explizite Mischsemantik festlegen |
+| Fehlerdokumentation | über Stage-Dateien verteilt | zentral in JSON + generiertem Markdown | nach Portabschluss offene Python-Einträge abarbeiten |

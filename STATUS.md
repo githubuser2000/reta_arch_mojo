@@ -1,20 +1,21 @@
-# Status – Stage 12c4q abgeschlossen; Stufen 9, 10 und 12 in Arbeit
+# Status – Stage 12c4r abgeschlossen; Stufen 9, 10 und 12 in Arbeit
 
 - Zielversion: Mojo 1.0.0b2
 - Unterstützte Python-Umgebung für Installation/Referenzbrücken: 3.10–3.14; Setup bevorzugt Python 3.14
-- Vollständig abgeschlossene Release-Stufen: **9/12 = 75,0 %**; teilgewichtet mit Stage 12c4q: **9,76/12 = 81,3 %**
+- Vollständig abgeschlossene Release-Stufen: **9/12 = 75,0 %**; teilgewichtet mit Stage 12c4r: **9,77/12 = 81,4 %**
 - Stufe 9: **BBCode, zentraler ANSI-Shellpfad und zentrale HTML-Pfade nativ; seltene Ausgabegrenzen offen**
 - Stufe 10: **native Kurzsprache, mehrsprachige verschachtelte Completion und Promptvorbereitung in Arbeit**
 - Stufe 11: **11a–11j abgeschlossen; 10/10 Teilstufen = 100 %**
-- Stufe 12: **12a–12b abgeschlossen; 12c zu ca. 99,8 %; insgesamt ca. 67 %**
+- Stufe 12: **12a–12b abgeschlossen; 12c zu ca. 99,9 %; insgesamt ca. 67 %**
 - Geschätzter funktionaler Portierungsstand: **96–98 %**
 - Konservativ vollständig native oder reproduzierbar generierte Originaldateien: **33/92 = 35,9 %**
 - Mindestens teilweise portierte Originaldateien: **61/92 = 66,3 %**
 - Gewichteter Quellzeilenstand: **ca. 52 %**
-- Nativer Mojo-Quellcode in `src/`: **41.457 Zeilen**
-- Davon im Paket `reta_mojo`: **38.304 Zeilen**
-- Test-/Probe-Dateien: **109** (**93 Mojo**, **16 Python** einschließlich PTY-, Boundary-, Eingabe-, Rohbefehl-, Reziprok-, klassischer Bruchplan-, Kompatibilitätslauncher- und Alles-Plan-Audits)
-- Native Mojo-Testfunktionen: **340**; Python-Testfunktionen: **64**
+- Nativer Mojo-Quellcode in `src/`: **41.577 Zeilen**
+- Davon im Paket `reta_mojo`: **38.424 Zeilen**
+- Test-/Probe-Dateien: **112** (**95 Mojo**, **17 Python** einschließlich PTY-, Boundary-, Eingabe-, Rohbefehl-, Reziprok-, klassischer Bruchplan-, Kompatibilitätslauncher- und Alles-Plan-Audits)
+- Native Mojo-Testfunktionen: **341**; Python-Testfunktionen: **66**
+- Stage-12c4r-Fokus: zentraler maschinenlesbarer Fehlerkatalog mit getrenntem Python-/Mojo-Status, Reproduktion, Belegen und späterem Python-Korrekturauftrag; echte Bruchvielfache wie `universum v2/3` werden trotz reproduzierbarem Python-`IndexError` nativ als datenformbegrenztes Zähler×Nenner-Raster ausgeführt. Python-Fehlerkatalog **14/14 konsistent**, spätere Python-Bereinigungsliste **6** Punkte, Ledger-Pytests **3/3**, Bruchvielfachenvertrag **12/12**, direkte Tabellenaufrufe **13/13**, Tabellenplaner **29/29**, klassische Bruchparität **18/18** und gemischte stabile Reziprokpläne **5/5**; aktive `std.python`-Brücken **0**.
 - Stage-12c4q-Fokus: native Start-, Sprach- und Hilfeoberfläche vor der Tabellenplanung; leerer Aufruf, reine deutsche/englische Sprachwahl, vollständige Hilfetexte, Mehrfachhilfe und erste-Sprachwahl-Regel ohne Python-Kindprozess. Reine Hauptparameter ohne Nebenoption werden nicht mehr fälschlich als Standardtabelle besessen. Startparität **7/7 byteidentisch**, Startmodul **5/5**, CLI-/Ownership **30/30**, Kompatibilitätslauncher **18/18**, Hilferessourcen **1/1**, Installationslayout **5/5** und Source-Gates **9/9**; aktive `std.python`-Brücken **0**.
 - Stage-12c4p-Fokus: sichere native Ganzzahlausdrücke und dokumentierte `range`-Comprehensions in Zeilenbereichen und Spaltenreihenfolge; Ganzzahlarithmetik einschließlich Python-konformem `//`/`%`, ein- bis dreiargumentigem `range`, negativen Schritten sowie additiver/subtraktiver Mengenkomposition. Nicht besessener Python-Code fällt atomar zurück statt still falsch nativ zu laufen. Ausdrucksparser **5/5**, Zeilenbereiche **8/8**, CLI-/Ownership **29/29**, Python↔Mojo-Probe **2/2**, sechs End-to-End-Ströme bytegleich und Prompt-/Boundary-Gates **10/10**; aktive `std.python`-Brücken **0**.
 - Stage-12c4o-Fokus: native individuelle `--breiten`/`--widths` nun auch für CSV, Markdown und Emacs/Org; gemeinsamer physischer Zeilenexpander mit wiederholter Zählgruppe, nur erster Quellzeilennummer, Überschriften-/Primzahlpotenztrennern pro Sichtzeile, expliziten Nullbreiten sowie exakter CSV-Randwhitespace-, Leerfeld- und unnummerierter `;;`-Struktursemantik. Flache Breitenfixtures **12/12 byteidentisch** plus kombinierte Randfälle **5/5**, Renderer **20/20**, CLI-/Ownership **26/26**, Kompatibilitätslauncher **14/14**; positive Breiten **12/12**, Nullbreiten **12/12**, Rohmarkup **12/12**, Paginierung **6/6** und No-blank **13/13** bleiben grün; aktive `std.python`-Brücken **0**.

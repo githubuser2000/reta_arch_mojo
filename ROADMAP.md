@@ -273,3 +273,12 @@ Die Zahl **12** ist die geplante Releasegliederung. Interne Teilpakete oder Fehl
   Standardtabelle besessen.
 - Sieben End-to-End-Ströme, fünf Startmodultests und 30 CLI-/Ownership-Tests
   sichern die Grenze ab.
+
+## Stage 12c4r – zentraler Defektkatalog und echte Bruchvielfache
+
+- `KNOWN_DEFECTS.json` ist die maschinenlesbare Quelle für Python-Originalfehler, Mojo-Portfehler, Fehlerkandidaten und bewusst konservierte Altverträge.
+- Jeder offene Python-Fehler benötigt Reproduktion, Quellorte, heutigen Mojo-Vertrag und einen konkreten Auftrag für die spätere Python-/PyPy3-Bereinigung.
+- `universum v2/3` und die entsprechenden Emotion-, Strukturgrößen- und Motivepfade werden nativ als kartesisches Produkt der Zähler- und Nenner-Vielfachachsen ausgeführt.
+- Anders als der abstürzende Python-Altalgorithmus begrenzt Mojo jede Achse an der tatsächlichen Rechteckform ihrer CSV-Domäne.
+- Mehrere verschieden große Bruchdomänen sowie gemischte 1024er-Reziprok- und datenbegrenzte Bruchachsen bleiben atomarer Fallback.
+- Der Python-Absturz bleibt während der Referenzphase absichtlich reproduzierbar und wird nach Abschluss der Transpilierung anhand desselben Sollvertrags behoben.

@@ -1,0 +1,320 @@
+{
+  "schema_version": 1,
+  "policy": {
+    "reference_freeze": "Während der Transpilierung bleibt python_reference grundsätzlich unverändert. Bestätigte Python-Fehler werden im Mojo-Port sicher korrigiert oder bewusst kompatibel reproduziert und für eine spätere Python-Bereinigungsphase erfasst.",
+    "post_port_action": "Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_status=open oder python_status=candidate einzeln im Python-/PyPy3-Code behoben, gegen neue Soll-Fixtures geprüft und danach auf fixed gesetzt.",
+    "compatibility_rule": "Eine beabsichtigte Mojo-Abweichung von Python benötigt einen defect-Eintrag, einen reproduzierbaren Auslöser und einen Test, der die Abweichung ausdrücklich festschreibt.",
+    "scope": "Erfasst werden alle reproduzierbaren semantischen, Ausgabe-, Ownership-, Portabilitäts- und Testinfrastrukturfehler, die Verhalten oder Verlässlichkeit beeinflussen. Rein vorübergehende Tipp-, Syntax- oder Compilerfehler während einer noch nicht lauffähigen Änderung werden nur aufgenommen, wenn sie eine eigenständige Architektur- oder Vertragslücke offenlegen.",
+    "python_original_rule": "Jeder bestätigte oder plausible Fehler im Python-/PyPy3-Original erhält vor einer absichtlichen Mojo-Abweichung einen PY-OPEN- oder PY-CAND-Eintrag mit Reproduktion, Quellorten, Belegen und konkretem späterem Python-Arbeitsauftrag."
+  },
+  "defects": [
+    {
+      "id": "PY-OPEN-001",
+      "title": "Beliebige Codeausführung durch eval in Ganzzahlmengen-Ausdrücken",
+      "origin": "python_reference",
+      "classification": "bug",
+      "severity": "high",
+      "python_status": "open",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c4p",
+      "reproducer": "reta -zeilen --vorhervonausschnitt=[__import__('os').system('true')] -spalten --religionen=sternpolygon",
+      "python_locations": [
+        "python_reference/reta_architecture/row_ranges.py:37",
+        "python_reference/reta_architecture/prompt_language.py:121"
+      ],
+      "mojo_locations": [
+        "src/reta_mojo/integer_expressions.mojo",
+        "src/reta_mojo/row_ranges.mojo"
+      ],
+      "current_contract": "Mojo besitzt nur einen endlichen Ganzzahlparser; beliebiger Python-Code fällt atomar auf die eingefrorene Referenz zurück.",
+      "post_port_fix": "Beide eval-Aufrufe im Python-Code durch denselben beschränkten AST-/Ganzzahlparser ersetzen und gefährliche Formen vollständig ablehnen.",
+      "evidence": [
+        "STAGE12C4P_NATIVE_INTEGER_EXPRESSIONS.md",
+        "tests/test_integer_expression_parity.py"
+      ]
+    },
+    {
+      "id": "PY-OPEN-002",
+      "title": "Prompt-Absturz bei echten Bruchvielfachen v n/m",
+      "origin": "python_reference",
+      "classification": "bug",
+      "severity": "high",
+      "python_status": "open",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c4r",
+      "reproducer": "rpb 'universum v2/3'",
+      "python_locations": [
+        "python_reference/reta_architecture/prompt_execution.py:1841"
+      ],
+      "mojo_locations": [
+        "src/reta_mojo/prompt_table_execution.mojo"
+      ],
+      "current_contract": "Mojo erweitert Zähler- und Nennerachsen innerhalb der real vorhandenen Bruch-CSV-Form, erzeugt Ganzzahl-/Reziprokprojektionen und stürzt nicht ab.",
+      "post_port_fix": "Leere zahlenReiheKeineWteiler sicher behandeln und die Bruchvielfachen-Expansion anhand der tatsächlichen Domänenform statt des globalen Zahlenvorrats aufbauen.",
+      "evidence": [
+        "STAGE12C4R_DEFECT_LEDGER_FRACTION_MULTIPLES.md",
+        "tests/test_prompt_table_execution.mojo",
+        "scripts/check_prompt_true_fraction_multiples.py"
+      ]
+    },
+    {
+      "id": "PY-CAND-001",
+      "title": "Prompt-Ausgabereihenfolge hängt von Python-set und PYTHONHASHSEED ab",
+      "origin": "python_reference",
+      "classification": "bug_candidate",
+      "severity": "medium",
+      "python_status": "candidate",
+      "mojo_status": "fixed",
+      "discovered_stage": "10f",
+      "reproducer": "Prompt-Kommandos mit mehreren numerischen Komponenten unter verschiedenen PYTHONHASHSEED-Werten",
+      "python_locations": [
+        "python_reference/reta_architecture/prompt_preparation.py",
+        "python_reference/reta_architecture/prompt_execution.py"
+      ],
+      "mojo_locations": [
+        "src/reta_mojo/prompt_language.mojo",
+        "src/reta_mojo/prime_cross_columns.mojo"
+      ],
+      "current_contract": "Mojo reproduziert die bisherige CPython-Reihenfolge für PYTHONHASHSEED=0 deterministisch und plattformunabhängig.",
+      "post_port_fix": "Eine fachlich definierte Reihenfolge festlegen und Python-set-Iteration aus sichtbaren Tokenströmen entfernen; dabei bewusst neue Soll-Fixtures erzeugen.",
+      "evidence": [
+        "STAGE10F_NATIVE_COMPACT_PROMPT.md",
+        "STAGE10I_NATIVE_NUMERIC_SELECTORS.md"
+      ]
+    },
+    {
+      "id": "PY-CAND-002",
+      "title": "CSV ohne Nummerierung behält zwei leere Strukturfelder",
+      "origin": "python_reference",
+      "classification": "bug_candidate",
+      "severity": "low",
+      "python_status": "candidate",
+      "mojo_status": "compatibility_preserved",
+      "discovered_stage": "12c4o",
+      "reproducer": "reta -zeilen --vorhervonausschnitt=1 -spalten --religionen=sternpolygon -ausgabe --art=csv --keinenummerierung",
+      "python_locations": [
+        "python_reference/reta_architecture/table_output.py"
+      ],
+      "mojo_locations": [
+        "src/reta_mojo/table_rendering.mojo"
+      ],
+      "current_contract": "Mojo gibt aus Kompatibilitätsgründen weiterhin die führenden Bytes ;; aus.",
+      "post_port_fix": "Entscheiden, ob --keinenummerierung die beiden CSV-Spalten wirklich entfernen soll; bei Bejahung Python und Mojo gemeinsam auf ein neues Format umstellen.",
+      "evidence": [
+        "STAGE12C4O_NATIVE_FLAT_COLUMN_WIDTHS.md"
+      ]
+    },
+    {
+      "id": "PY-CAND-003",
+      "title": "Reziproke Teilerselektion serialisiert leere Komponenten und historische Leerseiten",
+      "origin": "python_reference",
+      "classification": "bug_candidate",
+      "severity": "low",
+      "python_status": "candidate",
+      "mojo_status": "compatibility_preserved",
+      "discovered_stage": "12c4c",
+      "reproducer": "Prompt: universum teiler 1/2",
+      "python_locations": [
+        "python_reference/reta_architecture/prompt_execution.py"
+      ],
+      "mojo_locations": [
+        "src/reta_mojo/prompt_table_execution.mojo"
+      ],
+      "current_contract": "Mojo erhält den beobachtbaren Selektor mit nachlaufender leerer Komponente, damit die aktuelle Ausgabe bytegleich bleibt.",
+      "post_port_fix": "Leere Selektorkomponenten aus dem Promptvertrag entfernen und die gewünschte Teilersemantik explizit testen.",
+      "evidence": [
+        "STAGE12C4C_NATIVE_MIXED_RECIPROCAL_MODIFIERS.md"
+      ]
+    },
+    {
+      "id": "PY-FIXED-001",
+      "title": "Prompt a1 scheiterte durch fehlende globale Namen",
+      "origin": "python_reference",
+      "classification": "bug",
+      "severity": "high",
+      "python_status": "fixed",
+      "mojo_status": "not_applicable",
+      "discovered_stage": "python-2026-04-24",
+      "reproducer": "rpb 'a1'",
+      "python_locations": [
+        "python_reference/reta_architecture/prompt_execution.py"
+      ],
+      "mojo_locations": [],
+      "current_contract": "isReTaParameter wird importiert und befehle beim Bootstrap initialisiert.",
+      "post_port_fix": "Keine weitere Aktion; Regressionstest beibehalten.",
+      "evidence": [
+        "python_reference/PROMPT_EXECUTION_FIX_2026-04-24.md"
+      ]
+    },
+    {
+      "id": "PY-FIXED-002",
+      "title": "Vier Txt.liste-Zuweisungen verwendeten die falsche Variable x statt tx",
+      "origin": "python_reference",
+      "classification": "bug",
+      "severity": "medium",
+      "python_status": "fixed",
+      "mojo_status": "not_applicable",
+      "discovered_stage": "python-2026-04-23",
+      "reproducer": "Betroffene Prompt-Vorbereitungszweige",
+      "python_locations": [
+        "python_reference/reta_architecture/prompt_preparation.py"
+      ],
+      "mojo_locations": [],
+      "current_contract": "Die vier Zuweisungen verwenden tx.",
+      "post_port_fix": "Keine weitere Aktion; Quelltest beibehalten.",
+      "evidence": [
+        "python_reference/LEGACY_IMPORT_CLEANUP_2026-04-23.md"
+      ]
+    },
+    {
+      "id": "PY-FIXED-003",
+      "title": "Bruch-/CSV-Pfade referenzierten veraltete Program-Klassenattribute",
+      "origin": "python_reference",
+      "classification": "bug",
+      "severity": "high",
+      "python_status": "fixed",
+      "mojo_status": "not_applicable",
+      "discovered_stage": "python-stage19",
+      "reproducer": "reta.py -zeilen --vorhervonausschnitt=1-3 -spalten --gebrochenuniversum=5 --breite=40",
+      "python_locations": [
+        "python_reference/reta_architecture/parameter_runtime.py"
+      ],
+      "mojo_locations": [],
+      "current_contract": "Die Zugriffe verwenden type(self).* und der Bruch-CSV-Gluing-Pfad läuft.",
+      "post_port_fix": "Keine weitere Aktion; Bruch-CSV-Parität beibehalten.",
+      "evidence": [
+        "python_reference/STAGE19_CHANGES.md"
+      ]
+    },
+    {
+      "id": "MOJO-FIXED-001",
+      "title": "Generator-Comprehensions wurden nativ beansprucht, aber ignoriert",
+      "origin": "mojo_port",
+      "classification": "bug",
+      "severity": "high",
+      "python_status": "correct_reference",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c4p",
+      "reproducer": "reta -zeilen --vorhervonausschnitt={2*n for n in range(2,5)},10 ...",
+      "python_locations": [],
+      "mojo_locations": [
+        "src/reta_mojo/integer_expressions.mojo",
+        "src/reta_mojo/native_reta_cli.mojo"
+      ],
+      "current_contract": "Sichere Comprehensions werden korrekt ausgewertet; alle anderen fallen atomar zurück.",
+      "post_port_fix": "Keine Python-Änderung erforderlich.",
+      "evidence": [
+        "STAGE12C4P_NATIVE_INTEGER_EXPRESSIONS.md"
+      ]
+    },
+    {
+      "id": "MOJO-FIXED-002",
+      "title": "Reine Sprachwahl erzeugte fälschlich die Standardtabelle",
+      "origin": "mojo_port",
+      "classification": "bug",
+      "severity": "high",
+      "python_status": "correct_reference",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c4q",
+      "reproducer": "reta -language=english",
+      "python_locations": [],
+      "mojo_locations": [
+        "src/reta_mojo/native_cli_startup.mojo",
+        "src/reta_mojo/native_reta_cli.mojo"
+      ],
+      "current_contract": "Reine Sprachwahl schreibt wie Python null Bytes.",
+      "post_port_fix": "Keine Python-Änderung erforderlich.",
+      "evidence": [
+        "STAGE12C4Q_NATIVE_CLI_STARTUP_HELP.md"
+      ]
+    },
+    {
+      "id": "MOJO-FIXED-003",
+      "title": "Nativer Alles-HTML-Plan erzeugte 863 statt 807 Spalten",
+      "origin": "mojo_port",
+      "classification": "bug",
+      "severity": "high",
+      "python_status": "correct_reference",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c4n",
+      "reproducer": "RETA_GENERATE_HTML_ROWS=1 target/bin/generate-html-native",
+      "python_locations": [],
+      "mojo_locations": [
+        "src/reta_mojo/all_columns_plan.mojo",
+        "src/reta_mojo/table_rendering.mojo"
+      ],
+      "current_contract": "Deutsch und Englisch besitzen exakt 807 Spalten und sind bytegleich zur Referenz.",
+      "post_port_fix": "Keine Python-Änderung erforderlich.",
+      "evidence": [
+        "STAGE12C4N_ALL_COLUMNS_HTML_PARITY.md"
+      ]
+    },
+    {
+      "id": "MOJO-FIXED-004",
+      "title": "Übertragene Mojo-Binaries enthielten rechnerabhängigen absoluten RUNPATH",
+      "origin": "mojo_port",
+      "classification": "packaging_bug",
+      "severity": "medium",
+      "python_status": "not_applicable",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c4l",
+      "reproducer": "ldd target/bin/reta-native auf einem anderen Rechner",
+      "python_locations": [],
+      "mojo_locations": [
+        "scripts/build.sh",
+        "scripts/build-heavy.sh",
+        "bin/mojo-runtime-exec"
+      ],
+      "current_contract": "Binaries nutzen $ORIGIN/../lib/mojo und die lokale Runtime-Erkennung.",
+      "post_port_fix": "Keine Python-Änderung erforderlich.",
+      "evidence": [
+        "STAGE12C4L_PORTABLE_RUNTIME_RAW_MARKUP.md"
+      ]
+    },
+    {
+      "id": "MOJO-FIXED-005",
+      "title": "Gemischter Reziprok-Paritätstest hing am vollständigen Mojo-Testprozess",
+      "origin": "test_infrastructure",
+      "classification": "test_harness_bug",
+      "severity": "medium",
+      "python_status": "not_applicable",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c4r",
+      "reproducer": "scripts/check_prompt_mixed_reciprocal_parity.sh im alten Stand",
+      "python_locations": [],
+      "mojo_locations": [
+        "tests/prompt_mixed_reciprocal_probe.mojo",
+        "scripts/check_prompt_mixed_reciprocal_parity.sh"
+      ],
+      "current_contract": "Die Paritätsprüfung baut eine kleine dedizierte Planprobe und beendet sich deterministisch, statt die komplette TestSuite nur als Datenausgeber zu missbrauchen.",
+      "post_port_fix": "Keine Python-Änderung erforderlich.",
+      "evidence": [
+        "STAGE12C4R_DEFECT_LEDGER_FRACTION_MULTIPLES.md",
+        "scripts/check_prompt_mixed_reciprocal_parity.sh"
+      ]
+    },
+    {
+      "id": "QUIRK-001",
+      "title": "Nullbreiten besitzen formatabhängige historische Sondersemantik",
+      "origin": "python_reference",
+      "classification": "compatibility_quirk",
+      "severity": "low",
+      "python_status": "intentional_for_now",
+      "mojo_status": "compatibility_preserved",
+      "discovered_stage": "12c4k",
+      "reproducer": "reta ... -ausgabe --breiten=0,8",
+      "python_locations": [
+        "python_reference/reta_architecture/table_wrapping.py",
+        "python_reference/reta_architecture/table_output.py"
+      ],
+      "mojo_locations": [
+        "src/reta_mojo/table_rendering.mojo"
+      ],
+      "current_contract": "Mojo reproduziert Shell-Seitenauslassung sowie rohe Markup-Umbruchmessung bytegenau.",
+      "post_port_fix": "Erst nach der Transpilierung entscheiden, ob die Oberfläche vereinheitlicht werden soll; bis dahin kein Fehlerstatus.",
+      "evidence": [
+        "STAGE12C4K_NATIVE_ZERO_COLUMN_WIDTHS.md"
+      ]
+    }
+  ]
+}

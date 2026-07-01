@@ -30,6 +30,17 @@ def _emit_mixed_reciprocal_reference(text: String) raises:
     print("MIXED_RECIPROCAL_PLAN\t" + _tokens(plan))
 
 
+def _emit_true_fraction_multiple_plan(text: String) raises:
+    if String(getenv("RETA_EMIT_TRUE_FRACTION_MULTIPLE_PLANS", "")) != "1":
+        return
+    print(
+        "TRUE_FRACTION_MULTIPLE_PLAN\t"
+        + text
+        + "\t"
+        + serialize_prompt_table_plan(_plan(text))
+    )
+
+
 def test_moon_plan_preserves_output_parameters() raises:
     var plan = _plan("mond 1-3 --art=csv --nocolor")
     assert_true(plan.handled)
@@ -253,8 +264,33 @@ def test_fraction_divisors_and_reciprocal_multiples_are_native() raises:
     assert_true(",1018,1020,1022" in _tokens(multiples_plan))
     assert_false("--oberesmaximum=" in _tokens(multiples_plan))
 
-    # The Python reference itself raises IndexError for true v-n/m expansion.
-    assert_false(_plan("universum v2/3").handled)
+    # Python raises IndexError here.  Mojo intentionally supplies the corrected
+    # rectangular contract, clipped to the real Universe CSV (numerators 2..20,
+    # denominators 1..21) rather than inheriting the crash.
+    var true_multiple = _plan("universum v2/3")
+    assert_true(true_multiple.handled)
+    assert_equal(len(true_multiple.invocations), 13)
+    assert_true(
+        "--vorhervonausschnitt=2,1,4,6,3" in _tokens(true_multiple, 0)
+    )
+    assert_true(
+        "--vorhervonausschnitt=1,2,3,6,9" in _tokens(true_multiple, 1)
+    )
+    assert_true(
+        "--gebrochen-rational_Universum_n/m=2" in _tokens(true_multiple, 2)
+    )
+    assert_true(
+        "--vorhervonausschnitt=9,18,21,6,15,3,12"
+        in _tokens(true_multiple, 2)
+    )
+    assert_true(
+        "--gebrochen-rational_Universum_n/m=20"
+        in _tokens(true_multiple, 11)
+    )
+    assert_false("_n/m=22" in serialize_prompt_table_plan(true_multiple))
+    assert_true(
+        "--vorhervonausschnitt=6,12,18" in _tokens(true_multiple, 12)
+    )
 
     # Proper fractions are a stable historical no-op for the five classic
     # integer-backed families.  Owning that no-op avoids an unnecessary
@@ -315,7 +351,7 @@ def test_combined_integer_divisors_and_multiples_are_native() raises:
 
     # Stable reciprocal multiples compose with ``teiler`` natively.  The
     # modifier contributes to the legacy command count, narrowing Universe to
-    # column 1, while true n/m multiple expansion remains a fallback.
+    # column 1.
     var reciprocal = _plan("vielfache teiler universum 1/2")
     assert_true(reciprocal.handled)
     assert_equal(len(reciprocal.invocations), 1)
@@ -348,8 +384,19 @@ def test_combined_integer_divisors_and_multiples_are_native() raises:
     )
     assert_false("--oberesmaximum=" in _tokens(english_reciprocal))
 
-    assert_false(_plan("vielfache teiler universum 2/3").handled)
-    assert_false(_plan("universum v2/3 teiler").handled)
+    var true_fraction = _plan("vielfache teiler universum 2/3")
+    assert_true(true_fraction.handled)
+    assert_equal(len(true_fraction.invocations), 13)
+    assert_true("--spaltenreihenfolgeundnurdiese=1" in _tokens(true_fraction, 0))
+    assert_false(
+        "--spaltenreihenfolgeundnurdiese=1,4" in _tokens(true_fraction, 0)
+    )
+    var compact_true_fraction = _plan("universum v2/3 teiler")
+    assert_true(compact_true_fraction.handled)
+    assert_equal(
+        serialize_prompt_table_plan(compact_true_fraction),
+        serialize_prompt_table_plan(true_fraction),
+    )
 
     # A machine-readable stream lets the shell parity test compare the complete
     # native token plans with the instrumented Python reference, not only
@@ -359,8 +406,55 @@ def test_combined_integer_divisors_and_multiples_are_native() raises:
     _emit_mixed_reciprocal_reference("universum vielfache teiler 1/2")
     _emit_mixed_reciprocal_reference("universum v1/2 teiler")
     _emit_mixed_reciprocal_reference("universum vielfache teiler 1/2,-1/4")
-    _emit_mixed_reciprocal_reference("universum vielfache teiler 2/3")
-    _emit_mixed_reciprocal_reference("universum v2/3 teiler")
+
+
+def test_true_fraction_multiples_follow_each_csv_rectangle() raises:
+    var compact = _plan("universum v2/3")
+    var spelled = _plan("universum vielfache 2/3")
+    assert_equal(
+        serialize_prompt_table_plan(compact), serialize_prompt_table_plan(spelled)
+    )
+
+    var emotion = _plan("emotion v2/3")
+    assert_true(emotion.handled)
+    assert_equal(len(emotion.invocations), 6)
+    assert_true("_Gefuehle_n/m=8" in _tokens(emotion, 5))
+    assert_false("_Gefuehle_n/m=10" in serialize_prompt_table_plan(emotion))
+
+    var size = _plan("groesse v2/3")
+    assert_true(size.handled)
+    assert_equal(len(size.invocations), 12)
+    assert_true("_Strukturgroesse_n/m=16" in _tokens(size, 11))
+    assert_false("_Strukturgroesse_n/m=18" in serialize_prompt_table_plan(size))
+
+    var motives = _plan("motive v2/3")
+    assert_true(motives.handled)
+    assert_equal(len(motives.invocations), 13)
+    assert_true("_Galaxie_n/m=22" in _tokens(motives, 12))
+    assert_false("_Galaxie_n/m=24" in serialize_prompt_table_plan(motives))
+
+    assert_true("_Gefuehle_n/m=8" in _tokens(_plan("emotion v8/3")))
+    assert_true("_Strukturgroesse_n/m=17" in _tokens(_plan("groesse v17/3")))
+    assert_true("_Galaxie_n/m=22" in _tokens(_plan("motive v22/3")))
+    assert_true("_Universum_n/m=20" in _tokens(_plan("universum v20/3")))
+
+    # Different data rectangles and mixed 1/n+n/m upper bounds remain atomic.
+    assert_false(_plan("universum motive v2/3").handled)
+    assert_false(_plan("universum v1/2,2/3").handled)
+    assert_false(_plan("universum v-2/3").handled)
+
+    _emit_true_fraction_multiple_plan("universum v2/3")
+    _emit_true_fraction_multiple_plan("universum vielfache 2/3")
+    _emit_true_fraction_multiple_plan("universum v2/3 teiler")
+    _emit_true_fraction_multiple_plan("emotion v2/3")
+    _emit_true_fraction_multiple_plan("groesse v2/3")
+    _emit_true_fraction_multiple_plan("motive v2/3")
+    _emit_true_fraction_multiple_plan("emotion v8/3")
+    _emit_true_fraction_multiple_plan("groesse v17/3")
+    _emit_true_fraction_multiple_plan("motive v22/3")
+    _emit_true_fraction_multiple_plan("universum v20/3")
+    _emit_true_fraction_multiple_plan("universum motive v2/3")
+    _emit_true_fraction_multiple_plan("universum v1/2,2/3")
 
 
 def test_legacy_fraction_rectangles_and_offsets_are_native() raises:

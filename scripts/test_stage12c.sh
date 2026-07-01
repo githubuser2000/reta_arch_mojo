@@ -20,6 +20,9 @@ python3 -m pytest -q tests/test_mojo_runtime_path.py tests/test_install_layout.p
 RETA_COMPAT_PARITY_GROUP=1 ./scripts/check_compat_native_first_parity.sh
 RETA_COMPAT_PARITY_GROUP=2 ./scripts/check_compat_native_first_parity.sh
 ./scripts/check_prompt_mixed_reciprocal_parity.sh
+./scripts/check_prompt_true_fraction_multiples.sh
+python3 tools/check_known_defects.py
+python3 -m pytest -q tests/test_known_defects.py
 ./scripts/check_prompt_classic_fraction_parity.sh
 ./scripts/check_prompt_terminal_parity.sh
-printf '%s\n' 'stage12c1/c2/c3/c4a/c4b/c4c/c4d/c4e/c4f/c4g/c4h/c4i/c4j/c4k/c4l/c4m/c4n/c4o/c4p terminal-width, native TTY editor, raw-command, fallback-child, bridge-free compatibility, portable Mojo runtime/FHS resource installation, native output-stream/markup-oneTable/no-blank-contents/paginated-rendering/column-widths/flat-column-widths/safe-generator-ranges/raw-nocolor-markup, reciprocal and classic-fraction tests complete'
+printf '%s\n' 'stage12c1/c2/c3/c4a/c4b/c4c/c4d/c4e/c4f/c4g/c4h/c4i/c4j/c4k/c4l/c4m/c4n/c4o/c4p/c4q/c4r terminal-width, native TTY editor, raw-command, fallback-child, bridge-free compatibility, portable Mojo runtime/FHS resource installation, native output-stream/markup-oneTable/no-blank-contents/paginated-rendering/column-widths/flat-column-widths/safe-generator-ranges/raw-nocolor-markup, startup/help, defect-ledger, reciprocal, true-fraction and classic-fraction tests complete'

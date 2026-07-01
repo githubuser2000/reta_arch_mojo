@@ -718,3 +718,12 @@ abschließendes Komma erhalten.
   Standardtabelle erzeugen.
 - Die wieder aufgetauchte tote Datei `prompt_python_bridge.mojo` wurde erneut
   entfernt; aktive `std.python`-Importe bleiben bei null.
+
+## Stage 12c4r
+
+- Fehler werden nicht mehr nur in einzelnen Stage-Dateien beschrieben. `KNOWN_DEFECTS.json` führt Ursprung, Klassifikation, Schwere, Python- und Mojo-Status, Reproduktion, Quellorte, Belege und die spätere Python-Aktion zusammen.
+- `tools/check_known_defects.py` erzeugt `KNOWN_DEFECTS.md` sowie `PYTHON_CLEANUP_BACKLOG.md` und verweigert fehlende Belege, doppelte IDs oder eine veraltete generierte Fassung.
+- Der Python-/PyPy3-Baum bleibt bis zum funktionalen Portabschluss eingefroren. Bewusste Mojo-Korrekturen erhalten einen offenen Python-Eintrag statt den Referenzfehler still zu überschreiben.
+- `PY-OPEN-002` dokumentiert den `IndexError` bei `rpb 'universum v2/3'`. Mojo erweitert Zähler und Nenner unabhängig und schneidet sie an der realen CSV-Form ab.
+- Die physischen Domänen sind Emotion 7×7 (Zähler 2–8), Strukturgröße 16×16 (2–17), Galaxie 21×21 (2–22) und Universum 21×19 (2–20).
+- Ganzzahlige, reziproke und Universum-Gleichheitsprojektionen werden aus dem erzeugten Raster abgeleitet. Mehrdomänen- und gemischte `1/n`+`n/m`-Vielfache bleiben konservativer Ganzvektor-Fallback.

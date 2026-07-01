@@ -3,9 +3,9 @@
 ## Testbestand
 
 ```text
-93 Mojo-Testdateien und -Probes
-16 Python-Testdateien
-404 Testfunktionen insgesamt (340 Mojo, 64 Python)
+94 Mojo-Testdateien und -Probes
+17 Python-Testdateien
+407 Testfunktionen insgesamt (341 Mojo, 66 Python)
 9 reguläre ELF-Compilerziele
 16 optionale schwere Metadaten-/Katalog-/Laufzeitziele
 ```
@@ -1205,4 +1205,31 @@ Standardtabelle auslösen.
 python3 tools/generate_native_cli_help_assets.py --check
 scripts/check_native_cli_startup_parity.sh
 scripts/check_install_layout.sh
+```
+
+## Stage 12c4r: zentraler Fehlerkatalog und echte Bruchvielfache
+
+```text
+Fehlerkatalog-Einträge:                  14/14 konsistent
+Python-Bereinigungsrückstand:                 6 Einträge
+Fehlerkatalog-Pytests:                    3/3
+Python-PY-OPEN-002-Reproduktion:      IndexError bestätigt
+Bruch-CSV-Rechtecke:                      4/4
+Echte Bruchvielfachen-Verträge:         12/12
+Direkte native Tabellenaufrufe:         13/13
+Prompt-Tabellenplaner:                   29/29
+Klassische Bruchparität:                18/18 byteidentisch
+Prompt-Ausführungsfixtures:               7/7 byteidentisch
+Stabile gemischte Reziprokpläne:          5/5 byteidentisch
+Source-/Runtime-/Installations-Pytests:  20/20
+Native I/O-Boundaries:               bestanden
+aktive std.python-Brücken:                 0
+```
+
+Die zwölf neuen Vertragsfälle prüfen kompakte und ausgeschriebene Syntax, `teiler`, alle vier Bruchdomänen, die jeweiligen oberen Zählergrenzen sowie zwei weiterhin atomare Mischgrenzen. Der Prüfer reproduziert zunächst den unveränderten Python-`IndexError` und validiert danach den korrigierten Mojo-Vertrag.
+
+```bash
+python3 tools/check_known_defects.py
+python3 -m pytest -q tests/test_known_defects.py
+scripts/check_prompt_true_fraction_multiples.sh
 ```

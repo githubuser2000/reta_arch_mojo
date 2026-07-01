@@ -650,3 +650,17 @@ Ownership-Prüfer weist reine Hauptparameter ohne Nebenoption zurück, sodass
 `-language=english` oder `-zeilen` nicht mehr fälschlich die Standardtabelle
 ausgeben. Details:
 [`STAGE12C4Q_NATIVE_CLI_STARTUP_HELP.md`](STAGE12C4Q_NATIVE_CLI_STARTUP_HELP.md).
+
+## Fehlerkatalog und bewusste Referenzabweichungen
+
+Während der Transpilierung bleibt `python_reference` grundsätzlich als reproduzierbare historische Referenz eingefroren. Bestätigte Fehler des Originals werden nicht vergessen und nicht als scheinbare Parität behandelt. Sie stehen mit Reproduktion, Quellorten, Mojo-Vertrag und späterem Python-Arbeitsauftrag in [`KNOWN_DEFECTS.md`](KNOWN_DEFECTS.md); die maßgebliche Quelle ist `KNOWN_DEFECTS.json`. Die daraus erzeugte [`PYTHON_CLEANUP_BACKLOG.md`](PYTHON_CLEANUP_BACKLOG.md) ist die konkrete Arbeitsliste für die spätere Python-/PyPy3-Bereinigungsphase.
+
+Prüfen beziehungsweise neu erzeugen:
+
+```bash
+python3 tools/check_known_defects.py --write
+python3 tools/check_known_defects.py
+python3 -m pytest -q tests/test_known_defects.py
+```
+
+Stage 12c4r nutzt diesen Prozess erstmals für eine absichtliche Korrektur gegenüber dem Original: `rpb 'universum v2/3'` stürzt in Python mit `IndexError` ab, während Mojo ein an der realen Bruch-CSV-Form begrenztes Zähler×Nenner-Raster erzeugt. Details: [`STAGE12C4R_DEFECT_LEDGER_FRACTION_MULTIPLES.md`](STAGE12C4R_DEFECT_LEDGER_FRACTION_MULTIPLES.md).

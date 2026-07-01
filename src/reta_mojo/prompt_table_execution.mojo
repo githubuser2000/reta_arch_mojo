@@ -5,8 +5,9 @@ combined integer divisor/multiple algebra, positive rational ``n/m`` expressions
 stable exclusion forms, reciprocal multiple expansion and fraction/divisor
 combinations.  The historical Python function mixes parsing, i18n, range algebra
 and table execution; here these concerns are split into typed planning stages.
-True ``v n/m`` expansion remains at the compatibility boundary because the
-Python reference itself crashes for that form.
+True ``v n/m`` expansion deliberately corrects a Python-reference crash: the
+numerator and denominator axes are expanded independently, but only inside the
+real rectangular shape of the selected fraction CSV domain.
 """
 
 from std.collections import List
@@ -46,6 +47,13 @@ struct _PromptFractionPair(Copyable):
     var denominator: Int
     var excluded: Bool
     var multiple: Bool
+
+
+@fieldwise_init
+struct _FractionMultipleDomain(Copyable):
+    var supported: Bool
+    var maximum_numerator: Int
+    var maximum_denominator: Int
 
 
 @fieldwise_init
@@ -635,14 +643,99 @@ def _fraction_multiple_mode(pairs: List[_PromptFractionPair]) -> Bool:
     return False
 
 
-def _fraction_multiple_supported(pairs: List[_PromptFractionPair]) -> Bool:
-    # The legacy implementation is stable for reciprocal 1/n multiples.  It
-    # raises IndexError for true n/m or n/1 multiple expansion, so those remain
-    # behind the compatibility boundary until a reference contract exists.
+def _has_true_fraction(pairs: List[_PromptFractionPair]) -> Bool:
     for index in range(len(pairs)):
         if pairs[index].numerator != 1:
+            return True
+    return False
+
+
+def _fraction_multiple_domain(
+    canonical_words: List[String],
+) -> _FractionMultipleDomain:
+    """Return the single real CSV rectangle selected by a true n/m prompt.
+
+    Fraction CSV columns start at numerator 2.  Consequently seven physical
+    emotion columns represent numerators 2..8, while nineteen Universe columns
+    represent 2..20.  Rows are denominator coordinates starting at one.
+    Owning several fraction domains at once would require different expansions
+    for the same prompt pair, so that still falls back atomically.
+    """
+    var count = 0
+    var maximum_numerator = 0
+    var maximum_denominator = 0
+    if _contains(canonical_words, "emotion") or _contains(canonical_words, "E"):
+        count += 1
+        maximum_numerator = 8
+        maximum_denominator = 7
+    if _contains(canonical_words, "groesse"):
+        count += 1
+        maximum_numerator = 17
+        maximum_denominator = 16
+    if _contains_any(
+        canonical_words, ["absicht", "absichten", "motiv", "motive", "a"]
+    ):
+        count += 1
+        maximum_numerator = 22
+        maximum_denominator = 21
+    if _contains(canonical_words, "universum") or _contains(canonical_words, "u"):
+        count += 1
+        maximum_numerator = 20
+        maximum_denominator = 21
+    return _FractionMultipleDomain(
+        count == 1, maximum_numerator, maximum_denominator
+    )
+
+
+def _fraction_multiple_supported(
+    pairs: List[_PromptFractionPair],
+    canonical_words: List[String],
+    multiple_mode: Bool,
+) -> Bool:
+    if not multiple_mode or not _has_true_fraction(pairs):
+        return True
+    var domain = _fraction_multiple_domain(canonical_words)
+    if not domain.supported or not _has_positive_fraction(pairs):
+        return False
+    # Mixed reciprocal and true-fraction multiple axes have two incompatible
+    # upper bounds in the legacy prompt (1024 versus the fraction CSV shape).
+    # Keep that compound form atomic until it receives its own explicit contract.
+    for index in range(len(pairs)):
+        if pairs[index].numerator == 1:
             return False
     return True
+
+
+def _copy_fraction_pairs(
+    pairs: List[_PromptFractionPair],
+) -> List[_PromptFractionPair]:
+    var result = List[_PromptFractionPair]()
+    for index in range(len(pairs)):
+        result.append(pairs[index].copy())
+    return result^
+
+
+def _expand_true_fraction_multiples(
+    pairs: List[_PromptFractionPair], domain: _FractionMultipleDomain
+) -> List[_PromptFractionPair]:
+    """Expand both axes independently and clip to the physical CSV rectangle."""
+    var result = List[_PromptFractionPair]()
+    for index in range(len(pairs)):
+        var pair = pairs[index].copy()
+        var numerator = pair.numerator
+        while numerator <= domain.maximum_numerator:
+            var denominator = pair.denominator
+            while denominator <= domain.maximum_denominator:
+                _append_unique_fraction_pair(
+                    result,
+                    numerator,
+                    denominator,
+                    pair.excluded,
+                    False,
+                )
+                denominator += pair.denominator
+            numerator += pair.numerator
+    return result^
 
 
 def _fraction_exclusions_supported(
@@ -927,13 +1020,14 @@ def plan_prompt_table_commands(
         multiple_mode = False
     # Integer inputs have a stable combined legacy contract: divisors are
     # selected first and the original values are then expanded as multiples.
-    # Reciprocal ``1/n`` multiples are equally stable when ``teiler`` is also
-    # present: the divisor modifier does not alter their expanded reciprocal
-    # row axis.  Only true ``v n/m`` remains behind the compatibility boundary.
+    # Reciprocal ``1/n`` multiples are stable up to row 1023.  True ``v n/m``
+    # instead uses the physical rectangle of exactly one selected fraction CSV.
     if (
         has_fraction
         and multiple_mode
-        and not _fraction_multiple_supported(fraction_pairs)
+        and not _fraction_multiple_supported(
+            fraction_pairs, canonical_words, multiple_mode
+        )
     ):
         unsupported = True
     if has_fraction and not _fraction_exclusions_supported(
@@ -945,6 +1039,15 @@ def plan_prompt_table_commands(
     # column request.  They therefore no longer require an atomic fallback.
     if unsupported:
         return PromptTablePlan(False, List[PromptTableInvocation]())
+
+    var true_fraction_multiple_mode = (
+        has_fraction and multiple_mode and _has_true_fraction(fraction_pairs)
+    )
+    var effective_fraction_pairs = _copy_fraction_pairs(fraction_pairs)
+    if true_fraction_multiple_mode:
+        effective_fraction_pairs = _expand_true_fraction_multiples(
+            fraction_pairs, _fraction_multiple_domain(canonical_words)
+        )
 
     # The pure compact numeric default for zero is a peculiar stable legacy
     # branch: ``teiler`` contributes no divisor expansion, ``absicht`` emits no
@@ -965,12 +1068,14 @@ def plan_prompt_table_commands(
 
     var whole_rows = List[String]()
     var reciprocal_rows = List[String]()
-    var has_positive_fraction = _has_positive_fraction(fraction_pairs)
-    for index in range(len(fraction_pairs)):
-        var pair = fraction_pairs[index].copy()
+    var has_positive_fraction = _has_positive_fraction(effective_fraction_pairs)
+    for index in range(len(effective_fraction_pairs)):
+        var pair = effective_fraction_pairs[index].copy()
         if pair.excluded:
             continue
-        var exact_exclusion = _has_matching_exclusion(fraction_pairs, pair)
+        var exact_exclusion = _has_matching_exclusion(
+            effective_fraction_pairs, pair
+        )
         # Exact literal n/m cancellation is represented on that numerator's
         # proper-fraction axis.  Only 1/n has no such axis, so its reciprocal
         # promotion must remain and cancel there instead.
@@ -985,7 +1090,7 @@ def plan_prompt_table_commands(
                 reciprocal_rows, String(pair.denominator // pair.numerator)
             )
 
-    if multiple_mode and has_fraction:
+    if multiple_mode and has_fraction and not true_fraction_multiple_mode:
         reciprocal_rows = _expanded_reciprocal_multiple_rows(
             fraction_pairs, 1024
         )
@@ -996,8 +1101,8 @@ def plan_prompt_table_commands(
         var reciprocal_attempts = List[Int]()
         for index in range(len(reciprocal_rows)):
             reciprocal_attempts.append(Int(reciprocal_rows[index]))
-        for index in range(len(fraction_pairs)):
-            var pair = fraction_pairs[index].copy()
+        for index in range(len(effective_fraction_pairs)):
+            var pair = effective_fraction_pairs[index].copy()
             if pair.excluded and pair.numerator == 1:
                 reciprocal_attempts.append(-pair.denominator)
         var had_positive_reciprocal = len(reciprocal_rows) > 0
@@ -1015,10 +1120,10 @@ def plan_prompt_table_commands(
     # It is observable as a trailing comma ("2," or "2,3,") even though the
     # selected row set is unchanged.  Mixed proper fractions or exclusions do
     # not retain that empty component.
-    if divisor_mode and not multiple_mode and len(fraction_pairs) > 0:
+    if divisor_mode and not multiple_mode and len(effective_fraction_pairs) > 0:
         var pure_positive_reciprocals = True
-        for pair_index in range(len(fraction_pairs)):
-            var pair = fraction_pairs[pair_index].copy()
+        for pair_index in range(len(effective_fraction_pairs)):
+            var pair = effective_fraction_pairs[pair_index].copy()
             if pair.excluded or pair.numerator != 1:
                 pure_positive_reciprocals = False
         if pure_positive_reciprocals and len(reciprocal_rows) > 0:
@@ -1064,7 +1169,11 @@ def plan_prompt_table_commands(
 
     var has_integer = len(normal_rows) > 0
     var has_reciprocal = len(reciprocal_rows) > 0
-    if not has_integer and not has_reciprocal and len(fraction_pairs) == 0:
+    if (
+        not has_integer
+        and not has_reciprocal
+        and len(effective_fraction_pairs) == 0
+    ):
         if (
             len(numeric15_values) > 0
             or len(numeric16_values) > 0
@@ -1112,6 +1221,17 @@ def plan_prompt_table_commands(
         if zero_default_mode:
             integer_base = _base_table_tokens_without_maximum(
                 language, _join_rows(normal_rows), counting, invert
+            )
+        elif true_fraction_multiple_mode:
+            # The expanded whole-number projections are already materialized;
+            # feeding them into --vielfachevonzahlen would expand them a second
+            # time and no longer describe the corrected fraction-grid contract.
+            integer_base = _base_table_tokens(
+                language,
+                _join_rows(normal_rows),
+                maximum,
+                counting,
+                invert,
             )
         elif multiple_mode and divisor_mode:
             integer_base = _base_multiple_divisor_tokens(
@@ -1209,7 +1329,7 @@ def plan_prompt_table_commands(
         )
         _append_fraction_invocations(
             invocations,
-            fraction_pairs,
+            effective_fraction_pairs,
             language,
             counting,
             invert,
@@ -1337,7 +1457,7 @@ def plan_prompt_table_commands(
         )
         _append_fraction_invocations(
             invocations,
-            fraction_pairs,
+            effective_fraction_pairs,
             language,
             counting,
             invert,
@@ -1408,7 +1528,7 @@ def plan_prompt_table_commands(
         )
         _append_fraction_invocations(
             invocations,
-            fraction_pairs,
+            effective_fraction_pairs,
             language,
             counting,
             invert,
@@ -1470,7 +1590,7 @@ def plan_prompt_table_commands(
         )
         _append_fraction_invocations(
             invocations,
-            fraction_pairs,
+            effective_fraction_pairs,
             language,
             counting,
             invert,
@@ -1481,7 +1601,7 @@ def plan_prompt_table_commands(
         )
         _append_universe_equal_axis(
             invocations,
-            fraction_pairs,
+            effective_fraction_pairs,
             language,
             counting,
             invert,
