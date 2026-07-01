@@ -784,3 +784,27 @@ Die frühere zweite Zustandsmaschine wurde aus `prompt_language.mojo` gelöscht,
 Die Fuzzy-Suche arbeitet nun über Unicode-Skalare statt UTF-8-Bytes. Außerdem übernimmt der Kataloggenerator bei englischen Zeilenwerten die tatsächlichen Python-Dictionary-Schlüssel; nur die drei vom Original lokalisierten Spezialdomänen werden danach überschrieben. Dieser ältere Mojo-Generatorfehler ist als `MOJO-FIXED-019` katalogisiert.
 
 Validiert wurden 3/3 Runtime-Tests, 5/5 Zustandsmaschinentests, 12/12 bestehende sowie 67/67 erweiterte sprachübergreifende Completion-Kontexte.
+
+
+## Stage 12c4v – native Prompt-Sitzung und Prompt-Runtime
+
+- `prompt_session.mojo` ersetzt den veränderlichen Python-Sitzungsbesitzer mit
+  typisierten Text-, Speicher-, Lösch-, Verlaufs- und Moduszuständen. Die
+  doppelte `NativePromptSession`-Definition in `prompt_runtime.mojo` ist
+  entfernt.
+- `prompt_runtime_catalog.mojo` und der leichtgewichtige `prompt_prefix_catalog.mojo` frieren den vollständigen Runtimevertrag für
+  Deutsch, Englisch, Vietnamesisch, Chinesisch und Koreanisch aus jeweils
+  frischen Python-Prozessen ein. Dadurch werden i18n-/Architekturcacheeffekte
+  des Referenzprozesses nicht versehentlich in andere Sprachen getragen.
+- Die native Eingabe übernimmt die Python-Regel, dass `loggen`/`nichtloggen`
+  und ihre Übersetzungen nicht selbst in der History gespeichert werden.
+- Gespeicherte reine Dezimaltokens haben beim Löschen Vorrang vor derselben
+  Positionsnummer. `reta 2 --nocolor` plus Löschangabe `2` entfernt damit den
+  Wert `2`; ohne gespeicherten Wert `2` wird die zweite Position entfernt.
+- Promptpräfixe sind nicht mehr hart deutsch oder um ein zusätzliches
+  Leerzeichen erweitert. Der produktive Controller verwendet exakt `>`,
+  `was speichern>`/`was löschen>` beziehungsweise
+  `save what>`/`delete what>` aus dem generierten Vertrag.
+- Die drei älteren Mojo-Abweichungen stehen als `MOJO-FIXED-020` bis
+  `MOJO-FIXED-022` im zentralen Fehlerkatalog. Der Python-Baum bleibt
+  unverändert, weil er hier die korrekte Referenz liefert.

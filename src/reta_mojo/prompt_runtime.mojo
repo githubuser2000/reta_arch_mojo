@@ -8,7 +8,7 @@ policy, and the native arithmetic commands are owned by Mojo.
 from std.collections import List
 from std.collections.string import atol, ord
 from .number_theory import prime_factors
-from .arithmetic import factor_pairs, factor_triples, modulo_table_lines, prime_repeat_labels, has_digit
+from .arithmetic import factor_pairs, factor_triples, modulo_table_lines, prime_repeat_labels
 from .row_ranges import range_to_numbers, is_row_range
 from .prime_cross_columns import python_int_set_order, python_signed_int_set_order
 from .prompt_language import (
@@ -871,88 +871,76 @@ def join_prompt_tokens(tokens: List[String]) -> String:
 
 
 @fieldwise_init
-struct NativePromptSession(Copyable):
-    var logging_enabled: Bool
-    var stored_tokens: List[String]
-    var previous_command: String
-    var store_next: Bool
-    var delete_next: Bool
+struct PromptProgramViewContract(Copyable):
+    var class_name: String
+    var main_parameter_names: List[String]
+    var main_parameter_indices: List[Int]
+    var para_n_data_matrix_len: Int
+    var para_dict_len: Int
+    var data_dict_sizes: List[Int]
+    var combination_reverse_len: Int
+    var combination_reverse2_len: Int
+    var simple_command_columns_len: Int
+    var max_rows_1024: Int
+    var max_rows_114: Int
 
 
-def new_prompt_session(logging_enabled: Bool) -> NativePromptSession:
-    return NativePromptSession(
-        logging_enabled,
-        List[String](),
-        "",
-        False,
-        False,
-    )
+@fieldwise_init
+struct PromptVocabularyContract(Copyable):
+    var main_parameters_len: Int
+    var row_parameters_len: Int
+    var output_parameters_len: Int
+    var output_modes_len: Int
+    var combination_parameters_len: Int
+    var command_values_len: Int
+    var commands_len: Int
+    var column_dictionary_keys: Int
+    var columns_len: Int
+    var fraction_allowed_numbers_len: Int
+    var main_for_sub_len: Int
 
 
-def prompt_prefix(session: NativePromptSession) -> String:
-    if session.store_next:
-        return "speichern> "
-    if session.delete_next:
-        return "loeschen> "
-    return "> "
+@fieldwise_init
+struct PromptRuntimeContract(Copyable):
+    var language: String
+    var program: PromptProgramViewContract
+    var vocabulary: PromptVocabularyContract
+    var normal_prefix: String
+    var store_prefix: String
+    var delete_prefix: String
+    var wahl15_valid: Bool
+    var wahl15_missing_values: List[String]
 
 
-def _append_nonempty_words(text: String, mut target: List[String]) -> None:
-    var words = split_prompt_words(text)
-    for index in range(len(words)):
-        if words[index].byte_length() > 0:
-            target.append(words[index])
+def prime_command_predicate(num: Int) -> Int:
+    """Port ``prompt_runtime._prime_command_predicate`` exactly."""
+    if num <= 1:
+        return 0
+    if num == 2:
+        return 1
+    if num % 2 == 0:
+        return 3
+    var divisor = 3
+    while divisor * divisor <= num:
+        if num % divisor == 0:
+            return 3
+        divisor += 2
+    return 1
 
 
-def store_prompt_text(mut session: NativePromptSession, text: String) -> None:
-    _append_nonempty_words(text, session.stored_tokens)
-    session.store_next = False
-
-
-def stored_prompt_text(session: NativePromptSession) -> String:
-    return join_prompt_tokens(session.stored_tokens)
-
-
-def storage_payload(command: PromptCommand) -> String:
-    if len(command.words) <= 1:
-        return ""
-    var words = List[String]()
-    for index in range(1, len(command.words)):
-        words.append(command.words[index])
-    return join_prompt_tokens(words)
-
-
-def stored_prompt_numbered(session: NativePromptSession) -> List[String]:
+def prompt_runtime_contract_snapshot(contract: PromptRuntimeContract) -> List[String]:
     var result = List[String]()
-    for index in range(len(session.stored_tokens)):
-        result.append(String(index + 1) + ": " + session.stored_tokens[index])
+    result.append("language=" + contract.language)
+    result.append("program_class=" + contract.program.class_name)
+    result.append("main_parameters=" + String(len(contract.program.main_parameter_names)))
+    result.append("para_dict=" + String(contract.program.para_dict_len))
+    result.append("data_dicts=" + String(len(contract.program.data_dict_sizes)))
+    result.append("kombi=" + String(contract.program.combination_reverse_len))
+    result.append("kombi2=" + String(contract.program.combination_reverse2_len))
+    result.append("simple_columns=" + String(contract.program.simple_command_columns_len))
+    result.append("normal_prefix=" + contract.normal_prefix)
+    result.append("store_prefix=" + contract.store_prefix)
+    result.append("delete_prefix=" + contract.delete_prefix)
+    result.append("wahl15_valid=" + ("1" if contract.wahl15_valid else "0"))
+    result.append("wahl15_missing=" + String(len(contract.wahl15_missing_values)))
     return result^
-
-
-def delete_stored_selection(
-    mut session: NativePromptSession,
-    selection: String,
-) raises -> None:
-    var cleaned = String(selection.strip())
-    if cleaned.byte_length() == 0:
-        session.delete_next = False
-        return
-
-    var keep = List[String]()
-    if has_digit(cleaned):
-        var positions = range_to_numbers(cleaned, False, 0)
-        for index in range(len(session.stored_tokens)):
-            if (index + 1) not in positions:
-                keep.append(session.stored_tokens[index])
-    else:
-        var selected = split_prompt_words(cleaned)
-        for index in range(len(session.stored_tokens)):
-            var remove = False
-            for selected_index in range(len(selected)):
-                if session.stored_tokens[index] == selected[selected_index]:
-                    remove = True
-                    break
-            if not remove:
-                keep.append(session.stored_tokens[index])
-    session.stored_tokens = keep^
-    session.delete_next = False

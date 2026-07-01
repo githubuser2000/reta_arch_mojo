@@ -795,6 +795,85 @@
       ]
     },
     {
+      "id": "MOJO-FIXED-020",
+      "title": "Native Prompt-History protokollierte die Umschaltbefehle für Logging",
+      "origin": "mojo_port",
+      "classification": "prompt_history_semantics_bug",
+      "severity": "medium",
+      "python_status": "correct_reference",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c4v",
+      "reproducer": "History aktivieren und loggen beziehungsweise nichtloggen oder logging_yes beziehungsweise logging_no eingeben; die Befehle dürfen nicht in ~/.ReTaPromptHistory landen.",
+      "python_locations": [
+        "python_reference/reta_architecture/prompt_session.py"
+      ],
+      "mojo_locations": [
+        "src/reta_mojo/prompt_session.mojo",
+        "src/reta_mojo/native_prompt_input.mojo"
+      ],
+      "current_contract": "Leere Zeilen und beide lokalisierten History-Umschalter werden vor dem Anhängen über den nativen fünfsprachigen Befehlsalias-Katalog ausgeschlossen; normale Befehle und Duplikate bleiben erhalten.",
+      "post_port_fix": "Keine Python-Änderung erforderlich; Python ToggleHistory ist die korrekte Referenz.",
+      "evidence": [
+        "STAGE12C4V_NATIVE_PROMPT_SESSION_RUNTIME.md",
+        "tests/test_prompt_session.mojo",
+        "scripts/check_prompt_session_parity.sh"
+      ]
+    },
+    {
+      "id": "MOJO-FIXED-021",
+      "title": "Dezimale gespeicherte Prompttokens wurden immer als Löschposition interpretiert",
+      "origin": "mojo_port",
+      "classification": "prompt_storage_semantics_bug",
+      "severity": "medium",
+      "python_status": "correct_reference",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c4v",
+      "reproducer": "Speichere reta 2 --nocolor und lösche mit der Auswahl 2; der literal gespeicherte Wert 2 muss entfernt werden, nicht bedingungslos die zweite Position.",
+      "python_locations": [
+        "python_reference/reta_architecture/prompt_session.py"
+      ],
+      "mojo_locations": [
+        "src/reta_mojo/prompt_session.mojo"
+      ],
+      "current_contract": "Eine reine Dezimalangabe löscht zuerst einen gleichlautenden gespeicherten Tokenwert; nur ohne solchen Wert wird sie als Position behandelt. Bereiche und nichtdezimale Zeilenangaben bleiben positionsbasiert.",
+      "post_port_fix": "Keine Python-Änderung erforderlich; die ungewöhnliche Prioritätsregel des Originals wird byte- und zustandsgleich bewahrt.",
+      "evidence": [
+        "STAGE12C4V_NATIVE_PROMPT_SESSION_RUNTIME.md",
+        "tests/test_prompt_session.mojo",
+        "scripts/check_prompt_session_parity.sh"
+      ]
+    },
+    {
+      "id": "MOJO-FIXED-022",
+      "title": "Native Speicher- und Löschprompts waren hart deutsch und enthielten zusätzliche Leerzeichen",
+      "origin": "mojo_port",
+      "classification": "prompt_i18n_display_bug",
+      "severity": "medium",
+      "python_status": "correct_reference",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c4v",
+      "reproducer": "Starte retaPrompt mit -language=english und aktiviere Speichern oder Löschen; der Prompt muss exakt save what> beziehungsweise delete what> statt speichern>  oder loeschen>  lauten.",
+      "python_locations": [
+        "python_reference/reta_architecture/prompt_session.py",
+        "python_reference/i18n/words_runtime.py"
+      ],
+      "mojo_locations": [
+        "src/reta_mojo/prompt_runtime.mojo",
+        "src/reta_mojo/prompt_runtime_catalog.mojo",
+        "src/reta_mojo/prompt_session.mojo",
+        "src/prompt_main.mojo"
+      ],
+      "current_contract": "Normal-, Speicher- und Löschpräfixe werden für alle fünf Sprachen aus frischen Referenzprozessen generiert und ohne zusätzliches Leerzeichen an den nativen Editor übergeben.",
+      "post_port_fix": "Keine Python-Änderung erforderlich; die i18n-Werte des Originals sind die korrekte Referenz.",
+      "evidence": [
+        "STAGE12C4V_NATIVE_PROMPT_SESSION_RUNTIME.md",
+        "scripts/check_prompt_runtime_parity.sh",
+        "tests/test_prompt_runtime_contract.mojo",
+        "tests/test_prompt_session.mojo",
+        "scripts/check_prompt_session_pty_prefix.py"
+      ]
+    },
+    {
       "id": "TEST-OPEN-001",
       "title": "Breiter direkter CSV-Paritätsharness verklebt unter einem Python-3.13-Lauf Referenzzeilen",
       "origin": "test_infrastructure",
@@ -896,8 +975,9 @@
       "STAGE12C4I_NATIVE_PAGINATED_RENDERING.md",
       "STAGE12C4S_DEFECT_BACKFILL_NATIVE_CONTROL_MAINS.md",
       "STAGE12C4T_NATIVE_WORD_COMPLETION.md",
-      "STAGE12C4U_NATIVE_NESTED_COMPLETION.md"
+      "STAGE12C4U_NATIVE_NESTED_COMPLETION.md",
+      "STAGE12C4V_NATIVE_PROMPT_SESSION_RUNTIME.md"
     ],
-    "scope_note": "Vollständig bezogen auf alle bis Stage 12c4u im Projekt bestätigten oder plausibel begründeten verhaltensrelevanten Befunde; unbekannte künftige Fehler können naturgemäß erst nach ihrer Entdeckung aufgenommen werden."
+    "scope_note": "Vollständig bezogen auf alle bis Stage 12c4v im Projekt bestätigten oder plausibel begründeten verhaltensrelevanten Befunde; unbekannte künftige Fehler können naturgemäß erst nach ihrer Entdeckung aufgenommen werden."
   }
 }

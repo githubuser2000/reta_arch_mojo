@@ -18,7 +18,8 @@ def test_native_input_routes_pipes_and_ttys_without_python() -> None:
         root / "src" / "reta_mojo" / "native_prompt_input.mojo"
     ).read_text(encoding="utf-8")
     assert "if native_plain_input_requested():" in source
-    assert "return read_plain_prompt_line(" in source
+    assert "read_plain_prompt_line(" in source
+    assert "history_should_append(" in source
     assert "read_terminal_prompt_line(" in source
     assert "load_prompt_history(" in source
     assert "append_prompt_history(" in source

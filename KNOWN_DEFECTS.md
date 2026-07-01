@@ -18,12 +18,12 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 ## Rückwirkender Audit
 
 - letzter vollständiger Rückwärtsaudit: `12c4s`
-- geprüfte Quellen: **13**
-- Reichweite: Vollständig bezogen auf alle bis Stage 12c4u im Projekt bestätigten oder plausibel begründeten verhaltensrelevanten Befunde; unbekannte künftige Fehler können naturgemäß erst nach ihrer Entdeckung aufgenommen werden.
+- geprüfte Quellen: **14**
+- Reichweite: Vollständig bezogen auf alle bis Stage 12c4v im Projekt bestätigten oder plausibel begründeten verhaltensrelevanten Befunde; unbekannte künftige Fehler können naturgemäß erst nach ihrer Entdeckung aufgenommen werden.
 
 ## Übersicht
 
-- Einträge insgesamt: **39**
+- Einträge insgesamt: **42**
 - offene bestätigte Python-Fehler: **5**
 - zu entscheidende Python-Fehlerkandidaten: **7**
 - bereits im Python-Baum behobene Fehler: **3**
@@ -497,6 +497,48 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 - Python-Orte: `python_reference/reta_architecture/completion_runtime.py`, `python_reference/reta_architecture/completion_nested.py`
 - Mojo-Orte: `scripts/generate_prompt_nested_catalog.py`, `assets/prompt_nested_completion.tsv`, `src/reta_mojo/completion_nested.mojo`
 - Belege: `STAGE12C4U_NATIVE_NESTED_COMPLETION.md`, `scripts/check_completion_nested_parity.sh`, `TEST_RESULTS.md`, `tests/test_completion_native_ownership.py`
+
+### MOJO-FIXED-020 – Native Prompt-History protokollierte die Umschaltbefehle für Logging
+
+- Ursprung: `mojo_port`
+- Klasse / Schwere: `prompt_history_semantics_bug` / `medium`
+- Python-Status: `correct_reference`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c4v`
+- Reproduktion: `History aktivieren und loggen beziehungsweise nichtloggen oder logging_yes beziehungsweise logging_no eingeben; die Befehle dürfen nicht in ~/.ReTaPromptHistory landen.`
+- heutiger Vertrag: Leere Zeilen und beide lokalisierten History-Umschalter werden vor dem Anhängen über den nativen fünfsprachigen Befehlsalias-Katalog ausgeschlossen; normale Befehle und Duplikate bleiben erhalten.
+- spätere Python-Aktion: Keine Python-Änderung erforderlich; Python ToggleHistory ist die korrekte Referenz.
+- Python-Orte: `python_reference/reta_architecture/prompt_session.py`
+- Mojo-Orte: `src/reta_mojo/prompt_session.mojo`, `src/reta_mojo/native_prompt_input.mojo`
+- Belege: `STAGE12C4V_NATIVE_PROMPT_SESSION_RUNTIME.md`, `tests/test_prompt_session.mojo`, `scripts/check_prompt_session_parity.sh`
+
+### MOJO-FIXED-021 – Dezimale gespeicherte Prompttokens wurden immer als Löschposition interpretiert
+
+- Ursprung: `mojo_port`
+- Klasse / Schwere: `prompt_storage_semantics_bug` / `medium`
+- Python-Status: `correct_reference`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c4v`
+- Reproduktion: `Speichere reta 2 --nocolor und lösche mit der Auswahl 2; der literal gespeicherte Wert 2 muss entfernt werden, nicht bedingungslos die zweite Position.`
+- heutiger Vertrag: Eine reine Dezimalangabe löscht zuerst einen gleichlautenden gespeicherten Tokenwert; nur ohne solchen Wert wird sie als Position behandelt. Bereiche und nichtdezimale Zeilenangaben bleiben positionsbasiert.
+- spätere Python-Aktion: Keine Python-Änderung erforderlich; die ungewöhnliche Prioritätsregel des Originals wird byte- und zustandsgleich bewahrt.
+- Python-Orte: `python_reference/reta_architecture/prompt_session.py`
+- Mojo-Orte: `src/reta_mojo/prompt_session.mojo`
+- Belege: `STAGE12C4V_NATIVE_PROMPT_SESSION_RUNTIME.md`, `tests/test_prompt_session.mojo`, `scripts/check_prompt_session_parity.sh`
+
+### MOJO-FIXED-022 – Native Speicher- und Löschprompts waren hart deutsch und enthielten zusätzliche Leerzeichen
+
+- Ursprung: `mojo_port`
+- Klasse / Schwere: `prompt_i18n_display_bug` / `medium`
+- Python-Status: `correct_reference`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c4v`
+- Reproduktion: `Starte retaPrompt mit -language=english und aktiviere Speichern oder Löschen; der Prompt muss exakt save what> beziehungsweise delete what> statt speichern>  oder loeschen>  lauten.`
+- heutiger Vertrag: Normal-, Speicher- und Löschpräfixe werden für alle fünf Sprachen aus frischen Referenzprozessen generiert und ohne zusätzliches Leerzeichen an den nativen Editor übergeben.
+- spätere Python-Aktion: Keine Python-Änderung erforderlich; die i18n-Werte des Originals sind die korrekte Referenz.
+- Python-Orte: `python_reference/reta_architecture/prompt_session.py`, `python_reference/i18n/words_runtime.py`
+- Mojo-Orte: `src/reta_mojo/prompt_runtime.mojo`, `src/reta_mojo/prompt_runtime_catalog.mojo`, `src/reta_mojo/prompt_session.mojo`, `src/prompt_main.mojo`
+- Belege: `STAGE12C4V_NATIVE_PROMPT_SESSION_RUNTIME.md`, `scripts/check_prompt_runtime_parity.sh`, `tests/test_prompt_runtime_contract.mojo`, `tests/test_prompt_session.mojo`, `scripts/check_prompt_session_pty_prefix.py`
 
 ### TEST-OPEN-001 – Breiter direkter CSV-Paritätsharness verklebt unter einem Python-3.13-Lauf Referenzzeilen
 

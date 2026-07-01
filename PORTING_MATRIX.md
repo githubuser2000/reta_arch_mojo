@@ -76,8 +76,8 @@ Stand: 1. Juli 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der g
 | `reta_architecture/prompt_interaction.py` | 273 | 15 | 1 | 0 | teilweise nativ | `src/reta_mojo/native_prompt_input.mojo + prompt_line_editor.mojo + prompt_terminal_input.mojo + prompt_main.mojo` | reale Pipe-/TTY-Eingabe, UTF-8-Editor, History, verschachtelte Completion, Mehrzeilen-Wrapping sowie Emacs-/Vi-Kernbindings nativ; hintere dynamische Sitzungs-/Speicherzweige bleiben Referenz/Fallback |
 | `reta_architecture/prompt_language.py` | 492 | 23 | 2 | 2 | weitgehend nativ | `src/reta_mojo/prompt_language.mojo + prompt_external_commands.mojo` | kompakte Sprache, Rohbefehlserkennung und UTF-8-sicherer Shell-Parser nativ; Rest-i18n offen |
 | `reta_architecture/prompt_preparation.py` | 462 | 14 | 1 | 4 | Python-Referenz/Bridge | `python_reference/reta_architecture/prompt_preparation.py` | noch nicht nativ portiert |
-| `reta_architecture/prompt_runtime.py` | 158 | 9 | 4 | 1 | Python-Referenz/Bridge | `python_reference/reta_architecture/prompt_runtime.py` | noch nicht nativ portiert |
-| `reta_architecture/prompt_session.py` | 543 | 37 | 8 | 1 | Python-Referenz/Bridge | `python_reference/reta_architecture/prompt_session.py` | noch nicht nativ portiert |
+| `reta_architecture/prompt_runtime.py` | 158 | 9 | 4 | 1 | generiert nativ | `src/reta_mojo/prompt_runtime.mojo + prompt_runtime_catalog.mojo + prompt_prefix_catalog.mojo + tools/generate_prompt_runtime_catalog.py` | Primprädikat, Laufzeit-/Programm-/Vokabularvertrag und fünfsprachige Promptpräfixe vollständig typisiert und reproduzierbar generiert |
+| `reta_architecture/prompt_session.py` | 543 | 37 | 8 | 1 | nativ | `src/reta_mojo/prompt_session.mojo + native_prompt_input.mojo + prompt_terminal_input.mojo` | PromptTextState, Sitzungs-/Speicherzustand, Löschsemantik, History-Filter, lokalisierte Präfixe und native Terminalgrenze vollständig ersetzt |
 | `reta_architecture/row_filtering.py` | 714 | 13 | 1 | 5 | nativ | `src/reta_mojo/row_filtering.mojo` | Zeilenbereiche, Zeit, Zählgruppen, Primklassen, Gestirne, Vielfache, Potenzen, Invertierung und Positionsfilter |
 | `reta_architecture/row_ranges.py` | 329 | 26 | 1 | 1 | nativ | `src/reta_mojo/row_ranges.mojo` | legitime Bereichssyntax; eval bewusst entfernt |
 | `reta_architecture/runtime_compat.py` | 189 | 23 | 1 | 0 | teilweise nativ | `src/reta_mojo/runtime_compat.mojo + arithmetic.mojo` | Enums, fill_both und deterministische Arithmetik nativ; dynamische Python-Kompatibilität bleibt Bridge |
@@ -259,3 +259,13 @@ Damit steigen vollständig native/reproduzierbare Originaldateien auf **35/92 = 
 | `libs/nestedAlx.py` | Fassade im selben nativen Morphismusbundle | Bootstrap-/Snapshot-Vertrag im nativen Test |
 
 Damit steigen vollständig native/reproduzierbare Originaldateien auf **38/92 = 41,3 %**, mindestens teilweise portierte Dateien auf **66/92 = 71,7 %** und der gewichtete Quellzeilenstand auf **ca. 54,2 %**. Der funktionale Nutzerumfang bleibt bei **96–98 %**, weil diese Stage bereits vorhandene Funktionalität in die korrekten nativen Besitzer überführt und deren Randsemantik verbreitert.
+
+## Stage 12c4v – native Prompt-Sitzung und Laufzeitvertrag
+
+| Originaldatei | Mojo-Besitz | Verifikation |
+|---|---|---|
+| `reta_architecture/prompt_runtime.py` | `prompt_runtime.mojo` plus reproduzierbarer fünfsprachiger `prompt_runtime_catalog.mojo` | 5/5 Runtime-Vertragstests, 5/5 Sprachen byteidentisch |
+| `reta_architecture/prompt_session.py` | `prompt_session.mojo` plus bestehende native Eingabe-/TTY-Grenze | 10/10 Sitzungs-Unit-Tests, 36/36 Deutsch-/Englisch-Kontexte byteidentisch |
+
+Damit steigen vollständig native/reproduzierbare Originaldateien auf **40/92 = 43,5 %**, mindestens teilweise portierte Dateien auf **68/92 = 73,9 %** und der gewichtete Quellzeilenstand auf **ca. 55,6 %**. Die funktionale Oberfläche bleibt bei **96–98 %**; die Stage beseitigt vor allem verbliebenen dynamischen Besitzerstatus und drei ältere Mojo-Abweichungen bei History, Dezimallöschung und lokalisierten Promptpräfixen.
+

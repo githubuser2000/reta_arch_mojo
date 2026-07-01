@@ -1331,3 +1331,55 @@ Produktiver Completion-Build: `prompt_completion_main.mojo` wurde sauber in **8,
 Der Nutzer meldet für sein Zielsystem seit 12c4r ungefähr doppelte Buildgeschwindigkeit. Ein separater sauberer Sandbox-Gesamtbuild erzeugte die ersten drei Standardziele fehlerfrei und lief beim unveränderten `reta-native` in das 60-Minuten-Umgebungslimit; es trat keine Compilerdiagnose auf.
 
 Source-only-Katalogcheck: `check_prompt_language_catalog.sh` regeneriert den fünfsprachigen Bestand nun ohne Projekt-`.venv`; `TEST-FIXED-003` ist geschlossen.
+
+
+## Stage 12c4v – native Prompt-Sitzung und Prompt-Runtime
+
+```text
+Prompt-Runtime-Bestandstests:          30/30 bestanden
+Prompt-Sitzungs-Unit-Tests:            10/10 bestanden
+Prompt-Runtime-Vertragstests:           5/5 bestanden
+Native-Prompt-Input-Tests:              4/4 bestanden
+Sitzungsparität Deutsch:               18/18 byteidentisch
+Sitzungsparität Englisch:              18/18 byteidentisch
+Runtimevertrag Deutsch:                 1/1 byteidentisch
+Runtimevertrag Englisch:                1/1 byteidentisch
+Runtimevertrag Vietnamesisch:           1/1 byteidentisch
+Runtimevertrag Chinesisch:              1/1 byteidentisch
+Runtimevertrag Koreanisch:              1/1 byteidentisch
+Runtime-Katalogregeneration:        reproduzierbar
+Englischer PTY-Speicherpräfix:           1/1 exakt
+Source-/Ownership-/Manifest-Pytests:   33/33 im gebauten Baum
+entpackte reine Source-Gates:             28/28 bestanden
+FHS-Installations-Pytests:                  5/5 im gebauten Baum
+zentraler Fehlerkatalog:               42/42 konsistent
+spätere Python-/PyPy3-Arbeitspunkte:      13
+aktive std.python-Brücken:                 0
+Quellmanifest:                           1092/1092
+```
+
+Die 36 Sitzungsfälle prüfen Textzustand, wiederholte Leerzeichen,
+Klammergruppen, UTF-8, Positions-, Bereichs- und Wertlöschung, die mehrdeutige
+dezimale Löschangabe, Speicherausgaben, History-Umschalter und kombinierte
+Befehle. Der fünfsprachige Runtimevergleich umfasst Programm- und
+Vokabulargrößen, Hauptparameterindizes, Kombinationsabbildungen,
+`wahl15`-Validierung sowie die exakten normalen, Speicher- und Löschpräfixe.
+
+```bash
+scripts/check_prompt_session_parity.sh
+scripts/check_prompt_runtime_catalog.sh
+scripts/check_prompt_runtime_parity.sh
+scripts/check_prompt_session_pty_prefix.py target/bin/reta-prompt-native
+python3 tools/check_known_defects.py
+```
+
+Die fokussierten Mojo-Ziele wurden kompiliert und ausgeführt. Der vollständige
+produktive `prompt_main`-Controller wurde in **11,98 Sekunden** gebaut. Der
+englische native Einmalbefehl `prime 12` liefert anschließend `12: 2^2 3`.
+`scripts/build.sh` erzeugte danach alle **9/9** regulären Standardziele
+inklusive `reta-native` in **2:24,55 Minuten**. Buildlayout,
+FHS-Testinstallation und RUNPATH-Prüfung bestanden. Damit bestätigt nun auch
+der vollständige Sandboxbuild die seit Stage 12c4r auf dem Zielrechner
+beobachtete deutliche Beschleunigung. Das separat entpackte Source-only-Archiv
+bestand **28/28** Tests ohne Binärvoraussetzung; die fünf Installations-Pytests
+wurden korrekt nur im gebauten Baum ausgeführt.

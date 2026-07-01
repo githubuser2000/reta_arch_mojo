@@ -2,6 +2,15 @@ from std.collections import List
 from std.testing import assert_equal, assert_true, assert_false, TestSuite
 from reta_mojo.prompt_runtime import *
 from reta_mojo.prompt_catalog import prompt_completion_words
+from reta_mojo.prompt_session import (
+    new_prompt_session,
+    prompt_prefix,
+    store_prompt_text,
+    stored_prompt_text,
+    stored_prompt_numbered,
+    delete_stored_selection,
+)
+
 
 
 def test_historical_prompt_profiles() raises:
@@ -130,9 +139,9 @@ def test_completion_catalog_snapshot() raises:
 
 def test_native_prompt_storage_state() raises:
     var session = new_prompt_session(True)
-    assert_equal(prompt_prefix(session), "> ")
+    assert_equal(prompt_prefix(session), ">")
     session.store_next = True
-    assert_equal(prompt_prefix(session), "speichern> ")
+    assert_equal(prompt_prefix(session), "was speichern>")
     store_prompt_text(session, "prim 60")
     assert_false(session.store_next)
     assert_equal(stored_prompt_text(session), "prim 60")

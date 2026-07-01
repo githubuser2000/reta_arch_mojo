@@ -9,6 +9,7 @@ is required to read prompt input.
 from std.collections import List
 from std.os import getenv, isatty
 from .prompt_language import PromptLanguageCatalog
+from .prompt_session import history_should_append
 from .prompt_terminal_input import read_terminal_prompt_line
 
 
@@ -103,18 +104,24 @@ def read_native_prompt_line(
 ) raises -> String:
     """Read one prompt line through the appropriate fully native input path."""
     if native_plain_input_requested():
-        return read_plain_prompt_line(prompt, history_enabled, history_path)
+        var plain_line = read_plain_prompt_line(prompt, False, history_path)
+        if history_enabled and history_should_append(plain_line, catalog, language):
+            _ = append_prompt_history(history_path, plain_line)
+        return plain_line^
 
     var history = load_prompt_history(history_path)
     var result = read_terminal_prompt_line(
         prompt, history, catalog, language, vi_mode
     )
     if not result.native_ready:
-        return read_plain_prompt_line(prompt, history_enabled, history_path)
+        var fallback_line = read_plain_prompt_line(prompt, False, history_path)
+        if history_enabled and history_should_append(fallback_line, catalog, language):
+            _ = append_prompt_history(history_path, fallback_line)
+        return fallback_line^
     if result.interrupted:
         return "\x03"
     if result.eof:
         return PROMPT_EOF
-    if history_enabled:
+    if history_enabled and history_should_append(result.line, catalog, language):
         _ = append_prompt_history(history_path, result.line)
     return result.line

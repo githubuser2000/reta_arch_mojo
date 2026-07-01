@@ -87,8 +87,11 @@ from reta_mojo.prompt_runtime import (
     prime_comparison_lines,
     distance_lines,
     abc_line,
+)
+from reta_mojo.prompt_session import (
     NativePromptSession,
     new_prompt_session,
+    new_prompt_session_for_language,
     prompt_prefix,
     store_prompt_text,
     stored_prompt_text,
@@ -985,7 +988,10 @@ def main() raises:
         if _run_native_one_shot(startup.profile, line, prompt_catalog):
             return
 
-    var session = new_prompt_session(startup.profile.logging_enabled)
+    var session = new_prompt_session_for_language(
+        startup.profile.logging_enabled,
+        startup.profile.language,
+    )
 
     if startup.profile.show_intro and not startup.profile.one_shot:
         print(

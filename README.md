@@ -9,20 +9,20 @@ abgeschlossene Release-Stufen:       9 von 12 = 75,0 %
 Stufen 9/10/12:                       Ausgabe, Prompt/i18n und Releaseparität in Arbeit
 Stufe 11:                             11a–11j = 100 %
 Stufe 12:                             12a–12b fertig, 12c zu ca. 99,9 % = ca. 67,2 %
-vollständig native Originaldateien:  38 von 92 = 41,3 %
-mindestens teilweise portiert:       66 von 92 = 71,7 %
-gewichteter Quellzeilenstand:         ca. 54,2 %
+vollständig native Originaldateien:  40 von 92 = 43,5 %
+mindestens teilweise portiert:       68 von 92 = 73,9 %
+gewichteter Quellzeilenstand:         ca. 55,6 %
 funktionaler Nutzerumfang:            ca. 96–98 %
 ```
 
 Die Metriken messen **orthogonale Bezugsgrößen** und sind nicht als ein einziges wechselndes Gesamtprozent zu lesen:
 
 - **96–98 % geschätzte Funktionsabdeckung**: Anteil der praktisch relevanten Befehls- und Verhaltensfamilien mit einem nativen Pfad. Der atomare Fallback ist nur eine Sicherheitsgrenze und wird nicht als transpiliert gezählt.
-- **41,3 % vollständiger Dateibesitz**: Nur Dateien, deren gesamter wirksamer Vertrag nativ oder reproduzierbar generiert ersetzt ist.
-- **54,2 % gewichteter Quellzeilenstand**: konservative Schätzung auch für große Teilports.
-- **81,7 % Stufenfortschritt**: gewichtete Releaseplanung; eine Stufe kann weit fortgeschritten sein, obwohl große historische Python-Besitzer noch sichtbar bleiben.
+- **43,5 % vollständiger Dateibesitz**: Nur Dateien, deren gesamter wirksamer Vertrag nativ oder reproduzierbar generiert ersetzt ist.
+- **55,6 % gewichteter Quellzeilenstand**: konservative Schätzung auch für große Teilports.
+- **81,8 % Stufenfortschritt**: gewichtete Releaseplanung; eine Stufe kann weit fortgeschritten sein, obwohl große historische Python-Besitzer noch sichtbar bleiben.
 
-Der Port ist daher nicht von über 90 % auf rund 54 % zurückgefallen. Die frühere Zahl bezeichnete die Funktionsoberfläche, die strengere Zahl den Quellersatz. Der vollständige Plan steht in [`ROADMAP.md`](ROADMAP.md).
+Der Port ist daher nicht von über 90 % auf rund 56 % zurückgefallen. Die frühere Zahl bezeichnete die Funktionsoberfläche, die strengere Zahl den Quellersatz. Der vollständige Plan steht in [`ROADMAP.md`](ROADMAP.md).
 
 ## Installation mit Python 3.14
 
@@ -68,7 +68,7 @@ historische Projektstruktur ohne Datenkopie. Details:
 
 ## Stufen 7–10: Generatoren, Kombinationen, Markup und Prompt
 
-Stage 12c4u besitzt nun auch die vollständige verschachtelte Completion-Laufzeit und ihre historische Fassade nativ; Details: [`STAGE12C4U_NATIVE_NESTED_COMPLETION.md`](STAGE12C4U_NATIVE_NESTED_COMPLETION.md).
+Stage 12c4v besitzt nun auch Prompt-Sitzung und Prompt-Runtime vollständig nativ beziehungsweise reproduzierbar generiert; Details: [`STAGE12C4V_NATIVE_PROMPT_SESSION_RUNTIME.md`](STAGE12C4V_NATIVE_PROMPT_SESSION_RUNTIME.md). Die verschachtelte Completion aus Stage 12c4u ist in [`STAGE12C4U_NATIVE_NESTED_COMPLETION.md`](STAGE12C4U_NATIVE_NESTED_COMPLETION.md) dokumentiert.
 
 ### Native normale Reta-Syntax
 
