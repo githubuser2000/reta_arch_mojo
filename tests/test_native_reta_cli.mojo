@@ -1,4 +1,5 @@
 from std.testing import assert_equal, assert_true, TestSuite
+from std.collections import List
 from reta_mojo.native_reta_cli import *
 
 
@@ -192,11 +193,18 @@ def test_out_of_range_explicit_position_selects_no_generated_column() raises:
     assert_equal(plan.explicit_positions, [98])
 
 
-def test_nocolor_disables_shell_row_colors() raises:
-    var plan = build_native_reta_plan(
-        ["-ausgabe", "--nocolor"], 746, 1024
+def test_output_stream_flags_are_owned() raises:
+    var plain = build_native_reta_plan(
+        ["-ausgabe", "--justtext"], 746, 1024
     )
-    assert_true(not plan.color_rows)
+    assert_true(not plain.color_rows)
+    assert_true(not plain.one_table)
+
+    for option in ["onetable", "endlessscreen", "endless", "dontwrap"]:
+        var plan = build_native_reta_plan(
+            ["-ausgabe", "--" + option], 746, 1024
+        )
+        assert_true(plan.one_table)
 
 
 
@@ -252,13 +260,64 @@ def test_prompt_fast_path_accepts_positive_width_renderers() raises:
         )
 
 
-def test_prompt_fast_path_rejects_unowned_output_option() raises:
-    assert_true(
-        not native_reta_tokens_supported(
-            ["-ausgabe", "--onetable"],
-            "python_reference/csv/religion.csv",
+def test_prompt_fast_path_accepts_owned_output_stream_flags() raises:
+    var base = List[String]()
+    for token in [
+        "-zeilen",
+        "--vorhervonausschnitt=1-2",
+        "-spalten",
+        "--religionen=sternpolygon",
+        "-ausgabe",
+        "--art=shell",
+        "--breite=12",
+        "--nocolor",
+    ]:
+        base.append(String(token))
+    for option in [
+        "onetable", "endlessscreen", "endless", "dontwrap", "justtext"
+    ]:
+        var tokens = base.copy()
+        tokens.append("--" + option)
+        assert_true(
+            native_reta_tokens_supported(
+                tokens, "python_reference/csv/religion.csv"
+            )
         )
+
+
+def test_prompt_fast_path_keeps_markup_onetable_on_reference() raises:
+    for output_mode in ["html", "bbcode"]:
+        assert_true(
+            not native_reta_tokens_supported(
+                [
+                    "-zeilen",
+                    "--vorhervonausschnitt=1-2",
+                    "-spalten",
+                    "--religionen=sternpolygon",
+                    "-ausgabe",
+                    "--art=" + output_mode,
+                    "--onetable",
+                ],
+                "python_reference/csv/religion.csv",
+            )
+        )
+
+
+def test_width_keeps_legacy_minimum_and_zero_lock() raises:
+    var narrow = build_native_reta_plan(
+        ["-ausgabe", "--breite=12"], 746, 1024
     )
+    assert_equal(narrow.width, 21)
+
+    var wider = build_native_reta_plan(
+        ["-ausgabe", "--breite=40"], 746, 1024
+    )
+    assert_equal(wider.width, 40)
+
+    var zero_locked = build_native_reta_plan(
+        ["-ausgabe", "--breite=0", "--breite=80"], 746, 1024
+    )
+    assert_equal(zero_locked.width, 0)
 
 
 def test_prompt_fast_path_rejects_unknown_row_operator() raises:

@@ -20,6 +20,26 @@ reta-mojo-persistence     reta-mojo-execution-network
 reta-mojo-parallel-execution  reta-mojo-row-preparation
 ```
 
+## `bin/` gegenüber `target/bin/`
+
+`bin/` enthält die stabilen, versionierten **Startskripte und Symlinks**. Sie
+sind selbst keine kompilierten Mojo-Programme: Sie wählen ein Profil, setzen
+Pfade oder Umgebungsvariablen und starten das passende Ziel. Die tatsächlichen
+kompilierten ELF-Binaries entstehen durch `scripts/build.sh` beziehungsweise
+`scripts/build-heavy.sh` unter `target/bin/` und gehören nicht in Git.
+
+Kurzzuordnung:
+
+- `bin/reta`, `bin/reta-native`, `bin/reta-mojo-compat`: Tabellenlauncher;
+- `bin/rp`, `rpl`, `rpb`, `rpe`, `retaPrompt*`: Symlinks/Profile desselben nativen Promptprogramms;
+- `bin/prim`, `prim24`, `multis`, `multis3`, `modulo`, `math`: Komfortstarter mit vorbereiteten Promptbefehlen;
+- `bin/grundStrukHtml`, `generate_html`: HTML-Werkzeuge;
+- `bin/reta-mojo-*`: Architektur-, Prüf-, Persistenz- und Parallelisierungswerkzeuge;
+- `bin/mojo-real`: Auswahl des echten Modular-Mojo-Compilers.
+
+Fehlt ein Ziel in `target/bin/`, meldet der Launcher den nötigen Buildschritt
+oder verwendet bei leichten Zielen den dokumentierten `mojo run`-Fallback.
+
 ## Wichtige Tabellenpfade
 
 Native-first historische Oberfläche mit atomarem Python-Fallback für noch nicht besessene Argumentvektoren:
@@ -45,7 +65,7 @@ RETA_NATIVE=1 ./reta -zeilen --vorhervonausschnitt=1-3 \
   -ausgabe --art=csv --breite=40
 ```
 
-`RETA_NATIVE=1` erzwingt den nativen Pfad. Die normale `./reta`-Ausführung entscheidet seit Stage 12c4e konservativ selbst; `RETA_FORCE_REFERENCE=1` erzwingt die vollständige Python-Referenz.
+`RETA_NATIVE=1` erzwingt den nativen Pfad. Die normale `./reta`-Ausführung entscheidet seit Stage 12c4e konservativ selbst; Stage 12c4f besitzt zusätzlich die Shell-Ein-Tabellen- und Justtext-Ausgabe; `RETA_FORCE_REFERENCE=1` erzwingt die vollständige Python-Referenz.
 
 ## Native Inspektionsprogramme
 

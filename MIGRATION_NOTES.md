@@ -576,6 +576,15 @@ abschließendes Komma erhalten.
 - `compat_main.mojo` prüft den vollständigen historischen Argumentvektor mit `native_reta_tokens_supported`. Nur vollständig besessene Vektoren erreichen `run_native_reta`; jede unbekannte oder teilweise portierte Option fällt atomar auf die Referenz zurück.
 - Der Fallback verwendet den bereits gekapselten Kindprozessadapter, erhält Leerargumente, Unicode, Binärströme, Arbeitsverzeichnis und Exitstatus und bindet kein `libpython`.
 - Die leere Kommandozeile bleibt wegen Hilfe-/Defaultsemantik auf Python. `RETA_FORCE_REFERENCE=1` erzwingt die Referenz; `RETA_NATIVE=1` bleibt der explizite native Modus ohne Fallback.
-- `--onetable` wurde aus der nativen Supportliste entfernt, weil der Renderer diese Option noch nicht implementiert. Dadurch kann sie nicht mehr fälschlich teilweise nativ interpretiert werden.
+- `--onetable` wurde in Stage 12c4e vorsorglich aus der nativen Supportliste entfernt, weil der Renderer diese Option damals noch nicht implementierte. Stage 12c4f führt sie für den Shellrenderer kontrolliert wieder ein.
 - `prompt_python_bridge.mojo` und der alte kombinierte Python-FFI-Probe sind nun auch physisch aus dem Releasebaum entfernt. Der Boundary-Audit meldet **0 aktive `std.python`-Brücken**, **1 expliziten Kindprozessadapter** und **0 verbotene Parallel-Prozessprimitive**.
 - Zwölf Referenzfälle laufen bei absichtlich ungültigem `RETA_PYTHON` byteidentisch. Damit ist nachgewiesen, dass physische, generierte, modale, Meta-, Bruch-, Kombi- und Markupfälle tatsächlich nativ ausgeführt werden.
+
+
+## Stage 12c4f – native Shell-Ein-Tabellen- und Justtext-Ausgabe
+
+- `NativeRetaPlan.one_table` besitzt `--onetable`, `--endlessscreen`, `--endless` und `--dontwrap`; der Shellrenderer überspringt damit die horizontale Seitenteilung.
+- `--justtext` ist nativ das farblose Alias von `--nocolor`.
+- `--breite=0 --onetable` verwendet die längste vollständige Zelle und erzeugt deshalb keinen automatischen Terminalumbruch. Positive Breiten behalten das historische Minimum 21; eine vorkommende Nullbreite sperrt spätere Breitenwerte.
+- Der Wortumbruch übernimmt bei überlangen Wörtern den verbleibenden Platz der aktuellen Zeile Unicode-sicher, entsprechend Python `textwrap`.
+- HTML/BBCode mit Ein-Tabellen-Alias bleiben bis zur vollständigen Markup-Whitespace-/Metadatenparität atomarer Referenzfallback.

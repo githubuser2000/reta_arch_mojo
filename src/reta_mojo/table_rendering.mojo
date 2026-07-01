@@ -310,6 +310,20 @@ def _slice_after_ascii_prefix(text: String, prefix: String) -> String:
     return String(StringSlice(text)[byte=prefix.byte_length():])
 
 
+def _codepoint_prefix(text: String, wanted: Int) -> String:
+    """Return at most ``wanted`` Unicode code points from ``text``."""
+    if wanted <= 0:
+        return ""
+    var result = String()
+    var count = 0
+    for character in text.codepoint_slices():
+        if count >= wanted:
+            break
+        result += String(character)
+        count += 1
+    return result^
+
+
 def _word_wrap_cell(text: String, width: Int) -> List[String]:
     var clean = normalize_cell_whitespace(text)
     var result = List[String]()
@@ -333,6 +347,12 @@ def _word_wrap_cell(text: String, width: Int) -> List[String]:
             # is consumed there before the remainder starts the next line.
             var available = width - codepoint_length(current) - 1
             var prefix = _hyphen_prefix_fitting(word, available)
+            if (
+                prefix.byte_length() == 0
+                and available > 0
+                and codepoint_length(word) > width
+            ):
+                prefix = _codepoint_prefix(word, available)
             if prefix.byte_length() > 0:
                 current += " " + prefix
                 result.append(current^)
@@ -666,6 +686,17 @@ def _shell_word_wrap_cell(text: String, width: Int) -> List[String]:
                 width - codepoint_length(current) - separator_width
             )
             var prefix = _hyphen_prefix_fitting(word, available)
+            # ``textwrap.TextWrapper`` fills the remaining space of the
+            # current line from an overlong word before continuing it on the
+            # next line.  The former native path moved the complete word to a
+            # fresh line and therefore diverged on words such as
+            # ``Antitranszendentalien,``.
+            if (
+                prefix.byte_length() == 0
+                and available > 0
+                and codepoint_length(word) > width
+            ):
+                prefix = _codepoint_prefix(word, available)
             if prefix.byte_length() > 0:
                 current += separator + prefix
                 result.append(current^)
@@ -710,6 +741,18 @@ def _shell_prefix(
     if counting_marker and prefix.startswith(" "):
         prefix = "█" + String(prefix[byte=1:])
     return prefix^
+
+
+def _maximum_shell_cell_width(table: CsvTable) -> Int:
+    """Return an exact no-wrap width for the historical one-table mode."""
+    var maximum = 1
+    for row_index in range(len(table.rows)):
+        var row = table.rows[row_index].copy()
+        for column_index in range(len(row)):
+            maximum = max(
+                maximum, codepoint_length(String(row[column_index].strip()))
+            )
+    return maximum
 
 
 def _shell_column_width(table: CsvTable, column: Int, width: Int) -> Int:
@@ -769,6 +812,7 @@ def render_shell_table_with_width_reference(
     width: Int = 0,
     color_rows: Bool = True,
     numbering_highest: Int = 0,
+    one_table: Bool = False,
 ) -> String:
     """Render the legacy ANSI terminal table, including paging and wrapping."""
     if len(table.rows) == 0:
@@ -783,14 +827,21 @@ def render_shell_table_with_width_reference(
     # public behaviour on every wider terminal.
     var detected_columns = terminal_columns()
     var automatic_width = automatic_cell_width(detected_columns)
-    var effective_width = effective_cell_width(width, detected_columns)
+    # In the legacy renderer ``--breite=0 --onetable`` means genuinely no
+    # wrapping, not automatic terminal-width wrapping.  Use the longest full
+    # cell as the preparation width so every row stays on one visual line.
+    var effective_width = (
+        _maximum_shell_cell_width(width_reference)
+        if one_table and width == 0
+        else effective_cell_width(width, detected_columns)
+    )
     var screen_width = automatic_width if not number_rows else detected_columns
     var result = String()
     var page_start = data_start
     while page_start < total_columns:
-        var page_end = page_start
+        var page_end = total_columns if one_table else page_start
         var sum_widths = number_width + (1 if number_rows else 0)
-        while page_end < total_columns:
+        while not one_table and page_end < total_columns:
             var column_width = _shell_column_width(
                 width_reference, page_end, effective_width
             )
@@ -864,6 +915,7 @@ def render_table_with_width_reference(
     number_rows: Bool = True,
     color_rows: Bool = True,
     numbering_highest: Int = 0,
+    one_table: Bool = False,
 ) -> String:
     if mode == "csv":
         return render_csv_table(table)
@@ -888,6 +940,7 @@ def render_table_with_width_reference(
             width,
             color_rows,
             numbering_highest,
+            one_table,
         )
     return render_plain_table(table)
 
@@ -904,6 +957,7 @@ def render_table_with_native_context(
     number_rows: Bool = True,
     color_rows: Bool = True,
     numbering_highest: Int = 0,
+    one_table: Bool = False,
 ) raises -> String:
     if mode == "html":
         return render_html_table_with_context(
@@ -924,6 +978,7 @@ def render_table_with_native_context(
         number_rows,
         color_rows,
         numbering_highest,
+        one_table,
     )
 
 def render_table(

@@ -134,14 +134,49 @@ def _write_fake_python(path: Path, status: int) -> None:
     path.chmod(0o755)
 
 
-def test_unowned_onetable_is_atomic_python_fallback(tmp_path: Path) -> None:
+def test_shell_onetable_runs_without_python_child() -> None:
+    arguments = [
+        "-zeilen",
+        "--vorhervonausschnitt=1-3",
+        "-spalten",
+        "--religionen=sternpolygon",
+        "-ausgabe",
+        "--art=shell",
+        "--breite=12",
+        "--nocolor",
+        "--onetable",
+    ]
+    native = _run_compat(arguments, python="/definitely/not/available")
+    reference = subprocess.run(
+        [sys.executable, "reta.py", *arguments],
+        cwd=ROOT / "python_reference",
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    assert (native.returncode, native.stdout, native.stderr) == (
+        reference.returncode,
+        reference.stdout,
+        reference.stderr,
+    )
+
+
+def test_markup_onetable_remains_atomic_python_fallback(tmp_path: Path) -> None:
     fake_python = tmp_path / "fake-python"
     _write_fake_python(fake_python, 23)
-    result = _run_compat(
-        ["-ausgabe", "--onetable"],
-        python=str(fake_python),
+    arguments = [
+        "-zeilen",
+        "--vorhervonausschnitt=1-2",
+        "-spalten",
+        "--religionen=sternpolygon",
+        "-ausgabe",
+        "--art=html",
+        "--onetable",
+    ]
+    result = _run_compat(arguments, python=str(fake_python))
+    expected = (ROOT / "python_reference").as_posix().encode() + b"\n" + b"\0".join(
+        value.encode() for value in ["reta.py", *arguments]
     )
-    expected = (ROOT / "python_reference").as_posix().encode() + b"\n" + b"reta.py\0-ausgabe\0--onetable"
     assert (result.returncode, result.stdout, result.stderr) == (23, expected, b"")
 
 

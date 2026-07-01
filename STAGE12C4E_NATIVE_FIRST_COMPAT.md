@@ -44,6 +44,8 @@ noch nicht implementiert. Stage 12c4e entfernt diese Freigabe. Ein solcher
 Aufruf fällt jetzt vollständig und atomar auf Python zurück, statt teilweise
 nativ interpretiert zu werden.
 
+**Folgestand:** Stage 12c4f implementiert diese Semantik für den Shellrenderer und führt die Freigabe dort kontrolliert wieder ein; HTML/BBCode bleiben atomarer Fallback.
+
 ## Reproduzierbarer Vertrag
 
 Der neue Vertrag prüft unter anderem:

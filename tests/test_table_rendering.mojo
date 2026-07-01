@@ -93,5 +93,37 @@ def test_shell_wrap_preserves_internal_space_runs_at_boundary() raises:
     assert_false("\n    |  Darin kann sich die 15" in rendered)
 
 
+
+def test_shell_one_table_disables_horizontal_paging() raises:
+    var table = parse_semicolon_csv(
+        "; ;AAAAAAAAAAAA;BBBBBBBBBBBB;CCCCCCCCCCCC;DDDDDDDDDDDD;EEEEEEEEEEEE;FFFFFFFFFFFF;GGGGGGGGGGGG\n"
+        + "1;1;a;b;c;d;e;f;g\n"
+    )
+    var paged = render_shell_table_with_width_reference(
+        table, table, [0, 1], True, 12, False
+    )
+    var single = render_shell_table_with_width_reference(
+        table, table, [0, 1], True, 12, False, 0, True
+    )
+    assert_true("AAAAAAAAAAAA BBBBBBBBBBBB" in paged)
+    assert_false("AAAAAAAAAAAA BBBBBBBBBBBB CCCCCCCCCCCC DDDDDDDDDDDD EEEEEEEEEEEE FFFFFFFFFFFF GGGGGGGGGGGG" in paged)
+    assert_true("AAAAAAAAAAAA BBBBBBBBBBBB CCCCCCCCCCCC DDDDDDDDDDDD EEEEEEEEEEEE FFFFFFFFFFFF GGGGGGGGGGGG" in single)
+
+
+def test_shell_one_table_zero_width_never_wraps() raises:
+    var table = parse_semicolon_csv(
+        "; ;H\n"
+        + "1;1;ein sehr langer Zellinhalt mit mehreren Woertern\n"
+    )
+    var rendered = render_shell_table_with_width_reference(
+        table, table, [0, 1], True, 0, False, 0, True
+    )
+    assert_true(
+        " 1 ein sehr langer Zellinhalt mit mehreren Woertern \n"
+        in rendered
+    )
+    assert_false("\n   mit mehreren Woertern" in rendered)
+
+
 def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()

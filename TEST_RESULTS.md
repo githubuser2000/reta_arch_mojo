@@ -868,3 +868,25 @@ RETA_COMPAT_PARITY_GROUP=1 scripts/check_compat_native_first_parity.sh
 RETA_COMPAT_PARITY_GROUP=2 scripts/check_compat_native_first_parity.sh
 scripts/test_stage12c.sh
 ```
+
+
+## Stage 12c4f: native Ausgabe-Stream- und Ein-Tabellen-Semantik
+
+```text
+Ausgabe-Stream Python↔Mojo:                 7/7 byteidentisch
+nativer CLI-/Ownership-Planer:             24/24
+Tabellenrenderer:                           10/10
+Kompatibilitäts-/Boundary-Pytests:          19/19
+BBCode-Regressionsfixtures nach Wrap-Fix:    3/3
+aktive std.python-Brücken:                     0
+```
+
+Die sieben Ausgabe-Stream-Fälle setzen `RETA_PYTHON` auf einen nicht vorhandenen
+Pfad und beweisen damit native Ausführung für alle vier Ein-Tabellen-Aliase,
+`justtext`, deutsche/englische Syntax sowie den Breite-null-No-wrap-Sonderfall.
+HTML und BBCode zusammen mit einem Ein-Tabellen-Alias werden vom Ownership-Test
+bewusst abgelehnt und vollständig an die Referenz übergeben.
+
+```bash
+scripts/check_native_output_stream_parity.sh
+```
