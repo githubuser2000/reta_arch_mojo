@@ -5,7 +5,7 @@ Stand: 2. Juli 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der g
 - Ursprüngliche Python-Dateien: **92**
 - Ursprüngliche Python-Zeilen insgesamt: **48831**
 - Eingebettete Python-Brücken: **0**; expliziter Mojo-Kindprozessadapter: **1**
-- Quellzeilen der bereits angegriffenen Architekturmodule: **32641**
+- Quellzeilen der bereits angegriffenen Architekturmodule: **33198**
 - Native Mojo-Quellzeilen: siehe `src/` (inklusive generiertem Kategoriekatalog)
 
 | Python-Datei | Zeilen | Funktionen | Klassen | dynamische Aufrufe | Status | Mojo/Ziel | Anmerkung |
@@ -24,7 +24,7 @@ Stand: 2. Juli 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der g
 | `libs/generate4readme.py` | 382 | 0 | 0 | 0 | Python-Referenz/Bridge | `python_reference/libs/generate4readme.py` | noch nicht nativ portiert |
 | `libs/lib4tables.py` | 59 | 0 | 0 | 0 | nativ | `src/reta_mojo/legacy_lib4tables.mojo + output_modes.mojo + number_theory.mojo` | vollständige 18-Namen-Reexportoberfläche über native Ausgabesyntax und Zahlentheorie; dynamischer Listenrückweg von isPrimMultiple als typisierte Zusatzfunktion |
 | `libs/lib4tables_Enum.py` | 37 | 0 | 0 | 0 | generiert nativ | `src/reta_mojo/tag_schema.mojo + tag_schema_catalog.mojo` | sieben Tagarten und vollständige Tabellen-Tag-Zuordnung |
-| `libs/lib4tables_concat.py` | 252 | 35 | 1 | 0 | Python-Referenz/Bridge | `python_reference/libs/lib4tables_concat.py` | noch nicht nativ portiert |
+| `libs/lib4tables_concat.py` | 252 | 35 | 1 | 0 | nativ | `src/reta_mojo/legacy_lib4tables_concat.mojo + concat_csv.mojo + generated_table_columns.mojo + meta_columns.mojo` | historische 34-Methoden-Weiterleitungsfassade und 13 Konstruktorzustände typisiert; dynamische *args/**kwargs auf explizite Besitzer-APIs reduziert |
 | `libs/lib4tables_prepare.py` | 313 | 26 | 1 | 0 | teilweise nativ | `src/reta_mojo/table_preparation.mojo + row_filtering.mojo` | deterministische Zeilenauswahl und Vorbereitung nativ; Generatorverkettung noch Bridge |
 | `libs/nestedAlx.py` | 24 | 0 | 0 | 0 | nativ | `src/reta_mojo/completion_nested.mojo` | historische verschachtelte Completion-Fassade vollständig typisiert |
 | `libs/tableHandling.py` | 68 | 0 | 0 | 0 | teilweise nativ | `src/reta_mojo/table_state.mojo + table_wrapping.mojo + output_modes.mojo` | deterministischer Tabellenzustand, Umbruch und Ausgabemodi; große Tabellenberechnung noch Bridge |
@@ -54,7 +54,7 @@ Stand: 2. Juli 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der g
 | `reta_architecture/completion_nested.py` | 589 | 37 | 9 | 0 | nativ | `src/reta_mojo/completion_nested.mojo` | verschachtelte Zustandsmaschine, Fuzzyordnung, Snapshots und Morphismusbundle vollständig nativ |
 | `reta_architecture/completion_runtime.py` | 192 | 8 | 2 | 1 | generiert nativ | `src/reta_mojo/completion_runtime.mojo + assets/prompt_language` | fünfsprachiger Completion-Runtimevertrag reproduzierbar geladen und typisiert |
 | `reta_architecture/completion_word.py` | 265 | 21 | 6 | 0 | nativ | `src/reta_mojo/completion_word.mojo` | UTF-8-Cursor-, WORD-, Satz-, Anzeige- und Metadatenvertrag vollständig nativ |
-| `reta_architecture/concat_csv.py` | 305 | 18 | 2 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/concat_csv.py` | noch nicht nativ portiert |
+| `reta_architecture/concat_csv.py` | 305 | 18 | 2 | 0 | nativ | `src/reta_mojo/concat_csv.mojo + fraction_concat_columns.mojo` | CSV-Presheafverkettung, exakte Bruchpaargruppierung, fünf Quelltabellen, Transposition, Überschriften, Auswahl und generierte Spaltenmetadaten vollständig nativ |
 | `reta_architecture/console_io.py` | 349 | 41 | 6 | 0 | teilweise nativ | `src/reta_mojo/console_io.mojo` | reine Chunk-, Deduplikations-, Whitespace- und Debugformatierung nativ; Terminal-/Rich-I/O bleibt Systemgrenze |
 | `reta_architecture/execution_network.py` | 412 | 45 | 11 | 3 | nativ | `src/reta_mojo/execution_network.mojo + src/architecture_execution_network_main.mojo` | typisierte FIFO-/LIFO-/Prioritätsplanung, Kanal-/Semaphorgrenzen, native Mojo-Threads und deterministische Reduktion; 0 POSIX-Prozessprimitive; Nutzlastgrenze ist UTF-8-Text mit expliziter Operationskennung |
 | `reta_architecture/facade.py` | 709 | 49 | 1 | 1 | Python-Referenz/Bridge | `python_reference/reta_architecture/facade.py` | noch nicht nativ portiert |

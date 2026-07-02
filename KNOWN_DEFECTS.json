@@ -1452,6 +1452,30 @@
         "tests/test_legacy_facades_source.py",
         "scripts/check_legacy_facades_parity.py"
       ]
+    },
+    {
+      "id": "TEST-FIXED-013",
+      "title": "Manuell fortgeschriebene Portierungsprozente überzählten den Matrixstatus",
+      "origin": "test_and_release_infrastructure",
+      "classification": "non_reproducible_progress_metrics",
+      "severity": "medium",
+      "python_status": "not_applicable",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5e",
+      "reproducer": "Die in STATUS.md für Stage 12c5d genannten 82/92 mindestens teilweise portierten Dateien mit den tatsächlichen Statuszeilen der frisch entpackten Stage-12c5d-PORTING_MATRIX.md vergleichen; die Matrix enthält 71/92 explizit zugeordnete Dateien.",
+      "python_locations": [],
+      "mojo_locations": [
+        "tools/porting_metrics.py",
+        "tools/generate_porting_matrix.py",
+        "tests/test_porting_metrics.py"
+      ],
+      "current_contract": "Portierungszahlen werden aus allen 92 Referenzdateien und der autoritativen NATIVE-Zuordnung berechnet. Vollständig, mindestens teilweise und gewichtete Referenzzeilen sind getrennte maschinenlesbare Größen; Stage 12c5e steht bei 51/92, 73/92 und 33.198/48.831 Zeilen.",
+      "post_port_fix": "Keine Python-Fachlogikänderung. Künftige Statusdokumente müssen tools/porting_metrics.py verwenden und dürfen Prozentwerte nicht manuell inkrementieren.",
+      "evidence": [
+        "STAGE12C5E_NATIVE_CONCAT_CSV.md",
+        "tools/porting_metrics.py",
+        "tests/test_porting_metrics.py"
+      ]
     }
   ],
   "audit": {

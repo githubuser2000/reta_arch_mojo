@@ -3,6 +3,8 @@ from __future__ import annotations
 from pathlib import Path
 import subprocess
 import tarfile
+import lzma
+import os
 import brotli
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -36,6 +38,28 @@ def test_source_archive_supports_brotli_and_roundtrips(tmp_path: Path) -> None:
     )
     raw_tar = tmp_path / "reta_arch_mojo_test.tar"
     raw_tar.write_bytes(brotli.decompress(output.read_bytes()))
+    with tarfile.open(raw_tar, "r:") as archive:
+        names = archive.getnames()
+    assert names
+    assert not any("/.venv/" in f"/{name}/" for name in names)
+    assert not any("/.git/" in f"/{name}/" for name in names)
+    assert not any(name.endswith("prompt_python_bridge.mojo") for name in names)
+
+
+def test_source_archive_supports_parallel_xz_and_roundtrips(tmp_path: Path) -> None:
+    text = SCRIPT.read_text(encoding="utf-8")
+    assert "*.tar.xz|*.txz" in text
+    assert 'xz -T"$XZ_THREADS"' in text
+    output = tmp_path / "reta_arch_mojo_test.tar.xz"
+    subprocess.run(
+        [str(SCRIPT), str(output)],
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+        env={**os.environ, "RETA_XZ_LEVEL": "1", "RETA_XZ_THREADS": "2"},
+    )
+    raw_tar = tmp_path / "reta_arch_mojo_test_xz.tar"
+    raw_tar.write_bytes(lzma.decompress(output.read_bytes()))
     with tarfile.open(raw_tar, "r:") as archive:
         names = archive.getnames()
     assert names

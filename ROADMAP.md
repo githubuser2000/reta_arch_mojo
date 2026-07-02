@@ -2,14 +2,14 @@
 
 Geplanter Umfang: **12 Release-Stufen**. Eine Stufe zählt erst als abgeschlossen, wenn Quellcode, Referenztests, Compilerziele, Dokumentation und ein source-only Archiv gemeinsam geprüft sind.
 
-## Fortschrittsmaße nach Stage 12c5d
+## Fortschrittsmaße nach Stage 12c5e
 
 | Maß | Stand | Aussage |
 |---|---:|---|
-| abgeschlossene Release-Stufen | **9/12 = 75,0 %** | Stufen 1–8 und 11 sind abgeschlossen; Stufe 12 ist mit 12a, 12b, 12c1–12c3 und 12c4a–12c5d zu etwa 67,8 % abgeschlossen, während 9 und 10 noch Restpfade besitzen |
+| abgeschlossene Release-Stufen | **9/12 = 75,0 %** | Stufen 1–8 und 11 sind abgeschlossen; Stufe 12 ist mit 12a, 12b, 12c1–12c3 und 12c4a–12c5e zu etwa 68,0 % abgeschlossen, während 9 und 10 noch Restpfade besitzen |
 | vollständig native oder generierte Python-Dateien | **51/92 = 55,4 %** | Datei vollständig ersetzt oder als reproduzierbares Laufzeitasset abgebildet |
-| mindestens angegriffene Python-Dateien | **82/92 = 89,1 %** | vollständig oder teilweise nativ |
-| gewichtete Quellzeilen | **ca. 72,0 %** | konservative Schätzung unter Berücksichtigung der großen Teilports |
+| mindestens angegriffene Python-Dateien | **73/92 = 79,3 %** | Status direkt aus der autoritativen `NATIVE`-Zuordnung |
+| angegriffene Referenzzeilen | **33.198/48.831 = 68,0 %** | maschinenberechnet statt manuell fortgeschrieben |
 | funktionaler Nutzerumfang | **ca. 96–98 %** | praktisch nutzbarer Reta-Umfang ohne Python-Algorithmus |
 
 Die Stufenquote ist höher als die Quellzeilenquote, weil die letzten Stufen besonders große dynamische Module bündeln: vollständige Ausgabeaufbereitung, Prompt-Sprache, i18n-Matrix, Architekturvalidierung und Parallelisierung.
@@ -322,4 +322,15 @@ Die Zahl **12** ist die geplante Releasegliederung. Interne Teilpakete oder Fehl
 - 27 Center-Funktionen, sechs nPm-Gruppen und 18 öffentliche Tabellenhilfe-Reexports sind typisiert abgebildet.
 - Vier Hilfeassets und 83 Unicode-Ziffernbereiche werden reproduzierbar aus eingefrorenen Quellen erzeugt.
 - `MOJO-FIXED-028` korrigiert die bisherige ASCII-only-Ziffernerkennung.
-- Stand: **51/92 vollständig**, **82/92 mindestens teilweise**, **ca. 72,0 % gewichtete Quellzeilen**.
+- Der nach Stage 12c5e korrigierte damalige Stand lautet **49/92 vollständig**, **71/92 mindestens teilweise**, **32.641/48.831 angegriffene Referenzzeilen**; die zuvor höheren Angaben waren manuell überzählt (`TEST-FIXED-013`).
+
+
+## Stage 12c5e – native CSV-/Kombinationsverkettung
+
+- `reta_architecture/concat_csv.py` und `libs/lib4tables_concat.py` wechseln auf vollständigen nativen Besitz.
+- Exakte rationale Paargruppen ersetzen die Float-/Rundungsgrenze; fünf historische CSV-Prägarben, Transposition, Überschriften, Primzahlkompaktion, Tabellenanhängung und Metadaten sind typisiert.
+- Die Legacy-Fassade bewahrt 34 Nicht-Konstruktormethoden und 13 Zustandssektionen.
+- Python↔Mojo-Parität: **20/20 Zeilen byteidentisch**; neue native Tests **12/12**; angrenzende Bruch-/Metaspaltentests **7/7**.
+- Sourcearchive werden als XZ ausgeliefert und parallelfähig mit `xz -T0` aufgerufen; beim aktuellen kleinen Tarstrom war ein Block kleiner als erzwungene Mehrblockarchive. Paralleles Brotli ist nicht vorhanden.
+- `tools/porting_metrics.py` macht die Fortschrittszahlen reproduzierbar und schließt `TEST-FIXED-013`.
+- Stand: **51/92 vollständig**, **73/92 mindestens teilweise**, **33.198/48.831 = 68,0 % angegriffene Referenzzeilen**.

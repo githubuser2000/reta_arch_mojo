@@ -945,3 +945,21 @@ Validiert wurden 3/3 Runtime-Tests, 5/5 Zustandsmaschinentests, 12/12 bestehende
 - `PY-OPEN-003` bleibt die einzige erwartete Differenz im gemeinsamen Fassadenprobe: Mojo bewahrt bei der Dictionary-Invertierung alle Quellschlüssel.
 - Neue native Modultests: **12/12**; angrenzende fokussierte Regressionen: **26/26**; Fassaden-/Hilfetextparität: **5/5**; Source-/Ownership-/Boundary-/Archivtests: **15/15**.
 - Vollständiger Dateibesitz: **51/92 = 55,4 %**; mindestens teilweise: **82/92 = 89,1 %**; gewichteter Quellersatz: **ca. 72,0 %**.
+
+## Stage 12c5e – native CSV-/Kombinationsverkettung
+
+- `src/reta_mojo/concat_csv.mojo` besitzt exakte Bruchwerte und -paare,
+  Divisions-/Multiplikationsgruppen, fünf CSV-Quellen, Reziproktransposition,
+  Überschriften, Primzahlkompaktion, Tabellenanhängung und typisierte
+  Spaltenmetadaten.
+- `src/reta_mojo/legacy_lib4tables_concat.mojo` ersetzt die dynamische
+  34-Methoden-Fassade und konserviert die 13 Konstruktorzustände.
+- Der Python↔Mojo-Probeprozess vergleicht 20 kanonische Zeilen byteidentisch.
+- Sourcearchive werden bevorzugt als `.tar.xz` erzeugt. `xz -T0` aktiviert den
+  parallelfähigen Modus; beim aktuellen 34-MiB-Tar blieb das kleinere Ergebnis
+  ein Block, da erzwungene Mehrblockarchive größer waren. Brotli bleibt nur als
+  serieller Kompatibilitätsweg erhalten.
+- `tools/porting_metrics.py` ersetzt manuell inkrementierte Fortschrittswerte.
+  `TEST-FIXED-013` dokumentiert die korrigierte Überzählung früherer Statuswerte.
+- Maschinenberechneter Stand: **51/92 vollständig**, **73/92 mindestens
+  teilweise**, **33.198/48.831 angegriffene Referenzzeilen**.

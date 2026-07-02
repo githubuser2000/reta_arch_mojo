@@ -12,9 +12,10 @@ esac
 case "$OUT" in
     *.tar.bz2|*.tbz2) FORMAT=bz2 ;;
     *.tar.br|*.tbr|*.tar.brotli) FORMAT=br ;;
+    *.tar.xz|*.txz) FORMAT=xz ;;
     *.tar) FORMAT=tar ;;
     *)
-        printf '%s\n' 'Unterstützte Endungen: .tar.bz2, .tbz2, .tar.br, .tbr, .tar.brotli, .tar' >&2
+        printf '%s\n' 'Unterstützte Endungen: .tar.xz, .txz, .tar.bz2, .tbz2, .tar.br, .tbr, .tar.brotli, .tar' >&2
         exit 64
         ;;
 esac
@@ -49,6 +50,14 @@ case "$FORMAT" in
         BROTLI_QUALITY=${RETA_BROTLI_QUALITY:-9}
         python3 "$ROOT/tools/brotli_file.py" compress "$TMP_TAR" "$TMP_ARCHIVE" --quality "$BROTLI_QUALITY"
         python3 "$ROOT/tools/brotli_file.py" decompress "$TMP_ARCHIVE" "$TMP_VERIFY"
+        cmp "$TMP_TAR" "$TMP_VERIFY"
+        LIST_TAR="$TMP_VERIFY"
+        ;;
+    xz)
+        XZ_THREADS=${RETA_XZ_THREADS:-0}
+        XZ_LEVEL=${RETA_XZ_LEVEL:-9e}
+        xz -T"$XZ_THREADS" -"$XZ_LEVEL" -c "$TMP_TAR" > "$TMP_ARCHIVE"
+        xz -d -c "$TMP_ARCHIVE" > "$TMP_VERIFY"
         cmp "$TMP_TAR" "$TMP_VERIFY"
         LIST_TAR="$TMP_VERIFY"
         ;;

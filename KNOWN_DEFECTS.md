@@ -23,7 +23,7 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 
 ## Übersicht
 
-- Einträge insgesamt: **62**
+- Einträge insgesamt: **63**
 - offene bestätigte Python-Fehler: **5**
 - zu entscheidende Python-Fehlerkandidaten: **11**
 - bereits im Python-Baum behobene Fehler: **3**
@@ -859,3 +859,16 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 - Python-Orte: `python_reference/libs/center.py:311-313`, `python_reference/reta_architecture/arithmetic.py:140-145`
 - Mojo-Orte: `src/reta_mojo/legacy_center.mojo`, `src/reta_mojo/unicode_digits.mojo`, `assets/unicode_digit_ranges.tsv`, `tools/generate_unicode_digits.py`
 - Belege: `STAGE12C5D_NATIVE_LEGACY_FACADES.md`, `tests/test_legacy_center.mojo`, `tests/test_legacy_facades_source.py`, `scripts/check_legacy_facades_parity.py`
+
+### TEST-FIXED-013 – Manuell fortgeschriebene Portierungsprozente überzählten den Matrixstatus
+
+- Ursprung: `test_and_release_infrastructure`
+- Klasse / Schwere: `non_reproducible_progress_metrics` / `medium`
+- Python-Status: `not_applicable`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5e`
+- Reproduktion: `Die in STATUS.md für Stage 12c5d genannten 82/92 mindestens teilweise portierten Dateien mit den tatsächlichen Statuszeilen der frisch entpackten Stage-12c5d-PORTING_MATRIX.md vergleichen; die Matrix enthält 71/92 explizit zugeordnete Dateien.`
+- heutiger Vertrag: Portierungszahlen werden aus allen 92 Referenzdateien und der autoritativen NATIVE-Zuordnung berechnet. Vollständig, mindestens teilweise und gewichtete Referenzzeilen sind getrennte maschinenlesbare Größen; Stage 12c5e steht bei 51/92, 73/92 und 33.198/48.831 Zeilen.
+- spätere Python-Aktion: Keine Python-Fachlogikänderung. Künftige Statusdokumente müssen tools/porting_metrics.py verwenden und dürfen Prozentwerte nicht manuell inkrementieren.
+- Mojo-Orte: `tools/porting_metrics.py`, `tools/generate_porting_matrix.py`, `tests/test_porting_metrics.py`
+- Belege: `STAGE12C5E_NATIVE_CONCAT_CSV.md`, `tools/porting_metrics.py`, `tests/test_porting_metrics.py`

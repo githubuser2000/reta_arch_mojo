@@ -1552,3 +1552,29 @@ Sandbox beim Linken das Gesamtlimit, ohne vorher eine Compilerdiagnose zu
 melden. Er wird deshalb nicht als bestanden behauptet. Die von Stage 12c5d
 verwendeten Zahlentheoriepfade sind in `test_legacy_lib4tables.mojo` und dem
 gemeinsamen Python↔Mojo-Probeprozess fokussiert geprüft.
+
+## Stage 12c5e – CSV-/Kombinationsverkettung und XZ
+
+```text
+native concat_csv-Tests:                    7/7
+native Legacy-Concat-Fassade:               5/5
+Python↔Mojo-CSV-/Fassadenparität:           20/20 Zeilen byteidentisch
+angrenzende Bruch-/Metaspaltentests:         7/7
+Source-/Ownership-/Boundary-/Archivtests:   28/28
+Portierungsmetriktests:                      2/2
+Defektkatalog:                              63 konsistent
+Python-Bereinigungspunkte:                  17
+aktive std.python-Brücken:                   0
+```
+
+Der ältere monolithische Generated-Table-Test überschritt nach den bestandenen
+fokussierten Bruch- und Metaspaltentests erneut das Debug-Link-/Laufzeitlimit,
+ohne eine Compilerdiagnose auszugeben. Er wird nicht als bestanden gezählt.
+
+Das Archivgate prüft nun zusätzlich `.tar.xz` mit explizit gesetzten zwei
+Threads. Das Releasearchiv verwendet `xz -T0`; eine parallele Brotli-CLI ist in
+der Umgebung nicht installiert.
+
+`tools/porting_metrics.py` berechnet aus 92 Referenzdateien den reproduzierbaren
+Stand 51 vollständig native/generierte Dateien, 73 mindestens teilweise
+portierte Dateien und 33.198 von 48.831 angegriffene Referenzzeilen.

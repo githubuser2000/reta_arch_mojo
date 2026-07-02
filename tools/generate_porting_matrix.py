@@ -9,6 +9,8 @@ PYROOT = ROOT / "python_reference"
 OUT = ROOT / "PORTING_MATRIX.md"
 
 NATIVE = {
+    "libs/lib4tables_concat.py": ("nativ", "src/reta_mojo/legacy_lib4tables_concat.mojo + concat_csv.mojo + generated_table_columns.mojo + meta_columns.mojo", "historische 34-Methoden-Weiterleitungsfassade und 13 Konstruktorzustände typisiert; dynamische *args/**kwargs auf explizite Besitzer-APIs reduziert"),
+    "reta_architecture/concat_csv.py": ("nativ", "src/reta_mojo/concat_csv.mojo + fraction_concat_columns.mojo", "CSV-Presheafverkettung, exakte Bruchpaargruppierung, fünf Quelltabellen, Transposition, Überschriften, Auswahl und generierte Spaltenmetadaten vollständig nativ"),
     "libs/center.py": ("nativ", "src/reta_mojo/legacy_center.mojo + unicode_digits.mojo", "27 aktive Legacy-Wrapper über Zeilenbereiche, Arithmetik, Konsole, Hilfe, Terminalgeometrie und nPm-Gruppen vollständig typisiert; Python-kompatible Unicode-isDigit-Tabelle reproduzierbar eingefroren"),
     "libs/lib4tables.py": ("nativ", "src/reta_mojo/legacy_lib4tables.mojo + output_modes.mojo + number_theory.mojo", "vollständige 18-Namen-Reexportoberfläche über native Ausgabesyntax und Zahlentheorie; dynamischer Listenrückweg von isPrimMultiple als typisierte Zusatzfunktion"),
     "reta_architecture/package_integrity.py": ("nativ", "src/reta_mojo/package_integrity.mojo + src/package_integrity_main.mojo", "binärer SHA-256-Baumscan, Pflichtpfade, Runtime-Artefakte, Symlinkdateien und Python-kompatible CSV-Zeilenzählung vollständig nativ"),
