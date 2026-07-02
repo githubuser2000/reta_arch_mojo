@@ -5,7 +5,7 @@ cd "$ROOT"
 
 ./bin/mojo-real run -I src tests/test_combi_join.mojo
 scripts/check_combi_join_parity.sh
-python3 -m pytest -q \
+"$ROOT/scripts/run_pytest.sh" -q \
     tests/test_combi_join_source.py \
     tests/test_middle_alx_compare.py \
     tests/test_porting_matrix_ownership.py \

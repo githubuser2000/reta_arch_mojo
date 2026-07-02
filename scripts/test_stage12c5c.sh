@@ -18,7 +18,7 @@ mkdir -p target/tests target/bin
 PYTHONDONTWRITEBYTECODE=1 "$(scripts/select_reference_python.sh)" \
     scripts/check_package_integrity_parity.py
 
-python3 -m pytest -q \
+"$ROOT/scripts/run_pytest.sh" -q \
     tests/test_package_integrity_source.py \
     tests/test_split_i18n_source.py \
     tests/test_porting_matrix_ownership.py \

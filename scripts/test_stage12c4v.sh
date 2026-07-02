@@ -20,7 +20,7 @@ build_run tests/test_native_prompt_input.mojo test_native_prompt_input_12c4v
 scripts/check_prompt_session_parity.sh
 scripts/check_prompt_runtime_catalog.sh
 scripts/check_prompt_runtime_parity.sh
-python3 -m pytest -q \
+"$ROOT/scripts/run_pytest.sh" -q \
     tests/test_prompt_session_source.py \
     tests/test_known_defects.py \
     tests/test_prompt_external_source.py \

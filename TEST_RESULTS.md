@@ -1732,3 +1732,16 @@ Für den lokalen Mojo-1.0.0b2-Lauf baut `scripts/test_stage12c5k.sh` zuerst den 
 - Defektkatalog: **76/76 konsistent**; Python-Bereinigungspunkte: **19**.
 - `tools/porting_metrics.py`: **60/92** vollständig, **83/92** mindestens teilweise, **38.174/48.831** angegriffene und **28.751/48.831** vollständig native Referenzzeilen.
 - Der Modular-Mojo-Compiler ist in dieser Sandbox nicht installiert; `scripts/test_stage12c5o.sh` baut und führt die 11 nativen Tests lokal aus.
+
+
+## Stage 12c5p – vollständige Morphismen und Pytest-Resolver
+
+- Ausgeführte Source-/Ownership-/Defekt-/Boundary-/Metriktests: **31/31 bestanden**.
+- Archiv-Roundtriptests: **3/3 bestanden**; zusammen mit den fokussierten Gates **34/34**.
+- Frische Archivextraktion: **1.310/1.310** Manifestdateien, **114** relative Symlinks, **0** absolute Symlinks und **0** verbotene Build-/Cachepfade vor dem Testlauf.
+- Vorbereitete lokale Mojo-Tests: **8** in `test_morphisms.mojo` und `test_morphisms_complete.mojo`.
+- Öffentliche Python-Oberfläche: **13/13** Methoden in fünf Klassen typisiert abgedeckt.
+- Shell-Pytestaufrufe: **0** direkte `python3 -m pytest`; **21** Skripte verwenden `scripts/run_pytest.sh`.
+- Defektkatalog: **78/78 konsistent**; Python-Bereinigungspunkte: **19**.
+- `tools/porting_metrics.py`: **61/92** vollständig, **83/92** mindestens teilweise, **38.174/48.831** angegriffene und **28.840/48.831** vollständig native Referenzzeilen.
+- Der Modular-Mojo-Compiler ist in dieser Sandbox nicht installiert; `scripts/test_stage12c5p.sh` baut und führt die acht nativen Tests lokal aus.

@@ -23,7 +23,7 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 
 ## Übersicht
 
-- Einträge insgesamt: **76**
+- Einträge insgesamt: **78**
 - offene bestätigte Python-Fehler: **5**
 - zu entscheidende Python-Fehlerkandidaten: **13**
 - bereits im Python-Baum behobene Fehler: **7**
@@ -1050,3 +1050,30 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 - Python-Orte: `python_reference/reta_architecture/meta_columns.py:694-699`
 - Mojo-Orte: `assets/meta_columns_catalog.tsv`, `src/reta_mojo/meta_columns.mojo`, `scripts/generate_meta_columns_catalog.py`
 - Belege: `STAGE12C5O_NATIVE_META_COLUMNS.md`, `tests/test_meta_columns_complete_source.py`, `assets/meta_columns_catalog.tsv`
+
+### TEST-FIXED-020 – Ältere Stage-Skripte umgingen den pytest-fähigen Projektinterpreter
+
+- Ursprung: `test_infrastructure`
+- Klasse / Schwere: `inconsistent_pytest_interpreter_resolution` / `high`
+- Python-Status: `not_applicable`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5p`
+- Reproduktion: `pytest in .venv installieren und scripts/test_stage12c5j.sh ausführen; die Mojo-Tests bestehen, danach scheitert /usr/bin/python3 -m pytest mit No module named pytest.`
+- heutiger Vertrag: Alle Shellskripte starten Pytest ausschließlich über scripts/run_pytest.sh. Dieser wählt mit find_test_python.sh zuerst RETA_TEST_PYTHON und danach die pytest-fähige Projekt-.venv, bevor System-python3 oder pypy3 berücksichtigt werden. Direkte python3 -m pytest-Aufrufe sind im Skriptbaum ausgeschlossen.
+- spätere Python-Aktion: Keine Python-Referenzänderung erforderlich; der Fehler betraf ausschließlich die Interpreterwahl der Mojo-Testinfrastruktur.
+- Mojo-Orte: `scripts/run_pytest.sh`, `scripts/find_test_python.sh`, `scripts/test_stage12c5j.sh`, `scripts/test_stage12c.sh`, `scripts/check_compat_launcher.sh`
+- Belege: `STAGE12C5P_NATIVE_MORPHISMS_PYTEST_RESOLVER.md`, `tests/test_test_python_setup.py`, `scripts/run_pytest.sh`, `scripts/test_stage12c5j.sh`
+
+### MOJO-FIXED-034 – RendererMorphisms verwendete terminal statt des Python-Fallbacks shell
+
+- Ursprung: `mojo_port`
+- Klasse / Schwere: `renderer_default_mode_mismatch` / `medium`
+- Python-Status: `correct_reference`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5p`
+- Reproduktion: `bootstrap_morphisms mit Standardwert erzeugen und renderer_morphisms.canonical_output_mode("unknown") aufrufen; der partielle Mojo-Port lieferte terminal, während RetaOutputSemantics.mode_for_tables bei unbekannter Syntax shell verwendet.`
+- heutiger Vertrag: Der native Morphismen-Bootstrap und der kanonische Unknown-Mode-Fallback verwenden shell. Konkrete gültige Modi werden weiterhin über output_modes.mojo kanonisiert und auf OutputRuntimeState angewendet.
+- spätere Python-Aktion: Keine Python-Änderung erforderlich; die Python-Referenz besaß bereits den festgelegten shell-Fallback.
+- Python-Orte: `python_reference/reta_architecture/output_semantics.py:76-79`, `python_reference/reta_architecture/morphisms.py:58-59`
+- Mojo-Orte: `src/reta_mojo/morphisms.mojo`, `tests/test_morphisms.mojo`, `tests/test_morphisms_complete.mojo`
+- Belege: `STAGE12C5P_NATIVE_MORPHISMS_PYTEST_RESOLVER.md`, `src/reta_mojo/morphisms.mojo`, `tests/test_morphisms.mojo`

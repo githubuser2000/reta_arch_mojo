@@ -8,7 +8,7 @@ MOJO=${MOJO_BIN:-"$ROOT/bin/mojo-real"}
 target/tests/test_i18n_words_12c4x
 scripts/check_i18n_words_catalog.sh
 scripts/check_i18n_words_native_parity.sh
-python3 -m pytest -q tests/test_i18n_words_source.py tests/test_known_defects.py tests/test_native_boundary_audit.py
+"$ROOT/scripts/run_pytest.sh" -q tests/test_i18n_words_source.py tests/test_known_defects.py tests/test_native_boundary_audit.py
 python3 tools/check_known_defects.py
 if [ "${RETA_RUN_FULL_ALL:-0}" = 1 ]; then
     scripts/check_full_all_parity.sh

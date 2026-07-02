@@ -4,7 +4,7 @@ ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 cd "$ROOT"
 
 ./bin/mojo-real run -I src tests/test_table_adapters.mojo
-python3 -m pytest -q \
+"$ROOT/scripts/run_pytest.sh" -q \
     tests/test_table_adapters_source.py \
     tests/test_porting_matrix_ownership.py \
     tests/test_porting_metrics.py \

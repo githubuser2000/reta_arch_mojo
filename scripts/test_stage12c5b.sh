@@ -11,7 +11,7 @@ target/tests/test_prompt_language_12c5b
 
 ./scripts/check_prompt_language_catalog.sh
 ./scripts/check_prompt_language_legacy_parity.sh
-python3 -m pytest -q \
+"$ROOT/scripts/run_pytest.sh" -q \
     tests/test_reference_python_selector.py \
     tests/test_prompt_language_ownership.py \
     tests/test_porting_matrix_ownership.py

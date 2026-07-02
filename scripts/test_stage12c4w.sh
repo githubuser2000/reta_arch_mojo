@@ -23,7 +23,7 @@ for pytest_file in \
     tests/test_prompt_session_source.py \
     tests/test_native_boundary_audit.py
 do
-    python3 -m pytest -q "$pytest_file"
+    "$ROOT/scripts/run_pytest.sh" -q "$pytest_file"
 done
 python3 tools/check_known_defects.py
 

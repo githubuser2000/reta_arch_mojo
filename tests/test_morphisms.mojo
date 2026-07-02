@@ -67,7 +67,7 @@ def test_renderer_morphism_resolves_alias_and_fallback() raises:
     )
     assert_equal(
         morphisms.renderer_morphisms.canonical_output_mode("unknown"),
-        "terminal",
+        "shell",
     )
 
 

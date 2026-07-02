@@ -9,6 +9,6 @@ mkdir -p "$TEST_DIR"
 "$TEST_DIR/test-terminal-geometry"
 "$ROOT/bin/mojo-real" build -I src \
     tests/terminal_geometry_probe.mojo -o "$TEST_DIR/terminal-geometry-probe"
-python3 -m pytest -q tests/test_prompt_fixture_integrity.py
+"$ROOT/scripts/run_pytest.sh" -q tests/test_prompt_fixture_integrity.py
 RETA_TERMINAL_GEOMETRY_PROBE="$TEST_DIR/terminal-geometry-probe" \
-    python3 -m pytest -q tests/test_prompt_terminal_parity.py
+    "$ROOT/scripts/run_pytest.sh" -q tests/test_prompt_terminal_parity.py

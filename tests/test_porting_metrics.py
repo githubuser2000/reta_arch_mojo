@@ -19,7 +19,7 @@ def test_porting_metrics_are_derived_from_complete_reference_inventory() -> None
     data = _load_module().compute()
     assert data["reference_files"] == 92
     assert data["reference_lines"] == 48831
-    assert data["fully_native_files"] == 60
+    assert data["fully_native_files"] == 61
     assert data["at_least_partly_ported_files"] == 83
     assert data["touched_reference_lines"] == 38174
     assert data["fully_native_files"] <= data["at_least_partly_ported_files"]
@@ -77,3 +77,8 @@ def test_html_class_extractor_is_in_the_authoritative_mapping() -> None:
 def test_meta_columns_owner_is_in_the_authoritative_mapping() -> None:
     mapping = _load_module().native_mapping()
     assert mapping["reta_architecture/meta_columns.py"][0] == "nativ"
+
+
+def test_morphisms_owner_is_in_the_authoritative_mapping() -> None:
+    mapping = _load_module().native_mapping()
+    assert mapping["reta_architecture/morphisms.py"][0] == "nativ"

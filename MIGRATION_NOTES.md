@@ -1054,3 +1054,16 @@ Die lokale Exportfilter-Kopie ist ein eigener Ownership-Fall: `.copy()` erzeugt 
 - Normale native Bruchentdeckung verwendet deterministische Tabellenreihenfolge. Nur die beobachtbare historische Python-Setreihenfolge wird unter `PYTHONHASHSEED=0` als Asset eingefroren.
 - Der mathematisch verdächtige `stern/div`-Zweig bleibt aus Kompatibilitätsgründen leer und ist als `PY-CAND-013` für die spätere Python-Bereinigung dokumentiert.
 - Fortschritt: **60/92 vollständig**, **83/92 mindestens teilweise**, **38.174/48.831 angegriffene Referenzzeilen**, **28.751/48.831 vollständig native Referenzzeilen**.
+
+
+## Stage 12c5p – vollständiger Besitz von `morphisms.py` und einheitlicher Pytest-Einstieg
+
+- `AliasMorphisms`, `RangeMorphisms`, `PromptMorphisms`, `RendererMorphisms` und `MorphismBundle` besitzen zusammen alle 13 Python-Methoden nativ.
+- Der gemeinsame Topologiekontext wird als `ContextSelection` kopiert; Aliasauflösung und Spaltenbindung bleiben bei `ParameterSemanticsSheaf`.
+- `RangeMorphisms.parse_row_range` sortiert und dedupliziert jetzt exakt wie `sorted(set(...))`; die bisherige native Variante sortierte nur.
+- `PromptExpansionRequest` ersetzt das untypisierte Callback-Ergebnis der algorithmusfreien Python-Weiterleitung.
+- Renderer verwenden direkt `OutputRuntimeState` und `apply_native_output_mode`.
+- `scripts/run_pytest.sh` ist der einzige Shell-Pytest-Einstieg. 20 bestehende Skripte wurden migriert; mit dem Stage-Test verwenden 21 Skripte den Resolver.
+- `TEST-FIXED-020` dokumentiert, warum `test_stage12c5j.sh` trotz installiertem `.venv`-Pytest zuvor `/usr/bin/python3` verwendete.
+- Die Crashpad-Warnung des Modular-Tools wird nicht gefiltert; sie ist nicht fatal und stderr bleibt für echte Diagnosen vollständig sichtbar.
+- Fortschritt: **61/92 vollständig**, **83/92 mindestens teilweise**, **38.174/48.831 angegriffene Referenzzeilen**, **28.840/48.831 vollständig native Referenzzeilen**.

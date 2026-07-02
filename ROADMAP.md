@@ -2,12 +2,12 @@
 
 Geplanter Umfang: **12 Release-Stufen**. Eine Stufe zählt erst als abgeschlossen, wenn Quellcode, Referenztests, Compilerziele, Dokumentation und ein source-only Archiv gemeinsam geprüft sind.
 
-## Fortschrittsmaße nach Stage 12c5o
+## Fortschrittsmaße nach Stage 12c5p
 
 | Maß | Stand | Aussage |
 |---|---:|---|
-| abgeschlossene Release-Stufen | **9/12 = 75,0 %** | Stufen 1–8 und 11 sind abgeschlossen; Stufe 12 ist mit 12a, 12b, 12c1–12c3 und 12c4a–12c5o zu etwa 71,7 % abgeschlossen, während 9 und 10 noch Restpfade besitzen |
-| vollständig native oder generierte Python-Dateien | **60/92 = 65,2 %** | Datei vollständig ersetzt oder als reproduzierbares Laufzeitasset abgebildet |
+| abgeschlossene Release-Stufen | **9/12 = 75,0 %** | Stufen 1–8 und 11 sind abgeschlossen; Stufe 12 ist mit 12a, 12b, 12c1–12c3 und 12c4a–12c5p zu etwa 71,9 % abgeschlossen, während 9 und 10 noch Restpfade besitzen |
+| vollständig native oder generierte Python-Dateien | **61/92 = 66,3 %** | Datei vollständig ersetzt oder als reproduzierbares Laufzeitasset abgebildet |
 | mindestens angegriffene Python-Dateien | **83/92 = 90,2 %** | Status direkt aus der autoritativen `NATIVE`-Zuordnung |
 | angegriffene Referenzzeilen | **38.174/48.831 = 78,2 %** | maschinenberechnet statt manuell fortgeschrieben |
 | funktionaler Nutzerumfang | **ca. 96–98 %** | praktisch nutzbarer Reta-Umfang ohne Python-Algorithmus |
@@ -429,3 +429,13 @@ Die Zahl **12** ist die geplante Releasegliederung. Interne Teilpakete oder Fehl
 - `assets/meta_columns_catalog.tsv` bindet 87 Brüche und 884 geordnete Kombinationseinträge reproduzierbar an die beiden Quell-CSVs.
 - `PY-CAND-013` hält den kompatibel konservierten Python-Fehler fest, durch den alle vier `stern/div`-Gruppen leer bleiben.
 - Maschinenstand: 60/92 vollständig, 83/92 mindestens teilweise, 38.174/48.831 angegriffene und 28.751/48.831 vollständig native Referenzzeilen.
+
+
+## Stage 12c5p – vollständige Morphismen und einheitliche Testinterpreterwahl
+
+- `reta_architecture/morphisms.py` wechselt von teilweise nativ zu vollständig nativ.
+- Alle 13 Methoden der fünf Klassen besitzen typisierte Mojo-Verträge.
+- Die bisherige Bereichsimplementation dedupliziert nach der Sortierung nun wirklich wie die Python-Referenz `sorted(set(...))`.
+- Der dynamische Shorthand-Callback wird als besitzende `PromptExpansionRequest` an den eigentlichen Expander übergeben, ohne Python-Laufzeit.
+- Alle Shell-Pytestpfade verwenden `scripts/run_pytest.sh`; dadurch gewinnt die pytest-fähige Projekt-`.venv` zuverlässig vor einem ungeeigneten System-Python.
+- Maschinenstand: **61/92 vollständig**, **83/92 mindestens teilweise**, **38.174/48.831 angegriffene** und **28.840/48.831 vollständig native Referenzzeilen**.

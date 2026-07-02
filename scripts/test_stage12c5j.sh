@@ -13,7 +13,7 @@ mkdir -p target/tests
     -o target/tests/test_architecture_facade_12c5j
 ./target/tests/test_architecture_facade_12c5j
 
-python3 -m pytest -q \
+"$ROOT/scripts/run_pytest.sh" -q \
     tests/test_architecture_exports_catalog.py \
     tests/test_architecture_facade_source.py \
     tests/test_concat_csv_probe_build_source.py \

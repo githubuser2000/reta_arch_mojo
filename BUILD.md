@@ -33,7 +33,9 @@ RETA_SKIP_BUILD=1 RETA_MOJO_PYTHON="$(command -v python3.14)" ./scripts/setup_mo
 uv pip install --python .venv/bin/python3 -r requirements-test.txt
 ```
 
-`pytest` wird von den Python-Source- und Paritätsprüfungen verwendet; es ist keine Mojo-Bibliothek.
+`pytest` wird von den Python-Source- und Paritätsprüfungen verwendet; es ist keine Mojo-Bibliothek. Shelltests starten Pytest ausschließlich über `scripts/run_pytest.sh`, das einen Interpreter mit importierbarem `pytest` auswählt.
+
+Die Meldung `Failed to initialize Crashpad` wird vom Modular-Werkzeug ausgegeben, wenn dessen optionaler Crash-Reporter fehlt. Solange der folgende Mojo-Prozess normal weiterläuft und sein Exitstatus erfolgreich ist, ist dies keine reta-Testniederlage. Die Projektwrapper filtern stderr absichtlich nicht global.
 
 ## Referenzinterpreter
 
@@ -304,7 +306,7 @@ Prüfung des vollständigen Staging-Vertrags:
 ```bash
 ./scripts/check_resource_paths.sh
 ./scripts/check_install_layout.sh
-python3 -m pytest -q tests/test_install_layout.py tests/test_mojo_runtime_path.py
+./scripts/run_pytest.sh -q tests/test_install_layout.py tests/test_mojo_runtime_path.py
 ```
 
 Deinstallation verwendet dieselben `PREFIX`, `DESTDIR`, `BINDIR`,

@@ -20,7 +20,7 @@ PYTHONDONTWRITEBYTECODE=1 "$PYTHON" scripts/check_legacy_facades_parity.py
 
 python3 tools/generate_unicode_digits.py --check
 python3 tools/generate_legacy_help_assets.py --check
-python3 -m pytest -q \
+"$ROOT/scripts/run_pytest.sh" -q \
     tests/test_legacy_facades_source.py \
     tests/test_porting_matrix_ownership.py \
     tests/test_known_defects.py \

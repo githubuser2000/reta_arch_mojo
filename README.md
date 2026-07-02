@@ -9,7 +9,7 @@ abgeschlossene Release-Stufen:       9 von 12 = 75,0 %
 Stufen 9/10/12:                       Ausgabe, Prompt/i18n und Releaseparität in Arbeit
 Stufe 11:                             11a–11j = 100 %
 Stufe 12:                             12a–12b fertig, 12c zu ca. 99,9 % = ca. 70,8 %
-vollständig nativ/generiert:          60 von 92 = 65,2 %
+vollständig nativ/generiert:          61 von 92 = 66,3 %
 mindestens teilweise portiert:       83 von 92 = 90,2 %
 angegriffene Referenzzeilen:          38.174 von 48.831 = 78,2 %
 funktionaler Nutzerumfang:            ca. 96–98 %
@@ -18,7 +18,7 @@ funktionaler Nutzerumfang:            ca. 96–98 %
 Die Metriken messen **orthogonale Bezugsgrößen** und sind nicht als ein einziges wechselndes Gesamtprozent zu lesen:
 
 - **96–98 % geschätzte Funktionsabdeckung**: Anteil der praktisch relevanten Befehls- und Verhaltensfamilien mit einem nativen Pfad. Der atomare Fallback ist nur eine Sicherheitsgrenze und wird nicht als transpiliert gezählt.
-- **65,2 % vollständiger Dateibesitz**: Nur Dateien, deren gesamter wirksamer Vertrag nativ oder reproduzierbar generiert ersetzt ist.
+- **66,3 % vollständiger Dateibesitz**: Nur Dateien, deren gesamter wirksamer Vertrag nativ oder reproduzierbar generiert ersetzt ist.
 - **78,2 % angegriffene Referenzzeilen**: maschinenberechneter Umfang vollständig und teilweise besessener Referenzdateien.
 - **83,3 % Stufenfortschritt**: gewichtete Releaseplanung; eine Stufe kann weit fortgeschritten sein, obwohl große historische Python-Besitzer noch sichtbar bleiben.
 
@@ -44,7 +44,7 @@ Das Skript erzeugt `.venv`, installiert den Modular-Mojo-Compiler sowie die Pyth
 
 Details: [`BUILD.md`](BUILD.md).
 
-`pytest` ist keine Mojo-Bibliothek, sondern wird von den Python-Source- und Paritätstests benötigt. Für eine bereits vorhandene `.venv` genügt:
+`pytest` ist keine Mojo-Bibliothek, sondern wird von den Python-Source- und Paritätstests benötigt. Alle Shelltests starten es über `scripts/run_pytest.sh`; der Resolver bevorzugt einen expliziten `RETA_TEST_PYTHON`-Pfad und danach `.venv/bin/python3`. Für eine bereits vorhandene `.venv` genügt:
 
 ```bash
 ./scripts/setup_test_dependencies.sh
@@ -92,6 +92,8 @@ regulären und schweren Compilerziele; lokale Debug-/Altdateien unter
 [`STAGE12C4M_FHS_RESOURCE_INSTALLATION.md`](STAGE12C4M_FHS_RESOURCE_INSTALLATION.md).
 
 ## Stufen 7–10: Generatoren, Kombinationen, Markup und Prompt
+
+Stage 12c5p schließt `reta_architecture/morphisms.py` vollständig: alle 13 Methoden der fünf Morphismenklassen besitzen typisierte native Einstiege, der gemeinsame Topologiekontext bleibt erhalten, Bereiche werden wirklich wie `sorted(set(...))` dedupliziert und Rendererzustände werden direkt nativ angewendet. Zugleich starten nun alle Shell-Pytestpfade über `scripts/run_pytest.sh`, sodass die pytest-fähige Projekt-`.venv` nicht mehr durch `/usr/bin/python3` umgangen wird. Details: [`STAGE12C5P_NATIVE_MORPHISMS_PYTEST_RESOLVER.md`](STAGE12C5P_NATIVE_MORPHISMS_PYTEST_RESOLVER.md).
 
 Stage 12c5o schließt `reta_architecture/meta_columns.py` vollständig: alle 14 öffentlichen Funktionen, der typisierte Bundle-/Snapshotvertrag, Meta-/Konkreta-Zustandsmaschine, rationale Strukturalienauflösung, Überschriften/Tags und Primwirkungsfamilie besitzen native Einstiege. Ein unter `PYTHONHASHSEED=0` erzeugter Katalog friert 87 Brüche und 884 historische Kombinationseinträge einschließlich der beobachtbaren Set-Reihenfolge ein. Der entdeckte leere `stern/div`-Zweig ist als `PY-CAND-013` dokumentiert; Details: [`STAGE12C5O_NATIVE_META_COLUMNS.md`](STAGE12C5O_NATIVE_META_COLUMNS.md).
 

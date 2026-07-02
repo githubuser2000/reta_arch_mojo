@@ -29,7 +29,7 @@ mkdir -p "$ROOT/target/tests"
 cp "$TEST_DIR/native-prompt-input-probe" \
     "$ROOT/target/tests/native-prompt-input-probe"
 
-python3 -m pytest -q \
+"$ROOT/scripts/run_pytest.sh" -q \
     tests/test_native_prompt_input.py \
     tests/test_prompt_native_tty.py \
     tests/test_prompt_native_input_source.py \

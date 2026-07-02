@@ -19,7 +19,7 @@ mkdir -p "$TEST_DIR"
     -o "$TEST_DIR/test-prompt-raw-commands"
 "$TEST_DIR/test-prompt-raw-commands"
 
-python3 -m pytest -q \
+"$ROOT/scripts/run_pytest.sh" -q \
     tests/test_prompt_external_commands.py \
     tests/test_prompt_external_source.py \
     tests/test_native_boundary_audit.py

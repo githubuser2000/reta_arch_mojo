@@ -1816,6 +1816,60 @@
         "tests/test_meta_columns_complete_source.py",
         "assets/meta_columns_catalog.tsv"
       ]
+    },
+    {
+      "id": "TEST-FIXED-020",
+      "title": "Ältere Stage-Skripte umgingen den pytest-fähigen Projektinterpreter",
+      "origin": "test_infrastructure",
+      "classification": "inconsistent_pytest_interpreter_resolution",
+      "severity": "high",
+      "python_status": "not_applicable",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5p",
+      "reproducer": "pytest in .venv installieren und scripts/test_stage12c5j.sh ausführen; die Mojo-Tests bestehen, danach scheitert /usr/bin/python3 -m pytest mit No module named pytest.",
+      "python_locations": [],
+      "mojo_locations": [
+        "scripts/run_pytest.sh",
+        "scripts/find_test_python.sh",
+        "scripts/test_stage12c5j.sh",
+        "scripts/test_stage12c.sh",
+        "scripts/check_compat_launcher.sh"
+      ],
+      "current_contract": "Alle Shellskripte starten Pytest ausschließlich über scripts/run_pytest.sh. Dieser wählt mit find_test_python.sh zuerst RETA_TEST_PYTHON und danach die pytest-fähige Projekt-.venv, bevor System-python3 oder pypy3 berücksichtigt werden. Direkte python3 -m pytest-Aufrufe sind im Skriptbaum ausgeschlossen.",
+      "post_port_fix": "Keine Python-Referenzänderung erforderlich; der Fehler betraf ausschließlich die Interpreterwahl der Mojo-Testinfrastruktur.",
+      "evidence": [
+        "STAGE12C5P_NATIVE_MORPHISMS_PYTEST_RESOLVER.md",
+        "tests/test_test_python_setup.py",
+        "scripts/run_pytest.sh",
+        "scripts/test_stage12c5j.sh"
+      ]
+    },
+    {
+      "id": "MOJO-FIXED-034",
+      "title": "RendererMorphisms verwendete terminal statt des Python-Fallbacks shell",
+      "origin": "mojo_port",
+      "classification": "renderer_default_mode_mismatch",
+      "severity": "medium",
+      "python_status": "correct_reference",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5p",
+      "reproducer": "bootstrap_morphisms mit Standardwert erzeugen und renderer_morphisms.canonical_output_mode(\"unknown\") aufrufen; der partielle Mojo-Port lieferte terminal, während RetaOutputSemantics.mode_for_tables bei unbekannter Syntax shell verwendet.",
+      "python_locations": [
+        "python_reference/reta_architecture/output_semantics.py:76-79",
+        "python_reference/reta_architecture/morphisms.py:58-59"
+      ],
+      "mojo_locations": [
+        "src/reta_mojo/morphisms.mojo",
+        "tests/test_morphisms.mojo",
+        "tests/test_morphisms_complete.mojo"
+      ],
+      "current_contract": "Der native Morphismen-Bootstrap und der kanonische Unknown-Mode-Fallback verwenden shell. Konkrete gültige Modi werden weiterhin über output_modes.mojo kanonisiert und auf OutputRuntimeState angewendet.",
+      "post_port_fix": "Keine Python-Änderung erforderlich; die Python-Referenz besaß bereits den festgelegten shell-Fallback.",
+      "evidence": [
+        "STAGE12C5P_NATIVE_MORPHISMS_PYTEST_RESOLVER.md",
+        "src/reta_mojo/morphisms.mojo",
+        "tests/test_morphisms.mojo"
+      ]
     }
   ],
   "audit": {

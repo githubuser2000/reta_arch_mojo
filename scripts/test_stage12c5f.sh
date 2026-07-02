@@ -15,7 +15,7 @@ PYTHON=${RETA_REFERENCE_PYTHON:-"$(scripts/select_reference_python.sh)"}
 
 # Keep source/ownership gates before the full generated-catalog compile. The
 # three compression roundtrips remain in the separate release/archive gate.
-python3 -m pytest -q \
+"$ROOT/scripts/run_pytest.sh" -q \
     tests/test_semantics_builder_source.py \
     tests/test_porting_matrix_ownership.py \
     tests/test_known_defects.py \

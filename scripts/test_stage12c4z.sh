@@ -12,16 +12,16 @@ for pytest_file in \
     tests/test_full_all_reference_workflow.py \
     tests/test_source_archive_contract.py
  do
-    python3 -m pytest -q "$pytest_file"
+    "$ROOT/scripts/run_pytest.sh" -q "$pytest_file"
  done
-python3 -m pytest -q tests/test_known_defects.py tests/test_documented_python_defects.py
+"$ROOT/scripts/run_pytest.sh" -q tests/test_known_defects.py tests/test_documented_python_defects.py
 python3 tools/check_known_defects.py
 sh -n bin/generate_html scripts/install.sh scripts/uninstall.sh \
     scripts/check_full_all_against_reference.sh \
     scripts/create_full_all_reference_bundle.sh
 
 if [ -x target/bin/generate-html-native ]; then
-    python3 -m pytest -q tests/test_install_layout.py
+    "$ROOT/scripts/run_pytest.sh" -q tests/test_install_layout.py
     scripts/check_html_parity.sh
     scripts/check_native_io_boundaries.sh
     scripts/check_install_layout.sh

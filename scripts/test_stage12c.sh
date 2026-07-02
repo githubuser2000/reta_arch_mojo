@@ -16,13 +16,13 @@ cd "$ROOT"
 ./scripts/check_markup_nocolor_parity.sh
 ./scripts/check_resource_paths.sh
 ./scripts/check_install_layout.sh
-python3 -m pytest -q tests/test_mojo_runtime_path.py tests/test_install_layout.py
+"$ROOT/scripts/run_pytest.sh" -q tests/test_mojo_runtime_path.py tests/test_install_layout.py
 RETA_COMPAT_PARITY_GROUP=1 ./scripts/check_compat_native_first_parity.sh
 RETA_COMPAT_PARITY_GROUP=2 ./scripts/check_compat_native_first_parity.sh
 ./scripts/check_prompt_mixed_reciprocal_parity.sh
 ./scripts/check_prompt_true_fraction_multiples.sh
 python3 tools/check_known_defects.py
-python3 -m pytest -q tests/test_known_defects.py
+"$ROOT/scripts/run_pytest.sh" -q tests/test_known_defects.py
 ./scripts/check_prompt_classic_fraction_parity.sh
 ./scripts/check_prompt_terminal_parity.sh
 ./scripts/check_completion_word.sh

@@ -26,7 +26,7 @@ fi
 run_group() {
     for test_node in "$@"; do
         RETA_COMPAT_BINARY="$TEST_DIR/reta-mojo-compat-bin" \
-        PYTHONPATH=. python3 -m pytest -q "$test_node"
+        PYTHONPATH=. "$ROOT/scripts/run_pytest.sh" -q "$test_node"
     done
 }
 
