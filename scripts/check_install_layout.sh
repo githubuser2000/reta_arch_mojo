@@ -12,6 +12,9 @@ DESTDIR=$STAGE PREFIX=/usr "$ROOT/scripts/install.sh" >"$TMP/install.log"
 [ -f "$STAGE/usr/share/reta/assets/parameter_aliases.tsv" ]
 [ -f "$STAGE/usr/share/reta/assets/reta_help_de.txt" ]
 [ -f "$STAGE/usr/share/reta/assets/reta_help_en.txt" ]
+[ -f "$STAGE/usr/share/reta/assets/i18n_words/deutsch.tsv" ]
+[ -f "$STAGE/usr/share/reta/assets/i18n_words/manifest.json" ]
+[ -L "$STAGE/usr/bin/reta-mojo-i18n" ]
 [ -L "$STAGE/usr/lib/reta/python_reference/csv" ]
 [ -L "$STAGE/usr/lib/reta/assets" ]
 [ -L "$STAGE/usr/bin/reta" ]
@@ -22,6 +25,15 @@ DESTDIR=$STAGE PREFIX=/usr "$ROOT/scripts/install.sh" >"$TMP/install.log"
 )
 grep -q '^Zeilen: 1025$' "$TMP/csv-info.out"
 grep -q '^Spalten: 746$' "$TMP/csv-info.out"
+
+
+(
+    cd "$TMP"
+    "$STAGE/usr/bin/reta-mojo-i18n" --summary english >"$TMP/i18n-summary.out"
+)
+grep -q '^language=english$' "$TMP/i18n-summary.out"
+grep -q '^rows=6935$' "$TMP/i18n-summary.out"
+grep -q '^matrix_rows=4766$' "$TMP/i18n-summary.out"
 
 set -- \
     -zeilen --vorhervonausschnitt=1-2 \

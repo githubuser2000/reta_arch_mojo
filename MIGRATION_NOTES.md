@@ -818,3 +818,30 @@ Validiert wurden 3/3 Runtime-Tests, 5/5 Zustandsmaschinentests, 12/12 bestehende
 - Rohes HTML bleibt wegen Maskierung, unsichtbarem Leerraum und Listenreihenfolge noch nicht byteidentisch; dieser offene Serialisierungsabstand ist als `MOJO-COMPAT-001` katalogisiert.
 - Die direkte Aktivierungsnaht im großen optimierten Promptcontroller bleibt sichtbar, weil der zusätzliche Paketimport den Compilergraphen unverhältnismäßig vergrößert.
 
+
+## Stage 12c4x – vollständiger Besitz des gesplitteten `i18n.words`-Bestands
+
+- Die fünf aktiven Sprachmodule `i18n.words*` werden in getrennten frischen
+  Python-Referenzprozessen in einen reproduzierbaren Baumkatalog exportiert.
+- `i18n_words.mojo` lädt 34.667 typisierte Knoten ohne `std.python` und bewahrt
+  Reihenfolge, Containerart, Named-Tuple-Felder, Klassenattribute, geteilte
+  Objektverweise sowie die beobachtbaren `classify`-Ergebnisse.
+- `reta-mojo-i18n` ist das zehnte reguläre Buildziel und bietet Summary-,
+  Pfad-, Klassifikations- und Dumpzugriff auf den nativen Bestand.
+- `PY-CAND-008` hält den fehlerhaften Python-Diagnosetext `-languages=` und die
+  mehrfach aufgelisteten Sprachcodes für die spätere gemeinsame Bereinigung
+  fest; Mojo konserviert den Text bis dahin bytegenau.
+- `MOJO-FIXED-024` korrigiert alle 16 nativen Inspektionslauncher für eine
+  FHS-Installation über Symlinks. Sie lösen `$0` vor der Rootbestimmung mit
+  `readlink -f` auf.
+- `MOJO-FIXED-025` normalisiert importzeitlich absolute Python-i18n-Pfade
+  auf `python_reference/i18n`; das Source-only-Archiv regeneriert die fünf
+  Kataloge dadurch unabhängig vom Entpackpfad byteidentisch.
+- Vollständiger nativer/generierter Dateibesitz steigt auf 45/92 = 48,9 %,
+  mindestens teilweise portierter Besitz auf 74/92 = 80,4 % und der
+  gewichtete Quellersatz auf etwa 67,7 %.
+- Der echte native `--alles`-Lauf bleibt mit 24.975.753 Byte vollständig. Da
+  Stage 12c4x keine Tabellenquelle ändert, bleibt die in 12c4w bewiesene
+  semantische Parität von 149.356/149.356 Zellen maßgeblich. Der zusätzliche
+  aktuelle Python-Neulauf überschritt das 20-Minuten-Sandboxlimit und wird
+  nicht als neuer bestandener Vergleich ausgewiesen.

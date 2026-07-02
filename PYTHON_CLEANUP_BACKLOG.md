@@ -11,7 +11,7 @@ Arbeitsliste für die Phase nach dem vollständigen Mojo-Port.
 4. Python und Mojo gegen denselben korrigierten Sollvertrag prüfen.
 5. Den Eintrag in `KNOWN_DEFECTS.json` auf `fixed` setzen.
 
-Offene oder zu entscheidende Einträge: **13**
+Offene oder zu entscheidende Einträge: **14**
 
 ## 1. PY-OPEN-001 – Beliebige Codeausführung durch eval in Ganzzahlmengen-Ausdrücken
 
@@ -155,3 +155,14 @@ Offene oder zu entscheidende Einträge: **13**
 - Python-Arbeitsauftrag: Verwendungen auf prime_repeat_pairs beziehungsweise eine explizite Label-Funktion migrieren und die heterogene Legacy-Schnittstelle anschließend deprecaten.
 - Python-Orte: `python_reference/reta_architecture/arithmetic.py:65-94`
 - Belege: `MIGRATION_NOTES.md`, `STAGE12C4S_DEFECT_BACKFILL_NATIVE_CONTROL_MAINS.md`
+
+## 14. PY-CAND-008 – Sprachfehlertext verwendet den falschen Parameter -languages= und wiederholt erlaubte Sprachcodes
+
+- Priorität: `low`
+- Python-Status: `candidate`
+- Mojo-Status: `compatibility_preserved`
+- Reproduktion: `PYTHONHASHSEED=0 python3 -c "import sys; sys.path.insert(0,'python_reference'); import i18n.words_runtime as w; print(w.wrongLangSentence)"`
+- heutiger Vertrag: Der native i18n-Baumkatalog konserviert den beobachtbaren Text bytegenau: Er nennt historisch -languages= statt des tatsächlich ausgewerteten -language= und übernimmt die mehrfach vorkommenden Werte en, de, vn, cn und kr aus sprachen.values().
+- Python-Arbeitsauftrag: Nach Abschluss der Transpilierung den Text auf -language= umstellen, die erlaubten kanonischen Namen oder Codes dedupliziert und in fachlich definierter Reihenfolge ausgeben und Python sowie Mojo gemeinsam auf neue Soll-Fixtures migrieren.
+- Python-Orte: `python_reference/i18n/words_runtime.py:540-543`, `python_reference/reta_architecture/parameter_runtime.py:212`
+- Belege: `STAGE12C4X_NATIVE_I18N_WORDS.md`, `tests/test_i18n_words_source.py`, `assets/i18n_words/manifest.json`

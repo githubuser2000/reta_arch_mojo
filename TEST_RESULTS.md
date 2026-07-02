@@ -1410,3 +1410,49 @@ scripts/check_full_all_parity.sh
 scripts/test_stage12c4w.sh
 ```
 
+
+## Stage 12c4x – nativer fünfsprachiger `i18n.words`-Baum
+
+```text
+native i18n-Unit-Tests:                    7/7 bestanden
+Katalogregeneration:                       5/5 Sprachen byteidentisch
+Mojo-Rückserialisierung:                   5/5 Sprachen byteidentisch
+native Baumzeilen:                    34.667/34.667
+Source-/Ledger-/Boundary-Pytests:          13/13 bestanden
+FHS-Installationsprüfung:                   bestanden
+reguläre ELF-Ziele vorhanden/startfähig:  10/10
+zentraler Fehlerkatalog:                   50/50 konsistent
+spätere Python-/PyPy3-Arbeitspunkte:          14
+aktive std.python-Brücken:                     0
+```
+
+Der native Volltabellenpfad wurde erneut ohne Fixture ausgeführt:
+
+```text
+--alles-Laufzeit:        22,61 Sekunden
+Ausgabegröße:            24.975.753 Byte
+physische Ausgabezeilen: 460.022
+Spitzenspeicher:         ca. 405 MiB
+SHA-256:                 18e755caba466d88bacdbf26ba191d501bd32c05cc41cdb9f9be51ed25e8cfb1
+```
+
+Tabellen-, Generator- und Rendererquellen wurden in Stage 12c4x nicht
+verändert. Deshalb gilt der in Stage 12c4w vollständig errechnete Nachweis von
+149.356/149.356 semantisch gleichen Zellen unverändert weiter. Ein zusätzlicher
+frischer Python-Volltabellenlauf wurde gestartet, erreichte in der
+Sandbox nach 20 Minuten jedoch erst 161 KiB und wurde vom Umgebungslimit
+beendet; er wird ausdrücklich nicht als bestandener neuer Referenzlauf
+gezählt.
+
+Die FHS-Prüfung entdeckte zusätzlich `MOJO-FIXED-024`: 16 öffentliche native
+Inspektionslauncher bestimmten den Projektstamm aus dem Symlink unter
+`/usr/bin`. Nach Auflösung des realen Pfads funktionieren sie nun aus fremden
+Arbeitsverzeichnissen unter `/usr/lib/reta`.
+
+```bash
+scripts/test_stage12c4x.sh
+scripts/check_i18n_words_catalog.sh
+scripts/check_i18n_words_native_parity.sh
+scripts/check_install_layout.sh
+scripts/check_build_layout.sh
+```

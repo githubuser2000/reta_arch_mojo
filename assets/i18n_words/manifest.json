@@ -1,0 +1,120 @@
+{
+  "canonical_languages": [
+    "deutsch",
+    "english",
+    "vietnamese",
+    "chinese",
+    "korean"
+  ],
+  "format": "reta-i18n-words-tree-v1",
+  "languages": [
+    {
+      "language": "deutsch",
+      "module_roots": {
+        "i18n.words": 69,
+        "i18n.words_bootstrap": 2,
+        "i18n.words_context": 52,
+        "i18n.words_matrix": 55,
+        "i18n.words_runtime": 68
+      },
+      "module_rows": {
+        "i18n.words": 79,
+        "i18n.words_bootstrap": 2,
+        "i18n.words_context": 1503,
+        "i18n.words_matrix": 4764,
+        "i18n.words_runtime": 579
+      },
+      "roots": 246,
+      "rows": 6927,
+      "sha256": "b1c705c2a7879674d17e504acde1bb61a84d0e328cb3439b2a3afe892c3ec3ac"
+    },
+    {
+      "language": "english",
+      "module_roots": {
+        "i18n.words": 71,
+        "i18n.words_bootstrap": 2,
+        "i18n.words_context": 54,
+        "i18n.words_matrix": 57,
+        "i18n.words_runtime": 70
+      },
+      "module_rows": {
+        "i18n.words": 81,
+        "i18n.words_bootstrap": 2,
+        "i18n.words_context": 1505,
+        "i18n.words_matrix": 4766,
+        "i18n.words_runtime": 581
+      },
+      "roots": 254,
+      "rows": 6935,
+      "sha256": "618df0478c9d24f5c670bdbf9c670486a67c37b69416d9c237e46cc5fd9b2dd9"
+    },
+    {
+      "language": "vietnamese",
+      "module_roots": {
+        "i18n.words": 71,
+        "i18n.words_bootstrap": 2,
+        "i18n.words_context": 54,
+        "i18n.words_matrix": 57,
+        "i18n.words_runtime": 70
+      },
+      "module_rows": {
+        "i18n.words": 81,
+        "i18n.words_bootstrap": 2,
+        "i18n.words_context": 1505,
+        "i18n.words_matrix": 4766,
+        "i18n.words_runtime": 581
+      },
+      "roots": 254,
+      "rows": 6935,
+      "sha256": "0bbf281362929b513f3f51b920909a401c423d62dd74d4dff536761fc119e0d9"
+    },
+    {
+      "language": "chinese",
+      "module_roots": {
+        "i18n.words": 71,
+        "i18n.words_bootstrap": 2,
+        "i18n.words_context": 54,
+        "i18n.words_matrix": 57,
+        "i18n.words_runtime": 70
+      },
+      "module_rows": {
+        "i18n.words": 81,
+        "i18n.words_bootstrap": 2,
+        "i18n.words_context": 1505,
+        "i18n.words_matrix": 4766,
+        "i18n.words_runtime": 581
+      },
+      "roots": 254,
+      "rows": 6935,
+      "sha256": "cf509d3a764f12fb476d52e3b6032d7fd08b5d0415ec0dd6a16393e1582ae832"
+    },
+    {
+      "language": "korean",
+      "module_roots": {
+        "i18n.words": 71,
+        "i18n.words_bootstrap": 2,
+        "i18n.words_context": 54,
+        "i18n.words_matrix": 57,
+        "i18n.words_runtime": 70
+      },
+      "module_rows": {
+        "i18n.words": 81,
+        "i18n.words_bootstrap": 2,
+        "i18n.words_context": 1505,
+        "i18n.words_matrix": 4766,
+        "i18n.words_runtime": 581
+      },
+      "roots": 254,
+      "rows": 6935,
+      "sha256": "a7357e89be23be0900e4c398654547de0030ef57bf2305740769c95fc2239141"
+    }
+  ],
+  "source_modules": [
+    "i18n.words_bootstrap",
+    "i18n.words_context",
+    "i18n.words_matrix",
+    "i18n.words_runtime",
+    "i18n.words"
+  ],
+  "total_rows": 34667
+}

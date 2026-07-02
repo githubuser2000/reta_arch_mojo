@@ -55,12 +55,13 @@ noch auf den Rechner zeigt, auf dem sie kompiliert wurden.
 ./scripts/check_build_layout.sh
 ```
 
-Erzeugt werden neun normale Laufzeitziele:
+Erzeugt werden zehn normale Laufzeitziele:
 
 ```text
 target/bin/reta-mojo-native
 target/bin/reta-mojo-table
 target/bin/reta-mojo-tags
+target/bin/reta-mojo-i18n
 target/bin/reta-native
 target/bin/reta-mojo-compat-bin
 target/bin/reta-prompt-native
@@ -69,7 +70,7 @@ target/bin/grundStrukHtml-native
 target/bin/generate-html-native
 ```
 
-`reta-prompt-complete` bleibt als persistenter eigenständiger Completion-Arbeiter und Kompatibilitäts-/Testziel erhalten. Der reguläre interaktive Prompt verwendet seit Stage 12c4d Completion direkt im nativen TTY-Editor und benötigt weder diesen Arbeiter noch eingebettetes CPython. `reta-mojo-table` ist bewusst leicht und enthält Tabellenzustand, Wrapping und CSV-Inspektion. Das vollständige Tag-Schema liegt in `reta-mojo-tags`. Diese Trennung vermeidet einen unnötigen Compiler-Monolithen.
+`reta-prompt-complete` bleibt als persistenter eigenständiger Completion-Arbeiter und Kompatibilitäts-/Testziel erhalten. Der reguläre interaktive Prompt verwendet seit Stage 12c4d Completion direkt im nativen TTY-Editor und benötigt weder diesen Arbeiter noch eingebettetes CPython. `reta-mojo-table` ist bewusst leicht und enthält Tabellenzustand, Wrapping und CSV-Inspektion. Das vollständige Tag-Schema liegt in `reta-mojo-tags`; der fünfsprachige `i18n.words`-Baum ist über `reta-mojo-i18n` separat prüfbar. Diese Trennung vermeidet einen unnötigen Compiler-Monolithen.
 
 ## Schwere generierte Ziele
 

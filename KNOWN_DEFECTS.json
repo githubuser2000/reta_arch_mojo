@@ -1075,6 +1075,81 @@
         "STAGE12C4W_NATIVE_PROMPT_PREPARATION_FULL_ALL.md",
         "scripts/test_stage12c4w.sh"
       ]
+    },
+    {
+      "id": "PY-CAND-008",
+      "title": "Sprachfehlertext verwendet den falschen Parameter -languages= und wiederholt erlaubte Sprachcodes",
+      "origin": "python_reference",
+      "classification": "i18n_cli_diagnostic_bug",
+      "severity": "low",
+      "python_status": "candidate",
+      "mojo_status": "compatibility_preserved",
+      "discovered_stage": "12c4x",
+      "reproducer": "PYTHONHASHSEED=0 python3 -c \"import sys; sys.path.insert(0,'python_reference'); import i18n.words_runtime as w; print(w.wrongLangSentence)\"",
+      "python_locations": [
+        "python_reference/i18n/words_runtime.py:540-543",
+        "python_reference/reta_architecture/parameter_runtime.py:212"
+      ],
+      "mojo_locations": [
+        "assets/i18n_words/deutsch.tsv",
+        "src/reta_mojo/i18n_words.mojo"
+      ],
+      "current_contract": "Der native i18n-Baumkatalog konserviert den beobachtbaren Text bytegenau: Er nennt historisch -languages= statt des tatsächlich ausgewerteten -language= und übernimmt die mehrfach vorkommenden Werte en, de, vn, cn und kr aus sprachen.values().",
+      "post_port_fix": "Nach Abschluss der Transpilierung den Text auf -language= umstellen, die erlaubten kanonischen Namen oder Codes dedupliziert und in fachlich definierter Reihenfolge ausgeben und Python sowie Mojo gemeinsam auf neue Soll-Fixtures migrieren.",
+      "evidence": [
+        "STAGE12C4X_NATIVE_I18N_WORDS.md",
+        "tests/test_i18n_words_source.py",
+        "assets/i18n_words/manifest.json"
+      ]
+    },
+    {
+      "id": "MOJO-FIXED-024",
+      "title": "Installierte native Inspektionslauncher leiteten den Projektstamm aus dem Symlinkpfad statt dem realen Launcherpfad ab",
+      "origin": "mojo_port",
+      "classification": "fhs_launcher_symlink_resolution",
+      "severity": "high",
+      "python_status": "not_applicable",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c4x",
+      "reproducer": "DESTDIR=/tmp/reta-stage ./scripts/install.sh /usr und anschließend /tmp/reta-stage/usr/bin/reta-mojo-i18n --summary english ausführen; der alte Launcher suchte /usr/target/bin/reta-mojo-i18n statt /usr/lib/reta/target/bin/reta-mojo-i18n.",
+      "python_locations": [],
+      "mojo_locations": [
+        "bin/reta-mojo-i18n",
+        "bin/reta-mojo-progress",
+        "bin/reta-mojo-activation",
+        "scripts/check_install_layout.sh"
+      ],
+      "current_contract": "Alle 16 nativen Inspektionslauncher lösen einen öffentlichen FHS-Symlink zuerst mit readlink -f auf und bestimmen ROOT anschließend aus dem realen Launcherpfad. Dadurch funktionieren sie sowohl im Quellbaum als auch unter /usr/bin -> /usr/lib/reta/bin.",
+      "post_port_fix": "Keine Python-Produktivcodeänderung erforderlich.",
+      "evidence": [
+        "STAGE12C4X_NATIVE_I18N_WORDS.md",
+        "tests/test_i18n_words_source.py",
+        "scripts/check_install_layout.sh"
+      ]
+    },
+    {
+      "id": "MOJO-FIXED-025",
+      "title": "Generierter i18n-Baum enthielt den absoluten Checkoutpfad des Generatorrechners",
+      "origin": "mojo_port",
+      "classification": "generated_asset_absolute_path_leak",
+      "severity": "high",
+      "python_status": "not_applicable",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c4x",
+      "reproducer": "Das Source-only-Archiv an einen anderen Pfad entpacken und scripts/check_i18n_words_catalog.sh ausführen; vor der Korrektur unterschieden sich localedir/i18nPath bereits in Zeile 63 durch den jeweiligen absoluten Checkoutpfad.",
+      "python_locations": [],
+      "mojo_locations": [
+        "tools/generate_i18n_words_catalog.py",
+        "assets/i18n_words/deutsch.tsv",
+        "assets/i18n_words/english.tsv"
+      ],
+      "current_contract": "Importzeitlich absolute Python-Pfade unter dem Referenzbaum werden beim Export deterministisch auf python_reference/... normalisiert. Der fünfsprachige Katalog ist dadurch nach Entpacken an beliebiger Stelle byteidentisch regenerierbar und enthält keinen Sandbox- oder Benutzerpfad.",
+      "post_port_fix": "Keine Python-Produktivcodeänderung erforderlich; der absolute Python-Laufzeitpfad bleibt Referenzverhalten, während das portable native Asset bewusst die projektrelative Ressourcenschreibweise trägt.",
+      "evidence": [
+        "STAGE12C4X_NATIVE_I18N_WORDS.md",
+        "tests/test_i18n_words_source.py",
+        "scripts/check_i18n_words_catalog.sh"
+      ]
     }
   ],
   "audit": {
@@ -1094,8 +1169,9 @@
       "STAGE12C4T_NATIVE_WORD_COMPLETION.md",
       "STAGE12C4U_NATIVE_NESTED_COMPLETION.md",
       "STAGE12C4V_NATIVE_PROMPT_SESSION_RUNTIME.md",
-      "STAGE12C4W_NATIVE_PROMPT_PREPARATION_FULL_ALL.md"
+      "STAGE12C4W_NATIVE_PROMPT_PREPARATION_FULL_ALL.md",
+      "STAGE12C4X_NATIVE_I18N_WORDS.md"
     ],
-    "scope_note": "Vollständig bezogen auf alle bis Stage 12c4w im Projekt bestätigten oder plausibel begründeten verhaltensrelevanten Befunde; unbekannte künftige Fehler können naturgemäß erst nach ihrer Entdeckung aufgenommen werden."
+    "scope_note": "Vollständig bezogen auf alle bis Stage 12c4x im Projekt bestätigten oder plausibel begründeten verhaltensrelevanten Befunde; unbekannte künftige Fehler können naturgemäß erst nach ihrer Entdeckung aufgenommen werden."
   }
 }

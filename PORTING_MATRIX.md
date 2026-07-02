@@ -5,7 +5,7 @@ Stand: 1. Juli 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der g
 - Ursprüngliche Python-Dateien: **92**
 - Ursprüngliche Python-Zeilen insgesamt: **48831**
 - Eingebettete Python-Brücken: **0**; expliziter Mojo-Kindprozessadapter: **1**
-- Quellzeilen der bereits angegriffenen Architekturmodule: **22387**
+- Quellzeilen der bereits angegriffenen Architekturmodule: **27872**
 - Native Mojo-Quellzeilen: siehe `src/` (inklusive generiertem Kategoriekatalog)
 
 | Python-Datei | Zeilen | Funktionen | Klassen | dynamische Aufrufe | Status | Mojo/Ziel | Anmerkung |
@@ -14,12 +14,12 @@ Stand: 1. Juli 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der g
 | `grundStrukHtml.py` | 232 | 5 | 0 | 0 | generiert nativ | `src/reta_mojo/grundstrukturen_html.mojo + grundstrukturen_catalog.mojo` | Renderer vollständig nativ; lokalisierter wahl15-Katalog reproduzierbar generiert und bytegleich |
 | `generate_html` | 8 | 0 | 0 | 1 | nativ | `src/generate_html_main.mojo + reta_mojo/all_columns.mojo` | zwölfteiliger `--alles`-Plan und vollständige Seitenkomposition ohne Python-/Subprozessbrücke |
 | `html2text.py` | 9 | 2 | 1 | 0 | nativ | `src/reta_mojo/compat_text.mojo` | identische Text-Fallbacksemantik ohne Python-Abhängigkeit |
-| `i18n/words.py` | 24 | 0 | 0 | 0 | Python-Referenz/Bridge | `python_reference/i18n/words.py` | noch nicht nativ portiert |
-| `i18n/words_bootstrap.py` | 49 | 2 | 0 | 0 | Python-Referenz/Bridge | `python_reference/i18n/words_bootstrap.py` | noch nicht nativ portiert |
-| `i18n/words_context.py` | 753 | 1 | 0 | 0 | Python-Referenz/Bridge | `python_reference/i18n/words_context.py` | noch nicht nativ portiert |
+| `i18n/words.py` | 24 | 0 | 0 | 0 | generiert nativ | `src/reta_mojo/i18n_words.mojo + assets/i18n_words/*.tsv` | Kompatibilitätsfassade und Reexport-Identitäten als reproduzierbarer nativer Baumvertrag |
+| `i18n/words_bootstrap.py` | 49 | 2 | 0 | 0 | nativ | `src/reta_mojo/i18n_words.mojo` | Debugausgabegrenzen und Dublettensuche typisiert; öffentliche Funktionssignaturen im Katalog |
+| `i18n/words_context.py` | 753 | 1 | 0 | 0 | generiert nativ | `src/reta_mojo/i18n_words.mojo + assets/i18n_words/*.tsv` | Sprachwahl, Parameterwörter, `ParametersMain`, Befehls- und Kontextdaten vollständig reproduzierbar |
 | `i18n/words_legacy_monolith.py` | 5431 | 4 | 8 | 0 | Python-Referenz/Bridge | `python_reference/i18n/words_legacy_monolith.py` | noch nicht nativ portiert |
-| `i18n/words_matrix.py` | 4111 | 0 | 0 | 0 | Python-Referenz/Bridge | `python_reference/i18n/words_matrix.py` | noch nicht nativ portiert |
-| `i18n/words_runtime.py` | 548 | 1 | 8 | 0 | Python-Referenz/Bridge | `python_reference/i18n/words_runtime.py` | noch nicht nativ portiert |
+| `i18n/words_matrix.py` | 4111 | 0 | 0 | 0 | generiert nativ | `src/reta_mojo/i18n_words.mojo + assets/i18n_words/*.tsv` | 431 Matrixeinträge samt Containerordnung, Mengen und Referenzidentitäten vollständig abgebildet |
+| `i18n/words_runtime.py` | 548 | 1 | 8 | 0 | generiert nativ | `src/reta_mojo/i18n_words.mojo + assets/i18n_words/*.tsv` | acht Runtimeklassen, Meldungen und fünfsprachige `classify`-Semantik vollständig nativ abfragbar |
 | `libs/LibRetaPrompt.py` | 80 | 0 | 0 | 0 | Python-Referenz/Bridge | `python_reference/libs/LibRetaPrompt.py` | noch nicht nativ portiert |
 | `libs/center.py` | 333 | 33 | 1 | 0 | Python-Referenz/Bridge | `python_reference/libs/center.py` | noch nicht nativ portiert |
 | `libs/generate4readme.py` | 382 | 0 | 0 | 0 | Python-Referenz/Bridge | `python_reference/libs/generate4readme.py` | noch nicht nativ portiert |
@@ -277,3 +277,16 @@ Damit steigen vollständig native/reproduzierbare Originaldateien auf **40/92 = 
 | vollständiger `--alles`-Pfad | Grenzkorrektur in `generated_table_columns.mojo` plus formstrenger HTML-Komparator | 198/198 Zeilen und 149.356/149.356 Zellen semantisch identisch |
 
 Konservativ bleibt der vollständige Dateibesitz bei **40/92 = 43,5 %**, weil die letzte produktive Promptcontroller-Aktivierungsnaht noch sichtbar ist. Mindestens teilweise portierte Dateien steigen auf **69/92 = 75,0 %**, der gewichtete Quellzeilenstand auf **ca. 56,5 %**. Die funktionale Oberfläche bleibt bei **96–98 %**.
+
+
+## Stage 12c4x – nativer fünfsprachiger i18n-Wortbaum
+
+| Originaldatei | Mojo-Besitz | Verifikation |
+|---|---|---|
+| `i18n/words.py` | native Fassade über denselben Baumvertrag | Reexport- und Referenzknoten im vollständigen Dump |
+| `i18n/words_bootstrap.py` | Debuggrenzen und Dublettensuche in `i18n_words.mojo` | native Unit-Tests |
+| `i18n/words_context.py` | fünfsprachige Kontext-, Parameter- und Befehlsdaten | byteidentische Katalogregeneration und Rückserialisierung |
+| `i18n/words_matrix.py` | 431 Matrixeinträge mit geordneten Containern und expliziten Referenzen | 34.667/34.667 Baumknoten |
+| `i18n/words_runtime.py` | acht Klassenoberflächen, Meldungen und `classify` | fünf Sprachen vollständig abfragbar |
+
+Der historische `i18n/words_legacy_monolith.py` bleibt separat als eingefrorene Referenz und wird nicht mitgezählt. Die fünf aktiven Splitmodule erhöhen den vollständigen Dateibesitz auf **45/92 = 48,9 %**, mindestens teilweise portierte Dateien auf **74/92 = 80,4 %** und den gewichteten Quellzeilenstand auf **ca. 67,7 %**. Die funktionale Oberfläche bleibt bei **96–98 %**, weil bereits vorhandene i18n-Funktionalität nun in ihren richtigen nativen Besitzer überführt wurde.

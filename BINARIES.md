@@ -18,6 +18,7 @@ reta-mojo-rehearsal     reta-mojo-activation
 reta-mojo-validation    reta-mojo-progress
 reta-mojo-persistence     reta-mojo-execution-network
 reta-mojo-parallel-execution  reta-mojo-row-preparation
+reta-mojo-i18n
 ```
 
 ## `bin/` gegenüber `target/bin/`
@@ -152,6 +153,8 @@ zu einem einzigen Releasebinary `target/bin/reta` zusammengeführt werden.
 ./bin/reta-mojo-parallel-execution --demo-threads 2 2
 ./bin/reta-mojo-row-preparation --summary 8 128 512
 ./bin/reta-mojo-row-preparation --demo 2 2
+./bin/reta-mojo-i18n --summary english
+./bin/reta-mojo-i18n --classify deutsch 3
 ```
 
 ## Zuordnung
@@ -166,6 +169,7 @@ zu einem einzigen Releasebinary `target/bin/reta` zusammengeführt werden.
 | `generate_html` | `target/bin/generate-html-native` | vollständig nativ einschließlich `--alles`-Mitteltabelle |
 | Tabellenzustand/CSV/Wrapping | `target/bin/reta-mojo-table` | nativ |
 | Tag-Schema | `target/bin/reta-mojo-tags` | nativ |
+| Fünfsprachiger i18n-Wortbaum | `target/bin/reta-mojo-i18n` | 34.667 reproduzierbare Baumknoten, native Abfrage und verlustfreie Rückserialisierung |
 | Architekturkarte und Kapselgrenzen | `target/bin/reta-mojo-architecture`, `target/bin/reta-mojo-boundaries` | generierte Metadaten und Abfragen nativ; Python-AST-Scan nur bei Regeneration |
 | Architekturverträge und Witnesses | `target/bin/reta-mojo-contracts`, `target/bin/reta-mojo-witnesses` | kommutierende Verträge, Kapselgesetze, Repository-Anker und Nachweisnavigation nativ; Python nur bei Regeneration |
 | Kohärenz und Traces | `target/bin/reta-mojo-coherence`, `target/bin/reta-mojo-traces` | Kapsel-/Routenkohärenz und Legacy→Gesetz-Trace-Navigation nativ; Python nur bei Regeneration |
