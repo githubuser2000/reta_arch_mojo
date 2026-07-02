@@ -260,3 +260,11 @@ Installationspfad auf, startet das private Mojo-Ziel und bietet atomare
 Dateiausgabe, Sprachwahl, explizite Mitteltabellen, Ressourcenüberschreibungen,
 `--no-clobber`, Hilfe und Version. Es wechselt nicht das Arbeitsverzeichnis und
 schreibt standardmäßig nur nach stdout. Siehe `man generate_html`.
+
+## Source-ID-Sidecars
+
+Lokale Programme unter `target/bin/` besitzen nach dem Build eine gleichnamige
+Datei mit Endung `.reta-source-id`. Diese Dateien sind keine Executables und
+werden nicht als öffentliche Befehle installiert. Sie verhindern im
+Entwicklungsbaum, dass ein Launcher nach einem source-only Update versehentlich
+ein altes Binary startet.

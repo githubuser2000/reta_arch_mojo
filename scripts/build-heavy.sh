@@ -65,3 +65,15 @@ printf 'Erzeugt: %s\n' "$TARGET_DIR/reta-mojo-parallel-execution"
 printf 'Kompiliere native typisierte Thread-Zeilenvorbereitung ...\n'
 "$ROOT/bin/mojo-real" build --no-optimization -j 4 -I src src/architecture_parallel_row_preparation_main.mojo -Xlinker -rpath -Xlinker "$MOJO_RUNTIME_RPATH" -o "$TARGET_DIR/reta-mojo-row-preparation"
 printf 'Erzeugt: %s\n' "$TARGET_DIR/reta-mojo-row-preparation"
+for output_name in \
+    reta-mojo-semantics reta-mojo-schema reta-mojo-architecture \
+    reta-mojo-boundaries reta-mojo-contracts reta-mojo-witnesses \
+    reta-mojo-coherence reta-mojo-traces reta-mojo-impact \
+    reta-mojo-migration reta-mojo-rehearsal reta-mojo-activation \
+    reta-mojo-validation reta-mojo-progress reta-mojo-persistence \
+    reta-mojo-execution-network reta-mojo-parallel-execution \
+    reta-mojo-row-preparation
+do
+    "$ROOT/scripts/stamp_mojo_binary.sh" "$TARGET_DIR/$output_name"
+done
+

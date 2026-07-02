@@ -55,6 +55,8 @@ if [ ! -x "$TARGET" ]; then
     exit 127
 fi
 
+"$ROOT/scripts/check_mojo_binary_freshness.sh" "$TARGET"
+
 RUNTIME_DIR=$("$ROOT/scripts/find_mojo_runtime.sh")
 case ":${LD_LIBRARY_PATH-}:" in
     *:"$RUNTIME_DIR":*) ;;

@@ -405,3 +405,22 @@ Nicht den lokalen Buildbaum mitsenden, sondern:
 ```
 
 Das Archiv enthält Quellen, Referenzimplementierung, Daten, Tests und Generatoren, aber kein `target/`, `.venv/`, `.git/`, Buildverzeichnis oder Cache. Die genaue Einteilung steht in `PROJECT_CONTENT_PROFILES.md`.
+
+## Build-Frische nach source-only Aktualisierungen
+
+Quellarchive enthalten kein `target/`. Ein altes lokales ELF kann daher beim
+Entpacken bestehen bleiben. `scripts/build.sh` und `scripts/build-heavy.sh`
+schreiben ab Stage 12c5s neben jedes neu erzeugte Programm eine
+`*.reta-source-id`-Datei. `bin/mojo-runtime-exec` vergleicht sie mit dem
+aktuellen `SOURCE_MANIFEST.sha256` und mit den Änderungszeiten unter `src/`.
+
+Nach dem Einspielen eines neuen Archivs ist deshalb einmal auszuführen:
+
+```bash
+scripts/build.sh
+# nur für die optionalen schweren Ziele zusätzlich:
+scripts/build-heavy.sh
+```
+
+Ein veraltetes Binary wird nicht gestartet, sondern mit Exitcode 78 und einer
+Neubau-Anweisung abgewiesen.

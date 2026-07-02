@@ -1,5 +1,20 @@
 # Testergebnisse – Stufe-9/10/11-Zwischenstand
 
+
+## Stage 12c5s: stale Binary Guard, UTF-8-HTML und tableHandling
+
+```text
+Source-/Ownership-/Defektgates:       werden über scripts/test_stage12c5s.sh ausgeführt
+Native HTML-Reproducer:                3 Tests vorbereitet
+Native tableHandling-Fassade:          4 Tests vorbereitet
+Veraltetes target-Binary:              realer Reject-Test bestanden
+Defektkatalog:                         83 Einträge, konsistent
+Vollständig native Dateien:            64/92 = 69,6 %
+Vollständig native Referenzzeilen:      29.297/48.831 = 60,0 %
+```
+
+Der exakte All-Spalten-HTML-Aufruf ist erneut Teil des kompilierten Tests. Der Renderer enthält weder in der normalen HTML-Escapierung noch in tag-erhaltenden Teilspannen einen rohen byteindizierten `StringSlice`. Source-only Aktualisierungen werden durch per-Binary-Source-IDs gegen liegengebliebene alte `target/`-Artefakte abgesichert.
+
 ## Testbestand
 
 ```text

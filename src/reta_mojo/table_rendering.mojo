@@ -310,12 +310,27 @@ def render_emacs_table(table: CsvTable) -> String:
 
 
 def _html_escape(text: String) -> String:
-    return (
-        text.replace("&", "&amp;")
-        .replace("<", "&lt;")
-        .replace(">", "&gt;")
-        .replace("\"", "&quot;")
-    )
+    """Escape HTML without any byte-indexed String slicing.
+
+    The Modular String runtime validates UTF-8 boundaries strictly.  Walking
+    code-point slices avoids both raw byte offsets and implementation-defined
+    ``String.replace`` internals when a cell contains umlauts, CJK text or
+    emoji before an escapable ASCII character.
+    """
+    var result = String()
+    for character in text.codepoint_slices():
+        var part = String(character)
+        if part == "&":
+            result += "&amp;"
+        elif part == "<":
+            result += "&lt;"
+        elif part == ">":
+            result += "&gt;"
+        elif part == "\"":
+            result += "&quot;"
+        else:
+            result += part
+    return result^
 
 
 def _html_ascii_letter(code: Int) -> Bool:
@@ -323,7 +338,31 @@ def _html_ascii_letter(code: Int) -> Bool:
 
 
 def _html_slice_bytes(text: String, start: Int, end: Int) -> String:
-    return String(StringSlice(text)[byte=start:end])
+    """Return a valid UTF-8 span without constructing a raw byte slice.
+
+    The HTML scanner records ASCII delimiter positions in bytes.  Those
+    positions should be code-point boundaries, but malformed or future input
+    must never turn a renderer into an illegal-instruction abort.  Rebuilding
+    the span from code-point slices preserves exact text for aligned offsets
+    and safely widens a mistakenly unaligned boundary to the containing
+    codepoint instead of trapping.
+    """
+    if end <= start or end <= 0:
+        return ""
+    var wanted_start = max(start, 0)
+    var result = String()
+    var byte_cursor = 0
+    for character in text.codepoint_slices():
+        var part = String(character)
+        var next_cursor = byte_cursor + part.byte_length()
+        if next_cursor <= wanted_start:
+            byte_cursor = next_cursor
+            continue
+        if byte_cursor >= end:
+            break
+        result += part
+        byte_cursor = next_cursor
+    return result^
 
 
 def _html_contains_deliberate_tag(text: String) -> Bool:

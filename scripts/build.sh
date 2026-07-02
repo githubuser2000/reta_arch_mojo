@@ -16,6 +16,7 @@ build() {
         -Xlinker -rpath -Xlinker "$MOJO_RUNTIME_RPATH" \
         -o "$TARGET_DIR/$output_name"
     python3 "$ROOT/tools/sanitize_mojo_runpath.py" "$TARGET_DIR/$output_name" >/dev/null
+    "$ROOT/scripts/stamp_mojo_binary.sh" "$TARGET_DIR/$output_name"
 }
 
 build src/main.mojo reta-mojo-native -I src

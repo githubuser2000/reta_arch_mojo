@@ -9,7 +9,7 @@ abgeschlossene Release-Stufen:       9 von 12 = 75,0 %
 Stufen 9/10/12:                       Ausgabe, Prompt/i18n und Releaseparität in Arbeit
 Stufe 11:                             11a–11j = 100 %
 Stufe 12:                             12a–12b fertig, 12c zu ca. 99,9 % = ca. 71,2 %
-vollständig nativ/generiert:          63 von 92 = 68,5 %
+vollständig nativ/generiert:          64 von 92 = 69,6 %
 mindestens teilweise portiert:       83 von 92 = 90,2 %
 angegriffene Referenzzeilen:          38.174 von 48.831 = 78,2 %
 funktionaler Nutzerumfang:            ca. 96–98 %
@@ -18,7 +18,7 @@ funktionaler Nutzerumfang:            ca. 96–98 %
 Die Metriken messen **orthogonale Bezugsgrößen** und sind nicht als ein einziges wechselndes Gesamtprozent zu lesen:
 
 - **96–98 % geschätzte Funktionsabdeckung**: Anteil der praktisch relevanten Befehls- und Verhaltensfamilien mit einem nativen Pfad. Der atomare Fallback ist nur eine Sicherheitsgrenze und wird nicht als transpiliert gezählt.
-- **68,5 % vollständiger Dateibesitz**: Nur Dateien, deren gesamter wirksamer Vertrag nativ oder reproduzierbar generiert ersetzt ist.
+- **69,6 % vollständiger Dateibesitz**: Nur Dateien, deren gesamter wirksamer Vertrag nativ oder reproduzierbar generiert ersetzt ist.
 - **78,2 % angegriffene Referenzzeilen**: maschinenberechneter Umfang vollständig und teilweise besessener Referenzdateien.
 - **83,3 % Stufenfortschritt**: gewichtete Releaseplanung; eine Stufe kann weit fortgeschritten sein, obwohl große historische Python-Besitzer noch sichtbar bleiben.
 
@@ -67,6 +67,8 @@ PYTHONHASHSEED=0 pypy3 reta -spalten --alles --breite=0 \
 `.venv/`, `.git/`, `target/` und Caches gehören nicht in Quellarchive. Für weitere Transpilierungsrunden ist `scripts/create_source_archive.sh <name>.tar.xz` der richtige Export; die vollständige Einteilung steht in [`PROJECT_CONTENT_PROFILES.md`](PROJECT_CONTENT_PROFILES.md). Brotli-Archive (`.tar.br`) werden ebenfalls unterstützt.
 
 Nach jedem Build entfernt `tools/sanitize_mojo_runpath.py` den von Mojo selbst ergänzten absoluten Compilerpfad aus dem ELF-RUNPATH. Ausgelieferte Programme enthalten damit nur `$ORIGIN/../lib/mojo` und bleiben zwischen Rechnern übertragbar.
+
+Source-only Archive enthalten bewusst kein `target/`. Jeder Build versieht sein ELF deshalb mit einer `*.reta-source-id`-Sidecar. `bin/mojo-runtime-exec` verweigert ein altes Binary aus einem früheren Archiv und fordert `scripts/build.sh` an, statt unbemerkt veralteten Code auszuführen.
 
 ### Installation der CSV- und Assetdaten
 

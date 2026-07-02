@@ -38,7 +38,7 @@ NATIVE = {
     "multis.py": ("nativ", "src/reta_mojo/arithmetic.mojo + prompt_runtime.mojo", "Faktorpaare und öffentliche multis-CLI nativ"),
     "multis3.py": ("nativ", "src/reta_mojo/arithmetic.mojo + prompt_runtime.mojo", "Dreifach-Faktorisierung nativ; deterministische lexikographische Ausgabe statt Set-Reihenfolge"),
     "libs/lib4tables_Enum.py": ("generiert nativ", "src/reta_mojo/tag_schema.mojo + tag_schema_catalog.mojo", "sieben Tagarten und vollständige Tabellen-Tag-Zuordnung"),
-    "libs/tableHandling.py": ("teilweise nativ", "src/reta_mojo/table_state.mojo + table_wrapping.mojo + output_modes.mojo", "deterministischer Tabellenzustand, Umbruch und Ausgabemodi; große Tabellenberechnung noch Bridge"),
+    "libs/tableHandling.py": ("nativ", "src/reta_mojo/legacy_table_handling.mojo + table_state.mojo + table_wrapping.mojo + output_modes.mojo", "vollständige 27-Namen-Kompatibilitätsfassade; explizites typisiertes Runtime-Bundle ersetzt Python-Modulglobale und delegiert Tabellenzustand, Wrapping, Ausgabesyntax, Zahlentheorie und Konsole ausschließlich an native Besitzer"),
     "grundStrukHtml.py": ("generiert nativ", "src/reta_mojo/grundstrukturen_html.mojo + grundstrukturen_catalog.mojo", "Renderer vollständig nativ; lokalisierter wahl15-Katalog reproduzierbar generiert und bytegleich"),
     "reta_architecture/number_theory.py": ("nativ", "src/reta_mojo/number_theory.mojo", "Kernfunktionen vollständig typisiert"),
     "reta_architecture/row_ranges.py": ("nativ", "src/reta_mojo/row_ranges.mojo", "legitime Bereichssyntax; eval bewusst entfernt"),

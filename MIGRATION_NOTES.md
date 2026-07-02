@@ -1086,3 +1086,12 @@ Die lokale Exportfilter-Kopie ist ein eigener Ownership-Fall: `.copy()` erzeugt 
 - `table_wrapping.mojo` besitzt nun die komplette Python-Oberfläche. `TextWrapRuntimeState` ersetzt `_RUNTIME`, sodass Mutationen und Lebensdauer sichtbar und testbar sind.
 - Externe Trennbibliotheken werden als Fähigkeiten modelliert. Ohne passende Capability bleibt der Python-kompatible unveränderte Ein-Element-Fallback erhalten; mit nativer Fähigkeit übernimmt der Codepoint-Wrapper.
 - Fortschritt: **63/92 vollständig**, **83/92 mindestens teilweise**, **38.174/48.831 angegriffene Referenzzeilen**, **29.229/48.831 vollständig native Referenzzeilen**.
+
+
+## Source-only Archive und veraltete Binaries
+
+Da Quellarchive `target/` absichtlich ausschließen, kann ein alter lokaler Build beim Entpacken bestehen bleiben. Ab Stage 12c5s erhält jedes gebaute ELF eine Source-ID. Der zentrale Runtime-Launcher vergleicht diese mit dem aktuellen Manifest und mit den Änderungszeiten unter `src/`; veralteter Code wird nicht mehr still gestartet.
+
+## UTF-8 im HTML-Renderer
+
+Byteindizes werden nur noch zum Erkennen der ASCII-HTML-Syntax verwendet. Das Materialisieren von Text erfolgt aus `codepoint_slices()`. Damit kann auch ein unerwartet nicht ausgerichteter Scanneroffset keinen `String slice ... not a codepoint boundary`-Assert mehr auslösen.

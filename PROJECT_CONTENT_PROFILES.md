@@ -68,3 +68,11 @@ regenerierbare Arbeitsverzeichnisse und gehören nicht in das Sourcearchiv. Pyth
 Entwicklungsquellen, Tests, Generatoren, Stage-Protokolle, `.venv` und lokale
 Buildverzeichnisse werden für die Benutzung der installierten Programme nicht
 gebraucht.
+
+## Nach dem Entpacken eines neueren Sourcearchivs
+
+`target/` bleibt lokal erhalten, gehört aber nicht zum Archiv. Deshalb kann es
+Binaries aus der vorherigen Stage enthalten. Die Source-ID-Prüfung verweigert
+deren Ausführung. Ein erneutes `scripts/build.sh` aktualisiert Programme und
+Sidecars; ein erneuter Upload des daraus entstehenden `target/` ist weiterhin
+nicht erforderlich.

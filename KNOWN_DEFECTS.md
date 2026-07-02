@@ -23,7 +23,7 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 
 ## Übersicht
 
-- Einträge insgesamt: **81**
+- Einträge insgesamt: **83**
 - offene bestätigte Python-Fehler: **5**
 - zu entscheidende Python-Fehlerkandidaten: **13**
 - bereits im Python-Baum behobene Fehler: **7**
@@ -1118,3 +1118,30 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 - Python-Orte: `python_reference/reta_architecture/morphisms.py:68-78`
 - Mojo-Orte: `src/reta_mojo/morphisms.mojo`, `tests/test_morphisms.mojo`, `tests/test_morphisms_complete.mojo`, `tests/test_morphisms_complete_source.py`
 - Belege: `STAGE12C5R_NATIVE_TABLE_WRAPPING_MORPHISM_OWNERSHIP.md`, `src/reta_mojo/morphisms.mojo`, `tests/test_morphisms_complete_source.py`
+
+### TEST-FIXED-021 – Source-only Aktualisierung startete unbemerkt ein altes target-Binary
+
+- Ursprung: `test_infrastructure`
+- Klasse / Schwere: `stale_binary_after_source_update` / `high`
+- Python-Status: `not_applicable`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5s`
+- Reproduktion: `Ein neues source-only Archiv über einen bestehenden Arbeitsbaum entpacken und anschließend bin/reta-native ohne erneuten scripts/build.sh-Aufruf starten; der Launcher bevorzugt das alte target/bin/reta-native und reproduziert bereits behobene Fehler.`
+- heutiger Vertrag: Jedes regulär oder schwer gebaute Mojo-Binary erhält eine Source-ID-Sidecard. Der zentrale Runtime-Launcher vergleicht sie mit SOURCE_MANIFEST.sha256 und prüft zusätzlich, ob src-Dateien neuer als das Binary sind. Veraltete oder unmarkierte target-Binaries werden mit einer eindeutigen Neubau-Anweisung abgewiesen.
+- spätere Python-Aktion: Keine Python-Referenzänderung erforderlich; der Befund betrifft ausschließlich inkrementelle Source-only-Updates und lokale Mojo-Buildartefakte.
+- Mojo-Orte: `bin/mojo-runtime-exec`, `scripts/current_source_id.sh`, `scripts/stamp_mojo_binary.sh`, `scripts/check_mojo_binary_freshness.sh`, `scripts/build.sh`, `scripts/build-heavy.sh`
+- Belege: `STAGE12C5S_STALE_BINARY_UTF8_TABLE_HANDLING.md`, `tests/test_stage12c5s_source.py`, `scripts/check_mojo_binary_freshness.sh`
+
+### MOJO-FIXED-038 – HTML-Escaper behielt einen rohen byteindizierten String-Slice
+
+- Ursprung: `mojo_port`
+- Klasse / Schwere: `utf8_html_escape_byte_slice_boundary` / `critical`
+- Python-Status: `correct_reference`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5s`
+- Reproduktion: `bin/reta-native -zeilen --vorhervonausschnitt=1 -spalten --alles -ausgabe --art=html oder die entsprechende --zeilen --alles-Variante ausführen; ein HTML-Zellpfad kann String slice starts on 17/20 which is not a codepoint boundary auslösen.`
+- heutiger Vertrag: HTML-Escaping und HTML-Teilspannrekonstruktion iterieren ausschließlich über codepoint_slices. Selbst versehentlich nicht ausgerichtete Bytepositionen werden auf vollständige Codepoints erweitert, statt einen Modular-Runtime-Assert oder illegal instruction auszulösen.
+- spätere Python-Aktion: Keine Python-Änderung erforderlich; Python-Strings und html.escape arbeiten bereits Unicode-sicher.
+- Python-Orte: `python_reference/reta_architecture/table_output.py`
+- Mojo-Orte: `src/reta_mojo/table_rendering.mojo`, `tests/test_native_reta_utf8_html.mojo`, `tests/test_stage12c5s_source.py`
+- Belege: `STAGE12C5S_STALE_BINARY_UTF8_TABLE_HANDLING.md`, `src/reta_mojo/table_rendering.mojo`, `tests/test_stage12c5s_source.py`

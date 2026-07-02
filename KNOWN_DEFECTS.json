@@ -1950,6 +1950,59 @@
         "src/reta_mojo/morphisms.mojo",
         "tests/test_morphisms_complete_source.py"
       ]
+    },
+    {
+      "id": "TEST-FIXED-021",
+      "title": "Source-only Aktualisierung startete unbemerkt ein altes target-Binary",
+      "origin": "test_infrastructure",
+      "classification": "stale_binary_after_source_update",
+      "severity": "high",
+      "python_status": "not_applicable",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5s",
+      "reproducer": "Ein neues source-only Archiv über einen bestehenden Arbeitsbaum entpacken und anschließend bin/reta-native ohne erneuten scripts/build.sh-Aufruf starten; der Launcher bevorzugt das alte target/bin/reta-native und reproduziert bereits behobene Fehler.",
+      "python_locations": [],
+      "mojo_locations": [
+        "bin/mojo-runtime-exec",
+        "scripts/current_source_id.sh",
+        "scripts/stamp_mojo_binary.sh",
+        "scripts/check_mojo_binary_freshness.sh",
+        "scripts/build.sh",
+        "scripts/build-heavy.sh"
+      ],
+      "current_contract": "Jedes regulär oder schwer gebaute Mojo-Binary erhält eine Source-ID-Sidecard. Der zentrale Runtime-Launcher vergleicht sie mit SOURCE_MANIFEST.sha256 und prüft zusätzlich, ob src-Dateien neuer als das Binary sind. Veraltete oder unmarkierte target-Binaries werden mit einer eindeutigen Neubau-Anweisung abgewiesen.",
+      "post_port_fix": "Keine Python-Referenzänderung erforderlich; der Befund betrifft ausschließlich inkrementelle Source-only-Updates und lokale Mojo-Buildartefakte.",
+      "evidence": [
+        "STAGE12C5S_STALE_BINARY_UTF8_TABLE_HANDLING.md",
+        "tests/test_stage12c5s_source.py",
+        "scripts/check_mojo_binary_freshness.sh"
+      ]
+    },
+    {
+      "id": "MOJO-FIXED-038",
+      "title": "HTML-Escaper behielt einen rohen byteindizierten String-Slice",
+      "origin": "mojo_port",
+      "classification": "utf8_html_escape_byte_slice_boundary",
+      "severity": "critical",
+      "python_status": "correct_reference",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5s",
+      "reproducer": "bin/reta-native -zeilen --vorhervonausschnitt=1 -spalten --alles -ausgabe --art=html oder die entsprechende --zeilen --alles-Variante ausführen; ein HTML-Zellpfad kann String slice starts on 17/20 which is not a codepoint boundary auslösen.",
+      "python_locations": [
+        "python_reference/reta_architecture/table_output.py"
+      ],
+      "mojo_locations": [
+        "src/reta_mojo/table_rendering.mojo",
+        "tests/test_native_reta_utf8_html.mojo",
+        "tests/test_stage12c5s_source.py"
+      ],
+      "current_contract": "HTML-Escaping und HTML-Teilspannrekonstruktion iterieren ausschließlich über codepoint_slices. Selbst versehentlich nicht ausgerichtete Bytepositionen werden auf vollständige Codepoints erweitert, statt einen Modular-Runtime-Assert oder illegal instruction auszulösen.",
+      "post_port_fix": "Keine Python-Änderung erforderlich; Python-Strings und html.escape arbeiten bereits Unicode-sicher.",
+      "evidence": [
+        "STAGE12C5S_STALE_BINARY_UTF8_TABLE_HANDLING.md",
+        "src/reta_mojo/table_rendering.mojo",
+        "tests/test_stage12c5s_source.py"
+      ]
     }
   ],
   "audit": {
