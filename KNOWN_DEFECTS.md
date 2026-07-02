@@ -18,12 +18,12 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 ## Rückwirkender Audit
 
 - letzter vollständiger Rückwärtsaudit: `12c4s`
-- geprüfte Quellen: **20**
-- Reichweite: Vollständig bezogen auf alle bis Stage 12c5c im Projekt bestätigten oder plausibel begründeten verhaltensrelevanten Befunde; unbekannte künftige Fehler können naturgemäß erst nach ihrer Entdeckung aufgenommen werden.
+- geprüfte Quellen: **21**
+- Reichweite: Vollständig bezogen auf alle bis Stage 12c5d im Projekt bestätigten oder plausibel begründeten verhaltensrelevanten Befunde; unbekannte künftige Fehler können naturgemäß erst nach ihrer Entdeckung aufgenommen werden.
 
 ## Übersicht
 
-- Einträge insgesamt: **61**
+- Einträge insgesamt: **62**
 - offene bestätigte Python-Fehler: **5**
 - zu entscheidende Python-Fehlerkandidaten: **11**
 - bereits im Python-Baum behobene Fehler: **3**
@@ -845,3 +845,17 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 - Python-Orte: `python_reference/reta_architecture/package_integrity.py:91-92`, `python_reference/reta_architecture/package_integrity.py:122-132`
 - Mojo-Orte: `src/reta_mojo/package_integrity.mojo`, `tests/test_package_integrity.mojo`, `scripts/check_package_integrity_parity.py`
 - Belege: `STAGE12C5C_NATIVE_PACKAGE_INTEGRITY_SPLIT_I18N.md`, `scripts/check_package_integrity_parity.py`, `tests/test_package_integrity.mojo`
+
+### MOJO-FIXED-028 – Native Ziffernerkennung der Center-Fassade erkannte nur ASCII statt Python-isDigit
+
+- Ursprung: `mojo_port`
+- Klasse / Schwere: `unicode_digit_classification_gap` / `medium`
+- Python-Status: `correct_reference`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5d`
+- Reproduktion: `Python center.textHatZiffer('abc٢'), center.textHatZiffer('abc²') und center.textHatZiffer('abc⑵') mit dem bisherigen nativen arithmetic.has_digit vergleichen; Python liefert jeweils True, der alte Mojo-Helfer nur für ASCII-Ziffern.`
+- heutiger Vertrag: Die native Center-Fassade verwendet einen eingefrorenen, reproduzierbaren Python-str.isdigit-Vertrag mit 808 Codepoints in 83 Bereichen. ASCII-, arabisch-indische, hochgestellte und eingekreiste Ziffern werden wie Python erkannt; Nichtziffern wie das chinesische Zahlzeichen 四 bleiben false.
+- spätere Python-Aktion: Keine Python-Änderung erforderlich. Bei einer späteren Aktualisierung der Python-Unicode-Datenbank den TSV-Snapshot bewusst regenerieren, die Vertragsänderung prüfen und Python sowie Mojo gemeinsam testen.
+- Python-Orte: `python_reference/libs/center.py:311-313`, `python_reference/reta_architecture/arithmetic.py:140-145`
+- Mojo-Orte: `src/reta_mojo/legacy_center.mojo`, `src/reta_mojo/unicode_digits.mojo`, `assets/unicode_digit_ranges.tsv`, `tools/generate_unicode_digits.py`
+- Belege: `STAGE12C5D_NATIVE_LEGACY_FACADES.md`, `tests/test_legacy_center.mojo`, `tests/test_legacy_facades_source.py`, `scripts/check_legacy_facades_parity.py`

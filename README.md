@@ -8,19 +8,19 @@ Dies ist ein inkrementeller, getesteter Port des hochgeladenen Python-Projekts `
 abgeschlossene Release-Stufen:       9 von 12 = 75,0 %
 Stufen 9/10/12:                       Ausgabe, Prompt/i18n und Releaseparität in Arbeit
 Stufe 11:                             11a–11j = 100 %
-Stufe 12:                             12a–12b fertig, 12c zu ca. 99,9 % = ca. 67,7 %
-vollständig native Originaldateien:  49 von 92 = 53,3 %
-mindestens teilweise portiert:       80 von 92 = 87,0 %
-gewichteter Quellzeilenstand:         ca. 71,2 %
+Stufe 12:                             12a–12b fertig, 12c zu ca. 99,9 % = ca. 67,8 %
+vollständig native Originaldateien:  51 von 92 = 55,4 %
+mindestens teilweise portiert:       82 von 92 = 89,1 %
+gewichteter Quellzeilenstand:         ca. 72,0 %
 funktionaler Nutzerumfang:            ca. 96–98 %
 ```
 
 Die Metriken messen **orthogonale Bezugsgrößen** und sind nicht als ein einziges wechselndes Gesamtprozent zu lesen:
 
 - **96–98 % geschätzte Funktionsabdeckung**: Anteil der praktisch relevanten Befehls- und Verhaltensfamilien mit einem nativen Pfad. Der atomare Fallback ist nur eine Sicherheitsgrenze und wird nicht als transpiliert gezählt.
-- **53,3 % vollständiger Dateibesitz**: Nur Dateien, deren gesamter wirksamer Vertrag nativ oder reproduzierbar generiert ersetzt ist.
-- **71,2 % gewichteter Quellzeilenstand**: konservative Schätzung auch für große Teilports.
-- **82,2 % Stufenfortschritt**: gewichtete Releaseplanung; eine Stufe kann weit fortgeschritten sein, obwohl große historische Python-Besitzer noch sichtbar bleiben.
+- **55,4 % vollständiger Dateibesitz**: Nur Dateien, deren gesamter wirksamer Vertrag nativ oder reproduzierbar generiert ersetzt ist.
+- **72,0 % gewichteter Quellzeilenstand**: konservative Schätzung auch für große Teilports.
+- **82,3 % Stufenfortschritt**: gewichtete Releaseplanung; eine Stufe kann weit fortgeschritten sein, obwohl große historische Python-Besitzer noch sichtbar bleiben.
 
 Der Port ist daher nicht von über 90 % auf rund 56 % zurückgefallen. Die frühere Zahl bezeichnete die Funktionsoberfläche, die strengere Zahl den Quellersatz. Der vollständige Plan steht in [`ROADMAP.md`](ROADMAP.md).
 
@@ -83,7 +83,7 @@ historische Projektstruktur ohne Datenkopie. Details:
 
 ## Stufen 7–10: Generatoren, Kombinationen, Markup und Prompt
 
-Stage 12c5c portiert den vollständigen Quellbaum-Integritätsvertrag mit binärem SHA-256, Pflichtpfaden, Laufzeitartefakten, CSV-Zeilenzählung und einer installierbaren Diagnose-CLI. Zugleich ersetzt eine typisierte Split-i18n-Fassade den dynamischen `SimpleNamespace`-Merge; Details: [`STAGE12C5C_NATIVE_PACKAGE_INTEGRITY_SPLIT_I18N.md`](STAGE12C5C_NATIVE_PACKAGE_INTEGRITY_SPLIT_I18N.md). Stage 12c5a aktiviert einen eigenen nativen Besitzer für die produktive Prompt-Interaktionsschleife, Speicher-/Löschmodi, One-shots und Previous-Command-Policy; Details: [`STAGE12C5A_NATIVE_PROMPT_INTERACTION.md`](STAGE12C5A_NATIVE_PROMPT_INTERACTION.md). Stage 12c4z macht `generate_html` zu einem FHS-fähigen Unix-Kommando mit atomarer Dateiausgabe, expliziter Mitteltabelle, Manpage und wiederverwendbarer vollständiger Python-Referenz; Details: [`STAGE12C4Z_PROFESSIONAL_GENERATE_HTML.md`](STAGE12C4Z_PROFESSIONAL_GENERATE_HTML.md). Stage 12c4y gibt der produktiven Spalten-, Zeilen-, Breiten-, Ausgabe- und Obergrenzenplanung einen eigenständigen typisierten Besitzer und ergänzt wiederverwendbare vollständige `--alles`-Referenzpakete; Details: [`STAGE12C4Y_NATIVE_PARAMETER_RUNTIME.md`](STAGE12C4Y_NATIVE_PARAMETER_RUNTIME.md). Stage 12c4x übernimmt den vollständigen fünfsprachigen `i18n.words`-Split als nativen Baumkatalog; Details: [`STAGE12C4X_NATIVE_I18N_WORDS.md`](STAGE12C4X_NATIVE_I18N_WORDS.md). Stage 12c4w ergänzt die native Prompt-Vorbereitung und das vollständige semantische `--alles`-Gate; Details: [`STAGE12C4W_NATIVE_PROMPT_PREPARATION_FULL_ALL.md`](STAGE12C4W_NATIVE_PROMPT_PREPARATION_FULL_ALL.md). Stage 12c4v besitzt Prompt-Sitzung und Prompt-Runtime vollständig nativ beziehungsweise reproduzierbar generiert; Details: [`STAGE12C4V_NATIVE_PROMPT_SESSION_RUNTIME.md`](STAGE12C4V_NATIVE_PROMPT_SESSION_RUNTIME.md).
+Stage 12c5d schließt die beiden historischen Kompatibilitätsfassaden `libs/center.py` und `libs/lib4tables.py`. 27 aktive Center-Wrapper, die vollständige 18-Namen-Tabellenhilfeoberfläche, vier reproduzierbare Hilfetexte und der Python-`str.isdigit()`-Vertrag mit 808 Codepoints sind nun typisiert nativ; Details: [`STAGE12C5D_NATIVE_LEGACY_FACADES.md`](STAGE12C5D_NATIVE_LEGACY_FACADES.md). Stage 12c5c portiert den vollständigen Quellbaum-Integritätsvertrag mit binärem SHA-256, Pflichtpfaden, Laufzeitartefakten, CSV-Zeilenzählung und einer installierbaren Diagnose-CLI. Zugleich ersetzt eine typisierte Split-i18n-Fassade den dynamischen `SimpleNamespace`-Merge; Details: [`STAGE12C5C_NATIVE_PACKAGE_INTEGRITY_SPLIT_I18N.md`](STAGE12C5C_NATIVE_PACKAGE_INTEGRITY_SPLIT_I18N.md). Stage 12c5a aktiviert einen eigenen nativen Besitzer für die produktive Prompt-Interaktionsschleife, Speicher-/Löschmodi, One-shots und Previous-Command-Policy; Details: [`STAGE12C5A_NATIVE_PROMPT_INTERACTION.md`](STAGE12C5A_NATIVE_PROMPT_INTERACTION.md). Stage 12c4z macht `generate_html` zu einem FHS-fähigen Unix-Kommando mit atomarer Dateiausgabe, expliziter Mitteltabelle, Manpage und wiederverwendbarer vollständiger Python-Referenz; Details: [`STAGE12C4Z_PROFESSIONAL_GENERATE_HTML.md`](STAGE12C4Z_PROFESSIONAL_GENERATE_HTML.md). Stage 12c4y gibt der produktiven Spalten-, Zeilen-, Breiten-, Ausgabe- und Obergrenzenplanung einen eigenständigen typisierten Besitzer und ergänzt wiederverwendbare vollständige `--alles`-Referenzpakete; Details: [`STAGE12C4Y_NATIVE_PARAMETER_RUNTIME.md`](STAGE12C4Y_NATIVE_PARAMETER_RUNTIME.md). Stage 12c4x übernimmt den vollständigen fünfsprachigen `i18n.words`-Split als nativen Baumkatalog; Details: [`STAGE12C4X_NATIVE_I18N_WORDS.md`](STAGE12C4X_NATIVE_I18N_WORDS.md). Stage 12c4w ergänzt die native Prompt-Vorbereitung und das vollständige semantische `--alles`-Gate; Details: [`STAGE12C4W_NATIVE_PROMPT_PREPARATION_FULL_ALL.md`](STAGE12C4W_NATIVE_PROMPT_PREPARATION_FULL_ALL.md). Stage 12c4v besitzt Prompt-Sitzung und Prompt-Runtime vollständig nativ beziehungsweise reproduzierbar generiert; Details: [`STAGE12C4V_NATIVE_PROMPT_SESSION_RUNTIME.md`](STAGE12C4V_NATIVE_PROMPT_SESSION_RUNTIME.md).
 
 ### Native normale Reta-Syntax
 

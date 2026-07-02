@@ -9,6 +9,8 @@ PYROOT = ROOT / "python_reference"
 OUT = ROOT / "PORTING_MATRIX.md"
 
 NATIVE = {
+    "libs/center.py": ("nativ", "src/reta_mojo/legacy_center.mojo + unicode_digits.mojo", "27 aktive Legacy-Wrapper über Zeilenbereiche, Arithmetik, Konsole, Hilfe, Terminalgeometrie und nPm-Gruppen vollständig typisiert; Python-kompatible Unicode-isDigit-Tabelle reproduzierbar eingefroren"),
+    "libs/lib4tables.py": ("nativ", "src/reta_mojo/legacy_lib4tables.mojo + output_modes.mojo + number_theory.mojo", "vollständige 18-Namen-Reexportoberfläche über native Ausgabesyntax und Zahlentheorie; dynamischer Listenrückweg von isPrimMultiple als typisierte Zusatzfunktion"),
     "reta_architecture/package_integrity.py": ("nativ", "src/reta_mojo/package_integrity.mojo + src/package_integrity_main.mojo", "binärer SHA-256-Baumscan, Pflichtpfade, Runtime-Artefakte, Symlinkdateien und Python-kompatible CSV-Zeilenzählung vollständig nativ"),
     "reta_architecture/split_i18n.py": ("nativ", "src/reta_mojo/split_i18n.mojo + i18n_words.mojo", "dynamische SimpleNamespace-Fassade durch typisierten Katalogproxy mit identischer Modulreihenfolge und Later-wins-Auflösung ersetzt"),
     "i18n/words.py": ("generiert nativ", "src/reta_mojo/i18n_words.mojo + assets/i18n_words/*.tsv", "aktive fünfsprachige Fassade als reproduzierbarer typisierter Baumkatalog"),

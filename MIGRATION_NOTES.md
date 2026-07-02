@@ -934,3 +934,14 @@ Validiert wurden 3/3 Runtime-Tests, 5/5 Zustandsmaschinentests, 12/12 bestehende
 - `PY-CAND-011` erfasst die historische `lstrip("./")`-Dotfile-Kollision. Mojo reproduziert sie bis zur späteren kontrollierten Python-/Manifestmigration.
 - Vollständiger Dateibesitz: **49/92 = 53,3 %**; mindestens teilweise: **80/92 = 87,0 %**; gewichteter Quellersatz: **ca. 71,2 %**.
 
+
+## Stage 12c5d – vollständige Legacy-Fassaden `center` und `lib4tables`
+
+- `src/reta_mojo/legacy_center.mojo` übernimmt alle 27 aktiven Wrapper aus `libs/center.py` und die historischen nPm-Gruppen.
+- `src/reta_mojo/legacy_lib4tables.mojo` übernimmt die vollständige 18-Namen-Reexportoberfläche über native Ausgabemodi und Zahlentheorie.
+- Der dynamische Python-Listenrückweg von `isPrimMultiple` ist als `isPrimMultipleMatches` explizit typisiert.
+- Hilfeausgaben werden mit `tools/generate_legacy_help_assets.py` reproduzierbar aus den eingefrorenen Markdowndokumenten erzeugt.
+- `tools/generate_unicode_digits.py` erzeugt aus einem TSV-Snapshot 83 Python-`str.isdigit()`-Bereiche mit 808 Codepoints; damit ist `MOJO-FIXED-028` geschlossen.
+- `PY-OPEN-003` bleibt die einzige erwartete Differenz im gemeinsamen Fassadenprobe: Mojo bewahrt bei der Dictionary-Invertierung alle Quellschlüssel.
+- Neue native Modultests: **12/12**; angrenzende fokussierte Regressionen: **26/26**; Fassaden-/Hilfetextparität: **5/5**; Source-/Ownership-/Boundary-/Archivtests: **15/15**.
+- Vollständiger Dateibesitz: **51/92 = 55,4 %**; mindestens teilweise: **82/92 = 89,1 %**; gewichteter Quellersatz: **ca. 72,0 %**.

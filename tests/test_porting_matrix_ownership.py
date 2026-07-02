@@ -10,6 +10,8 @@ GENERATOR = ROOT / "tools/generate_porting_matrix.py"
 MATRIX = ROOT / "PORTING_MATRIX.md"
 
 EXPECTED = {
+    "libs/center.py": "nativ",
+    "libs/lib4tables.py": "nativ",
     "i18n/words.py": "generiert nativ",
     "i18n/words_bootstrap.py": "generiert nativ",
     "i18n/words_context.py": "generiert nativ",

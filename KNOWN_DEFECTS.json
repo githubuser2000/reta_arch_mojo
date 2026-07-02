@@ -1423,6 +1423,35 @@
         "scripts/check_package_integrity_parity.py",
         "tests/test_package_integrity.mojo"
       ]
+    },
+    {
+      "id": "MOJO-FIXED-028",
+      "title": "Native Ziffernerkennung der Center-Fassade erkannte nur ASCII statt Python-isDigit",
+      "origin": "mojo_port",
+      "classification": "unicode_digit_classification_gap",
+      "severity": "medium",
+      "python_status": "correct_reference",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5d",
+      "reproducer": "Python center.textHatZiffer('abc٢'), center.textHatZiffer('abc²') und center.textHatZiffer('abc⑵') mit dem bisherigen nativen arithmetic.has_digit vergleichen; Python liefert jeweils True, der alte Mojo-Helfer nur für ASCII-Ziffern.",
+      "python_locations": [
+        "python_reference/libs/center.py:311-313",
+        "python_reference/reta_architecture/arithmetic.py:140-145"
+      ],
+      "mojo_locations": [
+        "src/reta_mojo/legacy_center.mojo",
+        "src/reta_mojo/unicode_digits.mojo",
+        "assets/unicode_digit_ranges.tsv",
+        "tools/generate_unicode_digits.py"
+      ],
+      "current_contract": "Die native Center-Fassade verwendet einen eingefrorenen, reproduzierbaren Python-str.isdigit-Vertrag mit 808 Codepoints in 83 Bereichen. ASCII-, arabisch-indische, hochgestellte und eingekreiste Ziffern werden wie Python erkannt; Nichtziffern wie das chinesische Zahlzeichen 四 bleiben false.",
+      "post_port_fix": "Keine Python-Änderung erforderlich. Bei einer späteren Aktualisierung der Python-Unicode-Datenbank den TSV-Snapshot bewusst regenerieren, die Vertragsänderung prüfen und Python sowie Mojo gemeinsam testen.",
+      "evidence": [
+        "STAGE12C5D_NATIVE_LEGACY_FACADES.md",
+        "tests/test_legacy_center.mojo",
+        "tests/test_legacy_facades_source.py",
+        "scripts/check_legacy_facades_parity.py"
+      ]
     }
   ],
   "audit": {
@@ -1447,8 +1476,9 @@
       "STAGE12C4Y_NATIVE_PARAMETER_RUNTIME.md",
       "STAGE12C4Z_PROFESSIONAL_GENERATE_HTML.md",
       "STAGE12C5B_NATIVE_PROMPT_LANGUAGE_PYPY3.md",
-      "STAGE12C5C_NATIVE_PACKAGE_INTEGRITY_SPLIT_I18N.md"
+      "STAGE12C5C_NATIVE_PACKAGE_INTEGRITY_SPLIT_I18N.md",
+      "STAGE12C5D_NATIVE_LEGACY_FACADES.md"
     ],
-    "scope_note": "Vollständig bezogen auf alle bis Stage 12c5c im Projekt bestätigten oder plausibel begründeten verhaltensrelevanten Befunde; unbekannte künftige Fehler können naturgemäß erst nach ihrer Entdeckung aufgenommen werden."
+    "scope_note": "Vollständig bezogen auf alle bis Stage 12c5d im Projekt bestätigten oder plausibel begründeten verhaltensrelevanten Befunde; unbekannte künftige Fehler können naturgemäß erst nach ihrer Entdeckung aufgenommen werden."
   }
 }

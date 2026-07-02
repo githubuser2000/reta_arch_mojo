@@ -2,14 +2,14 @@
 
 Geplanter Umfang: **12 Release-Stufen**. Eine Stufe zählt erst als abgeschlossen, wenn Quellcode, Referenztests, Compilerziele, Dokumentation und ein source-only Archiv gemeinsam geprüft sind.
 
-## Fortschrittsmaße nach Stage 12c5c
+## Fortschrittsmaße nach Stage 12c5d
 
 | Maß | Stand | Aussage |
 |---|---:|---|
-| abgeschlossene Release-Stufen | **9/12 = 75,0 %** | Stufen 1–8 und 11 sind abgeschlossen; Stufe 12 ist mit 12a, 12b, 12c1–12c3 und 12c4a–12c5c zu etwa 67,8 % abgeschlossen, während 9 und 10 noch Restpfade besitzen |
-| vollständig native oder generierte Python-Dateien | **49/92 = 53,3 %** | Datei vollständig ersetzt oder als reproduzierbares Laufzeitasset abgebildet |
-| mindestens angegriffene Python-Dateien | **80/92 = 87,0 %** | vollständig oder teilweise nativ |
-| gewichtete Quellzeilen | **ca. 71,2 %** | konservative Schätzung unter Berücksichtigung der großen Teilports |
+| abgeschlossene Release-Stufen | **9/12 = 75,0 %** | Stufen 1–8 und 11 sind abgeschlossen; Stufe 12 ist mit 12a, 12b, 12c1–12c3 und 12c4a–12c5d zu etwa 67,8 % abgeschlossen, während 9 und 10 noch Restpfade besitzen |
+| vollständig native oder generierte Python-Dateien | **51/92 = 55,4 %** | Datei vollständig ersetzt oder als reproduzierbares Laufzeitasset abgebildet |
+| mindestens angegriffene Python-Dateien | **82/92 = 89,1 %** | vollständig oder teilweise nativ |
+| gewichtete Quellzeilen | **ca. 72,0 %** | konservative Schätzung unter Berücksichtigung der großen Teilports |
 | funktionaler Nutzerumfang | **ca. 96–98 %** | praktisch nutzbarer Reta-Umfang ohne Python-Algorithmus |
 
 Die Stufenquote ist höher als die Quellzeilenquote, weil die letzten Stufen besonders große dynamische Module bündeln: vollständige Ausgabeaufbereitung, Prompt-Sprache, i18n-Matrix, Architekturvalidierung und Parallelisierung.
@@ -315,3 +315,11 @@ Die Zahl **12** ist die geplante Releasegliederung. Interne Teilpakete oder Fehl
 - `PY-CAND-007` hält fest, dass prompt_toolkits Standardregex deutsche Wörter
   an ASCII-/Unicode-Grenzen trennt. Mojo konserviert dies bis zur gemeinsamen
   Python-/Mojo-Bereinigung.
+
+## Stage 12c5d – native Legacy-Fassaden
+
+- `libs/center.py` und `libs/lib4tables.py` wechseln auf vollständigen nativen Besitz.
+- 27 Center-Funktionen, sechs nPm-Gruppen und 18 öffentliche Tabellenhilfe-Reexports sind typisiert abgebildet.
+- Vier Hilfeassets und 83 Unicode-Ziffernbereiche werden reproduzierbar aus eingefrorenen Quellen erzeugt.
+- `MOJO-FIXED-028` korrigiert die bisherige ASCII-only-Ziffernerkennung.
+- Stand: **51/92 vollständig**, **82/92 mindestens teilweise**, **ca. 72,0 % gewichtete Quellzeilen**.

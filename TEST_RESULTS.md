@@ -1531,3 +1531,24 @@ Unicode-Zeilentrenner und die historische `.hidden`/`hidden`-Kollision, ohne
 verbotene Artefakte in das Sourcearchiv aufzunehmen. Der Scanner startet weder
 Shell- noch Python-Hilfsprozesse.
 
+
+## Stage 12c5d – Legacy-Fassaden
+
+```text
+native Center-Fassade:                    8/8
+native lib4tables-Fassade:                4/4
+Python↔Mojo-Fassaden-/Hilfetextparität:    5/5
+Unicode-Ziffernkatalog:                   83 Bereiche / 808 Codepoints
+Hilfeasset-Reproduktion:                  4/4
+angrenzende fokussierte native Tests:     26/26
+Source-/Ownership-/Boundary-/Archivtests: 15/15
+Defektkatalog:                            62 konsistent
+Python-Bereinigungspunkte:                17
+aktive std.python-Brücken:                0
+```
+
+Der bestehende monolithische `test_number_theory.mojo` überschritt in dieser
+Sandbox beim Linken das Gesamtlimit, ohne vorher eine Compilerdiagnose zu
+melden. Er wird deshalb nicht als bestanden behauptet. Die von Stage 12c5d
+verwendeten Zahlentheoriepfade sind in `test_legacy_lib4tables.mojo` und dem
+gemeinsamen Python↔Mojo-Probeprozess fokussiert geprüft.
