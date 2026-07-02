@@ -21,7 +21,7 @@ reta-mojo-parallel-execution  reta-mojo-row-preparation
 reta-mojo-i18n          reta-mojo-semantics
 reta-mojo-exports       reta-mojo-facade
 reta-mojo-workflow      reta-mojo-domain-probe
-generate4readme
+reta-extract-html-classes generate4readme
 ```
 
 ## `bin/` gegenüber `target/bin/`
@@ -39,7 +39,7 @@ Kurzzuordnung:
 - `bin/reta-mojo-compat`: expliziter Übergangsname für denselben native-first Kompatibilitätskern, den `bin/reta` normalerweise startet;
 - `bin/rp`, `rpl`, `rpb`, `rpe`, `retaPrompt*`: Symlinks/Profile desselben nativen Promptprogramms;
 - `bin/prim`, `prim24`, `multis`, `multis3`, `modulo`, `math`: Komfortstarter mit vorbereiteten Promptbefehlen;
-- `bin/grundStrukHtml`, `generate_html`, `generate4readme`: HTML-/README-Werkzeuge;
+- `bin/grundStrukHtml`, `generate_html`, `generate4readme`, `reta-extract-html-classes`: HTML-/README-/Metadatenwerkzeuge;
 - `bin/reta-mojo-*`: Architektur-, Prüf-, Persistenz- und Parallelisierungswerkzeuge;
 - `bin/mojo-real`: Auswahl des echten Modular-Mojo-Compilers;
 - `bin/mojo-runtime-exec`: startet kompilierte Mojo-ELF-Dateien mit der lokal erkannten Runtime, auch wenn ihr älterer absoluter `RUNPATH` von einem anderen Rechner stammt.
@@ -77,11 +77,11 @@ enthält nur die öffentlichen relativen Launcher-Symlinks.
 Die **kompilierten ELF-Dateien** werden nicht direkt nach `/usr/bin`, sondern
 nach `/usr/lib/reta/target/bin` installiert. Autoritativ ist
 `scripts/install_targets.txt`. Sind beide Buildskripte vollständig gelaufen,
-sind es genau **35** Ziele:
+sind es genau **36** Ziele:
 
 ```text
 generate-html-native              generate-readme-native
-grundStrukHtml-native
+reta-extract-html-classes-native   grundStrukHtml-native
 reta-mojo-combi-join              reta-mojo-domain-probe
 reta-mojo-compat-bin
 reta-mojo-exports                 reta-mojo-facade
@@ -102,12 +102,12 @@ reta-mojo-semantics               reta-mojo-traces
 reta-mojo-validation              reta-mojo-witnesses
 ```
 
-Die ersten 17 stammen aus `scripts/build.sh`; die letzten 18 sind optionale
+Die ersten 18 stammen aus `scripts/build.sh`; die letzten 18 sind optionale
 schwere Ziele aus `scripts/build-heavy.sh`. Nicht gebaute optionale Ziele werden
 übersprungen. Andere Dateien in `target/bin`, insbesondere lokale Debug- oder
 Altvarianten wie `reta-native-o0`, werden ausdrücklich **nicht** installiert.
 
-`/usr/bin` enthält demgegenüber **47 öffentliche Namen als relative Symlinks**
+`/usr/bin` enthält demgegenüber **49 öffentliche Namen als relative Symlinks**
 auf Launcher unter `/usr/lib/reta/bin`; darunter sind Komfortnamen und Profile,
 also nicht 47 verschiedene ELFs. Die zwei internen Helfer `mojo-real` und
 `mojo-runtime-exec` bleiben nur privat unter `/usr/lib/reta/bin`. Standardmäßig
@@ -209,6 +209,7 @@ zu einem einzigen Releasebinary `target/bin/reta` zusammengeführt werden.
 ./bin/reta-mojo-workflow --load-religion plain 1024
 ./bin/reta-mojo-domain-probe pair religionen sternpolygon
 ./bin/reta-mojo-domain-probe reverse 4
+./bin/reta-extract-html-classes htmlclassesPy.jsonl
 ./bin/reta-mojo-package-integrity --summary python_reference
 ./bin/reta-mojo-package-integrity --json-files python_reference
 ./bin/reta-mojo-semantics --normal
@@ -232,6 +233,7 @@ zu einem einzigen Releasebinary `target/bin/reta` zusammengeführt werden.
 | Architektur-Kompositionsfassade | `target/bin/reta-mojo-facade` | 45 Felder, 49 Methoden, 45 Bootstrap-Schritte, 44 Rebuild-Einstiege, 98 Abhängigkeitskanten und 48 Snapshot-Einträge als reproduzierbarer nativer Graph; heterogene Laufzeitobjekte bleiben bis zur Portierung ihrer Besitzer teilweise nativ |
 | Program-Workflow-Kern | `target/bin/reta-mojo-workflow` | geordneter 4-Felder-/11-Methoden-/12-Schritte-Vertrag; Religion-CSV, Zellendekodierung, native Threadzeilen, Sprachspaltenersatz, Flag-Reset und Kombi-Zweigplanung nativ; heterogene Legacy-Program-Aggregation noch teilweise nativ |
 | Domain-Probe-Kern | `target/bin/reta-mojo-domain-probe` | neun Alias-/Paar-/Spalten-/JSON-Befehle direkt über native Schema- und Parametersemantik; HTML-, Schema- und Architektur-Snapshots bleiben Referenzgrenze |
+| HTML-Klassenextraktion | `target/bin/reta-extract-html-classes-native` | erzeugt die einzeilige All-Spalten-HTML-Tabelle nativ, analysiert doppelte Attribute/Klassen und schreibt 15-Feld-JSONL ohne Python, Regex oder Unterprozess |
 | Quellbaum-Integrität | `target/bin/reta-mojo-package-integrity` | reguläre Dateien und Dateisymlinks, Runtime-Filter, 74 Pflichtpfade, CSV-Zeilen und binärer SHA-256-Gesamtdigest vollständig nativ; native Linux/POSIX-Verzeichnis-FFI und OpenSSL als Systemgrenzen |
 | Parametersemantik | `target/bin/reta-mojo-semantics` | 431-Familien-Katalog, 4.155 Parameterpaare, 14 Datenslots, Normal-/Inversionsmodus und vollständiger UTF-8-Inhaltsfingerabdruck nativ; Python nur zur reproduzierbaren Katalogregeneration |
 | Architekturkarte und Kapselgrenzen | `target/bin/reta-mojo-architecture`, `target/bin/reta-mojo-boundaries` | generierte Metadaten und Abfragen nativ; Python-AST-Scan nur bei Regeneration |

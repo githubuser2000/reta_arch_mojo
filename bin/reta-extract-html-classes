@@ -1,0 +1,14 @@
+#!/usr/bin/env sh
+set -eu
+SELF=$0
+if command -v readlink >/dev/null 2>&1; then
+    SELF=$(readlink -f "$0" 2>/dev/null || printf '%s' "$0")
+fi
+ROOT=$(CDPATH= cd -- "$(dirname -- "$SELF")/.." && pwd)
+TARGET=${RETA_HTML_CLASS_EXTRACTOR_BINARY:-"$ROOT/target/bin/reta-extract-html-classes-native"}
+if [ ! -x "$TARGET" ]; then
+    printf '%s\n' "Fehlendes Compilerziel: $TARGET" >&2
+    printf '%s\n' 'Baue es mit scripts/build.sh.' >&2
+    exit 127
+fi
+exec "$ROOT/bin/mojo-runtime-exec" "$TARGET" "$@"

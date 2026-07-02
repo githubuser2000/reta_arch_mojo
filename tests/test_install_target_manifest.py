@@ -25,6 +25,7 @@ REGULAR = {
     "grundStrukHtml-native",
     "generate-html-native",
     "generate-readme-native",
+    "reta-extract-html-classes-native",
 }
 HEAVY = {
     "reta-mojo-semantics",
@@ -58,7 +59,7 @@ def _manifest_names() -> list[str]:
 
 def test_manifest_is_complete_unique_and_excludes_stale_debug_targets() -> None:
     names = _manifest_names()
-    assert len(names) == len(set(names)) == 35
+    assert len(names) == len(set(names)) == 36
     assert set(names) == REGULAR | HEAVY
     assert "reta-native-o0" not in names
 

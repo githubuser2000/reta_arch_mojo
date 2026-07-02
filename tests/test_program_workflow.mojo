@@ -83,6 +83,9 @@ def test_program_workflow_loads_and_pads_religion_table() raises:
     assert_true(loaded.rows_len > 0)
     assert_equal(loaded.output_kind, "plain")
     assert_equal(loaded.stats.mode, "serial")
+    assert_equal(loaded.table.rows[1][1], "한글 中文 Việt")
+    assert_equal(loaded.table.rows[1][2], "plain")
+    assert_equal(loaded.table.rows[2][1], '<x & "y">')
 
 
 def main() raises:

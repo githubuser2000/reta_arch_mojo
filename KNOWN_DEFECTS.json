@@ -196,19 +196,20 @@
       "python_status": "candidate",
       "mojo_status": "compatibility_preserved",
       "discovered_stage": "12c4t",
-      "reproducer": "python3 -c \"from reta_architecture.completion_word import *; d=Document('grö'); print(repr(word_before_cursor(d))); print([x.text for x in iter_word_completions(['größe'], d)])\"",
+      "reproducer": "python3 -c \"from reta_architecture.completion_word import *; d=Document('grö'); print(repr(word_before_cursor(d))); print([x.text for x in iter_word_completions(['größe'], d)])\" unter verschiedenen prompt_toolkit-Versionen",
       "python_locations": [
         "python_reference/reta_architecture/completion_word.py:82-94"
       ],
       "mojo_locations": [
         "src/reta_mojo/completion_word.mojo"
       ],
-      "current_contract": "Mojo reproduziert vorerst prompt_toolkits ASCII-/Nicht-ASCII-Klassengrenze und damit den beobachtbaren Python-Istzustand; UTF-8-Cursor und negative Startpositionen bleiben dennoch codepunktkorrekt.",
-      "post_port_fix": "Für den Python-WordCompleter eine explizite Unicode-Wortgrenze verwenden, neue Soll-Fixtures für deutsche und weitere Unicode-Wörter anlegen und Python sowie Mojo anschließend gemeinsam auf das korrigierte Verhalten umstellen.",
+      "current_contract": "Das beobachtbare Python-Verhalten ist von der installierten prompt_toolkit-Version abhängig: ältere Versionen liefern nur 'ö' und keine Größe-Vervollständigung, neuere Versionen liefern 'grö' und 'größe'. Mojo bewahrt bis zur bewussten Vertragsentscheidung den historischen, explizit implementierten Klassenvertrag; Sourcegates akzeptieren beide Python-Zustände statt einen upstream behobenen Fehler zu erzwingen.",
+      "post_port_fix": "Nach Abschluss der Portierung eine konkrete prompt_toolkit-Mindestversion und Unicode-Wortsemantik festlegen. Danach completion_word.py und Mojo gemeinsam auf denselben expliziten Unicode-Vertrag umstellen und die versionsabhängige Kandidatenklassifikation entfernen.",
       "evidence": [
         "STAGE12C4T_NATIVE_WORD_COMPLETION.md",
-        "tests/test_documented_python_defects.py",
-        "scripts/check_completion_word_parity.py"
+        "STAGE12C5N_NATIVE_HTML_CLASS_EXTRACTION.md",
+        "scripts/check_completion_word_parity.py",
+        "tests/test_documented_python_defects.py"
       ]
     },
     {
@@ -1736,6 +1737,58 @@
         "tests/test_test_python_setup.py",
         "scripts/setup_test_dependencies.sh",
         "scripts/find_test_python.sh"
+      ]
+    },
+    {
+      "id": "MOJO-FIXED-033",
+      "title": "CSV-Parser entfernte JSON-Anführungszeichen aus unquoted Religion-Zellen",
+      "origin": "mojo_port",
+      "classification": "csv_quote_state_mismatch",
+      "severity": "critical",
+      "python_status": "correct_reference",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5n",
+      "reproducer": "scripts/test_stage12c5k.sh mit tests/fixtures/program_workflow_root/csv/religion.csv ausführen; die Zelle |{\"\":\"plain\",...}| wird zu |{:plain,...}| verstümmelt und decode_religion_cell meldet missing religion cell JSON key.",
+      "python_locations": [
+        "python_reference/reta_architecture/program_workflow.py",
+        "Python csv.reader(delimiter=';')"
+      ],
+      "mojo_locations": [
+        "src/reta_mojo/csv_table.mojo",
+        "tests/test_csv_table.mojo",
+        "tests/test_program_workflow.mojo"
+      ],
+      "current_contract": "Ein doppeltes Anführungszeichen eröffnet CSV-Quoting ausschließlich als erstes Byte eines Feldes. Quotes mitten in einem unquoted Feld sind Nutzdaten; echte quoted Felder, verdoppelte Quotes, Semikolons und Zeilenumbrüche bleiben unterstützt.",
+      "post_port_fix": "Keine Python-Änderung erforderlich; Python csv.reader besaß bereits den korrekten Feldanfangsvertrag.",
+      "evidence": [
+        "STAGE12C5N_NATIVE_HTML_CLASS_EXTRACTION.md",
+        "tests/test_csv_table.mojo",
+        "tests/test_program_workflow.mojo"
+      ]
+    },
+    {
+      "id": "TEST-FIXED-019",
+      "title": "Defekttest verlangte dauerhaft das alte prompt_toolkit-Unicode-Fehlverhalten",
+      "origin": "test_infrastructure",
+      "classification": "upstream_version_sensitive_defect_reproducer",
+      "severity": "medium",
+      "python_status": "not_applicable",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5n",
+      "reproducer": "scripts/test_stage12c5e.sh oder scripts/test_stage12c5j.sh mit einer aktuellen prompt_toolkit-Version ausführen; word_before_cursor('grö') liefert korrekt 'grö', der Test erwartet jedoch zwingend das historische 'ö'.",
+      "python_locations": [
+        "python_reference/reta_architecture/completion_word.py",
+        "tests/test_documented_python_defects.py"
+      ],
+      "mojo_locations": [
+        "tests/test_documented_python_defects.py",
+        "src/reta_mojo/completion_word.mojo"
+      ],
+      "current_contract": "Der Reproducer erkennt sowohl das historische fehlerhafte als auch das neuere upstream korrigierte Python-Verhalten. Er prüft weiterhin, dass PY-CAND-007 dokumentiert ist, macht den Testlauf aber nicht von einer bestimmten Fremdbibliotheksversion abhängig.",
+      "post_port_fix": "Keine unmittelbare Python-Referenzänderung; nach Festlegung einer prompt_toolkit-Mindestversion wird PY-CAND-007 mit einem einheitlichen Unicode-Sollvertrag abgeschlossen.",
+      "evidence": [
+        "STAGE12C5N_NATIVE_HTML_CLASS_EXTRACTION.md",
+        "tests/test_documented_python_defects.py"
       ]
     }
   ],

@@ -92,6 +92,7 @@ target/bin/reta-prompt-complete
 target/bin/grundStrukHtml-native
 target/bin/generate-html-native
 target/bin/generate-readme-native
+target/bin/reta-extract-html-classes-native
 ```
 
 `reta-prompt-complete` bleibt als persistenter eigenständiger Completion-Arbeiter und Kompatibilitäts-/Testziel erhalten. Der reguläre interaktive Prompt verwendet seit Stage 12c4d Completion direkt im nativen TTY-Editor und benötigt weder diesen Arbeiter noch eingebettetes CPython. `reta-mojo-table` ist bewusst leicht und enthält Tabellenzustand, Wrapping und CSV-Inspektion. Das vollständige Tag-Schema liegt in `reta-mojo-tags`; der fünfsprachige `i18n.words`-Baum ist über `reta-mojo-i18n` separat prüfbar. Diese Trennung vermeidet einen unnötigen Compiler-Monolithen.
@@ -277,7 +278,7 @@ DESTDIR="$pkgdir" PREFIX=/usr ./scripts/install.sh
 Dann liegen die Tabellen unter `/usr/share/reta/csv`. Die öffentliche
 `/usr/bin`-Ebene enthält nur relative Symlinks zu den privaten Launchern unter
 `/usr/lib/reta/bin`. Die privaten ELFs werden nicht mehr per Wildcard kopiert,
-sondern ausschließlich aus der 35-Ziel-Allowlist
+sondern ausschließlich aus der 36-Ziel-Allowlist
 `scripts/install_targets.txt`; dadurch gelangen keine lokalen Alt-/Debugziele
 ins Paket. Der Python-Kompatibilitätsbaum behält seinen historischen
 Pfad `python_reference/csv` als relativen Symlink auf die kanonischen

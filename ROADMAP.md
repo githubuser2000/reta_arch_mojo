@@ -2,14 +2,14 @@
 
 Geplanter Umfang: **12 Release-Stufen**. Eine Stufe zählt erst als abgeschlossen, wenn Quellcode, Referenztests, Compilerziele, Dokumentation und ein source-only Archiv gemeinsam geprüft sind.
 
-## Fortschrittsmaße nach Stage 12c5m
+## Fortschrittsmaße nach Stage 12c5n
 
 | Maß | Stand | Aussage |
 |---|---:|---|
-| abgeschlossene Release-Stufen | **9/12 = 75,0 %** | Stufen 1–8 und 11 sind abgeschlossen; Stufe 12 ist mit 12a, 12b, 12c1–12c3 und 12c4a–12c5m zu etwa 71,0 % abgeschlossen, während 9 und 10 noch Restpfade besitzen |
-| vollständig native oder generierte Python-Dateien | **58/92 = 63,0 %** | Datei vollständig ersetzt oder als reproduzierbares Laufzeitasset abgebildet |
-| mindestens angegriffene Python-Dateien | **81/92 = 88,0 %** | Status direkt aus der autoritativen `NATIVE`-Zuordnung |
-| angegriffene Referenzzeilen | **37.072/48.831 = 75,9 %** | maschinenberechnet statt manuell fortgeschrieben |
+| abgeschlossene Release-Stufen | **9/12 = 75,0 %** | Stufen 1–8 und 11 sind abgeschlossen; Stufe 12 ist mit 12a, 12b, 12c1–12c3 und 12c4a–12c5n zu etwa 71,5 % abgeschlossen, während 9 und 10 noch Restpfade besitzen |
+| vollständig native oder generierte Python-Dateien | **59/92 = 64,1 %** | Datei vollständig ersetzt oder als reproduzierbares Laufzeitasset abgebildet |
+| mindestens angegriffene Python-Dateien | **82/92 = 89,1 %** | Status direkt aus der autoritativen `NATIVE`-Zuordnung |
+| angegriffene Referenzzeilen | **37.197/48.831 = 76,2 %** | maschinenberechnet statt manuell fortgeschrieben |
 | funktionaler Nutzerumfang | **ca. 96–98 %** | praktisch nutzbarer Reta-Umfang ohne Python-Algorithmus |
 
 Die Stufenquote ist höher als die Quellzeilenquote, weil die letzten Stufen besonders große dynamische Module bündeln: vollständige Ausgabeaufbereitung, Prompt-Sprache, i18n-Matrix, Architekturvalidierung und Parallelisierung.
@@ -409,3 +409,14 @@ Die Zahl **12** ist die geplante Releasegliederung. Interne Teilpakete oder Fehl
 - [x] Neun Kernbefehle von `reta_domain_probe_py.py` über den nativen Schema-/Parametersemantikbesitzer bereitstellen.
 - [ ] HTML-Metadaten-, Schema- und vollständige Architektur-Snapshotbefehle des Domain-Probe nativ übernehmen.
 - Maschinenstand: 58/92 vollständig, 81/92 mindestens teilweise, 37.072/48.831 angegriffene Referenzzeilen.
+
+
+## Stage 12c5n – CSV-Quoteparität und native HTML-Klassenextraktion
+
+- [x] CSV-Quotes nur am Feldanfang aktivieren und eingebettete JSON-Quotes bytegenau erhalten.
+- [x] Workflow-Fixture gegen ASCII, CJK, Vietnamesisch und leere JSON-Schlüssel absichern.
+- [x] Versionsabhängigen `prompt_toolkit`-Defektreproducer ohne erzwungenes Altverhalten klassifizieren.
+- [x] `reta_extract_html_classes.py` vollständig durch native HTML-Erzeugung, Attributanalyse und JSONL-Ausgabe ersetzen.
+- [x] Neues reguläres Compiler- und Installationsziel `reta-extract-html-classes-native` hinzufügen.
+- [ ] Vollständige 1.372-Zellen-Produktionsextraktion lokal unter Modular Mojo gegen `htmlclassesPy.jsonl` laufen lassen.
+- Maschinenstand: 59/92 vollständig, 82/92 mindestens teilweise, 37.197/48.831 angegriffene Referenzzeilen.

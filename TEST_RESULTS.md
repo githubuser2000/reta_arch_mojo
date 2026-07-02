@@ -1711,3 +1711,13 @@ Für den lokalen Mojo-1.0.0b2-Lauf baut `scripts/test_stage12c5k.sh` zuerst den 
 - `tools/porting_metrics.py`: **58/92** vollständig, **81/92** mindestens teilweise, **37.072/48.831** angegriffene Referenzzeilen.
 - Die nativen Mojo-Modul- und CLI-Paritäten werden lokal mit `scripts/test_stage12c5m.sh` ausgeführt; diese Sandbox enthält keinen Modular-Mojo-Compiler.
 
+
+
+## Stage 12c5n – CSV-Quoteparität und native HTML-Klassenextraktion
+
+- Der Python-/Source-Reproducer für aktuelle `prompt_toolkit`-Versionen ist grün; historisches und upstream korrigiertes Verhalten werden korrekt klassifiziert.
+- Die neue CSV-Regression hält Quotes in unquoted `|{"":...}|`-Zellen fest und bewahrt bestehende quoted Feldsemantik.
+- Der native HTML-Klassenextraktor besitzt eine zwei Zellen umfassende exakte Python-JSONL-Fixture mit doppelten Klassenattributen, `data-*`, Unicode, Roh-HTML und `null`-Zeilennummer.
+- Ausgeführte Source-/Ownership-/Defekt-/Metrik-/Installations-/Archivprüfungen: **63/63 bestanden**. `scripts/test_stage12c5n.sh` ergänzt lokal drei Mojo-Modultests und 1.616 exakte Python↔Mojo-JSONL-Sätze.
+- Defektkatalog: **75/75 konsistent**; Python-Bereinigungspunkte: **18**.
+- `tools/porting_metrics.py`: **59/92** vollständig, **82/92** mindestens teilweise, **37.197/48.831** angegriffene Referenzzeilen.

@@ -1036,3 +1036,11 @@ Die lokale Exportfilter-Kopie ist ein eigener Ownership-Fall: `.copy()` erzeugt 
 - `reta_domain_probe_py.py` wechselt zu teilweise nativ. Neun Kernbefehle werden direkt von `domain_probe_main.mojo` über den nativen Schemakatalog und die Parametersemantik bedient.
 - Das reguläre Compilerziel `reta-mojo-domain-probe` ist in Buildlayout und Installationsmanifest aufgenommen; die offizielle Installationsmenge umfasst nun 35 Ziele.
 - Ein unveränderter Source-Stand muss nach reinen Builds nicht erneut hochgeladen werden, da alle neu erzeugten Dateien unter dem ausgeschlossenen `target/` liegen.
+
+
+## Stage 12c5n – CSV-Quotezustand und HTML-Klassenextraktor
+
+- `csv_table.mojo` unterscheidet nun Quotes am Feldanfang von normalen Quotes in unquoted Nutzdaten. Das schließt die Religion-JSON-Lücke ohne quoted CSV-Felder zu verändern.
+- Der versionsabhängige `prompt_toolkit`-Kandidat bleibt dokumentiert, aber Sourcegates verlangen kein veraltetes Fremdbibliotheksverhalten mehr.
+- `html_class_extractor.mojo` ersetzt Repo-Suche, Stubmodule, Python-Unterprozess, Regex-Attributparser und JSONL-Schreiber des historischen Werkzeugs.
+- Der normale Lauf erzeugt die Kopfzeile über `run_native_reta`; `RETA_HTML_CLASSES_INPUT` ist ausschließlich die deterministische Testnaht.

@@ -49,7 +49,7 @@ def test_float_moon_number_candidate_is_not_silently_forgotten() -> None:
     assert "PY-CAND-004" in _defect_ids()
 
 
-def test_prompt_toolkit_unicode_word_boundary_candidate_is_backlogged() -> None:
+def test_prompt_toolkit_unicode_word_boundary_candidate_is_classified() -> None:
     code = (
         "from reta_architecture.completion_word import Document, word_before_cursor, "
         "iter_word_completions;"
@@ -65,5 +65,12 @@ def test_prompt_toolkit_unicode_word_boundary_candidate_is_backlogged() -> None:
         check=True,
         text=True,
     )
-    assert result.stdout.splitlines() == ["'ö'", "[]"]
+    # Older prompt_toolkit releases split the ASCII prefix from the Unicode
+    # codepoint; newer releases correctly retain the complete word.  This is
+    # an environment-sensitive upstream candidate, not a defect whose broken
+    # behavior must remain reproducible forever.
+    assert result.stdout.splitlines() in (
+        ["'ö'", "[]"],
+        ["'grö'", "['größe']"],
+    )
     assert "PY-CAND-007" in _defect_ids()

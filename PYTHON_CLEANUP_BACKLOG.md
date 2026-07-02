@@ -73,11 +73,11 @@ Offene oder zu entscheidende Einträge: **18**
 - Priorität: `medium`
 - Python-Status: `candidate`
 - Mojo-Status: `compatibility_preserved`
-- Reproduktion: `python3 -c "from reta_architecture.completion_word import *; d=Document('grö'); print(repr(word_before_cursor(d))); print([x.text for x in iter_word_completions(['größe'], d)])"`
-- heutiger Vertrag: Mojo reproduziert vorerst prompt_toolkits ASCII-/Nicht-ASCII-Klassengrenze und damit den beobachtbaren Python-Istzustand; UTF-8-Cursor und negative Startpositionen bleiben dennoch codepunktkorrekt.
-- Python-Arbeitsauftrag: Für den Python-WordCompleter eine explizite Unicode-Wortgrenze verwenden, neue Soll-Fixtures für deutsche und weitere Unicode-Wörter anlegen und Python sowie Mojo anschließend gemeinsam auf das korrigierte Verhalten umstellen.
+- Reproduktion: `python3 -c "from reta_architecture.completion_word import *; d=Document('grö'); print(repr(word_before_cursor(d))); print([x.text for x in iter_word_completions(['größe'], d)])" unter verschiedenen prompt_toolkit-Versionen`
+- heutiger Vertrag: Das beobachtbare Python-Verhalten ist von der installierten prompt_toolkit-Version abhängig: ältere Versionen liefern nur 'ö' und keine Größe-Vervollständigung, neuere Versionen liefern 'grö' und 'größe'. Mojo bewahrt bis zur bewussten Vertragsentscheidung den historischen, explizit implementierten Klassenvertrag; Sourcegates akzeptieren beide Python-Zustände statt einen upstream behobenen Fehler zu erzwingen.
+- Python-Arbeitsauftrag: Nach Abschluss der Portierung eine konkrete prompt_toolkit-Mindestversion und Unicode-Wortsemantik festlegen. Danach completion_word.py und Mojo gemeinsam auf denselben expliziten Unicode-Vertrag umstellen und die versionsabhängige Kandidatenklassifikation entfernen.
 - Python-Orte: `python_reference/reta_architecture/completion_word.py:82-94`
-- Belege: `STAGE12C4T_NATIVE_WORD_COMPLETION.md`, `tests/test_documented_python_defects.py`, `scripts/check_completion_word_parity.py`
+- Belege: `STAGE12C4T_NATIVE_WORD_COMPLETION.md`, `STAGE12C5N_NATIVE_HTML_CLASS_EXTRACTION.md`, `scripts/check_completion_word_parity.py`, `tests/test_documented_python_defects.py`
 
 ## 7. QUIRK-001 – Nullbreiten besitzen formatabhängige historische Sondersemantik
 

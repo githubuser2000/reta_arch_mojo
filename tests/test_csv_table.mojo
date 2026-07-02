@@ -11,6 +11,15 @@ def test_semicolon_quotes_and_embedded_newline() raises:
     assert_equal(table.rows[1][2], "z\"w")
 
 
+
+def test_quotes_inside_unquoted_json_cell_are_literal() raises:
+    var table = parse_semicolon_csv(
+        'id;wrapped\n1;|{"":"plain","html":"<b>한글 中文 Việt</b>"}|\n'
+    )
+    assert_equal(len(table.rows), 2)
+    assert_equal(table.rows[1][1], '|{"":"plain","html":"<b>한글 中文 Việt</b>"}|')
+
+
 def test_full_reference_csv_shape() raises:
     var table = read_semicolon_csv("python_reference/csv/religion.csv")
     assert_equal(len(table.rows), 1025)

@@ -58,6 +58,13 @@ def parse_semicolon_csv(text: String) -> CsvTable:
     while index < len(bytes):
         var code = Int(bytes[index])
         if code == 34:
+            # CSV quoting only starts when the quote is the first byte of a
+            # field.  Quotes embedded in an unquoted cell (notably the
+            # |{"":...}| religion JSON wrapper) are ordinary data and must
+            # survive byte-for-byte, matching Python's csv.reader.
+            if not in_quotes and index != chunk_start:
+                index += 1
+                continue
             cell += _csv_slice(text, chunk_start, index)
             if in_quotes and index + 1 < len(bytes) and Int(bytes[index + 1]) == 34:
                 cell += "\""

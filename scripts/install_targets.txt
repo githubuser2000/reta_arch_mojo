@@ -3,6 +3,7 @@
 # regular build.sh targets
 generate-html-native
 generate-readme-native
+reta-extract-html-classes-native
 grundStrukHtml-native
 reta-mojo-combi-join
 reta-mojo-domain-probe

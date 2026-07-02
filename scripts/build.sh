@@ -35,6 +35,7 @@ build src/prompt_completion_main.mojo reta-prompt-complete -I src
 build src/grundstruk_html_main.mojo grundStrukHtml-native -I src
 build src/generate_html_main.mojo generate-html-native -I src
 build src/generate_readme_main.mojo generate-readme-native -I src
+build src/extract_html_classes_main.mojo reta-extract-html-classes-native -I src
 
 printf '\nKompilierte Mojo-Executables:\n'
 for executable in "$TARGET_DIR"/*; do
