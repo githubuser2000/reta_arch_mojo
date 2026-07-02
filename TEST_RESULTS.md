@@ -1490,3 +1490,44 @@ einen Compilerfehler zu melden. Ein neues Produktions-ELF wird daher nicht als
 bestanden behauptet. Der lokale vollständige Nachweis ist
 `RETA_BUILD_PROMPT=1 scripts/test_stage12c5a.sh`.
 
+
+
+## Stage 12c5b – PromptLanguage und PyPy3-Referenz
+
+```text
+native Prompt-Sprachtests:             19/19
+historische Sprach-Snapshots:          90/90 byteidentisch
+Katalogregeneration:                   17.123/17.123 Zeilen
+kompakte Promptparität:                 27/27 byteidentisch
+Prompt-Sitzungsparität:                 36/36 byteidentisch
+Selektor-/Ownership-/Matrix-Pytests:    14/14
+Defektkatalog:                          60 konsistent
+Python-Bereinigungspunkte:              16
+```
+
+Der zentrale Referenzinterpreter bevorzugt wieder PyPy3. Die lokale Mojo-`.venv`
+ist nur noch der letzte Fallback und wird nicht in Sourcearchive aufgenommen.
+Der produktive Promptgesamtlink meldete innerhalb des 40-Minuten-Limits keinen
+Compilerfehler, war beim Timeout aber noch nicht abgeschlossen. Ein neues
+Produktions-ELF wird daher nicht als bestanden behauptet.
+
+## Stage 12c5c – Paketintegrität und Split-i18n
+
+```text
+native Paketintegrität:                     27/27
+native Split-i18n-Fassade:                  12/12
+Python↔Mojo-Manifestparität:                  2/2 Bäume exakt
+Referenzbaum:                                457 Dateien exakt
+Referenzbytes:                                34.576.137 exakt
+Referenz-CSV-Dateien:                         79 exakt
+Source-/Ownership-/Boundary-/Archiv-Pytests: 17/17
+Defektkatalog:                                61 konsistent
+Python-Bereinigungspunkte:                    17
+```
+
+Der temporär erzeugte Sonderfallbaum prüft zusätzlich `.git`, `__pycache__`,
+Datei- und Verzeichnissymlinks, einen toten Symlink, FIFO, Binärdaten,
+Unicode-Zeilentrenner und die historische `.hidden`/`hidden`-Kollision, ohne
+verbotene Artefakte in das Sourcearchiv aufzunehmen. Der Scanner startet weder
+Shell- noch Python-Hilfsprozesse.
+

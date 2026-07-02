@@ -45,6 +45,20 @@ def test_fhs_usr_layout_uses_share_for_csv_and_assets(tmp_path: Path) -> None:
     assert public_reta.is_symlink()
     assert public_reta.resolve() == (private / "bin" / "reta").resolve()
 
+    public_integrity = prefix / "bin" / "reta-mojo-package-integrity"
+    assert public_integrity.is_symlink()
+    result = subprocess.run(
+        [str(public_integrity), "--summary", str(ROOT / "python_reference")],
+        cwd=tmp_path,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr
+    assert "file_count=457" in result.stdout
+    assert "missing_required=0" in result.stdout
+
     layout = (private / "INSTALL_LAYOUT").read_text(encoding="utf-8")
     assert "csvdir=/usr/share/reta/csv" in layout
     assert "assetdir=/usr/share/reta/assets" in layout

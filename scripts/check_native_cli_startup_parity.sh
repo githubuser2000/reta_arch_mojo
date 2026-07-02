@@ -5,7 +5,7 @@ cd "$ROOT"
 TMP=${TMPDIR:-/tmp}/reta-native-startup.$$
 trap 'rm -rf "$TMP"' EXIT HUP INT TERM
 mkdir -p "$TMP"
-REFERENCE_PY=${RETA_REFERENCE_PYTHON:-python3}
+REFERENCE_PY=$("$ROOT/scripts/select_reference_python.sh")
 COMPAT=${RETA_COMPAT_BINARY:-$ROOT/target/bin/reta-mojo-compat-bin}
 
 [ -x "$COMPAT" ] || {

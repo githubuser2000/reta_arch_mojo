@@ -110,3 +110,4 @@
 ./run/rpe -> ../bin/rpe
 ./run/rpl -> ../bin/rpl
 ./run/rpl.sh -> ../bin/rpl.sh
+./tests/fixtures/package_integrity/tree/link-alpha -> alpha.txt

@@ -2,13 +2,7 @@
 set -eu
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 cd "$ROOT"
-if [ -n "${RETA_PYTHON:-}" ]; then
-    PYTHON=$RETA_PYTHON
-elif [ -x "$ROOT/.venv/bin/python" ]; then
-    PYTHON="$ROOT/.venv/bin/python"
-else
-    PYTHON=python3
-fi
+PYTHON=$("$ROOT/scripts/select_reference_python.sh")
 TMP=${TMPDIR:-/tmp}/reta-prompt-runtime-catalog.$$.mojo
 PREFIX_TMP=${TMPDIR:-/tmp}/reta-prompt-prefix-catalog.$$.mojo
 trap 'rm -f "$TMP" "$PREFIX_TMP"' EXIT HUP INT TERM

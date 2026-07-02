@@ -16,6 +16,7 @@ DESTDIR=$STAGE PREFIX=/usr "$ROOT/scripts/install.sh" >"$TMP/install.log"
 [ -f "$STAGE/usr/share/reta/assets/i18n_words/manifest.json" ]
 [ -f "$STAGE/usr/share/man/man1/generate_html.1" ]
 [ -L "$STAGE/usr/bin/reta-mojo-i18n" ]
+[ -L "$STAGE/usr/bin/reta-mojo-package-integrity" ]
 [ -L "$STAGE/usr/lib/reta/python_reference/csv" ]
 [ -L "$STAGE/usr/lib/reta/assets" ]
 [ -L "$STAGE/usr/bin/reta" ]
@@ -35,6 +36,15 @@ grep -q '^Spalten: 746$' "$TMP/csv-info.out"
 grep -q '^language=english$' "$TMP/i18n-summary.out"
 grep -q '^rows=6935$' "$TMP/i18n-summary.out"
 grep -q '^matrix_rows=4766$' "$TMP/i18n-summary.out"
+
+(
+    cd "$TMP"
+    "$STAGE/usr/bin/reta-mojo-package-integrity" --summary \
+        "$ROOT/python_reference" >"$TMP/package-integrity.out"
+)
+grep -q '^file_count=457$' "$TMP/package-integrity.out"
+grep -q '^missing_required=0$' "$TMP/package-integrity.out"
+grep -q '^suspicious_csvs=0$' "$TMP/package-integrity.out"
 
 # The public HTML generator must be usable from an arbitrary, non-install
 # working directory and must not create the historical middle.alx implicitly.

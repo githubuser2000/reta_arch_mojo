@@ -2,14 +2,7 @@
 set -eu
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 cd "$ROOT"
-PYTHON=${RETA_PYTHON-}
-if [ -z "$PYTHON" ]; then
-    if [ -x "$ROOT/.venv/bin/python" ]; then
-        PYTHON="$ROOT/.venv/bin/python"
-    else
-        PYTHON=$(command -v python3)
-    fi
-fi
+PYTHON=$("$ROOT/scripts/select_reference_python.sh")
 OUT=${1:-"$ROOT/target/references/reta-python-full-all-reference.tar.bz2"}
 WORK=${RETA_FULL_ALL_REFERENCE_WORKDIR:-"$ROOT/target/references/full-all-work"}
 SOURCE_HTML=${RETA_FULL_ALL_HTML-}

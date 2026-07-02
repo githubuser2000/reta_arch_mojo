@@ -5,13 +5,7 @@ cd "$ROOT"
 mkdir -p target/tests
 MOJO=${MOJO_BIN:-"$ROOT/bin/mojo-real"}
 "$MOJO" build -I src tests/prompt_session_batch_probe.mojo -o target/tests/prompt_session_batch_probe
-if [ -n "${RETA_PYTHON:-}" ]; then
-    PYTHON=$RETA_PYTHON
-elif [ -x "$ROOT/.venv/bin/python" ]; then
-    PYTHON="$ROOT/.venv/bin/python"
-else
-    PYTHON=python3
-fi
+PYTHON=$("$ROOT/scripts/select_reference_python.sh")
 TMP=${TMPDIR:-/tmp}/reta-prompt-session.$$
 trap 'rm -rf "$TMP"' EXIT HUP INT TERM
 mkdir -p "$TMP"

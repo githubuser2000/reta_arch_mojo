@@ -25,6 +25,13 @@ Nur Compiler installieren:
 RETA_SKIP_BUILD=1 RETA_MOJO_PYTHON="$(command -v python3.14)" ./scripts/setup_mojo.sh
 ```
 
+## Referenzinterpreter
+
+Die Compiler-`.venv` ist nicht der bevorzugte Interpreter für die eingefrorene
+Python-Referenz. `scripts/select_reference_python.sh` wählt explizite
+`RETA_REFERENCE_PYTHON`-/`RETA_PYTHON`-Vorgaben, danach `pypy3`, dann
+`python3`; `.venv/bin/python` bleibt nur ein letzter Fallback.
+
 ## Portable Mojo-Laufzeit
 
 Mojo-ELF-Dateien benötigen `libKGENCompilerRTShared.so` und
@@ -321,3 +328,26 @@ generate_html --middle-file middle.alx --output reta.html
 
 Das Kommando arbeitet aus jedem Verzeichnis, schreibt ohne Option nach stdout
 und erzeugt keine implizite `middle.alx`.
+
+## Native Quellbaum-Integrität
+
+Der normale Build erzeugt zusätzlich `target/bin/reta-mojo-package-integrity`:
+
+```sh
+./scripts/build.sh
+./bin/reta-mojo-package-integrity --summary python_reference
+./bin/reta-mojo-package-integrity --json-files python_reference
+```
+
+Dieses Ziel wird mit OpenSSL/libcrypto (`-lcrypto`) gelinkt. Auf Fedora/Gentoo
+muss deshalb der jeweilige OpenSSL-Entwicklungsumfang mit dem Linker-Symlink
+für `libcrypto.so` installiert sein. Die Dateibaumgrenze verwendet direkt
+`realpath`, `opendir`, `readdir`, `readlink` und `closedir`; Filterung,
+Sortierung, Dateilesen, CSV-Zählung, SHA-256-Gesamtdigest und JSON-Ausgabe
+laufen nativ in Mojo. Es wird kein Hilfsprozess gestartet. Die fokussierte
+Prüfung lautet:
+
+```sh
+MOJO_BIN="$(pwd)/.venv/bin/mojo" ./scripts/test_stage12c5c.sh
+```
+

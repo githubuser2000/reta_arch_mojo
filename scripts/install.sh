@@ -79,6 +79,8 @@ rm -rf "$STAGE_LIBEXECDIR/bin"
 cp -a "$ROOT/bin" "$STAGE_LIBEXECDIR/bin"
 install -m 0755 "$ROOT/scripts/find_mojo_runtime.sh" \
     "$STAGE_LIBEXECDIR/scripts/find_mojo_runtime.sh"
+install -m 0755 "$ROOT/scripts/select_reference_python.sh" \
+    "$STAGE_LIBEXECDIR/scripts/select_reference_python.sh"
 
 rm -rf "$STAGE_LIBEXECDIR/target/bin"
 install -d "$STAGE_LIBEXECDIR/target/bin"

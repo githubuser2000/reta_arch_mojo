@@ -21,6 +21,7 @@ build_and_run tests/test_prompt_table_execution.mojo
 build_and_run tests/test_native_reta_cli.mojo
 build_and_run tests/test_table_rendering.mojo
 ./scripts/check_prompt_language_catalog.sh
+./scripts/check_prompt_language_legacy_parity.sh
 ./scripts/check_prompt_fraction_parity.sh
 ./scripts/check_prompt_execution_fixtures.sh
 ./scripts/check_prompt_native_oneshot.sh
@@ -37,6 +38,6 @@ build_and_run tests/test_table_rendering.mojo
 if [ ! -x target/bin/reta-prompt-complete ]; then
     "$MOJO" build -I src src/prompt_completion_main.mojo -o target/bin/reta-prompt-complete
 fi
-REFERENCE_PYTHON=${RETA_REFERENCE_PYTHON:-python3}
+REFERENCE_PYTHON=$("$ROOT/scripts/select_reference_python.sh")
 "$REFERENCE_PYTHON" scripts/check_prompt_completion_worker.py
 printf '%s\n' 'Stage 10 Prompt-Sprachprüfungen bestanden.'

@@ -5,6 +5,29 @@ Mojo-Stage wiederholt werden. Solange weder `python_reference`, die CSV-Dateien
 noch der Python-Renderer verändert wurden, bleibt dieselbe Referenzausgabe
 gültig.
 
+## Referenzinterpreter: PyPy3-first
+
+Der historische Referenzlauf verwendet bevorzugt `pypy3`. Die zentrale
+Auswahl ist reproduzierbar:
+
+```sh
+scripts/select_reference_python.sh
+```
+
+Die Reihenfolge ist `RETA_REFERENCE_PYTHON`, `RETA_PYTHON`, `pypy3`,
+`python3`; `.venv/bin/python` ist nur der letzte Notfallfallback. Die `.venv`
+ist primär die Mojo-Compilerumgebung und wird nicht hochgeladen.
+
+Der direkte lokale Befehl lautet:
+
+```sh
+PYTHONHASHSEED=0 pypy3 reta -spalten --alles --breite=0 \
+  -ausgabe --art=html --onetable --nocolor > middle.alx
+```
+
+`python reta ...` startet dagegen ausdrücklich CPython. Die sichtbare
+`pyphen`-/`pkg_resources`-Warnung stammt aus dieser CPython-Umgebung.
+
 ## Referenz einmal lokal erzeugen
 
 ```sh
@@ -85,3 +108,12 @@ Das jeweils neueste vollständige Sourcearchiv sollte pro Iteration weiterhin
 einmal hochgeladen werden, weil kein gemeinsamer dauerhafter Projektbaum
 existiert. Dasselbe unveränderte Archiv muss innerhalb derselben Iteration
 nicht mehrfach hochgeladen werden.
+
+
+## Was in das nächste Quellarchiv gehört
+
+`.venv/`, `.git/`, `target/`, Cacheverzeichnisse und Bytecode werden nicht
+hochgeladen. Sie sind groß, lokal beziehungsweise historisch und nicht für die
+Transpilierung erforderlich. Quellcode, Skripte, Tests, Ressourcen sowie
+Lock-/Requirements-Dateien reichen aus. Das Projektarchiv kann als `.tar.br`
+übergeben werden; Brotli wird beim Einlesen und Erzeugen unterstützt.

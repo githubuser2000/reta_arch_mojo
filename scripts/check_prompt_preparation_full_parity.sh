@@ -4,14 +4,7 @@ ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 cd "$ROOT"
 mkdir -p target/tests
 MOJO=${MOJO_BIN:-"$ROOT/bin/mojo-real"}
-PYTHON=${RETA_PYTHON-}
-if [ -z "$PYTHON" ]; then
-    if [ -x "$ROOT/.venv/bin/python" ]; then
-        PYTHON="$ROOT/.venv/bin/python"
-    else
-        PYTHON=$(command -v python3)
-    fi
-fi
+PYTHON=$("$ROOT/scripts/select_reference_python.sh")
 "$MOJO" build -I src tests/prompt_preparation_full_batch_probe.mojo \
     -o target/tests/prompt_preparation_full_batch_probe
 TMP=${TMPDIR:-/tmp}/reta-prompt-preparation-full.$$

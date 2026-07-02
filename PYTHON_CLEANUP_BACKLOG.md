@@ -11,7 +11,7 @@ Arbeitsliste für die Phase nach dem vollständigen Mojo-Port.
 4. Python und Mojo gegen denselben korrigierten Sollvertrag prüfen.
 5. Den Eintrag in `KNOWN_DEFECTS.json` auf `fixed` setzen.
 
-Offene oder zu entscheidende Einträge: **16**
+Offene oder zu entscheidende Einträge: **17**
 
 ## 1. PY-OPEN-001 – Beliebige Codeausführung durch eval in Ganzzahlmengen-Ausdrücken
 
@@ -188,3 +188,14 @@ Offene oder zu entscheidende Einträge: **16**
 - Python-Arbeitsauftrag: Nach Abschluss der Transpilierung alle beobachtbaren Mengen- und Frozenset-Iterationen in der Python-Tabellenplanung fachlich sortieren, einen kanonischen PYTHONHASHSEED-unabhängigen Spaltenvertrag festlegen und Python sowie Mojo gegen eine neu erzeugte seed-unabhängige Referenz prüfen.
 - Python-Orte: `python_reference/reta_architecture/generated_columns.py:1356-1465`, `python_reference/reta_architecture/column_selection.py`, `python_reference/reta_architecture/table_runtime.py`
 - Belege: `STAGE12C4Z_PROFESSIONAL_GENERATE_HTML.md`, `tests/test_full_all_reference_workflow.py`, `FULL_ALL_REFERENCE_WORKFLOW.md`
+
+## 17. PY-CAND-011 – Manifestnormalisierung entfernt führende Punkte und kann Dotfile-Pfade kollidieren lassen
+
+- Priorität: `medium`
+- Python-Status: `candidate`
+- Mojo-Status: `compatibility_preserved`
+- Reproduktion: `In einem temporären Manifestbaum sowohl .hidden als auch hidden mit verschiedenen Inhalten anlegen und RepoManifest.from_tree(root).snapshot(include_files=True) aufrufen; beide Pfade werden durch lstrip('./') als hidden geführt und _manifest_file_entry kann für beide die undotierte Datei lesen.`
+- heutiger Vertrag: Der native Manifestbesitzer reproduziert die historische lstrip('./')-Normalisierung und den Dotfile-Fallback absichtlich, damit bestehende Python-Manifeste einschließlich der Kollision bytegleich bleiben. Der dynamische Paritätsbaum enthält .hidden und hidden mit verschiedenen Inhalten.
+- Python-Arbeitsauftrag: Nach Abschluss der funktionalen Portierung in Python nur ein tatsächliches Präfix './' entfernen, führende Punkte erhalten, Kollisionen mit einem neuen Solltest ausschließen und die daraus folgende Manifestdigest-Änderung kontrolliert versionieren.
+- Python-Orte: `python_reference/reta_architecture/package_integrity.py:91-92`, `python_reference/reta_architecture/package_integrity.py:122-132`
+- Belege: `STAGE12C5C_NATIVE_PACKAGE_INTEGRITY_SPLIT_I18N.md`, `scripts/check_package_integrity_parity.py`, `tests/test_package_integrity.mojo`

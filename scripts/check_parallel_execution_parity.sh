@@ -3,7 +3,7 @@ set -eu
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 cd "$ROOT"
 BIN=${RETA_PARALLEL_EXECUTION_BIN:-"$ROOT/target/bin/reta-mojo-parallel-execution"}
-PYTHON=${RETA_REFERENCE_PYTHON:-python3}
+PYTHON=$("$ROOT/scripts/select_reference_python.sh")
 TMP=${TMPDIR:-/tmp}/reta-parallel-execution-parity-$$
 mkdir -p "$TMP"
 trap 'rm -rf "$TMP"' EXIT HUP INT TERM

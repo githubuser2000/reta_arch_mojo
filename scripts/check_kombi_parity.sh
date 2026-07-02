@@ -5,7 +5,7 @@ cd "$ROOT"
 TMPDIR_BASE=${TMPDIR:-/tmp}/reta-kombi-parity.$$
 mkdir -p "$TMPDIR_BASE"
 trap 'rm -rf "$TMPDIR_BASE"' EXIT HUP INT TERM
-REFERENCE_PY=${RETA_REFERENCE_PYTHON:-python3}
+REFERENCE_PY=$("$ROOT/scripts/select_reference_python.sh")
 PYTHON_HASH_SEED=${RETA_REFERENCE_HASH_SEED:-0}
 NATIVE=${RETA_NATIVE_BINARY:-"$ROOT/target/bin/reta-native"}
 [ -x "$NATIVE" ] || NATIVE="$ROOT/bin/reta-native"

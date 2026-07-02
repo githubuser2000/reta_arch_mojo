@@ -1370,6 +1370,59 @@
         "STAGE12C4Z_PROFESSIONAL_GENERATE_HTML.md",
         "scripts/test_stage12c4z.sh"
       ]
+    },
+    {
+      "id": "TEST-FIXED-012",
+      "title": "Referenz- und Kompatibilitätsskripte bevorzugten die Mojo-.venv statt des historischen PyPy3",
+      "origin": "test_infrastructure",
+      "classification": "reference_interpreter_precedence_regression",
+      "severity": "medium",
+      "python_status": "not_applicable",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5b",
+      "reproducer": "In einem Checkout mit .venv/bin/python und installiertem pypy3 ein bisheriges Referenz- oder Paritätsskript starten; mehrere Skripte wählten zuerst .venv/bin/python und führten die langsame Python-Referenz dadurch unter CPython statt unter PyPy3 aus.",
+      "python_locations": [],
+      "mojo_locations": [
+        "scripts/select_reference_python.sh",
+        "scripts/create_full_all_reference_bundle.sh",
+        "bin/reta-mojo-compat",
+        "bin/reta-prompt-profile"
+      ],
+      "current_contract": "Alle Python-Referenz-, Paritäts- und atomaren Kompatibilitätspfade verwenden einen zentralen Selektor. Explizites RETA_REFERENCE_PYTHON beziehungsweise RETA_PYTHON gewinnt, danach pypy3, danach python3; die lokale Mojo-.venv ist nur noch der letzte Notfallfallback. Ungültige explizite Interpreter brechen sichtbar ab.",
+      "post_port_fix": "Keine Änderung am eingefrorenen Python-/PyPy3-Produktivcode erforderlich.",
+      "evidence": [
+        "STAGE12C5B_NATIVE_PROMPT_LANGUAGE_PYPY3.md",
+        "tests/test_reference_python_selector.py",
+        "tests/test_prompt_language_ownership.py",
+        "FULL_ALL_REFERENCE_WORKFLOW.md"
+      ]
+    },
+    {
+      "id": "PY-CAND-011",
+      "title": "Manifestnormalisierung entfernt führende Punkte und kann Dotfile-Pfade kollidieren lassen",
+      "origin": "python_reference",
+      "classification": "dotfile_manifest_path_collision",
+      "severity": "medium",
+      "python_status": "candidate",
+      "mojo_status": "compatibility_preserved",
+      "discovered_stage": "12c5c",
+      "reproducer": "In einem temporären Manifestbaum sowohl .hidden als auch hidden mit verschiedenen Inhalten anlegen und RepoManifest.from_tree(root).snapshot(include_files=True) aufrufen; beide Pfade werden durch lstrip('./') als hidden geführt und _manifest_file_entry kann für beide die undotierte Datei lesen.",
+      "python_locations": [
+        "python_reference/reta_architecture/package_integrity.py:91-92",
+        "python_reference/reta_architecture/package_integrity.py:122-132"
+      ],
+      "mojo_locations": [
+        "src/reta_mojo/package_integrity.mojo",
+        "tests/test_package_integrity.mojo",
+        "scripts/check_package_integrity_parity.py"
+      ],
+      "current_contract": "Der native Manifestbesitzer reproduziert die historische lstrip('./')-Normalisierung und den Dotfile-Fallback absichtlich, damit bestehende Python-Manifeste einschließlich der Kollision bytegleich bleiben. Der dynamische Paritätsbaum enthält .hidden und hidden mit verschiedenen Inhalten.",
+      "post_port_fix": "Nach Abschluss der funktionalen Portierung in Python nur ein tatsächliches Präfix './' entfernen, führende Punkte erhalten, Kollisionen mit einem neuen Solltest ausschließen und die daraus folgende Manifestdigest-Änderung kontrolliert versionieren.",
+      "evidence": [
+        "STAGE12C5C_NATIVE_PACKAGE_INTEGRITY_SPLIT_I18N.md",
+        "scripts/check_package_integrity_parity.py",
+        "tests/test_package_integrity.mojo"
+      ]
     }
   ],
   "audit": {
@@ -1392,8 +1445,10 @@
       "STAGE12C4W_NATIVE_PROMPT_PREPARATION_FULL_ALL.md",
       "STAGE12C4X_NATIVE_I18N_WORDS.md",
       "STAGE12C4Y_NATIVE_PARAMETER_RUNTIME.md",
-      "STAGE12C4Z_PROFESSIONAL_GENERATE_HTML.md"
+      "STAGE12C4Z_PROFESSIONAL_GENERATE_HTML.md",
+      "STAGE12C5B_NATIVE_PROMPT_LANGUAGE_PYPY3.md",
+      "STAGE12C5C_NATIVE_PACKAGE_INTEGRITY_SPLIT_I18N.md"
     ],
-    "scope_note": "Vollständig bezogen auf alle bis Stage 12c4z im Projekt bestätigten oder plausibel begründeten verhaltensrelevanten Befunde; unbekannte künftige Fehler können naturgemäß erst nach ihrer Entdeckung aufgenommen werden."
+    "scope_note": "Vollständig bezogen auf alle bis Stage 12c5c im Projekt bestätigten oder plausibel begründeten verhaltensrelevanten Befunde; unbekannte künftige Fehler können naturgemäß erst nach ihrer Entdeckung aufgenommen werden."
   }
 }

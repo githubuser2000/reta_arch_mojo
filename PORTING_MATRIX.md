@@ -5,7 +5,7 @@ Stand: 2. Juli 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der g
 - Ursprüngliche Python-Dateien: **92**
 - Ursprüngliche Python-Zeilen insgesamt: **48831**
 - Eingebettete Python-Brücken: **0**; expliziter Mojo-Kindprozessadapter: **1**
-- Quellzeilen der bereits angegriffenen Architekturmodule: **31492**
+- Quellzeilen der bereits angegriffenen Architekturmodule: **32249**
 - Native Mojo-Quellzeilen: siehe `src/` (inklusive generiertem Kategoriekatalog)
 
 | Python-Datei | Zeilen | Funktionen | Klassen | dynamische Aufrufe | Status | Mojo/Ziel | Anmerkung |
@@ -65,7 +65,7 @@ Stand: 2. Juli 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der g
 | `reta_architecture/number_theory.py` | 200 | 12 | 1 | 0 | nativ | `src/reta_mojo/number_theory.mojo` | Kernfunktionen vollständig typisiert |
 | `reta_architecture/output_semantics.py` | 155 | 13 | 3 | 8 | nativ | `src/reta_mojo/output_modes.mojo` | reine Modusauflösung und vollständige Tabellen-Flaganwendung |
 | `reta_architecture/output_syntax.py` | 409 | 13 | 8 | 3 | teilweise nativ | `src/reta_mojo/output_modes.mojo` | statische Syntax und Zeilenfarben |
-| `reta_architecture/package_integrity.py` | 232 | 9 | 1 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/package_integrity.py` | noch nicht nativ portiert |
+| `reta_architecture/package_integrity.py` | 232 | 9 | 1 | 0 | nativ | `src/reta_mojo/package_integrity.mojo + src/package_integrity_main.mojo` | binärer SHA-256-Baumscan, Pflichtpfade, Runtime-Artefakte, Symlinkdateien und Python-kompatible CSV-Zeilenzählung vollständig nativ |
 | `reta_architecture/parallel_execution.py` | 1076 | 53 | 6 | 10 | nativ | `src/reta_mojo/parallel_execution.mojo + parallel_row_preparation.mojo + beide Parallel-CLIs` | zehn reine Tabellen-/Zahlenkerne verwenden typisierte Mojo-Thread-Chunks; historische Prozessoptionen sind Alias; der dynamische WorkerPrepare/deepcopy-Pfad ist durch einen besitzenden typisierten Zeilenkontext ersetzt |
 | `reta_architecture/parameter_runtime.py` | 894 | 11 | 1 | 0 | weitgehend nativ | `src/reta_mojo/parameter_runtime.mojo + native_reta_cli.mojo` | typisierter produktiver Plan für Spalten, Zeilen, Breiten, Ausgabe und Obergrenzen; historische Diagnose- und Hilfetexte bleiben am atomaren Kompatibilitätsrand |
 | `reta_architecture/persistence.py` | 485 | 27 | 3 | 0 | nativ | `src/reta_mojo/persistence.mojo + src/architecture_persistence_main.mojo` | SQLite-Schema, stabile SHA-256-Digests, Sections, Garben-Snapshots, Runs, Audit, Cache und Batch-Schreibpfade nativ; JSON-Grenze ist kanonischer UTF-8-Text |
@@ -73,8 +73,8 @@ Stand: 2. Juli 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der g
 | `reta_architecture/program_workflow.py` | 379 | 12 | 1 | 4 | Python-Referenz/Bridge | `python_reference/reta_architecture/program_workflow.py` | noch nicht nativ portiert |
 | `reta_architecture/prompt_execution.py` | 2516 | 24 | 1 | 3 | Python-Referenz/Bridge | `python_reference/reta_architecture/prompt_execution.py` | noch nicht nativ portiert |
 | `reta_architecture/prompt_interaction.py` | 273 | 15 | 1 | 0 | nativ | `src/reta_mojo/prompt_interaction.mojo + src/prompt_main.mojo` | typisierte Startup-/Sitzungsaktivierung, physische Eingabemodi, Speicher-/Löschübergänge, Einmalbefehlsbildung und Previous-Command-Policy produktiv aktiviert |
-| `reta_architecture/prompt_language.py` | 492 | 23 | 2 | 2 | Python-Referenz/Bridge | `python_reference/reta_architecture/prompt_language.py` | noch nicht nativ portiert |
-| `reta_architecture/prompt_preparation.py` | 462 | 14 | 1 | 4 | weitgehend nativ | `src/reta_mojo/prompt_preparation.mojo + prompt_regex.mojo + prompt_preparation_catalog.mojo` | vollständiger nativer Vorbereitungs- und Regexvertrag; produktive Promptcontroller-Aktivierungsnaht noch offen |
+| `reta_architecture/prompt_language.py` | 492 | 23 | 2 | 2 | generiert nativ | `src/reta_mojo/prompt_language.mojo + assets/prompt_language_legacy.tsv + tools/generate_prompt_language_legacy_catalog.py` | vollständige fünfsprachige PromptLanguageBundle-Oberfläche mit Parameterwerten, Befehlen, Bruchzahlen, Kurzbefehlen, Klassifikatoren und historischen Aliasnamen reproduzierbar typisiert |
+| `reta_architecture/prompt_preparation.py` | 462 | 14 | 1 | 4 | weitgehend nativ | `src/reta_mojo/prompt_preparation.mojo + prompt_regex.mojo + prompt_preparation_catalog.mojo` | vollständiger nativer Vorbereitungs- und Regexvertrag; durch den nativen Promptcontroller produktiv aktiviert, verbleibende Python-Datei dient nur als Referenz |
 | `reta_architecture/prompt_runtime.py` | 158 | 9 | 4 | 1 | generiert nativ | `src/reta_mojo/prompt_runtime.mojo + prompt_runtime_catalog.mojo + prompt_prefix_catalog.mojo + tools/generate_prompt_runtime_catalog.py` | Primprädikat, Laufzeit-/Programm-/Vokabularvertrag und fünfsprachige Promptpräfixe vollständig typisiert und reproduzierbar generiert |
 | `reta_architecture/prompt_session.py` | 543 | 37 | 8 | 1 | nativ | `src/reta_mojo/prompt_session.mojo + native_prompt_input.mojo + prompt_terminal_input.mojo` | PromptTextState, Sitzungs-/Speicherzustand, Löschsemantik, History-Filter, lokalisierte Präfixe und native Terminalgrenze vollständig ersetzt |
 | `reta_architecture/row_filtering.py` | 714 | 13 | 1 | 5 | nativ | `src/reta_mojo/row_filtering.mojo` | Zeilenbereiche, Zeit, Zählgruppen, Primklassen, Gestirne, Vielfache, Potenzen, Invertierung und Positionsfilter |
@@ -83,7 +83,7 @@ Stand: 2. Juli 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der g
 | `reta_architecture/schema.py` | 186 | 10 | 2 | 12 | generiert nativ | `src/reta_mojo/schema.mojo + schema_catalog.mojo` | 33 Hauptgruppen, 431 Parametereinträge und Kontext-Mappings als besitzender Snapshot |
 | `reta_architecture/semantics_builder.py` | 267 | 6 | 2 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/semantics_builder.py` | noch nicht nativ portiert |
 | `reta_architecture/sheaves.py` | 269 | 22 | 5 | 4 | teilweise nativ | `src/reta_mojo/parameter_semantics.mojo` | ParameterSemanticsSheaf: Aliasauflösung, kanonische Paare, direkte Spalten und Rückabbildung |
-| `reta_architecture/split_i18n.py` | 33 | 1 | 0 | 3 | Python-Referenz/Bridge | `python_reference/reta_architecture/split_i18n.py` | noch nicht nativ portiert |
+| `reta_architecture/split_i18n.py` | 33 | 1 | 0 | 3 | nativ | `src/reta_mojo/split_i18n.mojo + i18n_words.mojo` | dynamische SimpleNamespace-Fassade durch typisierten Katalogproxy mit identischer Modulreihenfolge und Later-wins-Auflösung ersetzt |
 | `reta_architecture/table_adapters.py` | 419 | 60 | 2 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/table_adapters.py` | noch nicht nativ portiert |
 | `reta_architecture/table_generation.py` | 298 | 8 | 2 | 2 | teilweise nativ | `src/reta_mojo/csv_table.mojo + native_reta_cli.mojo` | CSV-Grundtabelle, Spaltenprojektion und einfacher Ende-zu-Ende-Tabellenpfad nativ |
 | `reta_architecture/table_output.py` | 769 | 24 | 3 | 2 | teilweise nativ | `src/reta_mojo/table_rendering.mojo` | CSV, Markdown und Emacs für den nativen Tabellenpfad bytegleich; komplexes HTML/BBCode-Wrapping noch unvollständig |

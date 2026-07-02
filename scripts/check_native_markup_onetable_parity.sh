@@ -5,7 +5,7 @@ cd "$ROOT"
 TMP=${TMPDIR:-/tmp}/reta-native-markup-onetable.$$
 mkdir -p "$TMP"
 trap 'rm -rf "$TMP"' EXIT HUP INT TERM
-REFERENCE_PY=${RETA_REFERENCE_PYTHON:-python3}
+REFERENCE_PY=$("$ROOT/scripts/select_reference_python.sh")
 HASH_SEED=${RETA_REFERENCE_HASH_SEED:-0}
 COMPAT=${RETA_COMPAT_BINARY:-"$ROOT/target/bin/reta-mojo-compat-bin"}
 FIXTURES="$ROOT/tests/fixtures/markup_onetable"

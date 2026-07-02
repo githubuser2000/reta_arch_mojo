@@ -4,6 +4,7 @@ ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 cd "$ROOT"
 mkdir -p target/tests
 MOJO=${MOJO_BIN:-"$ROOT/bin/mojo-real"}
+PYTHON=$("$ROOT/scripts/select_reference_python.sh")
 "$MOJO" build -I src tests/prompt_compact_batch_probe.mojo -o target/tests/prompt_compact_batch_probe
 TMP=${TMPDIR:-/tmp}/reta-prompt-compact.$$
 trap 'rm -rf "$TMP"' EXIT HUP INT TERM
@@ -40,7 +41,7 @@ uC-fraction	0	0	uC3/2
 numeric-shortcut	0	0	16_5
 EOF2
 for language in deutsch english; do
-    PYTHONHASHSEED=0 .venv/bin/python scripts/prompt_compact_reference_batch.py "$language" "$TMP/$language.tsv" > "$TMP/$language.python"
+    PYTHONHASHSEED=0 "$PYTHON" scripts/prompt_compact_reference_batch.py "$language" "$TMP/$language.tsv" > "$TMP/$language.python"
     target/tests/prompt_compact_batch_probe "$language" "$TMP/$language.tsv" > "$TMP/$language.mojo"
     if ! cmp "$TMP/$language.python" "$TMP/$language.mojo"; then
         diff -u "$TMP/$language.python" "$TMP/$language.mojo" || true

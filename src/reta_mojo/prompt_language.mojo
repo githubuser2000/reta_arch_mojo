@@ -8,7 +8,13 @@ shortcut expansion and completion filtering in this module are native Mojo.
 from std.collections import List
 from std.collections.string import atol, ord
 from .csv_table import read_text_file
-from .row_ranges import is_fraction_or_integer_range
+from .row_ranges import (
+    is_fraction_or_integer_range,
+    is_fraction_range_token,
+    is_row_range_token,
+    parse_explicit_int_set,
+    split_top_level_commas,
+)
 
 
 @fieldwise_init
@@ -51,12 +57,20 @@ struct PromptVocabularyAlias(Copyable):
 
 
 @fieldwise_init
+struct PromptLegacyValue(Copyable):
+    var language: String
+    var domain: String
+    var value: String
+
+
+@fieldwise_init
 struct PromptLanguageCatalog(Copyable):
     var completions: List[PromptCompletionEntry]
     var dispatch_aliases: List[PromptDispatchAlias]
     var replacements: List[PromptShortcutReplacement]
     var numeric_shortcuts: List[PromptNumericShortcut]
     var vocabulary: List[PromptVocabularyAlias]
+    var legacy_values: List[PromptLegacyValue]
 
 
 def normalize_prompt_language(language: String) -> String:
@@ -175,6 +189,22 @@ def _parse_vocabulary_catalog(path: String) raises -> List[PromptVocabularyAlias
     return result^
 
 
+def _parse_legacy_catalog(path: String) raises -> List[PromptLegacyValue]:
+    var result = List[PromptLegacyValue]()
+    var lines = read_text_file(path).split("\n")
+    for line_index in range(len(lines)):
+        var line = String(lines[line_index])
+        if line.byte_length() == 0:
+            continue
+        var fields = line.split("\t")
+        if len(fields) != 3:
+            continue
+        result.append(
+            PromptLegacyValue(String(fields[0]), String(fields[1]), String(fields[2]))
+        )
+    return result^
+
+
 def load_prompt_language_catalog(asset_root: String) raises -> PromptLanguageCatalog:
     var separator = ""
     if not asset_root.endswith("/"):
@@ -186,6 +216,7 @@ def load_prompt_language_catalog(asset_root: String) raises -> PromptLanguageCat
         _parse_replacement_catalog(prefix + "prompt_shortcut_replacements.tsv"),
         _parse_numeric_catalog(prefix + "prompt_numeric_shortcuts.tsv"),
         _parse_vocabulary_catalog(prefix + "prompt_vocabulary.tsv"),
+        _parse_legacy_catalog(prefix + "prompt_language_legacy.tsv"),
     )
 
 
@@ -309,6 +340,157 @@ def is_prompt_numeric_shortcut(
         if entry.language == normalized and entry.family == family and entry.key == key:
             return True
     return False
+
+
+
+
+def prompt_parameter_tokens(
+    catalog: PromptLanguageCatalog,
+    language: String,
+) -> List[String]:
+    """Return unique bases from the exact historical ``notParameterValues`` list."""
+    var result = List[String]()
+    var normalized = normalize_prompt_language(language)
+    for index in range(len(catalog.legacy_values)):
+        var entry = catalog.legacy_values[index].copy()
+        if entry.language != normalized or entry.domain != "parameter":
+            continue
+        var parts = entry.value.split("=")
+        if len(parts) == 0:
+            continue
+        var base = String(parts[0])
+        if not _contains_string(result, base):
+            result.append(base^)
+    return result^
+
+
+def prompt_is_row_value(text: String) raises -> Bool:
+    """Native safe counterpart of ``is_zeilenangabe_between_kommas``."""
+    return is_row_range_token(text)
+
+
+def prompt_is_fraction_value(text: String) -> Bool:
+    """Native counterpart of ``is_zeilenbruch_between_kommas``."""
+    return is_fraction_range_token(text)
+
+
+def prompt_is_range_list(text: String) raises -> Bool:
+    """Return whether every top-level comma component is a row/fraction token."""
+    var parts = split_top_level_commas(text)
+    if len(parts) == 0:
+        return False
+    for index in range(len(parts)):
+        if not prompt_is_fraction_value(parts[index]) and not prompt_is_row_value(parts[index]):
+            return False
+    return True
+
+
+def prompt_is_reta_parameter(
+    catalog: PromptLanguageCatalog,
+    language: String,
+    text: String,
+) raises -> Bool:
+    """Classify the historical main/secondary Reta parameter surface.
+
+    This preserves ``PromptLanguageBundle.isReTaParameter`` while replacing
+    the duplicate-heavy Python list lookup with a generated unique catalog.
+    Row and fraction expressions beginning with ``-`` remain data, not flags.
+    """
+    if text.byte_length() == 0 or not text.startswith("-"):
+        return False
+    if prompt_is_range_list(text):
+        return False
+    var pieces = text.split("=")
+    if len(pieces) == 0:
+        return False
+    var base = String(pieces[0])
+    var values = prompt_parameter_tokens(catalog, language)
+    return _contains_string(values, base)
+
+
+# Legacy public spellings retained for direct source migration.
+def custom_split(text: String) -> List[String]:
+    return balanced_prompt_split(text)
+
+
+def custom_split2(text: String, delimiter: String) -> List[String]:
+    return balanced_prompt_split_delimiter(text, delimiter)
+
+
+def isReTaParameter(
+    catalog: PromptLanguageCatalog,
+    language: String,
+    text: String,
+) raises -> Bool:
+    return prompt_is_reta_parameter(catalog, language, text)
+
+
+def is15or16command(
+    catalog: PromptLanguageCatalog,
+    language: String,
+    text: String,
+) -> Bool:
+    return is_prompt_numeric_shortcut(catalog, language, text)
+
+
+@fieldwise_init
+struct PromptLanguageSnapshot(Copyable):
+    var class_name: String
+    var language: String
+    var not_parameter_values_len: Int
+    var parameter_bases_len: Int
+    var commands_len: Int
+    var allowed_fraction_numbers_len: Int
+    var wahl15_len: Int
+    var wahl16_len: Int
+    var short_command_letters: List[String]
+
+
+def _legacy_domain_values(
+    catalog: PromptLanguageCatalog,
+    language: String,
+    domain: String,
+) -> List[String]:
+    var result = List[String]()
+    var normalized = normalize_prompt_language(language)
+    for index in range(len(catalog.legacy_values)):
+        var entry = catalog.legacy_values[index].copy()
+        if entry.language == normalized and entry.domain == domain:
+            result.append(entry.value)
+    return result^
+
+
+def prompt_language_snapshot(
+    catalog: PromptLanguageCatalog,
+    language: String,
+) -> PromptLanguageSnapshot:
+    """Expose the exact immutable shape of Python ``PromptLanguageBundle``."""
+    var normalized = normalize_prompt_language(language)
+    var numeric_15 = 0
+    var numeric_16 = 0
+    for index in range(len(catalog.numeric_shortcuts)):
+        var entry = catalog.numeric_shortcuts[index].copy()
+        if entry.language != normalized:
+            continue
+        if entry.family == "15":
+            numeric_15 += 1
+        elif entry.family == "16":
+            numeric_16 += 1
+    var parameters = _legacy_domain_values(catalog, normalized, "parameter")
+    var commands = _legacy_domain_values(catalog, normalized, "command")
+    var allowed = _legacy_domain_values(catalog, normalized, "allowed_fraction")
+    var short_letters = _legacy_domain_values(catalog, normalized, "short")
+    return PromptLanguageSnapshot(
+        "PromptLanguageBundle",
+        normalized^,
+        len(parameters),
+        len(prompt_parameter_tokens(catalog, normalized)),
+        len(commands),
+        len(allowed),
+        numeric_15,
+        numeric_16,
+        short_letters^,
+    )
 
 
 def _contains_string(values: List[String], wanted: String) -> Bool:

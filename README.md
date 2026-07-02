@@ -9,18 +9,18 @@ abgeschlossene Release-Stufen:       9 von 12 = 75,0 %
 Stufen 9/10/12:                       Ausgabe, Prompt/i18n und Releaseparität in Arbeit
 Stufe 11:                             11a–11j = 100 %
 Stufe 12:                             12a–12b fertig, 12c zu ca. 99,9 % = ca. 67,7 %
-vollständig native Originaldateien:  46 von 92 = 50,0 %
-mindestens teilweise portiert:       78 von 92 = 84,8 %
-gewichteter Quellzeilenstand:         ca. 69,7 %
+vollständig native Originaldateien:  49 von 92 = 53,3 %
+mindestens teilweise portiert:       80 von 92 = 87,0 %
+gewichteter Quellzeilenstand:         ca. 71,2 %
 funktionaler Nutzerumfang:            ca. 96–98 %
 ```
 
 Die Metriken messen **orthogonale Bezugsgrößen** und sind nicht als ein einziges wechselndes Gesamtprozent zu lesen:
 
 - **96–98 % geschätzte Funktionsabdeckung**: Anteil der praktisch relevanten Befehls- und Verhaltensfamilien mit einem nativen Pfad. Der atomare Fallback ist nur eine Sicherheitsgrenze und wird nicht als transpiliert gezählt.
-- **50,0 % vollständiger Dateibesitz**: Nur Dateien, deren gesamter wirksamer Vertrag nativ oder reproduzierbar generiert ersetzt ist.
-- **69,7 % gewichteter Quellzeilenstand**: konservative Schätzung auch für große Teilports.
-- **82,0 % Stufenfortschritt**: gewichtete Releaseplanung; eine Stufe kann weit fortgeschritten sein, obwohl große historische Python-Besitzer noch sichtbar bleiben.
+- **53,3 % vollständiger Dateibesitz**: Nur Dateien, deren gesamter wirksamer Vertrag nativ oder reproduzierbar generiert ersetzt ist.
+- **71,2 % gewichteter Quellzeilenstand**: konservative Schätzung auch für große Teilports.
+- **82,2 % Stufenfortschritt**: gewichtete Releaseplanung; eine Stufe kann weit fortgeschritten sein, obwohl große historische Python-Besitzer noch sichtbar bleiben.
 
 Der Port ist daher nicht von über 90 % auf rund 56 % zurückgefallen. Die frühere Zahl bezeichnete die Funktionsoberfläche, die strengere Zahl den Quellersatz. Der vollständige Plan steht in [`ROADMAP.md`](ROADMAP.md).
 
@@ -43,6 +43,21 @@ Das Skript erzeugt `.venv`, installiert den Modular-Mojo-Compiler und baut die r
 ```
 
 Details: [`BUILD.md`](BUILD.md).
+
+### Python-/PyPy3-Referenz
+
+Die `.venv` ist für den Mojo-Compiler bestimmt. Referenz- und Paritätsskripte
+wählen über `scripts/select_reference_python.sh` zuerst explizite Vorgaben,
+danach `pypy3`, dann `python3`; `.venv/bin/python` ist nur der letzte
+Notfallfallback. Für den historischen Volltabellenlauf gilt daher:
+
+```bash
+PYTHONHASHSEED=0 pypy3 reta -spalten --alles --breite=0 \
+  -ausgabe --art=html --onetable --nocolor > middle.alx
+```
+
+`.venv/`, `.git/`, `target/` und Caches gehören nicht in Quellarchive. Brotli-
+Archive (`.tar.br`) werden unterstützt.
 
 Nach jedem Build entfernt `tools/sanitize_mojo_runpath.py` den von Mojo selbst ergänzten absoluten Compilerpfad aus dem ELF-RUNPATH. Ausgelieferte Programme enthalten damit nur `$ORIGIN/../lib/mojo` und bleiben zwischen Rechnern übertragbar.
 
@@ -68,7 +83,7 @@ historische Projektstruktur ohne Datenkopie. Details:
 
 ## Stufen 7–10: Generatoren, Kombinationen, Markup und Prompt
 
-Stage 12c5a aktiviert einen eigenen nativen Besitzer für die produktive Prompt-Interaktionsschleife, Speicher-/Löschmodi, One-shots und Previous-Command-Policy; Details: [`STAGE12C5A_NATIVE_PROMPT_INTERACTION.md`](STAGE12C5A_NATIVE_PROMPT_INTERACTION.md). Stage 12c4z macht `generate_html` zu einem FHS-fähigen Unix-Kommando mit atomarer Dateiausgabe, expliziter Mitteltabelle, Manpage und wiederverwendbarer vollständiger Python-Referenz; Details: [`STAGE12C4Z_PROFESSIONAL_GENERATE_HTML.md`](STAGE12C4Z_PROFESSIONAL_GENERATE_HTML.md). Stage 12c4y gibt der produktiven Spalten-, Zeilen-, Breiten-, Ausgabe- und Obergrenzenplanung einen eigenständigen typisierten Besitzer und ergänzt wiederverwendbare vollständige `--alles`-Referenzpakete; Details: [`STAGE12C4Y_NATIVE_PARAMETER_RUNTIME.md`](STAGE12C4Y_NATIVE_PARAMETER_RUNTIME.md). Stage 12c4x übernimmt den vollständigen fünfsprachigen `i18n.words`-Split als nativen Baumkatalog; Details: [`STAGE12C4X_NATIVE_I18N_WORDS.md`](STAGE12C4X_NATIVE_I18N_WORDS.md). Stage 12c4w ergänzt die native Prompt-Vorbereitung und das vollständige semantische `--alles`-Gate; Details: [`STAGE12C4W_NATIVE_PROMPT_PREPARATION_FULL_ALL.md`](STAGE12C4W_NATIVE_PROMPT_PREPARATION_FULL_ALL.md). Stage 12c4v besitzt Prompt-Sitzung und Prompt-Runtime vollständig nativ beziehungsweise reproduzierbar generiert; Details: [`STAGE12C4V_NATIVE_PROMPT_SESSION_RUNTIME.md`](STAGE12C4V_NATIVE_PROMPT_SESSION_RUNTIME.md).
+Stage 12c5c portiert den vollständigen Quellbaum-Integritätsvertrag mit binärem SHA-256, Pflichtpfaden, Laufzeitartefakten, CSV-Zeilenzählung und einer installierbaren Diagnose-CLI. Zugleich ersetzt eine typisierte Split-i18n-Fassade den dynamischen `SimpleNamespace`-Merge; Details: [`STAGE12C5C_NATIVE_PACKAGE_INTEGRITY_SPLIT_I18N.md`](STAGE12C5C_NATIVE_PACKAGE_INTEGRITY_SPLIT_I18N.md). Stage 12c5a aktiviert einen eigenen nativen Besitzer für die produktive Prompt-Interaktionsschleife, Speicher-/Löschmodi, One-shots und Previous-Command-Policy; Details: [`STAGE12C5A_NATIVE_PROMPT_INTERACTION.md`](STAGE12C5A_NATIVE_PROMPT_INTERACTION.md). Stage 12c4z macht `generate_html` zu einem FHS-fähigen Unix-Kommando mit atomarer Dateiausgabe, expliziter Mitteltabelle, Manpage und wiederverwendbarer vollständiger Python-Referenz; Details: [`STAGE12C4Z_PROFESSIONAL_GENERATE_HTML.md`](STAGE12C4Z_PROFESSIONAL_GENERATE_HTML.md). Stage 12c4y gibt der produktiven Spalten-, Zeilen-, Breiten-, Ausgabe- und Obergrenzenplanung einen eigenständigen typisierten Besitzer und ergänzt wiederverwendbare vollständige `--alles`-Referenzpakete; Details: [`STAGE12C4Y_NATIVE_PARAMETER_RUNTIME.md`](STAGE12C4Y_NATIVE_PARAMETER_RUNTIME.md). Stage 12c4x übernimmt den vollständigen fünfsprachigen `i18n.words`-Split als nativen Baumkatalog; Details: [`STAGE12C4X_NATIVE_I18N_WORDS.md`](STAGE12C4X_NATIVE_I18N_WORDS.md). Stage 12c4w ergänzt die native Prompt-Vorbereitung und das vollständige semantische `--alles`-Gate; Details: [`STAGE12C4W_NATIVE_PROMPT_PREPARATION_FULL_ALL.md`](STAGE12C4W_NATIVE_PROMPT_PREPARATION_FULL_ALL.md). Stage 12c4v besitzt Prompt-Sitzung und Prompt-Runtime vollständig nativ beziehungsweise reproduzierbar generiert; Details: [`STAGE12C4V_NATIVE_PROMPT_SESSION_RUNTIME.md`](STAGE12C4V_NATIVE_PROMPT_SESSION_RUNTIME.md).
 
 ### Native normale Reta-Syntax
 
@@ -270,6 +285,7 @@ Siehe [`BINARIES.md`](BINARIES.md).
 ./scripts/test_stage11c.sh
 ./scripts/test_stage11d.sh
 ./scripts/test_stage11e.sh
+MOJO_BIN="$(pwd)/.venv/bin/mojo" ./scripts/test_stage12c5c.sh
 ./scripts/check_architecture_control_generation.sh
 ./scripts/check_architecture_coherence_trace_parity.sh
 ./scripts/check_generated_column_parity.sh
@@ -400,6 +416,7 @@ Die nächsten beiden Architektursteuerungsschichten sind als getrennte, reproduz
 ./bin/reta-mojo-migration --wave M3
 ./scripts/test_stage11d.sh
 ./scripts/test_stage11e.sh
+MOJO_BIN="$(pwd)/.venv/bin/mojo" ./scripts/test_stage12c5c.sh
 ```
 
 Beide Validierungen besitzen den Status `passed`. Acht repräsentative Python↔Mojo-Abfragen sind byteidentisch, und die Architekturkontrollregeneration umfasst nun acht byteidentische Generatorziele. Details: [`STAGE11D_NATIVE_ARCHITECTURE_IMPACT_MIGRATION.md`](STAGE11D_NATIVE_ARCHITECTURE_IMPACT_MIGRATION.md).
@@ -419,6 +436,7 @@ Die Stage-35-/36-Metadaten sind als getrennte, reproduzierbare Mojo-Bundles verf
 ./bin/reta-mojo-activation --summary
 ./bin/reta-mojo-activation --transaction ACT36-TX-M0
 ./scripts/test_stage11e.sh
+MOJO_BIN="$(pwd)/.venv/bin/mojo" ./scripts/test_stage12c5c.sh
 ```
 
 Beide gespeicherten Referenzvalidierungen und beide nativen Kreuzvalidierungen bestehen. Elf repräsentative Python↔Mojo-Abfragen sind byteidentisch; die Architekturkontrollregeneration umfasst zehn Ziele. Details: [`STAGE11E_NATIVE_ARCHITECTURE_REHEARSAL_ACTIVATION.md`](STAGE11E_NATIVE_ARCHITECTURE_REHEARSAL_ACTIVATION.md).

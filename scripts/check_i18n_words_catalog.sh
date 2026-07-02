@@ -4,14 +4,7 @@ ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 cd "$ROOT"
 TMP=$(mktemp -d)
 trap 'rm -rf "$TMP"' EXIT HUP INT TERM
-PYTHON=${RETA_PYTHON:-}
-if [ -z "$PYTHON" ]; then
-    if [ -x "$ROOT/.venv/bin/python" ]; then
-        PYTHON="$ROOT/.venv/bin/python"
-    else
-        PYTHON=python3
-    fi
-fi
+PYTHON=$("$ROOT/scripts/select_reference_python.sh")
 PYTHONHASHSEED=0 "$PYTHON" tools/generate_i18n_words_catalog.py --output "$TMP/i18n_words" >/dev/null
 for language in deutsch english vietnamese chinese korean; do
     cmp "$TMP/i18n_words/$language.tsv" "assets/i18n_words/$language.tsv"

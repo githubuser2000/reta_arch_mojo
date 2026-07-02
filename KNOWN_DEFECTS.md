@@ -18,14 +18,14 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 ## Rückwirkender Audit
 
 - letzter vollständiger Rückwärtsaudit: `12c4s`
-- geprüfte Quellen: **18**
-- Reichweite: Vollständig bezogen auf alle bis Stage 12c4z im Projekt bestätigten oder plausibel begründeten verhaltensrelevanten Befunde; unbekannte künftige Fehler können naturgemäß erst nach ihrer Entdeckung aufgenommen werden.
+- geprüfte Quellen: **20**
+- Reichweite: Vollständig bezogen auf alle bis Stage 12c5c im Projekt bestätigten oder plausibel begründeten verhaltensrelevanten Befunde; unbekannte künftige Fehler können naturgemäß erst nach ihrer Entdeckung aufgenommen werden.
 
 ## Übersicht
 
-- Einträge insgesamt: **59**
+- Einträge insgesamt: **61**
 - offene bestätigte Python-Fehler: **5**
-- zu entscheidende Python-Fehlerkandidaten: **10**
+- zu entscheidende Python-Fehlerkandidaten: **11**
 - bereits im Python-Baum behobene Fehler: **3**
 
 ## Einträge
@@ -818,3 +818,30 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 - spätere Python-Aktion: Keine Python-Produktivcodeänderung erforderlich.
 - Mojo-Orte: `scripts/test_stage12c4z.sh`, `tests/test_install_layout.py`
 - Belege: `STAGE12C4Z_PROFESSIONAL_GENERATE_HTML.md`, `scripts/test_stage12c4z.sh`
+
+### TEST-FIXED-012 – Referenz- und Kompatibilitätsskripte bevorzugten die Mojo-.venv statt des historischen PyPy3
+
+- Ursprung: `test_infrastructure`
+- Klasse / Schwere: `reference_interpreter_precedence_regression` / `medium`
+- Python-Status: `not_applicable`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5b`
+- Reproduktion: `In einem Checkout mit .venv/bin/python und installiertem pypy3 ein bisheriges Referenz- oder Paritätsskript starten; mehrere Skripte wählten zuerst .venv/bin/python und führten die langsame Python-Referenz dadurch unter CPython statt unter PyPy3 aus.`
+- heutiger Vertrag: Alle Python-Referenz-, Paritäts- und atomaren Kompatibilitätspfade verwenden einen zentralen Selektor. Explizites RETA_REFERENCE_PYTHON beziehungsweise RETA_PYTHON gewinnt, danach pypy3, danach python3; die lokale Mojo-.venv ist nur noch der letzte Notfallfallback. Ungültige explizite Interpreter brechen sichtbar ab.
+- spätere Python-Aktion: Keine Änderung am eingefrorenen Python-/PyPy3-Produktivcode erforderlich.
+- Mojo-Orte: `scripts/select_reference_python.sh`, `scripts/create_full_all_reference_bundle.sh`, `bin/reta-mojo-compat`, `bin/reta-prompt-profile`
+- Belege: `STAGE12C5B_NATIVE_PROMPT_LANGUAGE_PYPY3.md`, `tests/test_reference_python_selector.py`, `tests/test_prompt_language_ownership.py`, `FULL_ALL_REFERENCE_WORKFLOW.md`
+
+### PY-CAND-011 – Manifestnormalisierung entfernt führende Punkte und kann Dotfile-Pfade kollidieren lassen
+
+- Ursprung: `python_reference`
+- Klasse / Schwere: `dotfile_manifest_path_collision` / `medium`
+- Python-Status: `candidate`
+- Mojo-Status: `compatibility_preserved`
+- entdeckt in: `12c5c`
+- Reproduktion: `In einem temporären Manifestbaum sowohl .hidden als auch hidden mit verschiedenen Inhalten anlegen und RepoManifest.from_tree(root).snapshot(include_files=True) aufrufen; beide Pfade werden durch lstrip('./') als hidden geführt und _manifest_file_entry kann für beide die undotierte Datei lesen.`
+- heutiger Vertrag: Der native Manifestbesitzer reproduziert die historische lstrip('./')-Normalisierung und den Dotfile-Fallback absichtlich, damit bestehende Python-Manifeste einschließlich der Kollision bytegleich bleiben. Der dynamische Paritätsbaum enthält .hidden und hidden mit verschiedenen Inhalten.
+- spätere Python-Aktion: Nach Abschluss der funktionalen Portierung in Python nur ein tatsächliches Präfix './' entfernen, führende Punkte erhalten, Kollisionen mit einem neuen Solltest ausschließen und die daraus folgende Manifestdigest-Änderung kontrolliert versionieren.
+- Python-Orte: `python_reference/reta_architecture/package_integrity.py:91-92`, `python_reference/reta_architecture/package_integrity.py:122-132`
+- Mojo-Orte: `src/reta_mojo/package_integrity.mojo`, `tests/test_package_integrity.mojo`, `scripts/check_package_integrity_parity.py`
+- Belege: `STAGE12C5C_NATIVE_PACKAGE_INTEGRITY_SPLIT_I18N.md`, `scripts/check_package_integrity_parity.py`, `tests/test_package_integrity.mojo`

@@ -76,6 +76,7 @@ def test_installed_native_inspection_launchers_resolve_symlinks() -> None:
         "reta-mojo-i18n",
         "reta-mojo-impact",
         "reta-mojo-migration",
+        "reta-mojo-package-integrity",
         "reta-mojo-parallel-execution",
         "reta-mojo-persistence",
         "reta-mojo-progress",

@@ -4,14 +4,7 @@ ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 cd "$ROOT"
 mkdir -p target/tests
 MOJO=${MOJO_BIN:-"$ROOT/bin/mojo-real"}
-PYTHON=${RETA_PYTHON-}
-if [ -z "$PYTHON" ]; then
-    if [ -x "$ROOT/.venv/bin/python" ]; then
-        PYTHON="$ROOT/.venv/bin/python"
-    else
-        PYTHON=$(command -v python3)
-    fi
-fi
+PYTHON=$("$ROOT/scripts/select_reference_python.sh")
 PROBE=target/tests/parameter_runtime_probe
 "$MOJO" build -I src tests/parameter_runtime_probe.mojo -o "$PROBE"
 python3 tools/sanitize_mojo_runpath.py "$PROBE" >/dev/null

@@ -906,3 +906,31 @@ Validiert wurden 3/3 Runtime-Tests, 5/5 Zustandsmaschinentests, 12/12 bestehende
 - Vollständiger Dateibesitz: **46/92 = 50,0 %**; mindestens teilweise:
   **78/92 = 84,8 %**; gewichteter Quellersatz: **ca. 69,7 %**.
 
+
+
+## Stage 12c5b – vollständige Prompt-Sprache und PyPy3-first
+
+- `prompt_language.mojo` besitzt jetzt die vollständige historische
+  `PromptLanguageBundle`-Oberfläche und lädt den fünfsprachigen Bestand aus
+  `assets/prompt_language_legacy.tsv`.
+- Der reproduzierbare Katalog enthält **17.123** Zeilen; **90/90**
+  sprachgebundene Snapshotdatensätze sind byteidentisch zur Referenz.
+- `scripts/select_reference_python.sh` vereinheitlicht alle Referenzpfade:
+  explizite Vorgabe → `pypy3` → `python3` → `.venv` als letzter Fallback.
+- `.venv`, `.git`, `target` und Caches bleiben aus Quellarchiven ausgeschlossen;
+  Brotli-`tar.br` ist das neue Übergabeformat.
+- `TEST-FIXED-012` dokumentiert die beseitigte falsche `.venv`-Priorität.
+- Vollständiger Dateibesitz: **47/92 = 51,1 %**; mindestens teilweise:
+  **78/92 = 84,8 %**; gewichteter Quellersatz: **ca. 70,7 %**.
+
+## Stage 12c5c – native Paketintegrität und Split-i18n
+
+- `src/reta_mojo/package_integrity.mojo` ersetzt den vollständigen Python-`RepoManifest`-Vertrag: reguläre Dateien und Dateisymlinks, Runtime-Filter, Bytezählung, binärer SHA-256-Baumdigest, 74 Pflichtpfade und Python-kompatible CSV-`splitlines()`-Zählung.
+- Die Baumaufnahme verwendet direkt `realpath`, `opendir`, `readdir`, `readlink` und `closedir`; es wird kein Shell- oder Python-Hilfsprozess gestartet.
+- `src/package_integrity_main.mojo` und `bin/reta-mojo-package-integrity` stellen Text-, JSON- und vollständige Dateilistenausgabe bereit; der Build linkt ausschließlich `libcrypto`, nicht Python.
+- Der vollständige Referenzbaum stimmt mit **457 Dateien**, **34.576.137 Byte**, **79 CSV-Dateien** und Digest `572fb412ec96f32303f4ec944875112f5274db61094e6ebe8eb5c725972f8d5e` exakt überein.
+- `src/reta_mojo/split_i18n.mojo` ersetzt den dynamischen `SimpleNamespace`-Merge durch einen typisierten Proxy mit identischer Modulreihenfolge und Later-wins-Auflösung.
+- Native Modultests: **39/39**; Python↔Mojo-Paritätsbäume: **2/2 exakt**; Source-/Ownership-/Boundary-/Archivtests: **17/17**.
+- `PY-CAND-011` erfasst die historische `lstrip("./")`-Dotfile-Kollision. Mojo reproduziert sie bis zur späteren kontrollierten Python-/Manifestmigration.
+- Vollständiger Dateibesitz: **49/92 = 53,3 %**; mindestens teilweise: **80/92 = 87,0 %**; gewichteter Quellersatz: **ca. 71,2 %**.
+

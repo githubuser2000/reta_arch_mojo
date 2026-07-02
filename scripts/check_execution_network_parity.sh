@@ -3,7 +3,7 @@ set -eu
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 cd "$ROOT"
 BIN=${RETA_EXECUTION_NETWORK_BIN:-"$ROOT/target/bin/reta-mojo-execution-network"}
-PYTHON=${RETA_REFERENCE_PYTHON:-python3}
+PYTHON=$("$ROOT/scripts/select_reference_python.sh")
 TMP=${TMPDIR:-/tmp}/reta-execution-network-parity-$$
 mkdir -p "$TMP"
 trap 'rm -rf "$TMP"' EXIT HUP INT TERM

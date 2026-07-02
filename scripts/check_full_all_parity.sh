@@ -10,14 +10,7 @@ if [ "${RETA_REGENERATE_FULL_ALL_REFERENCE:-0}" != 1 ] && [ -f "$BUNDLED_REFEREN
     exec "$ROOT/scripts/check_full_all_against_reference.sh" "$BUNDLED_REFERENCE"
 fi
 NATIVE=${RETA_NATIVE_BINARY:-"$ROOT/target/bin/reta-native"}
-PYTHON=${RETA_PYTHON-}
-if [ -z "$PYTHON" ]; then
-    if [ -x "$ROOT/.venv/bin/python" ]; then
-        PYTHON="$ROOT/.venv/bin/python"
-    else
-        PYTHON=$(command -v python3)
-    fi
-fi
+PYTHON=$("$ROOT/scripts/select_reference_python.sh")
 [ -x "$NATIVE" ] || {
     printf 'Native binary fehlt: %s\n' "$NATIVE" >&2
     exit 2

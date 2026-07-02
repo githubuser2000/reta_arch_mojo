@@ -218,5 +218,54 @@ def test_prompt_preparation_unicode_control_alias() raises:
     assert_true("2" in prepared.tokens)
     assert_true("BefehlSpeicherungLöschen" in prepared.tokens)
 
+
+
+def test_legacy_prompt_parameter_surface() raises:
+    var catalog = _catalog()
+    assert_true(prompt_is_reta_parameter(catalog, "deutsch", "-zeilen"))
+    assert_true(prompt_is_reta_parameter(catalog, "deutsch", "--zeit=heute"))
+    assert_true(prompt_is_reta_parameter(catalog, "deutsch", "--breite=0"))
+    assert_true(prompt_is_reta_parameter(catalog, "deutsch", "--Religionen=sternpolygon"))
+    assert_false(prompt_is_reta_parameter(catalog, "deutsch", "-1"))
+    assert_false(prompt_is_reta_parameter(catalog, "deutsch", "-1-3"))
+    assert_false(prompt_is_reta_parameter(catalog, "deutsch", "-1/2"))
+    assert_false(prompt_is_reta_parameter(catalog, "deutsch", "--unbekannt=2"))
+
+    assert_true(isReTaParameter(catalog, "english", "-lines"))
+    assert_true(isReTaParameter(catalog, "english", "--time=today"))
+    assert_true(isReTaParameter(catalog, "english", "--type=html"))
+    assert_false(isReTaParameter(catalog, "english", "-4"))
+
+
+def test_legacy_prompt_language_aliases() raises:
+    var catalog = _catalog()
+    _assert_tokens(custom_split("reta (1 2)  ende"), ["reta", "(1 2)", "", "ende"])
+    _assert_tokens(custom_split2("1,(2,3),4", ","), ["1", "(2,3)", "4"])
+    assert_true(is15or16command(catalog, "deutsch", "15_13_10"))
+    assert_true(is15or16command(catalog, "english", "16_15_13_10"))
+    assert_false(is15or16command(catalog, "deutsch", "16_999"))
+
+
+def test_prompt_language_snapshot() raises:
+    var catalog = _catalog()
+    var german = prompt_language_snapshot(catalog, "deutsch")
+    assert_equal(german.language, "deutsch")
+    assert_equal(german.class_name, "PromptLanguageBundle")
+    assert_equal(german.not_parameter_values_len, 4199)
+    assert_equal(german.parameter_bases_len, 119)
+    assert_equal(german.commands_len, 386)
+    assert_equal(german.allowed_fraction_numbers_len, 21)
+    assert_equal(german.wahl15_len, 65)
+    assert_equal(german.wahl16_len, 9)
+    assert_true(len(german.short_command_letters) > 10)
+
+    var english = prompt_language_snapshot(catalog, "english")
+    assert_equal(english.not_parameter_values_len, 2715)
+    assert_equal(english.parameter_bases_len, 98)
+    assert_equal(english.commands_len, 367)
+    assert_equal(english.allowed_fraction_numbers_len, 21)
+    assert_equal(english.wahl15_len, 65)
+    assert_equal(english.wahl16_len, 9)
+
 def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()

@@ -4,7 +4,7 @@ ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 cd "$ROOT"
 TEST_DIR=${RETA_TEST_TARGET_DIR:-"$ROOT/target/test-bin"}
 BIN_DIR=${RETA_TARGET_DIR:-"$ROOT/target/bin"}
-PYTHON=${RETA_REFERENCE_PYTHON:-python3}
+PYTHON=$("$ROOT/scripts/select_reference_python.sh")
 mkdir -p "$TEST_DIR" "$BIN_DIR"
 
 "$ROOT/bin/mojo-real" build --no-optimization -j 4 -I src \
