@@ -11,7 +11,7 @@ Arbeitsliste für die Phase nach dem vollständigen Mojo-Port.
 4. Python und Mojo gegen denselben korrigierten Sollvertrag prüfen.
 5. Den Eintrag in `KNOWN_DEFECTS.json` auf `fixed` setzen.
 
-Offene oder zu entscheidende Einträge: **14**
+Offene oder zu entscheidende Einträge: **15**
 
 ## 1. PY-OPEN-001 – Beliebige Codeausführung durch eval in Ganzzahlmengen-Ausdrücken
 
@@ -166,3 +166,14 @@ Offene oder zu entscheidende Einträge: **14**
 - Python-Arbeitsauftrag: Nach Abschluss der Transpilierung den Text auf -language= umstellen, die erlaubten kanonischen Namen oder Codes dedupliziert und in fachlich definierter Reihenfolge ausgeben und Python sowie Mojo gemeinsam auf neue Soll-Fixtures migrieren.
 - Python-Orte: `python_reference/i18n/words_runtime.py:540-543`, `python_reference/reta_architecture/parameter_runtime.py:212`
 - Belege: `STAGE12C4X_NATIVE_I18N_WORDS.md`, `tests/test_i18n_words_source.py`, `assets/i18n_words/manifest.json`
+
+## 15. PY-CAND-009 – Obergrenzenhelfer materialisiert hunderte doppelte 1024-Werte und exponiert Mengenreihenfolge
+
+- Priorität: `low`
+- Python-Status: `candidate`
+- Mojo-Status: `compatibility_preserved`
+- Reproduktion: `PYTHONHASHSEED=0 python3 scripts/parameter_runtime_reference.py --vorhervonausschnitt=v2-4`
+- heutiger Vertrag: Für v2-4 liefert Python 685 Werte, darunter 682 identische 1024-Einträge, weil zuerst eine Integer-Menge expandiert und danach jeder Wert einzeln auf mindestens 1024 geklemmt wird. Produktiv wird nur das Maximum verwendet. Mojo bewahrt Anwendungsflag, Multiset und resultierende Obergrenze, serialisiert die Werte jedoch deterministisch in der nativen Bereichsparser-Reihenfolge.
+- Python-Arbeitsauftrag: Nach Abschluss der Transpilierung den Obergrenzenvertrag auf einen einzelnen Maximalwert oder eine deduplizierte fachlich sortierte Menge reduzieren und Python sowie Mojo gemeinsam auf diesen Sollvertrag migrieren.
+- Python-Orte: `python_reference/reta_architecture/parameter_runtime.py:851-872`, `python_reference/reta_architecture/runtime_compat.py:96-107`
+- Belege: `STAGE12C4Y_NATIVE_PARAMETER_RUNTIME.md`, `scripts/check_parameter_runtime_parity.sh`, `tests/test_parameter_runtime.mojo`

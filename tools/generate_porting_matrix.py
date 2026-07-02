@@ -9,6 +9,16 @@ PYROOT = ROOT / "python_reference"
 OUT = ROOT / "PORTING_MATRIX.md"
 
 NATIVE = {
+    "i18n/words.py": ("generiert nativ", "src/reta_mojo/i18n_words.mojo + assets/i18n_words/*.tsv", "aktive fünfsprachige Fassade als reproduzierbarer typisierter Baumkatalog"),
+    "i18n/words_bootstrap.py": ("generiert nativ", "src/reta_mojo/i18n_words.mojo + tools/generate_i18n_words_catalog.py", "Bootstrapzustand, Debuggrenzen und Sprachinitialisierung im nativen Baumvertrag"),
+    "i18n/words_context.py": ("generiert nativ", "src/reta_mojo/i18n_words.mojo + assets/i18n_words/*.tsv", "vollständiger fünfsprachiger Kontextbestand einschließlich Reihenfolge und Referenzen"),
+    "i18n/words_matrix.py": ("generiert nativ", "src/reta_mojo/i18n_words.mojo + assets/i18n_words/*.tsv", "431×5 Parametermatrixwurzeln als reproduzierbarer nativer Katalog"),
+    "i18n/words_runtime.py": ("generiert nativ", "src/reta_mojo/i18n_words.mojo + src/i18n_words_main.mojo", "Runtimeklassen, Meldungen, Klassifikation und öffentliche Inspektionsoberfläche nativ"),
+    "libs/nestedAlx.py": ("nativ", "src/reta_mojo/completion_nested.mojo", "historische verschachtelte Completion-Fassade vollständig typisiert"),
+    "libs/word_completerAlx.py": ("nativ", "src/reta_mojo/completion_word.mojo", "historische Wort-Completion-Fassade vollständig typisiert"),
+    "reta_architecture/completion_nested.py": ("nativ", "src/reta_mojo/completion_nested.mojo", "verschachtelte Zustandsmaschine, Fuzzyordnung, Snapshots und Morphismusbundle vollständig nativ"),
+    "reta_architecture/completion_runtime.py": ("generiert nativ", "src/reta_mojo/completion_runtime.mojo + assets/prompt_language", "fünfsprachiger Completion-Runtimevertrag reproduzierbar geladen und typisiert"),
+    "reta_architecture/completion_word.py": ("nativ", "src/reta_mojo/completion_word.mojo", "UTF-8-Cursor-, WORD-, Satz-, Anzeige- und Metadatenvertrag vollständig nativ"),
     "bbcode.py": ("nativ", "src/reta_mojo/compat_text.mojo", "identische Text-Fallbacksemantik ohne Python-Abhängigkeit"),
     "html2text.py": ("nativ", "src/reta_mojo/compat_text.mojo", "identische Text-Fallbacksemantik ohne Python-Abhängigkeit"),
     "multis.py": ("nativ", "src/reta_mojo/arithmetic.mojo + prompt_runtime.mojo", "Faktorpaare und öffentliche multis-CLI nativ"),
@@ -53,6 +63,7 @@ NATIVE = {
     "reta_architecture/prompt_runtime.py": ("generiert nativ", "src/reta_mojo/prompt_runtime.mojo + prompt_runtime_catalog.mojo + prompt_prefix_catalog.mojo + tools/generate_prompt_runtime_catalog.py", "Primprädikat, Laufzeit-/Programm-/Vokabularvertrag und fünfsprachige Promptpräfixe vollständig typisiert und reproduzierbar generiert"),
     "reta_architecture/prompt_session.py": ("nativ", "src/reta_mojo/prompt_session.mojo + native_prompt_input.mojo + prompt_terminal_input.mojo", "PromptTextState, Sitzungs-/Speicherzustand, Löschsemantik, History-Filter, lokalisierte Präfixe und native Terminalgrenze vollständig ersetzt"),
     "reta_architecture/prompt_preparation.py": ("weitgehend nativ", "src/reta_mojo/prompt_preparation.mojo + prompt_regex.mojo + prompt_preparation_catalog.mojo", "vollständiger nativer Vorbereitungs- und Regexvertrag; produktive Promptcontroller-Aktivierungsnaht noch offen"),
+    "reta_architecture/parameter_runtime.py": ("weitgehend nativ", "src/reta_mojo/parameter_runtime.mojo + native_reta_cli.mojo", "typisierter produktiver Plan für Spalten, Zeilen, Breiten, Ausgabe und Obergrenzen; historische Diagnose- und Hilfetexte bleiben am atomaren Kompatibilitätsrand"),
     "reta.py": ("teilweise nativ", "src/reta_native_main.mojo + src/reta_mojo/native_reta_cli.mojo", "häufige deutsche und englische Tabellenaufrufe nativ; vollständige Legacy-Oberfläche bleibt über RETA_NATIVE=0 kompatibel"),
     "reta_architecture/row_filtering.py": ("nativ", "src/reta_mojo/row_filtering.mojo", "Zeilenbereiche, Zeit, Zählgruppen, Primklassen, Gestirne, Vielfache, Potenzen, Invertierung und Positionsfilter"),
     "reta_architecture/generated_columns.py": ("teilweise nativ", "src/reta_mojo/generated_columns.mojo", "vier Generatorfamilien zweisprachig nativ; restliche Generator- und Metaspalten folgen in Stufe 7"),
@@ -94,10 +105,10 @@ native_lines = sum(r[1] for r in original_rows if r[0] in NATIVE)
 total_lines = sum(r[1] for r in original_rows)
 content = [
     "# Portierungsmatrix Python → Mojo\n\n",
-    "Stand: 30. Juni 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der gebündelten Python-Kompatibilitätsreferenz.\n\n",
+    "Stand: 2. Juli 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der gebündelten Python-Kompatibilitätsreferenz.\n\n",
     f"- Ursprüngliche Python-Dateien: **{len(original_rows)}**\n",
     f"- Ursprüngliche Python-Zeilen insgesamt: **{total_lines}**\n",
-    "- Zusätzlicher Bridge-Adapter: **1 Python-Datei**\n",
+    "- Eingebettete Python-Brücken: **0**; expliziter Mojo-Kindprozessadapter: **1**\n",
     f"- Quellzeilen der bereits angegriffenen Architekturmodule: **{native_lines}**\n",
     "- Native Mojo-Quellzeilen: siehe `src/` (inklusive generiertem Kategoriekatalog)\n\n",
     "| Python-Datei | Zeilen | Funktionen | Klassen | dynamische Aufrufe | Status | Mojo/Ziel | Anmerkung |\n",

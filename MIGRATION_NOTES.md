@@ -845,3 +845,28 @@ Validiert wurden 3/3 Runtime-Tests, 5/5 Zustandsmaschinentests, 12/12 bestehende
   semantische Parität von 149.356/149.356 Zellen maßgeblich. Der zusätzliche
   aktuelle Python-Neulauf überschritt das 20-Minuten-Sandboxlimit und wird
   nicht als neuer bestandener Vergleich ausgewiesen.
+
+
+## Stage 12c4y – eigenständiger nativer Parameter-Runtime-Besitzer
+
+- `parameter_runtime.mojo` besitzt den produktiven typisierten Plan für Sprache,
+  Ausgabeart, Breiten, Zeilen, physische/generierte Spalten, explizite
+  Reihenfolge und dynamische Obergrenzen.
+- `native_reta_cli.mojo` delegiert an diesen Besitzer; die frühere zweite
+  Planimplementierung und ihre Alias-/Breiten-/Spaltenhelfer wurden entfernt.
+- Native Modultests **8/8**, bestehende produktive CLI-Tests **30/30** und
+  Python↔Mojo-Obergrenzenparität **6/6 semantisch**; der einzige
+  Reihenfolgeabstand betrifft die vom Python-Original exponierte Setfolge für
+  `v2-4`, während Multiset und Maximum identisch sind.
+- `PY-CAND-009` dokumentiert hunderte doppelte 1024-Obergrenzenwerte im
+  Python-Original; `MOJO-FIXED-026` schließt den doppelten nativen Besitzer.
+- `TEST-FIXED-007` korrigiert den Generator der detaillierten
+  Portierungsmatrix, der bereits übernommene Completion- und i18n-Dateien bei
+  Regeneration fälschlich wieder als Bridge auswies.
+- Ein vollständiger Python-`--alles`-Lauf kann als portables Referenzpaket
+  gespeichert und für spätere reine Mojo-Stages wiederverwendet werden. Der
+  aktuelle native Volltabellenlauf bleibt bei 24.975.753 Byte, 198 Zeilen und
+  149.356 Zellen mit dem aus 12c4x bekannten SHA-256.
+- Vollständiger Dateibesitz bleibt konservativ **45/92 = 48,9 %**; mindestens
+  teilweise portierter Besitz steigt auf **75/92 = 81,5 %**, gewichteter
+  Quellersatz auf etwa **68,8 %**.

@@ -23,9 +23,9 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 
 ## Übersicht
 
-- Einträge insgesamt: **50**
+- Einträge insgesamt: **54**
 - offene bestätigte Python-Fehler: **5**
-- zu entscheidende Python-Fehlerkandidaten: **8**
+- zu entscheidende Python-Fehlerkandidaten: **9**
 - bereits im Python-Baum behobene Fehler: **3**
 
 ## Einträge
@@ -699,3 +699,56 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 - spätere Python-Aktion: Keine Python-Produktivcodeänderung erforderlich; der absolute Python-Laufzeitpfad bleibt Referenzverhalten, während das portable native Asset bewusst die projektrelative Ressourcenschreibweise trägt.
 - Mojo-Orte: `tools/generate_i18n_words_catalog.py`, `assets/i18n_words/deutsch.tsv`, `assets/i18n_words/english.tsv`
 - Belege: `STAGE12C4X_NATIVE_I18N_WORDS.md`, `tests/test_i18n_words_source.py`, `scripts/check_i18n_words_catalog.sh`
+
+### PY-CAND-009 – Obergrenzenhelfer materialisiert hunderte doppelte 1024-Werte und exponiert Mengenreihenfolge
+
+- Ursprung: `python_reference`
+- Klasse / Schwere: `parameter_upper_limit_duplicate_sequence` / `low`
+- Python-Status: `candidate`
+- Mojo-Status: `compatibility_preserved`
+- entdeckt in: `12c4y`
+- Reproduktion: `PYTHONHASHSEED=0 python3 scripts/parameter_runtime_reference.py --vorhervonausschnitt=v2-4`
+- heutiger Vertrag: Für v2-4 liefert Python 685 Werte, darunter 682 identische 1024-Einträge, weil zuerst eine Integer-Menge expandiert und danach jeder Wert einzeln auf mindestens 1024 geklemmt wird. Produktiv wird nur das Maximum verwendet. Mojo bewahrt Anwendungsflag, Multiset und resultierende Obergrenze, serialisiert die Werte jedoch deterministisch in der nativen Bereichsparser-Reihenfolge.
+- spätere Python-Aktion: Nach Abschluss der Transpilierung den Obergrenzenvertrag auf einen einzelnen Maximalwert oder eine deduplizierte fachlich sortierte Menge reduzieren und Python sowie Mojo gemeinsam auf diesen Sollvertrag migrieren.
+- Python-Orte: `python_reference/reta_architecture/parameter_runtime.py:851-872`, `python_reference/reta_architecture/runtime_compat.py:96-107`
+- Mojo-Orte: `src/reta_mojo/parameter_runtime.mojo`, `scripts/compare_parameter_runtime_parity.py`
+- Belege: `STAGE12C4Y_NATIVE_PARAMETER_RUNTIME.md`, `scripts/check_parameter_runtime_parity.sh`, `tests/test_parameter_runtime.mojo`
+
+### MOJO-FIXED-026 – Produktiver Parameterplan war als zweite Implementierung im monolithischen CLI-Besitzer eingebettet
+
+- Ursprung: `mojo_port`
+- Klasse / Schwere: `duplicate_native_owner_and_compiler_graph` / `medium`
+- Python-Status: `not_applicable`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c4y`
+- Reproduktion: `Im Stand 12c4x src/reta_mojo/native_reta_cli.mojo nach ParameterRuntimePlan, Aliasauflösung, Breiten- und Spaltenplanlogik durchsuchen; dieselbe fachliche Grenze hatte keinen eigenständigen Besitzer und wurde beim Import des gesamten CLI-Moduls erneut kompiliert.`
+- heutiger Vertrag: Der vollständige produktive Parameterplan und die Obergrenzenlogik liegen in parameter_runtime.mojo. native_reta_cli.mojo importiert den typisierten Besitzer und stellt nur noch einen dünnen Adapter bereit; die frühere zweite Implementierung ist entfernt.
+- spätere Python-Aktion: Keine Python-Produktivcodeänderung erforderlich.
+- Mojo-Orte: `src/reta_mojo/parameter_runtime.mojo`, `src/reta_mojo/native_reta_cli.mojo`
+- Belege: `STAGE12C4Y_NATIVE_PARAMETER_RUNTIME.md`, `tests/test_parameter_runtime_source.py`, `tests/test_native_reta_cli.mojo`
+
+### TEST-FIXED-007 – Portierungsmatrix verlor bereits nachgewiesene Completion- und i18n-Besitzer bei jeder Regeneration
+
+- Ursprung: `test_infrastructure`
+- Klasse / Schwere: `generated_porting_matrix_ownership_regression` / `medium`
+- Python-Status: `not_applicable`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c4y`
+- Reproduktion: `python3 tools/generate_porting_matrix.py ausführen und anschließend die Zeilen i18n/words.py, completion_nested.py oder completion_word.py prüfen; vor der Korrektur erschienen sie trotz bestandener nativer Stage-Gates erneut als Python-Referenz/Bridge.`
+- heutiger Vertrag: Der Matrixgenerator führt alle in 12c4t, 12c4u und 12c4x übernommenen Wort-, Nested-Completion- und fünf aktiven i18n.words-Dateien explizit als nativ beziehungsweise generiert nativ. Ein Source-Test prüft Generatorabbildung und regenerierte Markdownzeilen.
+- spätere Python-Aktion: Keine Python-Produktivcodeänderung erforderlich.
+- Mojo-Orte: `tools/generate_porting_matrix.py`, `PORTING_MATRIX.md`
+- Belege: `STAGE12C4Y_NATIVE_PARAMETER_RUNTIME.md`, `tests/test_porting_matrix_ownership.py`, `PORTING_MATRIX.md`
+
+### TEST-FIXED-008 – Vollständiger HTML-Paritätsvergleich hielt beide 25-MiB-Tabellen als speicherintensive Zellobjektbäume
+
+- Ursprung: `test_infrastructure`
+- Klasse / Schwere: `full_all_comparator_memory_pressure` / `medium`
+- Python-Status: `not_applicable`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c4y`
+- Reproduktion: `python3 scripts/compare_full_all_html.py <python-all.html> <native-all.html> auf dem vollständigen 149356-Zellen-Bestand unter /usr/bin/time ausführen; der alte Parser hielt Rohteile, Textteile und Listenelemente beider Dokumente gleichzeitig und erreichte hier etwa 553 MiB Spitzenspeicher.`
+- heutiger Vertrag: Der Vergleich speichert pro Zelle nur drei SHA-256-Digests und liest semantische Inhalte nur für tatsächlich abweichende Zellen erneut. Die historische verschachtelte Tabellenbehandlung und der 198-Zeilen/149356-Zellen-Vertrag bleiben unverändert; der gemessene Spitzenspeicher sank auf ungefähr 328 MiB.
+- spätere Python-Aktion: Keine Python-Produktivcodeänderung erforderlich.
+- Mojo-Orte: `scripts/compare_full_all_html.py`, `scripts/check_full_all_against_reference.sh`
+- Belege: `STAGE12C4Y_NATIVE_PARAMETER_RUNTIME.md`, `tests/test_full_all_reference_workflow.py`, `scripts/compare_full_all_html.py`
