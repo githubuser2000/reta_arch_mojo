@@ -264,7 +264,7 @@ DESTDIR="$pkgdir" PREFIX=/usr ./scripts/install.sh
 Dann liegen die Tabellen unter `/usr/share/reta/csv`. Die öffentliche
 `/usr/bin`-Ebene enthält nur relative Symlinks zu den privaten Launchern unter
 `/usr/lib/reta/bin`. Die privaten ELFs werden nicht mehr per Wildcard kopiert,
-sondern ausschließlich aus der 33-Ziel-Allowlist
+sondern ausschließlich aus der 34-Ziel-Allowlist
 `scripts/install_targets.txt`; dadurch gelangen keine lokalen Alt-/Debugziele
 ins Paket. Der Python-Kompatibilitätsbaum behält seinen historischen
 Pfad `python_reference/csv` als relativen Symlink auf die kanonischen

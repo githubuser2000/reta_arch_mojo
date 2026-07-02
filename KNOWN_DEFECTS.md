@@ -23,9 +23,9 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 
 ## Übersicht
 
-- Einträge insgesamt: **68**
+- Einträge insgesamt: **71**
 - offene bestätigte Python-Fehler: **5**
-- zu entscheidende Python-Fehlerkandidaten: **11**
+- zu entscheidende Python-Fehlerkandidaten: **12**
 - bereits im Python-Baum behobene Fehler: **7**
 
 ## Einträge
@@ -941,3 +941,43 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 - spätere Python-Aktion: Keine Python-Änderung erforderlich; der Befund betrifft ausschließlich die Mojo-Ownership-Semantik.
 - Mojo-Orte: `src/reta_mojo/architecture_exports.mojo:94-98`, `tests/test_architecture_facade_source.py`
 - Belege: `STAGE12C5J_NATIVE_ARCHITECTURE_FACADE.md`, `tests/test_architecture_facade_source.py`, `src/reta_mojo/architecture_exports.mojo`
+
+### MOJO-FIXED-030 – Stage-12c5e reichte den Mojo-Resolver als MOJO_BIN an denselben Resolver zurück
+
+- Ursprung: `mojo_port`
+- Klasse / Schwere: `self_referential_compiler_resolver_environment` / `high`
+- Python-Status: `correct_reference`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5l`
+- Reproduktion: `scripts/test_stage12c5e.sh ausführen, während der offizielle Compiler nur unter .venv/bin/mojo liegt; nach den beiden erfolgreichen Mojo-Tests meldet build_concat_csv_probe.sh fälschlich, bin/mojo-real sei kein Modular-Compiler.`
+- heutiger Vertrag: Verschachtelte Projektwerkzeuge erben ein explizit vom Benutzer gesetztes echtes MOJO_BIN unverändert. Der Standardresolver wird dagegen nicht mehr als MOJO_BIN an sich selbst weitergereicht; trifft ein selbstreferenzieller Wert dennoch ein, entfernt bin/mojo-real ihn und setzt die normale Suche in .venv, Pixi, VIRTUAL_ENV und PATH fort.
+- spätere Python-Aktion: Keine Python-Änderung erforderlich; der Fehler lag ausschließlich in der POSIX-Compilerauflösung des Mojo-Projekts.
+- Mojo-Orte: `scripts/test_stage12c5e.sh`, `scripts/build_concat_csv_probe.sh`, `bin/mojo-real`
+- Belege: `tests/test_mojo_resolver_source.py`, `scripts/test_stage12c5e.sh`, `bin/mojo-real`
+
+### MOJO-FIXED-031 – Religion-JSON-Parser indexierte UTF-8-Strings an beliebigen Bytepositionen
+
+- Ursprung: `mojo_port`
+- Klasse / Schwere: `utf8_codepoint_boundary_violation` / `critical`
+- Python-Status: `correct_reference`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5l`
+- Reproduktion: `scripts/test_stage12c5k.sh mit religion.csv ausführen; decode_religion_cell erreicht koreanische oder chinesische Nutzlast und bricht in parallel_execution.mojo mit Assert Error: String slice index does not lie on a codepoint boundary ab.`
+- heutiger Vertrag: Der Parser sucht JSON-Syntax ausschließlich in json.as_bytes(). StringSlice wird nur zwischen ASCII-Anführungszeichen oder Escape-Markern erzeugt, die sicher auf UTF-8-Codepointgrenzen liegen. Direkte koreanische, chinesische und vietnamesische Werte sowie ASCII-Escapes bleiben unverändert.
+- spätere Python-Aktion: Keine Python-Änderung erforderlich; Python-Strings besitzen die fehlerhafte Mojo-Byteindexgrenze nicht.
+- Mojo-Orte: `src/reta_mojo/parallel_execution.mojo:598-664`, `tests/test_program_workflow.mojo`, `scripts/check_program_workflow_parity.py`
+- Belege: `src/reta_mojo/parallel_execution.mojo`, `tests/test_program_workflow.mojo`, `scripts/check_program_workflow_parity.py`
+
+### PY-CAND-012 – generate4readme ändert vier Bruchparameterlisten mit PYTHONHASHSEED
+
+- Ursprung: `python_reference`
+- Klasse / Schwere: `hash_order_dependent_documentation_output` / `medium`
+- Python-Status: `candidate`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5l`
+- Reproduktion: `python_reference/libs/generate4readme.py jeweils mit PYTHONHASHSEED=0 und PYTHONHASHSEED=1 ausführen; die Werte von gebrochengalaxie, gebrochenuniversum, gebrochenemotion und gebrochengroesse erscheinen in unterschiedlicher Reihenfolge.`
+- heutiger Vertrag: Die native Ausgabe verwendet vollständige, unter PYTHONHASHSEED=0 erzeugte deutsche und englische Referenzassets. Dadurch ist generate4readme reproduzierbar und für denselben kanonischen Seed byteidentisch, ohne die fachlich sichtbare Reihenfolge nachträglich zu erfinden.
+- spätere Python-Aktion: Nach Abschluss der Portierung die vier set-basierten Werte im Python-i18n-Katalog in eine explizit geordnete Struktur überführen oder beim Dokumentgenerator kanonisch sortieren; anschließend den gewählten Sollvertrag versionieren und den Kandidaten auf fixed setzen.
+- Python-Orte: `python_reference/libs/generate4readme.py`, `python_reference/i18n/words_matrix.py`
+- Mojo-Orte: `src/reta_mojo/readme_generator.mojo`, `assets/generated_readme_german.md`, `assets/generated_readme_english.md`, `tools/generate_readme_assets.py`
+- Belege: `tests/test_readme_generator_source.py`, `tools/generate_readme_assets.py`, `assets/generated_readme_manifest.tsv`

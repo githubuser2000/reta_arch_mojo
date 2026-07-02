@@ -101,3 +101,14 @@ def test_porting_matrix_marks_program_workflow_partial_native() -> None:
     )
     assert "| teilweise nativ |" in row
     assert "program_workflow.mojo" in row
+
+
+def test_religion_json_scanner_is_utf8_boundary_safe() -> None:
+    parser = (ROOT / "src/reta_mojo/parallel_execution.mojo").read_text(encoding="utf-8")
+    mojo_test = (ROOT / "tests/test_program_workflow.mojo").read_text(encoding="utf-8")
+    assert "var bytes = json.as_bytes()" in parser
+    assert "Int(bytes[cursor])" in parser
+    assert "ord(json[byte=cursor])" not in parser
+    assert "한글 中文 Việt" in mojo_test
+    defects = (ROOT / "KNOWN_DEFECTS.json").read_text(encoding="utf-8")
+    assert "MOJO-FIXED-031" in defects

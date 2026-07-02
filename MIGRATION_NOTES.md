@@ -932,7 +932,7 @@ Validiert wurden 3/3 Runtime-Tests, 5/5 Zustandsmaschinentests, 12/12 bestehende
 - `src/reta_mojo/split_i18n.mojo` ersetzt den dynamischen `SimpleNamespace`-Merge durch einen typisierten Proxy mit identischer Modulreihenfolge und Later-wins-Auflösung.
 - Native Modultests: **39/39**; Python↔Mojo-Paritätsbäume: **2/2 exakt**; Source-/Ownership-/Boundary-/Archivtests: **17/17**.
 - `PY-CAND-011` erfasst die historische `lstrip("./")`-Dotfile-Kollision. Mojo reproduziert sie bis zur späteren kontrollierten Python-/Manifestmigration.
-- Vollständiger Dateibesitz: **49/92 = 53,3 %**; mindestens teilweise: **80/92 = 87,0 %**; gewichteter Quellersatz: **ca. 71,2 %**.
+- Vollständiger Dateibesitz: **49/92 = 53,3 %**; mindestens teilweise: **71/92 = 77,2 %**; gewichteter Quellersatz: **ca. 71,2 %**.
 
 
 ## Stage 12c5d – vollständige Legacy-Fassaden `center` und `lib4tables`
@@ -1016,3 +1016,12 @@ Die lokale Exportfilter-Kopie ist ein eigener Ownership-Fall: `.copy()` erzeugt 
 - `assets/program_workflow.tsv` wird reproduzierbar aus der Python-AST erzeugt und ist die statische Kontrollfläche für Reihenfolge und interne Aufrufkanten.
 - Das offizielle Installationsmanifest enthält nun 33 Ziele einschließlich `reta-mojo-workflow`.
 - Für Übergaben ist ausschließlich das von `scripts/create_source_archive.sh` erzeugte Quellarchiv nötig. Lokale Compilerumgebung, Binaries und Caches werden nicht übertragen.
+
+
+## Stage 12c5l – UTF-8-sichere Dekodierung und nativer README-Besitz
+
+- `bin/mojo-real` erkennt ein selbstreferenzielles `MOJO_BIN` und setzt danach die normale Compilerauflösung fort; `test_stage12c5e.sh` injiziert den Wrapper nicht mehr selbst.
+- Der Religion-JSON-Scanner verwendet für syntaktische Suche `String.as_bytes()` und erzeugt String-Slices nur an ASCII-Trennzeichen.
+- `libs/generate4readme.py` wechselt zu `generiert nativ`; die vollständigen Ausgaben werden unter `PYTHONHASHSEED=0` reproduzierbar erzeugt und zur Laufzeit rein nativ geladen.
+- Das offizielle Installationsmanifest enthält nun 34 Ziele einschließlich `generate-readme-native`.
+- Der Python-Defektkandidat `PY-CAND-012` dokumentiert vier hashseedabhängige Bruchparameterlisten.

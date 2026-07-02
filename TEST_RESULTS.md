@@ -1687,3 +1687,15 @@ Hier ausgeführt:
 - `tools/porting_metrics.py`: **57/92** vollständig, **79/92** mindestens teilweise, **36.282/48.831** angegriffene Referenzzeilen.
 
 Für den lokalen Mojo-1.0.0b2-Lauf baut `scripts/test_stage12c5k.sh` zuerst den nativen Modultest und die CLI und vergleicht danach 13 Fälle: fünf Zellendekodierungen, vier Ausgabemodusvektoren, drei Kombi-Zweige und eine vollständige Religionstabellen-Zusammenfassung. In dieser Sandbox fehlt der offizielle Modular-Compiler; dieser native Lauf wird daher nicht als hier bestanden ausgegeben.
+
+
+## Stage 12c5l – Source- und Reproduzierbarkeitsprüfung
+
+- Neue Resolver-Reproduktion: temporärer Projektbaum mit `MOJO_BIN=<bin/mojo-real>` fällt erfolgreich auf `.venv/bin/mojo` zurück.
+- UTF-8-Reproduktion: direkter Wert `한글 中文 Việt` ist im nativen Workflowtest und in der Python↔Mojo-Parität enthalten.
+- README-Assets stimmen für Deutsch und Englisch bytegenau mit der Python-Referenz unter `PYTHONHASHSEED=0` überein.
+- `PYTHONHASHSEED=0` und `1` erzeugen im Python-Original nachweislich verschiedene README-Ausgaben; `PY-CAND-012` ist im Bereinigungsbacklog.
+- Fokussierte Source-/Ownership-/Defekt-/Archiv-/Metrik-/Installationssuite: **54/54 bestanden**.
+- Defektkatalog: **71/71 konsistent**; Python-Bereinigungspunkte: **18**.
+- `tools/porting_metrics.py`: **58/92** vollständig, **80/92** mindestens teilweise, **36.664/48.831** angegriffene Referenzzeilen.
+- Der native Gesamtbuild und die Laufzeitparität werden lokal mit `scripts/test_stage12c5l.sh` ausgeführt, weil diese Sandbox keinen Modular-Mojo-Compiler enthält.

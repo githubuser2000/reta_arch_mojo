@@ -7,8 +7,8 @@ Geplanter Umfang: **12 Release-Stufen**. Eine Stufe zählt erst als abgeschlosse
 | Maß | Stand | Aussage |
 |---|---:|---|
 | abgeschlossene Release-Stufen | **9/12 = 75,0 %** | Stufen 1–8 und 11 sind abgeschlossen; Stufe 12 ist mit 12a, 12b, 12c1–12c3 und 12c4a–12c5k zu etwa 71,0 % abgeschlossen, während 9 und 10 noch Restpfade besitzen |
-| vollständig native oder generierte Python-Dateien | **57/92 = 62,0 %** | Datei vollständig ersetzt oder als reproduzierbares Laufzeitasset abgebildet |
-| mindestens angegriffene Python-Dateien | **79/92 = 85,9 %** | Status direkt aus der autoritativen `NATIVE`-Zuordnung |
+| vollständig native oder generierte Python-Dateien | **58/92 = 63,0 %** | Datei vollständig ersetzt oder als reproduzierbares Laufzeitasset abgebildet |
+| mindestens angegriffene Python-Dateien | **80/92 = 87,0 %** | Status direkt aus der autoritativen `NATIVE`-Zuordnung |
 | angegriffene Referenzzeilen | **36.282/48.831 = 74,3 %** | maschinenberechnet statt manuell fortgeschrieben |
 | funktionaler Nutzerumfang | **ca. 96–98 %** | praktisch nutzbarer Reta-Umfang ohne Python-Algorithmus |
 
@@ -390,3 +390,12 @@ Die Zahl **12** ist die geplante Releasegliederung. Interne Teilpakete oder Fehl
 - Die heterogene `Program`-Aggregation bleibt teilweise nativ, bis Tabellenlaufzeit, Generierung und Renderer denselben vollständig typisierten Zustandswert teilen.
 - `PROJECT_CONTENT_PROFILES.md` definiert das Sourcearchiv, den lokalen Buildbaum und die installierte Laufzeit; `target/`, `.venv/`, `.git/` und Caches werden nicht mehr für Transpilierungsuploads benötigt.
 - Maschinenstand: 57/92 vollständig, 79/92 mindestens teilweise, 36.282/48.831 angegriffene Referenzzeilen.
+
+
+## Stage 12c5l – UTF-8, Compilerresolver und README-Generator
+
+- Selbstreferenzielles `MOJO_BIN` wird defensiv aufgelöst; Stage 12c5e baut den Concat-Probecompiler wieder über die normale Projektauflösung.
+- Religion-JSON-Dekodierung scannt UTF-8 sicher als Bytes und besitzt direkte CJK-/vietnamesische Reproducer.
+- `libs/generate4readme.py` ist vollständig durch kanonische deutsch/englische Assets und einen nativen Laufzeitbesitzer ersetzt.
+- `PY-CAND-012` hält die hashseedabhängige Reihenfolge von vier Python-Bruchparameterlisten für den späteren Cleanup fest.
+- Maschinenstand: 58/92 vollständig, 80/92 mindestens teilweise, 36.664/48.831 angegriffene Referenzzeilen.

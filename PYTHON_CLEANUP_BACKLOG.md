@@ -11,7 +11,7 @@ Arbeitsliste für die Phase nach dem vollständigen Mojo-Port.
 4. Python und Mojo gegen denselben korrigierten Sollvertrag prüfen.
 5. Den Eintrag in `KNOWN_DEFECTS.json` auf `fixed` setzen.
 
-Offene oder zu entscheidende Einträge: **17**
+Offene oder zu entscheidende Einträge: **18**
 
 ## 1. PY-OPEN-001 – Beliebige Codeausführung durch eval in Ganzzahlmengen-Ausdrücken
 
@@ -199,3 +199,14 @@ Offene oder zu entscheidende Einträge: **17**
 - Python-Arbeitsauftrag: Nach Abschluss der funktionalen Portierung in Python nur ein tatsächliches Präfix './' entfernen, führende Punkte erhalten, Kollisionen mit einem neuen Solltest ausschließen und die daraus folgende Manifestdigest-Änderung kontrolliert versionieren.
 - Python-Orte: `python_reference/reta_architecture/package_integrity.py:91-92`, `python_reference/reta_architecture/package_integrity.py:122-132`
 - Belege: `STAGE12C5C_NATIVE_PACKAGE_INTEGRITY_SPLIT_I18N.md`, `scripts/check_package_integrity_parity.py`, `tests/test_package_integrity.mojo`
+
+## 18. PY-CAND-012 – generate4readme ändert vier Bruchparameterlisten mit PYTHONHASHSEED
+
+- Priorität: `medium`
+- Python-Status: `candidate`
+- Mojo-Status: `fixed`
+- Reproduktion: `python_reference/libs/generate4readme.py jeweils mit PYTHONHASHSEED=0 und PYTHONHASHSEED=1 ausführen; die Werte von gebrochengalaxie, gebrochenuniversum, gebrochenemotion und gebrochengroesse erscheinen in unterschiedlicher Reihenfolge.`
+- heutiger Vertrag: Die native Ausgabe verwendet vollständige, unter PYTHONHASHSEED=0 erzeugte deutsche und englische Referenzassets. Dadurch ist generate4readme reproduzierbar und für denselben kanonischen Seed byteidentisch, ohne die fachlich sichtbare Reihenfolge nachträglich zu erfinden.
+- Python-Arbeitsauftrag: Nach Abschluss der Portierung die vier set-basierten Werte im Python-i18n-Katalog in eine explizit geordnete Struktur überführen oder beim Dokumentgenerator kanonisch sortieren; anschließend den gewählten Sollvertrag versionieren und den Kandidaten auf fixed setzen.
+- Python-Orte: `python_reference/libs/generate4readme.py`, `python_reference/i18n/words_matrix.py`
+- Belege: `tests/test_readme_generator_source.py`, `tools/generate_readme_assets.py`, `assets/generated_readme_manifest.tsv`

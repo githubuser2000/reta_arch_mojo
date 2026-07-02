@@ -69,6 +69,8 @@ def check_cells(binary: Path) -> None:
         ("plain", '|{"":"plain","html":"<b>html</b>","bbcode":"[b]bb[/b]"}|'),
         ("html", '|{"":"plain","html":"<b>html</b>","bbcode":"[b]bb[/b]"}|'),
         ("bbcode", '|{"":"plain","html":"<b>html</b>","bbcode":"[b]bb[/b]"}|'),
+        ("plain", '|{"":"한글 中文 Việt","html":"<b>한글 中文 Việt</b>","bbcode":"[b]한글 中文 Việt[/b]"}|'),
+        ("html", '|{"":"plain","html":"한글 中文 Việt","bbcode":"bb"}|'),
     ]
     for kind, cell in cases:
         expected = bundle._decode_religion_cell(cell, kind)
@@ -141,7 +143,7 @@ def main() -> int:
     check_output_kind(args.binary)
     check_kombi(args.binary)
     check_religion_summary(args.binary)
-    print(json.dumps({"cases": 5 + 4 + 3 + 1, "status": "ok"}, sort_keys=True))
+    print(json.dumps({"cases": 7 + 4 + 3 + 1, "status": "ok"}, sort_keys=True))
     return 0
 
 

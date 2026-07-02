@@ -600,18 +600,22 @@ def _json_string_for_key(json: String, key: String) raises -> String:
     var position = json.find(needle)
     if position < 0:
         raise Error("missing religion cell JSON key: " + key)
+    # String byte indexing is only legal on UTF-8 codepoint boundaries.  JSON
+    # syntax is ASCII, but values contain Korean, Chinese and Vietnamese text;
+    # scan raw bytes and only create StringSlice values at ASCII delimiters.
+    var bytes = json.as_bytes()
     var cursor = position + needle.byte_length()
-    while cursor < json.byte_length() and (
-        ord(json[byte=cursor]) == 32 or ord(json[byte=cursor]) == 9
+    while cursor < len(bytes) and (
+        Int(bytes[cursor]) == 32 or Int(bytes[cursor]) == 9
     ):
         cursor += 1
-    if cursor >= json.byte_length() or ord(json[byte=cursor]) != 34:
+    if cursor >= len(bytes) or Int(bytes[cursor]) != 34:
         raise Error("religion cell JSON value is not a string")
     cursor += 1
     var result = String()
     var chunk_start = cursor
-    while cursor < json.byte_length():
-        var code = ord(json[byte=cursor])
+    while cursor < len(bytes):
+        var code = Int(bytes[cursor])
         if code == 34:
             if cursor > chunk_start:
                 result += String(StringSlice(json)[byte=chunk_start:cursor])
@@ -622,9 +626,9 @@ def _json_string_for_key(json: String, key: String) raises -> String:
         if cursor > chunk_start:
             result += String(StringSlice(json)[byte=chunk_start:cursor])
         cursor += 1
-        if cursor >= json.byte_length():
+        if cursor >= len(bytes):
             raise Error("truncated religion cell JSON escape")
-        var escaped = ord(json[byte=cursor])
+        var escaped = Int(bytes[cursor])
         if escaped == 34 or escaped == 47 or escaped == 92:
             result += chr(escaped)
             cursor += 1
@@ -644,11 +648,11 @@ def _json_string_for_key(json: String, key: String) raises -> String:
             result += "\t"
             cursor += 1
         elif escaped == 117:
-            if cursor + 4 >= json.byte_length():
+            if cursor + 4 >= len(bytes):
                 raise Error("truncated unicode JSON escape")
             var value = 0
             for offset in range(1, 5):
-                var digit = _hex_value(ord(json[byte=cursor + offset]))
+                var digit = _hex_value(Int(bytes[cursor + offset]))
                 if digit < 0:
                     raise Error("invalid unicode JSON escape")
                 value = value * 16 + digit

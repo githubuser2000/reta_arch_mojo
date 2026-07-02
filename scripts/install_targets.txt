@@ -2,6 +2,7 @@
 # Missing optional targets are skipped; unknown/stale files are never copied.
 # regular build.sh targets
 generate-html-native
+generate-readme-native
 grundStrukHtml-native
 reta-mojo-combi-join
 reta-mojo-compat-bin

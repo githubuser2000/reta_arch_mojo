@@ -36,6 +36,13 @@ def test_program_workflow_output_kind_and_cell_decode() raises:
         decode_religion_cell("|{\"\":\"P\",\"html\":\"H\",\"bbcode\":\"B\"}|", "bbcode"),
         "B",
     )
+    assert_equal(
+        decode_religion_cell(
+            "|{\"\":\"한글 中文 Việt\",\"html\":\"<b>한글 中文 Việt</b>\",\"bbcode\":\"[b]한글 中文 Việt[/b]\"}|",
+            "plain",
+        ),
+        "한글 中文 Việt",
+    )
 
 
 def test_program_workflow_kombi_branch_plan() raises:

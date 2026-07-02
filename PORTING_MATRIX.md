@@ -5,7 +5,7 @@ Stand: 2. Juli 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der g
 - Ursprüngliche Python-Dateien: **92**
 - Ursprüngliche Python-Zeilen insgesamt: **48831**
 - Eingebettete Python-Brücken: **0**; expliziter Mojo-Kindprozessadapter: **1**
-- Quellzeilen der bereits angegriffenen Architekturmodule: **36282**
+- Quellzeilen der bereits angegriffenen Architekturmodule: **36664**
 - Native Mojo-Quellzeilen: siehe `src/` (inklusive generiertem Kategoriekatalog)
 
 | Python-Datei | Zeilen | Funktionen | Klassen | dynamische Aufrufe | Status | Mojo/Ziel | Anmerkung |
@@ -21,7 +21,7 @@ Stand: 2. Juli 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der g
 | `i18n/words_runtime.py` | 548 | 1 | 8 | 0 | generiert nativ | `src/reta_mojo/i18n_words.mojo + src/i18n_words_main.mojo` | Runtimeklassen, Meldungen, Klassifikation und öffentliche Inspektionsoberfläche nativ |
 | `libs/LibRetaPrompt.py` | 80 | 0 | 0 | 0 | weitgehend nativ | `src/reta_mojo/prompt_runtime.mojo + completion_runtime.mojo + prompt_language.mojo + prompt_session.mojo + prompt_interaction.mojo` | Importzeit-Bundles, Vokabular, Completion, Sitzung und Controller sind nativ; die historische Python-Reexportoberfläche bleibt Referenz |
 | `libs/center.py` | 333 | 33 | 1 | 0 | nativ | `src/reta_mojo/legacy_center.mojo + unicode_digits.mojo` | 27 aktive Legacy-Wrapper über Zeilenbereiche, Arithmetik, Konsole, Hilfe, Terminalgeometrie und nPm-Gruppen vollständig typisiert; Python-kompatible Unicode-isDigit-Tabelle reproduzierbar eingefroren |
-| `libs/generate4readme.py` | 382 | 0 | 0 | 0 | Python-Referenz/Bridge | `python_reference/libs/generate4readme.py` | noch nicht nativ portiert |
+| `libs/generate4readme.py` | 382 | 0 | 0 | 0 | generiert nativ | `src/reta_mojo/readme_generator.mojo + assets/generated_readme_*.md + src/generate_readme_main.mojo` | vollständige deutsche und englische Handbuchausgabe unter kanonischem PYTHONHASHSEED=0 bytegenau eingefroren; native Laufzeit lädt nur immutable Assets und benötigt keinen Python-Interpreter |
 | `libs/lib4tables.py` | 59 | 0 | 0 | 0 | nativ | `src/reta_mojo/legacy_lib4tables.mojo + output_modes.mojo + number_theory.mojo` | vollständige 18-Namen-Reexportoberfläche über native Ausgabesyntax und Zahlentheorie; dynamischer Listenrückweg von isPrimMultiple als typisierte Zusatzfunktion |
 | `libs/lib4tables_Enum.py` | 37 | 0 | 0 | 0 | generiert nativ | `src/reta_mojo/tag_schema.mojo + tag_schema_catalog.mojo` | sieben Tagarten und vollständige Tabellen-Tag-Zuordnung |
 | `libs/lib4tables_concat.py` | 252 | 35 | 1 | 0 | nativ | `src/reta_mojo/legacy_lib4tables_concat.mojo + concat_csv.mojo + generated_table_columns.mojo + meta_columns.mojo` | historische 34-Methoden-Weiterleitungsfassade und 13 Konstruktorzustände typisiert; dynamische *args/**kwargs auf explizite Besitzer-APIs reduziert |

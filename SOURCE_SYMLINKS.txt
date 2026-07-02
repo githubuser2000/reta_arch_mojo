@@ -8,6 +8,7 @@
 ./bin/rpe -> reta-prompt-profile
 ./bin/rpl -> reta-prompt-profile
 ./bin/rpl.sh -> rpl
+./generate4readme -> bin/generate4readme
 ./generate_html -> bin/generate_html
 ./grundStrukHtml -> bin/grundStrukHtml
 ./grundStrukHtml.py -> bin/grundStrukHtml

@@ -78,12 +78,14 @@ Mojo-Programme und der verbleibende Python-Kompatibilitätsbaum liegen
 standardmäßig getrennt unter `lib/reta`; Fedora-/RPM-Pakete können
 `LIBEXECDIR=/usr/libexec/reta` setzen. Relative Symlinks erhalten die
 historische Projektstruktur ohne Datenkopie. Seit Stage 12c5h kopiert der
-Installer ausschließlich die 33 in `scripts/install_targets.txt` deklarierten
+Installer ausschließlich die 34 in `scripts/install_targets.txt` deklarierten
 regulären und schweren Compilerziele; lokale Debug-/Altdateien unter
 `target/bin` werden nicht mehr versehentlich installiert. Details:
 [`STAGE12C4M_FHS_RESOURCE_INSTALLATION.md`](STAGE12C4M_FHS_RESOURCE_INSTALLATION.md).
 
 ## Stufen 7–10: Generatoren, Kombinationen, Markup und Prompt
+
+Stage 12c5l behebt die lokale Mojo-Compiler-Selbstreferenz und den UTF-8-Bytegrenzenfehler im Religion-JSON-Scanner. `libs/generate4readme.py` ist nun vollständig reproduzierbar generiert und wird zur Laufzeit durch `generate-readme-native` ohne Python ersetzt; Details: [`STAGE12C5L_NATIVE_README_UTF8_COMPILER_RESOLUTION.md`](STAGE12C5L_NATIVE_README_UTF8_COMPILER_RESOLUTION.md).
 
 Stage 12c5k portiert den deterministischen Kern von `reta_architecture/program_workflow.py`: Religion-CSV-Laden und -Decodierung, native Threadverarbeitung, Sprachspaltenersatz, Laufzeitflag-Reset, beide Kombi-Verzweigungspläne sowie der geordnete Workflowvertrag sind nativ. Welche Inhalte für Upload, Build und Installation gebraucht werden, steht in [`PROJECT_CONTENT_PROFILES.md`](PROJECT_CONTENT_PROFILES.md); Details: [`STAGE12C5K_NATIVE_PROGRAM_WORKFLOW.md`](STAGE12C5K_NATIVE_PROGRAM_WORKFLOW.md).
 

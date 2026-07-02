@@ -63,9 +63,21 @@ try_exec() {
 }
 
 if [ -n "${MOJO_BIN-}" ]; then
-    try_exec "$MOJO_BIN" "$@"
-    printf 'MOJO_BIN zeigt nicht auf den Modular-Mojo-Compiler: %s\n' "$MOJO_BIN" >&2
-    fail
+    configured=$MOJO_BIN
+    configured_resolved=$configured
+    if command -v readlink >/dev/null 2>&1; then
+        configured_resolved=$(readlink -f "$configured" 2>/dev/null || printf '%s' "$configured")
+    fi
+    if [ "$configured_resolved" = "$SELF" ]; then
+        # A nested project helper may inherit MOJO_BIN=bin/mojo-real.  Treat
+        # that as the default resolver instead of recursively validating this
+        # wrapper as if it were the compiler itself.
+        unset MOJO_BIN
+    else
+        try_exec "$configured" "$@"
+        printf 'MOJO_BIN zeigt nicht auf den Modular-Mojo-Compiler: %s\n' "$configured" >&2
+        fail
+    fi
 fi
 
 try_exec "$ROOT/.venv/bin/mojo" "$@"
