@@ -3,7 +3,7 @@ set -eu
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 cd "$ROOT"
 
-expected='reta-mojo-native reta-mojo-table reta-mojo-tags reta-mojo-i18n reta-mojo-package-integrity reta-mojo-combi-join reta-native reta-mojo-compat-bin reta-prompt-native reta-prompt-complete grundStrukHtml-native generate-html-native'
+expected='reta-mojo-native reta-mojo-table reta-mojo-tags reta-mojo-i18n reta-mojo-package-integrity reta-mojo-exports reta-mojo-combi-join reta-native reta-mojo-compat-bin reta-prompt-native reta-prompt-complete grundStrukHtml-native generate-html-native'
 
 if ! grep -Eq '^target/$' .gitignore; then
     printf '%s\n' 'Fehler: target/ fehlt in .gitignore.' >&2

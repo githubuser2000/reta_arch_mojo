@@ -30,6 +30,13 @@ WS_RE = re.compile(r"\s+")
 class LoadedHtml:
     source: str
     member: str | None
+    container_kind: str
+    container_size: int
+    container_md5: str
+    container_sha256: str
+    payload_size: int
+    payload_md5: str
+    payload_sha256: str
     text: str
 
 
@@ -37,6 +44,13 @@ class LoadedHtml:
 class CanonicalTable:
     source: str
     member: str | None
+    container_kind: str
+    container_size: int
+    container_md5: str
+    container_sha256: str
+    payload_size: int
+    payload_md5: str
+    payload_sha256: str
     rows: int
     columns: int
     column_hashes: tuple[str, ...]
@@ -54,8 +68,14 @@ def _regular_members(archive: tarfile.TarFile) -> list[tarfile.TarInfo]:
     return preferred or members
 
 
+def _digest_bytes(data: bytes) -> tuple[str, str]:
+    return hashlib.md5(data).hexdigest(), hashlib.sha256(data).hexdigest()
+
+
 def load_html(path: Path) -> LoadedHtml:
     path = path.resolve()
+    container = path.read_bytes()
+    container_md5, container_sha256 = _digest_bytes(container)
     try:
         is_tar = tarfile.is_tarfile(path)
     except OSError:
@@ -73,8 +93,33 @@ def load_html(path: Path) -> LoadedHtml:
             handle = archive.extractfile(member)
             if handle is None:
                 raise ValueError(f"Tar-Mitglied ist nicht lesbar: {member.name}")
-            return LoadedHtml(str(path), member.name, handle.read().decode("utf-8"))
-    return LoadedHtml(str(path), None, path.read_text(encoding="utf-8"))
+            payload = handle.read()
+            payload_md5, payload_sha256 = _digest_bytes(payload)
+            return LoadedHtml(
+                str(path),
+                member.name,
+                "tar",
+                len(container),
+                container_md5,
+                container_sha256,
+                len(payload),
+                payload_md5,
+                payload_sha256,
+                payload.decode("utf-8"),
+            )
+    payload_md5, payload_sha256 = _digest_bytes(container)
+    return LoadedHtml(
+        str(path),
+        None,
+        "html",
+        len(container),
+        container_md5,
+        container_sha256,
+        len(container),
+        payload_md5,
+        payload_sha256,
+        container.decode("utf-8"),
+    )
 
 
 def _length_prefixed(data: bytes) -> bytes:
@@ -267,6 +312,13 @@ def canonicalize_table(loaded: LoadedHtml) -> CanonicalTable:
     return CanonicalTable(
         source=loaded.source,
         member=loaded.member,
+        container_kind=loaded.container_kind,
+        container_size=loaded.container_size,
+        container_md5=loaded.container_md5,
+        container_sha256=loaded.container_sha256,
+        payload_size=loaded.payload_size,
+        payload_md5=loaded.payload_md5,
+        payload_sha256=loaded.payload_sha256,
         rows=len(parser.rows),
         columns=column_count,
         column_hashes=column_hashes,
@@ -302,6 +354,13 @@ def compare_tables(first: CanonicalTable, second: CanonicalTable) -> dict[str, o
         "first": {
             "source": first.source,
             "member": first.member,
+            "container_kind": first.container_kind,
+            "container_size": first.container_size,
+            "container_md5": first.container_md5,
+            "container_sha256": first.container_sha256,
+            "payload_size": first.payload_size,
+            "payload_md5": first.payload_md5,
+            "payload_sha256": first.payload_sha256,
             "rows": first.rows,
             "columns": first.columns,
             "canonical_sha256": first.table_hash,
@@ -309,6 +368,13 @@ def compare_tables(first: CanonicalTable, second: CanonicalTable) -> dict[str, o
         "second": {
             "source": second.source,
             "member": second.member,
+            "container_kind": second.container_kind,
+            "container_size": second.container_size,
+            "container_md5": second.container_md5,
+            "container_sha256": second.container_sha256,
+            "payload_size": second.payload_size,
+            "payload_md5": second.payload_md5,
+            "payload_sha256": second.payload_sha256,
             "rows": second.rows,
             "columns": second.columns,
             "canonical_sha256": second.table_hash,
@@ -340,8 +406,12 @@ def main(argv: Iterable[str] | None = None) -> int:
             item = result[label]
             member = f"::{item['member']}" if item["member"] else ""
             print(
-                f"{label}={item['source']}{member} rows={item['rows']} "
-                f"columns={item['columns']} sha256={item['canonical_sha256']}"
+                f"{label}={item['source']}{member} kind={item['container_kind']} "
+                f"container_bytes={item['container_size']} "
+                f"container_md5={item['container_md5']} "
+                f"payload_bytes={item['payload_size']} "
+                f"payload_md5={item['payload_md5']} rows={item['rows']} "
+                f"columns={item['columns']} canonical_sha256={item['canonical_sha256']}"
             )
         print(f"fehlende_spalten={len(result['missing_columns'])}")
         print(f"zusaetzliche_spalten={len(result['extra_columns'])}")

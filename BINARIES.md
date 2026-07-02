@@ -19,6 +19,7 @@ reta-mojo-validation    reta-mojo-progress
 reta-mojo-persistence     reta-mojo-execution-network
 reta-mojo-parallel-execution  reta-mojo-row-preparation
 reta-mojo-i18n          reta-mojo-semantics
+reta-mojo-exports
 ```
 
 ## `bin/` gegenüber `target/bin/`
@@ -68,6 +69,45 @@ Bei einer manuellen Installation liegen die unveränderlichen Daten unter
 entsprechend `/usr/share/reta` und `/usr/lib/reta`; Fedora-/RPM-Pakete können
 private Programme mit `LIBEXECDIR=/usr/libexec/reta` ablegen. `/usr/bin`
 enthält nur die öffentlichen relativen Launcher-Symlinks.
+
+## Exakte Installationsmenge bei `PREFIX=/usr`
+
+Die **kompilierten ELF-Dateien** werden nicht direkt nach `/usr/bin`, sondern
+nach `/usr/lib/reta/target/bin` installiert. Autoritativ ist
+`scripts/install_targets.txt`. Sind beide Buildskripte vollständig gelaufen,
+sind es genau **31** Ziele:
+
+```text
+generate-html-native              grundStrukHtml-native
+reta-mojo-combi-join              reta-mojo-compat-bin
+reta-mojo-exports                 reta-mojo-i18n
+reta-mojo-native                  reta-mojo-package-integrity
+reta-mojo-table                   reta-mojo-tags
+reta-native                       reta-prompt-complete
+reta-prompt-native
+
+reta-mojo-activation              reta-mojo-architecture
+reta-mojo-boundaries              reta-mojo-coherence
+reta-mojo-contracts               reta-mojo-execution-network
+reta-mojo-impact                  reta-mojo-migration
+reta-mojo-parallel-execution      reta-mojo-persistence
+reta-mojo-progress                reta-mojo-rehearsal
+reta-mojo-row-preparation         reta-mojo-schema
+reta-mojo-semantics               reta-mojo-traces
+reta-mojo-validation              reta-mojo-witnesses
+```
+
+Die ersten 13 stammen aus `scripts/build.sh`; die letzten 18 sind optionale
+schwere Ziele aus `scripts/build-heavy.sh`. Nicht gebaute optionale Ziele werden
+übersprungen. Andere Dateien in `target/bin`, insbesondere lokale Debug- oder
+Altvarianten wie `reta-native-o0`, werden ausdrücklich **nicht** installiert.
+
+`/usr/bin` enthält demgegenüber **44 öffentliche Namen als relative Symlinks**
+auf Launcher unter `/usr/lib/reta/bin`; darunter sind Komfortnamen und Profile,
+also nicht 44 verschiedene ELFs. Die zwei internen Helfer `mojo-real` und
+`mojo-runtime-exec` bleiben nur privat unter `/usr/lib/reta/bin`. Standardmäßig
+installiert `scripts/install.sh` nach `/usr/local`; `/usr` wird erst mit
+`PREFIX=/usr` gewählt.
 
 ## Wichtige Tabellenpfade
 
@@ -155,6 +195,9 @@ zu einem einzigen Releasebinary `target/bin/reta` zusammengeführt werden.
 ./bin/reta-mojo-row-preparation --demo 2 2
 ./bin/reta-mojo-i18n --summary english
 ./bin/reta-mojo-i18n --classify deutsch 3
+./bin/reta-mojo-exports --summary
+./bin/reta-mojo-exports --symbol RetaArchitecture
+./bin/reta-mojo-exports --module prompt_session --public
 ./bin/reta-mojo-package-integrity --summary python_reference
 ./bin/reta-mojo-package-integrity --json-files python_reference
 ./bin/reta-mojo-semantics --normal
@@ -174,6 +217,7 @@ zu einem einzigen Releasebinary `target/bin/reta` zusammengeführt werden.
 | Tabellenzustand/CSV/Wrapping | `target/bin/reta-mojo-table` | nativ |
 | Tag-Schema | `target/bin/reta-mojo-tags` | nativ |
 | Fünfsprachiger i18n-Wortbaum | `target/bin/reta-mojo-i18n` | 34.667 reproduzierbare Baumknoten, native Abfrage und verlustfreie Rückserialisierung |
+| Paket-Reexportfassade | `target/bin/reta-mojo-exports` | 314 Importbindungen, 232 geordnete `__all__`-Exporte und 46 Besitzermodule reproduzierbar typisiert; Python nur bei expliziter Regeneration |
 | Quellbaum-Integrität | `target/bin/reta-mojo-package-integrity` | reguläre Dateien und Dateisymlinks, Runtime-Filter, 74 Pflichtpfade, CSV-Zeilen und binärer SHA-256-Gesamtdigest vollständig nativ; native Linux/POSIX-Verzeichnis-FFI und OpenSSL als Systemgrenzen |
 | Parametersemantik | `target/bin/reta-mojo-semantics` | 431-Familien-Katalog, 4.155 Parameterpaare, 14 Datenslots, Normal-/Inversionsmodus und vollständiger UTF-8-Inhaltsfingerabdruck nativ; Python nur zur reproduzierbaren Katalogregeneration |
 | Architekturkarte und Kapselgrenzen | `target/bin/reta-mojo-architecture`, `target/bin/reta-mojo-boundaries` | generierte Metadaten und Abfragen nativ; Python-AST-Scan nur bei Regeneration |

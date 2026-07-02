@@ -62,13 +62,16 @@ noch auf den Rechner zeigt, auf dem sie kompiliert wurden.
 ./scripts/check_build_layout.sh
 ```
 
-Erzeugt werden zehn normale Laufzeitziele:
+Erzeugt werden dreizehn normale Laufzeitziele:
 
 ```text
 target/bin/reta-mojo-native
 target/bin/reta-mojo-table
 target/bin/reta-mojo-tags
 target/bin/reta-mojo-i18n
+target/bin/reta-mojo-package-integrity
+target/bin/reta-mojo-exports
+target/bin/reta-mojo-combi-join
 target/bin/reta-native
 target/bin/reta-mojo-compat-bin
 target/bin/reta-prompt-native
@@ -258,7 +261,10 @@ DESTDIR="$pkgdir" PREFIX=/usr ./scripts/install.sh
 
 Dann liegen die Tabellen unter `/usr/share/reta/csv`. Die öffentliche
 `/usr/bin`-Ebene enthält nur relative Symlinks zu den privaten Launchern unter
-`/usr/lib/reta/bin`. Der Python-Kompatibilitätsbaum behält seinen historischen
+`/usr/lib/reta/bin`. Die privaten ELFs werden nicht mehr per Wildcard kopiert,
+sondern ausschließlich aus der 31-Ziel-Allowlist
+`scripts/install_targets.txt`; dadurch gelangen keine lokalen Alt-/Debugziele
+ins Paket. Der Python-Kompatibilitätsbaum behält seinen historischen
 Pfad `python_reference/csv` als relativen Symlink auf die kanonischen
 Shared-Data-Dateien.
 

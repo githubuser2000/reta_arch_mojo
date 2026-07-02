@@ -45,3 +45,31 @@ def test_cell_change_is_not_ignored(tmp_path: Path) -> None:
     left = MODULE.canonicalize_table(MODULE.load_html(first))
     right = MODULE.canonicalize_table(MODULE.load_html(second))
     assert not MODULE.compare_tables(left, right)["equal_ignoring_column_order"]
+
+
+def test_tar_container_digest_is_distinct_but_payload_is_equal(tmp_path: Path) -> None:
+    import hashlib
+    import tarfile
+
+    raw = tmp_path / "raw.alx"
+    wrapped = tmp_path / "wrapped.alx"
+    _write(raw, [("p1_a", "A"), ("p1_b", "B")], [["1", "2"]])
+    with tarfile.open(wrapped, "w") as archive:
+        archive.add(raw, arcname="middle_pypy3_arch.alx")
+
+    raw_loaded = MODULE.load_html(raw)
+    wrapped_loaded = MODULE.load_html(wrapped)
+    assert raw_loaded.container_kind == "html"
+    assert wrapped_loaded.container_kind == "tar"
+    assert wrapped_loaded.member == "middle_pypy3_arch.alx"
+    assert raw_loaded.container_md5 != wrapped_loaded.container_md5
+    assert raw_loaded.payload_md5 == wrapped_loaded.payload_md5
+    assert raw_loaded.payload_sha256 == wrapped_loaded.payload_sha256
+    assert raw_loaded.payload_md5 == hashlib.md5(raw.read_bytes()).hexdigest()
+
+    left = MODULE.canonicalize_table(raw_loaded)
+    right = MODULE.canonicalize_table(wrapped_loaded)
+    result = MODULE.compare_tables(left, right)
+    assert result["equal_ignoring_column_order"]
+    assert result["first"]["container_md5"] != result["second"]["container_md5"]
+    assert result["first"]["payload_md5"] == result["second"]["payload_md5"]

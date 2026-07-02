@@ -55,9 +55,21 @@ def test_fhs_usr_layout_uses_share_for_csv_and_assets(tmp_path: Path) -> None:
         stderr=subprocess.PIPE,
         check=False,
     )
-    assert result.returncode == 0, result.stderr
-    assert "file_count=457" in result.stdout
-    assert "missing_required=0" in result.stdout
+    runtime_probe = subprocess.run(
+        [str(private / "scripts" / "find_mojo_runtime.sh")],
+        cwd=tmp_path,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    if runtime_probe.returncode == 0:
+        assert result.returncode == 0, result.stderr
+        assert "file_count=457" in result.stdout
+        assert "missing_required=0" in result.stdout
+    else:
+        assert result.returncode == 127
+        assert "Keine vollständige Modular-Mojo-Laufzeit gefunden" in result.stderr
 
     layout = (private / "INSTALL_LAYOUT").read_text(encoding="utf-8")
     assert "csvdir=/usr/share/reta/csv" in layout
@@ -117,9 +129,21 @@ def test_user_local_prefix_keeps_data_below_home_share(tmp_path: Path) -> None:
         stderr=subprocess.PIPE,
         check=False,
     )
-    assert csv_info.returncode == 0, csv_info.stderr
-    assert "Zeilen: 1025" in csv_info.stdout
-    assert "Spalten: 746" in csv_info.stdout
+    runtime_probe = subprocess.run(
+        [str(private / "scripts" / "find_mojo_runtime.sh")],
+        cwd=tmp_path,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    if runtime_probe.returncode == 0:
+        assert csv_info.returncode == 0, csv_info.stderr
+        assert "Zeilen: 1025" in csv_info.stdout
+        assert "Spalten: 746" in csv_info.stdout
+    else:
+        assert csv_info.returncode == 127
+        assert "Keine vollständige Modular-Mojo-Laufzeit gefunden" in csv_info.stderr
 
     layout = (private / "INSTALL_LAYOUT").read_text(encoding="utf-8")
     assert "csvdir=/home/alex/.local/share/reta/csv" in layout

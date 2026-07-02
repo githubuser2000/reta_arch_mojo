@@ -65,10 +65,13 @@ Werkzeug liest außerdem Tar- und Tar-XZ-Dateien sowie Tarströme, die irrtümli
 eine `.alx`-Endung besitzen.
 
 Die in dieser Stage hochgeladenen Dateien konnten nicht als echter
-Python3↔PyPy3-Vergleich dienen: `middle_python3_arch.alx` war ein Tar-Archiv mit
-dem Mitglied `middle_pypy3_arch.alx`; dessen Inhalt war byteidentisch mit der
-separat hochgeladenen PyPy3-Datei. Der strukturelle Vergleich ergab daher
-korrekt:
+Python3↔PyPy3-Vergleich dienen. Die äußeren MD5-Summen unterscheiden sich
+korrekt, weil `middle_arch_pypy3.alx` direktes HTML ist, während
+`middle_python3_arch.alx` trotz der Endung ein Tar-Container ist. Dessen einziges
+Mitglied `middle_pypy3_arch.alx` besitzt jedoch exakt dieselbe Größe und MD5 wie
+die separat hochgeladene PyPy3-Datei und ist per `cmp` byteidentisch. Stage
+12c5h macht Container- und Nutzlastdigest im Werkzeug getrennt sichtbar. Der
+strukturelle Vergleich ergab daher korrekt:
 
 ```text
 rows=189

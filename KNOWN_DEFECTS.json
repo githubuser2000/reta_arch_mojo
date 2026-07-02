@@ -1559,6 +1559,33 @@
         "tests/test_middle_alx_compare.py",
         "scripts/check_combi_join_parity.sh"
       ]
+    },
+    {
+      "id": "TEST-FIXED-017",
+      "title": "Container- und Nutzlastprüfsummen wurden bei middle.alx verwechselt",
+      "origin": "generator_tests",
+      "classification": "artifact_container_payload_confusion",
+      "severity": "medium",
+      "python_status": "fixed",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5h",
+      "reproducer": "Die MD5-Summen von direktem HTML middle_arch_pypy3.alx und dem als .alx benannten Tar middle_python3_arch.alx vergleichen; die äußeren Digests unterscheiden sich, obwohl das einzige Tar-Mitglied byteidentisch mit der HTML-Datei ist.",
+      "python_locations": [
+        "tools/compare_middle_alx.py",
+        "tests/test_middle_alx_compare.py"
+      ],
+      "mojo_locations": [
+        "src/reta_mojo/architecture_exports.mojo",
+        "scripts/install_targets.txt"
+      ],
+      "current_contract": "Der Vergleich weist Containerart, Containergröße und Containerdigest getrennt von Größe und Digest der tatsächlich verglichenen HTML-Nutzlast aus. Eine unterschiedliche Archivhülle gilt weder als Inhaltsabweichung noch als Beweis für verschiedene Python-Laufzeitausgaben.",
+      "post_port_fix": "Erledigt: load_html erfasst für rohe HTML- und Tar-Eingaben getrennte Container- und Payload-Metadaten; ein Regressionstest verpackt identisches HTML in Tar und verlangt verschiedene Container-MD5 bei identischer Payload-MD5 und struktureller Gleichheit.",
+      "evidence": [
+        "STAGE12C5H_NATIVE_PACKAGE_EXPORTS_INSTALL_MANIFEST.md",
+        "tools/compare_middle_alx.py",
+        "tests/test_middle_alx_compare.py",
+        "scripts/test_stage12c5h.sh"
+      ]
     }
   ],
   "audit": {

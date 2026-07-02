@@ -41,6 +41,7 @@ require_file "$ROOT/target/bin/reta-native"
 require_file "$ROOT/target/bin/reta-mojo-compat-bin"
 require_file "$ROOT/target/bin/generate-html-native"
 require_file "$ROOT/man/generate_html.1"
+require_file "$ROOT/scripts/install_targets.txt"
 
 STAGE_BINDIR=$(stage_path "$BINDIR")
 STAGE_LIBEXECDIR=$(stage_path "$LIBEXECDIR")
@@ -84,10 +85,16 @@ install -m 0755 "$ROOT/scripts/select_reference_python.sh" \
 
 rm -rf "$STAGE_LIBEXECDIR/target/bin"
 install -d "$STAGE_LIBEXECDIR/target/bin"
-for executable in "$ROOT"/target/bin/*; do
+INSTALLED_TARGETS=0
+while IFS= read -r name || [ -n "$name" ]; do
+    case "$name" in
+        ''|'#'*) continue ;;
+    esac
+    executable="$ROOT/target/bin/$name"
     [ -f "$executable" ] || continue
-    install -m 0755 "$executable" "$STAGE_LIBEXECDIR/target/bin/$(basename -- "$executable")"
-done
+    install -m 0755 "$executable" "$STAGE_LIBEXECDIR/target/bin/$name"
+    INSTALLED_TARGETS=$((INSTALLED_TARGETS + 1))
+done < "$ROOT/scripts/install_targets.txt"
 
 if [ "$INSTALL_MOJO_RUNTIME" != 0 ]; then
     RUNTIME_DIR=$($ROOT/scripts/find_mojo_runtime.sh)
@@ -125,11 +132,13 @@ datadir=$DATADIR
 csvdir=$DATADIR/csv
 assetdir=$DATADIR/assets
 mandir=$MANDIR
+compiled_targets=$INSTALLED_TARGETS
 LAYOUT
 
 printf 'Reta installiert:\n'
 printf '  Programme:      %s\n' "$BINDIR"
 printf '  Private Laufzeit: %s\n' "$LIBEXECDIR"
+printf '  Compilerziele:  %s\n' "$INSTALLED_TARGETS"
 printf '  CSV-Daten:      %s\n' "$DATADIR/csv"
 printf '  Assets:         %s\n' "$DATADIR/assets"
 printf '  Manpage:        %s\n' "$MANDIR/man1/generate_html.1"

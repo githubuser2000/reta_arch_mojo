@@ -988,3 +988,10 @@ Validiert wurden 3/3 Runtime-Tests, 5/5 Zustandsmaschinentests, 12/12 bestehende
   Semantikkatalogs und seiner Vollfingerabdrücke.
 - Stand: **54/92 vollständig nativ/generiert**, **74/92 mindestens teilweise**,
   **33.465/48.831 angegriffene Referenzzeilen**.
+
+
+## Stage 12c5h
+
+- `reta_architecture/__init__.py` ist keine Algorithmusimplementierung, sondern eine geordnete Reexportfassade. Ihr Vertrag liegt nun reproduzierbar in `assets/architecture_exports.tsv` und nativ in `architecture_exports.mojo`.
+- Installationspakete dürfen Compilerziele nicht aus einem Wildcard-Verzeichnis ableiten. `scripts/install_targets.txt` ist die autoritative Allowlist; dadurch sind lokale Debugbinaries kein unbeabsichtigter Paketinhalt mehr.
+- Artefaktvergleiche unterscheiden Containerbytes und fachliche Nutzlast. Eine `.alx`-Endung garantiert kein direktes HTML.

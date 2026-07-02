@@ -1609,3 +1609,32 @@ Generator ist unter `PYTHONHASHSEED=0` und `1` byteidentisch.
 `tools/porting_metrics.py` berechnet aus 92 Referenzdateien den Stand 54
 vollständig native/generierte Dateien, 74 mindestens teilweise portierte Dateien
 und 33.465 von 48.831 angegriffene Referenzzeilen.
+
+
+## Stage 12c5g/h – Kombinationsjoin, Paketexporte und Installationsmanifest
+
+```text
+Kombi-Join-Stage (bestehender Abschluss):          23/23 Source-Tests
+Exportkatalog-/Manifest-/middle.alx-Fokustests:     8/8
+Metrik-/Installationslayouttests:                    9/9
+weitere Ownership-/Defekt-/Boundary-Tests:          17/17
+Defektkatalog:                                      67 konsistent
+Python-Bereinigungspunkte:                          17
+aktive std.python-Brücken:                           0
+```
+
+Der Exportkatalog reproduziert 314 Importbindungen, 232 öffentliche `__all__`-
+Namen und 46 Besitzermodule. Der neue Installer kopiert ausschließlich 31
+manifestierte reguläre beziehungsweise schwere Compilerziele. In der
+vorliegenden Umgebung sind 30 davon bereits als ELF vorhanden; das neue
+`reta-mojo-exports`-ELF wurde mangels installiertem offiziellen Mojo-Compiler
+nicht neu gelinkt und wird deshalb nicht als ausgeführter Mojo-Test behauptet.
+
+Die beiden hochgeladenen äußeren MD5-Summen sind verschieden, weil eine Datei
+HTML und die andere ein unkomprimiertes Tar ist. Das einzige Tar-Mitglied ist
+nach Größe, MD5 und `cmp` exakt dieselbe PyPy3-HTML-Nutzlast. Ein echter
+Python3↔PyPy3-Vergleich ist mit diesem Upload daher noch nicht möglich.
+
+Maschinenberechneter Stand: **56/92 vollständig nativ/generiert**,
+**76/92 mindestens teilweise portiert**, **34.775/48.831 angegriffene
+Referenzzeilen**.

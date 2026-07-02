@@ -23,10 +23,10 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 
 ## Übersicht
 
-- Einträge insgesamt: **66**
+- Einträge insgesamt: **67**
 - offene bestätigte Python-Fehler: **5**
 - zu entscheidende Python-Fehlerkandidaten: **11**
-- bereits im Python-Baum behobene Fehler: **6**
+- bereits im Python-Baum behobene Fehler: **7**
 
 ## Einträge
 
@@ -914,3 +914,17 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 - Python-Orte: `tools/compare_middle_alx.py`, `tests/test_middle_alx_compare.py`
 - Mojo-Orte: `src/reta_mojo/combi_join.mojo`, `tests/probe_combi_join.mojo`
 - Belege: `STAGE12C5G_NATIVE_KOMBI_JOIN_UNORDERED_PARITY.md`, `tools/compare_middle_alx.py`, `tests/test_middle_alx_compare.py`, `scripts/check_combi_join_parity.sh`
+
+### TEST-FIXED-017 – Container- und Nutzlastprüfsummen wurden bei middle.alx verwechselt
+
+- Ursprung: `generator_tests`
+- Klasse / Schwere: `artifact_container_payload_confusion` / `medium`
+- Python-Status: `fixed`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5h`
+- Reproduktion: `Die MD5-Summen von direktem HTML middle_arch_pypy3.alx und dem als .alx benannten Tar middle_python3_arch.alx vergleichen; die äußeren Digests unterscheiden sich, obwohl das einzige Tar-Mitglied byteidentisch mit der HTML-Datei ist.`
+- heutiger Vertrag: Der Vergleich weist Containerart, Containergröße und Containerdigest getrennt von Größe und Digest der tatsächlich verglichenen HTML-Nutzlast aus. Eine unterschiedliche Archivhülle gilt weder als Inhaltsabweichung noch als Beweis für verschiedene Python-Laufzeitausgaben.
+- spätere Python-Aktion: Erledigt: load_html erfasst für rohe HTML- und Tar-Eingaben getrennte Container- und Payload-Metadaten; ein Regressionstest verpackt identisches HTML in Tar und verlangt verschiedene Container-MD5 bei identischer Payload-MD5 und struktureller Gleichheit.
+- Python-Orte: `tools/compare_middle_alx.py`, `tests/test_middle_alx_compare.py`
+- Mojo-Orte: `src/reta_mojo/architecture_exports.mojo`, `scripts/install_targets.txt`
+- Belege: `STAGE12C5H_NATIVE_PACKAGE_EXPORTS_INSTALL_MANIFEST.md`, `tools/compare_middle_alx.py`, `tests/test_middle_alx_compare.py`, `scripts/test_stage12c5h.sh`

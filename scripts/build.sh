@@ -23,6 +23,7 @@ build src/table_main.mojo reta-mojo-table -I src
 build src/tags_main.mojo reta-mojo-tags -I src
 build src/i18n_words_main.mojo reta-mojo-i18n -I src
 build src/package_integrity_main.mojo reta-mojo-package-integrity -I src -Xlinker -lcrypto
+build src/architecture_exports_main.mojo reta-mojo-exports -I src
 build src/combi_join_main.mojo reta-mojo-combi-join -I src
 build src/reta_native_main.mojo reta-native -I src
 build src/compat_main.mojo reta-mojo-compat-bin -I src

@@ -2,14 +2,14 @@
 
 Geplanter Umfang: **12 Release-Stufen**. Eine Stufe zählt erst als abgeschlossen, wenn Quellcode, Referenztests, Compilerziele, Dokumentation und ein source-only Archiv gemeinsam geprüft sind.
 
-## Fortschrittsmaße nach Stage 12c5f
+## Fortschrittsmaße nach Stage 12c5h
 
 | Maß | Stand | Aussage |
 |---|---:|---|
-| abgeschlossene Release-Stufen | **9/12 = 75,0 %** | Stufen 1–8 und 11 sind abgeschlossen; Stufe 12 ist mit 12a, 12b, 12c1–12c3 und 12c4a–12c5f zu etwa 68,5 % abgeschlossen, während 9 und 10 noch Restpfade besitzen |
-| vollständig native oder generierte Python-Dateien | **54/92 = 58,7 %** | Datei vollständig ersetzt oder als reproduzierbares Laufzeitasset abgebildet |
-| mindestens angegriffene Python-Dateien | **74/92 = 80,4 %** | Status direkt aus der autoritativen `NATIVE`-Zuordnung |
-| angegriffene Referenzzeilen | **33.465/48.831 = 68,5 %** | maschinenberechnet statt manuell fortgeschrieben |
+| abgeschlossene Release-Stufen | **9/12 = 75,0 %** | Stufen 1–8 und 11 sind abgeschlossen; Stufe 12 ist mit 12a, 12b, 12c1–12c3 und 12c4a–12c5h zu etwa 70,5 % abgeschlossen, während 9 und 10 noch Restpfade besitzen |
+| vollständig native oder generierte Python-Dateien | **56/92 = 60,9 %** | Datei vollständig ersetzt oder als reproduzierbares Laufzeitasset abgebildet |
+| mindestens angegriffene Python-Dateien | **76/92 = 82,6 %** | Status direkt aus der autoritativen `NATIVE`-Zuordnung |
+| angegriffene Referenzzeilen | **34.775/48.831 = 71,2 %** | maschinenberechnet statt manuell fortgeschrieben |
 | funktionaler Nutzerumfang | **ca. 96–98 %** | praktisch nutzbarer Reta-Umfang ohne Python-Algorithmus |
 
 Die Stufenquote ist höher als die Quellzeilenquote, weil die letzten Stufen besonders große dynamische Module bündeln: vollständige Ausgabeaufbereitung, Prompt-Sprache, i18n-Matrix, Architekturvalidierung und Parallelisierung.
@@ -345,3 +345,19 @@ Die Zahl **12** ist die geplante Releasegliederung. Interne Teilpakete oder Fehl
 - Set-basierte Parameternamen und Datensätze werden nur an semantisch ungeordneten Grenzen kanonisiert; Generator und Referenzasset sind unter `PYTHONHASHSEED=0` und `1` byteidentisch (`TEST-FIXED-015`).
 - Drei veraltete Python-Testwerte werden ohne Produktivlogikänderung von 554 auf 556 korrigiert (`TEST-FIXED-014`).
 - Maschinenberechneter Stand: **54/92 vollständig**, **74/92 mindestens teilweise**, **33.465/48.831 angegriffene Referenzzeilen**.
+
+
+## Stage 12c5g – nativer Kombinationsjoin und ordnungsunabhängige Volltabellenparität
+
+- `reta_architecture/combi_join.py` besitzt nun einen vollständigen nativen Besitzer für CSV-Dekodierung, Auswahlrelation, vorbereitete Untertabellengruppen, Zellbereinigung und Tabellenjoin.
+- Fachlich mengenartige Hauptzeile→CSV-Zeilen-Zuordnungen werden kanonisch sortiert; sichtbare Kombinationsreihenfolgen bleiben separat geordnet.
+- Der Volltabellenvergleich kanonisiert physische Spalten- und Klassentokenreihenfolgen, bleibt aber gegenüber Inhalts-, Zeilen-, Attribut- und Markupänderungen empfindlich.
+- Stand nach der Stage: **55/92 vollständig**, **75/92 mindestens teilweise**, **34.177/48.831 angegriffene Referenzzeilen**.
+
+## Stage 12c5h – native Paketexporte und deterministische Installation
+
+- Die 598-zeilige Reexportfassade `reta_architecture/__init__.py` ist als reproduzierbarer typisierter Katalog mit **314 Importbindungen**, **232 geordneten öffentlichen Exporten** und **46 Besitzermodulen** portiert.
+- `reta-mojo-exports` stellt Symbol-, Modul-, Public- und Gesamtabfragen ohne Python-Import bereit.
+- Der `middle.alx`-Vergleich weist Container- und Nutzlastdigests getrennt aus. Das hochgeladene vermeintliche Python3-Artefakt ist ein Tar, dessen einziges Mitglied byteidentisch mit der PyPy3-Datei ist; ein unabhängiger Python3-Ausgabestrom war daher nicht enthalten.
+- `scripts/install_targets.txt` begrenzt Installationen auf **31 offizielle Compilerziele**. Unbekannte Alt-/Debugdateien wie `reta-native-o0` werden nicht mehr kopiert.
+- Stand: **56/92 vollständig nativ/generiert**, **76/92 mindestens teilweise**, **34.775/48.831 angegriffene Referenzzeilen**.
