@@ -112,3 +112,21 @@ def test_religion_json_scanner_is_utf8_boundary_safe() -> None:
     assert "한글 中文 Việt" in mojo_test
     defects = (ROOT / "KNOWN_DEFECTS.json").read_text(encoding="utf-8")
     assert "MOJO-FIXED-031" in defects
+
+
+def test_output_kind_priority_and_fast_fixture_are_regression_covered() -> None:
+    module = MODULE.read_text(encoding="utf-8")
+    mojo_test = (ROOT / "tests/test_program_workflow.mojo").read_text(encoding="utf-8")
+    parity = (ROOT / "scripts/check_program_workflow_parity.py").read_text(encoding="utf-8")
+    fixture = (
+        ROOT / "tests/fixtures/program_workflow_root/csv/religion.csv"
+    ).read_text(encoding="utf-8")
+    assert module.index("if argv[index] == bbcode_argument") < module.index(
+        "if argv[index] == html_argument"
+    )
+    assert 'args.append("--art=html")' in mojo_test
+    assert 'args.append("--art=bbcode")' in mojo_test
+    assert '["reta", "--art=html", "--art=bbcode"]' in parity
+    assert '["reta", "--art=bbcode", "--art=html"]' in parity
+    assert "한글 中文 Việt" in fixture
+    assert "MOJO-FIXED-032" in (ROOT / "KNOWN_DEFECTS.json").read_text(encoding="utf-8")

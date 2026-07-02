@@ -26,6 +26,7 @@ build src/package_integrity_main.mojo reta-mojo-package-integrity -I src -Xlinke
 build src/architecture_exports_main.mojo reta-mojo-exports -I src
 build src/architecture_facade_main.mojo reta-mojo-facade -I src
 build src/program_workflow_main.mojo reta-mojo-workflow -I src
+build src/domain_probe_main.mojo reta-mojo-domain-probe -I src
 build src/combi_join_main.mojo reta-mojo-combi-join -I src
 build src/reta_native_main.mojo reta-native -I src
 build src/compat_main.mojo reta-mojo-compat-bin -I src

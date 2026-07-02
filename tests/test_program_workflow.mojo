@@ -31,6 +31,19 @@ def test_program_workflow_output_kind_and_cell_decode() raises:
         requested_religion_output_kind(args, "art", "bbcode", "html"),
         "html",
     )
+    args.append("--art=bbcode")
+    assert_equal(
+        requested_religion_output_kind(args, "art", "bbcode", "html"),
+        "bbcode",
+    )
+    var reverse_args = List[String]()
+    reverse_args.append("reta")
+    reverse_args.append("--art=bbcode")
+    reverse_args.append("--art=html")
+    assert_equal(
+        requested_religion_output_kind(reverse_args, "art", "bbcode", "html"),
+        "bbcode",
+    )
     assert_equal(decode_religion_cell("<x>", "html"), "&lt;x&gt;")
     assert_equal(
         decode_religion_cell("|{\"\":\"P\",\"html\":\"H\",\"bbcode\":\"B\"}|", "bbcode"),

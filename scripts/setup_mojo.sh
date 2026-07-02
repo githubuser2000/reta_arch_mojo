@@ -33,6 +33,7 @@ PY
 rm -rf .venv
 uv venv --python "$PYTHON_REQUEST" .venv
 uv pip install --python .venv/bin/python 'mojo==1.0.0b2' --prerelease allow
+RETA_TEST_PYTHON="$ROOT/.venv/bin/python3" ./scripts/setup_test_dependencies.sh
 
 printf '\n%s\n' 'Installierter Modular-Mojo-Compiler:'
 .venv/bin/mojo --version

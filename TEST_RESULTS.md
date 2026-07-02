@@ -1699,3 +1699,15 @@ Für den lokalen Mojo-1.0.0b2-Lauf baut `scripts/test_stage12c5k.sh` zuerst den 
 - Defektkatalog: **71/71 konsistent**; Python-Bereinigungspunkte: **18**.
 - `tools/porting_metrics.py`: **58/92** vollständig, **80/92** mindestens teilweise, **36.664/48.831** angegriffene Referenzzeilen.
 - Der native Gesamtbuild und die Laufzeitparität werden lokal mit `scripts/test_stage12c5l.sh` ausgeführt, weil diese Sandbox keinen Modular-Mojo-Compiler enthält.
+
+## Stage 12c5m – Testumgebung, Workflow-Priorität und nativer Domain-Probe-Kern
+
+- Der Python-Referenzvertrag für gleichzeitig gesetzte Ausgabearten ist reproduziert: `bbcode` gewinnt vor `html`, unabhängig von deren Reihenfolge in `argv`. Beide Reihenfolgen sind in Mojo- und Python↔Mojo-Tests enthalten.
+- Die schnelle Religion-Fixture deckt ASCII, koreanische, chinesische und vietnamesische Inhalte, JSON-Varianten und Auffüllen bis zur historischen Zeilengrenze ab, ohne die 3,6-MB-Produktionstabelle im normalen Stage-Gate zu verarbeiten.
+- `requirements-test.txt`, `scripts/setup_test_dependencies.sh` und `scripts/find_test_python.sh` machen `pytest` als Python-Testabhängigkeit reproduzierbar.
+- Der native Domain-Probe-Kern besitzt neun Alias-, Paar-, Spalten- und JSON-Befehle; fünf repräsentative Text-/JSON-Fälle werden gegen `reta_domain_probe_py.py` verglichen.
+- Ausgeführte Source-, Ownership-, Defekt-, Archiv-, Metrik- und Installationsprüfungen: **58/58 bestanden**.
+- Defektkatalog: **73/73 konsistent**; Python-Bereinigungspunkte: **18**.
+- `tools/porting_metrics.py`: **58/92** vollständig, **81/92** mindestens teilweise, **37.072/48.831** angegriffene Referenzzeilen.
+- Die nativen Mojo-Modul- und CLI-Paritäten werden lokal mit `scripts/test_stage12c5m.sh` ausgeführt; diese Sandbox enthält keinen Modular-Mojo-Compiler.
+

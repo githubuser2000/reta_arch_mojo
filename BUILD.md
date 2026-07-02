@@ -25,6 +25,16 @@ Nur Compiler installieren:
 RETA_SKIP_BUILD=1 RETA_MOJO_PYTHON="$(command -v python3.14)" ./scripts/setup_mojo.sh
 ```
 
+`setup_mojo.sh` installiert auch die Python-Testabhängigkeiten. Bei einer bereits vorhandenen Mojo-`.venv` werden sie separat ergänzt:
+
+```bash
+./scripts/setup_test_dependencies.sh
+# oder direkt mit uv:
+uv pip install --python .venv/bin/python3 -r requirements-test.txt
+```
+
+`pytest` wird von den Python-Source- und Paritätsprüfungen verwendet; es ist keine Mojo-Bibliothek.
+
 ## Referenzinterpreter
 
 Die Compiler-`.venv` ist nicht der bevorzugte Interpreter für die eingefrorene
@@ -62,7 +72,7 @@ noch auf den Rechner zeigt, auf dem sie kompiliert wurden.
 ./scripts/check_build_layout.sh
 ```
 
-Erzeugt werden fünfzehn normale Laufzeitziele:
+Erzeugt werden siebzehn normale Laufzeitziele:
 
 ```text
 target/bin/reta-mojo-native
@@ -73,6 +83,7 @@ target/bin/reta-mojo-package-integrity
 target/bin/reta-mojo-exports
 target/bin/reta-mojo-facade
 target/bin/reta-mojo-workflow
+target/bin/reta-mojo-domain-probe
 target/bin/reta-mojo-combi-join
 target/bin/reta-native
 target/bin/reta-mojo-compat-bin
@@ -80,6 +91,7 @@ target/bin/reta-prompt-native
 target/bin/reta-prompt-complete
 target/bin/grundStrukHtml-native
 target/bin/generate-html-native
+target/bin/generate-readme-native
 ```
 
 `reta-prompt-complete` bleibt als persistenter eigenständiger Completion-Arbeiter und Kompatibilitäts-/Testziel erhalten. Der reguläre interaktive Prompt verwendet seit Stage 12c4d Completion direkt im nativen TTY-Editor und benötigt weder diesen Arbeiter noch eingebettetes CPython. `reta-mojo-table` ist bewusst leicht und enthält Tabellenzustand, Wrapping und CSV-Inspektion. Das vollständige Tag-Schema liegt in `reta-mojo-tags`; der fünfsprachige `i18n.words`-Baum ist über `reta-mojo-i18n` separat prüfbar. Diese Trennung vermeidet einen unnötigen Compiler-Monolithen.
@@ -94,6 +106,7 @@ RETA_CHECK_HEAVY=1 ./scripts/check_build_layout.sh
 Das erzeugt zusätzlich:
 
 ```text
+target/bin/reta-mojo-semantics
 target/bin/reta-mojo-schema
 target/bin/reta-mojo-architecture
 target/bin/reta-mojo-boundaries
@@ -113,7 +126,7 @@ target/bin/reta-mojo-parallel-execution
 target/bin/reta-mojo-row-preparation
 ```
 
-Die siebzehn Ziele enthalten sehr große generierte Konstantenstrukturen, Grenzgraphdaten, Architekturverträge, Witness-Matrizen, Kohärenzrouten, Trace-Netze, Impact-Routen, Migrationspläne, Rehearsal-Gates, Aktivierungstransaktionen, Gesamtvalidierungschecks, das Fortschritts-Overlay, die native SQLite-Persistenz, das deterministische Thread-Ausführungsnetz, die typisierten Thread-Chunk-Kerne und die typisierte Thread-Zeilenvorbereitung. Sie sind nicht für jeden normalen Build erforderlich; die Laufzeitpfade verwenden kompakte Katalogdateien.
+Die achtzehn Ziele enthalten sehr große generierte Konstantenstrukturen, Grenzgraphdaten, Architekturverträge, Witness-Matrizen, Kohärenzrouten, Trace-Netze, Impact-Routen, Migrationspläne, Rehearsal-Gates, Aktivierungstransaktionen, Gesamtvalidierungschecks, das Fortschritts-Overlay, die native SQLite-Persistenz, das deterministische Thread-Ausführungsnetz, die typisierten Thread-Chunk-Kerne und die typisierte Thread-Zeilenvorbereitung. Sie sind nicht für jeden normalen Build erforderlich; die Laufzeitpfade verwenden kompakte Katalogdateien.
 
 ## Aufräumen
 
@@ -264,7 +277,7 @@ DESTDIR="$pkgdir" PREFIX=/usr ./scripts/install.sh
 Dann liegen die Tabellen unter `/usr/share/reta/csv`. Die öffentliche
 `/usr/bin`-Ebene enthält nur relative Symlinks zu den privaten Launchern unter
 `/usr/lib/reta/bin`. Die privaten ELFs werden nicht mehr per Wildcard kopiert,
-sondern ausschließlich aus der 34-Ziel-Allowlist
+sondern ausschließlich aus der 35-Ziel-Allowlist
 `scripts/install_targets.txt`; dadurch gelangen keine lokalen Alt-/Debugziele
 ins Paket. Der Python-Kompatibilitätsbaum behält seinen historischen
 Pfad `python_reference/csv` als relativen Symlink auf die kanonischen

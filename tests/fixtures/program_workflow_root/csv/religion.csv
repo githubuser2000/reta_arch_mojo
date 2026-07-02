@@ -1,0 +1,3 @@
+id;plain;wrapped
+1;한글 中文 Việt;|{"":"plain","html":"<b>한글 中文 Việt</b>","bbcode":"[b]한글 中文 Việt[/b]"}|
+2;<x & "y">;normal

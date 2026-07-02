@@ -20,8 +20,8 @@ def test_porting_metrics_are_derived_from_complete_reference_inventory() -> None
     assert data["reference_files"] == 92
     assert data["reference_lines"] == 48831
     assert data["fully_native_files"] == 58
-    assert data["at_least_partly_ported_files"] == 80
-    assert data["touched_reference_lines"] == 36664
+    assert data["at_least_partly_ported_files"] == 81
+    assert data["touched_reference_lines"] == 37072
     assert data["fully_native_files"] <= data["at_least_partly_ported_files"]
     assert data["fully_native_reference_lines"] <= data["touched_reference_lines"]
 
@@ -62,3 +62,8 @@ def test_architecture_facade_graph_is_in_the_authoritative_mapping() -> None:
 def test_readme_generator_is_in_the_authoritative_mapping() -> None:
     mapping = _load_module().native_mapping()
     assert mapping["libs/generate4readme.py"][0] == "generiert nativ"
+
+
+def test_native_domain_probe_core_is_in_the_authoritative_mapping() -> None:
+    mapping = _load_module().native_mapping()
+    assert mapping["reta_domain_probe_py.py"][0] == "teilweise nativ"

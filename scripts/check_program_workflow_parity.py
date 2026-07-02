@@ -12,6 +12,7 @@ from types import SimpleNamespace
 
 ROOT = Path(__file__).resolve().parents[1]
 PYROOT = ROOT / "python_reference"
+FIXTURE_ROOT = ROOT / "tests/fixtures/program_workflow_root"
 sys.path.insert(0, str(PYROOT))
 
 from reta_architecture.parallel_execution import ParallelExecutionConfig  # noqa: E402
@@ -36,7 +37,11 @@ def native(binary: Path, *args: str) -> str:
     result = subprocess.run(
         [str(binary), *args],
         cwd=ROOT,
-        env={**os.environ, "RETA_ROOT": str(ROOT)},
+        env={
+            **os.environ,
+            "RETA_ROOT": str(ROOT),
+            "RETA_DATA_DIR": str(FIXTURE_ROOT / "csv"),
+        },
         check=True,
         text=True,
         stdout=subprocess.PIPE,
@@ -45,8 +50,10 @@ def native(binary: Path, *args: str) -> str:
     return result.stdout
 
 
-def python_bundle(argv: list[str] | None = None) -> ProgramWorkflowBundle:
-    bundle = ProgramWorkflowBundle(PYROOT, I18N, CSV_NAMES, 0)
+def python_bundle(
+    argv: list[str] | None = None, repo_root: Path = PYROOT
+) -> ProgramWorkflowBundle:
+    bundle = ProgramWorkflowBundle(repo_root, I18N, CSV_NAMES, 0)
     if argv is not None:
         I18N.argv = argv
     return bundle
@@ -86,6 +93,7 @@ def check_output_kind(binary: Path) -> None:
         ["reta", "--art=html"],
         ["reta", "--art=bbcode"],
         ["reta", "--art=html", "--art=bbcode"],
+        ["reta", "--art=bbcode", "--art=html"],
     ]
     for argv in cases:
         program = SimpleNamespace(argv=argv)
@@ -117,7 +125,7 @@ def check_kombi(binary: Path) -> None:
 
 
 def check_religion_summary(binary: Path) -> None:
-    bundle = python_bundle()
+    bundle = python_bundle(repo_root=FIXTURE_ROOT)
     program = SimpleNamespace(
         argv=["reta"],
         tables=SimpleNamespace(hoechsteZeile={1024: 1024}),
@@ -143,7 +151,7 @@ def main() -> int:
     check_output_kind(args.binary)
     check_kombi(args.binary)
     check_religion_summary(args.binary)
-    print(json.dumps({"cases": 7 + 4 + 3 + 1, "status": "ok"}, sort_keys=True))
+    print(json.dumps({"cases": 7 + 5 + 3 + 1, "status": "ok"}, sort_keys=True))
     return 0
 
 

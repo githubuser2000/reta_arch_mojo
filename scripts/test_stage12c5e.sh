@@ -2,6 +2,7 @@
 set -eu
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 cd "$ROOT"
+TEST_PYTHON=$("$ROOT/scripts/find_test_python.sh")
 MOJO=${MOJO_BIN:-"$ROOT/bin/mojo-real"}
 PYTHON=${RETA_REFERENCE_PYTHON:-"$(scripts/select_reference_python.sh)"}
 mkdir -p target/tests
@@ -17,7 +18,7 @@ mkdir -p target/tests
 "$ROOT/scripts/build_concat_csv_probe.sh"
 PYTHONDONTWRITEBYTECODE=1 "$PYTHON" scripts/check_concat_csv_parity.py
 
-python3 -m pytest -q \
+"$TEST_PYTHON" -m pytest -q \
     tests/test_concat_csv_source.py \
     tests/test_porting_matrix_ownership.py \
     tests/test_known_defects.py \
@@ -25,5 +26,5 @@ python3 -m pytest -q \
     tests/test_source_archive_contract.py \
     tests/test_native_boundary_audit.py \
     tests/test_porting_metrics.py
-python3 tools/check_known_defects.py
+"$TEST_PYTHON" tools/check_known_defects.py
 printf '%s\n' 'stage12c5e native concat CSV and legacy concat facade complete'

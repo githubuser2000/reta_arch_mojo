@@ -1025,3 +1025,14 @@ Die lokale Exportfilter-Kopie ist ein eigener Ownership-Fall: `.copy()` erzeugt 
 - `libs/generate4readme.py` wechselt zu `generiert nativ`; die vollständigen Ausgaben werden unter `PYTHONHASHSEED=0` reproduzierbar erzeugt und zur Laufzeit rein nativ geladen.
 - Das offizielle Installationsmanifest enthält nun 34 Ziele einschließlich `generate-readme-native`.
 - Der Python-Defektkandidat `PY-CAND-012` dokumentiert vier hashseedabhängige Bruchparameterlisten.
+
+
+## Stage 12c5m – reproduzierbare Testumgebung und nativer Domain-Probe-Kern
+
+- `pytest` ist eine Python-Testabhängigkeit, keine Mojo-Bibliothek. `requirements-test.txt`, `scripts/setup_test_dependencies.sh` und `scripts/find_test_python.sh` halten Compiler- und Testinterpreter trotzdem in derselben lokalen `.venv` konsistent.
+- `scripts/setup_mojo.sh` installiert die Testabhängigkeiten bei einer Neuinstallation automatisch; eine bestehende Umgebung wird mit `scripts/setup_test_dependencies.sh` ergänzt.
+- `requested_religion_output_kind` reproduziert nun die Python-Mitgliedschaftslogik: BBCode hat feste Priorität vor HTML, unabhängig von der Reihenfolge der Argumente.
+- Der normale ProgramWorkflow-Test verwendet eine kleine UTF-8-/JSON-Fixture statt bei jedem Lauf die vollständige Religionstabelle mit mehr als 760.000 Zellen zu dekodieren.
+- `reta_domain_probe_py.py` wechselt zu teilweise nativ. Neun Kernbefehle werden direkt von `domain_probe_main.mojo` über den nativen Schemakatalog und die Parametersemantik bedient.
+- Das reguläre Compilerziel `reta-mojo-domain-probe` ist in Buildlayout und Installationsmanifest aufgenommen; die offizielle Installationsmenge umfasst nun 35 Ziele.
+- Ein unveränderter Source-Stand muss nach reinen Builds nicht erneut hochgeladen werden, da alle neu erzeugten Dateien unter dem ausgeschlossenen `target/` liegen.

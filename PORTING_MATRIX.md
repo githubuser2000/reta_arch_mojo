@@ -5,7 +5,7 @@ Stand: 2. Juli 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der g
 - Ursprüngliche Python-Dateien: **92**
 - Ursprüngliche Python-Zeilen insgesamt: **48831**
 - Eingebettete Python-Brücken: **0**; expliziter Mojo-Kindprozessadapter: **1**
-- Quellzeilen der bereits angegriffenen Architekturmodule: **36664**
+- Quellzeilen der bereits angegriffenen Architekturmodule: **37072**
 - Native Mojo-Quellzeilen: siehe `src/` (inklusive generiertem Kategoriekatalog)
 
 | Python-Datei | Zeilen | Funktionen | Klassen | dynamische Aufrufe | Status | Mojo/Ziel | Anmerkung |
@@ -95,7 +95,7 @@ Stand: 2. Juli 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der g
 | `reta_architecture/topology.py` | 230 | 15 | 3 | 1 | nativ | `src/reta_mojo/topology.mojo` | symbolische Auswahl, Verfeinerung, Aliasauflösung |
 | `reta_architecture/universal.py` | 132 | 8 | 1 | 0 | nativ | `src/reta_mojo/universal.mojo + semantics_builder.mojo + table_state.mojo` | Pushout-artiger Parameter-/Datenmerge, positive/negative Bucketnormalisierung und typisierte Tabellen-/Sheaf-Synchronisation vollständig nativ |
 | `reta_architecture_probe_py.py` | 440 | 4 | 0 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture_probe_py.py` | noch nicht nativ portiert |
-| `reta_domain_probe_py.py` | 408 | 17 | 0 | 0 | Python-Referenz/Bridge | `python_reference/reta_domain_probe_py.py` | noch nicht nativ portiert |
+| `reta_domain_probe_py.py` | 408 | 17 | 0 | 0 | teilweise nativ | `src/domain_probe_main.mojo + bin/reta-mojo-domain-probe` | neun zentrale Inspektionsbefehle für Hauptparameter, Unterparameter, kanonische Paare, direkte Spalten, Rückabbildung sowie kompakte JSON-Ausgaben nativ; HTML-Metadaten und vollständige Architektursnapshots bleiben getrennte Besitzergrenze |
 | `reta_extract_html_classes.py` | 125 | 7 | 0 | 0 | Python-Referenz/Bridge | `python_reference/reta_extract_html_classes.py` | noch nicht nativ portiert |
 | `setup.py` | 113 | 8 | 5 | 0 | Python-Referenz/Bridge | `python_reference/setup.py` | noch nicht nativ portiert |
 | `tests/__init__.py` | 0 | 0 | 0 | 0 | Python-Referenz/Bridge | `python_reference/tests/__init__.py` | noch nicht nativ portiert |

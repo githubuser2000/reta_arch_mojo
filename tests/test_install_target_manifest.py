@@ -17,6 +17,7 @@ REGULAR = {
     "reta-mojo-facade",
     "reta-mojo-workflow",
     "reta-mojo-combi-join",
+    "reta-mojo-domain-probe",
     "reta-native",
     "reta-mojo-compat-bin",
     "reta-prompt-native",
@@ -57,7 +58,7 @@ def _manifest_names() -> list[str]:
 
 def test_manifest_is_complete_unique_and_excludes_stale_debug_targets() -> None:
     names = _manifest_names()
-    assert len(names) == len(set(names)) == 34
+    assert len(names) == len(set(names)) == 35
     assert set(names) == REGULAR | HEAVY
     assert "reta-native-o0" not in names
 
@@ -111,3 +112,11 @@ def test_installer_copies_only_manifested_compiler_targets(tmp_path: Path) -> No
         if not target_dir_preexisted:
             target_dir.rmdir()
             target_dir.parent.rmdir()
+
+
+def test_build_layout_checks_every_regular_target() -> None:
+    layout = (ROOT / "scripts/check_build_layout.sh").read_text(encoding="utf-8")
+    prefix = "expected='"
+    line = next(raw for raw in layout.splitlines() if raw.startswith(prefix))
+    expected = set(line[len(prefix):-1].split())
+    assert expected == REGULAR

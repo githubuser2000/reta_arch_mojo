@@ -5,6 +5,7 @@ generate-html-native
 generate-readme-native
 grundStrukHtml-native
 reta-mojo-combi-join
+reta-mojo-domain-probe
 reta-mojo-compat-bin
 reta-mojo-exports
 reta-mojo-facade

@@ -6,6 +6,8 @@ Am zuverlässigsten ist das von `scripts/create_source_archive.sh` erzeugte
 **Sourcearchiv**. Es enthält alle fachlich relevanten Quellen und Referenzen,
 aber keine rechnerabhängigen Buildprodukte.
 
+Wurde seit dem zuletzt von ChatGPT erzeugten Stand **keine Quelldatei lokal geändert**, ist kein erneuter Upload nötig. Reines Kompilieren oder Testen ändert nur `target/`, das bewusst ausgeschlossen bleibt; in diesem Fall genügt die Fehler- beziehungsweise Testausgabe als Text. Ein neues Sourcearchiv wird erst gebraucht, wenn lokale Quelländerungen in die nächste Runde übernommen werden sollen.
+
 Erforderlich:
 
 - `src/`: native Mojo-Quellen und Compiler-Einstiege,
@@ -48,7 +50,7 @@ werden.
 Benötigt werden das Sourcearchiv, ein offizieller Modular-Mojo-Compiler und die
 Systembibliotheken der jeweiligen Ziele, insbesondere SQLite/OpenSSL für die
 entsprechenden schweren Werkzeuge. `.venv/` und `target/` sind lokale,
-regenerierbare Arbeitsverzeichnisse und gehören nicht in das Sourcearchiv.
+regenerierbare Arbeitsverzeichnisse und gehören nicht in das Sourcearchiv. Python-Source- und Paritätstests benötigen zusätzlich `pytest`; `scripts/setup_mojo.sh` installiert es automatisch, nachträglich erledigt dies `scripts/setup_test_dependencies.sh`.
 
 ## Für die installierte Laufzeit
 

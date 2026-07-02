@@ -2,14 +2,14 @@
 
 Geplanter Umfang: **12 Release-Stufen**. Eine Stufe zählt erst als abgeschlossen, wenn Quellcode, Referenztests, Compilerziele, Dokumentation und ein source-only Archiv gemeinsam geprüft sind.
 
-## Fortschrittsmaße nach Stage 12c5k
+## Fortschrittsmaße nach Stage 12c5m
 
 | Maß | Stand | Aussage |
 |---|---:|---|
-| abgeschlossene Release-Stufen | **9/12 = 75,0 %** | Stufen 1–8 und 11 sind abgeschlossen; Stufe 12 ist mit 12a, 12b, 12c1–12c3 und 12c4a–12c5k zu etwa 71,0 % abgeschlossen, während 9 und 10 noch Restpfade besitzen |
+| abgeschlossene Release-Stufen | **9/12 = 75,0 %** | Stufen 1–8 und 11 sind abgeschlossen; Stufe 12 ist mit 12a, 12b, 12c1–12c3 und 12c4a–12c5m zu etwa 71,0 % abgeschlossen, während 9 und 10 noch Restpfade besitzen |
 | vollständig native oder generierte Python-Dateien | **58/92 = 63,0 %** | Datei vollständig ersetzt oder als reproduzierbares Laufzeitasset abgebildet |
-| mindestens angegriffene Python-Dateien | **80/92 = 87,0 %** | Status direkt aus der autoritativen `NATIVE`-Zuordnung |
-| angegriffene Referenzzeilen | **36.282/48.831 = 74,3 %** | maschinenberechnet statt manuell fortgeschrieben |
+| mindestens angegriffene Python-Dateien | **81/92 = 88,0 %** | Status direkt aus der autoritativen `NATIVE`-Zuordnung |
+| angegriffene Referenzzeilen | **37.072/48.831 = 75,9 %** | maschinenberechnet statt manuell fortgeschrieben |
 | funktionaler Nutzerumfang | **ca. 96–98 %** | praktisch nutzbarer Reta-Umfang ohne Python-Algorithmus |
 
 Die Stufenquote ist höher als die Quellzeilenquote, weil die letzten Stufen besonders große dynamische Module bündeln: vollständige Ausgabeaufbereitung, Prompt-Sprache, i18n-Matrix, Architekturvalidierung und Parallelisierung.
@@ -399,3 +399,13 @@ Die Zahl **12** ist die geplante Releasegliederung. Interne Teilpakete oder Fehl
 - `libs/generate4readme.py` ist vollständig durch kanonische deutsch/englische Assets und einen nativen Laufzeitbesitzer ersetzt.
 - `PY-CAND-012` hält die hashseedabhängige Reihenfolge von vier Python-Bruchparameterlisten für den späteren Cleanup fest.
 - Maschinenstand: 58/92 vollständig, 80/92 mindestens teilweise, 36.664/48.831 angegriffene Referenzzeilen.
+
+## Stage 12c5m – Testumgebung, Workflow-Priorität und Domain-Probe-Kern
+
+- [x] `pytest` als explizite Python-Testabhängigkeit der Mojo-Projektumgebung deklarieren und automatisch einrichten.
+- [x] Stage-Skripte nur mit einem Python starten, das `pytest` tatsächlich importieren kann.
+- [x] Python-kompatible Ausgabemoduspriorität `bbcode > html > plain` unabhängig von der Argumentreihenfolge herstellen.
+- [x] Schnelle UTF-8-/JSON-Religion-Fixture für normale Workflow-Regressionsläufe einführen.
+- [x] Neun Kernbefehle von `reta_domain_probe_py.py` über den nativen Schema-/Parametersemantikbesitzer bereitstellen.
+- [ ] HTML-Metadaten-, Schema- und vollständige Architektur-Snapshotbefehle des Domain-Probe nativ übernehmen.
+- Maschinenstand: 58/92 vollständig, 81/92 mindestens teilweise, 37.072/48.831 angegriffene Referenzzeilen.

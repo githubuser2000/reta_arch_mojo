@@ -1685,6 +1685,58 @@
         "tools/generate_readme_assets.py",
         "assets/generated_readme_manifest.tsv"
       ]
+    },
+    {
+      "id": "MOJO-FIXED-032",
+      "title": "ProgramWorkflow ließ bei mehreren Ausgabearten die Argumentreihenfolge statt der Referenzpriorität entscheiden",
+      "origin": "mojo_port",
+      "classification": "output_mode_precedence_mismatch",
+      "severity": "high",
+      "python_status": "correct_reference",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5m",
+      "reproducer": "scripts/test_stage12c5k.sh ausführen; der Paritätstest erwartet für [--art=html, --art=bbcode] gemäß Python bbcode, während Mojo html ausgab.",
+      "python_locations": [
+        "python_reference/reta_architecture/program_workflow.py:49-55"
+      ],
+      "mojo_locations": [
+        "src/reta_mojo/program_workflow.mojo",
+        "tests/test_program_workflow.mojo",
+        "scripts/check_program_workflow_parity.py"
+      ],
+      "current_contract": "Die vollständige Argumentliste wird zuerst auf den BBCode-Wert und erst danach auf HTML geprüft. Sobald beide Werte vorkommen, gewinnt BBCode unabhängig von ihrer physischen Reihenfolge, exakt wie in der Python-Referenz.",
+      "post_port_fix": "Keine Python-Änderung erforderlich; die Python-Referenz besaß bereits den festgelegten Prioritätsvertrag.",
+      "evidence": [
+        "STAGE12C5M_NATIVE_DOMAIN_PROBE_TEST_ENVIRONMENT.md",
+        "tests/test_program_workflow.mojo",
+        "scripts/check_program_workflow_parity.py"
+      ]
+    },
+    {
+      "id": "TEST-FIXED-018",
+      "title": "Mojo-Compilerumgebung enthielt nicht automatisch die Python-Testabhängigkeit pytest",
+      "origin": "test_infrastructure",
+      "classification": "missing_test_environment_dependency",
+      "severity": "medium",
+      "python_status": "not_applicable",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5m",
+      "reproducer": "Nach erfolgreichem Mojo-Test scripts/test_stage12c5k.sh in einer aktivierten .venv ohne pytest ausführen; .venv/bin/python3 bricht bei python3 -m pytest mit No module named pytest ab.",
+      "python_locations": [],
+      "mojo_locations": [
+        "scripts/setup_mojo.sh",
+        "scripts/setup_test_dependencies.sh",
+        "scripts/find_test_python.sh",
+        "requirements-test.txt"
+      ],
+      "current_contract": "Die Projekt-.venv enthält neben dem Modular-Mojo-Compiler auch die Python-Testabhängigkeiten. Stage-Skripte wählen nur einen Interpreter, der pytest importieren kann, und liefern andernfalls einen ausführbaren Installationsbefehl.",
+      "post_port_fix": "Keine Python-Referenzänderung erforderlich; dies betrifft ausschließlich die Entwicklungs- und Testumgebung des Mojo-Ports.",
+      "evidence": [
+        "STAGE12C5M_NATIVE_DOMAIN_PROBE_TEST_ENVIRONMENT.md",
+        "tests/test_test_python_setup.py",
+        "scripts/setup_test_dependencies.sh",
+        "scripts/find_test_python.sh"
+      ]
     }
   ],
   "audit": {

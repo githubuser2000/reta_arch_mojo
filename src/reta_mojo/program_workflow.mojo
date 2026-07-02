@@ -226,9 +226,12 @@ def requested_religion_output_kind(
     var prefix = "--" + art_parameter + "="
     var bbcode_argument = prefix + bbcode_value
     var html_argument = prefix + html_value
+    # Python checks membership in priority order, not argv order.  Therefore
+    # bbcode wins whenever both output flags are present.
     for index in range(len(argv)):
         if argv[index] == bbcode_argument:
             return "bbcode"
+    for index in range(len(argv)):
         if argv[index] == html_argument:
             return "html"
     return "plain"

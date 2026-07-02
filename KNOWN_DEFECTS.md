@@ -23,7 +23,7 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 
 ## Übersicht
 
-- Einträge insgesamt: **71**
+- Einträge insgesamt: **73**
 - offene bestätigte Python-Fehler: **5**
 - zu entscheidende Python-Fehlerkandidaten: **12**
 - bereits im Python-Baum behobene Fehler: **7**
@@ -981,3 +981,30 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 - Python-Orte: `python_reference/libs/generate4readme.py`, `python_reference/i18n/words_matrix.py`
 - Mojo-Orte: `src/reta_mojo/readme_generator.mojo`, `assets/generated_readme_german.md`, `assets/generated_readme_english.md`, `tools/generate_readme_assets.py`
 - Belege: `tests/test_readme_generator_source.py`, `tools/generate_readme_assets.py`, `assets/generated_readme_manifest.tsv`
+
+### MOJO-FIXED-032 – ProgramWorkflow ließ bei mehreren Ausgabearten die Argumentreihenfolge statt der Referenzpriorität entscheiden
+
+- Ursprung: `mojo_port`
+- Klasse / Schwere: `output_mode_precedence_mismatch` / `high`
+- Python-Status: `correct_reference`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5m`
+- Reproduktion: `scripts/test_stage12c5k.sh ausführen; der Paritätstest erwartet für [--art=html, --art=bbcode] gemäß Python bbcode, während Mojo html ausgab.`
+- heutiger Vertrag: Die vollständige Argumentliste wird zuerst auf den BBCode-Wert und erst danach auf HTML geprüft. Sobald beide Werte vorkommen, gewinnt BBCode unabhängig von ihrer physischen Reihenfolge, exakt wie in der Python-Referenz.
+- spätere Python-Aktion: Keine Python-Änderung erforderlich; die Python-Referenz besaß bereits den festgelegten Prioritätsvertrag.
+- Python-Orte: `python_reference/reta_architecture/program_workflow.py:49-55`
+- Mojo-Orte: `src/reta_mojo/program_workflow.mojo`, `tests/test_program_workflow.mojo`, `scripts/check_program_workflow_parity.py`
+- Belege: `STAGE12C5M_NATIVE_DOMAIN_PROBE_TEST_ENVIRONMENT.md`, `tests/test_program_workflow.mojo`, `scripts/check_program_workflow_parity.py`
+
+### TEST-FIXED-018 – Mojo-Compilerumgebung enthielt nicht automatisch die Python-Testabhängigkeit pytest
+
+- Ursprung: `test_infrastructure`
+- Klasse / Schwere: `missing_test_environment_dependency` / `medium`
+- Python-Status: `not_applicable`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5m`
+- Reproduktion: `Nach erfolgreichem Mojo-Test scripts/test_stage12c5k.sh in einer aktivierten .venv ohne pytest ausführen; .venv/bin/python3 bricht bei python3 -m pytest mit No module named pytest ab.`
+- heutiger Vertrag: Die Projekt-.venv enthält neben dem Modular-Mojo-Compiler auch die Python-Testabhängigkeiten. Stage-Skripte wählen nur einen Interpreter, der pytest importieren kann, und liefern andernfalls einen ausführbaren Installationsbefehl.
+- spätere Python-Aktion: Keine Python-Referenzänderung erforderlich; dies betrifft ausschließlich die Entwicklungs- und Testumgebung des Mojo-Ports.
+- Mojo-Orte: `scripts/setup_mojo.sh`, `scripts/setup_test_dependencies.sh`, `scripts/find_test_python.sh`, `requirements-test.txt`
+- Belege: `STAGE12C5M_NATIVE_DOMAIN_PROBE_TEST_ENVIRONMENT.md`, `tests/test_test_python_setup.py`, `scripts/setup_test_dependencies.sh`, `scripts/find_test_python.sh`
