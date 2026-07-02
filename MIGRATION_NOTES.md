@@ -1044,3 +1044,13 @@ Die lokale Exportfilter-Kopie ist ein eigener Ownership-Fall: `.copy()` erzeugt 
 - Der versionsabhängige `prompt_toolkit`-Kandidat bleibt dokumentiert, aber Sourcegates verlangen kein veraltetes Fremdbibliotheksverhalten mehr.
 - `html_class_extractor.mojo` ersetzt Repo-Suche, Stubmodule, Python-Unterprozess, Regex-Attributparser und JSONL-Schreiber des historischen Werkzeugs.
 - Der normale Lauf erzeugt die Kopfzeile über `run_native_reta`; `RETA_HTML_CLASSES_INPUT` ist ausschließlich die deterministische Testnaht.
+
+
+## Stage 12c5o – vollständiger Besitz von `meta_columns.py`
+
+- Die öffentliche 14-Funktionen-Oberfläche ist typisiert in `meta_columns.mojo` und `prime_effect_columns.mojo` abgebildet.
+- Mutable Receiverzustände wurden durch `MetaColumnsBundle`, `MetaColumnsSnapshot`, `MetaColumnRequest`, `MetaColumnMetadata`, `MetaColumnsCatalog` und rationale Werttypen ersetzt.
+- Der reproduzierbare Katalog enthält 47 Universums- und 40 Galaxiebrüche sowie 884 historische Kombinationseinträge; Quellpfad, SHA-256 und Menge werden mitgeführt.
+- Normale native Bruchentdeckung verwendet deterministische Tabellenreihenfolge. Nur die beobachtbare historische Python-Setreihenfolge wird unter `PYTHONHASHSEED=0` als Asset eingefroren.
+- Der mathematisch verdächtige `stern/div`-Zweig bleibt aus Kompatibilitätsgründen leer und ist als `PY-CAND-013` für die spätere Python-Bereinigung dokumentiert.
+- Fortschritt: **60/92 vollständig**, **83/92 mindestens teilweise**, **38.174/48.831 angegriffene Referenzzeilen**, **28.751/48.831 vollständig native Referenzzeilen**.

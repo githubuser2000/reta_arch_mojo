@@ -23,9 +23,9 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 
 ## Übersicht
 
-- Einträge insgesamt: **75**
+- Einträge insgesamt: **76**
 - offene bestätigte Python-Fehler: **5**
-- zu entscheidende Python-Fehlerkandidaten: **12**
+- zu entscheidende Python-Fehlerkandidaten: **13**
 - bereits im Python-Baum behobene Fehler: **7**
 
 ## Einträge
@@ -1036,3 +1036,17 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 - Python-Orte: `python_reference/reta_architecture/completion_word.py`, `tests/test_documented_python_defects.py`
 - Mojo-Orte: `tests/test_documented_python_defects.py`, `src/reta_mojo/completion_word.mojo`
 - Belege: `STAGE12C5N_NATIVE_HTML_CLASS_EXTRACTION.md`, `tests/test_documented_python_defects.py`
+
+### PY-CAND-013 – Meta-Bruchkombination stern/div vergisst die Rückskalierung nach dem Runden
+
+- Ursprung: `python_reference`
+- Klasse / Schwere: `fraction_relation_rounding_candidate` / `medium`
+- Python-Status: `candidate`
+- Mojo-Status: `compatibility_preserved`
+- entdeckt in: `12c5o`
+- Reproduktion: `PYTHONHASHSEED=0 python3 scripts/generate_meta_columns_catalog.py ausführen und assets/meta_columns_catalog.tsv auswerten; für UniUni, UniGal, GalUni und GalGal enthält stern/div jeweils 0 Paare, obwohl mathematisch ganzzahlige Quotienten existieren.`
+- heutiger Vertrag: Der native Katalog konserviert unter PYTHONHASHSEED=0 exakt den beobachtbaren Python-Istzustand einschließlich vier leerer stern/div-Gruppen. Die übrigen 884 Kombinationseinträge und ihre Reihenfolge bleiben bytegenau reproduzierbar.
+- spätere Python-Aktion: Nach Abschluss der Portierung fachlich entscheiden, ob die rechte Seite wie bei stern/mul durch 1000 geteilt werden muss. Bei Bestätigung die Python-Bedingung korrigieren, neue Paarfixtures erzeugen und Python sowie Mojo gemeinsam auf den neuen Relationsvertrag migrieren.
+- Python-Orte: `python_reference/reta_architecture/meta_columns.py:694-699`
+- Mojo-Orte: `assets/meta_columns_catalog.tsv`, `src/reta_mojo/meta_columns.mojo`, `scripts/generate_meta_columns_catalog.py`
+- Belege: `STAGE12C5O_NATIVE_META_COLUMNS.md`, `tests/test_meta_columns_complete_source.py`, `assets/meta_columns_catalog.tsv`

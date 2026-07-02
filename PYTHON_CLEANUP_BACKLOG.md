@@ -11,7 +11,7 @@ Arbeitsliste für die Phase nach dem vollständigen Mojo-Port.
 4. Python und Mojo gegen denselben korrigierten Sollvertrag prüfen.
 5. Den Eintrag in `KNOWN_DEFECTS.json` auf `fixed` setzen.
 
-Offene oder zu entscheidende Einträge: **18**
+Offene oder zu entscheidende Einträge: **19**
 
 ## 1. PY-OPEN-001 – Beliebige Codeausführung durch eval in Ganzzahlmengen-Ausdrücken
 
@@ -210,3 +210,14 @@ Offene oder zu entscheidende Einträge: **18**
 - Python-Arbeitsauftrag: Nach Abschluss der Portierung die vier set-basierten Werte im Python-i18n-Katalog in eine explizit geordnete Struktur überführen oder beim Dokumentgenerator kanonisch sortieren; anschließend den gewählten Sollvertrag versionieren und den Kandidaten auf fixed setzen.
 - Python-Orte: `python_reference/libs/generate4readme.py`, `python_reference/i18n/words_matrix.py`
 - Belege: `tests/test_readme_generator_source.py`, `tools/generate_readme_assets.py`, `assets/generated_readme_manifest.tsv`
+
+## 19. PY-CAND-013 – Meta-Bruchkombination stern/div vergisst die Rückskalierung nach dem Runden
+
+- Priorität: `medium`
+- Python-Status: `candidate`
+- Mojo-Status: `compatibility_preserved`
+- Reproduktion: `PYTHONHASHSEED=0 python3 scripts/generate_meta_columns_catalog.py ausführen und assets/meta_columns_catalog.tsv auswerten; für UniUni, UniGal, GalUni und GalGal enthält stern/div jeweils 0 Paare, obwohl mathematisch ganzzahlige Quotienten existieren.`
+- heutiger Vertrag: Der native Katalog konserviert unter PYTHONHASHSEED=0 exakt den beobachtbaren Python-Istzustand einschließlich vier leerer stern/div-Gruppen. Die übrigen 884 Kombinationseinträge und ihre Reihenfolge bleiben bytegenau reproduzierbar.
+- Python-Arbeitsauftrag: Nach Abschluss der Portierung fachlich entscheiden, ob die rechte Seite wie bei stern/mul durch 1000 geteilt werden muss. Bei Bestätigung die Python-Bedingung korrigieren, neue Paarfixtures erzeugen und Python sowie Mojo gemeinsam auf den neuen Relationsvertrag migrieren.
+- Python-Orte: `python_reference/reta_architecture/meta_columns.py:694-699`
+- Belege: `STAGE12C5O_NATIVE_META_COLUMNS.md`, `tests/test_meta_columns_complete_source.py`, `assets/meta_columns_catalog.tsv`

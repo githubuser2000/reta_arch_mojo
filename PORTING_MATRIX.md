@@ -5,7 +5,7 @@ Stand: 2. Juli 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der g
 - Ursprüngliche Python-Dateien: **92**
 - Ursprüngliche Python-Zeilen insgesamt: **48831**
 - Eingebettete Python-Brücken: **0**; expliziter Mojo-Kindprozessadapter: **1**
-- Quellzeilen der bereits angegriffenen Architekturmodule: **37197**
+- Quellzeilen der bereits angegriffenen Architekturmodule: **38174**
 - Native Mojo-Quellzeilen: siehe `src/` (inklusive generiertem Kategoriekatalog)
 
 | Python-Datei | Zeilen | Funktionen | Klassen | dynamische Aufrufe | Status | Mojo/Ziel | Anmerkung |
@@ -60,7 +60,7 @@ Stand: 2. Juli 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der g
 | `reta_architecture/facade.py` | 709 | 49 | 1 | 1 | teilweise nativ | `src/reta_mojo/architecture_facade.mojo + assets/architecture_facade.tsv + src/architecture_facade_main.mojo` | 45 typisierte Fassadenfelder, 49 Methoden, 45 Bootstrap-Schritte, 44 Rebuild-Einstiege, 98 Abhängigkeitskanten und 48 Snapshot-Einträge in exakter AST-Reihenfolge; heterogene Besitzer werden erst nach ihrer eigenen vollständigen Portierung als Laufzeitobjekte aggregiert |
 | `reta_architecture/generated_columns.py` | 2010 | 38 | 3 | 0 | teilweise nativ | `src/reta_mojo/generated_columns.mojo` | vier Generatorfamilien zweisprachig nativ; restliche Generator- und Metaspalten folgen in Stufe 7 |
 | `reta_architecture/input_semantics.py` | 249 | 15 | 4 | 0 | teilweise nativ | `src/reta_mojo/input_semantics.mojo + row_ranges.mojo` | CLI-Normalisierung, Kommasyntax, Polarität, kanonische Spaltenauswahl und schemaabgeleitetes Prompt-Vokabular; dynamischer Prompt-Executor noch Bridge |
-| `reta_architecture/meta_columns.py` | 977 | 24 | 2 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/meta_columns.py` | noch nicht nativ portiert |
+| `reta_architecture/meta_columns.py` | 977 | 24 | 2 | 0 | nativ | `src/reta_mojo/meta_columns.mojo + src/reta_mojo/prime_effect_columns.mojo + assets/meta_columns_catalog.tsv` | alle 14 öffentlichen Funktionen, drei Bundle-Spezifikationen, Meta-/Konkreta-Zustandsmaschine, Bruchwertauflösung, Überschriften/Tags, Primwirkungsfamilie, 87 kanonische Brüche und 884 exakt geordnete Kombinationspaare vollständig ohne Python-Laufzeit |
 | `reta_architecture/morphisms.py` | 89 | 13 | 5 | 0 | teilweise nativ | `src/reta_mojo/morphisms.mojo` | Alias-, Bereichs-, Prompt-Split- und Renderer-Modus-Morphismen |
 | `reta_architecture/number_theory.py` | 200 | 12 | 1 | 0 | nativ | `src/reta_mojo/number_theory.mojo` | Kernfunktionen vollständig typisiert |
 | `reta_architecture/output_semantics.py` | 155 | 13 | 3 | 8 | nativ | `src/reta_mojo/output_modes.mojo` | reine Modusauflösung und vollständige Tabellen-Flaganwendung |

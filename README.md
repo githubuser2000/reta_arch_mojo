@@ -9,20 +9,20 @@ abgeschlossene Release-Stufen:       9 von 12 = 75,0 %
 Stufen 9/10/12:                       Ausgabe, Prompt/i18n und Releaseparität in Arbeit
 Stufe 11:                             11a–11j = 100 %
 Stufe 12:                             12a–12b fertig, 12c zu ca. 99,9 % = ca. 70,8 %
-vollständig nativ/generiert:          59 von 92 = 64,1 %
-mindestens teilweise portiert:       82 von 92 = 89,1 %
-angegriffene Referenzzeilen:          37.197 von 48.831 = 76,2 %
+vollständig nativ/generiert:          60 von 92 = 65,2 %
+mindestens teilweise portiert:       83 von 92 = 90,2 %
+angegriffene Referenzzeilen:          38.174 von 48.831 = 78,2 %
 funktionaler Nutzerumfang:            ca. 96–98 %
 ```
 
 Die Metriken messen **orthogonale Bezugsgrößen** und sind nicht als ein einziges wechselndes Gesamtprozent zu lesen:
 
 - **96–98 % geschätzte Funktionsabdeckung**: Anteil der praktisch relevanten Befehls- und Verhaltensfamilien mit einem nativen Pfad. Der atomare Fallback ist nur eine Sicherheitsgrenze und wird nicht als transpiliert gezählt.
-- **64,1 % vollständiger Dateibesitz**: Nur Dateien, deren gesamter wirksamer Vertrag nativ oder reproduzierbar generiert ersetzt ist.
-- **76,2 % angegriffene Referenzzeilen**: maschinenberechneter Umfang vollständig und teilweise besessener Referenzdateien.
-- **83,1 % Stufenfortschritt**: gewichtete Releaseplanung; eine Stufe kann weit fortgeschritten sein, obwohl große historische Python-Besitzer noch sichtbar bleiben.
+- **65,2 % vollständiger Dateibesitz**: Nur Dateien, deren gesamter wirksamer Vertrag nativ oder reproduzierbar generiert ersetzt ist.
+- **78,2 % angegriffene Referenzzeilen**: maschinenberechneter Umfang vollständig und teilweise besessener Referenzdateien.
+- **83,3 % Stufenfortschritt**: gewichtete Releaseplanung; eine Stufe kann weit fortgeschritten sein, obwohl große historische Python-Besitzer noch sichtbar bleiben.
 
-Der Port ist daher nicht von über 90 % auf rund 63 % zurückgefallen. Die frühere Zahl bezeichnete die Funktionsoberfläche, die strengere Zahl den Quellersatz. Der vollständige Plan steht in [`ROADMAP.md`](ROADMAP.md).
+Der Port ist daher nicht von über 90 % auf rund 65 % zurückgefallen. Die frühere Zahl bezeichnete die Funktionsoberfläche, die strengere Zahl den Quellersatz. Der vollständige Plan steht in [`ROADMAP.md`](ROADMAP.md).
 
 ## Installation mit Python 3.14
 
@@ -92,6 +92,8 @@ regulären und schweren Compilerziele; lokale Debug-/Altdateien unter
 [`STAGE12C4M_FHS_RESOURCE_INSTALLATION.md`](STAGE12C4M_FHS_RESOURCE_INSTALLATION.md).
 
 ## Stufen 7–10: Generatoren, Kombinationen, Markup und Prompt
+
+Stage 12c5o schließt `reta_architecture/meta_columns.py` vollständig: alle 14 öffentlichen Funktionen, der typisierte Bundle-/Snapshotvertrag, Meta-/Konkreta-Zustandsmaschine, rationale Strukturalienauflösung, Überschriften/Tags und Primwirkungsfamilie besitzen native Einstiege. Ein unter `PYTHONHASHSEED=0` erzeugter Katalog friert 87 Brüche und 884 historische Kombinationseinträge einschließlich der beobachtbaren Set-Reihenfolge ein. Der entdeckte leere `stern/div`-Zweig ist als `PY-CAND-013` dokumentiert; Details: [`STAGE12C5O_NATIVE_META_COLUMNS.md`](STAGE12C5O_NATIVE_META_COLUMNS.md).
 
 Stage 12c5n korrigiert die CSV-Quotezustandsmaschine für eingebettete Religion-JSON-Zellen und macht den historischen `prompt_toolkit`-Defektreproducer versionsrobust. `reta_extract_html_classes.py` ist vollständig durch einen nativen HTML-Kopfzeilenparser und kompakten JSONL-Renderer ersetzt; Details: [`STAGE12C5N_NATIVE_HTML_CLASS_EXTRACTION.md`](STAGE12C5N_NATIVE_HTML_CLASS_EXTRACTION.md).
 
@@ -193,7 +195,7 @@ Deutsch und Englisch sind nun für die zentralen historischen Generatorpfade nat
 - vier gebrochen-rationale Primuniversum-Familien
 - die beschriebene Primzahlvielfachen-Spalte `PrimCSV`
 
-Die gebrochen-rationalen Generatoren verwenden einen reproduzierbaren Katalog mit 71.820 geordneten Relationen. Die historische CPython-Mengenreihenfolge wird beim Erzeugen des Assets mit `PYTHONHASHSEED=0` festgeschrieben. Zusätzlich sind nun die zwölf allgemeinen Meta-/Konkretachsen aus `meta_columns.py` portiert; ein Asset hält die exakte Reihenfolge aller 4.095 nichtleeren Teilmengen fest.
+Die gebrochen-rationalen Generatoren verwenden einen reproduzierbaren Katalog mit 71.820 geordneten Relationen. Die historische CPython-Mengenreihenfolge wird beim Erzeugen des Assets mit `PYTHONHASHSEED=0` festgeschrieben. Zusätzlich sind die zwölf allgemeinen Meta-/Konkretachsen und die vollständige 14-Funktionen-Oberfläche aus `meta_columns.py` portiert. `meta_request_order.tsv` hält die exakte Reihenfolge aller 4.095 nichtleeren Anfrage-Teilmengen fest; `meta_columns_catalog.tsv` konserviert zusätzlich 87 Brüche und 884 historische Bruchkombinationen.
 
 Beispiel:
 

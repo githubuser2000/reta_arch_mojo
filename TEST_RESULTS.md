@@ -1721,3 +1721,14 @@ Für den lokalen Mojo-1.0.0b2-Lauf baut `scripts/test_stage12c5k.sh` zuerst den 
 - Ausgeführte Source-/Ownership-/Defekt-/Metrik-/Installations-/Archivprüfungen: **63/63 bestanden**. `scripts/test_stage12c5n.sh` ergänzt lokal drei Mojo-Modultests und 1.616 exakte Python↔Mojo-JSONL-Sätze.
 - Defektkatalog: **75/75 konsistent**; Python-Bereinigungspunkte: **18**.
 - `tools/porting_metrics.py`: **59/92** vollständig, **82/92** mindestens teilweise, **37.197/48.831** angegriffene Referenzzeilen.
+
+
+## Stage 12c5o – vollständiger Meta-Spaltenvertrag
+
+- Ausgeführte Python-/Source-/Ownership-/Defekt-/Boundary-/Metrik-/Archivprüfungen: **32/32 bestanden**.
+- Vorbereitete lokale Mojo-Tests: **11** in drei Modulen (`meta_columns`, `prime_effect_columns`, vollständige Fassade/Katalog).
+- Reproduzierbarer Katalog: **2** Quell-CSVs, **87** rationale Werte, **884** geordnete Kombinationseinträge; erneute Generierung ist byteidentisch.
+- Öffentliche Python-Oberfläche: **14/14** typisierte native Einstiege, keine `std.python`-, `PythonObject`- oder Subprozessgrenze.
+- Defektkatalog: **76/76 konsistent**; Python-Bereinigungspunkte: **19**.
+- `tools/porting_metrics.py`: **60/92** vollständig, **83/92** mindestens teilweise, **38.174/48.831** angegriffene und **28.751/48.831** vollständig native Referenzzeilen.
+- Der Modular-Mojo-Compiler ist in dieser Sandbox nicht installiert; `scripts/test_stage12c5o.sh` baut und führt die 11 nativen Tests lokal aus.

@@ -1790,6 +1790,32 @@
         "STAGE12C5N_NATIVE_HTML_CLASS_EXTRACTION.md",
         "tests/test_documented_python_defects.py"
       ]
+    },
+    {
+      "id": "PY-CAND-013",
+      "title": "Meta-Bruchkombination stern/div vergisst die Rückskalierung nach dem Runden",
+      "origin": "python_reference",
+      "classification": "fraction_relation_rounding_candidate",
+      "severity": "medium",
+      "python_status": "candidate",
+      "mojo_status": "compatibility_preserved",
+      "discovered_stage": "12c5o",
+      "reproducer": "PYTHONHASHSEED=0 python3 scripts/generate_meta_columns_catalog.py ausführen und assets/meta_columns_catalog.tsv auswerten; für UniUni, UniGal, GalUni und GalGal enthält stern/div jeweils 0 Paare, obwohl mathematisch ganzzahlige Quotienten existieren.",
+      "python_locations": [
+        "python_reference/reta_architecture/meta_columns.py:694-699"
+      ],
+      "mojo_locations": [
+        "assets/meta_columns_catalog.tsv",
+        "src/reta_mojo/meta_columns.mojo",
+        "scripts/generate_meta_columns_catalog.py"
+      ],
+      "current_contract": "Der native Katalog konserviert unter PYTHONHASHSEED=0 exakt den beobachtbaren Python-Istzustand einschließlich vier leerer stern/div-Gruppen. Die übrigen 884 Kombinationseinträge und ihre Reihenfolge bleiben bytegenau reproduzierbar.",
+      "post_port_fix": "Nach Abschluss der Portierung fachlich entscheiden, ob die rechte Seite wie bei stern/mul durch 1000 geteilt werden muss. Bei Bestätigung die Python-Bedingung korrigieren, neue Paarfixtures erzeugen und Python sowie Mojo gemeinsam auf den neuen Relationsvertrag migrieren.",
+      "evidence": [
+        "STAGE12C5O_NATIVE_META_COLUMNS.md",
+        "tests/test_meta_columns_complete_source.py",
+        "assets/meta_columns_catalog.tsv"
+      ]
     }
   ],
   "audit": {

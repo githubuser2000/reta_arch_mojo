@@ -2,14 +2,14 @@
 
 Geplanter Umfang: **12 Release-Stufen**. Eine Stufe zählt erst als abgeschlossen, wenn Quellcode, Referenztests, Compilerziele, Dokumentation und ein source-only Archiv gemeinsam geprüft sind.
 
-## Fortschrittsmaße nach Stage 12c5n
+## Fortschrittsmaße nach Stage 12c5o
 
 | Maß | Stand | Aussage |
 |---|---:|---|
-| abgeschlossene Release-Stufen | **9/12 = 75,0 %** | Stufen 1–8 und 11 sind abgeschlossen; Stufe 12 ist mit 12a, 12b, 12c1–12c3 und 12c4a–12c5n zu etwa 71,5 % abgeschlossen, während 9 und 10 noch Restpfade besitzen |
-| vollständig native oder generierte Python-Dateien | **59/92 = 64,1 %** | Datei vollständig ersetzt oder als reproduzierbares Laufzeitasset abgebildet |
-| mindestens angegriffene Python-Dateien | **82/92 = 89,1 %** | Status direkt aus der autoritativen `NATIVE`-Zuordnung |
-| angegriffene Referenzzeilen | **37.197/48.831 = 76,2 %** | maschinenberechnet statt manuell fortgeschrieben |
+| abgeschlossene Release-Stufen | **9/12 = 75,0 %** | Stufen 1–8 und 11 sind abgeschlossen; Stufe 12 ist mit 12a, 12b, 12c1–12c3 und 12c4a–12c5o zu etwa 71,7 % abgeschlossen, während 9 und 10 noch Restpfade besitzen |
+| vollständig native oder generierte Python-Dateien | **60/92 = 65,2 %** | Datei vollständig ersetzt oder als reproduzierbares Laufzeitasset abgebildet |
+| mindestens angegriffene Python-Dateien | **83/92 = 90,2 %** | Status direkt aus der autoritativen `NATIVE`-Zuordnung |
+| angegriffene Referenzzeilen | **38.174/48.831 = 78,2 %** | maschinenberechnet statt manuell fortgeschrieben |
 | funktionaler Nutzerumfang | **ca. 96–98 %** | praktisch nutzbarer Reta-Umfang ohne Python-Algorithmus |
 
 Die Stufenquote ist höher als die Quellzeilenquote, weil die letzten Stufen besonders große dynamische Module bündeln: vollständige Ausgabeaufbereitung, Prompt-Sprache, i18n-Matrix, Architekturvalidierung und Parallelisierung.
@@ -420,3 +420,12 @@ Die Zahl **12** ist die geplante Releasegliederung. Interne Teilpakete oder Fehl
 - [x] Neues reguläres Compiler- und Installationsziel `reta-extract-html-classes-native` hinzufügen.
 - [ ] Vollständige 1.372-Zellen-Produktionsextraktion lokal unter Modular Mojo gegen `htmlclassesPy.jsonl` laufen lassen.
 - Maschinenstand: 59/92 vollständig, 82/92 mindestens teilweise, 37.197/48.831 angegriffene Referenzzeilen.
+
+
+## Stage 12c5o – vollständiger nativer Meta-Spaltenbesitzer
+
+- `reta_architecture/meta_columns.py` wechselt von unportiert zu vollständig nativ.
+- Alle 14 öffentlichen Funktionen besitzen typisierte Einstiege; die bereits nativen Meta-Spalten- und Primwirkungsalgorithmen werden durch Bundle, Snapshot, CSV-/Bruchkatalog und historische Aliase vollständig geschlossen.
+- `assets/meta_columns_catalog.tsv` bindet 87 Brüche und 884 geordnete Kombinationseinträge reproduzierbar an die beiden Quell-CSVs.
+- `PY-CAND-013` hält den kompatibel konservierten Python-Fehler fest, durch den alle vier `stern/div`-Gruppen leer bleiben.
+- Maschinenstand: 60/92 vollständig, 83/92 mindestens teilweise, 38.174/48.831 angegriffene und 28.751/48.831 vollständig native Referenzzeilen.

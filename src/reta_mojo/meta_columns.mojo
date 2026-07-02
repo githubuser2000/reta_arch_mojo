@@ -8,9 +8,17 @@ normalised rational coordinates and stops on the first repeated fraction.
 """
 
 from std.collections import List
-from .csv_table import CsvTable, read_semicolon_csv
-from .resource_paths import csv_resource
+from std.collections.string import atol
+from .csv_table import CsvTable, read_semicolon_csv, read_text_file
+from .resource_paths import asset_resource, csv_resource
 from .generated_aliases import MetaColumnRequest
+from .prime_effect_columns import PrimeEffectColumns, generate_prime_effect_columns
+from .tag_schema import (
+    TAG_GEBROCHEN_RATIONAL,
+    TAG_GLEICHFOERMIGES_POLYGON,
+    TAG_STERN_POLYGON,
+    TAG_UNIVERSUM,
+)
 
 
 @fieldwise_init
@@ -35,6 +43,70 @@ struct MetaColumnsResult(Copyable):
     var requests: List[MetaColumnRequest]
     var inversion_flags: List[Int]
     var columns: List[List[String]]
+
+
+@fieldwise_init
+struct MetaColumnSpec(Copyable):
+    var method_name: String
+    var description: String
+    var tags: List[String]
+
+
+@fieldwise_init
+struct MetaColumnsBundle(Copyable):
+    var specs: List[MetaColumnSpec]
+
+
+@fieldwise_init
+struct MetaColumnsSnapshot(Copyable):
+    var class_name: String
+    var count: Int
+    var morphisms: List[MetaColumnSpec]
+
+
+@fieldwise_init
+struct MetaColumnsSurfaceEntry(Copyable):
+    var python_name: String
+    var native_entry: String
+    var owner_module: String
+
+
+@fieldwise_init
+struct MetaFractionSource(Copyable):
+    var domain: String
+    var filename: String
+    var sha256: String
+    var count: Int
+
+
+@fieldwise_init
+struct MetaFractionEntry(Copyable):
+    var domain: String
+    var order: Int
+    var value: MetaFraction
+
+
+@fieldwise_init
+struct MetaFractionCombination(Copyable):
+    var context: String
+    var polygon: String
+    var operation: String
+    var order: Int
+    var first: MetaFraction
+    var second: MetaFraction
+
+
+@fieldwise_init
+struct MetaColumnsCatalog(Copyable):
+    var sources: List[MetaFractionSource]
+    var fractions: List[MetaFractionEntry]
+    var combinations: List[MetaFractionCombination]
+
+
+@fieldwise_init
+struct MetaColumnMetadata(Copyable):
+    var heading: String
+    var tags: List[Int]
 
 
 def _meta_english(language: String) -> Bool:
@@ -83,8 +155,180 @@ def _meta_contains_fraction(
     return False
 
 
+def bootstrap_meta_columns() -> MetaColumnsBundle:
+    return MetaColumnsBundle(
+        [
+            MetaColumnSpec(
+                "spalteMetaKontretTheorieAbstrakt_etc_1",
+                "Entry point for generated meta/concrete/theory/abstract columns.",
+                ["meta", "theorie", "abstrakt", "konkret"],
+            ),
+            MetaColumnSpec(
+                "spalteFuerGegenInnenAussenSeitlichPrim",
+                "Classifies prime-cross generated columns as pro/contra/inside/outside/sideways.",
+                ["primzahlkreuz", "meta"],
+            ),
+            MetaColumnSpec(
+                "readOneCSVAndReturn",
+                "CSV section cache used by meta and fractional generated-column morphisms.",
+                ["prägarbe", "csv"],
+            ),
+        ]
+    )
+
+
+def meta_columns_snapshot(bundle: MetaColumnsBundle) -> MetaColumnsSnapshot:
+    var specs = List[MetaColumnSpec]()
+    for index in range(len(bundle.specs)):
+        specs.append(bundle.specs[index].copy())
+    var count = len(specs)
+    return MetaColumnsSnapshot("MetaColumnsBundle", count, specs^)
+
+
+def meta_columns_surface() -> List[MetaColumnsSurfaceEntry]:
+    return [
+        MetaColumnsSurfaceEntry("bootstrap_meta_columns", "bootstrap_meta_columns", "meta_columns.mojo"),
+        MetaColumnsSurfaceEntry("spalteMetaKontretTheorieAbstrakt_etc_1", "spalteMetaKontretTheorieAbstrakt_etc_1", "meta_columns.mojo"),
+        MetaColumnsSurfaceEntry("spalteMetaKonkretAbstrakt_isGanzZahlig", "spalteMetaKonkretAbstrakt_isGanzZahlig", "meta_columns.mojo"),
+        MetaColumnsSurfaceEntry("spalteMetaKontretTheorieAbstrakt_etc", "spalteMetaKontretTheorieAbstrakt_etc", "meta_columns.mojo"),
+        MetaColumnsSurfaceEntry("spalteMetaKonkretTheorieAbstrakt_SetHtmlParameters", "spalteMetaKonkretTheorieAbstrakt_SetHtmlParameters", "meta_columns.mojo"),
+        MetaColumnsSurfaceEntry("spalteMetaKonkretTheorieAbstrakt_mainPart", "spalteMetaKonkretTheorieAbstrakt_mainPart", "meta_columns.mojo"),
+        MetaColumnsSurfaceEntry("spalteMetaKonkretTheorieAbstrakt_VorwortBehandlungWieVorwortMeta", "spalteMetaKonkretTheorieAbstrakt_VorwortBehandlungWieVorwortMeta", "meta_columns.mojo"),
+        MetaColumnsSurfaceEntry("spalteMetaKonkretTheorieAbstrakt_mainPart_InsertingText", "spalteMetaKonkretTheorieAbstrakt_mainPart_InsertingText", "meta_columns.mojo"),
+        MetaColumnsSurfaceEntry("getAllBrueche", "getAllBrueche", "meta_columns.mojo"),
+        MetaColumnsSurfaceEntry("readOneCSVAndReturn", "readOneCSVAndReturn", "meta_columns.mojo"),
+        MetaColumnsSurfaceEntry("findAllBruecheAndTheirCombinations", "findAllBruecheAndTheirCombinations", "meta_columns.mojo"),
+        MetaColumnsSurfaceEntry("spalteMetaKonkretTheorieAbstrakt_getGebrRatUnivStrukturalie", "spalteMetaKonkretTheorieAbstrakt_getGebrRatUnivStrukturalie", "meta_columns.mojo"),
+        MetaColumnsSurfaceEntry("spalteMetaKonkretAbstrakt_UeberschriftenUndTags", "spalteMetaKonkretAbstrakt_UeberschriftenUndTags", "meta_columns.mojo"),
+        MetaColumnsSurfaceEntry("spalteFuerGegenInnenAussenSeitlichPrim", "spalteFuerGegenInnenAussenSeitlichPrim", "prime_effect_columns.mojo"),
+    ]
+
+
 def _meta_fraction_is_integer(value: MetaFraction) -> Bool:
     return value.denominator != 0 and value.numerator % value.denominator == 0
+
+
+def meta_fraction_is_integral(
+    value: MetaFraction, reciprocal: Bool = False
+) -> Bool:
+    if value.denominator == 0:
+        return False
+    if reciprocal:
+        return value.numerator != 0 and value.denominator % value.numerator == 0
+    return value.numerator % value.denominator == 0
+
+
+def discover_meta_fractions(table: CsvTable) -> List[MetaFraction]:
+    """Return the mathematical fraction set discovered by ``getAllBrueche``.
+
+    The scan order is deterministic row/column order.  Exact legacy CPython
+    set iteration is separately frozen in ``meta_columns_catalog.tsv``.
+    """
+    var result = List[MetaFraction]()
+    for row in range(1, len(table.rows)):
+        for column in range(1, len(table.rows[row])):
+            if String(table.rows[row][column].strip()).byte_length() <= 3:
+                continue
+            var value = _meta_fraction(row + 1, column + 1)
+            if value.denominator == 1 or value.numerator == 1:
+                continue
+            if not _meta_contains_fraction(result, value):
+                result.append(value.copy())
+    return result^
+
+
+def load_meta_columns_catalog(path: String = "") raises -> MetaColumnsCatalog:
+    var source_path = path if path.byte_length() > 0 else asset_resource("meta_columns_catalog.tsv")
+    var sources = List[MetaFractionSource]()
+    var fractions = List[MetaFractionEntry]()
+    var combinations = List[MetaFractionCombination]()
+    var lines = read_text_file(source_path).split("\n")
+    for line_index in range(len(lines)):
+        var line = String(lines[line_index])
+        if line.byte_length() == 0 or line.startswith("#"):
+            continue
+        var fields = line.split("\t")
+        if len(fields) == 0:
+            continue
+        var kind = String(fields[0])
+        if len(fields) == 5 and kind == "source":
+            sources.append(
+                MetaFractionSource(
+                    String(fields[1]),
+                    String(fields[2]),
+                    String(fields[3]),
+                    atol(String(fields[4])),
+                )
+            )
+        elif len(fields) == 5 and kind == "fraction":
+            fractions.append(
+                MetaFractionEntry(
+                    String(fields[1]),
+                    atol(String(fields[2])),
+                    _meta_fraction(
+                        atol(String(fields[3])), atol(String(fields[4]))
+                    ),
+                )
+            )
+        elif len(fields) == 9 and kind == "combination":
+            combinations.append(
+                MetaFractionCombination(
+                    String(fields[1]),
+                    String(fields[2]),
+                    String(fields[3]),
+                    atol(String(fields[4])),
+                    _meta_fraction(
+                        atol(String(fields[5])), atol(String(fields[6]))
+                    ),
+                    _meta_fraction(
+                        atol(String(fields[7])), atol(String(fields[8]))
+                    ),
+                )
+            )
+    return MetaColumnsCatalog(sources^, fractions^, combinations^)
+
+
+def meta_catalog_fractions(
+    catalog: MetaColumnsCatalog, domain: String
+) -> List[MetaFraction]:
+    var result = List[MetaFraction]()
+    for index in range(len(catalog.fractions)):
+        var entry = catalog.fractions[index].copy()
+        if entry.domain == domain:
+            result.append(entry.value.copy())
+    return result^
+
+
+def meta_catalog_combinations(
+    catalog: MetaColumnsCatalog,
+    context: String,
+    polygon: String,
+    operation: String,
+) -> List[MetaFractionCombination]:
+    var result = List[MetaFractionCombination]()
+    for index in range(len(catalog.combinations)):
+        var entry = catalog.combinations[index].copy()
+        if (
+            entry.context == context
+            and entry.polygon == polygon
+            and entry.operation == operation
+        ):
+            result.append(entry.copy())
+    return result^
+
+
+def read_meta_fraction_csv(domain: String, path: String = "") raises -> CsvTable:
+    var filename: String
+    if domain == "galaxy":
+        filename = "gebrochen-rational-galaxie.csv"
+    elif domain == "emotion":
+        filename = "gebrochen-rational-emotionen.csv"
+    elif domain == "size":
+        filename = "gebrochen-rational-strukturgroesse.csv"
+    else:
+        filename = "gebrochen-rational-universum.csv"
+    var source_path = path if path.byte_length() > 0 else csv_resource(filename)
+    return read_semicolon_csv(source_path)
 
 
 def _meta_fraction_is_one(value: MetaFraction) -> Bool:
@@ -245,6 +489,24 @@ def _meta_heading(
     return base + (" for n" if _meta_english(language) else " für n")
 
 
+def meta_column_metadata(
+    request: MetaColumnRequest,
+    inverse: Int,
+    language: String,
+) -> MetaColumnMetadata:
+    var tags = List[Int]()
+    tags.append(
+        TAG_GLEICHFOERMIGES_POLYGON if inverse == 1 else TAG_STERN_POLYGON
+    )
+    tags.append(TAG_UNIVERSUM)
+    if request.side == 1:
+        tags.append(TAG_GEBROCHEN_RATIONAL)
+    return MetaColumnMetadata(
+        _meta_heading(request.metavariable, request.side, inverse, language),
+        tags^,
+    )
+
+
 def _meta_next_lower(
     current: MetaFraction,
     current_is_fraction: Bool,
@@ -325,12 +587,21 @@ def _meta_steps(
     return steps^
 
 
-def _meta_fraction_description(
+def meta_fraction_structure_value(
     main_table: CsvTable,
     fraction_table: CsvTable,
     value: MetaFraction,
-    output_mode: String,
+    first_column: Int = 5,
+    inverse_column: Int = 131,
+    output_mode: String = "plain",
+    is_not_universe: Bool = False,
 ) -> String:
+    """Typed owner of ``getGebrRatUnivStrukturalie``.
+
+    ``is_not_universe`` mirrors the historical inverted boolean: when true,
+    integer and unit-fraction coordinates return only the selected domain cell;
+    universe mode additionally appends the structural annotation columns.
+    """
     if (
         value.denominator == 0
         or value.numerator == 0
@@ -339,9 +610,11 @@ def _meta_fraction_description(
     ):
         return ""
     if value.numerator == 1:
-        var base = _meta_cell(main_table, value.denominator, 131)
+        var base = _meta_cell(main_table, value.denominator, inverse_column)
         if String(base.strip()).byte_length() <= 3:
             return ""
+        if is_not_universe:
+            return base
         var extra = _meta_cell(main_table, value.denominator, 201)
         var separator = String()
         if String(extra.strip()).byte_length() > 2:
@@ -355,9 +628,11 @@ def _meta_fraction_description(
             + extra
         )
     if value.denominator == 1:
-        var base = _meta_cell(main_table, value.numerator, 5)
+        var base = _meta_cell(main_table, value.numerator, first_column)
         if String(base.strip()).byte_length() <= 3:
             return ""
+        if is_not_universe:
+            return base
         var extra = _meta_cell(main_table, value.numerator, 198)
         var separator = String()
         if String(extra.strip()).byte_length() > 2:
@@ -372,6 +647,23 @@ def _meta_fraction_description(
         )
     return _meta_fraction_cell(
         fraction_table, value.numerator, value.denominator
+    )
+
+
+def _meta_fraction_description(
+    main_table: CsvTable,
+    fraction_table: CsvTable,
+    value: MetaFraction,
+    output_mode: String,
+) -> String:
+    return meta_fraction_structure_value(
+        main_table,
+        fraction_table,
+        value,
+        5,
+        131,
+        output_mode,
+        False,
     )
 
 
@@ -600,3 +892,161 @@ def generate_meta_columns(
                 )
             )
     return MetaColumnsResult(emitted_requests^, inversions^, columns^)
+
+
+# Typed historical surface -------------------------------------------------
+#
+# These entry points intentionally preserve the Python owner names while
+# replacing its mutable ``self`` object graph with explicit values.
+
+
+def spalteMetaKontretTheorieAbstrakt_etc_1(
+    table: CsvTable,
+    requests: List[MetaColumnRequest],
+    last_row: Int,
+    output_mode: String,
+    language: String,
+    fraction_csv_path: String = "",
+) raises -> MetaColumnsResult:
+    return generate_meta_columns(
+        table,
+        requests,
+        last_row,
+        output_mode,
+        language,
+        fraction_csv_path,
+    )
+
+
+def spalteMetaKonkretAbstrakt_isGanzZahlig(
+    value: MetaFraction, reciprocal: Bool = False
+) -> Bool:
+    return meta_fraction_is_integral(value, reciprocal)
+
+
+def spalteMetaKontretTheorieAbstrakt_etc(
+    table: CsvTable,
+    fraction_table: CsvTable,
+    request: MetaColumnRequest,
+    inverse: Int,
+    last_row: Int,
+    output_mode: String,
+    language: String,
+) -> List[String]:
+    return _meta_column(
+        table,
+        fraction_table,
+        request,
+        inverse,
+        last_row,
+        output_mode,
+        language,
+    )
+
+
+def spalteMetaKonkretTheorieAbstrakt_SetHtmlParameters(
+    request: MetaColumnRequest,
+    inverse: Int,
+    language: String,
+) -> MetaColumnMetadata:
+    return meta_column_metadata(request, inverse, language)
+
+
+def spalteMetaKonkretTheorieAbstrakt_mainPart(
+    table: CsvTable,
+    fraction_table: CsvTable,
+    request: MetaColumnRequest,
+    inverse: Int,
+    last_row: Int,
+    output_mode: String,
+    language: String,
+) -> List[String]:
+    return _meta_column(
+        table,
+        fraction_table,
+        request,
+        inverse,
+        last_row,
+        output_mode,
+        language,
+    )
+
+
+def spalteMetaKonkretTheorieAbstrakt_VorwortBehandlungWieVorwortMeta(
+    metavariable: Int,
+    side: Int,
+    depth: Int,
+    language: String,
+) -> String:
+    return _meta_prefix(metavariable, side, depth, language)
+
+
+def spalteMetaKonkretTheorieAbstrakt_mainPart_InsertingText(
+    table: CsvTable,
+    fraction_table: CsvTable,
+    row: Int,
+    request: MetaColumnRequest,
+    inverse: Int,
+    output_mode: String,
+    language: String,
+) -> String:
+    return meta_column_value(
+        table,
+        fraction_table,
+        row,
+        request,
+        inverse,
+        output_mode,
+        language,
+    )
+
+
+def getAllBrueche(table: CsvTable) -> List[MetaFraction]:
+    return discover_meta_fractions(table)
+
+
+def readOneCSVAndReturn(domain: String, path: String = "") raises -> CsvTable:
+    return read_meta_fraction_csv(domain, path)
+
+
+def findAllBruecheAndTheirCombinations(
+    path: String = "",
+) raises -> MetaColumnsCatalog:
+    return load_meta_columns_catalog(path)
+
+
+def spalteMetaKonkretTheorieAbstrakt_getGebrRatUnivStrukturalie(
+    main_table: CsvTable,
+    fraction_table: CsvTable,
+    value: MetaFraction,
+    first_column: Int = 5,
+    inverse_column: Int = 131,
+    output_mode: String = "plain",
+    is_not_universe: Bool = False,
+) -> String:
+    return meta_fraction_structure_value(
+        main_table,
+        fraction_table,
+        value,
+        first_column,
+        inverse_column,
+        output_mode,
+        is_not_universe,
+    )
+
+
+def spalteMetaKonkretAbstrakt_UeberschriftenUndTags(
+    request: MetaColumnRequest,
+    inverse: Int,
+    language: String,
+) -> MetaColumnMetadata:
+    return meta_column_metadata(request, inverse, language)
+
+
+def spalteFuerGegenInnenAussenSeitlichPrim(
+    table: CsvTable,
+    commands: List[String],
+    last_row: Int,
+    language: String,
+) -> PrimeEffectColumns:
+    return generate_prime_effect_columns(table, commands, last_row, language)

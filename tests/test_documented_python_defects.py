@@ -74,3 +74,23 @@ def test_prompt_toolkit_unicode_word_boundary_candidate_is_classified() -> None:
         ["'grö'", "['größe']"],
     )
     assert "PY-CAND-007" in _defect_ids()
+
+
+def test_meta_fraction_star_div_rounding_candidate_is_backlogged() -> None:
+    source = (
+        ROOT / "python_reference" / "reta_architecture" / "meta_columns.py"
+    ).read_text(encoding="utf-8")
+    assert "BruecheUn / BruecheUn2 * 1000" in source
+    rows = [
+        line.split("\t")
+        for line in (ROOT / "assets" / "meta_columns_catalog.tsv")
+        .read_text(encoding="utf-8")
+        .splitlines()
+        if line.startswith("combination\t")
+    ]
+    for context in ("UniUni", "UniGal", "GalUni", "GalGal"):
+        assert not any(
+            row[1] == context and row[2:4] == ["stern", "div"]
+            for row in rows
+        )
+    assert "PY-CAND-013" in _defect_ids()
