@@ -887,3 +887,22 @@ Validiert wurden 3/3 Runtime-Tests, 5/5 Zustandsmaschinentests, 12/12 bestehende
   war, richtet das Gate 20 nur umgeordnete Metaspalten anhand ihrer Überschriften
   aus und isoliert zehn nachweislich set-abhängige Spalten. Der stabile Kern ist
   mit 147.506/147.506 Zellen semantisch identisch.
+
+## Stage 12c5a – native Prompt-Interaktions- und Controllergrenze
+
+- `prompt_interaction.mojo` besitzt Startup→Sitzung, One-shot-Zusammenbau,
+  Terminalsentinels, Speicher-/Löschmodi und Previous-Command-Policy.
+- `prompt_main.mojo` konsumiert typisierte Interaktionspläne und behält nur
+  beobachtbare I/O sowie Befehlsdispatch.
+- `reta_architecture/prompt_interaction.py` wechselt auf vollständigen nativen
+  Besitz; `retaPrompt.py` und `libs/LibRetaPrompt.py` auf weitgehend nativ.
+- Die erneut vorhandene tote `prompt_python_bridge.mojo` wurde entfernt;
+  `MOJO-FIXED-017` und das Source-Gate decken die Regression ab.
+- 7/7 native Modultests, 36/36 byteidentische Prompt-Sitzungskontexte und
+  18/18 Source-/Ownership-/Boundary-Pytests bestehen.
+- Der vollständige Promptquellgraph wurde mit Mojo 1.0.0b2 bis LLVM-IR
+  kompiliert. Das abschließende Linken überschritt das 20-Minuten-Limit der
+  Sandbox und wird nicht als neu gebautes Produktions-ELF gezählt.
+- Vollständiger Dateibesitz: **46/92 = 50,0 %**; mindestens teilweise:
+  **78/92 = 84,8 %**; gewichteter Quellersatz: **ca. 69,7 %**.
+

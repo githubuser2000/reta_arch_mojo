@@ -163,7 +163,7 @@ zu einem einzigen Releasebinary `target/bin/reta` zusammengeführt werden.
 |---|---|---|
 | `reta-native`, `RETA_NATIVE=1 ./reta` | `target/bin/reta-native` | erster nativer Tabellenpfad |
 | normale `reta`-Ausführung | `target/bin/reta-mojo-compat-bin` | native-first bei vollständig besessenen Argumentvektoren; sonst atomarer Python-Kindprozessfallback; kein eingebettetes CPython |
-| `rp`, `rpl`, `rpb`, `rpe`, `retaPrompt*` | `target/bin/reta-prompt-native` | explizite One-shots, besessene Tabellen, sämtliche kompakte Tabellenfamilien sowie reine Zahlen-/Bruch-, Null-/Negativ-, Ausschluss- und wiederholte 15/16-Katalogkompositionen laufen ohne Python-/`reta-native`-Kindprozess; echte `v n/m`-Vielfache mit Zähler größer 1 und seltene hintere Sonderzweige bleiben an der Bridge |
+| `rp`, `rpl`, `rpb`, `rpe`, `retaPrompt*` | `target/bin/reta-prompt-native` | der native Interaktionsbesitzer steuert Sitzung, One-shots, Speicher-/Löschmodi und Previous-Command-Policy; besessene Tabellen sowie reine Zahlen-/Bruch- und Katalogkompositionen laufen ohne Python-/`reta-native`-Kindprozess, nur seltene ausdrücklich unbesessene hintere Sonderzweige bleiben am atomaren Referenzrand |
 | eigenständige verschachtelte Completion | `target/bin/reta-prompt-complete` | persistenter Mojo-Arbeiter als Kompatibilitäts-/Testziel; der interaktive TTY-Editor vervollständigt direkt |
 | `grundStrukHtml*` | `target/bin/grundStrukHtml-native` | Renderer nativ |
 | `generate_html` | `target/bin/generate-html-native` | vollständig nativ einschließlich `--alles`-Mitteltabelle |

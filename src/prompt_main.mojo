@@ -77,7 +77,6 @@ from reta_mojo.prompt_runtime import (
     classify_prompt_command_localized,
     parse_prompt_startup,
     fallback_profile_arguments,
-    effective_one_shot_tokens,
     join_prompt_tokens,
     prime_lines,
     command_numbers,
@@ -90,14 +89,22 @@ from reta_mojo.prompt_runtime import (
 )
 from reta_mojo.prompt_session import (
     NativePromptSession,
-    new_prompt_session,
-    new_prompt_session_for_language,
     prompt_prefix,
     store_prompt_text,
     stored_prompt_text,
     storage_payload,
     stored_prompt_numbered,
     delete_stored_selection,
+)
+from reta_mojo.prompt_interaction import (
+    INTERACTION_EXECUTE,
+    INTERACTION_CONTINUE,
+    INTERACTION_EXIT,
+    NativePromptInteraction,
+    new_prompt_interaction,
+    prompt_interaction_one_shot_line,
+    accept_prompt_input,
+    record_prompt_command,
 )
 
 
@@ -959,10 +966,6 @@ def _run_native_one_shot(
     return False
 
 
-def _one_shot_line(startup: PromptStartup) -> String:
-    return join_prompt_tokens(effective_one_shot_tokens(startup))
-
-
 def main() raises:
     var args = argv()
     if len(args) < 2:
@@ -982,58 +985,48 @@ def main() raises:
         return
 
     if startup.profile.one_shot:
-        var line = _one_shot_line(startup)
+        var line = prompt_interaction_one_shot_line(startup)
         if line.byte_length() == 0:
             raise Error("-befehl benötigt einen Promptbefehl")
         if _run_native_one_shot(startup.profile, line, prompt_catalog):
             return
 
-    var session = new_prompt_session_for_language(
-        startup.profile.logging_enabled,
-        startup.profile.language,
-    )
+    var interaction = new_prompt_interaction(startup)
 
-    if startup.profile.show_intro and not startup.profile.one_shot:
+    if interaction.show_intro and not interaction.one_shot:
         print(
             "retaPrompt: nativer Mojo-Controller; Hilfe mit 'hilfe', Ende mit"
             " 'q'."
         )
 
-    if startup.profile.one_shot:
-        var line = _one_shot_line(startup)
-        _ = _run_command(startup.profile, line, session, prompt_catalog)
+    if interaction.one_shot:
+        var line = prompt_interaction_one_shot_line(startup)
+        _ = _run_command(
+            startup.profile, line, interaction.session, prompt_catalog
+        )
         return
 
     while True:
-        var line = _read_line(startup.profile, session, prompt_catalog)
-        if line == "\x04" or line == "\x03":
+        var physical_line = _read_line(
+            startup.profile, interaction.session, prompt_catalog
+        )
+        var input_plan = accept_prompt_input(
+            interaction, physical_line, prompt_catalog
+        )
+        _print_lines(input_plan.output_lines)
+        if input_plan.action == INTERACTION_EXIT:
             break
-        if session.store_next:
-            store_prompt_text(session, line)
-            print("Gespeichert:", stored_prompt_text(session))
+        if input_plan.action == INTERACTION_CONTINUE:
             continue
-        if session.delete_next:
-            var cancel = classify_prompt_command_localized(
-                line, startup.profile.language, prompt_catalog
-            )
-            if cancel.kind == KIND_EXIT:
-                session.delete_next = False
-                print("Löschen abgebrochen.")
-            else:
-                delete_stored_selection(session, line)
-                print("Gespeichert:", stored_prompt_text(session))
-            continue
-        if not _run_command(startup.profile, line, session, prompt_catalog):
+        if input_plan.action != INTERACTION_EXECUTE:
+            raise Error("unbekannter Prompt-Interaktionsplan")
+
+        var line = input_plan.command_line
+        if not _run_command(
+            startup.profile, line, interaction.session, prompt_catalog
+        ):
             break
         var executed = classify_prompt_command_localized(
             line, startup.profile.language, prompt_catalog
         )
-        if (
-            executed.kind != KIND_STORE_NEXT
-            and executed.kind != KIND_STORE_PREVIOUS
-            and executed.kind != KIND_OUTPUT_STORED
-            and executed.kind != KIND_DELETE_STORED
-            and executed.kind != KIND_LOG_ON
-            and executed.kind != KIND_LOG_OFF
-        ):
-            session.previous_command = line
+        record_prompt_command(interaction, line, executed.kind)

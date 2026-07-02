@@ -1,18 +1,19 @@
-# Status – Stage 12c4z abgeschlossen; Stufen 9, 10 und 12 in Arbeit
+# Status – Stage 12c5a abgeschlossen; Stufen 9, 10 und 12 in Arbeit
 - Zielversion: Mojo 1.0.0b2
 - Unterstützte Python-Umgebung für Installation/Referenzbrücken: 3.10–3.14; Setup bevorzugt Python 3.14
-- Vollständig abgeschlossene Release-Stufen: **9/12 = 75,0 %**; teilgewichtet mit Stage 12c4y: **ca. 9,82/12 = 81,8 %**
+- Vollständig abgeschlossene Release-Stufen: **9/12 = 75,0 %**; teilgewichtet mit Stage 12c5a: **ca. 9,84/12 = 82,0 %**
 - Stufe 9: **BBCode, zentraler ANSI-Shellpfad und zentrale HTML-Pfade nativ; seltene Ausgabegrenzen offen**
 - Stufe 10: **native Kurzsprache und mehrsprachige verschachtelte Completion; hintere Prompt-/i18n-Restpfade in Arbeit**
 - Stufe 11: **11a–11j abgeschlossen; 10/10 Teilstufen = 100 %**
-- Stufe 12: **12a–12b abgeschlossen; 12c zu ca. 99,9 %; insgesamt ca. 67,5 %**
+- Stufe 12: **12a–12b abgeschlossen; 12c zu ca. 99,9 %; insgesamt ca. 67,7 %**
 - Geschätzter funktionaler Portierungsstand: **96–98 %**
-- Konservativ vollständig native oder reproduzierbar generierte Originaldateien: **45/92 = 48,9 %**
-- Mindestens teilweise portierte Originaldateien: **75/92 = 81,5 %**
-- Gewichteter Quellzeilenstand: **ca. 68,8 %**
-- Nativer Mojo-Quellcode in `src/`: **44.879 Zeilen**
-- Davon im Paket `reta_mojo`: **41.656 Zeilen**
-- Test-/Probe-Dateien: **136**; Python-Testfunktionen: **106**
+- Konservativ vollständig native oder reproduzierbar generierte Originaldateien: **46/92 = 50,0 %**
+- Mindestens teilweise portierte Originaldateien: **78/92 = 84,8 %**
+- Gewichteter Quellzeilenstand: **ca. 69,7 %**
+- Nativer Mojo-Quellcode in `src/`: **45.068 Zeilen**
+- Davon im Paket `reta_mojo`: **41.824 Zeilen**
+- Test-/Probe-Dateien: **138**; Python-Testfunktionen: **110**
+- Stage-12c5a-Fokus: eigener typisierter Besitzer `prompt_interaction.mojo` für Startup→Sitzung, Einmalbefehle, Ctrl-C/Ctrl-D, Speicher-/Löschmodi und Previous-Command-Policy. `prompt_main.mojo` ist an dieser Grenze nur noch Prozesseinstieg und Dispatch; alle öffentlichen Promptstarter aktivieren den nativen Controller. Modultests **7/7**, deutsche/englische Sitzungsparität **36/36 byteidentisch**, Source-/Ownership-/Boundary-Gates **18/18**. Der vollständige Quellgraph kompiliert mit Mojo 1.0.0b2 bis zu 86 MiB LLVM-IR; das abschließende große Linken überschritt in dieser Sandbox 20 Minuten und wird deshalb nicht als neu gebautes ELF ausgegeben. Eine erneut ins Archiv geratene tote `prompt_python_bridge.mojo` wurde entfernt und unter `MOJO-FIXED-017` erneut gegatet. Vollständiger Dateibesitz **50,0 %**, mindestens teilweise portiert **84,8 %**, gewichteter Quellersatz **ca. 69,7 %**, aktive `std.python`-Brücken **0**.
 - Stage-12c4z-Fokus: professioneller FHS-fähiger `generate_html`-Einstieg ohne versteckten Arbeitsverzeichniswechsel oder implizite `middle.alx`; stdout, atomare `--output`-Dateien, `--no-clobber`, fünf Sprachen, explizite Mitteltabellen, Ressourcenoptionen, Exitcodes und Manpage. Die hochgeladene einstündige Python-`--alles`-Ausgabe ist als Referenzpaket integriert. Wegen unkontrolliertem `PYTHONHASHSEED` werden 20 nur umgeordnete Metaspalten überschriftenbasiert ausgerichtet und zehn set-abhängige Generatorspalten separat ausgewiesen; der reproduzierbare Kern stimmt in **147.506/147.506** Zellen semantisch überein. CLI-/Source-/Installtests **13/13**, Referenzworkflow **4/4**, FHS-, HTML- und I/O-Gates bestanden. `PY-CAND-010`, `MOJO-FIXED-027` und `TEST-FIXED-009` erhöhen den zentralen Fehlerkatalog auf **59/59** und die späteren Python-Bereinigungspunkte auf **16**.
 - Stage-12c4y-Fokus: eigenständiger produktiver Besitzer `parameter_runtime.mojo` für Sprache, Ausgabe, Breiten, Zeilen, physische und generierte Spalten, explizite Reihenfolge sowie dynamische Obergrenzen. `native_reta_cli.mojo` delegiert nur noch über einen dünnen Adapter; die doppelte Planimplementierung ist entfernt. Native Parameter-Runtime **8/8**, bestehende CLI **30/30**, Obergrenzenparität **6/6 semantisch** und **5/6 reihenfolgeidentisch**, Source-/Ownership **3/3**. Der vollständige native `--alles`-Hash bleibt `18e755…` mit **198 Zeilen und 149.356 Zellen**; Python muss künftig über ein wiederverwendbares Referenzpaket nicht pro Stage neu laufen. `PY-CAND-009`, `MOJO-FIXED-026` sowie `TEST-FIXED-007`/`-008` erhöhen den Fehlerkatalog auf **54/54** und die späteren Python-Arbeitspunkte auf **15**. Vollständiger Dateibesitz bleibt konservativ **48,9 %**, mindestens teilweise portiert steigt auf **81,5 %**, gewichteter Quellersatz auf **68,8 %**, aktive `std.python`-Brücken **0**.
 - Stage-12c4x-Fokus: vollständiger nativer beziehungsweise reproduzierbar generierter Besitz der fünf aktiven `i18n.words`-Splitmodule mit zusammen **5.469 Python-Zeilen**. Der Baumkatalog enthält **34.667/34.667** Knoten über Deutsch, Englisch, Vietnamesisch, Chinesisch und Koreanisch; Reihenfolge, Named-Tuples, Klassenattribute, Mengen, geteilte Referenzen und `classify`-Ergebnisse werden bewahrt. Native Unit-Tests **7/7**, Katalogregeneration **5/5**, Mojo-Rückserialisierung **5/5**. `PY-CAND-008` dokumentiert den falschen Originalparameter `-languages=` und doppelte Sprachcodes. `MOJO-FIXED-024` korrigiert 16 FHS-Symlinklauncher; `MOJO-FIXED-025` entfernt absolute Checkoutpfade aus den generierten Assets. Fehlerkatalog **50/50**, spätere Python-Arbeitspunkte **14**. Vollständiger Dateibesitz **48,9 %**, mindestens teilweise portiert **80,4 %**, gewichteter Quellersatz **67,7 %**, aktive `std.python`-Brücken **0**.

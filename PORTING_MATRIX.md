@@ -5,7 +5,7 @@ Stand: 2. Juli 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der g
 - Ursprüngliche Python-Dateien: **92**
 - Ursprüngliche Python-Zeilen insgesamt: **48831**
 - Eingebettete Python-Brücken: **0**; expliziter Mojo-Kindprozessadapter: **1**
-- Quellzeilen der bereits angegriffenen Architekturmodule: **31009**
+- Quellzeilen der bereits angegriffenen Architekturmodule: **31492**
 - Native Mojo-Quellzeilen: siehe `src/` (inklusive generiertem Kategoriekatalog)
 
 | Python-Datei | Zeilen | Funktionen | Klassen | dynamische Aufrufe | Status | Mojo/Ziel | Anmerkung |
@@ -19,7 +19,7 @@ Stand: 2. Juli 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der g
 | `i18n/words_legacy_monolith.py` | 5431 | 4 | 8 | 0 | Python-Referenz/Bridge | `python_reference/i18n/words_legacy_monolith.py` | noch nicht nativ portiert |
 | `i18n/words_matrix.py` | 4111 | 0 | 0 | 0 | generiert nativ | `src/reta_mojo/i18n_words.mojo + assets/i18n_words/*.tsv` | 431×5 Parametermatrixwurzeln als reproduzierbarer nativer Katalog |
 | `i18n/words_runtime.py` | 548 | 1 | 8 | 0 | generiert nativ | `src/reta_mojo/i18n_words.mojo + src/i18n_words_main.mojo` | Runtimeklassen, Meldungen, Klassifikation und öffentliche Inspektionsoberfläche nativ |
-| `libs/LibRetaPrompt.py` | 80 | 0 | 0 | 0 | Python-Referenz/Bridge | `python_reference/libs/LibRetaPrompt.py` | noch nicht nativ portiert |
+| `libs/LibRetaPrompt.py` | 80 | 0 | 0 | 0 | weitgehend nativ | `src/reta_mojo/prompt_runtime.mojo + completion_runtime.mojo + prompt_language.mojo + prompt_session.mojo + prompt_interaction.mojo` | Importzeit-Bundles, Vokabular, Completion, Sitzung und Controller sind nativ; die historische Python-Reexportoberfläche bleibt Referenz |
 | `libs/center.py` | 333 | 33 | 1 | 0 | Python-Referenz/Bridge | `python_reference/libs/center.py` | noch nicht nativ portiert |
 | `libs/generate4readme.py` | 382 | 0 | 0 | 0 | Python-Referenz/Bridge | `python_reference/libs/generate4readme.py` | noch nicht nativ portiert |
 | `libs/lib4tables.py` | 59 | 0 | 0 | 0 | Python-Referenz/Bridge | `python_reference/libs/lib4tables.py` | noch nicht nativ portiert |
@@ -33,7 +33,7 @@ Stand: 2. Juli 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der g
 | `multis.py` | 34 | 2 | 0 | 0 | nativ | `src/reta_mojo/arithmetic.mojo + prompt_runtime.mojo` | Faktorpaare und öffentliche multis-CLI nativ |
 | `multis3.py` | 34 | 1 | 0 | 0 | nativ | `src/reta_mojo/arithmetic.mojo + prompt_runtime.mojo` | Dreifach-Faktorisierung nativ; deterministische lexikographische Ausgabe statt Set-Reihenfolge |
 | `reta.py` | 214 | 19 | 1 | 3 | teilweise nativ | `src/reta_native_main.mojo + src/reta_mojo/native_reta_cli.mojo` | häufige deutsche und englische Tabellenaufrufe nativ; vollständige Legacy-Oberfläche bleibt über RETA_NATIVE=0 kompatibel |
-| `retaPrompt.py` | 130 | 10 | 0 | 3 | Python-Referenz/Bridge | `python_reference/retaPrompt.py` | noch nicht nativ portiert |
+| `retaPrompt.py` | 130 | 10 | 0 | 3 | weitgehend nativ | `src/prompt_main.mojo + src/reta_mojo/prompt_interaction.mojo` | alle öffentlichen Promptlauncher aktivieren den nativen Controller; nur ausdrücklich unbesessene hintere Befehle wechseln atomar in den Python-Referenzkindprozess |
 | `reta_architecture/__init__.py` | 598 | 0 | 0 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/__init__.py` | noch nicht nativ portiert |
 | `reta_architecture/architecture_activation.py` | 600 | 20 | 9 | 0 | generiert nativ | `src/reta_mojo/architecture_activation.mojo + tools/generate_architecture_activation.py` | 7 Fenster, 34 Units, 34 Commit-Gates, 34 Rollbacks und 7 Transaktionen; Referenz- und native Kreuzvalidierung passed |
 | `reta_architecture/architecture_boundaries.py` | 343 | 20 | 8 | 0 | generiert nativ | `src/reta_mojo/architecture_boundaries.mojo + tools/generate_architecture_boundaries.py` | 161 Modulbesitzer, 279 Importkanten, 37 Kapselkanten und 11 Grenzobjekte |
@@ -72,7 +72,7 @@ Stand: 2. Juli 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der g
 | `reta_architecture/presheaves.py` | 150 | 15 | 5 | 0 | teilweise nativ | `src/reta_mojo/presheaves.mojo` | typisierte String-Lokalsektionen und Restriktion |
 | `reta_architecture/program_workflow.py` | 379 | 12 | 1 | 4 | Python-Referenz/Bridge | `python_reference/reta_architecture/program_workflow.py` | noch nicht nativ portiert |
 | `reta_architecture/prompt_execution.py` | 2516 | 24 | 1 | 3 | Python-Referenz/Bridge | `python_reference/reta_architecture/prompt_execution.py` | noch nicht nativ portiert |
-| `reta_architecture/prompt_interaction.py` | 273 | 15 | 1 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/prompt_interaction.py` | noch nicht nativ portiert |
+| `reta_architecture/prompt_interaction.py` | 273 | 15 | 1 | 0 | nativ | `src/reta_mojo/prompt_interaction.mojo + src/prompt_main.mojo` | typisierte Startup-/Sitzungsaktivierung, physische Eingabemodi, Speicher-/Löschübergänge, Einmalbefehlsbildung und Previous-Command-Policy produktiv aktiviert |
 | `reta_architecture/prompt_language.py` | 492 | 23 | 2 | 2 | Python-Referenz/Bridge | `python_reference/reta_architecture/prompt_language.py` | noch nicht nativ portiert |
 | `reta_architecture/prompt_preparation.py` | 462 | 14 | 1 | 4 | weitgehend nativ | `src/reta_mojo/prompt_preparation.mojo + prompt_regex.mojo + prompt_preparation_catalog.mojo` | vollständiger nativer Vorbereitungs- und Regexvertrag; produktive Promptcontroller-Aktivierungsnaht noch offen |
 | `reta_architecture/prompt_runtime.py` | 158 | 9 | 4 | 1 | generiert nativ | `src/reta_mojo/prompt_runtime.mojo + prompt_runtime_catalog.mojo + prompt_prefix_catalog.mojo + tools/generate_prompt_runtime_catalog.py` | Primprädikat, Laufzeit-/Programm-/Vokabularvertrag und fünfsprachige Promptpräfixe vollständig typisiert und reproduzierbar generiert |

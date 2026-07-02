@@ -466,10 +466,10 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 - Mojo-Status: `fixed`
 - entdeckt in: `12c4s`
 - Reproduktion: `test -e src/reta_mojo/prompt_python_bridge.mojo && grep -n std.python src/reta_mojo/prompt_python_bridge.mojo`
-- heutiger Vertrag: Die Datei ist entfernt; Source-Gates verlangen null prompt_python_bridge-Dateien und null aktive std.python-Importe.
+- heutiger Vertrag: Die Datei ist entfernt; Source-Gates verlangen null prompt_python_bridge-Dateien und null aktive std.python-Importe. Stage 12c5a reproduzierte und schloss ein erneutes Auftauchen im hochgeladenen Archiv.
 - spätere Python-Aktion: Keine Python-Änderung erforderlich.
 - Mojo-Orte: `src/reta_mojo/prompt_python_bridge.mojo`
-- Belege: `STAGE12C4S_DEFECT_BACKFILL_NATIVE_CONTROL_MAINS.md`, `tests/test_prompt_external_source.py`
+- Belege: `STAGE12C4S_DEFECT_BACKFILL_NATIVE_CONTROL_MAINS.md`, `tests/test_prompt_external_source.py`, `STAGE12C5A_NATIVE_PROMPT_INTERACTION.md`, `tests/test_prompt_interaction_source.py`
 
 ### MOJO-FIXED-018 – Quellmanifest nahm verschachtelte pytest-Cachedateien auf
 

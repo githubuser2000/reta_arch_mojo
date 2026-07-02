@@ -1471,3 +1471,22 @@ scripts/check_build_layout.sh
   stillschweigend unterdrückt.
 
 - Sourcearchiv-Vertragsprüfung: **1/1**; verschachtelte Caches und Buildprodukte ausgeschlossen.
+
+## Stage 12c5a – native Prompt-Interaktion
+
+```text
+native Prompt-Interaktionsmodultests:  7/7
+deutsche Prompt-Sitzungskontexte:     18/18 byteidentisch
+englische Prompt-Sitzungskontexte:    18/18 byteidentisch
+Source-/Ownership-/Boundary-Pytests:  18/18
+Defektkatalog:                        59 konsistent
+Python-Bereinigungspunkte:            16
+```
+
+Zusätzlich kompiliert `src/prompt_main.mojo` mit Mojo 1.0.0b2 vollständig bis
+zu einer 86-MiB-LLVM-IR-Datei. Der finale große ELF-Link überschritt in dieser
+Sandbox auch mit deaktivierter Optimierung das 20-Minuten-Limit, ohne vorher
+einen Compilerfehler zu melden. Ein neues Produktions-ELF wird daher nicht als
+bestanden behauptet. Der lokale vollständige Nachweis ist
+`RETA_BUILD_PROMPT=1 scripts/test_stage12c5a.sh`.
+

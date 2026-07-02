@@ -211,6 +211,19 @@ Der Promptcontroller besitzt seit Stage 12c4d keine `std.python`-Brücke mehr. K
 
 Der historische Tabellenlauncher ist seit Stage 12c4e native-first und bindet kein `libpython`. `RETA_FORCE_REFERENCE=1` erzwingt den atomaren Referenzkindprozess; ohne Override entscheidet der strenge Ganzvektor-Ownership-Test. `scripts/check_compat_launcher.sh` prüft Argumente, Binärströme und Exitstatus, während `scripts/check_compat_native_first_parity.sh` zwölf Referenzfälle mit absichtlich ungültigem `RETA_PYTHON` vergleicht. Stage 12c4f ergänzt `scripts/check_native_output_stream_parity.sh` für die vier Shell-Ein-Tabellen-Aliase, `justtext`, englische Syntax und Breite-null-No-wrap. Stage 12c4h ergänzt die formatübergreifende No-blank-Parität; Stage 12c4i prüft mit `scripts/check_paginated_rendering_parity.sh` sechs deutsche/englische Shell-/HTML-/BBCode-Mehrspaltenströme. Stage 12c4j ergänzt `scripts/check_column_widths_parity.sh` für positive individuelle Spaltenbreiten; Stage 12c4k ergänzt explizite Nullbreiten. Stage 12c4l prüft mit `scripts/check_markup_nocolor_parity.sh` den rohen HTML-/BBCode-Serializer in zwölf Bytefällen und mit `tests/test_mojo_runtime_path.py` die portable Laufzeitauflösung.
 
+### Prompt-Interaktionsgate (Stage 12c5a)
+
+```bash
+scripts/test_stage12c5a.sh
+RETA_BUILD_PROMPT=1 scripts/test_stage12c5a.sh
+```
+
+Der erste Befehl baut und prüft das kleine native Interaktionsmodul sowie die
+Paritäts- und Source-Gates. Die Variable aktiviert zusätzlich den großen
+produktiven Promptlink, der auf schwächeren oder begrenzten Buildumgebungen
+deutlich länger als die Modulprüfung dauern kann.
+
+
 ## Stage 12c4m: Installation unter `/usr/local` oder `/usr`
 
 Unveränderliche CSV- und Katalogdaten werden nicht in `bin` oder `lib`

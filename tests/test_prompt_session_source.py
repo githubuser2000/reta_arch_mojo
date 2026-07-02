@@ -35,9 +35,11 @@ def test_dead_embedded_python_prompt_bridge_is_absent():
 
 def test_prompt_main_uses_generated_localized_prefixes():
     prompt_main = (ROOT / "src/prompt_main.mojo").read_text(encoding="utf-8")
+    interaction = (ROOT / "src/reta_mojo/prompt_interaction.mojo").read_text(encoding="utf-8")
     runtime = (ROOT / "src/reta_mojo/prompt_runtime.mojo").read_text(encoding="utf-8")
-    assert "new_prompt_session_for_language(" in prompt_main
-    assert "startup.profile.language" in prompt_main
+    assert "new_prompt_interaction(startup)" in prompt_main
+    assert "new_prompt_session_for_language(" in interaction
+    assert "startup.profile.language" in interaction
     assert "prompt_prefix_catalog" in (ROOT / "src/reta_mojo/prompt_session.mojo").read_text(encoding="utf-8")
     assert "var store_prefix: String" in runtime
     assert "var delete_prefix: String" in runtime
