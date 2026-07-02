@@ -9,6 +9,7 @@ PYROOT = ROOT / "python_reference"
 OUT = ROOT / "PORTING_MATRIX.md"
 
 NATIVE = {
+    "reta_architecture/combi_join.py": ("nativ", "src/reta_mojo/combi_join.mojo + kombi_join_columns.mojo + src/combi_join_main.mojo", "alle sechs historischen Join-Morphismen typisiert; CSV-Dekodierung, Zahlparser, Auswahlrelation, Vorbereitungsgruppen, Zellbereinigung und Tabellenjoin ohne OrderedDict/OrderedSet-Laufzeitabhängigkeit; nur fachlich sichtbare Relationsreihenfolge bleibt explizit erhalten"),
     "libs/lib4tables_concat.py": ("nativ", "src/reta_mojo/legacy_lib4tables_concat.mojo + concat_csv.mojo + generated_table_columns.mojo + meta_columns.mojo", "historische 34-Methoden-Weiterleitungsfassade und 13 Konstruktorzustände typisiert; dynamische *args/**kwargs auf explizite Besitzer-APIs reduziert"),
     "reta_architecture/concat_csv.py": ("nativ", "src/reta_mojo/concat_csv.mojo + fraction_concat_columns.mojo", "CSV-Presheafverkettung, exakte Bruchpaargruppierung, fünf Quelltabellen, Transposition, Überschriften, Auswahl und generierte Spaltenmetadaten vollständig nativ"),
     "libs/center.py": ("nativ", "src/reta_mojo/legacy_center.mojo + unicode_digits.mojo", "27 aktive Legacy-Wrapper über Zeilenbereiche, Arithmetik, Konsole, Hilfe, Terminalgeometrie und nPm-Gruppen vollständig typisiert; Python-kompatible Unicode-isDigit-Tabelle reproduzierbar eingefroren"),

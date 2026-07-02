@@ -5,7 +5,7 @@ Stand: 2. Juli 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der g
 - Ursprüngliche Python-Dateien: **92**
 - Ursprüngliche Python-Zeilen insgesamt: **48831**
 - Eingebettete Python-Brücken: **0**; expliziter Mojo-Kindprozessadapter: **1**
-- Quellzeilen der bereits angegriffenen Architekturmodule: **33465**
+- Quellzeilen der bereits angegriffenen Architekturmodule: **34177**
 - Native Mojo-Quellzeilen: siehe `src/` (inklusive generiertem Kategoriekatalog)
 
 | Python-Datei | Zeilen | Funktionen | Klassen | dynamische Aufrufe | Status | Mojo/Ziel | Anmerkung |
@@ -50,7 +50,7 @@ Stand: 2. Juli 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der g
 | `reta_architecture/arithmetic.py` | 273 | 19 | 1 | 0 | nativ | `src/reta_mojo/arithmetic.mojo + parallel_execution.mojo` | arithmetischer Kern sowie typisierte Thread-Chunkausführung für Primfaktoren und Faktorpaare nativ |
 | `reta_architecture/category_theory.py` | 1441 | 53 | 8 | 0 | generiert nativ | `src/reta_mojo/category_theory.mojo` | 26 Kategorien, 77 Funktoren, 42 Transformationen |
 | `reta_architecture/column_selection.py` | 119 | 7 | 1 | 0 | nativ | `src/reta_mojo/column_selection.mojo` | 24 Bucket-Koordinaten, Bucket-Erzeugung und explizite Bindung aller Legacy-Programsections einschließlich ka/ka2, ones und Vanilla-Zähler vollständig nativ |
-| `reta_architecture/combi_join.py` | 712 | 12 | 2 | 4 | Python-Referenz/Bridge | `python_reference/reta_architecture/combi_join.py` | noch nicht nativ portiert |
+| `reta_architecture/combi_join.py` | 712 | 12 | 2 | 4 | nativ | `src/reta_mojo/combi_join.mojo + kombi_join_columns.mojo + src/combi_join_main.mojo` | alle sechs historischen Join-Morphismen typisiert; CSV-Dekodierung, Zahlparser, Auswahlrelation, Vorbereitungsgruppen, Zellbereinigung und Tabellenjoin ohne OrderedDict/OrderedSet-Laufzeitabhängigkeit; nur fachlich sichtbare Relationsreihenfolge bleibt explizit erhalten |
 | `reta_architecture/completion_nested.py` | 589 | 37 | 9 | 0 | nativ | `src/reta_mojo/completion_nested.mojo` | verschachtelte Zustandsmaschine, Fuzzyordnung, Snapshots und Morphismusbundle vollständig nativ |
 | `reta_architecture/completion_runtime.py` | 192 | 8 | 2 | 1 | generiert nativ | `src/reta_mojo/completion_runtime.mojo + assets/prompt_language` | fünfsprachiger Completion-Runtimevertrag reproduzierbar geladen und typisiert |
 | `reta_architecture/completion_word.py` | 265 | 21 | 6 | 0 | nativ | `src/reta_mojo/completion_word.mojo` | UTF-8-Cursor-, WORD-, Satz-, Anzeige- und Metadatenvertrag vollständig nativ |

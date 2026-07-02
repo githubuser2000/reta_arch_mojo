@@ -18,15 +18,15 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 ## Rückwirkender Audit
 
 - letzter vollständiger Rückwärtsaudit: `12c4s`
-- geprüfte Quellen: **22**
-- Reichweite: Vollständig bezogen auf alle bis Stage 12c5f im Projekt bestätigten oder plausibel begründeten verhaltensrelevanten Befunde; unbekannte künftige Fehler können naturgemäß erst nach ihrer Entdeckung aufgenommen werden.
+- geprüfte Quellen: **23**
+- Reichweite: Vollständig bezogen auf alle bis Stage 12c5g im Projekt bestätigten oder plausibel begründeten verhaltensrelevanten Befunde; unbekannte künftige Fehler können naturgemäß erst nach ihrer Entdeckung aufgenommen werden.
 
 ## Übersicht
 
-- Einträge insgesamt: **65**
+- Einträge insgesamt: **66**
 - offene bestätigte Python-Fehler: **5**
 - zu entscheidende Python-Fehlerkandidaten: **11**
-- bereits im Python-Baum behobene Fehler: **5**
+- bereits im Python-Baum behobene Fehler: **6**
 
 ## Einträge
 
@@ -900,3 +900,17 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 - Python-Orte: `tools/generate_semantics_builder_catalog.py`, `python_reference/i18n/words_matrix.py`
 - Mojo-Orte: `src/reta_mojo/semantics_builder_catalog.mojo`, `assets/parameter_semantics_reference.json`
 - Belege: `STAGE12C5F_NATIVE_PARAMETER_SEMANTICS.md`, `tools/generate_semantics_builder_catalog.py`, `tests/test_semantics_builder_source.py`, `scripts/check_semantics_builder.sh`
+
+### TEST-FIXED-016 – middle.alx-Parität war unnötig an physische Spalten- und Containerreihenfolge gekoppelt
+
+- Ursprung: `generator_tests`
+- Klasse / Schwere: `order_sensitive_reference_comparison` / `medium`
+- Python-Status: `fixed`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5g`
+- Reproduktion: `Zwei inhaltlich identische table#bigtable-Ausgaben mit vertauschten vollständigen Spalten und entsprechend geänderten r_<n>-Klassen byteweise vergleichen; ein Bytevergleich meldet fälschlich eine Abweichung, obwohl jede vollständige Spalte denselben Inhalt und dieselben semantischen Metadaten besitzt.`
+- heutiger Vertrag: Große HTML-Referenzen werden als Multiset vollständiger Spaltenvektoren verglichen. Physische r_/z_-Position, Attributreihenfolge und Klassentokenreihenfolge sind irrelevant; Zeilenfolge, Zellinhalt, sonstige Attribute und verschachteltes Markup bleiben vollständig prüfwirksam. Mengenartige Kombi-Relationen werden analog kanonisch statt über OrderedDict-Iteration verglichen.
+- spätere Python-Aktion: Erledigt: BigTableParser trennt direkte Tabellenzeilen von verschachtelten Tabellen, hasht komplette Spaltenvektoren und vergleicht deren Multiset. Synthetische Tests beweisen sowohl akzeptierte Spaltenpermutation als auch erkannte Inhaltsänderung.
+- Python-Orte: `tools/compare_middle_alx.py`, `tests/test_middle_alx_compare.py`
+- Mojo-Orte: `src/reta_mojo/combi_join.mojo`, `tests/probe_combi_join.mojo`
+- Belege: `STAGE12C5G_NATIVE_KOMBI_JOIN_UNORDERED_PARITY.md`, `tools/compare_middle_alx.py`, `tests/test_middle_alx_compare.py`, `scripts/check_combi_join_parity.sh`

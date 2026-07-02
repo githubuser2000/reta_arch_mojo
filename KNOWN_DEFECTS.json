@@ -1532,6 +1532,33 @@
         "tests/test_semantics_builder_source.py",
         "scripts/check_semantics_builder.sh"
       ]
+    },
+    {
+      "id": "TEST-FIXED-016",
+      "title": "middle.alx-Parität war unnötig an physische Spalten- und Containerreihenfolge gekoppelt",
+      "origin": "generator_tests",
+      "classification": "order_sensitive_reference_comparison",
+      "severity": "medium",
+      "python_status": "fixed",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5g",
+      "reproducer": "Zwei inhaltlich identische table#bigtable-Ausgaben mit vertauschten vollständigen Spalten und entsprechend geänderten r_<n>-Klassen byteweise vergleichen; ein Bytevergleich meldet fälschlich eine Abweichung, obwohl jede vollständige Spalte denselben Inhalt und dieselben semantischen Metadaten besitzt.",
+      "python_locations": [
+        "tools/compare_middle_alx.py",
+        "tests/test_middle_alx_compare.py"
+      ],
+      "mojo_locations": [
+        "src/reta_mojo/combi_join.mojo",
+        "tests/probe_combi_join.mojo"
+      ],
+      "current_contract": "Große HTML-Referenzen werden als Multiset vollständiger Spaltenvektoren verglichen. Physische r_/z_-Position, Attributreihenfolge und Klassentokenreihenfolge sind irrelevant; Zeilenfolge, Zellinhalt, sonstige Attribute und verschachteltes Markup bleiben vollständig prüfwirksam. Mengenartige Kombi-Relationen werden analog kanonisch statt über OrderedDict-Iteration verglichen.",
+      "post_port_fix": "Erledigt: BigTableParser trennt direkte Tabellenzeilen von verschachtelten Tabellen, hasht komplette Spaltenvektoren und vergleicht deren Multiset. Synthetische Tests beweisen sowohl akzeptierte Spaltenpermutation als auch erkannte Inhaltsänderung.",
+      "evidence": [
+        "STAGE12C5G_NATIVE_KOMBI_JOIN_UNORDERED_PARITY.md",
+        "tools/compare_middle_alx.py",
+        "tests/test_middle_alx_compare.py",
+        "scripts/check_combi_join_parity.sh"
+      ]
     }
   ],
   "audit": {
@@ -1558,8 +1585,9 @@
       "STAGE12C5B_NATIVE_PROMPT_LANGUAGE_PYPY3.md",
       "STAGE12C5C_NATIVE_PACKAGE_INTEGRITY_SPLIT_I18N.md",
       "STAGE12C5D_NATIVE_LEGACY_FACADES.md",
-      "STAGE12C5F_NATIVE_PARAMETER_SEMANTICS.md"
+      "STAGE12C5F_NATIVE_PARAMETER_SEMANTICS.md",
+      "STAGE12C5G_NATIVE_KOMBI_JOIN_UNORDERED_PARITY.md"
     ],
-    "scope_note": "Vollständig bezogen auf alle bis Stage 12c5f im Projekt bestätigten oder plausibel begründeten verhaltensrelevanten Befunde; unbekannte künftige Fehler können naturgemäß erst nach ihrer Entdeckung aufgenommen werden."
+    "scope_note": "Vollständig bezogen auf alle bis Stage 12c5g im Projekt bestätigten oder plausibel begründeten verhaltensrelevanten Befunde; unbekannte künftige Fehler können naturgemäß erst nach ihrer Entdeckung aufgenommen werden."
   }
 }

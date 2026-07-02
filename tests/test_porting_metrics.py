@@ -19,9 +19,9 @@ def test_porting_metrics_are_derived_from_complete_reference_inventory() -> None
     data = _load_module().compute()
     assert data["reference_files"] == 92
     assert data["reference_lines"] == 48831
-    assert data["fully_native_files"] == 54
-    assert data["at_least_partly_ported_files"] == 74
-    assert data["touched_reference_lines"] == 33465
+    assert data["fully_native_files"] == 55
+    assert data["at_least_partly_ported_files"] == 75
+    assert data["touched_reference_lines"] == 34177
     assert data["fully_native_files"] <= data["at_least_partly_ported_files"]
     assert data["fully_native_reference_lines"] <= data["touched_reference_lines"]
 
@@ -37,3 +37,8 @@ def test_new_semantics_owners_are_in_the_authoritative_mapping() -> None:
     assert mapping["reta_architecture/semantics_builder.py"][0] == "generiert nativ"
     assert mapping["reta_architecture/column_selection.py"][0] == "nativ"
     assert mapping["reta_architecture/universal.py"][0] == "nativ"
+
+
+def test_new_combi_join_owner_is_in_the_authoritative_mapping() -> None:
+    mapping = _load_module().native_mapping()
+    assert mapping["reta_architecture/combi_join.py"][0] == "nativ"
