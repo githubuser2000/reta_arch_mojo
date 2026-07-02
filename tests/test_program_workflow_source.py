@@ -1,0 +1,103 @@
+from __future__ import annotations
+
+import ast
+import subprocess
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+SOURCE = ROOT / "python_reference/reta_architecture/program_workflow.py"
+CATALOG = ROOT / "assets/program_workflow.tsv"
+MODULE = ROOT / "src/reta_mojo/program_workflow.mojo"
+MAIN = ROOT / "src/program_workflow_main.mojo"
+
+
+def _workflow_class() -> ast.ClassDef:
+    tree = ast.parse(SOURCE.read_text(encoding="utf-8"))
+    return next(
+        node
+        for node in tree.body
+        if isinstance(node, ast.ClassDef) and node.name == "ProgramWorkflowBundle"
+    )
+
+
+def _rows(kind: str) -> list[list[str]]:
+    return [
+        line.split("\t")
+        for line in CATALOG.read_text(encoding="utf-8").splitlines()
+        if line and not line.startswith("#") and line.startswith(kind + "\t")
+    ]
+
+
+def test_program_workflow_catalog_is_reproducible(tmp_path: Path) -> None:
+    output = tmp_path / "program_workflow.tsv"
+    subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "tools/generate_program_workflow_catalog.py"),
+            "--source",
+            str(SOURCE),
+            "--output",
+            str(output),
+        ],
+        cwd=ROOT,
+        check=True,
+        stdout=subprocess.PIPE,
+        text=True,
+    )
+    assert output.read_bytes() == CATALOG.read_bytes()
+
+
+def test_catalog_preserves_fields_methods_calls_and_steps() -> None:
+    workflow = _workflow_class()
+    fields = [
+        node.target.id
+        for node in workflow.body
+        if isinstance(node, ast.AnnAssign) and isinstance(node.target, ast.Name)
+    ]
+    methods = [node.name for node in workflow.body if isinstance(node, ast.FunctionDef)]
+    assert [row[2] for row in _rows("field")] == fields
+    assert [row[2] for row in _rows("method")] == methods
+    assert (len(fields), len(methods)) == (4, 11)
+    assert len(_rows("self_call")) == 10
+    assert len(_rows("step")) == 12
+    assert _rows("step")[0][2] == "load_religion_table"
+    assert _rows("step")[10][2] == "join_kombi_tables"
+
+
+def test_native_workflow_owns_real_deterministic_operations() -> None:
+    text = MODULE.read_text(encoding="utf-8")
+    for symbol in (
+        "requested_religion_output_kind",
+        "load_program_workflow_religion_table",
+        "apply_language_specific_motive_column",
+        "plan_kombi_workflow",
+        "program_workflow_snapshot",
+    ):
+        assert f"def {symbol}" in text
+    assert "decode_religion_rows_threaded" in text
+    assert "read_semicolon_csv" in text
+    assert "from std.python import" not in text
+    assert "PythonObject" not in text
+    assert "subprocess" not in text
+
+
+def test_build_install_launcher_and_main_are_wired() -> None:
+    build = (ROOT / "scripts/build.sh").read_text(encoding="utf-8")
+    targets = (ROOT / "scripts/install_targets.txt").read_text(encoding="utf-8")
+    launcher = ROOT / "bin/reta-mojo-workflow"
+    assert "program_workflow_main.mojo reta-mojo-workflow" in build
+    assert "reta-mojo-workflow" in targets.splitlines()
+    assert "--load-religion" in MAIN.read_text(encoding="utf-8")
+    assert launcher.stat().st_mode & 0o111
+
+
+def test_porting_matrix_marks_program_workflow_partial_native() -> None:
+    matrix = (ROOT / "PORTING_MATRIX.md").read_text(encoding="utf-8")
+    row = next(
+        line
+        for line in matrix.splitlines()
+        if "`reta_architecture/program_workflow.py`" in line
+    )
+    assert "| teilweise nativ |" in row
+    assert "program_workflow.mojo" in row

@@ -2,14 +2,14 @@
 
 Geplanter Umfang: **12 Release-Stufen**. Eine Stufe zählt erst als abgeschlossen, wenn Quellcode, Referenztests, Compilerziele, Dokumentation und ein source-only Archiv gemeinsam geprüft sind.
 
-## Fortschrittsmaße nach Stage 12c5j
+## Fortschrittsmaße nach Stage 12c5k
 
 | Maß | Stand | Aussage |
 |---|---:|---|
-| abgeschlossene Release-Stufen | **9/12 = 75,0 %** | Stufen 1–8 und 11 sind abgeschlossen; Stufe 12 ist mit 12a, 12b, 12c1–12c3 und 12c4a–12c5j zu etwa 70,8 % abgeschlossen, während 9 und 10 noch Restpfade besitzen |
+| abgeschlossene Release-Stufen | **9/12 = 75,0 %** | Stufen 1–8 und 11 sind abgeschlossen; Stufe 12 ist mit 12a, 12b, 12c1–12c3 und 12c4a–12c5k zu etwa 71,0 % abgeschlossen, während 9 und 10 noch Restpfade besitzen |
 | vollständig native oder generierte Python-Dateien | **57/92 = 62,0 %** | Datei vollständig ersetzt oder als reproduzierbares Laufzeitasset abgebildet |
-| mindestens angegriffene Python-Dateien | **78/92 = 84,8 %** | Status direkt aus der autoritativen `NATIVE`-Zuordnung |
-| angegriffene Referenzzeilen | **35.903/48.831 = 73,5 %** | maschinenberechnet statt manuell fortgeschrieben |
+| mindestens angegriffene Python-Dateien | **79/92 = 85,9 %** | Status direkt aus der autoritativen `NATIVE`-Zuordnung |
+| angegriffene Referenzzeilen | **36.282/48.831 = 74,3 %** | maschinenberechnet statt manuell fortgeschrieben |
 | funktionaler Nutzerumfang | **ca. 96–98 %** | praktisch nutzbarer Reta-Umfang ohne Python-Algorithmus |
 
 Die Stufenquote ist höher als die Quellzeilenquote, weil die letzten Stufen besonders große dynamische Module bündeln: vollständige Ausgabeaufbereitung, Prompt-Sprache, i18n-Matrix, Architekturvalidierung und Parallelisierung.
@@ -381,3 +381,12 @@ Die Zahl **12** ist die geplante Releasegliederung. Interne Teilpakete oder Fehl
 - `reta-mojo-facade` prüft und fragt den Graphen ohne Python-Import ab. Die heterogene Objektaggregation bleibt teilweise nativ, bis alle referenzierten Besitzer vollständig portiert sind.
 - `target/tests/concat_csv_probe` bleibt außerhalb der Produktionsbuilds und wird gezielt mit `scripts/build_concat_csv_probe.sh` erzeugt.
 - Maschinenstand: 57/92 vollständig, 78/92 mindestens teilweise, 35.903/48.831 angegriffene Referenzzeilen.
+
+
+## Stage 12c5k – nativer Program-Workflow-Kern und Inhaltsprofile
+
+- `reta_architecture/program_workflow.py` erhält einen reproduzierbaren Vertrag mit 4 Feldern, 11 Methoden, 10 internen Aufrufkanten und 12 Workflow-Schritten.
+- CSV-Pfad, Ausgabemodus, Religion-Zelldekodierung, serielle/native Thread-Tabellenladung, Sprachspaltenersatz, Laufzeitflag-Reset und beide Kombi-Zweigpläne sind echte native Mojo-Logik.
+- Die heterogene `Program`-Aggregation bleibt teilweise nativ, bis Tabellenlaufzeit, Generierung und Renderer denselben vollständig typisierten Zustandswert teilen.
+- `PROJECT_CONTENT_PROFILES.md` definiert das Sourcearchiv, den lokalen Buildbaum und die installierte Laufzeit; `target/`, `.venv/`, `.git/` und Caches werden nicht mehr für Transpilierungsuploads benötigt.
+- Maschinenstand: 57/92 vollständig, 79/92 mindestens teilweise, 36.282/48.831 angegriffene Referenzzeilen.

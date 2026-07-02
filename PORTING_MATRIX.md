@@ -5,7 +5,7 @@ Stand: 2. Juli 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der g
 - Ursprüngliche Python-Dateien: **92**
 - Ursprüngliche Python-Zeilen insgesamt: **48831**
 - Eingebettete Python-Brücken: **0**; expliziter Mojo-Kindprozessadapter: **1**
-- Quellzeilen der bereits angegriffenen Architekturmodule: **35903**
+- Quellzeilen der bereits angegriffenen Architekturmodule: **36282**
 - Native Mojo-Quellzeilen: siehe `src/` (inklusive generiertem Kategoriekatalog)
 
 | Python-Datei | Zeilen | Funktionen | Klassen | dynamische Aufrufe | Status | Mojo/Ziel | Anmerkung |
@@ -70,7 +70,7 @@ Stand: 2. Juli 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der g
 | `reta_architecture/parameter_runtime.py` | 894 | 11 | 1 | 0 | weitgehend nativ | `src/reta_mojo/parameter_runtime.mojo + native_reta_cli.mojo` | typisierter produktiver Plan für Spalten, Zeilen, Breiten, Ausgabe und Obergrenzen; historische Diagnose- und Hilfetexte bleiben am atomaren Kompatibilitätsrand |
 | `reta_architecture/persistence.py` | 485 | 27 | 3 | 0 | nativ | `src/reta_mojo/persistence.mojo + src/architecture_persistence_main.mojo` | SQLite-Schema, stabile SHA-256-Digests, Sections, Garben-Snapshots, Runs, Audit, Cache und Batch-Schreibpfade nativ; JSON-Grenze ist kanonischer UTF-8-Text |
 | `reta_architecture/presheaves.py` | 150 | 15 | 5 | 0 | teilweise nativ | `src/reta_mojo/presheaves.mojo` | typisierte String-Lokalsektionen und Restriktion |
-| `reta_architecture/program_workflow.py` | 379 | 12 | 1 | 4 | Python-Referenz/Bridge | `python_reference/reta_architecture/program_workflow.py` | noch nicht nativ portiert |
+| `reta_architecture/program_workflow.py` | 379 | 12 | 1 | 4 | teilweise nativ | `src/reta_mojo/program_workflow.mojo + assets/program_workflow.tsv + src/program_workflow_main.mojo` | vier Felder, elf Methoden, zehn interne Aufrufkanten und zwölf Workflow-Schritte reproduzierbar typisiert; CSV-Pfad, Ausgabemodus, Religion-Zelldekodierung, native Thread-Tabellenladung, Sprachspaltenersatz, Flag-Reset und beide Kombi-Verzweigungspläne sind echte Mojo-Laufzeitlogik; der heterogene Legacy-Program-Objektgraph bleibt Referenz |
 | `reta_architecture/prompt_execution.py` | 2516 | 24 | 1 | 3 | Python-Referenz/Bridge | `python_reference/reta_architecture/prompt_execution.py` | noch nicht nativ portiert |
 | `reta_architecture/prompt_interaction.py` | 273 | 15 | 1 | 0 | nativ | `src/reta_mojo/prompt_interaction.mojo + src/prompt_main.mojo` | typisierte Startup-/Sitzungsaktivierung, physische Eingabemodi, Speicher-/Löschübergänge, Einmalbefehlsbildung und Previous-Command-Policy produktiv aktiviert |
 | `reta_architecture/prompt_language.py` | 492 | 23 | 2 | 2 | generiert nativ | `src/reta_mojo/prompt_language.mojo + assets/prompt_language_legacy.tsv + tools/generate_prompt_language_legacy_catalog.py` | vollständige fünfsprachige PromptLanguageBundle-Oberfläche mit Parameterwerten, Befehlen, Bruchzahlen, Kurzbefehlen, Klassifikatoren und historischen Aliasnamen reproduzierbar typisiert |

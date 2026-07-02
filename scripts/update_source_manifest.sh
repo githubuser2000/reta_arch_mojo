@@ -10,7 +10,8 @@ find . \
 
 find . \
   \( -path './.venv' -o -path './target' -o -path './build' -o -path './.git' -o -name '.pytest_cache' -o -path '*/__pycache__' \) -prune -o \
-  -type f ! -name 'SOURCE_MANIFEST.sha256' ! -name 'middle.alx' -print0 \
+  -type f ! -name 'SOURCE_MANIFEST.sha256' ! -name 'middle.alx' \
+  ! -name '*.tmp' ! -name '*~' ! -name '*.swp' ! -name '*.swo' ! -name '.#*' -print0 \
   | LC_ALL=C sort -z \
   | xargs -0 sha256sum > SOURCE_MANIFEST.sha256
 

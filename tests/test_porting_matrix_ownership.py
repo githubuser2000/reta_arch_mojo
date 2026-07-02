@@ -10,6 +10,7 @@ GENERATOR = ROOT / "tools/generate_porting_matrix.py"
 MATRIX = ROOT / "PORTING_MATRIX.md"
 
 EXPECTED = {
+    "reta_architecture/program_workflow.py": "teilweise nativ",
     "reta_architecture/facade.py": "teilweise nativ",
     "reta_architecture/table_adapters.py": "nativ",
     "libs/lib4tables_concat.py": "nativ",

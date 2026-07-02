@@ -10,8 +10,8 @@ Stufen 9/10/12:                       Ausgabe, Prompt/i18n und Releaseparität i
 Stufe 11:                             11a–11j = 100 %
 Stufe 12:                             12a–12b fertig, 12c zu ca. 99,9 % = ca. 70,8 %
 vollständig nativ/generiert:          57 von 92 = 62,0 %
-mindestens teilweise portiert:       78 von 92 = 84,8 %
-angegriffene Referenzzeilen:          35.903 von 48.831 = 73,5 %
+mindestens teilweise portiert:       79 von 92 = 85,9 %
+angegriffene Referenzzeilen:          36.282 von 48.831 = 74,3 %
 funktionaler Nutzerumfang:            ca. 96–98 %
 ```
 
@@ -19,7 +19,7 @@ Die Metriken messen **orthogonale Bezugsgrößen** und sind nicht als ein einzig
 
 - **96–98 % geschätzte Funktionsabdeckung**: Anteil der praktisch relevanten Befehls- und Verhaltensfamilien mit einem nativen Pfad. Der atomare Fallback ist nur eine Sicherheitsgrenze und wird nicht als transpiliert gezählt.
 - **62,0 % vollständiger Dateibesitz**: Nur Dateien, deren gesamter wirksamer Vertrag nativ oder reproduzierbar generiert ersetzt ist.
-- **73,5 % angegriffene Referenzzeilen**: maschinenberechneter Umfang vollständig und teilweise besessener Referenzdateien.
+- **74,3 % angegriffene Referenzzeilen**: maschinenberechneter Umfang vollständig und teilweise besessener Referenzdateien.
 - **82,9 % Stufenfortschritt**: gewichtete Releaseplanung; eine Stufe kann weit fortgeschritten sein, obwohl große historische Python-Besitzer noch sichtbar bleiben.
 
 Der Port ist daher nicht von über 90 % auf rund 62 % zurückgefallen. Die frühere Zahl bezeichnete die Funktionsoberfläche, die strengere Zahl den Quellersatz. Der vollständige Plan steht in [`ROADMAP.md`](ROADMAP.md).
@@ -56,8 +56,7 @@ PYTHONHASHSEED=0 pypy3 reta -spalten --alles --breite=0 \
   -ausgabe --art=html --onetable --nocolor > middle.alx
 ```
 
-`.venv/`, `.git/`, `target/` und Caches gehören nicht in Quellarchive. Brotli-
-Archive (`.tar.br`) werden unterstützt.
+`.venv/`, `.git/`, `target/` und Caches gehören nicht in Quellarchive. Für weitere Transpilierungsrunden ist `scripts/create_source_archive.sh <name>.tar.xz` der richtige Export; die vollständige Einteilung steht in [`PROJECT_CONTENT_PROFILES.md`](PROJECT_CONTENT_PROFILES.md). Brotli-Archive (`.tar.br`) werden ebenfalls unterstützt.
 
 Nach jedem Build entfernt `tools/sanitize_mojo_runpath.py` den von Mojo selbst ergänzten absoluten Compilerpfad aus dem ELF-RUNPATH. Ausgelieferte Programme enthalten damit nur `$ORIGIN/../lib/mojo` und bleiben zwischen Rechnern übertragbar.
 
@@ -79,12 +78,14 @@ Mojo-Programme und der verbleibende Python-Kompatibilitätsbaum liegen
 standardmäßig getrennt unter `lib/reta`; Fedora-/RPM-Pakete können
 `LIBEXECDIR=/usr/libexec/reta` setzen. Relative Symlinks erhalten die
 historische Projektstruktur ohne Datenkopie. Seit Stage 12c5h kopiert der
-Installer ausschließlich die 32 in `scripts/install_targets.txt` deklarierten
+Installer ausschließlich die 33 in `scripts/install_targets.txt` deklarierten
 regulären und schweren Compilerziele; lokale Debug-/Altdateien unter
 `target/bin` werden nicht mehr versehentlich installiert. Details:
 [`STAGE12C4M_FHS_RESOURCE_INSTALLATION.md`](STAGE12C4M_FHS_RESOURCE_INSTALLATION.md).
 
 ## Stufen 7–10: Generatoren, Kombinationen, Markup und Prompt
+
+Stage 12c5k portiert den deterministischen Kern von `reta_architecture/program_workflow.py`: Religion-CSV-Laden und -Decodierung, native Threadverarbeitung, Sprachspaltenersatz, Laufzeitflag-Reset, beide Kombi-Verzweigungspläne sowie der geordnete Workflowvertrag sind nativ. Welche Inhalte für Upload, Build und Installation gebraucht werden, steht in [`PROJECT_CONTENT_PROFILES.md`](PROJECT_CONTENT_PROFILES.md); Details: [`STAGE12C5K_NATIVE_PROGRAM_WORKFLOW.md`](STAGE12C5K_NATIVE_PROGRAM_WORKFLOW.md).
 
 Stage 12c5j behebt den beim lokalen Gesamtbuild entdeckten expliziten Ownership-Transfer im Exportfilter und portiert den statischen Vertrag von `reta_architecture/facade.py` als reproduzierbaren nativen Kompositionsgraphen: 45 Felder, 49 Methoden, 45 Bootstrap-Schritte, 44 Rebuild-Einstiege, 98 Abhängigkeitskanten und 48 Snapshot-Einträge. `reta-mojo-facade` macht den Graphen ohne Python-Import abfragbar; Details: [`STAGE12C5J_NATIVE_ARCHITECTURE_FACADE.md`](STAGE12C5J_NATIVE_ARCHITECTURE_FACADE.md).
 

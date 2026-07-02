@@ -38,6 +38,11 @@ tar -cf "$TMP_TAR" \
     --exclude='*/__pycache__' \
     --exclude='*.pyc' \
     --exclude='*.pyo' \
+    --exclude='*.tmp' \
+    --exclude='*~' \
+    --exclude='*.swp' \
+    --exclude='*.swo' \
+    --exclude='*/.#*' \
     --exclude="$NAME/middle.alx" \
     "$NAME"
 
@@ -67,7 +72,7 @@ case "$FORMAT" in
         ;;
 esac
 
-FORBIDDEN='(^|/)(\.venv|target|build|\.git|\.pytest_cache|__pycache__)(/|$)|\.py[co]$|/middle\.alx$|prompt_python_bridge\.mojo$'
+FORBIDDEN='(^|/)(\.venv|target|build|\.git|\.pytest_cache|__pycache__)(/|$)|\.py[co]$|\.(tmp|swp|swo)$|~$|(^|/)\.#[^/]+$|/middle\.alx$|prompt_python_bridge\.mojo$'
 if tar -tf "$LIST_TAR" | grep -E "$FORBIDDEN" >/dev/null; then
     printf '%s\n' 'Sourcearchiv enthält verbotene Build-, Cache- oder Bridge-Dateien.' >&2
     tar -tf "$LIST_TAR" | grep -E "$FORBIDDEN" >&2 || true

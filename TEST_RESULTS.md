@@ -1673,3 +1673,17 @@ aktive std.python-Brücken:                       0
 Der vom Nutzer unter Mojo 1.0.0b2 gemeldete Buildfehler in `architecture_exports_for_module` ist durch explizite Besitzübertragung `entry^` korrigiert und durch einen Source-Regressionstest gesichert. Die nativen Tests `tests/test_architecture_exports.mojo` und `tests/test_architecture_facade.mojo` sowie das neue Compilerziel `reta-mojo-facade` sind vorbereitet; in dieser Sandbox fehlt weiterhin der offizielle Modular-Mojo-Compiler, daher wird kein lokaler Compilerfolg behauptet.
 
 `target/tests/concat_csv_probe` wird nicht durch die Produktionsbuilds erzeugt. `scripts/build_concat_csv_probe.sh` baut das Probe-ELF gezielt; `scripts/test_stage12c5e.sh` verwendet diesen Helfer vor dem Python↔Mojo-Paritätslauf.
+
+
+## Stage 12c5k: nativer Program-Workflow-Kern
+
+Die AST→TSV-Regeneration bewahrt 4 Felder, 11 Methoden, 10 interne Aufrufkanten und 12 Orchestrierungsschritte bytegenau. Der native Besitzer enthält reale CSV-/Workflowlogik und keine `std.python`-, `PythonObject`- oder Subprozessgrenze.
+
+Hier ausgeführt:
+
+- fokussierte Source-, Katalog-, Ownership-, Defekt-, Archiv-, Boundary-, Metrik- und Installationstests: **44/44 bestanden**;
+- Defektkatalog: **68 Einträge**, **17** spätere Python-Bereinigungspunkte, konsistent;
+- Generator und Python-Hilfsskripte kompilieren syntaktisch unter Python 3;
+- `tools/porting_metrics.py`: **57/92** vollständig, **79/92** mindestens teilweise, **36.282/48.831** angegriffene Referenzzeilen.
+
+Für den lokalen Mojo-1.0.0b2-Lauf baut `scripts/test_stage12c5k.sh` zuerst den nativen Modultest und die CLI und vergleicht danach 13 Fälle: fünf Zellendekodierungen, vier Ausgabemodusvektoren, drei Kombi-Zweige und eine vollständige Religionstabellen-Zusammenfassung. In dieser Sandbox fehlt der offizielle Modular-Compiler; dieser native Lauf wird daher nicht als hier bestanden ausgegeben.
