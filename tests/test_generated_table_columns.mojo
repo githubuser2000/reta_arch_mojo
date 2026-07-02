@@ -200,5 +200,19 @@ def test_moon_without_factors_keeps_markup_container() raises:
     )
 
 
+
+def test_modal_logic_stops_after_first_product_beyond_table() raises:
+    var table = read_semicolon_csv("python_reference/csv/religion.csv")
+    var values = modal_logic_column(
+        table, ModalConcept(192, 193), len(table.rows) - 1, "html", "german"
+    )
+    var last = values[len(table.rows) - 1]
+    # Legacy Python materializes the first multiple beyond EOF (1026 for
+    # occurrence row 2), but not the next one (1028).  Therefore the +2
+    # distance exists at physical row 1024 while +4 must not be duplicated.
+    assert_equal(last.count("sehr leicht überdurchschnittlich:"), 1)
+    assert_equal(last.count("mittelstark überdurchschnittlich:"), 2)
+    assert_equal(last.count("sehr:"), 1)
+
 def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()

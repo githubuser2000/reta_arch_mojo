@@ -75,7 +75,7 @@ Stand: 1. Juli 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der g
 | `reta_architecture/prompt_execution.py` | 2516 | 24 | 1 | 3 | weitgehend nativ | `src/reta_mojo/prompt_* + prompt_main.mojo` | zentrale Kurzsprache, Tabellenplanung, numerische Fachbefehle, One-shots sowie `shell`/`python`/`math` nativ; gemischte `vielfache + teiler + 1/n`-Pläne, klassische Bruch-No-ops und gemischte Bruch-/Ganzzahl-Kommatokens bytegenau nativ; Restfallbacktransport und nicht-native `reta`-Zeilen direkt aus Mojo gestartet; echte v-n/m-Restalgorithmen offen |
 | `reta_architecture/prompt_interaction.py` | 273 | 15 | 1 | 0 | teilweise nativ | `src/reta_mojo/native_prompt_input.mojo + prompt_line_editor.mojo + prompt_terminal_input.mojo + prompt_main.mojo` | reale Pipe-/TTY-Eingabe, UTF-8-Editor, History, verschachtelte Completion, Mehrzeilen-Wrapping sowie Emacs-/Vi-Kernbindings nativ; hintere dynamische Sitzungs-/Speicherzweige bleiben Referenz/Fallback |
 | `reta_architecture/prompt_language.py` | 492 | 23 | 2 | 2 | weitgehend nativ | `src/reta_mojo/prompt_language.mojo + prompt_external_commands.mojo` | kompakte Sprache, Rohbefehlserkennung und UTF-8-sicherer Shell-Parser nativ; Rest-i18n offen |
-| `reta_architecture/prompt_preparation.py` | 462 | 14 | 1 | 4 | Python-Referenz/Bridge | `python_reference/reta_architecture/prompt_preparation.py` | noch nicht nativ portiert |
+| `reta_architecture/prompt_preparation.py` | 462 | 14 | 1 | 4 | weitgehend nativ | `src/reta_mojo/prompt_preparation.mojo + prompt_regex.mojo + prompt_preparation_catalog.mojo` | vollständiger nativer Vorbereitungs- und Regexvertrag; produktive Promptcontroller-Aktivierungsnaht noch offen |
 | `reta_architecture/prompt_runtime.py` | 158 | 9 | 4 | 1 | generiert nativ | `src/reta_mojo/prompt_runtime.mojo + prompt_runtime_catalog.mojo + prompt_prefix_catalog.mojo + tools/generate_prompt_runtime_catalog.py` | Primprädikat, Laufzeit-/Programm-/Vokabularvertrag und fünfsprachige Promptpräfixe vollständig typisiert und reproduzierbar generiert |
 | `reta_architecture/prompt_session.py` | 543 | 37 | 8 | 1 | nativ | `src/reta_mojo/prompt_session.mojo + native_prompt_input.mojo + prompt_terminal_input.mojo` | PromptTextState, Sitzungs-/Speicherzustand, Löschsemantik, History-Filter, lokalisierte Präfixe und native Terminalgrenze vollständig ersetzt |
 | `reta_architecture/row_filtering.py` | 714 | 13 | 1 | 5 | nativ | `src/reta_mojo/row_filtering.mojo` | Zeilenbereiche, Zeit, Zählgruppen, Primklassen, Gestirne, Vielfache, Potenzen, Invertierung und Positionsfilter |
@@ -269,3 +269,11 @@ Damit steigen vollständig native/reproduzierbare Originaldateien auf **38/92 = 
 
 Damit steigen vollständig native/reproduzierbare Originaldateien auf **40/92 = 43,5 %**, mindestens teilweise portierte Dateien auf **68/92 = 73,9 %** und der gewichtete Quellzeilenstand auf **ca. 55,6 %**. Die funktionale Oberfläche bleibt bei **96–98 %**; die Stage beseitigt vor allem verbliebenen dynamischen Besitzerstatus und drei ältere Mojo-Abweichungen bei History, Dezimallöschung und lokalisierten Promptpräfixen.
 
+## Stage 12c4w – native Prompt-Vorbereitung und Volltabellenparität
+
+| Originaldatei | Mojo-Besitz | Verifikation |
+|---|---|---|
+| `reta_architecture/prompt_preparation.py` | `prompt_preparation.mojo`, `prompt_regex.mojo` und reproduzierbarer `prompt_preparation_catalog.mojo` | 7/7 Unit-Tests, 23/23 Frontkontexte und 60/60 vollständige Fünfsprachenkontexte byteidentisch |
+| vollständiger `--alles`-Pfad | Grenzkorrektur in `generated_table_columns.mojo` plus formstrenger HTML-Komparator | 198/198 Zeilen und 149.356/149.356 Zellen semantisch identisch |
+
+Konservativ bleibt der vollständige Dateibesitz bei **40/92 = 43,5 %**, weil die letzte produktive Promptcontroller-Aktivierungsnaht noch sichtbar ist. Mindestens teilweise portierte Dateien steigen auf **69/92 = 75,0 %**, der gewichtete Quellzeilenstand auf **ca. 56,5 %**. Die funktionale Oberfläche bleibt bei **96–98 %**.

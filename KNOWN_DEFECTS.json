@@ -958,6 +958,123 @@
         "scripts/check_prompt_language_catalog.sh",
         "tests/test_completion_native_ownership.py"
       ]
+    },
+    {
+      "id": "MOJO-FIXED-023",
+      "title": "Modallogikgenerator materialisierte mehrere Produkte jenseits der physischen Tabellenlänge",
+      "origin": "mojo_port",
+      "classification": "generated_column_boundary_bug",
+      "severity": "high",
+      "python_status": "correct_reference",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c4w",
+      "reproducer": "Vollständigen HTML-Lauf mit -spalten --alles --breite=0 -ausgabe --art=html --onetable --nocolor erzeugen und scripts/compare_full_all_html.py gegen Python ausführen; vor der Korrektur unterschied sich Zeile 197, Spalte 700.",
+      "python_locations": [
+        "python_reference/libs/lib4tables.py"
+      ],
+      "mojo_locations": [
+        "src/reta_mojo/generated_table_columns.mojo",
+        "tests/test_generated_table_columns.mojo"
+      ],
+      "current_contract": "Der native Modallogiklauf endet beim ersten Vielfachen an oder hinter der realen Tabellenlänge und reproduziert damit die endliche historische Python-Multiplikationsabbildung. Der vollständige --alles-Lauf ist in 149.356 von 149.356 Zellen semantisch identisch.",
+      "post_port_fix": "Keine Python-Änderung erforderlich; die endliche Referenzabbildung ist korrekt und wird in Mojo bewahrt.",
+      "evidence": [
+        "STAGE12C4W_NATIVE_PROMPT_PREPARATION_FULL_ALL.md",
+        "scripts/compare_full_all_html.py",
+        "tests/test_generated_table_columns.mojo"
+      ]
+    },
+    {
+      "id": "MOJO-COMPAT-001",
+      "title": "Vollständige HTML-Tabelle ist semantisch, aber noch nicht byteweise serialisierungsgleich",
+      "origin": "mojo_port",
+      "classification": "html_serialization_compatibility_gap",
+      "severity": "low",
+      "python_status": "correct_reference",
+      "mojo_status": "compatibility_preserved",
+      "discovered_stage": "12c4w",
+      "reproducer": "Python und Mojo mit -spalten --alles --breite=0 -ausgabe --art=html --onetable --nocolor ausführen und scripts/compare_full_all_html.py anwenden.",
+      "python_locations": [
+        "python_reference/reta_architecture/table_output.py",
+        "python_reference/libs/lib4tables.py"
+      ],
+      "mojo_locations": [
+        "src/reta_mojo/table_rendering.mojo",
+        "scripts/compare_full_all_html.py"
+      ],
+      "current_contract": "Form und alle 149.356 Zellen sind semantisch identisch. Roh identisch sind 95,572324 Prozent der Zellen; Unterschiede bleiben bei Entity- und Anführungszeichenmaskierung, unsichtbarem Leerraum vor Satzzeichen und der Reihenfolge semantisch ungeordneter HTML-Listenelemente sichtbar.",
+      "post_port_fix": "Den HTML-Serializer später auf byteidentische Maskierung, Leerraumsetzung und historische Listenreihenfolge bringen, ohne die bereits vollständige semantische Parität zu verschlechtern.",
+      "evidence": [
+        "STAGE12C4W_NATIVE_PROMPT_PREPARATION_FULL_ALL.md",
+        "scripts/compare_full_all_html.py"
+      ]
+    },
+    {
+      "id": "TEST-FIXED-004",
+      "title": "Das frühere --alles-Gate prüfte nur eine kleine Tabellenfixture statt des vollständigen Datenbestands",
+      "origin": "test_infrastructure",
+      "classification": "end_to_end_test_gap",
+      "severity": "high",
+      "python_status": "not_applicable",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c4w",
+      "reproducer": "Den alten Ein-Zeilen-Fixturetest bestehen lassen und anschließend den echten vollständigen --alles-Lauf vergleichen; nur der Vollbestand zeigte die Modallogik-Grenzabweichung.",
+      "python_locations": [],
+      "mojo_locations": [
+        "scripts/check_full_all_parity.sh",
+        "scripts/compare_full_all_html.py",
+        "scripts/test_stage12c4w.sh"
+      ],
+      "current_contract": "Ein reproduzierbares schweres Gate erzeugt die vollständigen Python- und Mojo-HTML-Tabellen, prüft identische Form und fordert semantische Gleichheit jeder einzelnen Zelle. Roh- und dekodierte Serialisierungsparität werden zusätzlich getrennt berichtet.",
+      "post_port_fix": "Keine Python-Produktivcodeänderung erforderlich.",
+      "evidence": [
+        "STAGE12C4W_NATIVE_PROMPT_PREPARATION_FULL_ALL.md",
+        "scripts/check_full_all_parity.sh",
+        "scripts/compare_full_all_html.py"
+      ]
+    },
+    {
+      "id": "TEST-FIXED-005",
+      "title": "Vorderer Promptvorbereitungs-Paritätstest setzte eine lokale Projekt-.venv voraus",
+      "origin": "test_infrastructure",
+      "classification": "source_archive_portability_bug",
+      "severity": "medium",
+      "python_status": "not_applicable",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c4w",
+      "reproducer": "Source-only-Archiv ohne .venv entpacken und scripts/check_prompt_preparation_parity.sh ausführen.",
+      "python_locations": [],
+      "mojo_locations": [
+        "scripts/check_prompt_preparation_parity.sh"
+      ],
+      "current_contract": "Der Prüfer verwendet RETA_PYTHON, andernfalls eine vorhandene lokale .venv und schließlich das systemweite python3. Er ist damit wie die Katalog- und Vollparitätschecks source-archive-portabel.",
+      "post_port_fix": "Keine Python-Produktivcodeänderung erforderlich.",
+      "evidence": [
+        "STAGE12C4W_NATIVE_PROMPT_PREPARATION_FULL_ALL.md",
+        "scripts/check_prompt_preparation_parity.sh",
+        "tests/test_prompt_preparation_source.py"
+      ]
+    },
+    {
+      "id": "TEST-FIXED-006",
+      "title": "Gemeinsamer Stage-12c4w-Pytest-Prozess blieb nach vollständig ausgegebenen Testpunkten im Teardown hängen",
+      "origin": "test_infrastructure",
+      "classification": "test_harness_teardown_hang",
+      "severity": "medium",
+      "python_status": "not_applicable",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c4w",
+      "reproducer": "scripts/test_stage12c4w.sh mit allen Source-Gates in einem einzigen python3 -m pytest-Prozess ausführen; 20 Testpunkte erscheinen, der Prozess beendet sich in der Sandbox aber nicht zuverlässig.",
+      "python_locations": [],
+      "mojo_locations": [
+        "scripts/test_stage12c4w.sh"
+      ],
+      "current_contract": "Der Sammeltest startet jede Source-Testdatei in einem eigenen Pytest-Prozess. Ein Teardown-Hänger kann dadurch keine bereits bestandenen Nachbargruppen blockieren oder deren Ergebnis verdecken.",
+      "post_port_fix": "Keine Python-Produktivcodeänderung erforderlich.",
+      "evidence": [
+        "STAGE12C4W_NATIVE_PROMPT_PREPARATION_FULL_ALL.md",
+        "scripts/test_stage12c4w.sh"
+      ]
     }
   ],
   "audit": {
@@ -976,8 +1093,9 @@
       "STAGE12C4S_DEFECT_BACKFILL_NATIVE_CONTROL_MAINS.md",
       "STAGE12C4T_NATIVE_WORD_COMPLETION.md",
       "STAGE12C4U_NATIVE_NESTED_COMPLETION.md",
-      "STAGE12C4V_NATIVE_PROMPT_SESSION_RUNTIME.md"
+      "STAGE12C4V_NATIVE_PROMPT_SESSION_RUNTIME.md",
+      "STAGE12C4W_NATIVE_PROMPT_PREPARATION_FULL_ALL.md"
     ],
-    "scope_note": "Vollständig bezogen auf alle bis Stage 12c4v im Projekt bestätigten oder plausibel begründeten verhaltensrelevanten Befunde; unbekannte künftige Fehler können naturgemäß erst nach ihrer Entdeckung aufgenommen werden."
+    "scope_note": "Vollständig bezogen auf alle bis Stage 12c4w im Projekt bestätigten oder plausibel begründeten verhaltensrelevanten Befunde; unbekannte künftige Fehler können naturgemäß erst nach ihrer Entdeckung aufgenommen werden."
   }
 }

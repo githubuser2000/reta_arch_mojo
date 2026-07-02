@@ -4,6 +4,14 @@ ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 cd "$ROOT"
 mkdir -p target/tests
 MOJO=${MOJO_BIN:-"$ROOT/bin/mojo-real"}
+PYTHON=${RETA_PYTHON-}
+if [ -z "$PYTHON" ]; then
+    if [ -x "$ROOT/.venv/bin/python" ]; then
+        PYTHON="$ROOT/.venv/bin/python"
+    else
+        PYTHON=$(command -v python3)
+    fi
+fi
 "$MOJO" build -I src tests/prompt_preparation_batch_probe.mojo -o target/tests/prompt_preparation_batch_probe
 TMP=${TMPDIR:-/tmp}/reta-prompt-preparation.$$
 trap 'rm -rf "$TMP"' EXIT HUP INT TERM
@@ -36,7 +44,7 @@ force-e	0	1	3/2
 selective	1	0	15
 EOF2
 for language in deutsch english; do
-    PYTHONHASHSEED=0 .venv/bin/python scripts/prompt_preparation_reference_batch.py "$language" "$TMP/$language.tsv" > "$TMP/$language.python"
+    PYTHONHASHSEED=0 "$PYTHON" scripts/prompt_preparation_reference_batch.py "$language" "$TMP/$language.tsv" > "$TMP/$language.python"
     target/tests/prompt_preparation_batch_probe "$language" "$TMP/$language.tsv" > "$TMP/$language.mojo"
     if ! cmp "$TMP/$language.python" "$TMP/$language.mojo"; then
         diff -u "$TMP/$language.python" "$TMP/$language.mojo" || true

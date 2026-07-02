@@ -527,6 +527,15 @@ def modal_logic_column(
                 var occurrence_row = occurrences[occurrence_index]
                 if occurrence_row <= 0 or product % occurrence_row != 0:
                     continue
+                # Python's legacy multiplication map deliberately stores the
+                # first product at or beyond the physical table boundary, but
+                # no later product.  Reproduce that finite map instead of
+                # accepting every mathematically valid multiple beyond EOF.
+                var maximum_product = (
+                    (len(table.rows) + occurrence_row - 1) // occurrence_row
+                ) * occurrence_row
+                if product > maximum_product:
+                    continue
                 var multiplier = product // occurrence_row
                 if multiplier <= 0:
                     continue

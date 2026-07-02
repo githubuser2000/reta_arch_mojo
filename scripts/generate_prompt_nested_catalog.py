@@ -94,6 +94,52 @@ architecture = RetaArchitecture.bootstrap(reference)
 runtime = bootstrap_completion_runtime(
     architecture=architecture, i18n=i18n, force_rebuild=True
 )
+
+def _ordered(values):
+    return [str(value) for value in values]
+
+preparation_domains = {}
+line_main = i18n.hauptForNeben["zeilen"]
+line_domains = {str(key): [""] for key in i18n.haupt2neben[line_main]}
+line_domains[str(i18n.zeilenParas["zeit"])] = _ordered({
+    i18n.zeilenParas["gestern"], i18n.zeilenParas["heute"], i18n.zeilenParas["morgen"]
+})
+line_domains[str(i18n.zeilenParas["typ"])] = _ordered({
+    i18n.zeilenParas["mond"], i18n.zeilenParas["sonne"],
+    i18n.zeilenParas["planet"], i18n.zeilenParas["schwarzesonne"],
+    i18n.zeilenParas["SonneMitMondanteil"],
+})
+line_domains[str(i18n.zeilenParas["primzahlen"])] = _ordered({
+    i18n.zeilenParas["aussenerste"], i18n.zeilenParas["innenerste"],
+    i18n.zeilenParas["innenalle"], i18n.zeilenParas["aussenalle"],
+})
+preparation_domains[line_main] = line_domains
+
+column_domains = {}
+for liste1 in runtime.program.dataDict[0].values():
+    for liste2 in liste1:
+        for liste3 in liste2:
+            try:
+                column_domains[str(liste3[0])] |= {str(liste3[1])}
+            except KeyError:
+                column_domains[str(liste3[0])] = {str(liste3[1])}
+preparation_domains[i18n.hauptForNeben["spalten"]] = {
+    key: _ordered(values) for key, values in column_domains.items()
+}
+
+preparation_domains[i18n.hauptForNeben["kombination"]] = {
+    str(i18n.kombiMainParas["galaxie"]): _ordered({
+        str(text) for values in i18n.kombiParaNdataMatrix.values() for text in values
+    }),
+    str(i18n.kombiMainParas["universum"]): _ordered({
+        str(text) for values in i18n.kombiParaNdataMatrix2.values() for text in values
+    }),
+}
+output_main = i18n.hauptForNeben["ausgabe"]
+output_domains = {str(key): [""] for key in i18n.haupt2neben[output_main]}
+output_domains[str(i18n.ausgabeParas["art"])] = _ordered(set(i18n.ausgabeArt.keys()))
+preparation_domains[output_main] = output_domains
+
 print(json.dumps({
     "commands": runtime.start_commands(include_numeric_shortcuts=True),
     "command_map": dict(i18n.befehle2),
@@ -113,6 +159,7 @@ print(json.dumps({
     "combination_parameters": runtime.kombi_main_paras,
     "combination_map": dict(i18n.kombiMainParas),
     "combination_values": runtime.kombi_value_options,
+    "preparation_domains": preparation_domains,
     "wahl15": dict(i18n.wahl15),
     "wahl16": dict(i18n.wahl16),
 }, ensure_ascii=False))
@@ -143,6 +190,7 @@ def main() -> None:
     shortcut_rows: list[tuple[str, str, str]] = []
     numeric_rows: list[tuple[str, str, str, str]] = []
     vocabulary_rows: list[tuple[str, str, str, str]] = []
+    preparation_rows: list[tuple[str, str, str, str]] = []
 
     for canonical_language, reference_language in LANGUAGES.items():
         data = _snapshot(reference_language)
@@ -230,6 +278,12 @@ def main() -> None:
             vocabulary_rows.append((canonical_language, "output", str(canonical), str(translated)))
         for canonical, translated in data["combination_map"].items():
             vocabulary_rows.append((canonical_language, "combination", str(canonical), str(translated)))
+        for main_parameter, domains in data["preparation_domains"].items():
+            for parameter, values in domains.items():
+                preparation_rows.append((
+                    canonical_language, str(main_parameter), str(parameter),
+                    "\x1f".join(_safe(value) for value in values),
+                ))
         for canonical, kind in CORE_KINDS.items():
             alias = command_map.get(canonical)
             if alias is not None:
@@ -248,6 +302,7 @@ def main() -> None:
     shortcut_path = assets / "prompt_shortcut_replacements.tsv"
     numeric_path = assets / "prompt_numeric_shortcuts.tsv"
     vocabulary_path = assets / "prompt_vocabulary.tsv"
+    preparation_path = assets / "prompt_preparation_domains.tsv"
 
     grouped_completion: dict[tuple[str, str, str], list[str]] = {}
     for language, scope, context, value in completion_rows:
@@ -283,12 +338,17 @@ def main() -> None:
         "".join("\t".join(map(_safe, row)) + "\n" for row in vocabulary_rows),
         encoding="utf-8",
     )
+    preparation_path.write_text(
+        "".join("\t".join(map(_safe, row)) + "\n" for row in preparation_rows),
+        encoding="utf-8",
+    )
     print(
         f"{len(completion_rows)} completion values in {len(grouped_completion)} sections, "
         f"{len(dispatch_rows)} dispatch aliases, "
         f"{len(shortcut_rows)} short replacements, "
         f"{len(numeric_rows)} numeric shortcuts, "
-        f"{len(vocabulary_rows)} vocabulary aliases"
+        f"{len(vocabulary_rows)} vocabulary aliases, "
+        f"{len(preparation_rows)} preparation domains"
     )
 
 

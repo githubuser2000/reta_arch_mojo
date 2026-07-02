@@ -808,3 +808,13 @@ Validiert wurden 3/3 Runtime-Tests, 5/5 Zustandsmaschinentests, 12/12 bestehende
 - Die drei älteren Mojo-Abweichungen stehen als `MOJO-FIXED-020` bis
   `MOJO-FIXED-022` im zentralen Fehlerkatalog. Der Python-Baum bleibt
   unverändert, weil er hier die korrekte Referenz liefert.
+
+## Stage 12c4w – native Prompt-Vorbereitung und vollständiges `--alles`
+
+- `prompt_preparation.mojo`, `prompt_regex.mojo` und `prompt_preparation_catalog.mojo` besitzen Rotation, kompakte Befehle, Bereichsprojektion, Teiler-/Vielfachelogik sowie Regex-/Wildcardauflösung ohne Python-Callback.
+- `prompt_preparation_domains.tsv` friert 506 fünfsprachige Parameter-/Wertdomänen reproduzierbar ein.
+- 60/60 vollständige Vorbereitungskontexte über Deutsch, Englisch, Vietnamesisch, Chinesisch und Koreanisch sind byteidentisch.
+- Der echte vollständige `--alles`-Lauf prüft 198 Zeilen und 149.356 Zellen. Eine Modallogik-Grenzabweichung wurde gefunden und geschlossen; anschließend sind 149.356/149.356 Zellen semantisch identisch.
+- Rohes HTML bleibt wegen Maskierung, unsichtbarem Leerraum und Listenreihenfolge noch nicht byteidentisch; dieser offene Serialisierungsabstand ist als `MOJO-COMPAT-001` katalogisiert.
+- Die direkte Aktivierungsnaht im großen optimierten Promptcontroller bleibt sichtbar, weil der zusätzliche Paketimport den Compilergraphen unverhältnismäßig vergrößert.
+

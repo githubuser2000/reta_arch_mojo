@@ -1383,3 +1383,30 @@ der vollständige Sandboxbuild die seit Stage 12c4r auf dem Zielrechner
 beobachtete deutliche Beschleunigung. Das separat entpackte Source-only-Archiv
 bestand **28/28** Tests ohne Binärvoraussetzung; die fünf Installations-Pytests
 wurden korrekt nur im gebauten Baum ausgeführt.
+
+## Stage 12c4w – native Prompt-Vorbereitung und vollständiges `--alles`
+
+```text
+Prompt-Vorbereitungs-Unit-Tests:          7/7 bestanden
+Generierte-Tabellenspalten-Tests:        10/10 bestanden
+bisherige Promptvorbereitungsparität:    23/23 byteidentisch
+volle Fünfsprachenparität:               60/60 byteidentisch
+Katalogregeneration:                 reproduzierbar
+Volltabelle:                              198/198 Zeilen
+Volltabelle:                          149.356/149.356 Zellen semantisch gleich
+rohe HTML-Zellparität:                95,572324 %
+dekodierte Textzellparität:           98,221029 %
+semantische Zellparität:             100,000000 %
+zentraler Fehlerkatalog:               47/47 konsistent
+spätere Python-/PyPy3-Arbeitspunkte:      13
+aktive std.python-Brücken:                 0
+```
+
+Der korrigierte optimierte Native-Build benötigte 21,33 Sekunden und der Volltabellenlauf 32,02 Sekunden; die Python-Referenz ungefähr 15 Minuten 47 Sekunden. Mojo war im vollständigen Lauf damit rund 29,6-mal schneller. Der erste Vergleich fand genau eine echte Abweichung unter 149.356 Zellen. Nach der Grenzkorrektur bestätigt der unoptimierte Kontrollbau vollständige semantische Parität. Der unoptimierte Kontrollbau dauerte 36,71 Sekunden, sein vollständiger Lauf 1:51,54 Minuten.
+
+```bash
+scripts/check_prompt_preparation_full_parity.sh
+scripts/check_full_all_parity.sh
+scripts/test_stage12c4w.sh
+```
+

@@ -20,7 +20,8 @@ for name in \
     prompt_command_aliases.tsv \
     prompt_shortcut_replacements.tsv \
     prompt_numeric_shortcuts.tsv \
-    prompt_vocabulary.tsv
+    prompt_vocabulary.tsv \
+    prompt_preparation_domains.tsv
 do
     cmp "assets/$name" "$TMP/$name"
 done
