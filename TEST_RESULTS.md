@@ -1756,3 +1756,14 @@ Für den lokalen Mojo-1.0.0b2-Lauf baut `scripts/test_stage12c5k.sh` zuerst den 
 - Defektkatalog: **80/80 konsistent**; Python-Bereinigungspunkte: **19**.
 - `tools/porting_metrics.py`: **62/92** vollständig, **83/92** mindestens teilweise, **38.174/48.831** angegriffene und **29.029/48.831** vollständig native Referenzzeilen.
 - Der Modular-Mojo-Compiler ist in dieser Sandbox nicht installiert; `scripts/test_stage12c5q.sh` baut und startet die 27 nativen Tests lokal.
+
+
+## Stage 12c5r – Morphismen-Ownership und vollständiger Wrappingvertrag
+
+- Ausgeführte Source-/Ownership-/Defekt-/Boundary-/Metrik-/Archivprüfungen vor Archivierung: **41/41 bestanden**.
+- Vorbereitete lokale Mojo-Tests: **16** in `test_morphisms.mojo`, `test_morphisms_complete.mojo` und `test_table_wrapping.mojo`.
+- `MorphismBundle` verwendet vier explizite Kontextkopien; kein `topology_context^` verbleibt im immutable Konstruktorpfad.
+- Öffentliche Python-Oberfläche von `table_wrapping.py`: **12/12 Modul-Funktionen** sowie beide Klassenoberflächen typisiert abgedeckt.
+- Defektkatalog: **81/81 konsistent**; Python-Bereinigungspunkte: **19**.
+- `tools/porting_metrics.py`: **63/92** vollständig, **83/92** mindestens teilweise, **38.174/48.831** angegriffene und **29.229/48.831** vollständig native Referenzzeilen.
+- Der Modular-Mojo-Compiler ist in dieser Sandbox nicht installiert; `scripts/test_stage12c5r.sh` baut und startet die 16 nativen Tests lokal.

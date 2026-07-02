@@ -63,5 +63,47 @@ def test_width_clamping_matches_tables_setters() raises:
     assert_equal(clamp_column_width(21, 0), 21)
 
 
+def test_complete_runtime_surface_and_snapshot() raises:
+    var state = TextWrapRuntimeState(default_text_wrap_runtime())
+    set_shell_rows_amount(state, 96)
+    assert_equal(get_shell_rows_amount(state), 96)
+    set_wrapping_type(state, WRAP_NOHYPHEN)
+    assert_equal(get_wrapping_type(state), WRAP_NOHYPHEN)
+
+    var snapshot = text_wrap_runtime_snapshot(state.runtime)
+    assert_equal(snapshot.class_name, "TextWrapRuntime")
+    assert_equal(snapshot.shell_rows_amount, 96)
+    assert_equal(snapshot.wrapping_type_name, "nohyphen")
+
+
+def test_alxwrap_and_chunks_are_unicode_safe() raises:
+    var runtime = TextWrapRuntime(80, False, False, True, WRAP_PYHYPHEN)
+    var parts = alxwrap("größer漢字", 3, runtime)
+    assert_equal(len(parts), 3)
+    assert_equal(parts[0], "grö")
+    assert_equal(parts[1], "ßer")
+    assert_equal(parts[2], "漢字")
+
+    var direct = chunks("🙂🙂a", 2)
+    assert_equal(len(direct), 2)
+    assert_equal(direct[0], "🙂🙂")
+    assert_equal(direct[1], "a")
+
+
+def test_bundle_bootstrap_and_width_morphism() raises:
+    var bundle = bootstrap_table_wrapping(True, WRAP_PYHYPHEN, 80)
+    var wrapped = bundle.wrap_text("abcdef", 3)
+    assert_true(wrapped.wrapped)
+    assert_equal(len(wrapped.parts), 2)
+    assert_equal(wrapped.parts[1], "def")
+
+    var widths: List[Int] = [10, 20]
+    assert_equal(bundle.width_for_row(2, widths, 21, 2), 20)
+    var snapshot = bundle.snapshot()
+    assert_equal(snapshot.class_name, "TableWrappingBundle")
+    assert_equal(len(snapshot.morphisms), 4)
+    assert_equal(snapshot.legacy_owner, "libs.lib4tables_prepare.Prepare")
+
+
 def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()

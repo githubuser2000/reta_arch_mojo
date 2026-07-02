@@ -164,7 +164,7 @@ struct MorphismBundle(Copyable):
             ),
             RangeMorphisms(topology_context.copy(), maximum),
             PromptMorphisms(topology_context.copy(), "reta"),
-            RendererMorphisms(topology_context^, default_output_mode),
+            RendererMorphisms(topology_context.copy(), default_output_mode),
         )
 
     def snapshot(self) -> MorphismSnapshot:

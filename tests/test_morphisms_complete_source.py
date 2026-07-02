@@ -59,6 +59,8 @@ def test_native_morphisms_use_typed_owners_without_python_bridge() -> None:
     assert "std.python" not in source
     assert "PythonObject" not in source
     assert "subprocess" not in source
+    assert "RendererMorphisms(topology_context.copy(), default_output_mode)" in source
+    assert "RendererMorphisms(topology_context^, default_output_mode)" not in source
 
 
 def test_morphism_bundle_snapshot_preserves_python_order() -> None:

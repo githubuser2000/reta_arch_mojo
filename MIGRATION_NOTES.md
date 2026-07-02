@@ -1078,3 +1078,11 @@ Die lokale Exportfilter-Kopie ist ein eigener Ownership-Fall: `.copy()` erzeugt 
 - `runtime_compat.py` besitzt nun seine vollständige öffentliche Oberfläche nativ; dynamische Python-Objekte werden durch `RuntimeCompatTextWrapRuntime` und `RuntimeCompatSnapshot` ersetzt.
 - `arithmetic.has_digit` delegiert zentral an die reproduzierbare Unicode-Zifferntabelle und entspricht damit Python `str.isdigit`.
 - Fortschritt: **62/92 vollständig**, **83/92 mindestens teilweise**, **38.174/48.831 angegriffene Referenzzeilen**, **29.029/48.831 vollständig native Referenzzeilen**.
+
+
+## Stage 12c5r – expliziter Wrappingzustand und korrekte Morphismen-Kopien
+
+- Der gemeinsame `ContextSelection`-Wert wird beim Aufbau jedes Teilmorphismus explizit kopiert. Mojo darf aus dem immutable Funktionsparameter keinen Besitz mit `^` übertragen.
+- `table_wrapping.mojo` besitzt nun die komplette Python-Oberfläche. `TextWrapRuntimeState` ersetzt `_RUNTIME`, sodass Mutationen und Lebensdauer sichtbar und testbar sind.
+- Externe Trennbibliotheken werden als Fähigkeiten modelliert. Ohne passende Capability bleibt der Python-kompatible unveränderte Ein-Element-Fallback erhalten; mit nativer Fähigkeit übernimmt der Codepoint-Wrapper.
+- Fortschritt: **63/92 vollständig**, **83/92 mindestens teilweise**, **38.174/48.831 angegriffene Referenzzeilen**, **29.229/48.831 vollständig native Referenzzeilen**.

@@ -23,7 +23,7 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 
 ## Übersicht
 
-- Einträge insgesamt: **80**
+- Einträge insgesamt: **81**
 - offene bestätigte Python-Fehler: **5**
 - zu entscheidende Python-Fehlerkandidaten: **13**
 - bereits im Python-Baum behobene Fehler: **7**
@@ -1104,3 +1104,17 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 - spätere Python-Aktion: Keine Python-Änderung erforderlich; es handelte sich um reine Mojo-Codehygiene.
 - Mojo-Orte: `src/reta_mojo/html_class_extractor.mojo`, `tests/test_utf8_rendering_source.py`
 - Belege: `STAGE12C5Q_UTF8_RENDERING_NATIVE_RUNTIME_COMPAT.md`, `tests/test_utf8_rendering_source.py`
+
+### MOJO-FIXED-037 – MorphismBundle übertrug Besitz aus einer unveränderlichen ContextSelection-Referenz
+
+- Ursprung: `mojo_port`
+- Klasse / Schwere: `immutable_reference_transfer` / `high`
+- Python-Status: `correct_reference`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5r`
+- Reproduktion: `scripts/test_stage12c5p.sh ausführen; Modular bricht beim Parsen von morphisms.mojo mit cannot transfer out of immutable reference an RendererMorphisms(topology_context^, default_output_mode) ab.`
+- heutiger Vertrag: ContextSelection ist Copyable. Alle vier Teilmorphismen erhalten aus dem unveränderlichen Eingabeparameter eine explizite Kopie; kein Konstruktor versucht mehr, Besitz mit ^ aus einer immutable Referenz zu entnehmen.
+- spätere Python-Aktion: Keine Python-Änderung erforderlich; die Python-Referenz teilt den Kontext ohne Ownership-Verstoß. Die Reparatur betrifft ausschließlich die korrekte Mojo-Besitzsemantik.
+- Python-Orte: `python_reference/reta_architecture/morphisms.py:68-78`
+- Mojo-Orte: `src/reta_mojo/morphisms.mojo`, `tests/test_morphisms.mojo`, `tests/test_morphisms_complete.mojo`, `tests/test_morphisms_complete_source.py`
+- Belege: `STAGE12C5R_NATIVE_TABLE_WRAPPING_MORPHISM_OWNERSHIP.md`, `src/reta_mojo/morphisms.mojo`, `tests/test_morphisms_complete_source.py`

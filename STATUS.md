@@ -1,16 +1,17 @@
-# Status – Stage 12c5q abgeschlossen; Stufen 9, 10 und 12 in Arbeit
+# Status – Stage 12c5r abgeschlossen; Stufen 9, 10 und 12 in Arbeit
 - Zielversion: Mojo 1.0.0b2
 - Unterstützte Python-Umgebung für Installation/Referenzbrücken: 3.10–3.14; Setup bevorzugt Python 3.14
-- Vollständig abgeschlossene Release-Stufen: **9/12 = 75,0 %**; teilgewichtet mit Stage 12c5q: **ca. 10,02/12 = 83,5 %**
+- Vollständig abgeschlossene Release-Stufen: **9/12 = 75,0 %**; teilgewichtet mit Stage 12c5r: **ca. 10,04/12 = 83,7 %**
 - Stufe 9: **BBCode, zentraler ANSI-Shellpfad und zentrale HTML-Pfade nativ; seltene Ausgabegrenzen offen**
 - Stufe 10: **native Kurzsprache und mehrsprachige verschachtelte Completion; hintere Prompt-/i18n-Restpfade in Arbeit**
 - Stufe 11: **11a–11j abgeschlossen; 10/10 Teilstufen = 100 %**
 - Stufe 12: **12a–12b abgeschlossen; 12c zu ca. 99,9 %; insgesamt ca. 71,0 %**
 - Geschätzter funktionaler Portierungsstand: **96–98 %**
-- Konservativ vollständig native oder reproduzierbar generierte Originaldateien: **62/92 = 67,4 %**
+- Konservativ vollständig native oder reproduzierbar generierte Originaldateien: **63/92 = 68,5 %**
 - Mindestens teilweise portierte Originaldateien: **83/92 = 90,2 %**
 - Gewichteter angegriffener Referenzzeilenstand: **38.174/48.831 = 78,2 %**
-- Nativer Mojo-Quellcode in `src/`: **53.232 Zeilen**
+- Nativer Mojo-Quellcode in `src/`: **53.428 Zeilen**
+- Stage-12c5r-Fokus: `MorphismBundle.from_topology_and_sheaves` kopiert den unveränderlichen `ContextSelection` nun auch für `RendererMorphisms`; der lokale Compilerfehler `cannot transfer out of immutable reference` ist als `MOJO-FIXED-037` geschlossen. `reta_architecture/table_wrapping.py` ist mit zwölf Modul-Funktionen, `TextWrapRuntime`, `TableWrappingBundle`, explizitem `TextWrapRuntimeState`, Snapshots, Codepoint-Chunks, Backend-Capabilities und Breitenmorphismen vollständig nativ. Vollständig nativ/generiert **63/92 = 68,5 %**, mindestens teilweise **83/92 = 90,2 %**, angegriffene Referenzzeilen **38.174/48.831 = 78,2 %**, vollständig native Referenzzeilen **29.229/48.831 = 59,9 %**, Fehlerkatalog **81/81**, Python-Bereinigungspunkte **19**, aktive `std.python`-Brücken **0**; Source-/Ownership-/Boundary-Gates **41/41**, lokale Mojo-Modultests **16** vorbereitet.
 - Davon im Paket `reta_mojo`: **49.200 Zeilen**
 - Test-/Probe-Dateien auf oberster Testebene: **186**; Python-Testfunktionen: **224**
 - Stage-12c5q-Fokus: Der produktive All-Spalten-HTML-Pfad entfernt rekonstruierte Unicode-Präfixe nicht mehr über rohe Byteoffsets, sondern über `codepoint_slices()` und `removeprefix`; vier No-Progress-Grenzen fallen sicher auf `hard_chunks` zurück (`MOJO-FIXED-035`). Der exakte abstürzende Benutzeraufruf sowie Umlaute, CJK und Emoji sind native Regressionen. Die tote `pending_space`-Zuweisung im HTML-Klassenextraktor ist entfernt (`MOJO-FIXED-036`). `reta_architecture/runtime_compat.py` ist mit 17 Funktionen, dem Alias `isZeilenAngabe`, acht Enumwerten, fünf Gruppen und 13 globalen Vertragsnamen vollständig nativ; `arithmetic.has_digit` verwendet nun zentral denselben 808-Codepoint-`str.isdigit`-Katalog wie die Center-Fassade. Vollständig nativ/generiert **62/92 = 67,4 %**, mindestens teilweise **83/92 = 90,2 %**, angegriffene Referenzzeilen **38.174/48.831 = 78,2 %**, vollständig native Referenzzeilen **29.029/48.831 = 59,4 %**, Fehlerkatalog **80/80**, Python-Bereinigungspunkte **19**, aktive `std.python`-Brücken **0**; Source-/Ownership-/Boundary-Gates **38/38**, lokale Mojo-Modultests **27** vorbereitet.

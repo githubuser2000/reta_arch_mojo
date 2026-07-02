@@ -8,8 +8,8 @@ Dies ist ein inkrementeller, getesteter Port des hochgeladenen Python-Projekts `
 abgeschlossene Release-Stufen:       9 von 12 = 75,0 %
 Stufen 9/10/12:                       Ausgabe, Prompt/i18n und Releaseparität in Arbeit
 Stufe 11:                             11a–11j = 100 %
-Stufe 12:                             12a–12b fertig, 12c zu ca. 99,9 % = ca. 70,8 %
-vollständig nativ/generiert:          62 von 92 = 67,4 %
+Stufe 12:                             12a–12b fertig, 12c zu ca. 99,9 % = ca. 71,2 %
+vollständig nativ/generiert:          63 von 92 = 68,5 %
 mindestens teilweise portiert:       83 von 92 = 90,2 %
 angegriffene Referenzzeilen:          38.174 von 48.831 = 78,2 %
 funktionaler Nutzerumfang:            ca. 96–98 %
@@ -18,7 +18,7 @@ funktionaler Nutzerumfang:            ca. 96–98 %
 Die Metriken messen **orthogonale Bezugsgrößen** und sind nicht als ein einziges wechselndes Gesamtprozent zu lesen:
 
 - **96–98 % geschätzte Funktionsabdeckung**: Anteil der praktisch relevanten Befehls- und Verhaltensfamilien mit einem nativen Pfad. Der atomare Fallback ist nur eine Sicherheitsgrenze und wird nicht als transpiliert gezählt.
-- **67,4 % vollständiger Dateibesitz**: Nur Dateien, deren gesamter wirksamer Vertrag nativ oder reproduzierbar generiert ersetzt ist.
+- **68,5 % vollständiger Dateibesitz**: Nur Dateien, deren gesamter wirksamer Vertrag nativ oder reproduzierbar generiert ersetzt ist.
 - **78,2 % angegriffene Referenzzeilen**: maschinenberechneter Umfang vollständig und teilweise besessener Referenzdateien.
 - **83,3 % Stufenfortschritt**: gewichtete Releaseplanung; eine Stufe kann weit fortgeschritten sein, obwohl große historische Python-Besitzer noch sichtbar bleiben.
 
@@ -92,6 +92,8 @@ regulären und schweren Compilerziele; lokale Debug-/Altdateien unter
 [`STAGE12C4M_FHS_RESOURCE_INSTALLATION.md`](STAGE12C4M_FHS_RESOURCE_INSTALLATION.md).
 
 ## Stufen 7–10: Generatoren, Kombinationen, Markup und Prompt
+
+Stage 12c5r behebt den lokalen Mojo-Ownershipfehler in `MorphismBundle`: der unveränderliche `ContextSelection`-Parameter wird für alle vier Teilmorphismen explizit kopiert statt beim letzten Konstruktor unzulässig mit `^` übertragen. Zugleich ist `reta_architecture/table_wrapping.py` mit allen zwölf Modul-Funktionen, beiden Klassenoberflächen, explizitem Runtime-State, Capability-basierten Hyphenatorgrenzen und Unicode-sicheren Fallbacks vollständig nativ. Details: [`STAGE12C5R_NATIVE_TABLE_WRAPPING_MORPHISM_OWNERSHIP.md`](STAGE12C5R_NATIVE_TABLE_WRAPPING_MORPHISM_OWNERSHIP.md).
 
 Stage 12c5q beseitigt den produktiven UTF-8-Absturz des HTML-Wortumbruchs: Wortzerlegung und Präfixentfernung arbeiten codepointweise, der exakte Aufruf mit `--vorhervonausschnitt=1 --alles --art=html` ist als nativer Regressionstest enthalten. Zugleich ist `reta_architecture/runtime_compat.py` mit allen 17 Funktionen, dem `isZeilenAngabe`-Alias, den `nPmEnum`-Gruppen sowie Hilfe-, Konsolen- und Arithmetikadaptern vollständig nativ. Details: [`STAGE12C5Q_UTF8_RENDERING_NATIVE_RUNTIME_COMPAT.md`](STAGE12C5Q_UTF8_RENDERING_NATIVE_RUNTIME_COMPAT.md).
 

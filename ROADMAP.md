@@ -2,12 +2,12 @@
 
 Geplanter Umfang: **12 Release-Stufen**. Eine Stufe zählt erst als abgeschlossen, wenn Quellcode, Referenztests, Compilerziele, Dokumentation und ein source-only Archiv gemeinsam geprüft sind.
 
-## Fortschrittsmaße nach Stage 12c5q
+## Fortschrittsmaße nach Stage 12c5r
 
 | Maß | Stand | Aussage |
 |---|---:|---|
-| abgeschlossene Release-Stufen | **9/12 = 75,0 %** | Stufen 1–8 und 11 sind abgeschlossen; Stufe 12 ist mit 12a, 12b, 12c1–12c3 und 12c4a–12c5q zu etwa 72,1 % abgeschlossen, während 9 und 10 noch Restpfade besitzen |
-| vollständig native oder generierte Python-Dateien | **62/92 = 67,4 %** | Datei vollständig ersetzt oder als reproduzierbares Laufzeitasset abgebildet |
+| abgeschlossene Release-Stufen | **9/12 = 75,0 %** | Stufen 1–8 und 11 sind abgeschlossen; Stufe 12 ist mit 12a, 12b, 12c1–12c3 und 12c4a–12c5r zu etwa 72,8 % abgeschlossen, während 9 und 10 noch Restpfade besitzen |
+| vollständig native oder generierte Python-Dateien | **63/92 = 68,5 %** | Datei vollständig ersetzt oder als reproduzierbares Laufzeitasset abgebildet |
 | mindestens angegriffene Python-Dateien | **83/92 = 90,2 %** | Status direkt aus der autoritativen `NATIVE`-Zuordnung |
 | angegriffene Referenzzeilen | **38.174/48.831 = 78,2 %** | maschinenberechnet statt manuell fortgeschrieben |
 | funktionaler Nutzerumfang | **ca. 96–98 %** | praktisch nutzbarer Reta-Umfang ohne Python-Algorithmus |
@@ -450,3 +450,12 @@ Die Zahl **12** ist die geplante Releasegliederung. Interne Teilpakete oder Fehl
 - `reta_architecture/runtime_compat.py` wechselt von teilweise zu vollständig nativ: 17 Funktionen, `isZeilenAngabe`, `nPmEnum`, historische Konstanten sowie Bereichs-, Arithmetik-, Hilfe-, Konsolen- und Wrappingadapter.
 - Die zentrale Ziffernerkennung verwendet den reproduzierbaren Python-`str.isdigit`-Katalog.
 - Maschinenstand: **62/92 vollständig**, **83/92 mindestens teilweise**, **38.174/48.831 angegriffene** und **29.029/48.831 vollständig native Referenzzeilen**.
+
+
+## Stage 12c5r – Morphismen-Ownership und vollständiges Table-Wrapping
+
+- Der letzte Teilkonstruktor von `MorphismBundle.from_topology_and_sheaves` verwendet wie die drei vorherigen eine explizite `ContextSelection.copy()`; ein Transfer aus der immutable Eingabereferenz ist ausgeschlossen.
+- `table_wrapping.py` wechselt von teilweise zu vollständig nativ: zwölf Funktionen, Runtime-/Bundle-Snapshots, Getter/Setter, Bootstrap, `alxwrap`, Chunks und Breitenberechnung sind typisiert.
+- Das mutable Python-Modulglobal wird durch `TextWrapRuntimeState` ersetzt; pyphen/pyhyphen-Objekte werden als Capability-Felder modelliert, ohne dynamische Python-Callables einzubetten.
+- Alle nativen Split- und Fallbackpfade arbeiten über Codepoints und bewahren bei fehlendem Backend den historischen Ein-Element-Fallback.
+- Maschinenstand: **63/92 vollständig**, **83/92 mindestens teilweise**, **38.174/48.831 angegriffene** und **29.229/48.831 vollständig native Referenzzeilen**.

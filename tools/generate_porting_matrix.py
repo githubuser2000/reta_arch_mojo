@@ -59,7 +59,7 @@ NATIVE = {
     "reta_architecture/console_io.py": ("teilweise nativ", "src/reta_mojo/console_io.mojo", "reine Chunk-, Deduplikations-, Whitespace- und Debugformatierung nativ; Terminal-/Rich-I/O bleibt Systemgrenze"),
     "reta_architecture/runtime_compat.py": ("nativ", "src/reta_mojo/runtime_compat.mojo + arithmetic.mojo + console_io.mojo + row_ranges.mojo", "vollständige 17-Funktionen-Oberfläche plus isZeilenAngabe-Alias, nPmEnum-Gruppen, 13 globale Vertragsnamen, Hilfe-/Wrapping-/Konsolenadapter und Unicode-isDigit-Semantik typisiert; keine Python- oder Prozessbrücke"),
     "reta_architecture/table_state.py": ("nativ", "src/reta_mojo/table_state.mojo", "typisierter Tabellenzustand, Abschnittsnamen und Zeilengrenzen"),
-    "reta_architecture/table_wrapping.py": ("teilweise nativ", "src/reta_mojo/table_wrapping.mojo", "Unicode-sicherer harter Umbruch und Breitenlogik nativ; Wörterbuchtrennung bleibt externe Grenze"),
+    "reta_architecture/table_wrapping.py": ("nativ", "src/reta_mojo/table_wrapping.mojo + runtime_compat.mojo", "vollständige zwölf Funktionen und beide Klassenoberflächen typisiert; expliziter Runtime-State ersetzt das Python-Modulglobal, Backendfähigkeiten ersetzen dynamische pyphen/pyhyphen-Objekte, und sämtliche Fallbacks arbeiten Unicode-sicher"),
     "reta_architecture/tag_schema.py": ("generiert nativ", "src/reta_mojo/tag_schema.mojo + tag_schema_catalog.mojo", "Primär- und Kombi-Tag-Schemata mit Vorwärts-/Rückabbildung"),
     "reta_architecture/topology.py": ("nativ", "src/reta_mojo/topology.mojo", "symbolische Auswahl, Verfeinerung, Aliasauflösung"),
     "reta_architecture/output_semantics.py": ("nativ", "src/reta_mojo/output_modes.mojo", "reine Modusauflösung und vollständige Tabellen-Flaganwendung"),
