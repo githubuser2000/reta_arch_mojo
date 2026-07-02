@@ -119,3 +119,91 @@ def bucket_index_for_coordinate(
         ):
             return index
     return -1
+
+
+@fieldwise_init
+struct BoundColumnSections(Copyable):
+    """Typed result of the legacy ``bind_program_sections`` side effects."""
+
+    var rows_as_numbers: Set[Int]
+    var generated_rows: Set[Int]
+    var prime_universe_rows: Set[Int]
+    var combination_rows: Set[Int]
+    var combination_rows2: Set[Int]
+    var only_generated_groups: List[List[Int]]
+    var ones: List[Int]
+    var parameter_sections_to_add: List[String]
+    var vanilla_column_count: Int
+
+
+def _copy_int_set(values: Set[Int]) -> Set[Int]:
+    var result = Set[Int]()
+    for value in values:
+        result.add(value)
+    return result^
+
+
+def _copy_int_groups(values: List[List[Int]]) -> List[List[Int]]:
+    var result = List[List[Int]]()
+    for group_index in range(len(values)):
+        var group = List[Int]()
+        for value_index in range(len(values[group_index])):
+            group.append(values[group_index][value_index])
+        result.append(group^)
+    return result^
+
+
+def _bucket_values_for_name(
+    bundle: ColumnSelectionBundle,
+    buckets: List[ColumnBucket],
+    name: String,
+) -> Set[Int]:
+    var resolved = bundle.resolve(name)
+    if not resolved.valid:
+        return Set[Int]()
+    var index = bucket_index_for_coordinate(buckets, resolved.coordinate)
+    if index < 0:
+        return Set[Int]()
+    return _copy_int_set(buckets[index].values)
+
+
+def bind_column_sections(
+    bundle: ColumnSelectionBundle,
+    buckets: List[ColumnBucket],
+    only_generated_groups: List[List[Int]] = List[List[Int]](),
+) -> BoundColumnSections:
+    """Interpret normalized buckets as the concrete legacy program sections.
+
+    The Python adapter mutates ``Program`` and several nested table objects.
+    Native callers receive the same semantic payload explicitly and can assign
+    it to their owned runtime state without hidden aliases.
+    """
+
+    var rows_as_numbers = _bucket_values_for_name(bundle, buckets, "ordinary")
+    var generated_rows = _bucket_values_for_name(bundle, buckets, "generated1")
+    var prime_universe_rows = _bucket_values_for_name(bundle, buckets, "concat1")
+    var combination_rows = _bucket_values_for_name(bundle, buckets, "kombi1")
+    var combination_rows2 = _bucket_values_for_name(bundle, buckets, "kombi2")
+
+    var ones = List[Int]()
+    for group_index in range(len(only_generated_groups)):
+        if len(only_generated_groups[group_index]) == 1:
+            ones.append(only_generated_groups[group_index][0])
+
+    var parameter_sections = List[String]()
+    if len(combination_rows) > 0:
+        parameter_sections.append("ka")
+    if len(combination_rows2) > 0:
+        parameter_sections.append("ka2")
+
+    return BoundColumnSections(
+        rows_as_numbers^,
+        generated_rows^,
+        prime_universe_rows^,
+        combination_rows^,
+        combination_rows2^,
+        _copy_int_groups(only_generated_groups),
+        ones^,
+        parameter_sections^,
+        len(rows_as_numbers),
+    )

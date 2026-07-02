@@ -44,5 +44,31 @@ def test_bucket_names_preserve_python_order() raises:
     assert_equal(names[23], "metakonkretNot")
 
 
+def test_bind_column_sections_replaces_program_side_effects() raises:
+    var bundle = bootstrap_column_selection()
+    var buckets = bundle.new_bucket_map()
+    var ordinary = bucket_index_for_coordinate(buckets, bundle.resolve("ordinary").coordinate)
+    var generated = bucket_index_for_coordinate(buckets, bundle.resolve("generated1").coordinate)
+    var concat = bucket_index_for_coordinate(buckets, bundle.resolve("concat1").coordinate)
+    var kombi1 = bucket_index_for_coordinate(buckets, bundle.resolve("kombi1").coordinate)
+    var kombi2 = bucket_index_for_coordinate(buckets, bundle.resolve("kombi2").coordinate)
+    buckets[ordinary].values.add(3)
+    buckets[ordinary].values.add(5)
+    buckets[generated].values.add(17)
+    buckets[concat].values.add(23)
+    buckets[kombi1].values.add(2)
+    buckets[kombi2].values.add(7)
+    var bound = bind_column_sections(bundle, buckets, [[11], [12, 13], [19]])
+    assert_true(3 in bound.rows_as_numbers)
+    assert_true(5 in bound.rows_as_numbers)
+    assert_true(17 in bound.generated_rows)
+    assert_true(23 in bound.prime_universe_rows)
+    assert_true(2 in bound.combination_rows)
+    assert_true(7 in bound.combination_rows2)
+    assert_equal(bound.ones, [11, 19])
+    assert_equal(bound.parameter_sections_to_add, ["ka", "ka2"])
+    assert_equal(bound.vanilla_column_count, 2)
+
+
 def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()

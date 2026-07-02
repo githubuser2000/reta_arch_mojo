@@ -18,7 +18,7 @@ reta-mojo-rehearsal     reta-mojo-activation
 reta-mojo-validation    reta-mojo-progress
 reta-mojo-persistence     reta-mojo-execution-network
 reta-mojo-parallel-execution  reta-mojo-row-preparation
-reta-mojo-i18n
+reta-mojo-i18n          reta-mojo-semantics
 ```
 
 ## `bin/` gegenüber `target/bin/`
@@ -157,6 +157,8 @@ zu einem einzigen Releasebinary `target/bin/reta` zusammengeführt werden.
 ./bin/reta-mojo-i18n --classify deutsch 3
 ./bin/reta-mojo-package-integrity --summary python_reference
 ./bin/reta-mojo-package-integrity --json-files python_reference
+./bin/reta-mojo-semantics --normal
+./bin/reta-mojo-semantics --invert
 ```
 
 ## Zuordnung
@@ -173,6 +175,7 @@ zu einem einzigen Releasebinary `target/bin/reta` zusammengeführt werden.
 | Tag-Schema | `target/bin/reta-mojo-tags` | nativ |
 | Fünfsprachiger i18n-Wortbaum | `target/bin/reta-mojo-i18n` | 34.667 reproduzierbare Baumknoten, native Abfrage und verlustfreie Rückserialisierung |
 | Quellbaum-Integrität | `target/bin/reta-mojo-package-integrity` | reguläre Dateien und Dateisymlinks, Runtime-Filter, 74 Pflichtpfade, CSV-Zeilen und binärer SHA-256-Gesamtdigest vollständig nativ; native Linux/POSIX-Verzeichnis-FFI und OpenSSL als Systemgrenzen |
+| Parametersemantik | `target/bin/reta-mojo-semantics` | 431-Familien-Katalog, 4.155 Parameterpaare, 14 Datenslots, Normal-/Inversionsmodus und vollständiger UTF-8-Inhaltsfingerabdruck nativ; Python nur zur reproduzierbaren Katalogregeneration |
 | Architekturkarte und Kapselgrenzen | `target/bin/reta-mojo-architecture`, `target/bin/reta-mojo-boundaries` | generierte Metadaten und Abfragen nativ; Python-AST-Scan nur bei Regeneration |
 | Architekturverträge und Witnesses | `target/bin/reta-mojo-contracts`, `target/bin/reta-mojo-witnesses` | kommutierende Verträge, Kapselgesetze, Repository-Anker und Nachweisnavigation nativ; Python nur bei Regeneration |
 | Kohärenz und Traces | `target/bin/reta-mojo-coherence`, `target/bin/reta-mojo-traces` | Kapsel-/Routenkohärenz und Legacy→Gesetz-Trace-Navigation nativ; Python nur bei Regeneration |

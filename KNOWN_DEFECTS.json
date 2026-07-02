@@ -1476,6 +1476,62 @@
         "tools/porting_metrics.py",
         "tests/test_porting_metrics.py"
       ]
+    },
+    {
+      "id": "TEST-FIXED-014",
+      "title": "Parametersemantik-Regressionswerte blieben nach Katalogerweiterung auf 554 statt 556 stehen",
+      "origin": "python_reference_tests",
+      "classification": "stale_parameter_semantics_snapshot",
+      "severity": "medium",
+      "python_status": "fixed",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5f",
+      "reproducer": "RetaArchitecture.bootstrap(use_cache=False).bootstrap_prompt_runtime(...).program erzeugen und len(AllSimpleCommandSpalten) sowie len(dataDict[0]) mit den bisherigen Assertions in python_reference/tests/test_architecture_refactor.py vergleichen; Istwert 556, alter Sollwert 554.",
+      "python_locations": [
+        "python_reference/tests/test_architecture_refactor.py:163",
+        "python_reference/tests/test_architecture_refactor.py:982",
+        "python_reference/tests/test_architecture_refactor.py:986"
+      ],
+      "mojo_locations": [
+        "src/reta_mojo/semantics_builder.mojo",
+        "src/reta_mojo/semantics_builder_catalog.mojo",
+        "assets/parameter_semantics_reference.json"
+      ],
+      "current_contract": "Der aktuelle 431-Familien-Katalog erzeugt im Python- und Mojo-Normalmodus 556 einfache Spalten und 556 Schlüssel im ersten Datenslot. Zwei vollständige inhaltsabhängige Fingerabdrücke sichern Normal- und Inversionsmodus zusätzlich ab.",
+      "post_port_fix": "Erledigt: ausschließlich die drei veralteten Python-Test-Sollwerte wurden von 554 auf 556 aktualisiert; historische Berichtsdokumente bleiben als Zeitaufnahmen unverändert.",
+      "evidence": [
+        "STAGE12C5F_NATIVE_PARAMETER_SEMANTICS.md",
+        "assets/parameter_semantics_reference.json",
+        "scripts/check_semantics_builder_parity.py",
+        "tests/test_semantics_builder_source.py"
+      ]
+    },
+    {
+      "id": "TEST-FIXED-015",
+      "title": "Semantikkatalog und Vollfingerabdruck wechselten mit PYTHONHASHSEED",
+      "origin": "generator_tests",
+      "classification": "hash_order_dependent_generated_asset",
+      "severity": "high",
+      "python_status": "fixed",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5f",
+      "reproducer": "tools/generate_semantics_builder_catalog.py unter PYTHONHASHSEED=0 und PYTHONHASHSEED=1 ausführen und semantics_builder_catalog.mojo sowie parameter_semantics_reference.json vergleichen; die vier set-basierten Parameternamengruppen und set-basierten Datensätze erzeugten zuvor unterschiedliche Reihenfolgen und Fingerabdrücke.",
+      "python_locations": [
+        "tools/generate_semantics_builder_catalog.py",
+        "python_reference/i18n/words_matrix.py"
+      ],
+      "mojo_locations": [
+        "src/reta_mojo/semantics_builder_catalog.mojo",
+        "assets/parameter_semantics_reference.json"
+      ],
+      "current_contract": "Nur semantisch ungeordnete set/frozenset-Container werden vor der Katalogerzeugung stabil typ- und wertgeordnet; Listen und Tupel behalten ihre Fachreihenfolge. Generatorausgabe und beide Vollfingerabdrücke sind unter verschiedenen Python-Hash-Seeds byteidentisch.",
+      "post_port_fix": "Erledigt: StableSet und normalized_schema kanonisieren ungeordnete Eingaben reproduzierbar; das Stage-Gate regeneriert beide Assets und vergleicht sie bytegenau.",
+      "evidence": [
+        "STAGE12C5F_NATIVE_PARAMETER_SEMANTICS.md",
+        "tools/generate_semantics_builder_catalog.py",
+        "tests/test_semantics_builder_source.py",
+        "scripts/check_semantics_builder.sh"
+      ]
     }
   ],
   "audit": {
@@ -1501,8 +1557,9 @@
       "STAGE12C4Z_PROFESSIONAL_GENERATE_HTML.md",
       "STAGE12C5B_NATIVE_PROMPT_LANGUAGE_PYPY3.md",
       "STAGE12C5C_NATIVE_PACKAGE_INTEGRITY_SPLIT_I18N.md",
-      "STAGE12C5D_NATIVE_LEGACY_FACADES.md"
+      "STAGE12C5D_NATIVE_LEGACY_FACADES.md",
+      "STAGE12C5F_NATIVE_PARAMETER_SEMANTICS.md"
     ],
-    "scope_note": "Vollständig bezogen auf alle bis Stage 12c5d im Projekt bestätigten oder plausibel begründeten verhaltensrelevanten Befunde; unbekannte künftige Fehler können naturgemäß erst nach ihrer Entdeckung aufgenommen werden."
+    "scope_note": "Vollständig bezogen auf alle bis Stage 12c5f im Projekt bestätigten oder plausibel begründeten verhaltensrelevanten Befunde; unbekannte künftige Fehler können naturgemäß erst nach ihrer Entdeckung aufgenommen werden."
   }
 }

@@ -963,3 +963,28 @@ Validiert wurden 3/3 Runtime-Tests, 5/5 Zustandsmaschinentests, 12/12 bestehende
   `TEST-FIXED-013` dokumentiert die korrigierte Überzählung früherer Statuswerte.
 - Maschinenberechneter Stand: **51/92 vollständig**, **73/92 mindestens
   teilweise**, **33.198/48.831 angegriffene Referenzzeilen**.
+
+## Stage 12c5f – native Parametersemantik, Spaltenbindung und Universal-Synchronisation
+
+- `src/reta_mojo/semantics_builder.mojo` ersetzt den vollständigen
+  `ParameterSemanticsBuilder` durch getaggte Werte, Parameterpaare,
+  Referenzgruppen und 14 typisierte Datenslots.
+- `tools/generate_semantics_builder_catalog.py` friert den 431-Familien-Katalog
+  als reproduzierbaren Mojo-Quellkatalog ein. Nur ungeordnete Python-Mengen
+  werden kanonisiert; Listen und Tupel behalten ihre historische Reihenfolge.
+- Normal- und Inversionsmodus stimmen in 20 Zähl-/Fingerprintzeilen exakt mit
+  Python überein. Die Fingerabdrücke decken Matrixwerte, Parameterpaare,
+  Datenbindungen, Gruppen, Kombinationen, Rückabbildungen und `alles`-Mengen ab.
+- Indexierte String→Index-Tabellen ersetzen die zunächst korrekten, aber
+  quadratischen linearen Suchen. Der Vollaufbau samt Fingerabdruck sinkt von
+  über 20 Minuten auf ungefähr 0,8 Sekunden. 18 generierte Append-Chunks
+  vermeiden zusätzlich die vorherige kalte Compilerexplosion; der Probe-Build
+  sinkt auf ungefähr 20 Sekunden.
+- `column_selection.mojo` besitzt die vollständige 24-Bucket-Oberfläche und
+  explizite gebundene Programmsektionen. `universal.mojo` besitzt den
+  Parameter-/Datenmerge und die Tabellenzustandssynchronisation.
+- `TEST-FIXED-014` korrigiert drei veraltete 554→556-Referenztestwerte.
+  `TEST-FIXED-015` beseitigt die Hash-Seed-Abhängigkeit des generierten
+  Semantikkatalogs und seiner Vollfingerabdrücke.
+- Stand: **54/92 vollständig nativ/generiert**, **74/92 mindestens teilweise**,
+  **33.465/48.831 angegriffene Referenzzeilen**.

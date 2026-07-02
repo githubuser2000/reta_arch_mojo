@@ -1578,3 +1578,34 @@ der Umgebung nicht installiert.
 `tools/porting_metrics.py` berechnet aus 92 Referenzdateien den reproduzierbaren
 Stand 51 vollständig native/generierte Dateien, 73 mindestens teilweise
 portierte Dateien und 33.198 von 48.831 angegriffene Referenzzeilen.
+
+## Stage 12c5f – Parametersemantik, Spaltenbindung und Universal-Synchronisation
+
+```text
+native Semantiktests:                       4/4
+native Spaltenauswahltests:                 4/4
+native Universaltests:                      4/4
+Python↔Mojo-Semantikparität:               20/20 Zeilen exakt
+Python-Referenzregressionen:                 4/4
+Hash-Seed-Reproduktion:                      2/2 byteidentisch
+Source-/Ownership-/Boundary-/Archivtests:   26/26
+Defektkatalog:                              65 konsistent
+Python-Bereinigungspunkte:                  17
+aktive std.python-Brücken:                   0
+```
+
+Der Normalmodus besitzt 432 Matrixeinträge, 84 Hauptparameter, 4.155
+Parameterpaare, 14 Datenslots, 46/51 Kombinationsrückabbildungen und 556 einfache
+Spalten. Der Inversionsmodus reproduziert die Python-`alles`-Komplementbildung.
+Beide vollständigen Inhaltsfingerabdrücke sind exakt gleich.
+
+Der erste funktional korrekte native Vollaufbau überschritt wegen globaler
+linearer Suchen 20 Minuten. Nach Einführung typisierter String→Index-Tabellen
+benötigt der Aufbau samt Fingerabdruck ungefähr 0,8 Sekunden. Die in 18
+Append-Funktionen geteilte Katalogquelle kompiliert im kalten Probe-Build in
+ungefähr 20 Sekunden statt erneut in das 20-Minuten-Limit zu laufen. Der
+Generator ist unter `PYTHONHASHSEED=0` und `1` byteidentisch.
+
+`tools/porting_metrics.py` berechnet aus 92 Referenzdateien den Stand 54
+vollständig native/generierte Dateien, 74 mindestens teilweise portierte Dateien
+und 33.465 von 48.831 angegriffene Referenzzeilen.

@@ -160,7 +160,7 @@ class ArchitectureRefactorRegressionTest(unittest.TestCase):
         snapshot = prompt_runtime.snapshot()
         self.assertEqual(snapshot["program_view"]["class"], "PromptProgramView")
         self.assertEqual(snapshot["program_view"]["paraDict_len"], 4155)
-        self.assertEqual(snapshot["program_view"]["dataDict_sizes"], [554, 46, 11, 12, 7, 23, 23, 10, 14, 23, 23, 12, 0, 0])
+        self.assertEqual(snapshot["program_view"]["dataDict_sizes"], [556, 46, 11, 12, 7, 23, 23, 10, 14, 23, 23, 12, 0, 0])
         self.assertTrue(snapshot["validation"]["wahl15_valid"])
         self.assertEqual(prompt_runtime.program.mainParaCmds, LibRetaPrompt.retaProgram.mainParaCmds)
         self.assertEqual(prompt_runtime.vocabulary.snapshot(), LibRetaPrompt.promptVocabulary.snapshot())
@@ -979,11 +979,11 @@ class ArchitectureRefactorRegressionTest(unittest.TestCase):
         self.assertEqual(len(program.paraDict), 4155)
         self.assertEqual(
             [len(d) if hasattr(d, "__len__") else None for d in program.dataDict],
-            [554, 46, 11, 12, 7, 23, 23, 10, 14, 23, 23, 12, 0, 0],
+            [556, 46, 11, 12, 7, 23, 23, 10, 14, 23, 23, 12, 0, 0],
         )
         self.assertEqual(len(program.kombiReverseDict), 46)
         self.assertEqual(len(program.kombiReverseDict2), 51)
-        self.assertEqual(len(program.AllSimpleCommandSpalten), 554)
+        self.assertEqual(len(program.AllSimpleCommandSpalten), 556)
 
     def test_builder_standalone_matches_program_semantics(self):
         program = self._semantic_program()

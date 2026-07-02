@@ -29,14 +29,15 @@ def test_dictionary_inversion_bug_is_reproducible_and_backlogged() -> None:
     assert "PY-OPEN-003" in _defect_ids()
 
 
-def test_three_red_python_baseline_assertions_are_explicitly_backlogged() -> None:
+def test_fixed_semantics_counts_and_remaining_red_baseline_are_documented() -> None:
     source = (
         ROOT / "python_reference" / "tests" / "test_architecture_refactor.py"
     ).read_text(encoding="utf-8")
-    assert source.count("554") >= 3
+    assert source.count("554") == 0
+    assert source.count("556") >= 3
     assert 'self.assertIn("load_/religion_table"' in source
     ids = _defect_ids()
-    assert {"PY-OPEN-004", "PY-OPEN-005"} <= ids
+    assert {"PY-OPEN-004", "PY-OPEN-005", "TEST-FIXED-014"} <= ids
 
 
 def test_float_moon_number_candidate_is_not_silently_forgotten() -> None:

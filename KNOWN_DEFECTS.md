@@ -18,15 +18,15 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 ## Rückwirkender Audit
 
 - letzter vollständiger Rückwärtsaudit: `12c4s`
-- geprüfte Quellen: **21**
-- Reichweite: Vollständig bezogen auf alle bis Stage 12c5d im Projekt bestätigten oder plausibel begründeten verhaltensrelevanten Befunde; unbekannte künftige Fehler können naturgemäß erst nach ihrer Entdeckung aufgenommen werden.
+- geprüfte Quellen: **22**
+- Reichweite: Vollständig bezogen auf alle bis Stage 12c5f im Projekt bestätigten oder plausibel begründeten verhaltensrelevanten Befunde; unbekannte künftige Fehler können naturgemäß erst nach ihrer Entdeckung aufgenommen werden.
 
 ## Übersicht
 
-- Einträge insgesamt: **63**
+- Einträge insgesamt: **65**
 - offene bestätigte Python-Fehler: **5**
 - zu entscheidende Python-Fehlerkandidaten: **11**
-- bereits im Python-Baum behobene Fehler: **3**
+- bereits im Python-Baum behobene Fehler: **5**
 
 ## Einträge
 
@@ -872,3 +872,31 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 - spätere Python-Aktion: Keine Python-Fachlogikänderung. Künftige Statusdokumente müssen tools/porting_metrics.py verwenden und dürfen Prozentwerte nicht manuell inkrementieren.
 - Mojo-Orte: `tools/porting_metrics.py`, `tools/generate_porting_matrix.py`, `tests/test_porting_metrics.py`
 - Belege: `STAGE12C5E_NATIVE_CONCAT_CSV.md`, `tools/porting_metrics.py`, `tests/test_porting_metrics.py`
+
+### TEST-FIXED-014 – Parametersemantik-Regressionswerte blieben nach Katalogerweiterung auf 554 statt 556 stehen
+
+- Ursprung: `python_reference_tests`
+- Klasse / Schwere: `stale_parameter_semantics_snapshot` / `medium`
+- Python-Status: `fixed`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5f`
+- Reproduktion: `RetaArchitecture.bootstrap(use_cache=False).bootstrap_prompt_runtime(...).program erzeugen und len(AllSimpleCommandSpalten) sowie len(dataDict[0]) mit den bisherigen Assertions in python_reference/tests/test_architecture_refactor.py vergleichen; Istwert 556, alter Sollwert 554.`
+- heutiger Vertrag: Der aktuelle 431-Familien-Katalog erzeugt im Python- und Mojo-Normalmodus 556 einfache Spalten und 556 Schlüssel im ersten Datenslot. Zwei vollständige inhaltsabhängige Fingerabdrücke sichern Normal- und Inversionsmodus zusätzlich ab.
+- spätere Python-Aktion: Erledigt: ausschließlich die drei veralteten Python-Test-Sollwerte wurden von 554 auf 556 aktualisiert; historische Berichtsdokumente bleiben als Zeitaufnahmen unverändert.
+- Python-Orte: `python_reference/tests/test_architecture_refactor.py:163`, `python_reference/tests/test_architecture_refactor.py:982`, `python_reference/tests/test_architecture_refactor.py:986`
+- Mojo-Orte: `src/reta_mojo/semantics_builder.mojo`, `src/reta_mojo/semantics_builder_catalog.mojo`, `assets/parameter_semantics_reference.json`
+- Belege: `STAGE12C5F_NATIVE_PARAMETER_SEMANTICS.md`, `assets/parameter_semantics_reference.json`, `scripts/check_semantics_builder_parity.py`, `tests/test_semantics_builder_source.py`
+
+### TEST-FIXED-015 – Semantikkatalog und Vollfingerabdruck wechselten mit PYTHONHASHSEED
+
+- Ursprung: `generator_tests`
+- Klasse / Schwere: `hash_order_dependent_generated_asset` / `high`
+- Python-Status: `fixed`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5f`
+- Reproduktion: `tools/generate_semantics_builder_catalog.py unter PYTHONHASHSEED=0 und PYTHONHASHSEED=1 ausführen und semantics_builder_catalog.mojo sowie parameter_semantics_reference.json vergleichen; die vier set-basierten Parameternamengruppen und set-basierten Datensätze erzeugten zuvor unterschiedliche Reihenfolgen und Fingerabdrücke.`
+- heutiger Vertrag: Nur semantisch ungeordnete set/frozenset-Container werden vor der Katalogerzeugung stabil typ- und wertgeordnet; Listen und Tupel behalten ihre Fachreihenfolge. Generatorausgabe und beide Vollfingerabdrücke sind unter verschiedenen Python-Hash-Seeds byteidentisch.
+- spätere Python-Aktion: Erledigt: StableSet und normalized_schema kanonisieren ungeordnete Eingaben reproduzierbar; das Stage-Gate regeneriert beide Assets und vergleicht sie bytegenau.
+- Python-Orte: `tools/generate_semantics_builder_catalog.py`, `python_reference/i18n/words_matrix.py`
+- Mojo-Orte: `src/reta_mojo/semantics_builder_catalog.mojo`, `assets/parameter_semantics_reference.json`
+- Belege: `STAGE12C5F_NATIVE_PARAMETER_SEMANTICS.md`, `tools/generate_semantics_builder_catalog.py`, `tests/test_semantics_builder_source.py`, `scripts/check_semantics_builder.sh`

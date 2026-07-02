@@ -12,6 +12,9 @@ sanitize_binaries() {
 }
 trap sanitize_binaries EXIT
 
+printf 'Kompiliere vollständige native Parametersemantik ...\n'
+"$ROOT/bin/mojo-real" build --no-optimization -I src src/semantics_builder_main.mojo -Xlinker -rpath -Xlinker "$MOJO_RUNTIME_RPATH" -o "$TARGET_DIR/reta-mojo-semantics"
+printf 'Erzeugt: %s\n' "$TARGET_DIR/reta-mojo-semantics"
 printf 'Kompiliere schweres Parameterschema\n'
 "$ROOT/bin/mojo-real" build -I src src/schema_main.mojo -Xlinker -rpath -Xlinker "$MOJO_RUNTIME_RPATH" -o "$TARGET_DIR/reta-mojo-schema"
 printf 'Kompiliere schweren Architekturkatalog ...\n'

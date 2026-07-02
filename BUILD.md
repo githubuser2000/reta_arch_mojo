@@ -351,3 +351,23 @@ Prüfung lautet:
 MOJO_BIN="$(pwd)/.venv/bin/mojo" ./scripts/test_stage12c5c.sh
 ```
 
+
+
+## Native Parametersemantik
+
+Der schwere Build erzeugt `target/bin/reta-mojo-semantics`:
+
+```sh
+./scripts/build-heavy.sh
+./bin/reta-mojo-semantics --normal
+./bin/reta-mojo-semantics --invert
+```
+
+Der Katalog wird reproduzierbar aus der Python-Referenz erzeugt, aber das
+installierte Programm baut und prüft die vollständige Semantik ohne Python.
+Das fokussierte Gate kompiliert Normal- und Inversionsprobe getrennt, um eine
+doppelte Materialisierung des 431-Familien-Katalogs im Compiler zu vermeiden:
+
+```sh
+MOJO_BIN="$(pwd)/.venv/bin/mojo" ./scripts/test_stage12c5f.sh
+```

@@ -5,7 +5,7 @@ Stand: 2. Juli 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der g
 - Ursprüngliche Python-Dateien: **92**
 - Ursprüngliche Python-Zeilen insgesamt: **48831**
 - Eingebettete Python-Brücken: **0**; expliziter Mojo-Kindprozessadapter: **1**
-- Quellzeilen der bereits angegriffenen Architekturmodule: **33198**
+- Quellzeilen der bereits angegriffenen Architekturmodule: **33465**
 - Native Mojo-Quellzeilen: siehe `src/` (inklusive generiertem Kategoriekatalog)
 
 | Python-Datei | Zeilen | Funktionen | Klassen | dynamische Aufrufe | Status | Mojo/Ziel | Anmerkung |
@@ -49,7 +49,7 @@ Stand: 2. Juli 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der g
 | `reta_architecture/architecture_witnesses.py` | 640 | 26 | 8 | 0 | generiert nativ | `src/reta_mojo/architecture_witnesses.mojo + tools/generate_architecture_witnesses.py` | 536 Anker, 11 Kapselschnitte, 33 Diagramm-, 42 Natürlichkeits-Witnesses und 55 Verpflichtungen |
 | `reta_architecture/arithmetic.py` | 273 | 19 | 1 | 0 | nativ | `src/reta_mojo/arithmetic.mojo + parallel_execution.mojo` | arithmetischer Kern sowie typisierte Thread-Chunkausführung für Primfaktoren und Faktorpaare nativ |
 | `reta_architecture/category_theory.py` | 1441 | 53 | 8 | 0 | generiert nativ | `src/reta_mojo/category_theory.mojo` | 26 Kategorien, 77 Funktoren, 42 Transformationen |
-| `reta_architecture/column_selection.py` | 119 | 7 | 1 | 0 | teilweise nativ | `src/reta_mojo/column_selection.mojo` | 24 typisierte Bucket-Koordinaten und Bucket-Erzeugung; Legacy-Programmbindung noch Bridge |
+| `reta_architecture/column_selection.py` | 119 | 7 | 1 | 0 | nativ | `src/reta_mojo/column_selection.mojo` | 24 Bucket-Koordinaten, Bucket-Erzeugung und explizite Bindung aller Legacy-Programsections einschließlich ka/ka2, ones und Vanilla-Zähler vollständig nativ |
 | `reta_architecture/combi_join.py` | 712 | 12 | 2 | 4 | Python-Referenz/Bridge | `python_reference/reta_architecture/combi_join.py` | noch nicht nativ portiert |
 | `reta_architecture/completion_nested.py` | 589 | 37 | 9 | 0 | nativ | `src/reta_mojo/completion_nested.mojo` | verschachtelte Zustandsmaschine, Fuzzyordnung, Snapshots und Morphismusbundle vollständig nativ |
 | `reta_architecture/completion_runtime.py` | 192 | 8 | 2 | 1 | generiert nativ | `src/reta_mojo/completion_runtime.mojo + assets/prompt_language` | fünfsprachiger Completion-Runtimevertrag reproduzierbar geladen und typisiert |
@@ -81,7 +81,7 @@ Stand: 2. Juli 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der g
 | `reta_architecture/row_ranges.py` | 329 | 26 | 1 | 1 | nativ | `src/reta_mojo/row_ranges.mojo` | legitime Bereichssyntax; eval bewusst entfernt |
 | `reta_architecture/runtime_compat.py` | 189 | 23 | 1 | 0 | teilweise nativ | `src/reta_mojo/runtime_compat.mojo + arithmetic.mojo` | Enums, fill_both und deterministische Arithmetik nativ; dynamische Python-Kompatibilität bleibt Bridge |
 | `reta_architecture/schema.py` | 186 | 10 | 2 | 12 | generiert nativ | `src/reta_mojo/schema.mojo + schema_catalog.mojo` | 33 Hauptgruppen, 431 Parametereinträge und Kontext-Mappings als besitzender Snapshot |
-| `reta_architecture/semantics_builder.py` | 267 | 6 | 2 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/semantics_builder.py` | noch nicht nativ portiert |
+| `reta_architecture/semantics_builder.py` | 267 | 6 | 2 | 0 | generiert nativ | `src/reta_mojo/semantics_builder.mojo + semantics_builder_catalog.mojo + tools/generate_semantics_builder_catalog.py` | 431 Parameterfamilien, 4.155 kanonische Paare, 14 Datenslots, Kombinationen, Alles-Inversion und vollständiger inhaltsabhängiger Python-Fingerabdruck nativ |
 | `reta_architecture/sheaves.py` | 269 | 22 | 5 | 4 | teilweise nativ | `src/reta_mojo/parameter_semantics.mojo` | ParameterSemanticsSheaf: Aliasauflösung, kanonische Paare, direkte Spalten und Rückabbildung |
 | `reta_architecture/split_i18n.py` | 33 | 1 | 0 | 3 | nativ | `src/reta_mojo/split_i18n.mojo + i18n_words.mojo` | dynamische SimpleNamespace-Fassade durch typisierten Katalogproxy mit identischer Modulreihenfolge und Later-wins-Auflösung ersetzt |
 | `reta_architecture/table_adapters.py` | 419 | 60 | 2 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/table_adapters.py` | noch nicht nativ portiert |
@@ -93,7 +93,7 @@ Stand: 2. Juli 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der g
 | `reta_architecture/table_wrapping.py` | 200 | 16 | 3 | 1 | teilweise nativ | `src/reta_mojo/table_wrapping.mojo` | Unicode-sicherer harter Umbruch und Breitenlogik nativ; Wörterbuchtrennung bleibt externe Grenze |
 | `reta_architecture/tag_schema.py` | 694 | 5 | 2 | 0 | generiert nativ | `src/reta_mojo/tag_schema.mojo + tag_schema_catalog.mojo` | Primär- und Kombi-Tag-Schemata mit Vorwärts-/Rückabbildung |
 | `reta_architecture/topology.py` | 230 | 15 | 3 | 1 | nativ | `src/reta_mojo/topology.mojo` | symbolische Auswahl, Verfeinerung, Aliasauflösung |
-| `reta_architecture/universal.py` | 132 | 8 | 1 | 0 | teilweise nativ | `src/reta_mojo/universal.mojo` | Normalisierung positiver/negativer Spalten-Buckets |
+| `reta_architecture/universal.py` | 132 | 8 | 1 | 0 | nativ | `src/reta_mojo/universal.mojo + semantics_builder.mojo + table_state.mojo` | Pushout-artiger Parameter-/Datenmerge, positive/negative Bucketnormalisierung und typisierte Tabellen-/Sheaf-Synchronisation vollständig nativ |
 | `reta_architecture_probe_py.py` | 440 | 4 | 0 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture_probe_py.py` | noch nicht nativ portiert |
 | `reta_domain_probe_py.py` | 408 | 17 | 0 | 0 | Python-Referenz/Bridge | `python_reference/reta_domain_probe_py.py` | noch nicht nativ portiert |
 | `reta_extract_html_classes.py` | 125 | 7 | 0 | 0 | Python-Referenz/Bridge | `python_reference/reta_extract_html_classes.py` | noch nicht nativ portiert |

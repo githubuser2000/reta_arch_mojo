@@ -2,14 +2,14 @@
 
 Geplanter Umfang: **12 Release-Stufen**. Eine Stufe zählt erst als abgeschlossen, wenn Quellcode, Referenztests, Compilerziele, Dokumentation und ein source-only Archiv gemeinsam geprüft sind.
 
-## Fortschrittsmaße nach Stage 12c5e
+## Fortschrittsmaße nach Stage 12c5f
 
 | Maß | Stand | Aussage |
 |---|---:|---|
-| abgeschlossene Release-Stufen | **9/12 = 75,0 %** | Stufen 1–8 und 11 sind abgeschlossen; Stufe 12 ist mit 12a, 12b, 12c1–12c3 und 12c4a–12c5e zu etwa 68,0 % abgeschlossen, während 9 und 10 noch Restpfade besitzen |
-| vollständig native oder generierte Python-Dateien | **51/92 = 55,4 %** | Datei vollständig ersetzt oder als reproduzierbares Laufzeitasset abgebildet |
-| mindestens angegriffene Python-Dateien | **73/92 = 79,3 %** | Status direkt aus der autoritativen `NATIVE`-Zuordnung |
-| angegriffene Referenzzeilen | **33.198/48.831 = 68,0 %** | maschinenberechnet statt manuell fortgeschrieben |
+| abgeschlossene Release-Stufen | **9/12 = 75,0 %** | Stufen 1–8 und 11 sind abgeschlossen; Stufe 12 ist mit 12a, 12b, 12c1–12c3 und 12c4a–12c5f zu etwa 68,5 % abgeschlossen, während 9 und 10 noch Restpfade besitzen |
+| vollständig native oder generierte Python-Dateien | **54/92 = 58,7 %** | Datei vollständig ersetzt oder als reproduzierbares Laufzeitasset abgebildet |
+| mindestens angegriffene Python-Dateien | **74/92 = 80,4 %** | Status direkt aus der autoritativen `NATIVE`-Zuordnung |
+| angegriffene Referenzzeilen | **33.465/48.831 = 68,5 %** | maschinenberechnet statt manuell fortgeschrieben |
 | funktionaler Nutzerumfang | **ca. 96–98 %** | praktisch nutzbarer Reta-Umfang ohne Python-Algorithmus |
 
 Die Stufenquote ist höher als die Quellzeilenquote, weil die letzten Stufen besonders große dynamische Module bündeln: vollständige Ausgabeaufbereitung, Prompt-Sprache, i18n-Matrix, Architekturvalidierung und Parallelisierung.
@@ -334,3 +334,14 @@ Die Zahl **12** ist die geplante Releasegliederung. Interne Teilpakete oder Fehl
 - Sourcearchive werden als XZ ausgeliefert und parallelfähig mit `xz -T0` aufgerufen; beim aktuellen kleinen Tarstrom war ein Block kleiner als erzwungene Mehrblockarchive. Paralleles Brotli ist nicht vorhanden.
 - `tools/porting_metrics.py` macht die Fortschrittszahlen reproduzierbar und schließt `TEST-FIXED-013`.
 - Stand: **51/92 vollständig**, **73/92 mindestens teilweise**, **33.198/48.831 = 68,0 % angegriffene Referenzzeilen**.
+
+
+## Stage 12c5f – native Parametersemantik, Spaltenbindung und Universal-Synchronisation
+
+- `semantics_builder.py`, `column_selection.py` und `universal.py` wechseln auf vollständigen nativen beziehungsweise reproduzierbar generierten Besitz.
+- Der vollständige Katalog umfasst 431 Familien, 432 Matrixeinträge, 84 Hauptparameter, 4.155 Parameterpaare, 14 typisierte Datenslots und 556 einfache Spalten.
+- Normal- und Inversionsmodus stimmen über zwei vollständige UTF-8-Fingerabdrücke und **20/20** kanonische Probezeilen mit Python überein.
+- Indexierte `Dict[String, Int]`-Tabellen reduzieren den Vollaufbau samt Fingerabdruck von über 20 Minuten auf ungefähr 0,8 Sekunden.
+- Set-basierte Parameternamen und Datensätze werden nur an semantisch ungeordneten Grenzen kanonisiert; Generator und Referenzasset sind unter `PYTHONHASHSEED=0` und `1` byteidentisch (`TEST-FIXED-015`).
+- Drei veraltete Python-Testwerte werden ohne Produktivlogikänderung von 554 auf 556 korrigiert (`TEST-FIXED-014`).
+- Maschinenberechneter Stand: **54/92 vollständig**, **74/92 mindestens teilweise**, **33.465/48.831 angegriffene Referenzzeilen**.
