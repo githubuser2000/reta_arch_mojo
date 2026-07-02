@@ -14,8 +14,7 @@ mkdir -p target/tests
     -o target/tests/test_legacy_lib4tables_concat_12c5e
 ./target/tests/test_legacy_lib4tables_concat_12c5e
 
-"$MOJO" build -I src tests/concat_csv_probe.mojo \
-    -o target/tests/concat_csv_probe
+MOJO_BIN="$MOJO" "$ROOT/scripts/build_concat_csv_probe.sh"
 PYTHONDONTWRITEBYTECODE=1 "$PYTHON" scripts/check_concat_csv_parity.py
 
 python3 -m pytest -q \

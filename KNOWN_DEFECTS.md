@@ -23,7 +23,7 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 
 ## Übersicht
 
-- Einträge insgesamt: **67**
+- Einträge insgesamt: **68**
 - offene bestätigte Python-Fehler: **5**
 - zu entscheidende Python-Fehlerkandidaten: **11**
 - bereits im Python-Baum behobene Fehler: **7**
@@ -928,3 +928,16 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 - Python-Orte: `tools/compare_middle_alx.py`, `tests/test_middle_alx_compare.py`
 - Mojo-Orte: `src/reta_mojo/architecture_exports.mojo`, `scripts/install_targets.txt`
 - Belege: `STAGE12C5H_NATIVE_PACKAGE_EXPORTS_INSTALL_MANIFEST.md`, `tools/compare_middle_alx.py`, `tests/test_middle_alx_compare.py`, `scripts/test_stage12c5h.sh`
+
+### MOJO-FIXED-029 – Exportfilter kopierte einen nicht implizit kopierbaren lokalen Spec ohne Besitzübertragung
+
+- Ursprung: `mojo_port`
+- Klasse / Schwere: `explicit_copy_lvalue_not_transferred` / `high`
+- Python-Status: `correct_reference`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5j`
+- Reproduktion: `scripts/build-heavy.sh; scripts/build.sh unter Mojo 1.0.0b2 ausführen; der Build von architecture_exports_main.mojo bricht bei result.append(entry) ab, weil ArchitectureExportSpec nicht ImplicitlyCopyable ist.`
+- heutiger Vertrag: Der Modulfilter erzeugt genau eine explizite lokale Kopie des Katalogeintrags und überträgt diese nach der letzten Verwendung mit entry^ in die Ergebnisliste. Eine zweite Kopie und eine implizite lvalue-Kopie sind ausgeschlossen.
+- spätere Python-Aktion: Keine Python-Änderung erforderlich; der Befund betrifft ausschließlich die Mojo-Ownership-Semantik.
+- Mojo-Orte: `src/reta_mojo/architecture_exports.mojo:94-98`, `tests/test_architecture_facade_source.py`
+- Belege: `STAGE12C5J_NATIVE_ARCHITECTURE_FACADE.md`, `tests/test_architecture_facade_source.py`, `src/reta_mojo/architecture_exports.mojo`

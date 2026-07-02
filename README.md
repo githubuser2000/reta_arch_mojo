@@ -10,8 +10,8 @@ Stufen 9/10/12:                       Ausgabe, Prompt/i18n und Releaseparität i
 Stufe 11:                             11a–11j = 100 %
 Stufe 12:                             12a–12b fertig, 12c zu ca. 99,9 % = ca. 70,8 %
 vollständig nativ/generiert:          57 von 92 = 62,0 %
-mindestens teilweise portiert:       77 von 92 = 83,7 %
-angegriffene Referenzzeilen:          35.194 von 48.831 = 72,1 %
+mindestens teilweise portiert:       78 von 92 = 84,8 %
+angegriffene Referenzzeilen:          35.903 von 48.831 = 73,5 %
 funktionaler Nutzerumfang:            ca. 96–98 %
 ```
 
@@ -19,8 +19,8 @@ Die Metriken messen **orthogonale Bezugsgrößen** und sind nicht als ein einzig
 
 - **96–98 % geschätzte Funktionsabdeckung**: Anteil der praktisch relevanten Befehls- und Verhaltensfamilien mit einem nativen Pfad. Der atomare Fallback ist nur eine Sicherheitsgrenze und wird nicht als transpiliert gezählt.
 - **62,0 % vollständiger Dateibesitz**: Nur Dateien, deren gesamter wirksamer Vertrag nativ oder reproduzierbar generiert ersetzt ist.
-- **72,1 % angegriffene Referenzzeilen**: maschinenberechneter Umfang vollständig und teilweise besessener Referenzdateien.
-- **82,8 % Stufenfortschritt**: gewichtete Releaseplanung; eine Stufe kann weit fortgeschritten sein, obwohl große historische Python-Besitzer noch sichtbar bleiben.
+- **73,5 % angegriffene Referenzzeilen**: maschinenberechneter Umfang vollständig und teilweise besessener Referenzdateien.
+- **82,9 % Stufenfortschritt**: gewichtete Releaseplanung; eine Stufe kann weit fortgeschritten sein, obwohl große historische Python-Besitzer noch sichtbar bleiben.
 
 Der Port ist daher nicht von über 90 % auf rund 62 % zurückgefallen. Die frühere Zahl bezeichnete die Funktionsoberfläche, die strengere Zahl den Quellersatz. Der vollständige Plan steht in [`ROADMAP.md`](ROADMAP.md).
 
@@ -79,12 +79,14 @@ Mojo-Programme und der verbleibende Python-Kompatibilitätsbaum liegen
 standardmäßig getrennt unter `lib/reta`; Fedora-/RPM-Pakete können
 `LIBEXECDIR=/usr/libexec/reta` setzen. Relative Symlinks erhalten die
 historische Projektstruktur ohne Datenkopie. Seit Stage 12c5h kopiert der
-Installer ausschließlich die 31 in `scripts/install_targets.txt` deklarierten
+Installer ausschließlich die 32 in `scripts/install_targets.txt` deklarierten
 regulären und schweren Compilerziele; lokale Debug-/Altdateien unter
 `target/bin` werden nicht mehr versehentlich installiert. Details:
 [`STAGE12C4M_FHS_RESOURCE_INSTALLATION.md`](STAGE12C4M_FHS_RESOURCE_INSTALLATION.md).
 
 ## Stufen 7–10: Generatoren, Kombinationen, Markup und Prompt
+
+Stage 12c5j behebt den beim lokalen Gesamtbuild entdeckten expliziten Ownership-Transfer im Exportfilter und portiert den statischen Vertrag von `reta_architecture/facade.py` als reproduzierbaren nativen Kompositionsgraphen: 45 Felder, 49 Methoden, 45 Bootstrap-Schritte, 44 Rebuild-Einstiege, 98 Abhängigkeitskanten und 48 Snapshot-Einträge. `reta-mojo-facade` macht den Graphen ohne Python-Import abfragbar; Details: [`STAGE12C5J_NATIVE_ARCHITECTURE_FACADE.md`](STAGE12C5J_NATIVE_ARCHITECTURE_FACADE.md).
 
 Stage 12c5i schließt die 419-zeilige Architektur-Fassade `reta_architecture/table_adapters.py`: vier Modulhelfer, 17 logische `Prepare`-Methoden, 34 `Concat`-Methoden und beide Konstruktorzustände sind typisiert und leiten ausschließlich auf bereits native Besitzer. Details: [`STAGE12C5I_NATIVE_TABLE_ADAPTERS.md`](STAGE12C5I_NATIVE_TABLE_ADAPTERS.md).
 
@@ -312,8 +314,8 @@ MOJO_BIN="$(pwd)/.venv/bin/mojo" ./scripts/test_stage12c5c.sh
 Gesamtbestand:
 
 ```text
-79 Test-/Probe-Dateien (75 Mojo, 4 Python)
-275 native Mojo-Testfunktionen plus 2 Python-Testfunktionen
+172 Test-/Probe-Dateien (127 Mojo, 45 Python)
+465 native Mojo-Testfunktionen plus 182 Python-Testfunktionen
 Stage 12a aktuell 480/480 fokussierte Mojo-/Paritätsprüfungen plus 1/1 Boundary-Pytest
 30 Generator- und 9 Kombi-CLI-Fälle in den Paritätssuiten
 8 schnelle Markup-Fixtures; 16 Fälle einzeln gegen Python validiert

@@ -19,7 +19,7 @@ reta-mojo-validation    reta-mojo-progress
 reta-mojo-persistence     reta-mojo-execution-network
 reta-mojo-parallel-execution  reta-mojo-row-preparation
 reta-mojo-i18n          reta-mojo-semantics
-reta-mojo-exports
+reta-mojo-exports       reta-mojo-facade
 ```
 
 ## `bin/` gegenüber `target/bin/`
@@ -75,12 +75,13 @@ enthält nur die öffentlichen relativen Launcher-Symlinks.
 Die **kompilierten ELF-Dateien** werden nicht direkt nach `/usr/bin`, sondern
 nach `/usr/lib/reta/target/bin` installiert. Autoritativ ist
 `scripts/install_targets.txt`. Sind beide Buildskripte vollständig gelaufen,
-sind es genau **31** Ziele:
+sind es genau **32** Ziele:
 
 ```text
 generate-html-native              grundStrukHtml-native
 reta-mojo-combi-join              reta-mojo-compat-bin
-reta-mojo-exports                 reta-mojo-i18n
+reta-mojo-exports                 reta-mojo-facade
+reta-mojo-i18n
 reta-mojo-native                  reta-mojo-package-integrity
 reta-mojo-table                   reta-mojo-tags
 reta-native                       reta-prompt-complete
@@ -97,12 +98,12 @@ reta-mojo-semantics               reta-mojo-traces
 reta-mojo-validation              reta-mojo-witnesses
 ```
 
-Die ersten 13 stammen aus `scripts/build.sh`; die letzten 18 sind optionale
+Die ersten 14 stammen aus `scripts/build.sh`; die letzten 18 sind optionale
 schwere Ziele aus `scripts/build-heavy.sh`. Nicht gebaute optionale Ziele werden
 übersprungen. Andere Dateien in `target/bin`, insbesondere lokale Debug- oder
 Altvarianten wie `reta-native-o0`, werden ausdrücklich **nicht** installiert.
 
-`/usr/bin` enthält demgegenüber **44 öffentliche Namen als relative Symlinks**
+`/usr/bin` enthält demgegenüber **45 öffentliche Namen als relative Symlinks**
 auf Launcher unter `/usr/lib/reta/bin`; darunter sind Komfortnamen und Profile,
 also nicht 44 verschiedene ELFs. Die zwei internen Helfer `mojo-real` und
 `mojo-runtime-exec` bleiben nur privat unter `/usr/lib/reta/bin`. Standardmäßig
@@ -198,6 +199,8 @@ zu einem einzigen Releasebinary `target/bin/reta` zusammengeführt werden.
 ./bin/reta-mojo-exports --summary
 ./bin/reta-mojo-exports --symbol RetaArchitecture
 ./bin/reta-mojo-exports --module prompt_session --public
+./bin/reta-mojo-facade --summary
+./bin/reta-mojo-facade --dependencies bootstrap
 ./bin/reta-mojo-package-integrity --summary python_reference
 ./bin/reta-mojo-package-integrity --json-files python_reference
 ./bin/reta-mojo-semantics --normal
@@ -218,6 +221,7 @@ zu einem einzigen Releasebinary `target/bin/reta` zusammengeführt werden.
 | Tag-Schema | `target/bin/reta-mojo-tags` | nativ |
 | Fünfsprachiger i18n-Wortbaum | `target/bin/reta-mojo-i18n` | 34.667 reproduzierbare Baumknoten, native Abfrage und verlustfreie Rückserialisierung |
 | Paket-Reexportfassade | `target/bin/reta-mojo-exports` | 314 Importbindungen, 232 geordnete `__all__`-Exporte und 46 Besitzermodule reproduzierbar typisiert; Python nur bei expliziter Regeneration |
+| Architektur-Kompositionsfassade | `target/bin/reta-mojo-facade` | 45 Felder, 49 Methoden, 45 Bootstrap-Schritte, 44 Rebuild-Einstiege, 98 Abhängigkeitskanten und 48 Snapshot-Einträge als reproduzierbarer nativer Graph; heterogene Laufzeitobjekte bleiben bis zur Portierung ihrer Besitzer teilweise nativ |
 | Quellbaum-Integrität | `target/bin/reta-mojo-package-integrity` | reguläre Dateien und Dateisymlinks, Runtime-Filter, 74 Pflichtpfade, CSV-Zeilen und binärer SHA-256-Gesamtdigest vollständig nativ; native Linux/POSIX-Verzeichnis-FFI und OpenSSL als Systemgrenzen |
 | Parametersemantik | `target/bin/reta-mojo-semantics` | 431-Familien-Katalog, 4.155 Parameterpaare, 14 Datenslots, Normal-/Inversionsmodus und vollständiger UTF-8-Inhaltsfingerabdruck nativ; Python nur zur reproduzierbaren Katalogregeneration |
 | Architekturkarte und Kapselgrenzen | `target/bin/reta-mojo-architecture`, `target/bin/reta-mojo-boundaries` | generierte Metadaten und Abfragen nativ; Python-AST-Scan nur bei Regeneration |

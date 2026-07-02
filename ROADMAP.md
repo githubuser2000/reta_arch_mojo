@@ -2,14 +2,14 @@
 
 Geplanter Umfang: **12 Release-Stufen**. Eine Stufe zählt erst als abgeschlossen, wenn Quellcode, Referenztests, Compilerziele, Dokumentation und ein source-only Archiv gemeinsam geprüft sind.
 
-## Fortschrittsmaße nach Stage 12c5i
+## Fortschrittsmaße nach Stage 12c5j
 
 | Maß | Stand | Aussage |
 |---|---:|---|
-| abgeschlossene Release-Stufen | **9/12 = 75,0 %** | Stufen 1–8 und 11 sind abgeschlossen; Stufe 12 ist mit 12a, 12b, 12c1–12c3 und 12c4a–12c5i zu etwa 70,8 % abgeschlossen, während 9 und 10 noch Restpfade besitzen |
+| abgeschlossene Release-Stufen | **9/12 = 75,0 %** | Stufen 1–8 und 11 sind abgeschlossen; Stufe 12 ist mit 12a, 12b, 12c1–12c3 und 12c4a–12c5j zu etwa 70,8 % abgeschlossen, während 9 und 10 noch Restpfade besitzen |
 | vollständig native oder generierte Python-Dateien | **57/92 = 62,0 %** | Datei vollständig ersetzt oder als reproduzierbares Laufzeitasset abgebildet |
-| mindestens angegriffene Python-Dateien | **77/92 = 83,7 %** | Status direkt aus der autoritativen `NATIVE`-Zuordnung |
-| angegriffene Referenzzeilen | **35.194/48.831 = 72,1 %** | maschinenberechnet statt manuell fortgeschrieben |
+| mindestens angegriffene Python-Dateien | **78/92 = 84,8 %** | Status direkt aus der autoritativen `NATIVE`-Zuordnung |
+| angegriffene Referenzzeilen | **35.903/48.831 = 73,5 %** | maschinenberechnet statt manuell fortgeschrieben |
 | funktionaler Nutzerumfang | **ca. 96–98 %** | praktisch nutzbarer Reta-Umfang ohne Python-Algorithmus |
 
 Die Stufenquote ist höher als die Quellzeilenquote, weil die letzten Stufen besonders große dynamische Module bündeln: vollständige Ausgabeaufbereitung, Prompt-Sprache, i18n-Matrix, Architekturvalidierung und Parallelisierung.
@@ -371,3 +371,13 @@ Die Zahl **12** ist die geplante Releasegliederung. Interne Teilpakete oder Fehl
 - Die Fassade dupliziert keine Algorithmen, sondern leitet auf `row_filtering`, `table_preparation`, `table_wrapping`, `tag_schema`, `number_theory` und `legacy_lib4tables_concat` weiter.
 - Header-/Tagmutation bleibt seriell; Datenzeilen verwenden denselben typisierten Kontext wie die native Thread-Zeilenvorbereitung.
 - Maschinenstand: 57/92 vollständig, 77/92 mindestens teilweise, 35.194/48.831 angegriffene Referenzzeilen.
+
+
+## Stage 12c5j – Ownership-Korrektur und nativer Fassadengraph
+
+- `architecture_exports_for_module` überträgt seine explizite lokale `ArchitectureExportSpec`-Kopie mit `entry^`; der unter Mojo 1.0.0b2 reproduzierte Buildabbruch ist als `MOJO-FIXED-029` dokumentiert.
+- `reta_architecture/facade.py` erhält einen reproduzierbaren nativen Strukturvertrag: 45 Felder, 49 Methoden, 45 Bootstrap-Zuweisungen, 44 Rebuild-Einstiege, 98 Abhängigkeitskanten und 48 Snapshot-Einträge.
+- Feld- und Bootstrap-Reihenfolge bleiben getrennt, weil die Konstruktion abhängige Komponenten bewusst später erzeugt als ihre Dataclass-Position.
+- `reta-mojo-facade` prüft und fragt den Graphen ohne Python-Import ab. Die heterogene Objektaggregation bleibt teilweise nativ, bis alle referenzierten Besitzer vollständig portiert sind.
+- `target/tests/concat_csv_probe` bleibt außerhalb der Produktionsbuilds und wird gezielt mit `scripts/build_concat_csv_probe.sh` erzeugt.
+- Maschinenstand: 57/92 vollständig, 78/92 mindestens teilweise, 35.903/48.831 angegriffene Referenzzeilen.

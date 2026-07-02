@@ -94,7 +94,7 @@ def architecture_exports_for_module(
     for index in range(len(catalog.entries)):
         var entry = catalog.entries[index].copy()
         if entry.module == module and (entry.is_public or not public_only):
-            result.append(entry)
+            result.append(entry^)
     return result^
 
 

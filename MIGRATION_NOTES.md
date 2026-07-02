@@ -1000,3 +1000,10 @@ Validiert wurden 3/3 Runtime-Tests, 5/5 Zustandsmaschinentests, 12/12 bestehende
 ## 33. Architektur-Fassaden ohne dynamische Selbstobjekte
 
 `reta_architecture/table_adapters.py` war keine neue Fachlogik, sondern ein dynamisches Python-`self` über bereits getrennten Besitzern. Mojo bildet deshalb nicht erneut zwei große mutable Klassen nach. `PrepareAdapterState` enthält nur den beobachtbaren typisierten Zustand; 17 logische `Prepare`-Methoden leiten auf reine Besitzerfunktionen. Die 34 `Concat`-Methoden werden aus der bereits nativen `legacy_lib4tables_concat`-Fassade reexportiert. Python-Properties werden als explizite Getter und Setter dargestellt. Dadurch bleibt die historische Oberfläche prüfbar, ohne `Any`, `getattr`, `OrderedSet` oder eine Python-Brücke in den nativen Kern zurückzubringen.
+
+
+## 34. Architektur-Composition-Root als typisierter Graph
+
+`RetaArchitecture` aggregiert 45 heterogene Besitzer, deren konkrete Mojo-Typen nicht alle gleichzeitig vollständig portiert sind. Statt die Python-Dynamik durch `Any` oder eine neue Bridge nachzubauen, wird der statische Vertrag aus der AST erzeugt: Feldoberfläche, Methoden, tatsächliche Bootstrap-Reihenfolge, `force_rebuild`-Grenzen, Abhängigkeitskanten und Snapshot-Reihenfolge. Der native Katalog validiert die Bijektion zwischen Feldern und Bootstrap-Zuweisungen, fortlaufende Ordinale, eindeutige Namen und auflösbare Methodenkanten.
+
+Die lokale Exportfilter-Kopie ist ein eigener Ownership-Fall: `.copy()` erzeugt einen besitzenden lvalue; `List.append` darf diesen unter Mojo 1.0.0b2 nicht implizit kopieren. Da der Wert anschließend tot ist, wird er mit `entry^` übertragen.

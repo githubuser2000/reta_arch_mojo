@@ -1321,7 +1321,7 @@ test_prompt_language.mojo                   16/16 bestanden
 scripts/check_prompt_completion_parity.sh   12/12 Kontexte byteidentisch
 scripts/check_completion_nested_parity.sh   67/67 Kontexte byteidentisch
   deutsch                                    33/33
-  englisch                                   34/34
+  englisch                                   36/36
 ```
 
 Die erweiterte Matrix enthält Root-, Hauptparameter-, Nebenparameter- und Wertkontexte, Kommafragmente, Nicht-`reta`-Rekursion, deutsche Umlaute und englische Tippfehlernähe. Sie entdeckte und schloss die bytebasierte Unicode-Reihenfolge sowie den falschen englischen Zeilenwert-Kontext des Kataloggenerators. Der regenerierte fünfsprachige Bestand umfasst 25.834 Werte in 561 Sektionen, 200 Dispatch-Aliase, 95 Kurzersetzungen, 370 numerische Kurzbefehlszeilen und 1.355 Vokabularaliase.
@@ -1646,7 +1646,7 @@ Referenzzeilen**.
 Python-/Quelltests der neuen und angrenzenden Stage: 42/42 bestanden
 Exakte Moduloberfläche:                            4/4
 Logische Prepare-Oberfläche:                     17/17
-Concat-Oberfläche:                               34/34
+Concat-Oberfläche:                               36/36
 Prepare-/Concat-Konstruktorzustände:              8/8 + 13/13
 Portierungsmatrix/Metriken:                       bestanden
 Defektkatalog:                                    67/67 konsistent
@@ -1654,3 +1654,22 @@ aktive std.python-Brücken:                         0
 ```
 
 `tests/test_table_adapters.mojo` ist vorhanden, wurde in dieser Sandbox aber nicht kompiliert, weil der offizielle Modular-Mojo-Compiler nicht installiert ist. Ein mit ausgeführter alter `concat_csv`-Paritätstest war ebenfalls nicht startbar, weil `target/tests/concat_csv_probe` im hochgeladenen Archiv fehlt; dieser Infrastrukturfehler wird nicht als Adapter-Testfehler gezählt.
+
+
+## Stage 12c5j: Ownership-Korrektur und Architektur-Fassadengraph
+
+```text
+Fokussierte Python-/Source-/Katalogtests:       36/36 bestanden
+Fassadenfelder:                                 45/45
+Fassadenmethoden:                               49/49
+Bootstrap-Schritte:                             45/45
+force_rebuild-Einstiege:                        44/44
+Bootstrap-Abhängigkeitskanten:                  98/98
+Snapshot-Einträge:                              48/48
+Defektkatalog:                                  68/68 konsistent
+aktive std.python-Brücken:                       0
+```
+
+Der vom Nutzer unter Mojo 1.0.0b2 gemeldete Buildfehler in `architecture_exports_for_module` ist durch explizite Besitzübertragung `entry^` korrigiert und durch einen Source-Regressionstest gesichert. Die nativen Tests `tests/test_architecture_exports.mojo` und `tests/test_architecture_facade.mojo` sowie das neue Compilerziel `reta-mojo-facade` sind vorbereitet; in dieser Sandbox fehlt weiterhin der offizielle Modular-Mojo-Compiler, daher wird kein lokaler Compilerfolg behauptet.
+
+`target/tests/concat_csv_probe` wird nicht durch die Produktionsbuilds erzeugt. `scripts/build_concat_csv_probe.sh` baut das Probe-ELF gezielt; `scripts/test_stage12c5e.sh` verwendet diesen Helfer vor dem Python↔Mojo-Paritätslauf.
