@@ -18,14 +18,14 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 ## Rückwirkender Audit
 
 - letzter vollständiger Rückwärtsaudit: `12c4s`
-- geprüfte Quellen: **16**
-- Reichweite: Vollständig bezogen auf alle bis Stage 12c4x im Projekt bestätigten oder plausibel begründeten verhaltensrelevanten Befunde; unbekannte künftige Fehler können naturgemäß erst nach ihrer Entdeckung aufgenommen werden.
+- geprüfte Quellen: **18**
+- Reichweite: Vollständig bezogen auf alle bis Stage 12c4z im Projekt bestätigten oder plausibel begründeten verhaltensrelevanten Befunde; unbekannte künftige Fehler können naturgemäß erst nach ihrer Entdeckung aufgenommen werden.
 
 ## Übersicht
 
-- Einträge insgesamt: **54**
+- Einträge insgesamt: **59**
 - offene bestätigte Python-Fehler: **5**
-- zu entscheidende Python-Fehlerkandidaten: **9**
+- zu entscheidende Python-Fehlerkandidaten: **10**
 - bereits im Python-Baum behobene Fehler: **3**
 
 ## Einträge
@@ -752,3 +752,69 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 - spätere Python-Aktion: Keine Python-Produktivcodeänderung erforderlich.
 - Mojo-Orte: `scripts/compare_full_all_html.py`, `scripts/check_full_all_against_reference.sh`
 - Belege: `STAGE12C4Y_NATIVE_PARAMETER_RUNTIME.md`, `tests/test_full_all_reference_workflow.py`, `scripts/compare_full_all_html.py`
+
+### PY-CAND-010 – Vollständige --alles-Ausgabe ist ohne festen PYTHONHASHSEED nicht reproduzierbar
+
+- Ursprung: `python_reference`
+- Klasse / Schwere: `hash_order_dependent_full_table_output` / `medium`
+- Python-Status: `candidate`
+- Mojo-Status: `compatibility_preserved`
+- entdeckt in: `12c4z`
+- Reproduktion: `python reta -spalten --alles --breite=0 -ausgabe --art=html --onetable --nocolor > middle.alx ohne gesetztes PYTHONHASHSEED ausführen und gegen einen zweiten Prozess oder den deterministischen Mojo-Lauf vergleichen.`
+- heutiger Vertrag: Die hochgeladene unseeded Referenz besitzt dieselben 198 Tabellenzeilen und 149356 Zellen, permutiert aber 20 Metaspalten und variiert zehn set-basierte Generatorspalten. Das Gate richtet Überschriften vorkommensgenau aus, weist 1850 Hash-Zellen und ihre 214 Abweichungen separat aus und verlangt für den reproduzierbaren Kern 147506/147506 semantisch gleiche Zellen. Mojo bleibt deterministisch.
+- spätere Python-Aktion: Nach Abschluss der Transpilierung alle beobachtbaren Mengen- und Frozenset-Iterationen in der Python-Tabellenplanung fachlich sortieren, einen kanonischen PYTHONHASHSEED-unabhängigen Spaltenvertrag festlegen und Python sowie Mojo gegen eine neu erzeugte seed-unabhängige Referenz prüfen.
+- Python-Orte: `python_reference/reta_architecture/generated_columns.py:1356-1465`, `python_reference/reta_architecture/column_selection.py`, `python_reference/reta_architecture/table_runtime.py`
+- Mojo-Orte: `scripts/compare_full_all_html.py`, `scripts/check_full_all_against_reference.sh`, `tests/references/reta-python-full-all-reference-v1.tar.bz2`
+- Belege: `STAGE12C4Z_PROFESSIONAL_GENERATE_HTML.md`, `tests/test_full_all_reference_workflow.py`, `FULL_ALL_REFERENCE_WORKFLOW.md`
+
+### MOJO-FIXED-027 – Installiertes generate_html wechselte in den privaten Programmstamm und schrieb dort ungefragt middle.alx
+
+- Ursprung: `mojo_port`
+- Klasse / Schwere: `fhs_unsafe_working_directory_and_implicit_output` / `high`
+- Python-Status: `not_applicable`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c4z`
+- Reproduktion: `DESTDIR=/tmp/reta-stage scripts/install.sh /usr ausführen, anschließend als normaler Benutzer aus einem fremden Verzeichnis /tmp/reta-stage/usr/bin/generate_html starten; der alte Launcher wechselte nach /usr/lib/reta und der Kern versuchte dort middle.alx zu schreiben.`
+- heutiger Vertrag: generate_html wechselt sein Arbeitsverzeichnis nicht, schreibt standardmäßig ausschließlich nach stdout, erzeugt eine Mitteltabelle nur über --middle-output oder --legacy-middle und schreibt --output atomar. Öffentlicher Starter, privates Mojo-ELF, Daten und Manpage folgen dem FHS-Layout.
+- spätere Python-Aktion: Keine Python-Produktivcodeänderung erforderlich.
+- Mojo-Orte: `bin/generate_html`, `src/generate_html_main.mojo`, `scripts/install.sh`, `man/generate_html.1`
+- Belege: `STAGE12C4Z_PROFESSIONAL_GENERATE_HTML.md`, `tests/test_generate_html_cli.py`, `tests/test_install_layout.py`, `scripts/check_install_layout.sh`
+
+### TEST-FIXED-009 – Volltabellenvergleich hing im allgemeinen HTMLParser und konnte unseeded Python-Ausgaben nicht fachlich einordnen
+
+- Ursprung: `test_infrastructure`
+- Klasse / Schwere: `full_table_parser_and_reference_reproducibility` / `medium`
+- Python-Status: `not_applicable`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c4z`
+- Reproduktion: `scripts/check_full_all_against_reference.sh mit zwei ungefähr 25-MiB-HTML-Dateien ausführen; der allgemeine HTMLParser blieb in dieser Umgebung unzuverlässig hängen und der alte Vergleich behandelte reine Spaltenpermutationen einer unseeded Referenz als Inhaltsfehler.`
+- heutiger Vertrag: Ein spezialisierter Streaming-Scanner bewahrt exakt die historische verschachtelte Tabellenform mit 198 Zeilen und 149356 Zellen. Referenzmetadaten tragen den Hashseed-Status; bei uncontrolled werden doppelte Überschriften vorkommensgenau ausgerichtet, bekannte Hashspalten transparent separat berichtet und alle stabilen Zellen müssen semantisch gleich sein.
+- spätere Python-Aktion: Keine Python-Produktivcodeänderung erforderlich; die eigentliche Hashabhängigkeit bleibt separat unter PY-CAND-010 erfasst.
+- Mojo-Orte: `scripts/compare_full_all_html.py`, `scripts/check_full_all_against_reference.sh`, `scripts/create_full_all_reference_bundle.sh`
+- Belege: `STAGE12C4Z_PROFESSIONAL_GENERATE_HTML.md`, `tests/test_full_all_reference_workflow.py`, `scripts/compare_full_all_html.py`
+
+### TEST-FIXED-010 – Ad-hoc-Sourcearchiv schloss nur die oberste Pytest-Cacheebene aus
+
+- Ursprung: `test_infrastructure`
+- Klasse / Schwere: `nested_cache_source_archive_leak` / `medium`
+- Python-Status: `not_applicable`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c4z`
+- Reproduktion: `Ein Sourcearchiv mit --exclude=reta_arch_mojo/.pytest_cache erzeugen, während python_reference/.pytest_cache existiert; die verschachtelten Cachedateien erscheinen weiterhin in tar -tjf.`
+- heutiger Vertrag: Der feste Sourcearchivgenerator schließt .pytest_cache und __pycache__ auf jeder Baumtiefe sowie Buildbäume, Bytecode, middle.alx und die verbotene Prompt-Python-Bridge aus. Er prüft die fertige tar.bz2 selbst und veröffentlicht sie nur bei leerem Verbotsfund.
+- spätere Python-Aktion: Keine Python-Produktivcodeänderung erforderlich.
+- Mojo-Orte: `scripts/create_source_archive.sh`, `scripts/update_source_manifest.sh`
+- Belege: `STAGE12C4Z_PROFESSIONAL_GENERATE_HTML.md`, `tests/test_source_archive_contract.py`, `scripts/create_source_archive.sh`
+
+### TEST-FIXED-011 – Stage-12c4z-Runner verlangte gebaute Installationsartefakte auch im source-only Archiv
+
+- Ursprung: `test_infrastructure`
+- Klasse / Schwere: `source_only_and_post_build_gate_conflation` / `low`
+- Python-Status: `not_applicable`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c4z`
+- Reproduktion: `Das finale source-only Archiv entpacken und scripts/test_stage12c4z.sh ausführen; der erste Stand startete tests/test_install_layout.py trotz absichtlich fehlendem target/bin und meldete fünf falsche Fehler.`
+- heutiger Vertrag: Reine Source-, Ledger-, Referenz- und Archivtests laufen ohne target-Verzeichnis. Funktionale Installations-, HTML- und I/O-Gates werden nur ausgeführt, wenn generate-html-native gebaut vorliegt; der Runner kennzeichnet das Überspringen ausdrücklich.
+- spätere Python-Aktion: Keine Python-Produktivcodeänderung erforderlich.
+- Mojo-Orte: `scripts/test_stage12c4z.sh`, `tests/test_install_layout.py`
+- Belege: `STAGE12C4Z_PROFESSIONAL_GENERATE_HTML.md`, `scripts/test_stage12c4z.sh`

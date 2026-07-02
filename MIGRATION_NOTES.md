@@ -870,3 +870,20 @@ Validiert wurden 3/3 Runtime-Tests, 5/5 Zustandsmaschinentests, 12/12 bestehende
 - Vollständiger Dateibesitz bleibt konservativ **45/92 = 48,9 %**; mindestens
   teilweise portierter Besitz steigt auf **75/92 = 81,5 %**, gewichteter
   Quellersatz auf etwa **68,8 %**.
+
+## Stage 12c4z – professioneller FHS-fähiger `generate_html`-Einstieg
+
+- Der öffentliche Starter wechselt nicht mehr in den Projekt- oder
+  Installationsstamm und schreibt standardmäßig ausschließlich nach stdout.
+- `--output` schreibt atomar; `--no-clobber` schützt bestehende Dateien.
+- `--middle-file`, `--middle-output` und `--legacy-middle` trennen Eingabe,
+  explizite Sicherung und historischen Kompatibilitätsmodus.
+- Sprache, CSV- und Assetpfade sowie begrenzte Testzeilen sind als dokumentierte
+  Optionen verfügbar; Fehler liefern definierte Exitcodes.
+- Die FHS-Installation legt die Manpage unter `share/man/man1` ab und hält das
+  Mojo-ELF privat unter `lib/reta/target/bin`.
+- Die vom Nutzer erzeugte einstündige Python-`--alles`-Ausgabe ist als
+  wiederverwendbare Referenz gebündelt. Da ihr `PYTHONHASHSEED` unkontrolliert
+  war, richtet das Gate 20 nur umgeordnete Metaspalten anhand ihrer Überschriften
+  aus und isoliert zehn nachweislich set-abhängige Spalten. Der stabile Kern ist
+  mit 147.506/147.506 Zellen semantisch identisch.

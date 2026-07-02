@@ -35,6 +35,7 @@ def test_fhs_usr_layout_uses_share_for_csv_and_assets(tmp_path: Path) -> None:
 
     assert (shared / "csv" / "religion.csv").is_file()
     assert (shared / "assets" / "parameter_aliases.tsv").is_file()
+    assert (prefix / "share" / "man" / "man1" / "generate_html.1").is_file()
     assert (private / "python_reference" / "csv").is_symlink()
     assert (private / "python_reference" / "csv" / "religion.csv").is_file()
     assert (private / "assets").is_symlink()
@@ -47,6 +48,18 @@ def test_fhs_usr_layout_uses_share_for_csv_and_assets(tmp_path: Path) -> None:
     layout = (private / "INSTALL_LAYOUT").read_text(encoding="utf-8")
     assert "csvdir=/usr/share/reta/csv" in layout
     assert "assetdir=/usr/share/reta/assets" in layout
+    assert "mandir=/usr/share/man" in layout
+
+    help_result = subprocess.run(
+        [str(prefix / "bin" / "generate_html"), "--help"],
+        cwd=tmp_path,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    assert help_result.returncode == 0, help_result.stderr
+    assert "--middle-file" in help_result.stdout
 
 
 def test_default_prefix_is_usr_local(tmp_path: Path) -> None:
@@ -116,6 +129,7 @@ def test_uninstall_removes_only_reta_layout(tmp_path: Path) -> None:
     assert result.returncode == 0, result.stderr
     assert not (stage / "usr" / "lib" / "reta").exists()
     assert not (stage / "usr" / "share" / "reta").exists()
+    assert not (stage / "usr" / "share" / "man" / "man1" / "generate_html.1").exists()
     assert unrelated.read_text(encoding="utf-8") == "unrelated"
 
 

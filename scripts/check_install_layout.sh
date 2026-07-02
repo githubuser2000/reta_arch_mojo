@@ -14,6 +14,7 @@ DESTDIR=$STAGE PREFIX=/usr "$ROOT/scripts/install.sh" >"$TMP/install.log"
 [ -f "$STAGE/usr/share/reta/assets/reta_help_en.txt" ]
 [ -f "$STAGE/usr/share/reta/assets/i18n_words/deutsch.tsv" ]
 [ -f "$STAGE/usr/share/reta/assets/i18n_words/manifest.json" ]
+[ -f "$STAGE/usr/share/man/man1/generate_html.1" ]
 [ -L "$STAGE/usr/bin/reta-mojo-i18n" ]
 [ -L "$STAGE/usr/lib/reta/python_reference/csv" ]
 [ -L "$STAGE/usr/lib/reta/assets" ]
@@ -34,6 +35,31 @@ grep -q '^Spalten: 746$' "$TMP/csv-info.out"
 grep -q '^language=english$' "$TMP/i18n-summary.out"
 grep -q '^rows=6935$' "$TMP/i18n-summary.out"
 grep -q '^matrix_rows=4766$' "$TMP/i18n-summary.out"
+
+# The public HTML generator must be usable from an arbitrary, non-install
+# working directory and must not create the historical middle.alx implicitly.
+printf 'installed-middle\n' > "$TMP/middle.fixture"
+cat "$ROOT/assets/html/head1.alx" \
+    "$ROOT/assets/html/religionen.js" \
+    "$ROOT/assets/html/head2.alx" \
+    "$TMP/middle.fixture" \
+    "$ROOT/tests/fixtures/grundstrukturen_html/blank-de.html" \
+    "$ROOT/assets/html/footer.alx" > "$TMP/generate-html.expected"
+mkdir -p "$TMP/caller"
+(
+    cd "$TMP/caller"
+    "$STAGE/usr/bin/generate_html" \
+        --middle-file "$TMP/middle.fixture" \
+        --middle-output "$TMP/middle.saved" \
+        --output "$TMP/generate-html.actual"
+    "$STAGE/usr/bin/generate_html" --help > "$TMP/generate-html.help"
+    "$STAGE/usr/bin/generate_html" --version > "$TMP/generate-html.version"
+)
+cmp "$TMP/generate-html.expected" "$TMP/generate-html.actual"
+cmp "$TMP/middle.fixture" "$TMP/middle.saved"
+[ ! -e "$TMP/caller/middle.alx" ]
+grep -q -- '--middle-file' "$TMP/generate-html.help"
+grep -q 'reta Mojo HTML generator' "$TMP/generate-html.version"
 
 set -- \
     -zeilen --vorhervonausschnitt=1-2 \

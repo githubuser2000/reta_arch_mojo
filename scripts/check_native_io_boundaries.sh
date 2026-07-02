@@ -75,6 +75,7 @@ cmp "$TMP/html.expected" "$TMP/html.actual"
     cd "$TMP"
     RETA_REFERENCE_PYTHON=/definitely/not/available \
     RETA_GENERATE_HTML_ROWS=1 \
+    RETA_GENERATE_HTML_MIDDLE_OUTPUT="$TMP/middle.alx" \
         "$ROOT/target/bin/generate-html-native" > html-native-all.actual
 )
 test -s "$TMP/html-native-all.actual"

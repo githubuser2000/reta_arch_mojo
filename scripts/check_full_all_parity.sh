@@ -5,6 +5,10 @@ cd "$ROOT"
 if [ -n "${RETA_FULL_ALL_REFERENCE-}" ]; then
     exec "$ROOT/scripts/check_full_all_against_reference.sh" "$RETA_FULL_ALL_REFERENCE"
 fi
+BUNDLED_REFERENCE="$ROOT/tests/references/reta-python-full-all-reference-v1.tar.bz2"
+if [ "${RETA_REGENERATE_FULL_ALL_REFERENCE:-0}" != 1 ] && [ -f "$BUNDLED_REFERENCE" ]; then
+    exec "$ROOT/scripts/check_full_all_against_reference.sh" "$BUNDLED_REFERENCE"
+fi
 NATIVE=${RETA_NATIVE_BINARY:-"$ROOT/target/bin/reta-native"}
 PYTHON=${RETA_PYTHON-}
 if [ -z "$PYTHON" ]; then

@@ -68,7 +68,7 @@ historische Projektstruktur ohne Datenkopie. Details:
 
 ## Stufen 7–10: Generatoren, Kombinationen, Markup und Prompt
 
-Stage 12c4y gibt der produktiven Spalten-, Zeilen-, Breiten-, Ausgabe- und Obergrenzenplanung einen eigenständigen typisierten Besitzer und ergänzt wiederverwendbare vollständige `--alles`-Referenzpakete; Details: [`STAGE12C4Y_NATIVE_PARAMETER_RUNTIME.md`](STAGE12C4Y_NATIVE_PARAMETER_RUNTIME.md). Stage 12c4x übernimmt den vollständigen fünfsprachigen `i18n.words`-Split als nativen Baumkatalog; Details: [`STAGE12C4X_NATIVE_I18N_WORDS.md`](STAGE12C4X_NATIVE_I18N_WORDS.md). Stage 12c4w ergänzt die native Prompt-Vorbereitung und das vollständige semantische `--alles`-Gate; Details: [`STAGE12C4W_NATIVE_PROMPT_PREPARATION_FULL_ALL.md`](STAGE12C4W_NATIVE_PROMPT_PREPARATION_FULL_ALL.md). Stage 12c4v besitzt Prompt-Sitzung und Prompt-Runtime vollständig nativ beziehungsweise reproduzierbar generiert; Details: [`STAGE12C4V_NATIVE_PROMPT_SESSION_RUNTIME.md`](STAGE12C4V_NATIVE_PROMPT_SESSION_RUNTIME.md).
+Stage 12c4z macht `generate_html` zu einem FHS-fähigen Unix-Kommando mit atomarer Dateiausgabe, expliziter Mitteltabelle, Manpage und wiederverwendbarer vollständiger Python-Referenz; Details: [`STAGE12C4Z_PROFESSIONAL_GENERATE_HTML.md`](STAGE12C4Z_PROFESSIONAL_GENERATE_HTML.md). Stage 12c4y gibt der produktiven Spalten-, Zeilen-, Breiten-, Ausgabe- und Obergrenzenplanung einen eigenständigen typisierten Besitzer und ergänzt wiederverwendbare vollständige `--alles`-Referenzpakete; Details: [`STAGE12C4Y_NATIVE_PARAMETER_RUNTIME.md`](STAGE12C4Y_NATIVE_PARAMETER_RUNTIME.md). Stage 12c4x übernimmt den vollständigen fünfsprachigen `i18n.words`-Split als nativen Baumkatalog; Details: [`STAGE12C4X_NATIVE_I18N_WORDS.md`](STAGE12C4X_NATIVE_I18N_WORDS.md). Stage 12c4w ergänzt die native Prompt-Vorbereitung und das vollständige semantische `--alles`-Gate; Details: [`STAGE12C4W_NATIVE_PROMPT_PREPARATION_FULL_ALL.md`](STAGE12C4W_NATIVE_PROMPT_PREPARATION_FULL_ALL.md). Stage 12c4v besitzt Prompt-Sitzung und Prompt-Runtime vollständig nativ beziehungsweise reproduzierbar generiert; Details: [`STAGE12C4V_NATIVE_PROMPT_SESSION_RUNTIME.md`](STAGE12C4V_NATIVE_PROMPT_SESSION_RUNTIME.md).
 
 ### Native normale Reta-Syntax
 
@@ -253,6 +253,9 @@ Die explizite Spaltenfolge wird bei semantischen Spaltenauswahlen nach der Gener
 ./multis3 36
 ./grundStrukHtml.py blank
 ./generate_html > religionen-tabelle.html
+./generate_html --output religionen-tabelle.html --language english
+./generate_html --middle-file middle.alx --output religionen-tabelle.html
+man generate_html
 ```
 
 Siehe [`BINARIES.md`](BINARIES.md).

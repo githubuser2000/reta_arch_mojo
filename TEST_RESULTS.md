@@ -1456,3 +1456,18 @@ scripts/check_i18n_words_native_parity.sh
 scripts/check_install_layout.sh
 scripts/check_build_layout.sh
 ```
+
+## Stage 12c4z – FHS-`generate_html` und hochgeladene Vollreferenz
+
+- CLI-/Source-/Installations-Pytests: **13/13**
+- Referenzworkflow-Pytests: **4/4**
+- FHS-Testinstallation einschließlich Manpage und Start aus fremdem cwd: bestanden
+- native HTML-Orchestrierung und I/O-Grenzen: bestanden
+- hochgeladene Python-Referenz: 24.907.325 Byte, 198 Tabellenzeilen,
+  149.356 Tabellenzellen
+- überschriftenausgerichteter reproduzierbarer Kern:
+  **147.506/147.506 semantisch identische Zellen**
+- zehn Python-Hashspalten werden separat ausgewiesen; keine Abweichung wird
+  stillschweigend unterdrückt.
+
+- Sourcearchiv-Vertragsprüfung: **1/1**; verschachtelte Caches und Buildprodukte ausgeschlossen.

@@ -7,6 +7,7 @@ DESTDIR=${DESTDIR:-}
 BINDIR=${BINDIR:-$PREFIX/bin}
 LIBEXECDIR=${LIBEXECDIR:-$PREFIX/lib/reta}
 DATADIR=${DATADIR:-$PREFIX/share/reta}
+MANDIR=${MANDIR:-$PREFIX/share/man}
 INSTALL_MOJO_RUNTIME=${RETA_INSTALL_MOJO_RUNTIME:-1}
 
 stage_path() {
@@ -38,15 +39,21 @@ require_file "$ROOT/python_reference/csv/religion.csv"
 require_file "$ROOT/assets/parameter_aliases.tsv"
 require_file "$ROOT/target/bin/reta-native"
 require_file "$ROOT/target/bin/reta-mojo-compat-bin"
+require_file "$ROOT/target/bin/generate-html-native"
+require_file "$ROOT/man/generate_html.1"
 
 STAGE_BINDIR=$(stage_path "$BINDIR")
 STAGE_LIBEXECDIR=$(stage_path "$LIBEXECDIR")
 STAGE_DATADIR=$(stage_path "$DATADIR")
+STAGE_MANDIR=$(stage_path "$MANDIR")
 
 install -d "$STAGE_BINDIR" "$STAGE_LIBEXECDIR" \
     "$STAGE_LIBEXECDIR/bin" "$STAGE_LIBEXECDIR/scripts" \
     "$STAGE_LIBEXECDIR/target/bin" "$STAGE_LIBEXECDIR/target/lib/mojo" \
-    "$STAGE_DATADIR/csv" "$STAGE_DATADIR/assets"
+    "$STAGE_DATADIR/csv" "$STAGE_DATADIR/assets" \
+    "$STAGE_MANDIR/man1"
+
+install -m 0644 "$ROOT/man/generate_html.1" "$STAGE_MANDIR/man1/generate_html.1"
 
 # Architecture-independent immutable data belongs below share/reta.
 cp -a "$ROOT/python_reference/csv/." "$STAGE_DATADIR/csv/"
@@ -115,6 +122,7 @@ libexecdir=$LIBEXECDIR
 datadir=$DATADIR
 csvdir=$DATADIR/csv
 assetdir=$DATADIR/assets
+mandir=$MANDIR
 LAYOUT
 
 printf 'Reta installiert:\n'
@@ -122,6 +130,7 @@ printf '  Programme:      %s\n' "$BINDIR"
 printf '  Private Laufzeit: %s\n' "$LIBEXECDIR"
 printf '  CSV-Daten:      %s\n' "$DATADIR/csv"
 printf '  Assets:         %s\n' "$DATADIR/assets"
+printf '  Manpage:        %s\n' "$MANDIR/man1/generate_html.1"
 if [ -n "$DESTDIR" ]; then
     printf '  Paketwurzel:    %s\n' "$DESTDIR"
 fi

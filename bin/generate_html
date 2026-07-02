@@ -1,12 +1,273 @@
 #!/usr/bin/env sh
+# Public, FHS-safe frontend for the native Reta HTML generator.
 set -eu
+
+PROGRAM=${0##*/}
+VERSION=${RETA_GENERATE_HTML_VERSION:-12c4z}
+
 SELF=$0
 if command -v readlink >/dev/null 2>&1; then
     SELF=$(readlink -f "$0" 2>/dev/null || printf '%s' "$0")
 fi
 ROOT=$(CDPATH= cd -- "$(dirname -- "$SELF")/.." && pwd)
-cd "$ROOT"
-if [ -x "$ROOT/target/bin/generate-html-native" ]; then
-    exec "$ROOT/bin/mojo-runtime-exec" "$ROOT/target/bin/generate-html-native" "$@"
+
+usage() {
+    cat <<EOF
+Verwendung: $PROGRAM [OPTIONEN]
+
+Erzeugt die vollständige Reta-HTML-Seite. Standardmäßig wird nach stdout
+geschrieben und keine Zwischenatei im Arbeitsverzeichnis angelegt.
+
+Optionen:
+  -o, --output DATEI          HTML atomar in DATEI schreiben statt nach stdout
+  -l, --language SPRACHE      deutsch, english, vietnamese, chinese oder korean
+      --middle-file DATEI     vorhandene --alles-Mitteltabelle verwenden
+      --middle-output DATEI   erzeugte/eingelesene Mitteltabelle zusätzlich sichern
+      --legacy-middle         historische Zwischenatei ./middle.alx schreiben
+      --rows ANZAHL           nur die ersten ANZAHL Datenzeilen erzeugen
+      --data-dir VERZEICHNIS  CSV-Verzeichnis überschreiben
+      --asset-dir VERZEICHNIS Asset-Verzeichnis überschreiben
+      --no-clobber            vorhandene --output-Datei nicht überschreiben
+  -h, --help                  diese Hilfe anzeigen
+      --version               Versionsinformation anzeigen
+
+Beispiele:
+  $PROGRAM > reta.html
+  $PROGRAM --output reta.html --language english
+  $PROGRAM --middle-file middle.alx --output reta.html
+  $PROGRAM --middle-output middle.alx > reta.html
+
+Umgebungsvariablen:
+  RETA_DATA_DIR, RETA_ASSET_DIR, RETA_GENERATE_HTML_MIDDLE_FILE,
+  RETA_GENERATE_HTML_MIDDLE_OUTPUT und RETA_GENERATE_HTML_ROWS.
+EOF
+}
+
+version() {
+    printf '%s\n' "$PROGRAM (reta Mojo HTML generator) $VERSION"
+}
+
+die() {
+    code=$1
+    shift
+    printf '%s: %s\n' "$PROGRAM" "$*" >&2
+    exit "$code"
+}
+
+need_value() {
+    option=$1
+    value=${2-}
+    [ -n "$value" ] || die 2 "Option $option benötigt einen Wert"
+}
+
+canonical_language() {
+    value=$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')
+    case "$value" in
+        de|deu|deutsch|german) printf '%s\n' german ;;
+        en|eng|english|englisch) printf '%s\n' english ;;
+        vi|vie|vn|vietnamese|vietnamesisch) printf '%s\n' vietnamese ;;
+        zh|zho|chi|chinese|chinesisch) printf '%s\n' chinese ;;
+        ko|kor|korean|koreanisch) printf '%s\n' korean ;;
+        *) die 2 "unbekannte Sprache: $1" ;;
+    esac
+}
+
+OUTPUT=-
+NO_CLOBBER=0
+LANGUAGE=
+MIDDLE_FILE=${RETA_GENERATE_HTML_MIDDLE_FILE-}
+MIDDLE_OUTPUT=${RETA_GENERATE_HTML_MIDDLE_OUTPUT-}
+ROWS=${RETA_GENERATE_HTML_ROWS-}
+DATA_DIR=${RETA_DATA_DIR-}
+ASSET_DIR=${RETA_ASSET_DIR-}
+
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+        -h|--help)
+            usage
+            exit 0
+            ;;
+        --version)
+            version
+            exit 0
+            ;;
+        -o|--output)
+            need_value "$1" "${2-}"
+            OUTPUT=$2
+            shift 2
+            ;;
+        --output=*)
+            OUTPUT=${1#*=}
+            need_value --output "$OUTPUT"
+            shift
+            ;;
+        -l|--language)
+            need_value "$1" "${2-}"
+            LANGUAGE=$(canonical_language "$2")
+            shift 2
+            ;;
+        --language=*|-language=*)
+            LANGUAGE=$(canonical_language "${1#*=}")
+            shift
+            ;;
+        --middle-file)
+            need_value "$1" "${2-}"
+            MIDDLE_FILE=$2
+            shift 2
+            ;;
+        --middle-file=*)
+            MIDDLE_FILE=${1#*=}
+            need_value --middle-file "$MIDDLE_FILE"
+            shift
+            ;;
+        --middle-output)
+            need_value "$1" "${2-}"
+            MIDDLE_OUTPUT=$2
+            shift 2
+            ;;
+        --middle-output=*)
+            MIDDLE_OUTPUT=${1#*=}
+            need_value --middle-output "$MIDDLE_OUTPUT"
+            shift
+            ;;
+        --legacy-middle)
+            MIDDLE_OUTPUT=middle.alx
+            shift
+            ;;
+        --rows)
+            need_value "$1" "${2-}"
+            ROWS=$2
+            shift 2
+            ;;
+        --rows=*)
+            ROWS=${1#*=}
+            need_value --rows "$ROWS"
+            shift
+            ;;
+        --data-dir)
+            need_value "$1" "${2-}"
+            DATA_DIR=$2
+            shift 2
+            ;;
+        --data-dir=*)
+            DATA_DIR=${1#*=}
+            need_value --data-dir "$DATA_DIR"
+            shift
+            ;;
+        --asset-dir)
+            need_value "$1" "${2-}"
+            ASSET_DIR=$2
+            shift 2
+            ;;
+        --asset-dir=*)
+            ASSET_DIR=${1#*=}
+            need_value --asset-dir "$ASSET_DIR"
+            shift
+            ;;
+        --no-clobber)
+            NO_CLOBBER=1
+            shift
+            ;;
+        --)
+            shift
+            [ "$#" -eq 0 ] || die 2 "unerwartete Positionsargumente: $*"
+            ;;
+        -*|*)
+            die 2 "unbekannte Option: $1 (siehe --help)"
+            ;;
+    esac
+done
+
+case "$ROWS" in
+    '') ;;
+    *[!0-9]*|0) die 2 "--rows erwartet eine positive Ganzzahl" ;;
+esac
+
+if [ -n "$MIDDLE_FILE" ]; then
+    [ -f "$MIDDLE_FILE" ] || die 66 "Mitteltabelle nicht gefunden: $MIDDLE_FILE"
+    [ -r "$MIDDLE_FILE" ] || die 66 "Mitteltabelle nicht lesbar: $MIDDLE_FILE"
 fi
-exec "$ROOT/bin/mojo-real" run -I "$ROOT/src" "$ROOT/src/generate_html_main.mojo" "$@"
+if [ -n "$DATA_DIR" ]; then
+    [ -d "$DATA_DIR" ] || die 66 "CSV-Verzeichnis nicht gefunden: $DATA_DIR"
+fi
+if [ -n "$ASSET_DIR" ]; then
+    [ -d "$ASSET_DIR" ] || die 66 "Asset-Verzeichnis nicht gefunden: $ASSET_DIR"
+fi
+if [ "$OUTPUT" != - ] && [ -n "$MIDDLE_OUTPUT" ] && [ "$OUTPUT" = "$MIDDLE_OUTPUT" ]; then
+    die 2 "--output und --middle-output dürfen nicht dieselbe Datei bezeichnen"
+fi
+if [ "$NO_CLOBBER" -eq 1 ] && [ "$OUTPUT" != - ] && [ -e "$OUTPUT" ]; then
+    die 73 "Ausgabedatei existiert bereits: $OUTPUT"
+fi
+
+export RETA_GENERATE_HTML_MIDDLE_FILE=$MIDDLE_FILE
+export RETA_GENERATE_HTML_MIDDLE_OUTPUT=$MIDDLE_OUTPUT
+export RETA_GENERATE_HTML_ROWS=$ROWS
+if [ -n "$DATA_DIR" ]; then
+    export RETA_DATA_DIR=$DATA_DIR
+fi
+if [ -n "$ASSET_DIR" ]; then
+    export RETA_ASSET_DIR=$ASSET_DIR
+fi
+
+TARGET=${RETA_GENERATE_HTML_BINARY:-"$ROOT/target/bin/generate-html-native"}
+LANGUAGE_ARG=
+if [ -n "$LANGUAGE" ]; then
+    LANGUAGE_ARG=-language=$LANGUAGE
+fi
+
+run_generator() {
+    if [ -x "$TARGET" ]; then
+        if [ -n "$LANGUAGE_ARG" ]; then
+            "$ROOT/bin/mojo-runtime-exec" "$TARGET" "$LANGUAGE_ARG"
+        else
+            "$ROOT/bin/mojo-runtime-exec" "$TARGET"
+        fi
+        return
+    fi
+    if [ -x "$ROOT/bin/mojo-real" ] && [ -f "$ROOT/src/generate_html_main.mojo" ]; then
+        # Development fallback. Installed packages always ship the native target.
+        if [ -z "${RETA_ROOT-}" ]; then
+            RETA_ROOT=$ROOT
+            export RETA_ROOT
+        fi
+        if [ -z "${RETA_DATA_DIR-}" ]; then
+            RETA_DATA_DIR=$ROOT/python_reference/csv
+            export RETA_DATA_DIR
+        fi
+        if [ -z "${RETA_ASSET_DIR-}" ]; then
+            RETA_ASSET_DIR=$ROOT/assets
+            export RETA_ASSET_DIR
+        fi
+        if [ -n "$LANGUAGE_ARG" ]; then
+            "$ROOT/bin/mojo-real" run -I "$ROOT/src" "$ROOT/src/generate_html_main.mojo" "$LANGUAGE_ARG"
+        else
+            "$ROOT/bin/mojo-real" run -I "$ROOT/src" "$ROOT/src/generate_html_main.mojo"
+        fi
+        return
+    fi
+    die 127 "natives Ziel fehlt: $TARGET; zuerst scripts/build.sh ausführen"
+}
+
+if [ "$OUTPUT" = - ]; then
+    run_generator
+    exit $?
+fi
+
+OUT_DIR=$(dirname -- "$OUTPUT")
+OUT_BASE=$(basename -- "$OUTPUT")
+[ -d "$OUT_DIR" ] || die 73 "Ausgabeverzeichnis fehlt: $OUT_DIR"
+[ -w "$OUT_DIR" ] || die 73 "Ausgabeverzeichnis ist nicht beschreibbar: $OUT_DIR"
+TMP_OUTPUT=$(mktemp "$OUT_DIR/.${OUT_BASE}.tmp.XXXXXX") || die 73 "temporäre Ausgabedatei konnte nicht erzeugt werden"
+cleanup() {
+    rm -f -- "$TMP_OUTPUT"
+}
+trap cleanup EXIT HUP INT TERM
+if run_generator >"$TMP_OUTPUT"; then
+    chmod 0644 "$TMP_OUTPUT"
+    mv -f -- "$TMP_OUTPUT" "$OUTPUT"
+    trap - EXIT HUP INT TERM
+else
+    status=$?
+    exit "$status"
+fi

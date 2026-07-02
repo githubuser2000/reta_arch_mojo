@@ -186,3 +186,11 @@ Lokale Installation der Launcher:
 ```bash
 ./scripts/install_bins.sh
 ```
+
+### `generate_html` als Systemkommando
+
+`generate_html` ist das öffentliche POSIX-Frontend. Es löst den realen
+Installationspfad auf, startet das private Mojo-Ziel und bietet atomare
+Dateiausgabe, Sprachwahl, explizite Mitteltabellen, Ressourcenüberschreibungen,
+`--no-clobber`, Hilfe und Version. Es wechselt nicht das Arbeitsverzeichnis und
+schreibt standardmäßig nur nach stdout. Siehe `man generate_html`.

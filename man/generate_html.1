@@ -1,0 +1,139 @@
+.TH GENERATE_HTML 1 "2026-07-02" "reta 12c4z" "Reta commands"
+.SH NAME
+generate_html \- generate the complete Reta HTML document
+.SH SYNOPSIS
+.B generate_html
+.RI [ options ]
+.SH DESCRIPTION
+.B generate_html
+assembles the complete Reta HTML page from the native all-columns table,
+the hierarchy section and the installed static assets.  The command does not
+start Python or a child Reta process.
+.PP
+By default the document is written to standard output.  No intermediate file
+is created unless explicitly requested.  This makes the command safe for an
+FHS installation below
+.IR /usr
+or
+.IR /usr/local
+and for execution from arbitrary working directories.
+.SH OPTIONS
+.TP
+.BR -o " " FILE , " " --output " " FILE
+Write the final HTML document atomically to
+.IR FILE
+instead of standard output.
+.TP
+.BR -l " " LANGUAGE , " " --language " " LANGUAGE
+Select
+.BR deutsch ,
+.BR english ,
+.BR vietnamese ,
+.BR chinese
+or
+.BR korean .
+Common ISO aliases such as
+.B de
+and
+.B en
+are accepted.
+.TP
+.BR --middle-file " " FILE
+Use an existing HTML middle table.  This avoids regenerating the expensive
+.RB "reta -spalten --alles"
+output.
+.TP
+.BR --middle-output " " FILE
+Store the generated or supplied middle table in
+.IR FILE .
+.TP
+.B --legacy-middle
+Write the historical
+.I ./middle.alx
+intermediate file.
+.TP
+.BR --rows " " NUMBER
+Generate only the first
+.I NUMBER
+data rows.  This option is intended for tests and previews.
+.TP
+.BR --data-dir " " DIRECTORY
+Override the installed CSV directory.
+.TP
+.BR --asset-dir " " DIRECTORY
+Override the installed asset directory.
+.TP
+.B --no-clobber
+Fail if the file selected with
+.B --output
+already exists.
+.TP
+.BR -h , " " --help
+Show command help.
+.TP
+.B --version
+Show version information.
+.SH ENVIRONMENT
+.TP
+.B RETA_DATA_DIR
+CSV data directory.
+.TP
+.B RETA_ASSET_DIR
+Static asset directory.
+.TP
+.B RETA_GENERATE_HTML_MIDDLE_FILE
+Existing middle table; equivalent to
+.BR --middle-file .
+.TP
+.B RETA_GENERATE_HTML_MIDDLE_OUTPUT
+Path for an optional middle-table copy; equivalent to
+.BR --middle-output .
+.TP
+.B RETA_GENERATE_HTML_ROWS
+Preview row limit; equivalent to
+.BR --rows .
+.TP
+.B RETA_GENERATE_HTML_BINARY
+Override the private native executable, primarily for packaging tests.
+.SH FILES
+.TP
+.I /usr/share/reta/csv
+System CSV data for a distribution installation.
+.TP
+.I /usr/share/reta/assets
+System HTML and catalog assets.
+.TP
+.I /usr/lib/reta/target/bin/generate-html-native
+Default private executable for a
+.I PREFIX=/usr
+installation.
+.SH EXAMPLES
+.PP
+Write to standard output:
+.PP
+.nf
+generate_html > reta.html
+.fi
+.PP
+Create an English page atomically:
+.PP
+.nf
+generate_html --language english --output reta-en.html
+.fi
+.PP
+Reuse a previously generated Python reference table:
+.PP
+.nf
+generate_html --middle-file middle.alx --output reta.html
+.fi
+.PP
+Keep an intermediate table explicitly:
+.PP
+.nf
+generate_html --middle-output middle.alx > reta.html
+.fi
+.SH EXIT STATUS
+Zero indicates success.  Command-line errors use status 2, missing inputs use
+66, output-creation failures use 73 and a missing native executable uses 127.
+.SH SEE ALSO
+.BR reta (1)

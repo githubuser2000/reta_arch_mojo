@@ -11,7 +11,7 @@ Arbeitsliste für die Phase nach dem vollständigen Mojo-Port.
 4. Python und Mojo gegen denselben korrigierten Sollvertrag prüfen.
 5. Den Eintrag in `KNOWN_DEFECTS.json` auf `fixed` setzen.
 
-Offene oder zu entscheidende Einträge: **15**
+Offene oder zu entscheidende Einträge: **16**
 
 ## 1. PY-OPEN-001 – Beliebige Codeausführung durch eval in Ganzzahlmengen-Ausdrücken
 
@@ -177,3 +177,14 @@ Offene oder zu entscheidende Einträge: **15**
 - Python-Arbeitsauftrag: Nach Abschluss der Transpilierung den Obergrenzenvertrag auf einen einzelnen Maximalwert oder eine deduplizierte fachlich sortierte Menge reduzieren und Python sowie Mojo gemeinsam auf diesen Sollvertrag migrieren.
 - Python-Orte: `python_reference/reta_architecture/parameter_runtime.py:851-872`, `python_reference/reta_architecture/runtime_compat.py:96-107`
 - Belege: `STAGE12C4Y_NATIVE_PARAMETER_RUNTIME.md`, `scripts/check_parameter_runtime_parity.sh`, `tests/test_parameter_runtime.mojo`
+
+## 16. PY-CAND-010 – Vollständige --alles-Ausgabe ist ohne festen PYTHONHASHSEED nicht reproduzierbar
+
+- Priorität: `medium`
+- Python-Status: `candidate`
+- Mojo-Status: `compatibility_preserved`
+- Reproduktion: `python reta -spalten --alles --breite=0 -ausgabe --art=html --onetable --nocolor > middle.alx ohne gesetztes PYTHONHASHSEED ausführen und gegen einen zweiten Prozess oder den deterministischen Mojo-Lauf vergleichen.`
+- heutiger Vertrag: Die hochgeladene unseeded Referenz besitzt dieselben 198 Tabellenzeilen und 149356 Zellen, permutiert aber 20 Metaspalten und variiert zehn set-basierte Generatorspalten. Das Gate richtet Überschriften vorkommensgenau aus, weist 1850 Hash-Zellen und ihre 214 Abweichungen separat aus und verlangt für den reproduzierbaren Kern 147506/147506 semantisch gleiche Zellen. Mojo bleibt deterministisch.
+- Python-Arbeitsauftrag: Nach Abschluss der Transpilierung alle beobachtbaren Mengen- und Frozenset-Iterationen in der Python-Tabellenplanung fachlich sortieren, einen kanonischen PYTHONHASHSEED-unabhängigen Spaltenvertrag festlegen und Python sowie Mojo gegen eine neu erzeugte seed-unabhängige Referenz prüfen.
+- Python-Orte: `python_reference/reta_architecture/generated_columns.py:1356-1465`, `python_reference/reta_architecture/column_selection.py`, `python_reference/reta_architecture/table_runtime.py`
+- Belege: `STAGE12C4Z_PROFESSIONAL_GENERATE_HTML.md`, `tests/test_full_all_reference_workflow.py`, `FULL_ALL_REFERENCE_WORKFLOW.md`

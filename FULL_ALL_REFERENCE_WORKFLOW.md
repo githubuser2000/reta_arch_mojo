@@ -42,7 +42,17 @@ RETA_FULL_ALL_REFERENCE=/pfad/reta-python-full-all-reference.tar.bz2 \
 ```
 
 Der Python-Lauf wird dann nicht erneut ausgeführt. Die native Tabelle wird neu
-erzeugt und vollständig auf Struktur und semantische Zellparität geprüft.
+erzeugt und vollständig auf Struktur und semantische Zellparität geprüft. Im
+Projekt liegt zusätzlich die vom Nutzer erzeugte Referenz bereits unter
+`tests/references/reta-python-full-all-reference-v1.tar.bz2`; deshalb funktioniert
+`scripts/check_full_all_against_reference.sh` auch ohne Argument.
+
+Wurde die Python-Ausgabe ohne festgelegten `PYTHONHASHSEED` erzeugt, markiert das
+Paket sie als `uncontrolled`. Der Vergleich richtet dann gleiche beziehungsweise
+doppelte Überschriften vorkommensgenau aus, weist die bekannten set-abhängigen
+Generatorspalten separat aus und verlangt für alle reproduzierbaren Zellen 100 %
+semantische Gleichheit. Ein neuer lokaler Referenzlauf sollte künftig mit
+`PYTHONHASHSEED=0` erzeugt werden.
 
 ## Wann eine neue Python-Referenz nötig ist
 

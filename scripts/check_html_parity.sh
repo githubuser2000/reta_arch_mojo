@@ -4,7 +4,7 @@ ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 cd "$ROOT"
 TMP=${TMPDIR:-/tmp}/reta-html-parity.$$
 mkdir -p "$TMP"
-trap 'rm -rf "$TMP"; rm -f "$ROOT/middle.alx"' EXIT HUP INT TERM
+trap 'rm -rf "$TMP"' EXIT HUP INT TERM
 
 for name in head1.alx religionen.js head2.alx footer.alx; do
     cmp "python_reference/$name" "assets/html/$name"
@@ -74,20 +74,24 @@ cmp "$TMP/full-reference-en" "$TMP/full-mojo-en"
 # Exercise the real table pipeline with all columns but one row.  The
 # default historical generator remains unbounded; this test seam keeps CI
 # finite while crossing the actual compatibility boundary.
-RETA_GENERATE_HTML_ROWS=1 ./target/bin/generate-html-native > "$TMP/full-real-small"
-cmp tests/fixtures/generate_html/middle-all-row1-de.html middle.alx
+RETA_GENERATE_HTML_ROWS=1 \
+RETA_GENERATE_HTML_MIDDLE_OUTPUT="$TMP/middle-de.alx" \
+    ./target/bin/generate-html-native > "$TMP/full-real-small"
+cmp tests/fixtures/generate_html/middle-all-row1-de.html "$TMP/middle-de.alx"
 cat assets/html/head1.alx assets/html/religionen.js assets/html/head2.alx \
-    middle.alx "$TMP/python-blank-de" assets/html/footer.alx > "$TMP/full-real-small-reference"
+    "$TMP/middle-de.alx" "$TMP/python-blank-de" assets/html/footer.alx > "$TMP/full-real-small-reference"
 cmp "$TMP/full-real-small-reference" "$TMP/full-real-small"
-test -s middle.alx
+test -s "$TMP/middle-de.alx"
 
-RETA_GENERATE_HTML_ROWS=1 ./target/bin/generate-html-native -language=english \
+RETA_GENERATE_HTML_ROWS=1 \
+RETA_GENERATE_HTML_MIDDLE_OUTPUT="$TMP/middle-en.alx" \
+    ./target/bin/generate-html-native -language=english \
     > "$TMP/full-real-small-en"
-cmp tests/fixtures/generate_html/middle-all-row1-en.html middle.alx
+cmp tests/fixtures/generate_html/middle-all-row1-en.html "$TMP/middle-en.alx"
 cat assets/html/head1.alx assets/html/religionen.js assets/html/head2.alx \
-    middle.alx "$TMP/python-blank-en" assets/html/footer.alx \
+    "$TMP/middle-en.alx" "$TMP/python-blank-en" assets/html/footer.alx \
     > "$TMP/full-real-small-reference-en"
 cmp "$TMP/full-real-small-reference-en" "$TMP/full-real-small-en"
-test -s middle.alx
+test -s "$TMP/middle-en.alx"
 
 printf '%s\n' 'GrundstrukHtml und generate_html sind bytegleich zur Referenz.'

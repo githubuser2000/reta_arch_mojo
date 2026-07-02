@@ -292,3 +292,19 @@ readelf -d target/bin/reta-native | grep RUNPATH
 
 Der Runtime-Starter `bin/mojo-runtime-exec` bleibt für ältere, noch nicht
 sanitisierte Binärdateien erhalten.
+
+## Installierbares `generate_html`
+
+Nach `scripts/build.sh` und `scripts/install.sh /usr` liegt der öffentliche
+Starter unter `/usr/bin/generate_html`, das private Mojo-ELF unter
+`/usr/lib/reta/target/bin/generate-html-native` und die Manpage unter
+`/usr/share/man/man1/generate_html.1`.
+
+```sh
+generate_html --help
+generate_html --output reta.html --language english
+generate_html --middle-file middle.alx --output reta.html
+```
+
+Das Kommando arbeitet aus jedem Verzeichnis, schreibt ohne Option nach stdout
+und erzeugt keine implizite `middle.alx`.
