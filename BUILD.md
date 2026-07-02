@@ -74,7 +74,7 @@ noch auf den Rechner zeigt, auf dem sie kompiliert wurden.
 ./scripts/check_build_layout.sh
 ```
 
-Erzeugt werden siebzehn normale Laufzeitziele:
+Erzeugt werden neunzehn normale Laufzeitziele:
 
 ```text
 target/bin/reta-mojo-native
@@ -85,6 +85,7 @@ target/bin/reta-mojo-package-integrity
 target/bin/reta-mojo-exports
 target/bin/reta-mojo-facade
 target/bin/reta-mojo-workflow
+target/bin/reta-mojo-sheaves
 target/bin/reta-mojo-domain-probe
 target/bin/reta-mojo-combi-join
 target/bin/reta-native
@@ -424,3 +425,17 @@ scripts/build-heavy.sh
 
 Ein veraltetes Binary wird nicht gestartet, sondern mit Exitcode 78 und einer
 Neubau-Anweisung abgewiesen.
+
+## Native Prägarben und Garben
+
+Der reguläre Build erzeugt `target/bin/reta-mojo-sheaves`. Das Programm lädt
+die reproduzierbaren lokalen Sektionen und die globale HTML-/Parametergarbe:
+
+```bash
+./scripts/build.sh
+./bin/reta-mojo-sheaves --summary
+./bin/reta-mojo-sheaves --presheaf csv
+./bin/reta-mojo-sheaves --html 4
+```
+
+Das fokussierte Build-/Paritätsgate lautet `scripts/test_stage12c5t.sh`.

@@ -8,8 +8,8 @@ Dies ist ein inkrementeller, getesteter Port des hochgeladenen Python-Projekts `
 abgeschlossene Release-Stufen:       9 von 12 = 75,0 %
 Stufen 9/10/12:                       Ausgabe, Prompt/i18n und Releaseparität in Arbeit
 Stufe 11:                             11a–11j = 100 %
-Stufe 12:                             12a–12b fertig, 12c zu ca. 99,9 % = ca. 71,2 %
-vollständig nativ/generiert:          64 von 92 = 69,6 %
+Stufe 12:                             12a–12b fertig, 12c zu ca. 99,9 % = ca. 72,0 %
+vollständig nativ/generiert:          66 von 92 = 71,7 %
 mindestens teilweise portiert:       83 von 92 = 90,2 %
 angegriffene Referenzzeilen:          38.174 von 48.831 = 78,2 %
 funktionaler Nutzerumfang:            ca. 96–98 %
@@ -18,7 +18,7 @@ funktionaler Nutzerumfang:            ca. 96–98 %
 Die Metriken messen **orthogonale Bezugsgrößen** und sind nicht als ein einziges wechselndes Gesamtprozent zu lesen:
 
 - **96–98 % geschätzte Funktionsabdeckung**: Anteil der praktisch relevanten Befehls- und Verhaltensfamilien mit einem nativen Pfad. Der atomare Fallback ist nur eine Sicherheitsgrenze und wird nicht als transpiliert gezählt.
-- **69,6 % vollständiger Dateibesitz**: Nur Dateien, deren gesamter wirksamer Vertrag nativ oder reproduzierbar generiert ersetzt ist.
+- **71,7 % vollständiger Dateibesitz**: Nur Dateien, deren gesamter wirksamer Vertrag nativ oder reproduzierbar generiert ersetzt ist.
 - **78,2 % angegriffene Referenzzeilen**: maschinenberechneter Umfang vollständig und teilweise besessener Referenzdateien.
 - **83,3 % Stufenfortschritt**: gewichtete Releaseplanung; eine Stufe kann weit fortgeschritten sein, obwohl große historische Python-Besitzer noch sichtbar bleiben.
 
@@ -88,12 +88,14 @@ Mojo-Programme und der verbleibende Python-Kompatibilitätsbaum liegen
 standardmäßig getrennt unter `lib/reta`; Fedora-/RPM-Pakete können
 `LIBEXECDIR=/usr/libexec/reta` setzen. Relative Symlinks erhalten die
 historische Projektstruktur ohne Datenkopie. Seit Stage 12c5h kopiert der
-Installer ausschließlich die 36 in `scripts/install_targets.txt` deklarierten
+Installer ausschließlich die 37 in `scripts/install_targets.txt` deklarierten
 regulären und schweren Compilerziele; lokale Debug-/Altdateien unter
 `target/bin` werden nicht mehr versehentlich installiert. Details:
 [`STAGE12C4M_FHS_RESOURCE_INSTALLATION.md`](STAGE12C4M_FHS_RESOURCE_INSTALLATION.md).
 
 ## Stufen 7–10: Generatoren, Kombinationen, Markup und Prompt
+
+Stage 12c5t schließt die lokale Prägarben- und globale Garbenschicht vollständig: `presheaves.py` und `sheaves.py` besitzen zusammen alle zehn Klassen und 37 Methoden nativ. Reproduzierbare Kataloge erfassen 269 lokale Repositorysektionen und 669 vollständige HTML-Referenzen; `reta-mojo-sheaves` macht die Gluing-Schicht ohne Python abfragbar. Details: [`STAGE12C5T_NATIVE_PRESHEAVES_SHEAVES.md`](STAGE12C5T_NATIVE_PRESHEAVES_SHEAVES.md).
 
 Stage 12c5r behebt den lokalen Mojo-Ownershipfehler in `MorphismBundle`: der unveränderliche `ContextSelection`-Parameter wird für alle vier Teilmorphismen explizit kopiert statt beim letzten Konstruktor unzulässig mit `^` übertragen. Zugleich ist `reta_architecture/table_wrapping.py` mit allen zwölf Modul-Funktionen, beiden Klassenoberflächen, explizitem Runtime-State, Capability-basierten Hyphenatorgrenzen und Unicode-sicheren Fallbacks vollständig nativ. Details: [`STAGE12C5R_NATIVE_TABLE_WRAPPING_MORPHISM_OWNERSHIP.md`](STAGE12C5R_NATIVE_TABLE_WRAPPING_MORPHISM_OWNERSHIP.md).
 

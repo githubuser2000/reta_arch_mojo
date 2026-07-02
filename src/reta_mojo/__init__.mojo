@@ -6,6 +6,7 @@ from .category_theory import *
 from .output_modes import *
 from .topology import *
 from .presheaves import *
+from .sheaves import *
 from .universal import *
 from .schema import *
 from .parameter_semantics import *

@@ -19,7 +19,7 @@ def test_porting_metrics_are_derived_from_complete_reference_inventory() -> None
     data = _load_module().compute()
     assert data["reference_files"] == 92
     assert data["reference_lines"] == 48831
-    assert data["fully_native_files"] == 64
+    assert data["fully_native_files"] == 66
     assert data["at_least_partly_ported_files"] == 83
     assert data["touched_reference_lines"] == 38174
     assert data["fully_native_files"] <= data["at_least_partly_ported_files"]
@@ -97,3 +97,9 @@ def test_table_wrapping_owner_is_in_the_authoritative_mapping() -> None:
 def test_legacy_table_handling_owner_is_in_the_authoritative_mapping() -> None:
     mapping = _load_module().native_mapping()
     assert mapping["libs/tableHandling.py"][0] == "nativ"
+
+
+def test_presheaf_and_sheaf_owners_are_in_the_authoritative_mapping() -> None:
+    mapping = _load_module().native_mapping()
+    assert mapping["reta_architecture/presheaves.py"][0] == "nativ"
+    assert mapping["reta_architecture/sheaves.py"][0] == "nativ"

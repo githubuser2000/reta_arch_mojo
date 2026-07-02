@@ -10,6 +10,7 @@ reta-mojo-domain-probe
 reta-mojo-compat-bin
 reta-mojo-exports
 reta-mojo-facade
+reta-mojo-sheaves
 reta-mojo-workflow
 reta-mojo-i18n
 reta-mojo-native

@@ -1,6 +1,27 @@
 # Testergebnisse – Stufe-9/10/11-Zwischenstand
 
 
+## Stage 12c5t: native Prägarben und Garben
+
+```text
+Presheaf-Katalog:                       269/269 reproduziert
+CSV-/i18n-/Assetsektionen:              79/27/163
+HTML-Zeile-0-Referenzen:                669
+öffentliche Python-Klassen:             10/10 nativ
+öffentliche Python-Methoden:            37/37 nativ
+vorbereitete Mojo-Modultests:             9
+Source-/Ownership-/Installationsgates:  41/41 bestanden
+Defektkatalog:                          83/83 konsistent
+Vollständig native Dateien:             66/92 = 71,7 %
+Vollständig native Referenzzeilen:       29.716/48.831 = 60,9 %
+produktive Mojo-Zeilen:                  54.590
+installierbare Compilerziele:            37
+```
+
+Referenz-PyPy3/Python und pytest-fähiges Test-Python werden getrennt über die
+zentralen Resolver gewählt. Der lokale Modular-Lauf kompiliert zwei Modulsuiten
+und `reta-mojo-sheaves`; hier war kein offizieller Mojo-Compiler installiert.
+
 ## Stage 12c5s: stale Binary Guard, UTF-8-HTML und tableHandling
 
 ```text
@@ -18,11 +39,11 @@ Der exakte All-Spalten-HTML-Aufruf ist erneut Teil des kompilierten Tests. Der R
 ## Testbestand
 
 ```text
-94 Mojo-Testdateien und -Probes
-17 Python-Testdateien
-407 Testfunktionen insgesamt (341 Mojo, 66 Python)
-9 reguläre ELF-Compilerziele
-16 optionale schwere Metadaten-/Katalog-/Laufzeitziele
+137 Mojo-Testdateien und -Probes
+59 Python-Testdateien
+755 Testfunktionen insgesamt (507 Mojo, 248 Python)
+19 reguläre ELF-Compilerziele
+18 optionale schwere Metadaten-/Katalog-/Laufzeitziele
 ```
 
 Der letzte vollständig abgeschlossene normale Stufe-7-Lauf ergab **145/145** Tests. Seitdem kamen Meta-, Bruch-, Kombi-, Markup- und Prompttests hinzu. Ein monolithischer Kaltlauf stößt in dieser Umgebung bei `test_csv_reference`, großen Asset-Compilern und wiederholten Python-Referenzstarts an das äußere Ausführungslimit. Deshalb werden die veränderten Programme zusätzlich einzeln gebaut und ausgeführt.
@@ -1782,3 +1803,22 @@ Für den lokalen Mojo-1.0.0b2-Lauf baut `scripts/test_stage12c5k.sh` zuerst den 
 - Defektkatalog: **81/81 konsistent**; Python-Bereinigungspunkte: **19**.
 - `tools/porting_metrics.py`: **63/92** vollständig, **83/92** mindestens teilweise, **38.174/48.831** angegriffene und **29.229/48.831** vollständig native Referenzzeilen.
 - Der Modular-Mojo-Compiler ist in dieser Sandbox nicht installiert; `scripts/test_stage12c5r.sh` baut und startet die 16 nativen Tests lokal.
+
+## Stage 12c5t – native Prägarben und Garben
+
+```text
+Presheaf-Katalog:                    269/269 reproduziert
+  CSV:                                79
+  Übersetzungen:                      27
+  Assets:                            163
+HTML-Zeile-0-Referenzen:             669
+öffentliche Python-Klassen:           10/10 nativ
+öffentliche Python-Methoden:          37/37 nativ
+vorbereitete Mojo-Modultests:           9
+Source-/Ownership-/Installationsgates: 41/41 bestanden
+installierbare Compilerziele:          37
+aktive std.python-Brücken:              0
+```
+
+Der lokale Modular-Mojo-Lauf erfolgt mit `scripts/test_stage12c5t.sh`; in der
+Erstellungsumgebung war kein offizieller Mojo-Compiler installiert.

@@ -1095,3 +1095,13 @@ Da Quellarchive `target/` absichtlich ausschließen, kann ein alter lokaler Buil
 ## UTF-8 im HTML-Renderer
 
 Byteindizes werden nur noch zum Erkennen der ASCII-HTML-Syntax verwendet. Das Materialisieren von Text erfolgt aus `codepoint_slices()`. Damit kann auch ein unerwartet nicht ausgerichteter Scanneroffset keinen `String slice ... not a codepoint boundary`-Assert mehr auslösen.
+
+## Stage 12c5t: Prägarben-/Garbengrenze vollständig nativ
+
+- `presheaves.py` und `sheaves.py` wechseln von teilweise nativ auf vollständig nativ.
+- Dynamische lokale Nutzlasten werden als kanonischer JSON-Text in einem typisierten `ContextSelection` geführt.
+- `assets/presheaf_catalog.tsv` ersetzt die Laufzeit-Glob-Suche reproduzierbar und portabel.
+- `assets/html_reference_sheaf.tsv` bewahrt die Python-Last-write-Semantik für 669 Zeile-0-Spalten.
+- Parameter-, Generator- und Ausgabesynchronisation kopiert besitzend statt Python-Objektidentität zu teilen.
+- `reta-mojo-sheaves` ist ein reguläres Diagnose- und Installationsziel; offiziell sind nun 19 reguläre plus 18 schwere Ziele vorhanden.
+- Referenz-Python und pytest-Python werden im Stage-Test getrennt über die bestehenden Resolver gewählt.

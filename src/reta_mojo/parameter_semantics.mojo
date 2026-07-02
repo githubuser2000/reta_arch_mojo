@@ -56,11 +56,101 @@ struct ColumnCanonicalPairs(Copyable):
 
 
 @fieldwise_init
+struct ColumnParameterMeta(Copyable):
+    var column_number: Int
+    var parameter_main: String
+    var parameter_main_aliases: List[String]
+    var parameter_name: String
+    var parameter_aliases: List[String]
+
+
+@fieldwise_init
+struct ParameterSemanticsSnapshot(Copyable):
+    var main_alias_groups: Int
+    var parameter_alias_groups: Int
+    var pair_to_columns: Int
+    var global_parameter_dict_size: Int
+    var global_data_dict_sizes: List[Int]
+
+
+@fieldwise_init
 struct ParameterSemanticsSheaf(Copyable):
     var main_alias_groups: List[AliasGroup]
     var main_aliases: List[MainAliasEntry]
     var parameter_alias_groups: List[ParameterAliasGroup]
     var pair_to_columns: List[PairColumns]
+    var global_parameter_dict_size: Int
+    var global_data_dict_sizes: List[Int]
+
+    @staticmethod
+    def from_schema(schema: RetaContextSchema) -> Self:
+        return build_parameter_semantics(schema)
+
+    def _rebuild_alias_maps(mut self) -> None:
+        var aliases = List[MainAliasEntry]()
+        for group_index in range(len(self.main_alias_groups)):
+            var group = self.main_alias_groups[group_index].copy()
+            if not _contains_main_alias(aliases, group.canonical):
+                aliases.append(
+                    MainAliasEntry(
+                        group.canonical.copy(), group.canonical.copy()
+                    )
+                )
+            for alias_index in range(len(group.aliases)):
+                if not _contains_main_alias(aliases, group.aliases[alias_index]):
+                    aliases.append(
+                        MainAliasEntry(
+                            group.aliases[alias_index].copy(),
+                            group.canonical.copy(),
+                        )
+                    )
+        self.main_aliases = aliases^
+
+    def canonical_main_alias_groups(self) -> List[AliasGroup]:
+        return canonical_main_alias_groups(self)
+
+    def resolve_main_alias(self, main_name: String) -> String:
+        return resolve_main_alias(self, main_name)
+
+    def parameter_alias_groups_for_main(
+        self, main_name: String
+    ) -> List[ParameterAliasGroup]:
+        return parameter_alias_groups_for_main(self, main_name)
+
+    def resolve_parameter_alias(
+        self, main_name: String, parameter_name: String
+    ) -> String:
+        return resolve_parameter_alias(self, main_name, parameter_name)
+
+    def canonicalize_pair(
+        self, main_name: String, parameter_name: String
+    ) -> CanonicalPair:
+        return canonicalize_pair(self, main_name, parameter_name)
+
+    def column_numbers_for_pair(
+        self, main_name: String, parameter_name: String
+    ) -> List[Int]:
+        return column_numbers_for_pair(self, main_name, parameter_name)
+
+    def reverse_map_canonical_pairs(self) -> List[ColumnCanonicalPairs]:
+        return reverse_map_canonical_pairs(self)
+
+    def exact_meta_for_column(
+        self, column_number: Int
+    ) -> List[ColumnParameterMeta]:
+        return exact_meta_for_column(self, column_number)
+
+    def sync_program_semantics(
+        mut self,
+        global_parameter_dict_size: Int,
+        global_data_dict_sizes: List[Int],
+    ) -> None:
+        sync_program_semantics(
+            self, global_parameter_dict_size, global_data_dict_sizes
+        )
+
+    def snapshot(self) -> ParameterSemanticsSnapshot:
+        return parameter_semantics_snapshot(self)
 
 
 def _contains_string(values: List[String], value: String) -> Bool:
@@ -141,11 +231,19 @@ def build_parameter_semantics(schema: RetaContextSchema) -> ParameterSemanticsSh
             continue
         groups.append(group.copy())
         if not _contains_main_alias(main_aliases, group.canonical):
-            main_aliases.append(MainAliasEntry(group.canonical, group.canonical))
+            main_aliases.append(
+                MainAliasEntry(
+                    group.canonical.copy(), group.canonical.copy()
+                )
+            )
         for alias_index in range(len(group.aliases)):
-            var source_alias = group.aliases[alias_index]
+            var source_alias = group.aliases[alias_index].copy()
             if not _contains_main_alias(main_aliases, source_alias):
-                main_aliases.append(MainAliasEntry(source_alias, group.canonical))
+                main_aliases.append(
+                    MainAliasEntry(
+                        source_alias^, group.canonical.copy()
+                    )
+                )
 
     var parameter_groups = List[ParameterAliasGroup]()
     var pair_columns = List[PairColumns]()
@@ -204,7 +302,12 @@ def build_parameter_semantics(schema: RetaContextSchema) -> ParameterSemanticsSh
         _sort_strings(parameter_groups[index].aliases)
 
     return ParameterSemanticsSheaf(
-        groups^, main_aliases^, parameter_groups^, pair_columns^
+        groups^,
+        main_aliases^,
+        parameter_groups^,
+        pair_columns^,
+        0,
+        List[Int](),
     )
 
 
@@ -343,3 +446,106 @@ def _sort_reverse_map(mut values: List[ColumnCanonicalPairs]) -> None:
             values[position + 1] = values[position].copy()
             position -= 1
         values[position + 1] = key^
+
+
+def canonical_main_alias_groups(
+    sheaf: ParameterSemanticsSheaf
+) -> List[AliasGroup]:
+    var result = List[AliasGroup]()
+    for index in range(len(sheaf.main_alias_groups)):
+        result.append(sheaf.main_alias_groups[index].copy())
+    return result^
+
+
+def _main_aliases_for_canonical(
+    sheaf: ParameterSemanticsSheaf, canonical: String
+) -> List[String]:
+    var result = List[String]()
+    for index in range(len(sheaf.main_alias_groups)):
+        var group = sheaf.main_alias_groups[index].copy()
+        if group.canonical != canonical:
+            continue
+        result.append(group.canonical)
+        for alias_index in range(len(group.aliases)):
+            if not _contains_string(result, group.aliases[alias_index]):
+                result.append(group.aliases[alias_index])
+        return result^
+    return result^
+
+
+def _parameter_aliases_for_canonical(
+    sheaf: ParameterSemanticsSheaf,
+    main_canonical: String,
+    parameter_canonical: String,
+) -> List[String]:
+    var result = List[String]()
+    for index in range(len(sheaf.parameter_alias_groups)):
+        var group = sheaf.parameter_alias_groups[index].copy()
+        if (
+            group.main_canonical == main_canonical
+            and group.parameter_canonical == parameter_canonical
+        ):
+            result.append(group.parameter_canonical)
+            for alias_index in range(len(group.aliases)):
+                if not _contains_string(result, group.aliases[alias_index]):
+                    result.append(group.aliases[alias_index])
+            return result^
+    return result^
+
+
+def exact_meta_for_column(
+    sheaf: ParameterSemanticsSheaf, column_number: Int
+) -> List[ColumnParameterMeta]:
+    var result = List[ColumnParameterMeta]()
+    for index in range(len(sheaf.pair_to_columns)):
+        var pair = sheaf.pair_to_columns[index].copy()
+        if not _contains_int(pair.columns, column_number):
+            continue
+        result.append(
+            ColumnParameterMeta(
+                column_number,
+                pair.main_canonical.copy(),
+                _main_aliases_for_canonical(
+                    sheaf, pair.main_canonical
+                ),
+                pair.parameter_canonical.copy(),
+                _parameter_aliases_for_canonical(
+                    sheaf, pair.main_canonical, pair.parameter_canonical
+                ),
+            )
+        )
+    for index in range(1, len(result)):
+        var key = result[index].copy()
+        var position = index - 1
+        while position >= 0 and (
+            result[position].parameter_main > key.parameter_main
+            or (
+                result[position].parameter_main == key.parameter_main
+                and result[position].parameter_name > key.parameter_name
+            )
+        ):
+            result[position + 1] = result[position].copy()
+            position -= 1
+        result[position + 1] = key^
+    return result^
+
+
+def sync_program_semantics(
+    mut sheaf: ParameterSemanticsSheaf,
+    global_parameter_dict_size: Int,
+    global_data_dict_sizes: List[Int],
+) -> None:
+    sheaf.global_parameter_dict_size = global_parameter_dict_size
+    sheaf.global_data_dict_sizes = global_data_dict_sizes.copy()
+
+
+def parameter_semantics_snapshot(
+    sheaf: ParameterSemanticsSheaf
+) -> ParameterSemanticsSnapshot:
+    return ParameterSemanticsSnapshot(
+        len(sheaf.main_alias_groups),
+        len(sheaf.parameter_alias_groups),
+        len(sheaf.pair_to_columns),
+        sheaf.global_parameter_dict_size,
+        sheaf.global_data_dict_sizes.copy(),
+    )
