@@ -2,12 +2,12 @@
 
 Geplanter Umfang: **12 Release-Stufen**. Eine Stufe zählt erst als abgeschlossen, wenn Quellcode, Referenztests, Compilerziele, Dokumentation und ein source-only Archiv gemeinsam geprüft sind.
 
-## Fortschrittsmaße nach Stage 12c5p
+## Fortschrittsmaße nach Stage 12c5q
 
 | Maß | Stand | Aussage |
 |---|---:|---|
-| abgeschlossene Release-Stufen | **9/12 = 75,0 %** | Stufen 1–8 und 11 sind abgeschlossen; Stufe 12 ist mit 12a, 12b, 12c1–12c3 und 12c4a–12c5p zu etwa 71,9 % abgeschlossen, während 9 und 10 noch Restpfade besitzen |
-| vollständig native oder generierte Python-Dateien | **61/92 = 66,3 %** | Datei vollständig ersetzt oder als reproduzierbares Laufzeitasset abgebildet |
+| abgeschlossene Release-Stufen | **9/12 = 75,0 %** | Stufen 1–8 und 11 sind abgeschlossen; Stufe 12 ist mit 12a, 12b, 12c1–12c3 und 12c4a–12c5q zu etwa 72,1 % abgeschlossen, während 9 und 10 noch Restpfade besitzen |
+| vollständig native oder generierte Python-Dateien | **62/92 = 67,4 %** | Datei vollständig ersetzt oder als reproduzierbares Laufzeitasset abgebildet |
 | mindestens angegriffene Python-Dateien | **83/92 = 90,2 %** | Status direkt aus der autoritativen `NATIVE`-Zuordnung |
 | angegriffene Referenzzeilen | **38.174/48.831 = 78,2 %** | maschinenberechnet statt manuell fortgeschrieben |
 | funktionaler Nutzerumfang | **ca. 96–98 %** | praktisch nutzbarer Reta-Umfang ohne Python-Algorithmus |
@@ -439,3 +439,14 @@ Die Zahl **12** ist die geplante Releasegliederung. Interne Teilpakete oder Fehl
 - Der dynamische Shorthand-Callback wird als besitzende `PromptExpansionRequest` an den eigentlichen Expander übergeben, ohne Python-Laufzeit.
 - Alle Shell-Pytestpfade verwenden `scripts/run_pytest.sh`; dadurch gewinnt die pytest-fähige Projekt-`.venv` zuverlässig vor einem ungeeigneten System-Python.
 - Maschinenstand: **61/92 vollständig**, **83/92 mindestens teilweise**, **38.174/48.831 angegriffene** und **28.840/48.831 vollständig native Referenzzeilen**.
+
+
+## Stage 12c5q – UTF-8-sicheres Rendering und vollständige Runtime-Kompatibilität
+
+- Der HTML-, BBCode-, Shell- und Flat-Wortumbruch zerlegt Text über Unicode-Codepoints.
+- Rekonstruierte Präfixe werden mit `removeprefix` statt mit Codepointlängen als Byteoffset entfernt.
+- Die exakte abstürzende All-Spalten-HTML-Kommandozeile besitzt einen nativen Regressionstest; Umlaute, CJK und Emoji decken weitere Mehrbytegrenzen ab.
+- Die tote `pending_space`-Zuweisung im HTML-Klassenextraktor ist entfernt.
+- `reta_architecture/runtime_compat.py` wechselt von teilweise zu vollständig nativ: 17 Funktionen, `isZeilenAngabe`, `nPmEnum`, historische Konstanten sowie Bereichs-, Arithmetik-, Hilfe-, Konsolen- und Wrappingadapter.
+- Die zentrale Ziffernerkennung verwendet den reproduzierbaren Python-`str.isdigit`-Katalog.
+- Maschinenstand: **62/92 vollständig**, **83/92 mindestens teilweise**, **38.174/48.831 angegriffene** und **29.029/48.831 vollständig native Referenzzeilen**.

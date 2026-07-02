@@ -443,9 +443,14 @@ def render_html_table(table: CsvTable, row_numbers: List[Int]) -> String:
 
 
 def _render_parse_uint(text: String) -> Int:
+    """Parse ASCII digits without indexing inside UTF-8 code points."""
     var result = 0
-    for index in range(text.byte_length()):
-        var code = ord(text[byte=index])
+    for character in text.codepoint_slices():
+        var part = String(character)
+        var bytes = part.as_bytes()
+        if len(bytes) != 1:
+            return -1
+        var code = Int(bytes[0])
         if code < 48 or code > 57:
             return -1
         result = result * 10 + code - 48
@@ -498,8 +503,19 @@ def _append_long_word(mut result: List[String], word: String, width: Int) -> Str
     while codepoint_length(remainder) > width:
         var hyphen_prefix = _hyphen_prefix_fitting(remainder, width)
         if hyphen_prefix.byte_length() > 0:
+            var next_remainder = _slice_after_ascii_prefix(
+                remainder, hyphen_prefix
+            )
+            if next_remainder == remainder:
+                # Defensive no-progress guard: a reconstructed prefix must be
+                # exact, but a fallback hard split is safer than looping or
+                # slicing at an invalid UTF-8 byte offset.
+                var fallback_chunks = hard_chunks(remainder, width)
+                for index in range(len(fallback_chunks) - 1):
+                    result.append(fallback_chunks[index])
+                return fallback_chunks[len(fallback_chunks) - 1]
             result.append(hyphen_prefix)
-            remainder = _slice_after_ascii_prefix(remainder, hyphen_prefix)
+            remainder = next_remainder^
             continue
         var chunks = hard_chunks(remainder, width)
         if len(chunks) == 0:
@@ -531,7 +547,17 @@ def _hyphen_prefix_fitting(word: String, available: Int) -> String:
 
 
 def _slice_after_ascii_prefix(text: String, prefix: String) -> String:
-    return String(StringSlice(text)[byte=prefix.byte_length():])
+    """Remove an exact prefix without constructing a raw byte slice.
+
+    ``prefix`` is assembled from code-point slices or ASCII-hyphen split
+    fragments.  ``removeprefix`` therefore preserves the UTF-8 boundary even
+    when the prefix contains umlauts, CJK text or combining characters.
+    """
+    if prefix.byte_length() == 0:
+        return text
+    if not text.startswith(prefix):
+        return text
+    return String(text.removeprefix(prefix))
 
 
 def _codepoint_prefix(text: String, wanted: Int) -> String:
@@ -555,35 +581,32 @@ def _split_markup_words(
 ) -> None:
     """Split text while retaining the width of legacy whitespace runs.
 
-    The historical preparation path asks ``textwrap`` whether a cell needs
-    wrapping before Rich normalizes its visible whitespace.  Consequently a
-    raw fragment such as ``"(14)  (n)"`` wraps at width eight even though the
-    serialized markup later contains only one visible space.  The ordinary
-    normalized word list loses that distinction, so keep the source separator
-    widths for line-breaking while still emitting normalized fragments.
+    Iterate by Unicode code points rather than advancing raw byte offsets.  A
+    byte scanner is sufficient for finding ASCII separators, but later slicing
+    those offsets is needlessly fragile when a word contains multi-byte UTF-8.
     """
     var clean = String(text.strip())
-    var bytes = clean.as_bytes()
-    var cursor = 0
     var pending_width = 0
-    while cursor < len(bytes):
-        while cursor < len(bytes):
-            var code = Int(bytes[cursor])
-            if code != 9 and code != 10 and code != 13 and code != 32:
-                break
+    var current = String()
+    for character in clean.codepoint_slices():
+        var part = String(character)
+        var whitespace = (
+            part == " " or part == "\t" or part == "\n" or part == "\r"
+        )
+        if whitespace:
+            if current.byte_length() > 0:
+                words.append(current^)
+                current = String()
             pending_width += 1
-            cursor += 1
-        if cursor >= len(bytes):
-            break
-        var start = cursor
-        while cursor < len(bytes):
-            var code = Int(bytes[cursor])
-            if code == 9 or code == 10 or code == 13 or code == 32:
-                break
-            cursor += 1
-        words.append(String(StringSlice(clean)[byte=start:cursor]))
-        separator_widths.append(0 if len(words) == 1 else pending_width)
-        pending_width = 0
+            continue
+        if current.byte_length() == 0:
+            separator_widths.append(
+                0 if len(separator_widths) == 0 else pending_width
+            )
+            pending_width = 0
+        current += part
+    if current.byte_length() > 0:
+        words.append(current^)
 
 
 def _word_wrap_cell(text: String, width: Int) -> List[String]:
@@ -641,7 +664,12 @@ def _word_wrap_cell(text: String, width: Int) -> List[String]:
                 current += " " + prefix
                 result.append(current^)
                 var remainder = _slice_after_ascii_prefix(word, prefix)
-                if codepoint_length(remainder) <= width:
+                if remainder == word:
+                    var fallback = hard_chunks(word, width)
+                    for fallback_index in range(len(fallback) - 1):
+                        result.append(fallback[fallback_index])
+                    current = fallback[len(fallback) - 1]
+                elif codepoint_length(remainder) <= width:
                     current = remainder^
                 else:
                     current = _append_long_word(result, remainder, width)
@@ -673,27 +701,27 @@ def _raw_markup_word_wrap_cell(text: String, width: Int) -> List[String]:
 
     var words = List[String]()
     var separators = List[String]()
-    var bytes = clean.as_bytes()
-    var cursor = 0
     var pending_spaces = String()
-    while cursor < len(bytes):
-        while cursor < len(bytes):
-            var code = Int(bytes[cursor])
-            if code != 9 and code != 10 and code != 13 and code != 32:
-                break
+    var current_word = String()
+    for character in clean.codepoint_slices():
+        var part = String(character)
+        var whitespace = (
+            part == " " or part == "\t" or part == "\n" or part == "\r"
+        )
+        if whitespace:
+            if current_word.byte_length() > 0:
+                words.append(current_word^)
+                current_word = String()
             pending_spaces += " "
-            cursor += 1
-        if cursor >= len(bytes):
-            break
-        var start = cursor
-        while cursor < len(bytes):
-            var code = Int(bytes[cursor])
-            if code == 9 or code == 10 or code == 13 or code == 32:
-                break
-            cursor += 1
-        words.append(String(StringSlice(clean)[byte=start:cursor]))
-        separators.append("" if len(words) == 1 else pending_spaces)
-        pending_spaces = String()
+            continue
+        if current_word.byte_length() == 0:
+            separators.append(
+                "" if len(separators) == 0 else pending_spaces
+            )
+            pending_spaces = String()
+        current_word += part
+    if current_word.byte_length() > 0:
+        words.append(current_word^)
 
     var current = String()
     for index in range(len(words)):
@@ -726,7 +754,12 @@ def _raw_markup_word_wrap_cell(text: String, width: Int) -> List[String]:
                 current += separator + prefix
                 result.append(current^)
                 var remainder = _slice_after_ascii_prefix(word, prefix)
-                if codepoint_length(remainder) <= width:
+                if remainder == word:
+                    var fallback = hard_chunks(word, width)
+                    for fallback_index in range(len(fallback) - 1):
+                        result.append(fallback[fallback_index])
+                    current = fallback[len(fallback) - 1]
+                elif codepoint_length(remainder) <= width:
                     current = remainder^
                 else:
                     current = _append_long_word(result, remainder, width)
@@ -1211,34 +1244,32 @@ def _shell_split_words(
 ) -> None:
     """Split like ``textwrap`` while retaining inter-word space widths.
 
-    Python's shell renderer keeps significant ASCII-space runs inside a
-    visual line and drops a run when it would begin or end a wrapped line.  The
-    generic table wrapper deliberately collapses whitespace, so the terminal
-    path needs its own chunk representation. Control whitespace is normalized
-    to spaces for the table-data fallback path.
+    This code-point implementation cannot create a substring that begins in a
+    UTF-8 continuation byte, while preserving the historical ASCII whitespace
+    contract exactly.
     """
     var clean = String(text.strip())
-    var bytes = clean.as_bytes()
-    var cursor = 0
     var pending_spaces = String()
-    while cursor < len(bytes):
-        while cursor < len(bytes):
-            var code = Int(bytes[cursor])
-            if code != 9 and code != 10 and code != 13 and code != 32:
-                break
+    var current_word = String()
+    for character in clean.codepoint_slices():
+        var part = String(character)
+        var whitespace = (
+            part == " " or part == "\t" or part == "\n" or part == "\r"
+        )
+        if whitespace:
+            if current_word.byte_length() > 0:
+                words.append(current_word^)
+                current_word = String()
             pending_spaces += " "
-            cursor += 1
-        if cursor >= len(bytes):
-            break
-        var start = cursor
-        while cursor < len(bytes):
-            var code = Int(bytes[cursor])
-            if code == 9 or code == 10 or code == 13 or code == 32:
-                break
-            cursor += 1
-        words.append(String(StringSlice(clean)[byte=start:cursor]))
-        separators.append("" if len(words) == 1 else pending_spaces)
-        pending_spaces = String()
+            continue
+        if current_word.byte_length() == 0:
+            separators.append(
+                "" if len(separators) == 0 else pending_spaces
+            )
+            pending_spaces = String()
+        current_word += part
+    if current_word.byte_length() > 0:
+        words.append(current_word^)
 
 
 def _shell_word_wrap_cell(text: String, width: Int) -> List[String]:
@@ -1293,7 +1324,12 @@ def _shell_word_wrap_cell(text: String, width: Int) -> List[String]:
                 current += separator + prefix
                 result.append(current^)
                 var remainder = _slice_after_ascii_prefix(word, prefix)
-                if codepoint_length(remainder) <= width:
+                if remainder == word:
+                    var fallback = hard_chunks(word, width)
+                    for fallback_index in range(len(fallback) - 1):
+                        result.append(fallback[fallback_index])
+                    current = fallback[len(fallback) - 1]
+                elif codepoint_length(remainder) <= width:
                     current = remainder^
                 else:
                     current = _append_long_word(result, remainder, width)
@@ -1331,7 +1367,7 @@ def _shell_prefix(
     # syntax renders even counting groups as a solid block and odd groups as a
     # blank.  Wrapped visual lines retain the same group marker.
     if counting_marker and prefix.startswith(" "):
-        prefix = "█" + String(prefix[byte=1:])
+        prefix = "█" + String(prefix.removeprefix(" "))
     return prefix^
 
 
@@ -1636,7 +1672,12 @@ def _flat_word_wrap_cell(text: String, width: Int) -> List[String]:
                 current += " " + prefix
                 result.append(current^)
                 var remainder = _slice_after_ascii_prefix(word, prefix)
-                if codepoint_length(remainder) <= width:
+                if remainder == word:
+                    var fallback = hard_chunks(word, width)
+                    for fallback_index in range(len(fallback) - 1):
+                        result.append(fallback[fallback_index])
+                    current = fallback[len(fallback) - 1]
+                elif codepoint_length(remainder) <= width:
                     current = remainder^
                 else:
                     current = _append_long_word(result, remainder, width)

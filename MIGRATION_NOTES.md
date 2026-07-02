@@ -1067,3 +1067,14 @@ Die lokale Exportfilter-Kopie ist ein eigener Ownership-Fall: `.copy()` erzeugt 
 - `TEST-FIXED-020` dokumentiert, warum `test_stage12c5j.sh` trotz installiertem `.venv`-Pytest zuvor `/usr/bin/python3` verwendete.
 - Die Crashpad-Warnung des Modular-Tools wird nicht gefiltert; sie ist nicht fatal und stderr bleibt für echte Diagnosen vollständig sichtbar.
 - Fortschritt: **61/92 vollständig**, **83/92 mindestens teilweise**, **38.174/48.831 angegriffene Referenzzeilen**, **28.840/48.831 vollständig native Referenzzeilen**.
+
+
+## Stage 12c5q – UTF-8-sicherer Tabellenrenderer und vollständiger `runtime_compat`-Besitz
+
+- Die Wortzerleger für Markup, Raw-Markup, Shell und Flat-Formate iterieren `codepoint_slices()` statt rohe Bytepositionen als spätere Stringgrenzen zu verwenden.
+- `_slice_after_ascii_prefix` entfernt auch Unicode enthaltende Präfixe mit `removeprefix`; No-Progress-Fälle wechseln deterministisch zu `hard_chunks`.
+- Der exakte produktive Aufruf `-zeilen --vorhervonausschnitt=1 -spalten --alles -ausgabe --art=html` ist als Mojo-Regressionsprogramm enthalten.
+- Die wirkungslose `pending_space`-Zuweisung im HTML-Klassenextraktor wurde entfernt.
+- `runtime_compat.py` besitzt nun seine vollständige öffentliche Oberfläche nativ; dynamische Python-Objekte werden durch `RuntimeCompatTextWrapRuntime` und `RuntimeCompatSnapshot` ersetzt.
+- `arithmetic.has_digit` delegiert zentral an die reproduzierbare Unicode-Zifferntabelle und entspricht damit Python `str.isdigit`.
+- Fortschritt: **62/92 vollständig**, **83/92 mindestens teilweise**, **38.174/48.831 angegriffene Referenzzeilen**, **29.029/48.831 vollständig native Referenzzeilen**.

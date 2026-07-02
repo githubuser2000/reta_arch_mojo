@@ -1,10 +1,11 @@
 """Native Mojo implementation of reta_architecture.arithmetic."""
 
 from std.collections import Dict, List, Set
-from std.collections.string import atol, ord
+from std.collections.string import atol
 from .types import IntPair, IntTriple
 from .number_theory import prime_factors as number_theory_prime_factors
 from .row_ranges import range_to_numbers
+from .unicode_digits import has_unicode_digit
 
 
 def factor_pairs(value: Int, include_one: Bool = True) -> List[IntPair]:
@@ -132,11 +133,8 @@ def prime_repeat_labels(values: List[Int]) -> List[String]:
 
 
 def has_digit(text: String) -> Bool:
-    for index in range(text.byte_length()):
-        var code = ord(text[byte=index])
-        if code >= 48 and code <= 57:
-            return True
-    return False
+    """Match Python ``str.isdigit`` for every Unicode code point."""
+    return has_unicode_digit(text)
 
 
 def divisor_range(range_expression: String) raises -> Tuple[List[String], Set[Int]]:

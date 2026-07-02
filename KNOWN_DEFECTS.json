@@ -1443,15 +1443,19 @@
         "src/reta_mojo/legacy_center.mojo",
         "src/reta_mojo/unicode_digits.mojo",
         "assets/unicode_digit_ranges.tsv",
-        "tools/generate_unicode_digits.py"
+        "tools/generate_unicode_digits.py",
+        "src/reta_mojo/arithmetic.mojo",
+        "src/reta_mojo/runtime_compat.mojo",
+        "tests/test_runtime_compat_complete.mojo"
       ],
-      "current_contract": "Die native Center-Fassade verwendet einen eingefrorenen, reproduzierbaren Python-str.isdigit-Vertrag mit 808 Codepoints in 83 Bereichen. ASCII-, arabisch-indische, hochgestellte und eingekreiste Ziffern werden wie Python erkannt; Nichtziffern wie das chinesische Zahlzeichen 四 bleiben false.",
+      "current_contract": "Die zentrale native Arithmetik, die Center-Fassade und runtime_compat verwenden einen eingefrorenen, reproduzierbaren Python-str.isdigit-Vertrag mit 808 Codepoints in 83 Bereichen. ASCII-, arabisch-indische, hochgestellte und eingekreiste Ziffern werden wie Python erkannt; Nichtziffern wie das chinesische Zahlzeichen 四 bleiben false.",
       "post_port_fix": "Keine Python-Änderung erforderlich. Bei einer späteren Aktualisierung der Python-Unicode-Datenbank den TSV-Snapshot bewusst regenerieren, die Vertragsänderung prüfen und Python sowie Mojo gemeinsam testen.",
       "evidence": [
         "STAGE12C5D_NATIVE_LEGACY_FACADES.md",
         "tests/test_legacy_center.mojo",
         "tests/test_legacy_facades_source.py",
-        "scripts/check_legacy_facades_parity.py"
+        "scripts/check_legacy_facades_parity.py",
+        "STAGE12C5Q_UTF8_RENDERING_NATIVE_RUNTIME_COMPAT.md"
       ]
     },
     {
@@ -1869,6 +1873,55 @@
         "STAGE12C5P_NATIVE_MORPHISMS_PYTEST_RESOLVER.md",
         "src/reta_mojo/morphisms.mojo",
         "tests/test_morphisms.mojo"
+      ]
+    },
+    {
+      "id": "MOJO-FIXED-035",
+      "title": "HTML-Wortumbruch entfernte Unicode-Präfixe mit Codepointlängen als Byteoffsets",
+      "origin": "mojo_port",
+      "classification": "utf8_prefix_byte_slice_boundary",
+      "severity": "critical",
+      "python_status": "correct_reference",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5q",
+      "reproducer": "bin/reta -zeilen --vorhervonausschnitt=1 -spalten --alles -ausgabe --art=html ausführen; ein langes Wort mit Mehrbytezeichen wird nach rekonstruiertem Präfix über einen rohen Byte-Slice gekürzt und der Modular-Runtime-Assert meldet String slice starts on 17 which is not a codepoint boundary.",
+      "python_locations": [
+        "python_reference/reta_architecture/table_output.py",
+        "Python textwrap.TextWrapper"
+      ],
+      "mojo_locations": [
+        "src/reta_mojo/table_rendering.mojo",
+        "tests/test_native_reta_utf8_html.mojo",
+        "tests/test_table_rendering.mojo"
+      ],
+      "current_contract": "Alle Renderer-Wortzerleger iterieren Codepoints. Rekonstruierte Präfixe werden mit removeprefix entfernt; No-Progress-Fallbacks zerlegen über hard_chunks. Umlaute, CJK-Zeichen und Emoji können keine ungültige UTF-8-Stringgrenze mehr erzeugen.",
+      "post_port_fix": "Keine Python-Änderung erforderlich; Python textwrap besaß bereits eine Unicode-sichere Zeichenfolgenlogik.",
+      "evidence": [
+        "STAGE12C5Q_UTF8_RENDERING_NATIVE_RUNTIME_COMPAT.md",
+        "tests/test_native_reta_utf8_html.mojo",
+        "tests/test_utf8_rendering_source.py"
+      ]
+    },
+    {
+      "id": "MOJO-FIXED-036",
+      "title": "HTML-Klassenextraktor enthielt eine wirkungslose pending_space-Zuweisung",
+      "origin": "mojo_port",
+      "classification": "unused_state_assignment_warning",
+      "severity": "low",
+      "python_status": "not_applicable",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5q",
+      "reproducer": "scripts/build.sh ausführen; Modular meldet in html_class_extractor.mojo assignment to pending_space was never used, weil False unmittelbar vor einer zustandsbestimmenden Neuzuweisung gesetzt wurde.",
+      "python_locations": [],
+      "mojo_locations": [
+        "src/reta_mojo/html_class_extractor.mojo",
+        "tests/test_utf8_rendering_source.py"
+      ],
+      "current_contract": "Der Collapse-Zustandsautomat schreibt pending_space nur noch an beobachtbaren Übergängen. Die überflüssige Zwischenzuweisung und damit die Compilerwarnung sind entfernt.",
+      "post_port_fix": "Keine Python-Änderung erforderlich; es handelte sich um reine Mojo-Codehygiene.",
+      "evidence": [
+        "STAGE12C5Q_UTF8_RENDERING_NATIVE_RUNTIME_COMPAT.md",
+        "tests/test_utf8_rendering_source.py"
       ]
     }
   ],

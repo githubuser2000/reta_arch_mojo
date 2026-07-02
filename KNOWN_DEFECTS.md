@@ -23,7 +23,7 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 
 ## Übersicht
 
-- Einträge insgesamt: **78**
+- Einträge insgesamt: **80**
 - offene bestätigte Python-Fehler: **5**
 - zu entscheidende Python-Fehlerkandidaten: **13**
 - bereits im Python-Baum behobene Fehler: **7**
@@ -854,11 +854,11 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 - Mojo-Status: `fixed`
 - entdeckt in: `12c5d`
 - Reproduktion: `Python center.textHatZiffer('abc٢'), center.textHatZiffer('abc²') und center.textHatZiffer('abc⑵') mit dem bisherigen nativen arithmetic.has_digit vergleichen; Python liefert jeweils True, der alte Mojo-Helfer nur für ASCII-Ziffern.`
-- heutiger Vertrag: Die native Center-Fassade verwendet einen eingefrorenen, reproduzierbaren Python-str.isdigit-Vertrag mit 808 Codepoints in 83 Bereichen. ASCII-, arabisch-indische, hochgestellte und eingekreiste Ziffern werden wie Python erkannt; Nichtziffern wie das chinesische Zahlzeichen 四 bleiben false.
+- heutiger Vertrag: Die zentrale native Arithmetik, die Center-Fassade und runtime_compat verwenden einen eingefrorenen, reproduzierbaren Python-str.isdigit-Vertrag mit 808 Codepoints in 83 Bereichen. ASCII-, arabisch-indische, hochgestellte und eingekreiste Ziffern werden wie Python erkannt; Nichtziffern wie das chinesische Zahlzeichen 四 bleiben false.
 - spätere Python-Aktion: Keine Python-Änderung erforderlich. Bei einer späteren Aktualisierung der Python-Unicode-Datenbank den TSV-Snapshot bewusst regenerieren, die Vertragsänderung prüfen und Python sowie Mojo gemeinsam testen.
 - Python-Orte: `python_reference/libs/center.py:311-313`, `python_reference/reta_architecture/arithmetic.py:140-145`
-- Mojo-Orte: `src/reta_mojo/legacy_center.mojo`, `src/reta_mojo/unicode_digits.mojo`, `assets/unicode_digit_ranges.tsv`, `tools/generate_unicode_digits.py`
-- Belege: `STAGE12C5D_NATIVE_LEGACY_FACADES.md`, `tests/test_legacy_center.mojo`, `tests/test_legacy_facades_source.py`, `scripts/check_legacy_facades_parity.py`
+- Mojo-Orte: `src/reta_mojo/legacy_center.mojo`, `src/reta_mojo/unicode_digits.mojo`, `assets/unicode_digit_ranges.tsv`, `tools/generate_unicode_digits.py`, `src/reta_mojo/arithmetic.mojo`, `src/reta_mojo/runtime_compat.mojo`, `tests/test_runtime_compat_complete.mojo`
+- Belege: `STAGE12C5D_NATIVE_LEGACY_FACADES.md`, `tests/test_legacy_center.mojo`, `tests/test_legacy_facades_source.py`, `scripts/check_legacy_facades_parity.py`, `STAGE12C5Q_UTF8_RENDERING_NATIVE_RUNTIME_COMPAT.md`
 
 ### TEST-FIXED-013 – Manuell fortgeschriebene Portierungsprozente überzählten den Matrixstatus
 
@@ -1077,3 +1077,30 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 - Python-Orte: `python_reference/reta_architecture/output_semantics.py:76-79`, `python_reference/reta_architecture/morphisms.py:58-59`
 - Mojo-Orte: `src/reta_mojo/morphisms.mojo`, `tests/test_morphisms.mojo`, `tests/test_morphisms_complete.mojo`
 - Belege: `STAGE12C5P_NATIVE_MORPHISMS_PYTEST_RESOLVER.md`, `src/reta_mojo/morphisms.mojo`, `tests/test_morphisms.mojo`
+
+### MOJO-FIXED-035 – HTML-Wortumbruch entfernte Unicode-Präfixe mit Codepointlängen als Byteoffsets
+
+- Ursprung: `mojo_port`
+- Klasse / Schwere: `utf8_prefix_byte_slice_boundary` / `critical`
+- Python-Status: `correct_reference`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5q`
+- Reproduktion: `bin/reta -zeilen --vorhervonausschnitt=1 -spalten --alles -ausgabe --art=html ausführen; ein langes Wort mit Mehrbytezeichen wird nach rekonstruiertem Präfix über einen rohen Byte-Slice gekürzt und der Modular-Runtime-Assert meldet String slice starts on 17 which is not a codepoint boundary.`
+- heutiger Vertrag: Alle Renderer-Wortzerleger iterieren Codepoints. Rekonstruierte Präfixe werden mit removeprefix entfernt; No-Progress-Fallbacks zerlegen über hard_chunks. Umlaute, CJK-Zeichen und Emoji können keine ungültige UTF-8-Stringgrenze mehr erzeugen.
+- spätere Python-Aktion: Keine Python-Änderung erforderlich; Python textwrap besaß bereits eine Unicode-sichere Zeichenfolgenlogik.
+- Python-Orte: `python_reference/reta_architecture/table_output.py`, `Python textwrap.TextWrapper`
+- Mojo-Orte: `src/reta_mojo/table_rendering.mojo`, `tests/test_native_reta_utf8_html.mojo`, `tests/test_table_rendering.mojo`
+- Belege: `STAGE12C5Q_UTF8_RENDERING_NATIVE_RUNTIME_COMPAT.md`, `tests/test_native_reta_utf8_html.mojo`, `tests/test_utf8_rendering_source.py`
+
+### MOJO-FIXED-036 – HTML-Klassenextraktor enthielt eine wirkungslose pending_space-Zuweisung
+
+- Ursprung: `mojo_port`
+- Klasse / Schwere: `unused_state_assignment_warning` / `low`
+- Python-Status: `not_applicable`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5q`
+- Reproduktion: `scripts/build.sh ausführen; Modular meldet in html_class_extractor.mojo assignment to pending_space was never used, weil False unmittelbar vor einer zustandsbestimmenden Neuzuweisung gesetzt wurde.`
+- heutiger Vertrag: Der Collapse-Zustandsautomat schreibt pending_space nur noch an beobachtbaren Übergängen. Die überflüssige Zwischenzuweisung und damit die Compilerwarnung sind entfernt.
+- spätere Python-Aktion: Keine Python-Änderung erforderlich; es handelte sich um reine Mojo-Codehygiene.
+- Mojo-Orte: `src/reta_mojo/html_class_extractor.mojo`, `tests/test_utf8_rendering_source.py`
+- Belege: `STAGE12C5Q_UTF8_RENDERING_NATIVE_RUNTIME_COMPAT.md`, `tests/test_utf8_rendering_source.py`

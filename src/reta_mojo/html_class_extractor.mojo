@@ -202,7 +202,6 @@ def _collapsed_text(inner_html: String) -> String:
                 if pending_space and result.byte_length() > 0:
                     result += " "
                 result += _slice(normalized, chunk_start, index)
-                pending_space = False
             var close = index + 1
             while close < len(bytes) and Int(bytes[close]) != 62:
                 close += 1

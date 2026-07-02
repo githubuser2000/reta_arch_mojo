@@ -1745,3 +1745,14 @@ Für den lokalen Mojo-1.0.0b2-Lauf baut `scripts/test_stage12c5k.sh` zuerst den 
 - Defektkatalog: **78/78 konsistent**; Python-Bereinigungspunkte: **19**.
 - `tools/porting_metrics.py`: **61/92** vollständig, **83/92** mindestens teilweise, **38.174/48.831** angegriffene und **28.840/48.831** vollständig native Referenzzeilen.
 - Der Modular-Mojo-Compiler ist in dieser Sandbox nicht installiert; `scripts/test_stage12c5p.sh` baut und führt die acht nativen Tests lokal aus.
+
+
+## Stage 12c5q – UTF-8-Renderer und vollständiger Runtime-Kompatibilitätsvertrag
+
+- Ausgeführte Source-/Ownership-/Defekt-/Boundary-/Metriktests: **38/38 bestanden**.
+- Vorbereitete lokale Mojo-Tests: **27** in `test_runtime_compat_complete.mojo`, `test_native_reta_utf8_html.mojo` und `test_table_rendering.mojo`.
+- Der exakte zuvor abstürzende All-Spalten-HTML-Aufruf ist Teil des kompilierten Tests.
+- Öffentliche Python-Oberfläche von `runtime_compat.py`: **17/17 Funktionen plus Alias** nativ abgedeckt.
+- Defektkatalog: **80/80 konsistent**; Python-Bereinigungspunkte: **19**.
+- `tools/porting_metrics.py`: **62/92** vollständig, **83/92** mindestens teilweise, **38.174/48.831** angegriffene und **29.029/48.831** vollständig native Referenzzeilen.
+- Der Modular-Mojo-Compiler ist in dieser Sandbox nicht installiert; `scripts/test_stage12c5q.sh` baut und startet die 27 nativen Tests lokal.
