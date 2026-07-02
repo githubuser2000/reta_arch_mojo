@@ -1638,3 +1638,19 @@ Python3↔PyPy3-Vergleich ist mit diesem Upload daher noch nicht möglich.
 Maschinenberechneter Stand: **56/92 vollständig nativ/generiert**,
 **76/92 mindestens teilweise portiert**, **34.775/48.831 angegriffene
 Referenzzeilen**.
+
+
+## Stage 12c5i: native Tabellenadapter
+
+```text
+Python-/Quelltests der neuen und angrenzenden Stage: 42/42 bestanden
+Exakte Moduloberfläche:                            4/4
+Logische Prepare-Oberfläche:                     17/17
+Concat-Oberfläche:                               34/34
+Prepare-/Concat-Konstruktorzustände:              8/8 + 13/13
+Portierungsmatrix/Metriken:                       bestanden
+Defektkatalog:                                    67/67 konsistent
+aktive std.python-Brücken:                         0
+```
+
+`tests/test_table_adapters.mojo` ist vorhanden, wurde in dieser Sandbox aber nicht kompiliert, weil der offizielle Modular-Mojo-Compiler nicht installiert ist. Ein mit ausgeführter alter `concat_csv`-Paritätstest war ebenfalls nicht startbar, weil `target/tests/concat_csv_probe` im hochgeladenen Archiv fehlt; dieser Infrastrukturfehler wird nicht als Adapter-Testfehler gezählt.

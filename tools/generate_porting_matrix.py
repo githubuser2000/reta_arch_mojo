@@ -9,6 +9,7 @@ PYROOT = ROOT / "python_reference"
 OUT = ROOT / "PORTING_MATRIX.md"
 
 NATIVE = {
+    "reta_architecture/table_adapters.py": ("nativ", "src/reta_mojo/table_adapters.mojo + legacy_lib4tables_concat.mojo + table_preparation.mojo + row_filtering.mojo", "vier Modulhelfer, 17 logische Prepare-Methoden, 34 Concat-Methoden sowie 8/13 Konstruktorzustände in exakter Quellreihenfolge typisiert; die dünne Fassade leitet ausschließlich auf bereits native Besitzer weiter"),
     "reta_architecture/__init__.py": ("generiert nativ", "src/reta_mojo/architecture_exports.mojo + assets/architecture_exports.tsv + src/architecture_exports_main.mojo", "314 relative Importbindungen, 232 öffentliche __all__-Exporte und 46 Besitzermodule in exakter Reihenfolge typisiert; Laufzeitabfrage ohne Python-Import"),
     "reta_architecture/combi_join.py": ("nativ", "src/reta_mojo/combi_join.mojo + kombi_join_columns.mojo + src/combi_join_main.mojo", "alle sechs historischen Join-Morphismen typisiert; CSV-Dekodierung, Zahlparser, Auswahlrelation, Vorbereitungsgruppen, Zellbereinigung und Tabellenjoin ohne OrderedDict/OrderedSet-Laufzeitabhängigkeit; nur fachlich sichtbare Relationsreihenfolge bleibt explizit erhalten"),
     "libs/lib4tables_concat.py": ("nativ", "src/reta_mojo/legacy_lib4tables_concat.mojo + concat_csv.mojo + generated_table_columns.mojo + meta_columns.mojo", "historische 34-Methoden-Weiterleitungsfassade und 13 Konstruktorzustände typisiert; dynamische *args/**kwargs auf explizite Besitzer-APIs reduziert"),

@@ -8,21 +8,21 @@ Dies ist ein inkrementeller, getesteter Port des hochgeladenen Python-Projekts `
 abgeschlossene Release-Stufen:       9 von 12 = 75,0 %
 Stufen 9/10/12:                       Ausgabe, Prompt/i18n und Releaseparität in Arbeit
 Stufe 11:                             11a–11j = 100 %
-Stufe 12:                             12a–12b fertig, 12c zu ca. 99,9 % = ca. 70,5 %
-vollständig nativ/generiert:          56 von 92 = 60,9 %
-mindestens teilweise portiert:       76 von 92 = 82,6 %
-angegriffene Referenzzeilen:          34.775 von 48.831 = 71,2 %
+Stufe 12:                             12a–12b fertig, 12c zu ca. 99,9 % = ca. 70,8 %
+vollständig nativ/generiert:          57 von 92 = 62,0 %
+mindestens teilweise portiert:       77 von 92 = 83,7 %
+angegriffene Referenzzeilen:          35.194 von 48.831 = 72,1 %
 funktionaler Nutzerumfang:            ca. 96–98 %
 ```
 
 Die Metriken messen **orthogonale Bezugsgrößen** und sind nicht als ein einziges wechselndes Gesamtprozent zu lesen:
 
 - **96–98 % geschätzte Funktionsabdeckung**: Anteil der praktisch relevanten Befehls- und Verhaltensfamilien mit einem nativen Pfad. Der atomare Fallback ist nur eine Sicherheitsgrenze und wird nicht als transpiliert gezählt.
-- **60,9 % vollständiger Dateibesitz**: Nur Dateien, deren gesamter wirksamer Vertrag nativ oder reproduzierbar generiert ersetzt ist.
-- **71,2 % angegriffene Referenzzeilen**: maschinenberechneter Umfang vollständig und teilweise besessener Referenzdateien.
+- **62,0 % vollständiger Dateibesitz**: Nur Dateien, deren gesamter wirksamer Vertrag nativ oder reproduzierbar generiert ersetzt ist.
+- **72,1 % angegriffene Referenzzeilen**: maschinenberechneter Umfang vollständig und teilweise besessener Referenzdateien.
 - **82,8 % Stufenfortschritt**: gewichtete Releaseplanung; eine Stufe kann weit fortgeschritten sein, obwohl große historische Python-Besitzer noch sichtbar bleiben.
 
-Der Port ist daher nicht von über 90 % auf rund 61 % zurückgefallen. Die frühere Zahl bezeichnete die Funktionsoberfläche, die strengere Zahl den Quellersatz. Der vollständige Plan steht in [`ROADMAP.md`](ROADMAP.md).
+Der Port ist daher nicht von über 90 % auf rund 62 % zurückgefallen. Die frühere Zahl bezeichnete die Funktionsoberfläche, die strengere Zahl den Quellersatz. Der vollständige Plan steht in [`ROADMAP.md`](ROADMAP.md).
 
 ## Installation mit Python 3.14
 
@@ -85,6 +85,8 @@ regulären und schweren Compilerziele; lokale Debug-/Altdateien unter
 [`STAGE12C4M_FHS_RESOURCE_INSTALLATION.md`](STAGE12C4M_FHS_RESOURCE_INSTALLATION.md).
 
 ## Stufen 7–10: Generatoren, Kombinationen, Markup und Prompt
+
+Stage 12c5i schließt die 419-zeilige Architektur-Fassade `reta_architecture/table_adapters.py`: vier Modulhelfer, 17 logische `Prepare`-Methoden, 34 `Concat`-Methoden und beide Konstruktorzustände sind typisiert und leiten ausschließlich auf bereits native Besitzer. Details: [`STAGE12C5I_NATIVE_TABLE_ADAPTERS.md`](STAGE12C5I_NATIVE_TABLE_ADAPTERS.md).
 
 Stage 12c5h portiert die reine 598-zeilige `reta_architecture/__init__.py`-
 Reexportfassade als typisierten Katalog mit 314 Importbindungen, 232 geordneten

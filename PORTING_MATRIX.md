@@ -5,7 +5,7 @@ Stand: 2. Juli 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der g
 - Ursprüngliche Python-Dateien: **92**
 - Ursprüngliche Python-Zeilen insgesamt: **48831**
 - Eingebettete Python-Brücken: **0**; expliziter Mojo-Kindprozessadapter: **1**
-- Quellzeilen der bereits angegriffenen Architekturmodule: **34775**
+- Quellzeilen der bereits angegriffenen Architekturmodule: **35194**
 - Native Mojo-Quellzeilen: siehe `src/` (inklusive generiertem Kategoriekatalog)
 
 | Python-Datei | Zeilen | Funktionen | Klassen | dynamische Aufrufe | Status | Mojo/Ziel | Anmerkung |
@@ -84,7 +84,7 @@ Stand: 2. Juli 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der g
 | `reta_architecture/semantics_builder.py` | 267 | 6 | 2 | 0 | generiert nativ | `src/reta_mojo/semantics_builder.mojo + semantics_builder_catalog.mojo + tools/generate_semantics_builder_catalog.py` | 431 Parameterfamilien, 4.155 kanonische Paare, 14 Datenslots, Kombinationen, Alles-Inversion und vollständiger inhaltsabhängiger Python-Fingerabdruck nativ |
 | `reta_architecture/sheaves.py` | 269 | 22 | 5 | 4 | teilweise nativ | `src/reta_mojo/parameter_semantics.mojo` | ParameterSemanticsSheaf: Aliasauflösung, kanonische Paare, direkte Spalten und Rückabbildung |
 | `reta_architecture/split_i18n.py` | 33 | 1 | 0 | 3 | nativ | `src/reta_mojo/split_i18n.mojo + i18n_words.mojo` | dynamische SimpleNamespace-Fassade durch typisierten Katalogproxy mit identischer Modulreihenfolge und Later-wins-Auflösung ersetzt |
-| `reta_architecture/table_adapters.py` | 419 | 60 | 2 | 0 | Python-Referenz/Bridge | `python_reference/reta_architecture/table_adapters.py` | noch nicht nativ portiert |
+| `reta_architecture/table_adapters.py` | 419 | 60 | 2 | 0 | nativ | `src/reta_mojo/table_adapters.mojo + legacy_lib4tables_concat.mojo + table_preparation.mojo + row_filtering.mojo` | vier Modulhelfer, 17 logische Prepare-Methoden, 34 Concat-Methoden sowie 8/13 Konstruktorzustände in exakter Quellreihenfolge typisiert; die dünne Fassade leitet ausschließlich auf bereits native Besitzer weiter |
 | `reta_architecture/table_generation.py` | 298 | 8 | 2 | 2 | teilweise nativ | `src/reta_mojo/csv_table.mojo + native_reta_cli.mojo` | CSV-Grundtabelle, Spaltenprojektion und einfacher Ende-zu-Ende-Tabellenpfad nativ |
 | `reta_architecture/table_output.py` | 769 | 24 | 3 | 2 | teilweise nativ | `src/reta_mojo/table_rendering.mojo` | CSV, Markdown und Emacs für den nativen Tabellenpfad bytegleich; komplexes HTML/BBCode-Wrapping noch unvollständig |
 | `reta_architecture/table_preparation.py` | 475 | 19 | 3 | 1 | weitgehend nativ | `src/reta_mojo/table_preparation.mojo + parallel_row_preparation.mojo` | Zeilenauswahl, Tabellenprojektion, Unicode-sicherer Zellenumbruch und typisierte serielle/threadbasierte Vorbereitung unabhängiger Datenzeilen nativ; globale Header-Tag-Mutation bleibt bewusst seriell |

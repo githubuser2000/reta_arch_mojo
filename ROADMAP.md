@@ -2,14 +2,14 @@
 
 Geplanter Umfang: **12 Release-Stufen**. Eine Stufe zählt erst als abgeschlossen, wenn Quellcode, Referenztests, Compilerziele, Dokumentation und ein source-only Archiv gemeinsam geprüft sind.
 
-## Fortschrittsmaße nach Stage 12c5h
+## Fortschrittsmaße nach Stage 12c5i
 
 | Maß | Stand | Aussage |
 |---|---:|---|
-| abgeschlossene Release-Stufen | **9/12 = 75,0 %** | Stufen 1–8 und 11 sind abgeschlossen; Stufe 12 ist mit 12a, 12b, 12c1–12c3 und 12c4a–12c5h zu etwa 70,5 % abgeschlossen, während 9 und 10 noch Restpfade besitzen |
-| vollständig native oder generierte Python-Dateien | **56/92 = 60,9 %** | Datei vollständig ersetzt oder als reproduzierbares Laufzeitasset abgebildet |
-| mindestens angegriffene Python-Dateien | **76/92 = 82,6 %** | Status direkt aus der autoritativen `NATIVE`-Zuordnung |
-| angegriffene Referenzzeilen | **34.775/48.831 = 71,2 %** | maschinenberechnet statt manuell fortgeschrieben |
+| abgeschlossene Release-Stufen | **9/12 = 75,0 %** | Stufen 1–8 und 11 sind abgeschlossen; Stufe 12 ist mit 12a, 12b, 12c1–12c3 und 12c4a–12c5i zu etwa 70,8 % abgeschlossen, während 9 und 10 noch Restpfade besitzen |
+| vollständig native oder generierte Python-Dateien | **57/92 = 62,0 %** | Datei vollständig ersetzt oder als reproduzierbares Laufzeitasset abgebildet |
+| mindestens angegriffene Python-Dateien | **77/92 = 83,7 %** | Status direkt aus der autoritativen `NATIVE`-Zuordnung |
+| angegriffene Referenzzeilen | **35.194/48.831 = 72,1 %** | maschinenberechnet statt manuell fortgeschrieben |
 | funktionaler Nutzerumfang | **ca. 96–98 %** | praktisch nutzbarer Reta-Umfang ohne Python-Algorithmus |
 
 Die Stufenquote ist höher als die Quellzeilenquote, weil die letzten Stufen besonders große dynamische Module bündeln: vollständige Ausgabeaufbereitung, Prompt-Sprache, i18n-Matrix, Architekturvalidierung und Parallelisierung.
@@ -361,3 +361,13 @@ Die Zahl **12** ist die geplante Releasegliederung. Interne Teilpakete oder Fehl
 - Der `middle.alx`-Vergleich weist Container- und Nutzlastdigests getrennt aus. Das hochgeladene vermeintliche Python3-Artefakt ist ein Tar, dessen einziges Mitglied byteidentisch mit der PyPy3-Datei ist; ein unabhängiger Python3-Ausgabestrom war daher nicht enthalten.
 - `scripts/install_targets.txt` begrenzt Installationen auf **31 offizielle Compilerziele**. Unbekannte Alt-/Debugdateien wie `reta-native-o0` werden nicht mehr kopiert.
 - Stand: **56/92 vollständig nativ/generiert**, **76/92 mindestens teilweise**, **34.775/48.831 angegriffene Referenzzeilen**.
+
+
+## Stage 12c5i – native Architektur-Tabellenadapter
+
+- `reta_architecture/table_adapters.py` ist vollständig nativ besessen.
+- Vier Modulhelfer, 17 logische `Prepare`-Methoden und 34 `Concat`-Methoden werden in exakter Quellreihenfolge inventarisiert.
+- Der heterogene `Prepare`-Objektzustand ist als `PrepareAdapterState` typisiert; die drei Python-Properties besitzen explizite Getter/Setter.
+- Die Fassade dupliziert keine Algorithmen, sondern leitet auf `row_filtering`, `table_preparation`, `table_wrapping`, `tag_schema`, `number_theory` und `legacy_lib4tables_concat` weiter.
+- Header-/Tagmutation bleibt seriell; Datenzeilen verwenden denselben typisierten Kontext wie die native Thread-Zeilenvorbereitung.
+- Maschinenstand: 57/92 vollständig, 77/92 mindestens teilweise, 35.194/48.831 angegriffene Referenzzeilen.
