@@ -88,14 +88,16 @@ Mojo-Programme und der verbleibende Python-Kompatibilitätsbaum liegen
 standardmäßig getrennt unter `lib/reta`; Fedora-/RPM-Pakete können
 `LIBEXECDIR=/usr/libexec/reta` setzen. Relative Symlinks erhalten die
 historische Projektstruktur ohne Datenkopie. Seit Stage 12c5h kopiert der
-Installer ausschließlich die 41 in `scripts/install_targets.txt` deklarierten
-regulären und schweren Compilerziele; lokale Debug-/Altdateien unter
+Installer ausschließlich die in `scripts/install_targets.txt` deklarierten
+38 Executables und die gemeinsame Diagnosebibliothek; lokale Debug-/Altdateien unter
 `target/bin` werden nicht mehr versehentlich installiert. Details:
 [`STAGE12C4M_FHS_RESOURCE_INSTALLATION.md`](STAGE12C4M_FHS_RESOURCE_INSTALLATION.md).
 
 ## Stufen 7–10: Generatoren, Kombinationen, Markup und Prompt
 
-Stage 12c5y schließt `reta_architecture/table_output.py` vollständig. `TableOutputConfig`, `TableOutput`, Ergebnisbuffer, Spaltenprojektion, ANSI-Farbpolitik und Bundle/Snapshot sind typisiert; alle sieben Ausgabearten delegieren an die bereits nativen und breit getesteten Serializer. `reta-mojo-table-output` erhöht die Installmenge auf 23 reguläre plus 18 schwere Ziele. Details: [`STAGE12C5Y_NATIVE_TABLE_OUTPUT.md`](STAGE12C5Y_NATIVE_TABLE_OUTPUT.md).
+Stage 12c5z konsolidiert vier installierbare Diagnoseprogramme in `libreta-mojo-diagnostics.so` und einen kleinen ABI-geprüften Loader. Die bisherigen Befehlsnamen bleiben als kompatible Launcher bestehen; die Standardinstallation enthält nun 38 Executables plus eine Shared Library. `scripts/export_target.sh` ersetzt die beim lokalen Build sinnvollen absoluten Runtime-Symlinks durch echte Dateien für die Rechnerübergabe. Details: [`STAGE12C5Z_SHARED_DIAGNOSTIC_LIBRARY.md`](STAGE12C5Z_SHARED_DIAGNOSTIC_LIBRARY.md).
+
+Stage 12c5y schließt `reta_architecture/table_output.py` vollständig. `TableOutputConfig`, `TableOutput`, Ergebnisbuffer, Spaltenprojektion, ANSI-Farbpolitik und Bundle/Snapshot sind typisiert; alle sieben Ausgabearten delegieren an die bereits nativen und breit getesteten Serializer. `reta-mojo-table-output` war zunächst ein eigenes Diagnoseziel und wird seit Stage 12c5z über die gemeinsame Diagnosebibliothek bereitgestellt. Details: [`STAGE12C5Y_NATIVE_TABLE_OUTPUT.md`](STAGE12C5Y_NATIVE_TABLE_OUTPUT.md).
 
 Stage 12c5x korrigiert den gemeldeten Tabellen-Generatorimport: Das vorhandene Modul heißt `combi_join.mojo`, nicht `kombi_join.mojo`. Ein paketweiter Source-Test löst nun alle 260 relativen Mojo-Importe gegen reale Dateien auf. Außerdem ist `reta_architecture/console_io.py` vollständig durch einen typisierten Console-/Help-/Utility-Besitzer ersetzt; `reta-mojo-console-io` bietet Diagnose und Python/PyPy3-Parität. Details: [`STAGE12C5X_MODULE_IMPORT_CONSOLE_IO.md`](STAGE12C5X_MODULE_IMPORT_CONSOLE_IO.md).
 

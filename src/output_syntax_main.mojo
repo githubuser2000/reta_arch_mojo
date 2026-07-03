@@ -1,7 +1,8 @@
 """Native diagnostics for output semantics and syntax ownership."""
 
-from std.sys import argv
+from std.collections import List
 from std.collections.string import atol
+from reta_mojo.cli_arguments import owned_process_argv
 from reta_mojo.output_modes import (
     OutputRuntimeState,
     bootstrap_output_semantics,
@@ -24,10 +25,9 @@ def _bool_text(value: Bool) -> String:
     return "true" if value else "false"
 
 
-def main() raises:
-    var args = argv()
+def run_output_syntax_cli(args: List[String]) raises -> Int:
     var semantics = bootstrap_output_semantics()
-    if len(args) == 1 or (len(args) == 2 and String(args[1]) == "--summary"):
+    if len(args) == 1 or (len(args) == 2 and args[1] == "--summary"):
         var semantic_snapshot = semantics.snapshot()
         var syntax_snapshot = bootstrap_output_syntax().snapshot()
         print("semantics_class=" + semantic_snapshot.class_name)
@@ -46,22 +46,22 @@ def main() raises:
                 + "|markup=" + _bool_text(spec.marks_html_or_bbcode)
                 + "|aliases=" + String(len(spec.aliases))
             )
-        return
-    if len(args) == 3 and String(args[1]) == "--canonical":
-        print(semantics.canonicalize(String(args[2])))
-        return
-    if len(args) == 6 and String(args[1]) == "--apply":
+        return 0
+    if len(args) == 3 and args[1] == "--canonical":
+        print(semantics.canonicalize(args[2]))
+        return 0
+    if len(args) == 6 and args[1] == "--apply":
         var state = OutputRuntimeState(
             "shell",
             "OutputSyntax",
-            _bool_value(String(args[4])),
-            atol(String(args[3])),
+            _bool_value(args[4]),
+            atol(args[3]),
             False,
         )
         var result = semantics.apply_mode_to_tables(
             state,
-            String(args[2]),
-            _bool_value(String(args[5])),
+            args[2],
+            _bool_value(args[5]),
         )
         print("applied=" + _bool_text(result.applied))
         print("mode=" + result.state.canonical_name)
@@ -69,6 +69,10 @@ def main() raises:
         print("one_table=" + _bool_text(result.state.one_table))
         print("text_width=" + String(result.state.text_width))
         print("markup=" + _bool_text(result.state.marks_html_or_bbcode))
-        return
+        return 0
     _usage()
     raise Error("invalid output-syntax diagnostic arguments")
+
+
+def main() raises:
+    _ = run_output_syntax_cli(owned_process_argv())

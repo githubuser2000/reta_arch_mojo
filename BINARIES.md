@@ -20,7 +20,8 @@ reta-mojo-persistence     reta-mojo-execution-network
 reta-mojo-parallel-execution  reta-mojo-row-preparation
 reta-mojo-i18n          reta-mojo-semantics
 reta-mojo-exports       reta-mojo-facade
-reta-mojo-workflow      reta-mojo-sheaves      reta-mojo-table-generation
+reta-mojo-workflow      reta-mojo-sheaves      reta-mojo-diagnostics
+reta-mojo-table-generation
 reta-mojo-output-syntax  reta-mojo-console-io
 reta-mojo-table-output   reta-mojo-domain-probe
 reta-extract-html-classes generate4readme
@@ -64,7 +65,7 @@ ein identischer absoluter Home-Pfad.
 ```
 
 `scripts/build.sh` und `scripts/build-heavy.sh` betten zusätzlich
-`$ORIGIN/../lib/mojo` als relativen `RUNPATH` ein. Die Launcher verwenden
+`$ORIGIN/../lib/mojo` als relativen `RUNPATH` ein. Die Diagnosebibliothek unter `target/lib/reta` verwendet passend `$ORIGIN/../mojo`. Für die Rechnerübergabe erzeugt `scripts/export_target.sh target target-portable.tar.xz` echte Runtime-Dateien statt der lokalen absoluten Symlinks. Die Launcher verwenden
 `mojo-runtime-exec` als Abwärtskompatibilität für bereits vorhandene Binaries.
 
 Bei einer manuellen Installation liegen die unveränderlichen Daten unter
@@ -79,7 +80,7 @@ enthält nur die öffentlichen relativen Launcher-Symlinks.
 Die **kompilierten ELF-Dateien** werden nicht direkt nach `/usr/bin`, sondern
 nach `/usr/lib/reta/target/bin` installiert. Autoritativ ist
 `scripts/install_targets.txt`. Sind beide Buildskripte vollständig gelaufen,
-sind es genau **41** Ziele:
+sind es **38 Executables plus eine Shared Library**:
 
 ```text
 generate-html-native              generate-readme-native
@@ -88,8 +89,7 @@ reta-mojo-combi-join              reta-mojo-domain-probe
 reta-mojo-compat-bin
 reta-mojo-exports                 reta-mojo-facade
 reta-mojo-workflow                reta-mojo-sheaves
-reta-mojo-table-generation        reta-mojo-table-output
-reta-mojo-output-syntax            reta-mojo-console-io              reta-mojo-i18n
+reta-mojo-diagnostics             reta-mojo-i18n
 reta-mojo-native                  reta-mojo-package-integrity
 reta-mojo-table                   reta-mojo-tags
 reta-native                       reta-prompt-complete
@@ -106,12 +106,12 @@ reta-mojo-semantics               reta-mojo-traces
 reta-mojo-validation              reta-mojo-witnesses
 ```
 
-Die ersten 23 stammen aus `scripts/build.sh`; die letzten 18 sind optionale
+Die ersten 20 Executables und `libreta-mojo-diagnostics.so` stammen aus `scripts/build.sh`; die letzten 18 Executables sind optionale
 schwere Ziele aus `scripts/build-heavy.sh`. Nicht gebaute optionale Ziele werden
 übersprungen. Andere Dateien in `target/bin`, insbesondere lokale Debug- oder
 Altvarianten wie `reta-native-o0`, werden ausdrücklich **nicht** installiert.
 
-`/usr/bin` enthält demgegenüber **54 öffentliche Namen als relative Symlinks**
+`/usr/bin` enthält demgegenüber **55 öffentliche Namen als relative Symlinks**
 auf Launcher unter `/usr/lib/reta/bin`; darunter sind Komfortnamen und Profile,
 also nicht 53 verschiedene ELFs. Die zwei internen Helfer `mojo-real` und
 `mojo-runtime-exec` bleiben nur privat unter `/usr/lib/reta/bin`. Standardmäßig
@@ -242,9 +242,10 @@ zu einem einzigen Releasebinary `target/bin/reta` zusammengeführt werden.
 | Architektur-Kompositionsfassade | `target/bin/reta-mojo-facade` | 45 Felder, 49 Methoden, 45 Bootstrap-Schritte, 44 Rebuild-Einstiege, 98 Abhängigkeitskanten und 48 Snapshot-Einträge als reproduzierbarer nativer Graph; heterogene Laufzeitobjekte bleiben bis zur Portierung ihrer Besitzer teilweise nativ |
 | Program-Workflow-Kern | `target/bin/reta-mojo-workflow` | geordneter 4-Felder-/11-Methoden-/12-Schritte-Vertrag; Religion-CSV, Zellendekodierung, native Threadzeilen, Sprachspaltenersatz, Flag-Reset und Kombi-Zweigplanung nativ; heterogene Legacy-Program-Aggregation noch teilweise nativ |
 | Prägarben-/Garbendiagnose | `target/bin/reta-mojo-sheaves` | 269 lokale CSV-/i18n-/Assetsektionen, Promptzustand, Parametersemantik, Generator-/Ausgabesektionen und 669 vollständige HTML-Referenzen vollständig nativ |
-| Tabellen-Gluing | `target/bin/reta-mojo-table-generation` | typisierter Plan für CSV-Anfügung, Last-Line-Capture, zwölf Generatorfamilien und Galaxie-/Universum-Kombi-Join |
-| Ausgabesemantik/-syntax | `target/bin/reta-mojo-output-syntax` | sieben Modi, Aliase, Flags, Syntaxdeskriptoren, Bundle/Snapshot sowie typisierte HTML-/BBCode-/Textzellen |
-| Console-/Help-/Utility-Semantik | `target/bin/reta-mojo-console-io` | Chunking, geordnete Eindeutigkeit, Ausgabe-/Debug-Effektplanung, beide Hilfetexte, Terminalkontext und geordneter Default-Container vollständig nativ |
+| Tabellen-Gluing | `bin/reta-mojo-table-generation` → gemeinsame Diagnosebibliothek | typisierter Plan für CSV-Anfügung, Last-Line-Capture, zwölf Generatorfamilien und Galaxie-/Universum-Kombi-Join |
+| Ausgabesemantik/-syntax | `bin/reta-mojo-output-syntax` → gemeinsame Diagnosebibliothek | sieben Modi, Aliase, Flags, Syntaxdeskriptoren, Bundle/Snapshot sowie typisierte HTML-/BBCode-/Textzellen |
+| Gemeinsame Diagnose-ABI | `target/bin/reta-mojo-diagnostics` + `target/lib/reta/libreta-mojo-diagnostics.so` | vier kompatible Befehlsoberflächen für TableGeneration, OutputSyntax, ConsoleIO und TableOutput; versionierte C-ABI und Source-ID-Paarprüfung |
+| Console-/Help-/Utility-Semantik | `bin/reta-mojo-console-io` → gemeinsame Diagnosebibliothek | Chunking, geordnete Eindeutigkeit, Ausgabe-/Debug-Effektplanung, beide Hilfetexte, Terminalkontext und geordneter Default-Container vollständig nativ |
 | Domain-Probe-Kern | `target/bin/reta-mojo-domain-probe` | neun Alias-/Paar-/Spalten-/JSON-Befehle direkt über native Schema- und Parametersemantik; HTML-, Schema- und Architektur-Snapshots bleiben Referenzgrenze |
 | HTML-Klassenextraktion | `target/bin/reta-extract-html-classes-native` | erzeugt die einzeilige All-Spalten-HTML-Tabelle nativ, analysiert doppelte Attribute/Klassen und schreibt 15-Feld-JSONL ohne Python, Regex oder Unterprozess |
 | Quellbaum-Integrität | `target/bin/reta-mojo-package-integrity` | reguläre Dateien und Dateisymlinks, Runtime-Filter, 74 Pflichtpfade, CSV-Zeilen und binärer SHA-256-Gesamtdigest vollständig nativ; native Linux/POSIX-Verzeichnis-FFI und OpenSSL als Systemgrenzen |

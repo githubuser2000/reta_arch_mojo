@@ -89,15 +89,17 @@ def test_console_io_owner_has_no_python_or_child_process_bridge() -> None:
 
 
 def test_console_io_build_and_install_surface_is_wired() -> None:
-    build = (ROOT / "scripts/build.sh").read_text(encoding="utf-8")
-    assert "build src/console_io_main.mojo reta-mojo-console-io -I src" in build
+    abi = (ROOT / "src/reta_diagnostics_abi.mojo").read_text(encoding="utf-8")
+    assert "reta_mojo_console_io_entry" in abi
     targets = (ROOT / "scripts/install_targets.txt").read_text(encoding="utf-8").splitlines()
-    assert "reta-mojo-console-io" in targets
+    assert "reta-mojo-diagnostics" in targets
+    assert "reta-mojo-console-io" not in targets
     launcher = ROOT / "bin/reta-mojo-console-io"
     assert launcher.is_file()
     assert launcher.stat().st_mode & 0o111
     launcher_source = launcher.read_text(encoding="utf-8")
-    assert "reta-mojo-console-io" in launcher_source
+    assert "reta-mojo-diagnostics" in launcher_source
+    assert '"console-io"' in launcher_source
     assert "mojo-runtime-exec" in launcher_source
 
 

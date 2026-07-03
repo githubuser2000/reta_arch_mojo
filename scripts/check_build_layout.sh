@@ -3,7 +3,7 @@ set -eu
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 cd "$ROOT"
 
-expected='reta-mojo-native reta-mojo-table reta-mojo-tags reta-mojo-i18n reta-mojo-package-integrity reta-mojo-exports reta-mojo-facade reta-mojo-workflow reta-mojo-sheaves reta-mojo-table-generation reta-mojo-table-output reta-mojo-output-syntax reta-mojo-console-io reta-mojo-domain-probe reta-mojo-combi-join reta-native reta-mojo-compat-bin reta-prompt-native reta-prompt-complete grundStrukHtml-native generate-html-native generate-readme-native reta-extract-html-classes-native'
+expected='reta-mojo-native reta-mojo-table reta-mojo-tags reta-mojo-i18n reta-mojo-package-integrity reta-mojo-exports reta-mojo-facade reta-mojo-workflow reta-mojo-sheaves reta-mojo-diagnostics reta-mojo-domain-probe reta-mojo-combi-join reta-native reta-mojo-compat-bin reta-prompt-native reta-prompt-complete grundStrukHtml-native generate-html-native generate-readme-native reta-extract-html-classes-native'
 
 if ! grep -Eq '^target/$' .gitignore; then
     printf '%s\n' 'Fehler: target/ fehlt in .gitignore.' >&2
@@ -29,6 +29,27 @@ for name in $expected; do
         exit 1
     fi
 done
+
+DIAGNOSTICS_LIBRARY=target/lib/reta/libreta-mojo-diagnostics.so
+if [ ! -f "$DIAGNOSTICS_LIBRARY" ]; then
+    printf 'Fehler: erwartete Shared Library fehlt: %s\n' "$DIAGNOSTICS_LIBRARY" >&2
+    exit 1
+fi
+if ! file -b "$DIAGNOSTICS_LIBRARY" | grep -q '^ELF 64-bit.*shared object'; then
+    printf 'Fehler: keine native ELF-Shared-Library: %s\n' "$DIAGNOSTICS_LIBRARY" >&2
+    exit 1
+fi
+for stamped in target/bin/reta-mojo-diagnostics "$DIAGNOSTICS_LIBRARY"; do
+    [ -f "$stamped.reta-source-id" ] || {
+        printf 'Fehler: Source-ID-Sidecar fehlt: %s.reta-source-id\n' "$stamped" >&2
+        exit 1
+    }
+done
+if [ "$(sed -n '1p' target/bin/reta-mojo-diagnostics.reta-source-id)" != \
+     "$(sed -n '1p' "$DIAGNOSTICS_LIBRARY.reta-source-id")" ]; then
+    printf '%s\n' 'Fehler: Loader und Shared Library haben verschiedene Source-IDs.' >&2
+    exit 1
+fi
 
 if [ "${RETA_CHECK_HEAVY:-0}" = "1" ]; then
     for name in reta-mojo-semantics reta-mojo-schema reta-mojo-architecture reta-mojo-boundaries reta-mojo-contracts reta-mojo-witnesses reta-mojo-coherence reta-mojo-traces reta-mojo-impact reta-mojo-migration reta-mojo-rehearsal reta-mojo-activation reta-mojo-validation reta-mojo-progress reta-mojo-persistence reta-mojo-execution-network reta-mojo-parallel-execution reta-mojo-row-preparation; do

@@ -2311,6 +2311,54 @@
         "tests/test_all_columns_plan.py",
         "tests/test_parameter_runtime_source.py"
       ]
+    },
+    {
+      "id": "MOJO-FIXED-045",
+      "title": "Executable-RUNPATH wurde ungeprüft auf eine anders platzierte Shared Library übertragen",
+      "origin": "mojo_port",
+      "classification": "shared_library_runpath_layout",
+      "severity": "high",
+      "python_status": "not_applicable",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5z",
+      "reproducer": "libreta-mojo-diagnostics.so unter target/lib/reta mit dem bisherigen sanitize_mojo_runpath.py bearbeiten; der Helfer fügte immer $ORIGIN/../lib/mojo hinzu, obwohl die Runtime aus diesem Verzeichnis unter $ORIGIN/../mojo liegt.",
+      "python_locations": [],
+      "mojo_locations": [
+        "tools/sanitize_mojo_runpath.py",
+        "scripts/build_diagnostics_shared.sh",
+        "tests/test_mojo_runtime_path.py"
+      ],
+      "current_contract": "Der RUNPATH-Sanitizer erhält den layoutabhängigen relativen Runtimepfad explizit. Executables verwenden $ORIGIN/../lib/mojo; die Shared Library unter target/lib/reta verwendet $ORIGIN/../mojo.",
+      "post_port_fix": "Keine Python-Änderung erforderlich; betroffen war ausschließlich die native ELF-Paketierung.",
+      "evidence": [
+        "STAGE12C5Z_SHARED_DIAGNOSTIC_LIBRARY.md",
+        "scripts/build_diagnostics_shared.sh",
+        "tests/test_mojo_runtime_path.py"
+      ]
+    },
+    {
+      "id": "MOJO-FIXED-046",
+      "title": "Übertragener Target-Baum enthielt absolute und danach gebrochene Runtime-Symlinks",
+      "origin": "mojo_port",
+      "classification": "non_portable_runtime_closure",
+      "severity": "high",
+      "python_status": "not_applicable",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5z",
+      "reproducer": "Den unter einem anderen Home-Pfad erzeugten target-Ordner archivieren und auf einem zweiten Rechner entpacken; alle fünf Links unter target/lib/mojo zeigen weiterhin absolut in die ursprüngliche .venv und sind dort nicht auflösbar.",
+      "python_locations": [],
+      "mojo_locations": [
+        "scripts/configure_mojo_runtime.sh",
+        "scripts/export_target.sh",
+        "tests/test_mojo_runtime_path.py"
+      ],
+      "current_contract": "Lokale Builds dürfen den schnellen link-Modus verwenden. RETA_MOJO_RUNTIME_MODE=copy und scripts/export_target.sh erzeugen für die Übergabe eine physisch geschlossene Runtime ohne Symlinks und verweigern einen unvollständigen Export.",
+      "post_port_fix": "Keine Python-Änderung erforderlich; die Daten- und Python-Referenzpfade waren nicht Ursache des Binärtransportfehlers.",
+      "evidence": [
+        "STAGE12C5Z_SHARED_DIAGNOSTIC_LIBRARY.md",
+        "scripts/export_target.sh",
+        "tests/test_mojo_runtime_path.py"
+      ]
     }
   ],
   "audit": {

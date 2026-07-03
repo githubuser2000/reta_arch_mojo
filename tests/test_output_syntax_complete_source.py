@@ -107,10 +107,17 @@ def test_typed_owner_uses_html_catalog_without_python_bridge() -> None:
 
 def test_build_install_launcher_and_stage_wiring() -> None:
     build = (ROOT / "scripts/build.sh").read_text(encoding="utf-8")
-    assert "build src/output_syntax_main.mojo reta-mojo-output-syntax -I src" in build
+    abi = (ROOT / "src/reta_diagnostics_abi.mojo").read_text(encoding="utf-8")
+    assert '"$ROOT/scripts/build_diagnostics_shared.sh"' in build
+    assert "reta_mojo_output_syntax_entry" in abi
     targets = (ROOT / "scripts/install_targets.txt").read_text(encoding="utf-8").splitlines()
-    assert "reta-mojo-output-syntax" in targets
-    assert (ROOT / "bin/reta-mojo-output-syntax").stat().st_mode & 0o111
+    assert "reta-mojo-diagnostics" in targets
+    assert "reta-mojo-output-syntax" not in targets
+    launcher = ROOT / "bin/reta-mojo-output-syntax"
+    assert launcher.stat().st_mode & 0o111
+    launcher_source = launcher.read_text(encoding="utf-8")
+    assert "reta-mojo-diagnostics" in launcher_source
+    assert '"output-syntax"' in launcher_source
     stage = (ROOT / "scripts/test_stage12c5v.sh").read_text(encoding="utf-8")
     assert "test_output_semantics_complete.mojo" in stage
     assert "check_output_semantics_parity.py" in stage

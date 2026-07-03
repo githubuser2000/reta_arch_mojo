@@ -20,3 +20,8 @@ def test_absolute_compiler_path_is_removed_but_origin_is_preserved() -> None:
 def test_origin_component_is_added_once() -> None:
     assert MODULE.portable_runpath("/tmp/modular/lib") == "$ORIGIN/../lib/mojo"
     assert MODULE.portable_runpath("$ORIGIN/../lib/mojo:$ORIGIN/../lib/mojo") == "$ORIGIN/../lib/mojo"
+
+
+def test_library_layout_uses_its_own_relative_component() -> None:
+    old = "/opt/modular/lib:$ORIGIN/../mojo"
+    assert MODULE.portable_runpath(old, "$ORIGIN/../mojo") == "$ORIGIN/../mojo"

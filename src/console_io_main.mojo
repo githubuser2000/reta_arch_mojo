@@ -2,7 +2,7 @@
 
 from std.collections import List
 from std.collections.string import atol
-from std.sys import argv
+from reta_mojo.cli_arguments import owned_process_argv
 from reta_mojo.console_io import *
 
 
@@ -30,10 +30,9 @@ def _usage():
     print("  --ordered-default")
 
 
-def main() raises:
-    var args = argv()
+def run_console_io_cli(args: List[String]) raises -> Int:
     var bundle = bootstrap_console_io_morphisms()
-    if len(args) == 1 or (len(args) == 2 and String(args[1]) == "--summary"):
+    if len(args) == 1 or (len(args) == 2 and args[1] == "--summary"):
         var snapshot = bundle.snapshot()
         print("class=" + snapshot.class_name)
         print("stage=" + String(snapshot.stage))
@@ -49,48 +48,48 @@ def main() raises:
         for index in range(len(snapshot.compatibility_names)):
             print("compatibility=" + snapshot.compatibility_names[index])
         print("observable_invariant=" + snapshot.observable_invariant)
-        return
+        return 0
 
-    if len(args) >= 4 and String(args[1]) == "--chunks":
+    if len(args) >= 4 and args[1] == "--chunks":
         var values = List[String]()
         for index in range(3, len(args)):
-            values.append(String(args[index]))
-        var chunked = chunks_strings(values, atol(String(args[2])))
+            values.append(args[index])
+        var chunked = chunks_strings(values, atol(args[2]))
         for index in range(len(chunked)):
             _print_values("chunk=", chunked[index])
-        return
+        return 0
 
-    if len(args) >= 3 and String(args[1]) == "--unique":
+    if len(args) >= 3 and args[1] == "--unique":
         var values = List[String]()
         for index in range(2, len(args)):
-            values.append(String(args[index]))
+            values.append(args[index])
         _print_values("unique=", unique_everseen_strings(values))
-        return
+        return 0
 
-    if len(args) >= 3 and String(args[1]) == "--unique-lower":
+    if len(args) >= 3 and args[1] == "--unique-lower":
         var values = List[String]()
         for index in range(2, len(args)):
-            values.append(String(args[index]))
+            values.append(args[index])
         _print_values("unique=", unique_everseen_ascii_lower(values))
-        return
+        return 0
 
-    if len(args) == 5 and String(args[1]) == "--cli":
-        var color = String(args[2]) == "true" or String(args[2]) == "1"
-        var enabled = String(args[3]) == "true" or String(args[3]) == "1"
-        print(cli_output_text(String(args[4]), color, enabled), end="")
-        return
+    if len(args) == 5 and args[1] == "--cli":
+        var color = args[2] == "true" or args[2] == "1"
+        var enabled = args[3] == "true" or args[3] == "1"
+        print(cli_output_text(args[4], color, enabled), end="")
+        return 0
 
-    if len(args) == 4 and String(args[1]) == "--help-text":
-        var kind = String(args[2])
-        var language = String(args[3])
+    if len(args) == 4 and args[1] == "--help-text":
+        var kind = args[2]
+        var language = args[3]
         if kind == "prompt":
             print(reta_prompt_help_text(language), end="")
-            return
+            return 0
         if kind == "reta":
             print(reta_help_text(language), end="")
-            return
+            return 0
 
-    if len(args) == 2 and String(args[1]) == "--ordered-default":
+    if len(args) == 2 and args[1] == "--ordered-default":
         var ordered = default_ordered_dict()
         var first = ordered.get_or_default("alpha")
         first.append("1")
@@ -103,7 +102,11 @@ def main() raises:
             _print_values("entry=" + snapshot.keys[index] + "=", snapshot.values[index])
         print("contains_alpha=" + _bool_text(ordered.contains("alpha")))
         print("contains_gamma=" + _bool_text(ordered.contains("gamma")))
-        return
+        return 0
 
     _usage()
     raise Error("invalid console-io diagnostic arguments")
+
+
+def main() raises:
+    _ = run_console_io_cli(owned_process_argv())

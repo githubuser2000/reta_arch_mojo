@@ -12,4 +12,4 @@ if [ ! -x "$TARGET" ]; then
     exit 127
 fi
 cd "$ROOT"
-exec "$ROOT/bin/mojo-runtime-exec" "$TARGET" "console-io" "$@"
+exec "$ROOT/bin/mojo-runtime-exec" "$TARGET" "$@"

@@ -76,3 +76,13 @@ Binaries aus der vorherigen Stage enthalten. Die Source-ID-Prüfung verweigert
 deren Ausführung. Ein erneutes `scripts/build.sh` aktualisiert Programme und
 Sidecars; ein erneuter Upload des daraus entstehenden `target/` ist weiterhin
 nicht erforderlich.
+
+## Portabler Target-Baum
+
+`target/` bleibt ein Buildprodukt und gehört nicht in das Quellarchiv. Soll ein kompilierter Stand zwischen Rechnern übergeben werden, wird er separat erzeugt:
+
+```bash
+scripts/export_target.sh target target-portable.tar.xz
+```
+
+Dieser Export materialisiert die fünf Modular-Runtimebibliotheken und entfernt damit die nicht übertragbaren absoluten `.venv`-Symlinks.

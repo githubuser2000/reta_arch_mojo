@@ -1,3 +1,14 @@
+# Status – Stage 12c5z
+
+- vier installierbare Mojo-Diagnoseprogramme zu einer Shared Library plus einem kleinen C-Loader konsolidiert
+- öffentliche Kompatibilitätsnamen bleiben erhalten; Standardmenge: 20 reguläre + 18 schwere Executables + 1 Shared Library
+- hochgeladener Target-Baum analysiert: 41 Programm-ELFs, 28 Test-ELFs, 30.858.015 Byte; vier Diagnose-ELFs zusammen 1.119.016 Byte
+- fünf übertragene absolute Mojo-Runtime-Symlinks als nicht portabel erkannt
+- `RETA_MOJO_RUNTIME_MODE=copy` und `scripts/export_target.sh` erzeugen eine übertragbare Runtimeclosure
+- Loader-/Bibliotheks-ABI, Source-ID-Paarung, FHS-Installation und beide relativen RUNPATH-Formen durch Source- und echte C-Loader-Tests abgesichert
+- vollständiger Dateibesitz unverändert: 71/92; Mojo-Zeilen: 56.849, davon 52.292 unter `src/reta_mojo`
+- portabler Source-Bestand: 149 bestanden, 1 compilerabhängiger Skip; zusätzliche Infrastruktur 58/58; Archivvertrag 3/3; Defektkatalog 97/97; Manifest 1.386/1.386
+
 # Status – Stage 12c5y source-complete; Stufen 9, 10 und 12 in Arbeit
 - Zielversion: Mojo 1.0.0b2
 - Unterstützte Python-Umgebung für Installation/Referenzbrücken: 3.10–3.14; Setup bevorzugt Python 3.14

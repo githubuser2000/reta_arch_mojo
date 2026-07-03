@@ -66,11 +66,18 @@ def test_native_owner_has_no_python_or_process_bridge() -> None:
 
 def test_build_install_and_launcher_surfaces_are_wired() -> None:
     build = (ROOT / "scripts/build.sh").read_text(encoding="utf-8")
-    assert "build src/table_generation_main.mojo reta-mojo-table-generation -I src" in build
-    assert "reta-mojo-table-generation" in (
-        ROOT / "scripts/install_targets.txt"
-    ).read_text(encoding="utf-8").splitlines()
-    assert (ROOT / "bin/reta-mojo-table-generation").stat().st_mode & 0o111
+    shared = (ROOT / "scripts/build_diagnostics_shared.sh").read_text(encoding="utf-8")
+    assert '"$ROOT/scripts/build_diagnostics_shared.sh"' in build
+    assert "src/reta_diagnostics_abi.mojo" in shared
+    assert "--emit shared-lib" in shared
+    targets = (ROOT / "scripts/install_targets.txt").read_text(encoding="utf-8").splitlines()
+    assert "reta-mojo-diagnostics" in targets
+    assert "reta-mojo-table-generation" not in targets
+    launcher = ROOT / "bin/reta-mojo-table-generation"
+    assert launcher.stat().st_mode & 0o111
+    launcher_source = launcher.read_text(encoding="utf-8")
+    assert "reta-mojo-diagnostics" in launcher_source
+    assert '"table-generation"' in launcher_source
 
 
 def test_static_snapshot_contract_matches_python_counts() -> None:

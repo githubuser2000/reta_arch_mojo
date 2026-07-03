@@ -16,12 +16,9 @@ REGULAR = {
     "reta-mojo-exports",
     "reta-mojo-facade",
     "reta-mojo-sheaves",
-    "reta-mojo-table-generation",
-    "reta-mojo-table-output",
-    "reta-mojo-output-syntax",
+    "reta-mojo-diagnostics",
     "reta-mojo-workflow",
     "reta-mojo-combi-join",
-    "reta-mojo-console-io",
     "reta-mojo-domain-probe",
     "reta-native",
     "reta-mojo-compat-bin",
@@ -64,7 +61,7 @@ def _manifest_names() -> list[str]:
 
 def test_manifest_is_complete_unique_and_excludes_stale_debug_targets() -> None:
     names = _manifest_names()
-    assert len(names) == len(set(names)) == 41
+    assert len(names) == len(set(names)) == 38
     assert set(names) == REGULAR | HEAVY
     assert "reta-native-o0" not in names
 
@@ -126,3 +123,56 @@ def test_build_layout_checks_every_regular_target() -> None:
     line = next(raw for raw in layout.splitlines() if raw.startswith(prefix))
     expected = set(line[len(prefix):-1].split())
     assert expected == REGULAR
+
+
+def test_installer_places_shared_diagnostics_bundle_atomically(tmp_path: Path) -> None:
+    target_root = tmp_path / "compiled-target"
+    target_dir = target_root / "bin"
+    library_dir = target_root / "lib" / "reta"
+    target_dir.mkdir(parents=True)
+    library_dir.mkdir(parents=True)
+    for name in (
+        "reta-native",
+        "reta-mojo-compat-bin",
+        "generate-html-native",
+        "reta-mojo-diagnostics",
+    ):
+        path = target_dir / name
+        path.write_text("#!/bin/sh\nexit 0\n", encoding="utf-8")
+        path.chmod(0o755)
+    source_id = "install-shared-test\n"
+    (target_dir / "reta-mojo-diagnostics.reta-source-id").write_text(
+        source_id, encoding="utf-8"
+    )
+    library = library_dir / "libreta-mojo-diagnostics.so"
+    library.write_bytes(b"fake-shared-library")
+    (library_dir / "libreta-mojo-diagnostics.so.reta-source-id").write_text(
+        source_id, encoding="utf-8"
+    )
+
+    stage = tmp_path / "stage"
+    result = subprocess.run(
+        [str(ROOT / "scripts/install.sh")],
+        cwd=ROOT,
+        env={
+            **os.environ,
+            "DESTDIR": str(stage),
+            "PREFIX": "/usr",
+            "RETA_INSTALL_MOJO_RUNTIME": "0",
+            "RETA_TARGET_DIR": str(target_dir),
+        },
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr
+    private = stage / "usr/lib/reta/target"
+    assert (private / "bin/reta-mojo-diagnostics").is_file()
+    assert (private / "bin/reta-mojo-diagnostics.reta-source-id").read_text() == source_id
+    assert (private / "lib/reta/libreta-mojo-diagnostics.so").read_bytes() == b"fake-shared-library"
+    assert (
+        private / "lib/reta/libreta-mojo-diagnostics.so.reta-source-id"
+    ).read_text() == source_id
+    layout = (stage / "usr/lib/reta/INSTALL_LAYOUT").read_text(encoding="utf-8")
+    assert "compiled_shared_libraries=1" in layout

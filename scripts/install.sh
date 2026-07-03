@@ -10,6 +10,8 @@ DATADIR=${DATADIR:-$PREFIX/share/reta}
 MANDIR=${MANDIR:-$PREFIX/share/man}
 INSTALL_MOJO_RUNTIME=${RETA_INSTALL_MOJO_RUNTIME:-1}
 TARGETDIR=${RETA_TARGET_DIR:-$ROOT/target/bin}
+TARGETROOT=$(dirname -- "$TARGETDIR")
+TARGETLIBDIR=${RETA_TARGET_LIB_DIR:-$TARGETROOT/lib/reta}
 
 stage_path() {
     printf '%s%s\n' "$DESTDIR" "$1"
@@ -44,6 +46,16 @@ require_file "$TARGETDIR/generate-html-native"
 require_file "$ROOT/man/generate_html.1"
 require_file "$ROOT/scripts/install_targets.txt"
 
+INSTALL_DIAGNOSTICS=0
+if [ -f "$TARGETDIR/reta-mojo-diagnostics" ]; then
+    INSTALL_DIAGNOSTICS=1
+    DIAGNOSTICS_LIBRARY="$TARGETLIBDIR/libreta-mojo-diagnostics.so"
+    LOADER_STAMP="$TARGETDIR/reta-mojo-diagnostics.reta-source-id"
+    require_file "$DIAGNOSTICS_LIBRARY"
+    require_file "$DIAGNOSTICS_LIBRARY.reta-source-id"
+    require_file "$LOADER_STAMP"
+fi
+
 STAGE_BINDIR=$(stage_path "$BINDIR")
 STAGE_LIBEXECDIR=$(stage_path "$LIBEXECDIR")
 STAGE_DATADIR=$(stage_path "$DATADIR")
@@ -52,6 +64,7 @@ STAGE_MANDIR=$(stage_path "$MANDIR")
 install -d "$STAGE_BINDIR" "$STAGE_LIBEXECDIR" \
     "$STAGE_LIBEXECDIR/bin" "$STAGE_LIBEXECDIR/scripts" \
     "$STAGE_LIBEXECDIR/target/bin" "$STAGE_LIBEXECDIR/target/lib/mojo" \
+    "$STAGE_LIBEXECDIR/target/lib/reta" \
     "$STAGE_DATADIR/csv" "$STAGE_DATADIR/assets" \
     "$STAGE_MANDIR/man1"
 
@@ -101,6 +114,17 @@ while IFS= read -r name || [ -n "$name" ]; do
     INSTALLED_TARGETS=$((INSTALLED_TARGETS + 1))
 done < "$ROOT/scripts/install_targets.txt"
 
+INSTALLED_LIBRARIES=0
+if [ "$INSTALL_DIAGNOSTICS" = 1 ]; then
+    install -m 0755 "$DIAGNOSTICS_LIBRARY" \
+        "$STAGE_LIBEXECDIR/target/lib/reta/libreta-mojo-diagnostics.so"
+    install -m 0644 "$DIAGNOSTICS_LIBRARY.reta-source-id" \
+        "$STAGE_LIBEXECDIR/target/lib/reta/libreta-mojo-diagnostics.so.reta-source-id"
+    install -m 0644 "$LOADER_STAMP" \
+        "$STAGE_LIBEXECDIR/target/bin/reta-mojo-diagnostics.reta-source-id"
+    INSTALLED_LIBRARIES=1
+fi
+
 if [ "$INSTALL_MOJO_RUNTIME" != 0 ]; then
     RUNTIME_DIR=$($ROOT/scripts/find_mojo_runtime.sh)
     for library in \
@@ -138,12 +162,14 @@ csvdir=$DATADIR/csv
 assetdir=$DATADIR/assets
 mandir=$MANDIR
 compiled_targets=$INSTALLED_TARGETS
+compiled_shared_libraries=$INSTALLED_LIBRARIES
 LAYOUT
 
 printf 'Reta installiert:\n'
 printf '  Programme:      %s\n' "$BINDIR"
 printf '  Private Laufzeit: %s\n' "$LIBEXECDIR"
 printf '  Compilerziele:  %s\n' "$INSTALLED_TARGETS"
+printf '  Shared Libraries: %s\n' "$INSTALLED_LIBRARIES"
 printf '  CSV-Daten:      %s\n' "$DATADIR/csv"
 printf '  Assets:         %s\n' "$DATADIR/assets"
 printf '  Manpage:        %s\n' "$MANDIR/man1/generate_html.1"

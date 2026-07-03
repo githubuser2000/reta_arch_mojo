@@ -14,7 +14,7 @@ import re
 import subprocess
 from pathlib import Path
 
-PORTABLE_COMPONENT = "$ORIGIN/../lib/mojo"
+DEFAULT_PORTABLE_COMPONENT = "$ORIGIN/../lib/mojo"
 PATH_RE = re.compile(r"Library r(?:un)?path: \[(.*?)\]")
 
 
@@ -35,20 +35,24 @@ def read_runpath(path: Path) -> str | None:
     return None
 
 
-def portable_runpath(old: str) -> str:
+def portable_runpath(
+    old: str, portable_component: str = DEFAULT_PORTABLE_COMPONENT
+) -> str:
     components = [part for part in old.split(":") if part]
     portable = [part for part in components if "$ORIGIN" in part]
-    if PORTABLE_COMPONENT not in portable:
-        portable.append(PORTABLE_COMPONENT)
+    if portable_component not in portable:
+        portable.append(portable_component)
     # Preserve order but remove duplicates.
     return ":".join(dict.fromkeys(portable))
 
 
-def sanitize(path: Path, *, check_only: bool = False) -> bool:
+def sanitize(
+    path: Path, *, portable_component: str, check_only: bool = False
+) -> bool:
     old = read_runpath(path)
     if old is None:
         return False
-    new = portable_runpath(old)
+    new = portable_runpath(old, portable_component)
     if old == new:
         return True
     if check_only:
@@ -83,11 +87,20 @@ def iter_candidates(paths: list[Path]):
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--check", action="store_true")
+    parser.add_argument(
+        "--portable-component",
+        default=DEFAULT_PORTABLE_COMPONENT,
+        help="relative runtime component to retain or add",
+    )
     parser.add_argument("paths", nargs="+", type=Path)
     args = parser.parse_args()
     seen = 0
     for path in iter_candidates(args.paths):
-        if sanitize(path, check_only=args.check):
+        if sanitize(
+            path,
+            portable_component=args.portable_component,
+            check_only=args.check,
+        ):
             seen += 1
             print(f"portable RUNPATH: {path}")
     if seen == 0:

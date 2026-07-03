@@ -3,9 +3,12 @@ set -eu
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 cd "$ROOT"
 TARGET_DIR=${RETA_TARGET_DIR:-"$ROOT/target/bin"}
-mkdir -p "$TARGET_DIR"
+TARGET_ROOT=$(dirname -- "$TARGET_DIR")
+RUNTIME_LINK_DIR=${RETA_MOJO_RUNTIME_LINK_DIR:-"$TARGET_ROOT/lib/mojo"}
+mkdir -p "$TARGET_DIR" "$RUNTIME_LINK_DIR"
 MOJO_RUNTIME_RPATH='$ORIGIN/../lib/mojo'
-"$ROOT/scripts/configure_mojo_runtime.sh" >/dev/null
+RETA_MOJO_RUNTIME_LINK_DIR="$RUNTIME_LINK_DIR" \
+    "$ROOT/scripts/configure_mojo_runtime.sh" >/dev/null
 
 build() {
     source_file=$1
@@ -28,10 +31,13 @@ build src/architecture_exports_main.mojo reta-mojo-exports -I src
 build src/architecture_facade_main.mojo reta-mojo-facade -I src
 build src/program_workflow_main.mojo reta-mojo-workflow -I src
 build src/sheaves_main.mojo reta-mojo-sheaves -I src
-build src/table_generation_main.mojo reta-mojo-table-generation -I src
-build src/output_syntax_main.mojo reta-mojo-output-syntax -I src
-build src/console_io_main.mojo reta-mojo-console-io -I src
-build src/table_output_main.mojo reta-mojo-table-output -I src
+"$ROOT/scripts/build_diagnostics_shared.sh"
+if [ "${RETA_BUILD_STANDALONE_DIAGNOSTICS:-0}" = 1 ]; then
+    build src/table_generation_main.mojo reta-mojo-table-generation -I src
+    build src/output_syntax_main.mojo reta-mojo-output-syntax -I src
+    build src/console_io_main.mojo reta-mojo-console-io -I src
+    build src/table_output_main.mojo reta-mojo-table-output -I src
+fi
 build src/domain_probe_main.mojo reta-mojo-domain-probe -I src
 build src/combi_join_main.mojo reta-mojo-combi-join -I src
 build src/reta_native_main.mojo reta-native -I src
@@ -47,6 +53,12 @@ printf '\nKompilierte Mojo-Executables:\n'
 for executable in "$TARGET_DIR"/*; do
     [ -x "$executable" ] || continue
     printf '  %s\n' "$executable"
+done
+
+printf '\nKompilierte Mojo-Shared-Libraries:\n'
+for library in "$TARGET_ROOT"/lib/reta/*.so; do
+    [ -f "$library" ] || continue
+    printf '  %s\n' "$library"
 done
 
 printf '\nBuild abgeschlossen. Tests werden nicht automatisch ausgeführt.\n'

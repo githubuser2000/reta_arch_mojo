@@ -492,3 +492,10 @@ Die Zahl **12** ist die geplante Releasegliederung. Interne Teilpakete oder Fehl
 - [x] **60/60** fokussierte Source-Gates, **144 + 1 Skip** portable Source-Suite und **264/264** Importresolver abschließen.
 - [ ] Lokalen Modular-Lauf `scripts/test_stage12c5y.sh` mit einem gefüllten aktuellen `target`-Baum ausführen.
 - Maschinenstand: **71/92 vollständig**, **83/92 mindestens teilweise**, **38.174/48.831 angegriffene** und **31.790/48.831 vollständig native Referenzzeilen**.
+
+## Binärkonsolidierung nach Stage 12c5z
+
+- erledigt: TableGeneration, OutputSyntax, ConsoleIO und TableOutput teilen `libreta-mojo-diagnostics.so` und einen ABI-geprüften Loader;
+- nächster sinnvoller Bibliotheksblock: die eng gekoppelten Architekturdiagnosen aus `build-heavy.sh` nach fachlichen Gruppen konsolidieren, nicht alle 18 Ziele blind in eine monolithische DSO werfen;
+- Testprogramme bleiben kurzlebige, nicht installierte Prozesse, bis Messungen zeigen, dass deren Buildzeit oder Speicherverbrauch die bessere Fehlerisolation überwiegt;
+- portable Binärübergaben müssen über `scripts/export_target.sh` erfolgen, damit keine absoluten `.venv`-Symlinks weitergegeben werden.

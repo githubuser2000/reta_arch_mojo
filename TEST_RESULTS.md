@@ -1,3 +1,22 @@
+# Testergebnisse – Stage 12c5z
+
+```text
+Shared-Diagnoseeinträge:             4
+installierbare Executables:         38
+installierbare Shared Libraries:     1
+C-Loader-/Fake-DSO-Tests:            5/5
+fokussierte neue/angepasste Tests:  47/47
+Source-Testdateien:                 149 bestanden, 1 Skip
+zusätzliche Infrastrukturtests:      58/58
+Archivvertrag:                        3/3
+Manifestdateien:                    1.386/1.386
+Defektkatalog:                        97/97
+relative Mojo-Importe:              vollständig auflösbar
+aktive std.python-Brücken:            0
+```
+
+Der hochgeladene Target-Baum ist zum ursprünglichen Stage-12c5y-Source-ID konsistent, aber seine fünf Runtimeeinträge sind absolute, nach der Übertragung gebrochene Symlinks. Die neue Exportprüfung ersetzt sie durch reale Dateien. Ein offizieller Modular-Mojo-Compiler ist in dieser Umgebung nicht installiert; der native `.so`-Build und die vier Python-/PyPy3-Paritätsläufe sind in `scripts/test_stage12c5z.sh` vorbereitet.
+
 # Testergebnisse – Stufe-9/10/11-Zwischenstand
 
 ## Stage 12c5u: native Tabellengenerierung

@@ -1143,3 +1143,8 @@ Byteindizes werden nur noch zum Erkennen der ASCII-HTML-Syntax verwendet. Das Ma
 - `TEST-FIXED-027` entfernt eine widersprüchliche Alt-Testannahme: Der All-Columns-Katalog bleibt ausschließlich in `parameter_runtime.mojo`; `native_reta_cli.mojo` delegiert ohne Duplikation.
 - Compilerunabhängig bestanden **60/60** fokussierte Gates sowie **144** portable Source-Tests mit einem begründeten compilerabhängigen Skip. Der paketweite Resolver bestätigt **264/264** relative Mojo-Importe.
 - Maschinenstand: **71/92 vollständig**, **83/92 mindestens teilweise**, **38.174/48.831 angegriffene** und **31.790/48.831 vollständig native Referenzzeilen**; **56.729** Mojo-Zeilen in `src/`.
+
+
+## Gemeinsame Binärgrenzen statt duplizierter Diagnose-Executables
+
+Vier vollständig native Diagnoseoberflächen teilen seit Stage 12c5z eine versionierte C-ABI in `libreta-mojo-diagnostics.so`. Nur triviale C-Werte (`argc`, `argv`, Integerstatus) überschreiten die Grenze; Mojo-Besitzwerte werden innerhalb der Bibliothek erzeugt und vernichtet. Ein kleiner Loader behält die bisherigen Programmnamen und isoliert ABI-/Source-ID-Prüfungen. Testprogramme bleiben dagegen separate, nicht installierte Prozesse, weil ihre Absturz- und Globalzustandsisolation diagnostisch wertvoller ist als eine gemeinsame Test-DSO. Weitere produktive Diagnosefamilien können nach demselben Muster gruppiert werden.

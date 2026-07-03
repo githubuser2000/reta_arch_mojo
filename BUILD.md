@@ -7,7 +7,8 @@
 ```text
 bin/                     versionierte Launcher
 target/bin/              reguläre ELF-Executables
-target/lib/mojo/         lokale Links auf die Mojo-Laufzeitbibliotheken
+target/lib/mojo/         lokale Links oder portable Kopien der Mojo-Laufzeit
+target/lib/reta/         projektinterne Shared Libraries
 target/tests*/           kompilierte Testprogramme
 .venv/                   lokaler Mojo-Compiler und Runtime
 src/                     Mojo-Quellen
@@ -54,6 +55,9 @@ projektrelativen Ort `target/lib/mojo` ein.
 
 ```bash
 ./scripts/configure_mojo_runtime.sh
+# für einen übertragbaren Target-Baum:
+RETA_MOJO_RUNTIME_MODE=copy ./scripts/configure_mojo_runtime.sh
+./scripts/export_target.sh target target-portable.tar.xz
 ```
 
 Die automatische Erkennung kann bei Bedarf überschrieben werden:
@@ -74,7 +78,7 @@ noch auf den Rechner zeigt, auf dem sie kompiliert wurden.
 ./scripts/check_build_layout.sh
 ```
 
-Erzeugt werden neunzehn normale Laufzeitziele:
+Erzeugt werden zwanzig reguläre Executables und eine Shared Library:
 
 ```text
 target/bin/reta-mojo-native
@@ -86,6 +90,8 @@ target/bin/reta-mojo-exports
 target/bin/reta-mojo-facade
 target/bin/reta-mojo-workflow
 target/bin/reta-mojo-sheaves
+target/bin/reta-mojo-diagnostics
+target/lib/reta/libreta-mojo-diagnostics.so
 target/bin/reta-mojo-domain-probe
 target/bin/reta-mojo-combi-join
 target/bin/reta-native
@@ -443,7 +449,7 @@ Das fokussierte Build-/Paritätsgate lautet `scripts/test_stage12c5t.sh`.
 
 ## Native Tabellen-Gluing-Diagnose
 
-Der reguläre Build erzeugt `target/bin/reta-mojo-table-generation`:
+Der reguläre Build stellt `bin/reta-mojo-table-generation` über den gemeinsamen Diagnose-Loader bereit:
 
 ```bash
 scripts/build.sh
@@ -451,12 +457,12 @@ bin/reta-mojo-table-generation --summary
 scripts/test_stage12c5u.sh
 ```
 
-Damit bestanden in Stage 12c5u 20 reguläre und 18 schwere Compilerziele. Das Ausgabe-Syntax-Ziel erhöhte die Menge auf 21 reguläre Ziele; mit dem Console-IO-Ziel aus Stage 12c5x bestanden 22 reguläre Ziele; `reta-mojo-table-output` aus Stage 12c5y erhöht die Menge auf **23 reguläre und 18 schwere, insgesamt 41 installierbare Compilerziele**.
+Bis Stage 12c5y bestanden 23 reguläre und 18 schwere Einzel-Executables. Stage 12c5z ersetzt vier Diagnose-Executables durch einen Loader und eine Shared Library. Standardmäßig entstehen daher **20 reguläre plus 18 schwere Executables sowie eine gemeinsame Bibliothek**. Die vier alten Einzelziele bleiben mit `RETA_BUILD_STANDALONE_DIAGNOSTICS=1` als optionale Paritätsorakel baubar.
 
 
 ## Native Ausgabe-Semantik und Syntax (Stage 12c5v)
 
-Der reguläre Build erzeugt `target/bin/reta-mojo-output-syntax`. Das Ziel
+Der reguläre Build stellt `bin/reta-mojo-output-syntax` über den gemeinsamen Diagnose-Loader bereit. Die Oberfläche
 prüft die vollständigen Besitzer von `output_semantics.py` und
 `output_syntax.py`:
 
@@ -485,7 +491,7 @@ Der FHS-Installer kopiert außerdem `check_mojo_binary_freshness.sh` und `curren
 
 ## Vollständiges Console-IO und Modulimportprüfung (Stage 12c5x)
 
-Der reguläre Build erzeugt `target/bin/reta-mojo-console-io`. Das Diagnoseziel
+Der reguläre Build stellt `bin/reta-mojo-console-io` über den gemeinsamen Diagnose-Loader bereit. Die Oberfläche
 deckt Chunking, geordnete Eindeutigkeit, Console-Effektplanung, beide Hilfetexte,
 Terminalkontext und den geordneten Default-Container ab:
 
@@ -510,4 +516,13 @@ Abweichung wie `.kombi_join` gegenüber der vorhandenen Datei
 scripts/test_stage12c5y.sh
 ```
 
-Der Test baut den vollständigen Paketimportgraph, `table_output_main.mojo`, den vollständigen TableOutput-Modultest und erneut die zugrunde liegende Renderer-Suite. Anschließend vergleicht er Bundle-Snapshot, Spaltenprojektion und ANSI-Farbpolitik mit Python beziehungsweise PyPy3. Das neue reguläre Ziel heißt `reta-mojo-table-output`; damit bestehen 23 reguläre und 18 schwere Compilerziele.
+Der Test baut den vollständigen Paketimportgraph, `table_output_main.mojo`, den vollständigen TableOutput-Modultest und erneut die zugrunde liegende Renderer-Suite. Anschließend vergleicht er Bundle-Snapshot, Spaltenprojektion und ANSI-Farbpolitik mit Python beziehungsweise PyPy3. Der öffentliche Name `reta-mojo-table-output` bleibt bestehen; seit Stage 12c5z wird er durch den gemeinsamen Diagnose-Loader und die Shared Library umgesetzt.
+
+
+## Gemeinsame Diagnosebibliothek (Stage 12c5z)
+
+```bash
+scripts/test_stage12c5z.sh
+```
+
+Der Standardbuild erzeugt `target/bin/reta-mojo-diagnostics` und `target/lib/reta/libreta-mojo-diagnostics.so`. Die vier bisherigen Launcher für TableGeneration, OutputSyntax, ConsoleIO und TableOutput bleiben unverändert öffentlich, leiten aber auf den gemeinsamen Loader weiter. Die Shared Library trägt `$ORIGIN/../mojo`, während Executables `$ORIGIN/../lib/mojo` verwenden. Für direkte Alt-vs.-Bibliothek-Parität können die vier Einzelprogramme mit `RETA_BUILD_STANDALONE_DIAGNOSTICS=1` zusätzlich gebaut werden. Ein transferierbarer Binärbaum wird mit `scripts/export_target.sh` erzeugt.

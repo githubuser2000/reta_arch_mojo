@@ -1,8 +1,8 @@
 """Native diagnostics for the table-generation gluing owner."""
 
-from std.sys import argv
 from std.collections import List
 from std.collections.string import atol
+from reta_mojo.cli_arguments import owned_process_argv
 from reta_mojo.csv_table import CsvTable, read_semicolon_csv
 from reta_mojo.generated_aliases import FractionColumnRequest
 from reta_mojo.kombi_join_columns import KombiColumnRequest
@@ -17,25 +17,24 @@ def _usage() -> None:
     print("  --sample")
 
 
-def main() raises:
-    var args = argv()
+def run_table_generation_cli(args: List[String]) raises -> Int:
     var bundle = bootstrap_table_generation()
-    if len(args) == 1 or (len(args) == 2 and String(args[1]) == "--summary"):
+    if len(args) == 1 or (len(args) == 2 and args[1] == "--summary"):
         var snapshot = bundle.snapshot()
         print("csv_sources=" + String(len(snapshot.csv_sources)))
         print("generated_morphisms=" + String(len(snapshot.generated_morphisms)))
         print("kombi_csvs=" + String(len(snapshot.kombi_csvs)))
         print("table_preparation=" + snapshot.table_preparation_dependency)
-        return
-    if len(args) == 4 and String(args[1]) == "--last-line":
-        var requested = atol(String(args[2]))
-        var row_count = atol(String(args[3]))
+        return 0
+    if len(args) == 4 and args[1] == "--last-line":
+        var requested = atol(args[2])
+        var row_count = atol(args[3])
         var rows = List[List[String]]()
         for index in range(max(row_count, 0)):
             rows.append([String(index)])
         print(capture_last_line_number(CsvTable(rows^, 1), requested))
-        return
-    if len(args) == 2 and String(args[1]) == "--sample":
+        return 0
+    if len(args) == 2 and args[1] == "--sample":
         var table = read_semicolon_csv(csv_resource("religion.csv"))
         var plan = default_table_generation_plan()
         plan.selected_columns = [0, 1, 4]
@@ -49,6 +48,10 @@ def main() raises:
         print("columns=" + String(result.table.maximum_columns))
         print("generated=" + String(len(result.generated_names)))
         print("gebr_keys=" + String(len(snapshot.gebr_keys)))
-        return
+        return 0
     _usage()
     raise Error("invalid table-generation diagnostic arguments")
+
+
+def main() raises:
+    _ = run_table_generation_cli(owned_process_argv())
