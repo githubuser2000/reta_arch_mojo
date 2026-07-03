@@ -439,3 +439,16 @@ die reproduzierbaren lokalen Sektionen und die globale HTML-/Parametergarbe:
 ```
 
 Das fokussierte Build-/Paritätsgate lautet `scripts/test_stage12c5t.sh`.
+
+
+## Native Tabellen-Gluing-Diagnose
+
+Der reguläre Build erzeugt `target/bin/reta-mojo-table-generation`:
+
+```bash
+scripts/build.sh
+bin/reta-mojo-table-generation --summary
+scripts/test_stage12c5u.sh
+```
+
+Damit bestehen 20 reguläre und 18 schwere, insgesamt 38 installierbare Compilerziele.

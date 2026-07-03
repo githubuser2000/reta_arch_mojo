@@ -1,5 +1,21 @@
 # Testergebnisse – Stufe-9/10/11-Zwischenstand
 
+## Stage 12c5u: native Tabellengenerierung
+
+```text
+table_generation.py:                    vollständig nativ
+öffentliche Klassenmethoden/Funktionen:  8/8 besessen
+Python↔Mojo-Snapshotvergleich:           vorbereitet
+Last-Line-Grenzfälle:                    4
+native Mojo-Modultests:                  4 vorbereitet
+Vollständig native Dateien:              67/92 = 72,8 %
+Vollständig native Referenzzeilen:        30.014/48.831 = 61,5 %
+produktive Mojo-Zeilen:                   55.083
+installierbare Compilerziele:             38
+aktive std.python-Brücken:                0
+```
+
+
 
 ## Stage 12c5t: native Prägarben und Garben
 

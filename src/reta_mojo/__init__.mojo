@@ -22,6 +22,7 @@ from .tag_schema import *
 from .tag_schema_catalog import *
 from .table_state import *
 from .table_wrapping import *
+from .table_generation import *
 from .compat_text import *
 from .runtime_compat import *
 from .console_io import *

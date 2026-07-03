@@ -1105,3 +1105,8 @@ Byteindizes werden nur noch zum Erkennen der ASCII-HTML-Syntax verwendet. Das Ma
 - Parameter-, Generator- und Ausgabesynchronisation kopiert besitzend statt Python-Objektidentität zu teilen.
 - `reta-mojo-sheaves` ist ein reguläres Diagnose- und Installationsziel; offiziell sind nun 19 reguläre plus 18 schwere Ziele vorhanden.
 - Referenz-Python und pytest-Python werden im Stage-Test getrennt über die bestehenden Resolver gewählt.
+
+
+## Stage 12c5u: Tabellenbau als typisierter Gluing-Orchestrator
+
+`table_generation.py` mutiert nicht länger implizit einen heterogenen Program-Graph. `TableGenerationPlan` beschreibt Spalten-, Generator-, Bruch- und Kombi-Anforderungen; `TableGenerationResult` besitzt Tabelle, Auswahl, generierte Namen, Bruchschlüssel und beide Kombi-Relationen. Die historische Reihenfolge CSV → Last-Line → Generatoren → Kombi bleibt explizit erhalten.

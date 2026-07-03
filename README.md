@@ -88,12 +88,14 @@ Mojo-Programme und der verbleibende Python-Kompatibilitätsbaum liegen
 standardmäßig getrennt unter `lib/reta`; Fedora-/RPM-Pakete können
 `LIBEXECDIR=/usr/libexec/reta` setzen. Relative Symlinks erhalten die
 historische Projektstruktur ohne Datenkopie. Seit Stage 12c5h kopiert der
-Installer ausschließlich die 37 in `scripts/install_targets.txt` deklarierten
+Installer ausschließlich die 38 in `scripts/install_targets.txt` deklarierten
 regulären und schweren Compilerziele; lokale Debug-/Altdateien unter
 `target/bin` werden nicht mehr versehentlich installiert. Details:
 [`STAGE12C4M_FHS_RESOURCE_INSTALLATION.md`](STAGE12C4M_FHS_RESOURCE_INSTALLATION.md).
 
 ## Stufen 7–10: Generatoren, Kombinationen, Markup und Prompt
+
+Stage 12c5u schließt `reta_architecture/table_generation.py` vollständig. Ein typisierter Plan orchestriert CSV-Gluing, Last-Line-Capture, generierte Spalten und beide Kombi-Tabellen; `reta-mojo-table-generation` bietet native Diagnose und Python/PyPy3-Parität. Details: [`STAGE12C5U_NATIVE_TABLE_GENERATION.md`](STAGE12C5U_NATIVE_TABLE_GENERATION.md).
 
 Stage 12c5t schließt die lokale Prägarben- und globale Garbenschicht vollständig: `presheaves.py` und `sheaves.py` besitzen zusammen alle zehn Klassen und 37 Methoden nativ. Reproduzierbare Kataloge erfassen 269 lokale Repositorysektionen und 669 vollständige HTML-Referenzen; `reta-mojo-sheaves` macht die Gluing-Schicht ohne Python abfragbar. Details: [`STAGE12C5T_NATIVE_PRESHEAVES_SHEAVES.md`](STAGE12C5T_NATIVE_PRESHEAVES_SHEAVES.md).
 

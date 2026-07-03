@@ -7,7 +7,7 @@ Geplanter Umfang: **12 Release-Stufen**. Eine Stufe zählt erst als abgeschlosse
 | Maß | Stand | Aussage |
 |---|---:|---|
 | abgeschlossene Release-Stufen | **9/12 = 75,0 %** | Stufen 1–8 und 11 sind abgeschlossen; Stufe 12 ist mit 12a, 12b, 12c1–12c3 und 12c4a–12c5t zu etwa 74,0 % abgeschlossen, während 9 und 10 noch Restpfade besitzen |
-| vollständig native oder generierte Python-Dateien | **66/92 = 71,7 %** | Datei vollständig ersetzt oder als reproduzierbares Laufzeitasset abgebildet |
+| vollständig native oder generierte Python-Dateien | **67/92 = 72,8 %** | Datei vollständig ersetzt oder als reproduzierbares Laufzeitasset abgebildet |
 | mindestens angegriffene Python-Dateien | **83/92 = 90,2 %** | Status direkt aus der autoritativen `NATIVE`-Zuordnung |
 | angegriffene Referenzzeilen | **38.174/48.831 = 78,2 %** | maschinenberechnet statt manuell fortgeschrieben |
 | funktionaler Nutzerumfang | **ca. 96–98 %** | praktisch nutzbarer Reta-Umfang ohne Python-Algorithmus |
@@ -459,3 +459,11 @@ Die Zahl **12** ist die geplante Releasegliederung. Interne Teilpakete oder Fehl
 - Das mutable Python-Modulglobal wird durch `TextWrapRuntimeState` ersetzt; pyphen/pyhyphen-Objekte werden als Capability-Felder modelliert, ohne dynamische Python-Callables einzubetten.
 - Alle nativen Split- und Fallbackpfade arbeiten über Codepoints und bewahren bei fehlendem Backend den historischen Ein-Element-Fallback.
 - Maschinenstand: **63/92 vollständig**, **83/92 mindestens teilweise**, **38.174/48.831 angegriffene** und **29.229/48.831 vollständig native Referenzzeilen**.
+
+
+## Stage 12c5u – Tabellen-Gluing
+
+- [x] `table_generation.py` vollständig typisiert.
+- [x] CSV-, Generator- und Kombi-Reihenfolge als nativer Orchestrator.
+- [x] 20 reguläre plus 18 schwere Compilerziele.
+- [ ] Lokalen Modular-Compilerlauf `scripts/test_stage12c5u.sh` ausführen.

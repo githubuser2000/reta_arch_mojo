@@ -20,7 +20,7 @@ reta-mojo-persistence     reta-mojo-execution-network
 reta-mojo-parallel-execution  reta-mojo-row-preparation
 reta-mojo-i18n          reta-mojo-semantics
 reta-mojo-exports       reta-mojo-facade
-reta-mojo-workflow      reta-mojo-sheaves
+reta-mojo-workflow      reta-mojo-sheaves      reta-mojo-table-generation
 reta-mojo-domain-probe
 reta-extract-html-classes generate4readme
 ```
@@ -78,7 +78,7 @@ enthält nur die öffentlichen relativen Launcher-Symlinks.
 Die **kompilierten ELF-Dateien** werden nicht direkt nach `/usr/bin`, sondern
 nach `/usr/lib/reta/target/bin` installiert. Autoritativ ist
 `scripts/install_targets.txt`. Sind beide Buildskripte vollständig gelaufen,
-sind es genau **37** Ziele:
+sind es genau **38** Ziele:
 
 ```text
 generate-html-native              generate-readme-native
@@ -87,7 +87,7 @@ reta-mojo-combi-join              reta-mojo-domain-probe
 reta-mojo-compat-bin
 reta-mojo-exports                 reta-mojo-facade
 reta-mojo-workflow                reta-mojo-sheaves
-reta-mojo-i18n
+reta-mojo-table-generation        reta-mojo-i18n
 reta-mojo-native                  reta-mojo-package-integrity
 reta-mojo-table                   reta-mojo-tags
 reta-native                       reta-prompt-complete
@@ -104,7 +104,7 @@ reta-mojo-semantics               reta-mojo-traces
 reta-mojo-validation              reta-mojo-witnesses
 ```
 
-Die ersten 19 stammen aus `scripts/build.sh`; die letzten 18 sind optionale
+Die ersten 20 stammen aus `scripts/build.sh`; die letzten 18 sind optionale
 schwere Ziele aus `scripts/build-heavy.sh`. Nicht gebaute optionale Ziele werden
 übersprungen. Andere Dateien in `target/bin`, insbesondere lokale Debug- oder
 Altvarianten wie `reta-native-o0`, werden ausdrücklich **nicht** installiert.
@@ -211,6 +211,7 @@ zu einem einzigen Releasebinary `target/bin/reta` zusammengeführt werden.
 ./bin/reta-mojo-workflow --load-religion plain 1024
 ./bin/reta-mojo-sheaves --summary
 ./bin/reta-mojo-sheaves --html 4
+./bin/reta-mojo-table-generation --summary
 ./bin/reta-mojo-domain-probe pair religionen sternpolygon
 ./bin/reta-mojo-domain-probe reverse 4
 ./bin/reta-extract-html-classes htmlclassesPy.jsonl
@@ -237,6 +238,7 @@ zu einem einzigen Releasebinary `target/bin/reta` zusammengeführt werden.
 | Architektur-Kompositionsfassade | `target/bin/reta-mojo-facade` | 45 Felder, 49 Methoden, 45 Bootstrap-Schritte, 44 Rebuild-Einstiege, 98 Abhängigkeitskanten und 48 Snapshot-Einträge als reproduzierbarer nativer Graph; heterogene Laufzeitobjekte bleiben bis zur Portierung ihrer Besitzer teilweise nativ |
 | Program-Workflow-Kern | `target/bin/reta-mojo-workflow` | geordneter 4-Felder-/11-Methoden-/12-Schritte-Vertrag; Religion-CSV, Zellendekodierung, native Threadzeilen, Sprachspaltenersatz, Flag-Reset und Kombi-Zweigplanung nativ; heterogene Legacy-Program-Aggregation noch teilweise nativ |
 | Prägarben-/Garbendiagnose | `target/bin/reta-mojo-sheaves` | 269 lokale CSV-/i18n-/Assetsektionen, Promptzustand, Parametersemantik, Generator-/Ausgabesektionen und 669 vollständige HTML-Referenzen vollständig nativ |
+| Tabellen-Gluing | `target/bin/reta-mojo-table-generation` | typisierter Plan für CSV-Anfügung, Last-Line-Capture, zwölf Generatorfamilien und Galaxie-/Universum-Kombi-Join |
 | Domain-Probe-Kern | `target/bin/reta-mojo-domain-probe` | neun Alias-/Paar-/Spalten-/JSON-Befehle direkt über native Schema- und Parametersemantik; HTML-, Schema- und Architektur-Snapshots bleiben Referenzgrenze |
 | HTML-Klassenextraktion | `target/bin/reta-extract-html-classes-native` | erzeugt die einzeilige All-Spalten-HTML-Tabelle nativ, analysiert doppelte Attribute/Klassen und schreibt 15-Feld-JSONL ohne Python, Regex oder Unterprozess |
 | Quellbaum-Integrität | `target/bin/reta-mojo-package-integrity` | reguläre Dateien und Dateisymlinks, Runtime-Filter, 74 Pflichtpfade, CSV-Zeilen und binärer SHA-256-Gesamtdigest vollständig nativ; native Linux/POSIX-Verzeichnis-FFI und OpenSSL als Systemgrenzen |
