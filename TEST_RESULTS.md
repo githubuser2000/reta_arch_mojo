@@ -1863,3 +1863,19 @@ Erstellungsumgebung war kein offizieller Mojo-Compiler installiert.
 - Installierbare Compilerziele: **22 reguläre + 18 schwere = 40**.
 - Der offizielle Modular-Mojo-Compiler fehlt in der Erstellungsumgebung; `scripts/test_stage12c5x.sh` reproduziert lokal zuerst den vollständigen Importgraphen und den zuvor gescheiterten Table-Generation-Einstieg, danach Console-IO-Modultest und Python/PyPy3-Parität.
 
+
+
+## Stage 12c5y – vollständiger nativer TableOutput-Besitzer
+
+- Neuer typisierter Besitzer: `src/reta_mojo/table_output.mojo`.
+- Neuer Diagnoseweg: `src/table_output_main.mojo` / `bin/reta-mojo-table-output`.
+- Source-Gates prüfen vollständige Python-Oberfläche, Python-/Kindprozessfreiheit, Build- und Installverdrahtung sowie den nicht duplizierten ANSI-Adapter.
+- Python/PyPy3-Parität: Bundle-Snapshot, geordnete Spaltenauswahl und vier Farbklassen.
+- Native Modultests: Zustandsübergänge, Moduszwänge, Puffersemantik, CSV-Delegation und Heading-Entfernung; zusätzlich wird die vollständige vorhandene Renderer-Suite erneut ausgeführt.
+- Fokussierte compilerunabhängige Stage-Gates: **60/60 bestanden**. Gesamter portabler Source-Testbestand: **144 bestanden, 1 begründeter compilerabhängiger Skip**.
+- Paketweiter Importresolver: **264/264 relative Mojo-Importe auflösbar**.
+- `TEST-FIXED-027` korrigiert die veraltete Erwartung, der All-Columns-Katalog müsse weiterhin in `native_reta_cli.mojo` liegen; der Test bestätigt nun den einzigen Besitzer `parameter_runtime.mojo` und die reine CLI-Delegation.
+- Defektkatalog: **95/95 konsistent**; Python-Bereinigungspunkte: **19**.
+- `tools/porting_metrics.py`: **71/92** vollständig, **83/92** mindestens teilweise, **38.174/48.831** angegriffene und **31.790/48.831** vollständig native Referenzzeilen.
+- Installierbare Compilerziele: **23 reguläre + 18 schwere = 41**.
+- Der offizielle Modular-Mojo-Compiler fehlt in der Erstellungsumgebung. Der angekündigte Target-Upload war im aktiven Dateisystem nicht als gefüllter Ordner sichtbar; `scripts/test_stage12c5y.sh` ist daher weiterhin der verbindliche lokale Compiler- und Paritätslauf.

@@ -31,6 +31,7 @@ build src/sheaves_main.mojo reta-mojo-sheaves -I src
 build src/table_generation_main.mojo reta-mojo-table-generation -I src
 build src/output_syntax_main.mojo reta-mojo-output-syntax -I src
 build src/console_io_main.mojo reta-mojo-console-io -I src
+build src/table_output_main.mojo reta-mojo-table-output -I src
 build src/domain_probe_main.mojo reta-mojo-domain-probe -I src
 build src/combi_join_main.mojo reta-mojo-combi-join -I src
 build src/reta_native_main.mojo reta-native -I src

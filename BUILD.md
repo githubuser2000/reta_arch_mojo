@@ -451,7 +451,7 @@ bin/reta-mojo-table-generation --summary
 scripts/test_stage12c5u.sh
 ```
 
-Damit bestanden in Stage 12c5u 20 reguläre und 18 schwere Compilerziele. Das Ausgabe-Syntax-Ziel erhöhte die Menge auf 21 reguläre Ziele; mit dem Console-IO-Ziel aus Stage 12c5x bestehen nun **22 reguläre und 18 schwere, insgesamt 40 installierbare Compilerziele**.
+Damit bestanden in Stage 12c5u 20 reguläre und 18 schwere Compilerziele. Das Ausgabe-Syntax-Ziel erhöhte die Menge auf 21 reguläre Ziele; mit dem Console-IO-Ziel aus Stage 12c5x bestanden 22 reguläre Ziele; `reta-mojo-table-output` aus Stage 12c5y erhöht die Menge auf **23 reguläre und 18 schwere, insgesamt 41 installierbare Compilerziele**.
 
 
 ## Native Ausgabe-Semantik und Syntax (Stage 12c5v)
@@ -502,3 +502,12 @@ Resolver alle 260 relativen Importe in `src/reta_mojo`; dadurch wird eine
 Abweichung wie `.kombi_join` gegenüber der vorhandenen Datei
 `combi_join.mojo` vor dem Modular-Parserlauf erkannt.
 
+
+
+## Vollständiger TableOutput-Besitzer (Stage 12c5y)
+
+```bash
+scripts/test_stage12c5y.sh
+```
+
+Der Test baut den vollständigen Paketimportgraph, `table_output_main.mojo`, den vollständigen TableOutput-Modultest und erneut die zugrunde liegende Renderer-Suite. Anschließend vergleicht er Bundle-Snapshot, Spaltenprojektion und ANSI-Farbpolitik mit Python beziehungsweise PyPy3. Das neue reguläre Ziel heißt `reta-mojo-table-output`; damit bestehen 23 reguläre und 18 schwere Compilerziele.

@@ -2286,6 +2286,31 @@
         "src/reta_mojo/console_io.mojo",
         "scripts/check_console_io_parity.py"
       ]
+    },
+    {
+      "id": "TEST-FIXED-027",
+      "title": "All-Columns-Quelltest prüfte den vor der Besitzerverlagerung gültigen CLI-Ort",
+      "origin": "test_infrastructure",
+      "classification": "stale_owner_assertion",
+      "severity": "medium",
+      "python_status": "not_applicable",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5y",
+      "reproducer": "tests/test_all_columns_plan.py nach der Stage-12c4y-Verlagerung von load_all_column_selection aus native_reta_cli.mojo nach parameter_runtime.mojo ausführen; der Test verlangte weiterhin das Symbol im delegierenden CLI-Modul und widersprach damit tests/test_parameter_runtime_source.py.",
+      "python_locations": [],
+      "mojo_locations": [
+        "tests/test_all_columns_plan.py",
+        "tests/test_parameter_runtime_source.py",
+        "src/reta_mojo/native_reta_cli.mojo",
+        "src/reta_mojo/parameter_runtime.mojo"
+      ],
+      "current_contract": "Der All-Columns-Plan besitzt genau einen produktiven Besitzer in parameter_runtime.mojo. native_reta_cli.mojo importiert und delegiert an diesen Besitzer, enthält aber weder den Katalogloader noch eine duplizierte Alles-Option. Beide Quelltests prüfen nun denselben Architekturvertrag.",
+      "post_port_fix": "Keine Python-Referenzänderung erforderlich; betroffen war ausschließlich eine veraltete Source-Testannahme nach einer bereits abgeschlossenen Mojo-Besitzerverlagerung.",
+      "evidence": [
+        "STAGE12C5Y_NATIVE_TABLE_OUTPUT.md",
+        "tests/test_all_columns_plan.py",
+        "tests/test_parameter_runtime_source.py"
+      ]
     }
   ],
   "audit": {
@@ -2313,7 +2338,8 @@
       "STAGE12C5C_NATIVE_PACKAGE_INTEGRITY_SPLIT_I18N.md",
       "STAGE12C5D_NATIVE_LEGACY_FACADES.md",
       "STAGE12C5F_NATIVE_PARAMETER_SEMANTICS.md",
-      "STAGE12C5G_NATIVE_KOMBI_JOIN_UNORDERED_PARITY.md"
+      "STAGE12C5G_NATIVE_KOMBI_JOIN_UNORDERED_PARITY.md",
+      "STAGE12C5Y_NATIVE_TABLE_OUTPUT.md"
     ],
     "scope_note": "Vollständig bezogen auf alle bis Stage 12c5g im Projekt bestätigten oder plausibel begründeten verhaltensrelevanten Befunde; unbekannte künftige Fehler können naturgemäß erst nach ihrer Entdeckung aufgenommen werden."
   }

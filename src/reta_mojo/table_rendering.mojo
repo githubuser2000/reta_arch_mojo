@@ -1276,6 +1276,13 @@ def _shell_colorize(text: String, number: Int, rest: Bool = False) -> String:
     return "\x1b[100m\x1b[37m" + text + "\x1b[0m\x1b[0m"
 
 
+def colorize_shell_text(
+    text: String, number: Int, rest: Bool = False
+) -> String:
+    """Public TableOutput-compatible wrapper around the ANSI color policy."""
+    return _shell_colorize(text, number, rest)
+
+
 def _shell_split_words(
     text: String,
     mut words: List[String],

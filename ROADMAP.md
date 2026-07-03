@@ -481,3 +481,14 @@ Die Zahl **12** ist die geplante Releasegliederung. Interne Teilpakete oder Fehl
 - [x] `--mojo-input-snapshot` im öffentlichen `reta-mojo`-Launcher verdrahten.
 - [ ] Lokalen Modular-Lauf `scripts/test_stage12c5w.sh` ausführen und etwaige nachfolgende Compilerdiagnose zurückführen.
 - Maschinenstand: **69/92 vollständig**, **83/92 mindestens teilweise**, **38.174/48.831 angegriffene** und **30.672/48.831 vollständig native Referenzzeilen**.
+
+## Stage 12c5y – vollständiger nativer TableOutput-Besitzer
+
+- [x] Historischen `TableOutput`-Zustand als explizite typisierte Konfiguration abbilden.
+- [x] Property-, Spaltenprojektions-, Puffer-, Farb- und Bundle-Verträge nativ besitzen.
+- [x] Shell, CSV, Markdown, Emacs, HTML, BBCode und Nichts an den vorhandenen nativen Renderer anbinden.
+- [x] Diagnoseziel `reta-mojo-table-output`, Modultest und Python/PyPy3-Parität hinzufügen.
+- [x] All-Columns-Source-Test auf den einzigen Besitzer `parameter_runtime.mojo` aktualisieren (`TEST-FIXED-027`).
+- [x] **60/60** fokussierte Source-Gates, **144 + 1 Skip** portable Source-Suite und **264/264** Importresolver abschließen.
+- [ ] Lokalen Modular-Lauf `scripts/test_stage12c5y.sh` mit einem gefüllten aktuellen `target`-Baum ausführen.
+- Maschinenstand: **71/92 vollständig**, **83/92 mindestens teilweise**, **38.174/48.831 angegriffene** und **31.790/48.831 vollständig native Referenzzeilen**.

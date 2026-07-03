@@ -17,6 +17,7 @@ REGULAR = {
     "reta-mojo-facade",
     "reta-mojo-sheaves",
     "reta-mojo-table-generation",
+    "reta-mojo-table-output",
     "reta-mojo-output-syntax",
     "reta-mojo-workflow",
     "reta-mojo-combi-join",
@@ -63,7 +64,7 @@ def _manifest_names() -> list[str]:
 
 def test_manifest_is_complete_unique_and_excludes_stale_debug_targets() -> None:
     names = _manifest_names()
-    assert len(names) == len(set(names)) == 40
+    assert len(names) == len(set(names)) == 41
     assert set(names) == REGULAR | HEAVY
     assert "reta-native-o0" not in names
 

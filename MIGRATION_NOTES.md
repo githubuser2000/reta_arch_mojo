@@ -1133,3 +1133,13 @@ Byteindizes werden nur noch zum Erkennen der ASCII-HTML-Syntax verwendet. Das Ma
 - Python-Zeichenschnitte und Regex-Escaping in `RowRangeSyntax` arbeiten auch für mehrbyteige Präfixe über Unicode-Codepoints (`MOJO-FIXED-041`).
 - Der öffentliche `reta-mojo`-Launcher kennt den neuen `--mojo-input-snapshot`-Schemaweg (`MOJO-FIXED-042`).
 - Maschinenstand: **69/92 vollständig**, **83/92 mindestens teilweise**, **38.174/48.831 angegriffene** und **30.672/48.831 vollständig native Referenzzeilen**; **55.849** Mojo-Zeilen in `src/`.
+
+## Stage 12c5y – vollständiger TableOutput-Besitz
+
+- `reta_architecture/table_output.py` wechselt von teilweise nativ zu vollständig nativ.
+- `TableOutputConfig` ersetzt den impliziten heterogenen `Tables`-Objektgraph an der Ausgabegrenze; Modus, Syntaxklasse, Farbe, OneTable, Nummerierung, Breiten, Filter, Sprache, Quellspalten und Nummerierungsobergrenze sind typisiert.
+- `TableOutput` besitzt Zustandszugriffe, einbasierte Spaltenprojektion, Ergebnisbuffer, `cliout2`, ANSI-Farbpolitik und die Delegation an sämtliche nativen Serializer.
+- `TableOutputBundle`, Runtime-/Bundle-Snapshots, Diagnoseprogramm, Modultest und Python/PyPy3-Paritätsprüfer schließen die öffentliche Besitzergrenze.
+- `TEST-FIXED-027` entfernt eine widersprüchliche Alt-Testannahme: Der All-Columns-Katalog bleibt ausschließlich in `parameter_runtime.mojo`; `native_reta_cli.mojo` delegiert ohne Duplikation.
+- Compilerunabhängig bestanden **60/60** fokussierte Gates sowie **144** portable Source-Tests mit einem begründeten compilerabhängigen Skip. Der paketweite Resolver bestätigt **264/264** relative Mojo-Importe.
+- Maschinenstand: **71/92 vollständig**, **83/92 mindestens teilweise**, **38.174/48.831 angegriffene** und **31.790/48.831 vollständig native Referenzzeilen**; **56.729** Mojo-Zeilen in `src/`.

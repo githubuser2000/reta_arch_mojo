@@ -22,7 +22,7 @@ reta-mojo-i18n          reta-mojo-semantics
 reta-mojo-exports       reta-mojo-facade
 reta-mojo-workflow      reta-mojo-sheaves      reta-mojo-table-generation
 reta-mojo-output-syntax  reta-mojo-console-io
-reta-mojo-domain-probe
+reta-mojo-table-output   reta-mojo-domain-probe
 reta-extract-html-classes generate4readme
 ```
 
@@ -79,7 +79,7 @@ enthält nur die öffentlichen relativen Launcher-Symlinks.
 Die **kompilierten ELF-Dateien** werden nicht direkt nach `/usr/bin`, sondern
 nach `/usr/lib/reta/target/bin` installiert. Autoritativ ist
 `scripts/install_targets.txt`. Sind beide Buildskripte vollständig gelaufen,
-sind es genau **40** Ziele:
+sind es genau **41** Ziele:
 
 ```text
 generate-html-native              generate-readme-native
@@ -88,8 +88,8 @@ reta-mojo-combi-join              reta-mojo-domain-probe
 reta-mojo-compat-bin
 reta-mojo-exports                 reta-mojo-facade
 reta-mojo-workflow                reta-mojo-sheaves
-reta-mojo-table-generation        reta-mojo-output-syntax
-reta-mojo-console-io              reta-mojo-i18n
+reta-mojo-table-generation        reta-mojo-table-output
+reta-mojo-output-syntax            reta-mojo-console-io              reta-mojo-i18n
 reta-mojo-native                  reta-mojo-package-integrity
 reta-mojo-table                   reta-mojo-tags
 reta-native                       reta-prompt-complete
@@ -106,14 +106,14 @@ reta-mojo-semantics               reta-mojo-traces
 reta-mojo-validation              reta-mojo-witnesses
 ```
 
-Die ersten 22 stammen aus `scripts/build.sh`; die letzten 18 sind optionale
+Die ersten 23 stammen aus `scripts/build.sh`; die letzten 18 sind optionale
 schwere Ziele aus `scripts/build-heavy.sh`. Nicht gebaute optionale Ziele werden
 übersprungen. Andere Dateien in `target/bin`, insbesondere lokale Debug- oder
 Altvarianten wie `reta-native-o0`, werden ausdrücklich **nicht** installiert.
 
-`/usr/bin` enthält demgegenüber **53 öffentliche Namen als relative Symlinks**
+`/usr/bin` enthält demgegenüber **54 öffentliche Namen als relative Symlinks**
 auf Launcher unter `/usr/lib/reta/bin`; darunter sind Komfortnamen und Profile,
-also nicht 52 verschiedene ELFs. Die zwei internen Helfer `mojo-real` und
+also nicht 53 verschiedene ELFs. Die zwei internen Helfer `mojo-real` und
 `mojo-runtime-exec` bleiben nur privat unter `/usr/lib/reta/bin`. Standardmäßig
 installiert `scripts/install.sh` nach `/usr/local`; `/usr` wird erst mit
 `PREFIX=/usr` gewählt.

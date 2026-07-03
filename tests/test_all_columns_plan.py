@@ -60,11 +60,18 @@ def test_generate_html_has_no_runtime_bridge() -> None:
     native_cli = (ROOT / "src" / "reta_mojo" / "native_reta_cli.mojo").read_text(
         encoding="utf-8"
     )
+    parameter_runtime = (
+        ROOT / "src" / "reta_mojo" / "parameter_runtime.mojo"
+    ).read_text(encoding="utf-8")
     assert "std.subprocess" not in generate_html
     assert "std.python" not in generate_html
     assert "run_native_reta(tokens" in generate_html
-    assert "load_all_column_selection" in native_cli
-    assert 'option.name == "alles"' in native_cli
+    # Stage 12c4y moved the all-columns owner from the productive CLI shell
+    # into parameter_runtime.  The CLI must delegate instead of duplicating it.
+    assert "load_all_column_selection" not in native_cli
+    assert "from .parameter_runtime import" in native_cli
+    assert "load_all_column_selection" in parameter_runtime
+    assert 'option.name == "alles"' in parameter_runtime
     assert 'name == "onetable"' in native_cli
 
 
