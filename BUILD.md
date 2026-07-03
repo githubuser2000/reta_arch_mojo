@@ -470,3 +470,15 @@ scripts/test_stage12c5v.sh
 Der Stage-Test vergleicht die sieben Modi, Syntaxklassennamen, Flags, Aliase,
 Snapshotbesitzer und die optionale Breiten-Callbacksemantik mit der
 Python-/PyPy3-Referenz.
+
+## Vollständige Eingabesemantik (Stage 12c5w)
+
+Nach einem neuen Source-Archiv prüft das Stage-Gate zuerst denselben vollständigen Importgraphen wie `scripts/build.sh` und danach die Eingabesemantik:
+
+```bash
+scripts/test_stage12c5w.sh
+```
+
+Die wiederholte Modular-Meldung `Failed to initialize Crashpad` ist nicht der Buildabbruch; erfolgreich erzeugte Ziele bleiben gültig. Maßgeblich ist die erste nachfolgende `error:`-Diagnose. Stage 12c5w schließt den gemeldeten reservierten Bezeichner `alias` und vergleicht anschließend den 18-Felder-Vokabularsnapshot mit Python beziehungsweise PyPy3. Für Paketierungs- oder Layoutprüfungen kann die Quelle obligatorischer Binaries mit `RETA_TARGET_DIR=/pfad/zu/target/bin scripts/install.sh` explizit gesetzt werden.
+
+Der FHS-Installer kopiert außerdem `check_mojo_binary_freshness.sh` und `current_source_id.sh` in den privaten Skriptbaum. Ohne diese beiden Helfer würde ein installierter `mojo-runtime-exec` vor der eigentlichen Laufzeitsuche abbrechen.

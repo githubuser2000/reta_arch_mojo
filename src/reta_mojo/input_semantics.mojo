@@ -8,8 +8,15 @@ without importing Python.
 """
 
 from std.collections import List
-from std.collections.string import ord
-from .row_ranges import split_top_level_commas
+from std.collections.string import atol, ord
+from .csv_table import read_text_file
+from .resource_paths import asset_resource
+from .row_ranges import (
+    RowRangeSyntax,
+    RowRangeSyntaxSnapshot,
+    split_top_level_commas,
+)
+from .schema import RetaContextSchema
 from .parameter_semantics import (
     ParameterSemanticsSheaf,
     canonicalize_pair,
@@ -240,133 +247,237 @@ def _columns_for_polarity(
 
 
 @fieldwise_init
-struct VocabularyValuesForMain(Copyable):
-    var main_canonical: String
+struct PromptVocabularyMapEntry(Copyable):
+    var key: String
     var values: List[String]
 
 
 @fieldwise_init
+struct PromptVocabularySnapshot(Copyable, Equatable):
+    var main_parameters_len: Int
+    var spalten_len: Int
+    var spalten_dict_keys: Int
+    var ausgabe_paras_len: Int
+    var kombi_main_paras_len: Int
+    var zeilen_paras_len: Int
+    var haupt_for_neben_len: Int
+    var ausgabe_art_len: Int
+    var befehle_len: Int
+    var befehle2_len: Int
+    var gebrochen_erlaubte_zahlen_len: Int
+
+
+@fieldwise_init
 struct PromptVocabulary(Copyable):
+    """Complete typed counterpart of Python ``PromptVocabulary``.
+
+    Python sets become deterministically sorted lists.  ``spalten_dict`` keeps
+    insertion order through explicit key/value entries and preserves every
+    duplicate value exactly as produced by the reference builder.
+    """
+
     var main_parameters: List[String]
-    var column_options: List[String]
-    var values_by_main: List[VocabularyValuesForMain]
-    var output_options: List[String]
-    var combination_options: List[String]
-    var row_options: List[String]
-    var output_modes: List[String]
+    var spalten: List[String]
+    var eigs_n: List[String]
+    var eigs_r: List[String]
+    var spalten_dict: List[PromptVocabularyMapEntry]
+    var ausgabe_paras: List[String]
+    var kombi_main_paras: List[String]
+    var zeilen_paras: List[String]
+    var haupt_for_neben: List[String]
+    var not_parameter_values: List[String]
+    var haupt_for_neben_set: List[String]
+    var ausgabe_art: List[String]
+    var zeilen_typen: List[String]
+    var zeilen_zeit: List[String]
+    var zeilen_typen_b: List[String]
+    var gebrochen_erlaubte_zahlen: List[Int]
+    var befehle: List[String]
+    var befehle2: List[String]
+
+    def snapshot(self) -> PromptVocabularySnapshot:
+        return PromptVocabularySnapshot(
+            len(self.main_parameters),
+            len(self.spalten),
+            len(self.spalten_dict),
+            len(self.ausgabe_paras),
+            len(self.kombi_main_paras),
+            len(self.zeilen_paras),
+            len(self.haupt_for_neben),
+            len(self.ausgabe_art),
+            len(self.befehle),
+            len(self.befehle2),
+            len(self.gebrochen_erlaubte_zahlen),
+        )
+
+    def values_for_main(self, main_name: String) -> List[String]:
+        for index in range(len(self.spalten_dict)):
+            if self.spalten_dict[index].key == main_name:
+                return self.spalten_dict[index].values.copy()
+        return List[String]()
 
 
-def _append_unique_string(mut values: List[String], value: String) -> None:
-    if not _contains_string_input(values, value):
-        values.append(value)
+@fieldwise_init
+struct PromptVocabularyBuilder(Copyable):
+    var schema: RetaContextSchema
+    var row_ranges: RowRangeSyntax
+
+    def build(self) raises -> PromptVocabulary:
+        return load_prompt_vocabulary()
 
 
-def _parameter_aliases_for_main(
-    sheaf: ParameterSemanticsSheaf, main_canonical: String
-) -> List[String]:
-    var values = List[String]()
-    for group_index in range(len(sheaf.parameter_alias_groups)):
-        var group = sheaf.parameter_alias_groups[group_index].copy()
-        if group.main_canonical != main_canonical:
+@fieldwise_init
+struct InputBundleSnapshot(Copyable, Equatable):
+    var row_ranges: RowRangeSyntaxSnapshot
+    var prompt_vocabulary_builder_available: Bool
+
+
+@fieldwise_init
+struct InputBundle(Copyable):
+    var schema: RetaContextSchema
+    var row_ranges: RowRangeSyntax
+    var prompt_vocabulary_builder: PromptVocabularyBuilder
+
+    @staticmethod
+    def from_schema(
+        schema: RetaContextSchema, multiple_prefix: String = "v"
+    ) -> Self:
+        var row_ranges = RowRangeSyntax.from_schema(multiple_prefix)
+        return Self(
+            schema.copy(),
+            row_ranges.copy(),
+            PromptVocabularyBuilder(schema.copy(), row_ranges^),
+        )
+
+    def build_prompt_vocabulary(self) raises -> PromptVocabulary:
+        return self.prompt_vocabulary_builder.build()
+
+    def snapshot(self) -> InputBundleSnapshot:
+        return InputBundleSnapshot(self.row_ranges.snapshot(), True)
+
+
+def _empty_prompt_vocabulary() -> PromptVocabulary:
+    return PromptVocabulary(
+        List[String](),
+        List[String](),
+        List[String](),
+        List[String](),
+        List[PromptVocabularyMapEntry](),
+        List[String](),
+        List[String](),
+        List[String](),
+        List[String](),
+        List[String](),
+        List[String](),
+        List[String](),
+        List[String](),
+        List[String](),
+        List[String](),
+        List[Int](),
+        List[String](),
+        List[String](),
+    )
+
+
+def _append_map_value(
+    mut entries: List[PromptVocabularyMapEntry],
+    key: String,
+    value: String,
+) -> None:
+    for index in range(len(entries)):
+        if entries[index].key == key:
+            entries[index].values.append(value)
+            return
+    entries.append(PromptVocabularyMapEntry(key, [value]))
+
+
+def _append_catalog_string(
+    mut vocabulary: PromptVocabulary,
+    field_name: String,
+    value: String,
+) -> None:
+    if field_name == "main_parameters":
+        vocabulary.main_parameters.append(value)
+    elif field_name == "spalten":
+        vocabulary.spalten.append(value)
+    elif field_name == "eigs_n":
+        vocabulary.eigs_n.append(value)
+    elif field_name == "eigs_r":
+        vocabulary.eigs_r.append(value)
+    elif field_name == "ausgabe_paras":
+        vocabulary.ausgabe_paras.append(value)
+    elif field_name == "kombi_main_paras":
+        vocabulary.kombi_main_paras.append(value)
+    elif field_name == "zeilen_paras":
+        vocabulary.zeilen_paras.append(value)
+    elif field_name == "haupt_for_neben":
+        vocabulary.haupt_for_neben.append(value)
+    elif field_name == "not_parameter_values":
+        vocabulary.not_parameter_values.append(value)
+    elif field_name == "haupt_for_neben_set":
+        vocabulary.haupt_for_neben_set.append(value)
+    elif field_name == "ausgabe_art":
+        vocabulary.ausgabe_art.append(value)
+    elif field_name == "zeilen_typen":
+        vocabulary.zeilen_typen.append(value)
+    elif field_name == "zeilen_zeit":
+        vocabulary.zeilen_zeit.append(value)
+    elif field_name == "zeilen_typen_b":
+        vocabulary.zeilen_typen_b.append(value)
+    elif field_name == "befehle":
+        vocabulary.befehle.append(value)
+    elif field_name == "befehle2":
+        vocabulary.befehle2.append(value)
+
+
+def load_prompt_vocabulary(
+    path: String = "",
+) raises -> PromptVocabulary:
+    """Load the generated full Python vocabulary without a Python runtime."""
+    var catalog_path = path
+    if catalog_path.byte_length() == 0:
+        catalog_path = asset_resource("input_semantics_catalog.tsv")
+    var vocabulary = _empty_prompt_vocabulary()
+    var lines = read_text_file(catalog_path).split("\n")
+    for line_index in range(len(lines)):
+        var line = String(lines[line_index])
+        if line.byte_length() == 0 or line.startswith("#"):
             continue
-        for alias_index in range(len(group.aliases)):
-            _append_unique_string(values, group.aliases[alias_index])
-    return values^
+        var fields = line.split("\t")
+        if len(fields) != 5:
+            continue
+        var kind = String(fields[0])
+        var field_name = String(fields[1])
+        var key = String(fields[2])
+        var value = String(fields[4])
+        if kind == "list" or kind == "set":
+            _append_catalog_string(vocabulary, field_name, value)
+        elif kind == "intset" and field_name == "gebrochen_erlaubte_zahlen":
+            vocabulary.gebrochen_erlaubte_zahlen.append(atol(value))
+        elif kind == "map" and field_name == "spalten_dict":
+            _append_map_value(vocabulary.spalten_dict, key, value)
+        elif kind == "map-empty" and field_name == "spalten_dict":
+            _append_map_value(vocabulary.spalten_dict, key, "")
+            vocabulary.spalten_dict[len(vocabulary.spalten_dict) - 1].values = List[String]()
+    return vocabulary^
 
 
 def build_prompt_vocabulary(
     sheaf: ParameterSemanticsSheaf,
-) -> PromptVocabulary:
-    """Build the deterministic completion vocabulary available without Python.
-
-    The dynamic prompt runtime still remains a migration boundary, but its
-    schema-derived words no longer require ``program.paraDict`` or i18n globals.
-    """
-    var main_parameters: List[String] = [
-        "-zeilen",
-        "-spalten",
-        "-kombination",
-        "-ausgabe",
-        "-debug",
-        "-h",
-        "-help",
-    ]
-
-    var column_options = List[String]()
-    for alias_index in range(len(sheaf.main_aliases)):
-        _append_unique_string(
-            column_options,
-            "--" + sheaf.main_aliases[alias_index].source_alias + "=",
-        )
-    column_options.append("--breite=")
-    column_options.append("--breiten=")
-    column_options.append("--keinenummerierung")
-    column_options.append("--*=")
-
-    var values_by_main = List[VocabularyValuesForMain]()
-    for group_index in range(len(sheaf.main_alias_groups)):
-        var canonical = sheaf.main_alias_groups[group_index].canonical
-        values_by_main.append(
-            VocabularyValuesForMain(
-                canonical,
-                _parameter_aliases_for_main(sheaf, canonical),
-            )
-        )
-
-    var output_options: List[String] = [
-        "--nocolor",
-        "--justtext",
-        "--art=",
-        "--onetable",
-        "--spaltenreihenfolgeundnurdiese=",
-        "--endlessscreen",
-        "--endless",
-        "--dontwrap",
-        "--breite=",
-        "--breiten=",
-        "--keineleereninhalte",
-        "--keinenummerierung",
-        "--keineueberschriften",
-        "--*=",
-    ]
-    var combination_options: List[String] = [
-        "--galaxie=", "--universum=", "--*="
-    ]
-    var row_options: List[String] = [
-        "--zeit=",
-        "--zaehlung=",
-        "--vorhervonausschnitt=",
-        "--vorhervonausschnittteiler",
-        "--primzahlvielfache=",
-        "--nachtraeglichneuabzaehlung=",
-        "--nachtraeglichneuabzaehlungvielfache=",
-        "--alles",
-        "--potenzenvonzahlen=",
-        "--typ=",
-        "--vielfachevonzahlen=",
-        "--oberesmaximum=",
-        "--primzahlen=",
-        "--invertieren",
-        "--*=",
-    ]
-    var output_modes: List[String] = [
-        "shell", "nichts", "csv", "bbcode", "html", "emacs", "markdown"
-    ]
-    return PromptVocabulary(
-        main_parameters^,
-        column_options^,
-        values_by_main^,
-        output_options^,
-        combination_options^,
-        row_options^,
-        output_modes^,
-    )
+) raises -> PromptVocabulary:
+    """Compatibility entry point backed by the complete immutable catalog."""
+    if len(sheaf.main_alias_groups) == 0:
+        return _empty_prompt_vocabulary()
+    return load_prompt_vocabulary()
 
 
 def vocabulary_values_for_main(
     vocabulary: PromptVocabulary, main_canonical: String
 ) -> List[String]:
-    for index in range(len(vocabulary.values_by_main)):
-        if vocabulary.values_by_main[index].main_canonical == main_canonical:
-            return vocabulary.values_by_main[index].values.copy()
-    return List[String]()
+    return vocabulary.values_for_main(main_canonical)
+
+
+def bootstrap_input_bundle(
+    schema: RetaContextSchema, multiple_prefix: String = "v"
+) -> InputBundle:
+    return InputBundle.from_schema(schema, multiple_prefix)

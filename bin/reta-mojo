@@ -6,7 +6,7 @@ if command -v readlink >/dev/null 2>&1; then
 fi
 ROOT=$(CDPATH= cd -- "$(dirname -- "$SELF")/.." && pwd)
 cd "$ROOT"
-if [ "${1-}" = "--mojo-schema" ] || [ "${1-}" = "--mojo-columns" ] || [ "${1-}" = "--mojo-alias" ] || [ "${1-}" = "--mojo-parse-cli" ] || [ "${1-}" = "--mojo-vocabulary" ]; then
+if [ "${1-}" = "--mojo-schema" ] || [ "${1-}" = "--mojo-columns" ] || [ "${1-}" = "--mojo-alias" ] || [ "${1-}" = "--mojo-parse-cli" ] || [ "${1-}" = "--mojo-vocabulary" ] || [ "${1-}" = "--mojo-input-snapshot" ]; then
     if [ -x "$ROOT/target/bin/reta-mojo-schema" ]; then
         exec "$ROOT/bin/mojo-runtime-exec" "$ROOT/target/bin/reta-mojo-schema" "$@"
     fi

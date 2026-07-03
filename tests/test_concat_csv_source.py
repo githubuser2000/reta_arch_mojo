@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import ast
+import os
 from pathlib import Path
 import re
 import subprocess
@@ -108,9 +109,26 @@ def test_concat_csv_probe_stays_byte_identical_to_python_reference() -> None:
     probe = ROOT / "target/tests/concat_csv_probe"
     if not probe.is_file():
         pytest.skip("requires the compiled Mojo concat_csv_probe")
+    runtime = subprocess.run(
+        [str(ROOT / "scripts/find_mojo_runtime.sh")],
+        cwd=ROOT,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    if runtime.returncode != 0:
+        pytest.skip("requires a runnable local Modular-Mojo runtime")
+    env = os.environ.copy()
+    runtime_dir = runtime.stdout.strip()
+    env["RETA_MOJO_RUNTIME_LIBDIR"] = runtime_dir
+    env["LD_LIBRARY_PATH"] = runtime_dir + (
+        ":" + env["LD_LIBRARY_PATH"] if env.get("LD_LIBRARY_PATH") else ""
+    )
     subprocess.run(
         [sys.executable, "scripts/check_concat_csv_parity.py"],
         cwd=ROOT,
+        env=env,
         check=True,
     )
 

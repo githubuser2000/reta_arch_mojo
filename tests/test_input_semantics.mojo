@@ -82,14 +82,59 @@ def test_unknown_parameter_remains_explicitly_invalid() raises:
     assert_equal(selections[0].source_parameter, "does-not-exist")
 
 
-def test_native_prompt_vocabulary_is_schema_derived() raises:
+
+def test_row_range_syntax_and_input_bundle_snapshot() raises:
+    var syntax = RowRangeSyntax()
+    var parts = syntax.split_comma_list("1,{2,3},4")
+    assert_equal(len(parts), 3)
+    assert_equal(parts[1], "{2,3}")
+    assert_equal(syntax.compact_comma_list("1,,{2,3},"), "1,{2,3}")
+    assert_equal(
+        syntax.integer_range_pattern(),
+        "^(v?-?\\d+)(-\\d+)?((\\+)(\\d+))*$",
+    )
+    assert_equal(
+        syntax.fraction_range_pattern(),
+        "^(v?-?\\d+/\\d+)(-\\d+/\\d+)?((\\+)(\\d+/\\d+))*$",
+    )
+    assert_true(syntax.is_integer_range_token("v2-8+10"))
+    assert_true(syntax.is_fraction_range_token("v1/2-3/4+5/6"))
+    assert_false(syntax.is_fraction_range_token("1/2+broken"))
+    # Python text[1:] removes one Unicode codepoint.  This guards the native
+    # parser against byte-offset assertions for a multibyte marker.
+    assert_true(is_row_range_token("ä{1,2}"))
+    var translated = RowRangeSyntax("ä")
+    assert_equal(translated.integer_range_pattern(), "^(ä?-?\\d+)(-\\d+)?((\\+)(\\d+))*$")
+
+    var bundle = InputBundle.from_schema(bootstrap_reta_schema())
+    var snapshot = bundle.snapshot()
+    assert_equal(snapshot.row_ranges.multiple_prefix, "v")
+    assert_equal(
+        snapshot.row_ranges.comma_split_pattern,
+        ",(?![^\\[\\]\\{\\}\\(\\)]*[\\]\\}\\)])",
+    )
+    assert_true(snapshot.prompt_vocabulary_builder_available)
+
+def test_native_prompt_vocabulary_matches_complete_reference_catalog() raises:
     var sheaf = build_parameter_semantics(bootstrap_reta_schema())
     var vocabulary = build_prompt_vocabulary(sheaf)
-    assert_equal(len(vocabulary.main_parameters), 7)
-    assert_true(len(vocabulary.column_options) >= 90)
-    assert_equal(len(vocabulary.values_by_main), 33)
-    assert_equal(len(vocabulary.output_modes), 7)
-    assert_true(_test_contains(vocabulary.column_options, "--religionen="))
+    var snapshot = vocabulary.snapshot()
+    assert_equal(snapshot.main_parameters_len, 7)
+    assert_equal(snapshot.spalten_len, 4160)
+    assert_equal(snapshot.spalten_dict_keys, 84)
+    assert_equal(snapshot.ausgabe_paras_len, 14)
+    assert_equal(snapshot.kombi_main_paras_len, 3)
+    assert_equal(snapshot.zeilen_paras_len, 15)
+    assert_equal(snapshot.haupt_for_neben_len, 7)
+    assert_equal(snapshot.ausgabe_art_len, 7)
+    assert_equal(snapshot.befehle_len, 386)
+    assert_equal(snapshot.befehle2_len, 385)
+    assert_equal(snapshot.gebrochen_erlaubte_zahlen_len, 21)
+    assert_equal(vocabulary.spalten[0], "--Wichtigstes_zum_verstehen=")
+    assert_equal(vocabulary.spalten[1], "--Wichtigstes_zum_verstehen=")
+    assert_true(_test_contains(vocabulary.spalten, "--religionen="))
+    assert_equal(len(vocabulary_values_for_main(vocabulary, "Licht")), 0)
+    assert_equal(len(vocabulary_values_for_main(vocabulary, "licht")), 0)
     var religion_values = vocabulary_values_for_main(vocabulary, "Religionen")
     assert_true(_test_contains(religion_values, "sternpolygon"))
     assert_true(_test_contains(religion_values, "gleichfoermigespolygon"))

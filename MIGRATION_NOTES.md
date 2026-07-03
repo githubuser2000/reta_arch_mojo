@@ -1121,3 +1121,15 @@ Byteindizes werden nur noch zum Erkennen der ASCII-HTML-Syntax verwendet. Das Ma
 - `reta-mojo-output-syntax` ist das 21. reguläre Buildziel; der Installer kennt nun 39 offizielle reguläre und schwere Ziele.
 - Fortschritt: **68/92 vollständig**, **83/92 mindestens teilweise**, **30.423/48.831 vollständig native Referenzzeilen**, **55.639 Mojo-Zeilen in `src/`**, aktive `std.python`-Brücken **0**.
 - In der compilerlosen Erstellungsumgebung bestanden die fokussierten Gates **43/43** und der portable Source-Testbestand **128/128** mit einem begründeten compilerabhängigen Skip. `MOJO-FIXED-039` entfernt einen unbegründeten `Writable`-Vertrag; `TEST-FIXED-022` macht die Source-Suite archivportabel. `scripts/test_stage12c5v.sh` führt die vorbereitete native Kompilierung und Python/PyPy3-Parität lokal aus.
+
+## Stage 12c5w: Compilerreparatur und vollständige Eingabesemantik
+
+- `alias` ist ein reserviertes Mojo-Schlüsselwort. `_alias_matches` verwendet nun `alias_index`; der Stage-Test baut zuerst den vollständigen `src/main.mojo`-Importgraphen.
+- `input_semantics.py` wechselt zu vollständig nativ beziehungsweise reproduzierbar generiert: vier Klassen, 18 Vokabularfelder, Row-Range-Snapshot, Builder und Input-Bundle.
+- `assets/input_semantics_catalog.tsv` enthält 17.741 geordnete Datensätze. Listenreihenfolge, Duplikate und leere Domänen bleiben erhalten; Setfelder sind deterministisch.
+- Der Generator erzwingt vor dem Referenzimport `PYTHONHASHSEED=0`, nachdem ein hashseedabhängiger Zwischenstand erkannt wurde (`TEST-FIXED-023`).
+- Der FHS-Installer liefert die von `mojo-runtime-exec` benötigten Frischehelfer nun mit und prüft den neuen Katalog sowohl unter `share/reta/assets` als auch über den privaten Assetsymlink (`TEST-FIXED-025`).
+- `RETA_TARGET_DIR` entkoppelt Paketierung und FHS-Layouttests von zufällig vorhandenen lokalen Compilerzielen (`TEST-FIXED-026`).
+- Python-Zeichenschnitte und Regex-Escaping in `RowRangeSyntax` arbeiten auch für mehrbyteige Präfixe über Unicode-Codepoints (`MOJO-FIXED-041`).
+- Der öffentliche `reta-mojo`-Launcher kennt den neuen `--mojo-input-snapshot`-Schemaweg (`MOJO-FIXED-042`).
+- Maschinenstand: **69/92 vollständig**, **83/92 mindestens teilweise**, **38.174/48.831 angegriffene** und **30.672/48.831 vollständig native Referenzzeilen**; **55.849** Mojo-Zeilen in `src/`.

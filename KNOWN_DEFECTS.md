@@ -23,7 +23,7 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 
 ## Übersicht
 
-- Einträge insgesamt: **85**
+- Einträge insgesamt: **92**
 - offene bestätigte Python-Fehler: **5**
 - zu entscheidende Python-Fehlerkandidaten: **13**
 - bereits im Python-Baum behobene Fehler: **7**
@@ -1172,3 +1172,97 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 - spätere Python-Aktion: Keine Python-Referenzänderung erforderlich; die Reparatur betrifft ausschließlich portable Tests und die bereits zentralisierte Interpreterwahl.
 - Mojo-Orte: `tests/test_concat_csv_source.py`, `tests/test_prompt_external_source.py`, `tests/test_prompt_preparation_source.py`, `scripts/select_reference_python.sh`
 - Belege: `STAGE12C5V_NATIVE_OUTPUT_SEMANTICS_SYNTAX.md`, `tests/test_concat_csv_source.py`, `tests/test_prompt_external_source.py`, `tests/test_prompt_preparation_source.py`
+
+### MOJO-FIXED-040 – Reserviertes alias-Schlüsselwort wurde als Schleifenvariable verwendet
+
+- Ursprung: `mojo_port`
+- Klasse / Schwere: `reserved_keyword_identifier` / `high`
+- Python-Status: `correct_reference`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5w`
+- Reproduktion: `scripts/build.sh ausführen; beim Import von output_modes.mojo bricht Modular an for alias in spec.aliases mit unexpected token in expression ab.`
+- heutiger Vertrag: Aliaslisten werden mit alias_index indexiert. Kein lokaler Bezeichner verwendet das reservierte Mojo-Deklarationsschlüsselwort alias; der Stage-Test kompiliert zusätzlich den vollständigen src/main.mojo-Importgraphen.
+- spätere Python-Aktion: Keine Python-Änderung erforderlich; alias ist dort ein gewöhnlicher lokaler Name, während Mojo es als Sprachschlüsselwort reserviert.
+- Python-Orte: `python_reference/reta_architecture/output_semantics.py`
+- Mojo-Orte: `src/reta_mojo/output_modes.mojo`, `tests/test_input_semantics_complete_source.py`, `scripts/test_stage12c5w.sh`
+- Belege: `STAGE12C5W_COMPILER_INPUT_SEMANTICS.md`, `src/reta_mojo/output_modes.mojo`, `scripts/test_stage12c5w.sh`
+
+### TEST-FIXED-023 – Input-Semantik-Katalog hing vom zufälligen Python-Hashseed ab
+
+- Ursprung: `test_infrastructure`
+- Klasse / Schwere: `nondeterministic_generated_catalog` / `high`
+- Python-Status: `not_applicable`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5w`
+- Reproduktion: `tools/generate_input_semantics_catalog.py zweimal in getrennten Python-Prozessen ohne festes PYTHONHASHSEED ausführen; die aus Set-Iteration stammende haupt_for_neben-Reihenfolge kann unterschiedliche SHA-256-Summen erzeugen.`
+- heutiger Vertrag: Der Generator re-execiert sich mit PYTHONHASHSEED=0, bevor die Referenz importiert wird. Wiederholte Erzeugung ist byteidentisch; Listenreihenfolge und Duplikate bleiben Referenzsemantik, Setfelder werden zusätzlich sortiert.
+- spätere Python-Aktion: Die Python-Produktionssemantik bleibt unverändert. Nur die reproduzierbare Build-Artefakterzeugung wird auf den bereits projektweit kanonischen Hashseed festgelegt.
+- Python-Orte: `python_reference/reta_architecture/input_semantics.py`
+- Mojo-Orte: `tools/generate_input_semantics_catalog.py`, `assets/input_semantics_catalog.tsv`, `tests/test_input_semantics_complete_source.py`
+- Belege: `STAGE12C5W_COMPILER_INPUT_SEMANTICS.md`, `tools/generate_input_semantics_catalog.py`, `tests/test_input_semantics_complete_source.py`
+
+### TEST-FIXED-024 – Portable Source-Suite startete ein fremd gebautes Probe-Binary ohne verfügbare Mojo-Laufzeit
+
+- Ursprung: `test_infrastructure`
+- Klasse / Schwere: `unrunnable_compiled_fixture_in_source_test` / `medium`
+- Python-Status: `not_applicable`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5w`
+- Reproduktion: `Alle test_*source.py in einem Arbeitsbaum ausführen, der zwar target/tests/concat_csv_probe aus einem anderen Rechner enthält, dessen absolute Modular-Laufzeitsymlinks aber nicht verfügbar sind; der Test startet das ELF allein aufgrund seiner Existenz und scheitert mit libKGENCompilerRTShared.so not found.`
+- heutiger Vertrag: Die Source-Suite führt die compilerabhängige Parität nur aus, wenn sowohl das Probe-Binary als auch eine vollständige lokale Mojo-Laufzeit verfügbar sind. Der Paritätsrunner setzt den ermittelten Laufzeitpfad explizit in LD_LIBRARY_PATH; fremde oder unvollständige Buildartefakte führen zu einem begründeten Skip statt zu einem falschen Source-Fehler.
+- spätere Python-Aktion: Keine Python-Referenzänderung erforderlich; die Reparatur trennt portable Quellprüfung von lokal ausführbaren Compilerartefakten.
+- Mojo-Orte: `tests/test_concat_csv_source.py`, `scripts/check_concat_csv_parity.py`, `scripts/find_mojo_runtime.sh`
+- Belege: `STAGE12C5W_COMPILER_INPUT_SEMANTICS.md`, `tests/test_concat_csv_source.py`, `scripts/check_concat_csv_parity.py`
+
+### TEST-FIXED-025 – Installierte Mojo-Launcher verloren den von mojo-runtime-exec benötigten Frischeprüfer
+
+- Ursprung: `test_infrastructure`
+- Klasse / Schwere: `missing_installed_runtime_helper` / `high`
+- Python-Status: `not_applicable`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5w`
+- Reproduktion: `DESTDIR mit scripts/install.sh erzeugen und einen installierten Mojo-Launcher starten; mojo-runtime-exec bricht vor der Laufzeitsuche mit scripts/check_mojo_binary_freshness.sh: not found ab.`
+- heutiger Vertrag: install.sh installiert neben find_mojo_runtime.sh nun auch check_mojo_binary_freshness.sh und current_source_id.sh in den privaten Skriptbaum. Installierte Launcher erreichen dadurch zuverlässig die Laufzeitsuche; der neue Input-Semantik-Katalog wird im selben FHS-Test unter share/reta/assets und über den privaten Assetsymlink geprüft.
+- spätere Python-Aktion: Keine Python-Referenzänderung erforderlich; der Fehler betraf ausschließlich die Zusammenstellung des installierten nativen Laufzeitbaums.
+- Mojo-Orte: `scripts/install.sh`, `bin/mojo-runtime-exec`, `scripts/check_mojo_binary_freshness.sh`, `scripts/current_source_id.sh`, `tests/test_install_layout.py`
+- Belege: `STAGE12C5W_COMPILER_INPUT_SEMANTICS.md`, `scripts/install.sh`, `tests/test_install_layout.py`
+
+### MOJO-FIXED-041 – Row-Range-Kompatibilität verwendete Python-Zeichenschnitte als UTF-8-Byteschnitte
+
+- Ursprung: `mojo_port`
+- Klasse / Schwere: `unicode_codepoint_boundary` / `high`
+- Python-Status: `not_applicable`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5w`
+- Reproduktion: `is_row_range_token("ä{1,2}") oder RowRangeSyntax("ä").integer_range_pattern() ausführen; die frühere Mojo-Fassung schnitt text[1:] am Byteoffset 1 und zerlegte ein mehrbyteiges Präfix byteweise.`
+- heutiger Vertrag: Das Entfernen des ersten Python-Zeichens erfolgt über codepoint_slices(); Regex-Escaping iteriert ebenfalls Unicode-Codepoints. ASCII-Syntaxscanner behalten Byteoffsets nur dort, wo Start und Ende nachweislich an ASCII-Grenzen liegen.
+- spätere Python-Aktion: Keine Python-Änderung erforderlich; Python text[1:] und Zeicheniteration waren bereits Unicode-korrekt.
+- Python-Orte: `python_reference/reta_architecture/row_ranges.py:58`
+- Mojo-Orte: `src/reta_mojo/row_ranges.mojo`, `tests/test_input_semantics.mojo`, `tests/test_input_semantics_complete_source.py`
+- Belege: `STAGE12C5W_COMPILER_INPUT_SEMANTICS.md`, `src/reta_mojo/row_ranges.mojo`, `tests/test_input_semantics.mojo`
+
+### TEST-FIXED-026 – FHS-Layouttests hingen von zufällig vorhandenen lokalen Compilerzielen ab
+
+- Ursprung: `test_infrastructure`
+- Klasse / Schwere: `foreign_build_artifact_dependency` / `medium`
+- Python-Status: `not_applicable`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5w`
+- Reproduktion: `tests/test_install_layout.py in einem source-only Archiv ohne target/bin ausführen; install.sh verlangte drei lokale Compilerziele und der Test konnte das Layout ohne fremden Build nicht prüfen.`
+- heutiger Vertrag: install.sh akzeptiert RETA_TARGET_DIR als explizite Paketierungsquelle. Der Layouttest erzeugt ausschließlich die drei obligatorischen ausführbaren Platzhalter in tmp_path und prüft fehlende optionale Ziele getrennt; dadurch ist er unabhängig vom Arbeitsbaum und bleibt trotzdem FHS-realistisch.
+- spätere Python-Aktion: Keine Python-Referenzänderung erforderlich; betroffen war nur die reproduzierbare Paketierungsprüfung.
+- Mojo-Orte: `scripts/install.sh`, `tests/test_install_layout.py`, `tests/test_input_semantics_complete_source.py`
+- Belege: `STAGE12C5W_COMPILER_INPUT_SEMANTICS.md`, `scripts/install.sh`, `tests/test_install_layout.py`
+
+### MOJO-FIXED-042 – Neuer Input-Snapshot war über den öffentlichen reta-mojo-Launcher nicht erreichbar
+
+- Ursprung: `mojo_port`
+- Klasse / Schwere: `launcher_dispatch_gap` / `medium`
+- Python-Status: `not_applicable`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5w`
+- Reproduktion: `bin/reta-mojo --mojo-input-snapshot aufrufen; ohne expliziten Dispatch fiel der Launcher auf src/main.mojo beziehungsweise reta-mojo-native zurück, obwohl schema_main.mojo den Befehl implementierte.`
+- heutiger Vertrag: Alle Schema-Diagnosen einschließlich --mojo-input-snapshot werden vom öffentlichen Launcher atomar an reta-mojo-schema beziehungsweise schema_main.mojo weitergereicht.
+- spätere Python-Aktion: Keine Python-Referenzänderung erforderlich; betroffen war nur die native Kommandoverteilung.
+- Mojo-Orte: `bin/reta-mojo`, `src/schema_main.mojo`, `tests/test_input_semantics_complete_source.py`
+- Belege: `STAGE12C5W_COMPILER_INPUT_SEMANTICS.md`, `bin/reta-mojo`, `scripts/check_input_semantics_parity.py`

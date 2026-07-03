@@ -236,8 +236,10 @@ def output_mode_specs() -> List[OutputModeSpec]:
 def _alias_matches(spec: OutputModeSpec, value: String) -> Bool:
     if spec.canonical_name == value or spec.cli_value == value:
         return True
-    for alias in spec.aliases:
-        if alias == value:
+    # ``alias`` is a Mojo declaration keyword and cannot be used as a local
+    # loop binding.  Indexing also keeps ownership explicit for List[String].
+    for alias_index in range(len(spec.aliases)):
+        if spec.aliases[alias_index] == value:
             return True
     return False
 

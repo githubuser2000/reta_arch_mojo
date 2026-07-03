@@ -156,9 +156,28 @@ def _reference_lines() -> list[str]:
 
 def main() -> int:
     executable = ROOT / "target" / "tests" / "concat_csv_probe"
+    env = os.environ.copy()
+    runtime_dir = env.get("RETA_MOJO_RUNTIME_LIBDIR", "")
+    if not runtime_dir:
+        runtime = subprocess.run(
+            [str(ROOT / "scripts" / "find_mojo_runtime.sh")],
+            cwd=ROOT,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=False,
+        )
+        if runtime.returncode != 0:
+            print(runtime.stderr.rstrip(), file=sys.stderr)
+            return 77
+        runtime_dir = runtime.stdout.strip()
+    env["LD_LIBRARY_PATH"] = runtime_dir + (
+        ":" + env["LD_LIBRARY_PATH"] if env.get("LD_LIBRARY_PATH") else ""
+    )
     completed = subprocess.run(
         [str(executable)],
         cwd=ROOT,
+        env=env,
         check=True,
         text=True,
         stdout=subprocess.PIPE,

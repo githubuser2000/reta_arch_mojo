@@ -9,6 +9,7 @@ LIBEXECDIR=${LIBEXECDIR:-$PREFIX/lib/reta}
 DATADIR=${DATADIR:-$PREFIX/share/reta}
 MANDIR=${MANDIR:-$PREFIX/share/man}
 INSTALL_MOJO_RUNTIME=${RETA_INSTALL_MOJO_RUNTIME:-1}
+TARGETDIR=${RETA_TARGET_DIR:-$ROOT/target/bin}
 
 stage_path() {
     printf '%s%s\n' "$DESTDIR" "$1"
@@ -37,9 +38,9 @@ require_file() {
 
 require_file "$ROOT/python_reference/csv/religion.csv"
 require_file "$ROOT/assets/parameter_aliases.tsv"
-require_file "$ROOT/target/bin/reta-native"
-require_file "$ROOT/target/bin/reta-mojo-compat-bin"
-require_file "$ROOT/target/bin/generate-html-native"
+require_file "$TARGETDIR/reta-native"
+require_file "$TARGETDIR/reta-mojo-compat-bin"
+require_file "$TARGETDIR/generate-html-native"
 require_file "$ROOT/man/generate_html.1"
 require_file "$ROOT/scripts/install_targets.txt"
 
@@ -80,6 +81,10 @@ rm -rf "$STAGE_LIBEXECDIR/bin"
 cp -a "$ROOT/bin" "$STAGE_LIBEXECDIR/bin"
 install -m 0755 "$ROOT/scripts/find_mojo_runtime.sh" \
     "$STAGE_LIBEXECDIR/scripts/find_mojo_runtime.sh"
+install -m 0755 "$ROOT/scripts/check_mojo_binary_freshness.sh" \
+    "$STAGE_LIBEXECDIR/scripts/check_mojo_binary_freshness.sh"
+install -m 0755 "$ROOT/scripts/current_source_id.sh" \
+    "$STAGE_LIBEXECDIR/scripts/current_source_id.sh"
 install -m 0755 "$ROOT/scripts/select_reference_python.sh" \
     "$STAGE_LIBEXECDIR/scripts/select_reference_python.sh"
 
@@ -90,7 +95,7 @@ while IFS= read -r name || [ -n "$name" ]; do
     case "$name" in
         ''|'#'*) continue ;;
     esac
-    executable="$ROOT/target/bin/$name"
+    executable="$TARGETDIR/$name"
     [ -f "$executable" ] || continue
     install -m 0755 "$executable" "$STAGE_LIBEXECDIR/target/bin/$name"
     INSTALLED_TARGETS=$((INSTALLED_TARGETS + 1))

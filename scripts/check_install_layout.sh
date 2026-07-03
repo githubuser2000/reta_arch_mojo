@@ -10,6 +10,7 @@ DESTDIR=$STAGE PREFIX=/usr "$ROOT/scripts/install.sh" >"$TMP/install.log"
 
 [ -f "$STAGE/usr/share/reta/csv/religion.csv" ]
 [ -f "$STAGE/usr/share/reta/assets/parameter_aliases.tsv" ]
+[ -f "$STAGE/usr/share/reta/assets/input_semantics_catalog.tsv" ]
 [ -f "$STAGE/usr/share/reta/assets/reta_help_de.txt" ]
 [ -f "$STAGE/usr/share/reta/assets/reta_help_en.txt" ]
 [ -f "$STAGE/usr/share/reta/assets/i18n_words/deutsch.tsv" ]
@@ -19,6 +20,8 @@ DESTDIR=$STAGE PREFIX=/usr "$ROOT/scripts/install.sh" >"$TMP/install.log"
 [ -L "$STAGE/usr/bin/reta-mojo-package-integrity" ]
 [ -L "$STAGE/usr/lib/reta/python_reference/csv" ]
 [ -L "$STAGE/usr/lib/reta/assets" ]
+[ -x "$STAGE/usr/lib/reta/scripts/check_mojo_binary_freshness.sh" ]
+[ -x "$STAGE/usr/lib/reta/scripts/current_source_id.sh" ]
 [ -L "$STAGE/usr/bin/reta" ]
 
 (

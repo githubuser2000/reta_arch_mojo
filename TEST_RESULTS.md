@@ -1838,3 +1838,15 @@ aktive std.python-Brücken:              0
 
 Der lokale Modular-Mojo-Lauf erfolgt mit `scripts/test_stage12c5t.sh`; in der
 Erstellungsumgebung war kein offizieller Mojo-Compiler installiert.
+
+## Stage 12c5w – Compilerreproducer und vollständige Input-Semantik
+
+- Der gemeldete Parserabbruch `for alias in spec.aliases` ist auf das reservierte Mojo-Schlüsselwort `alias` zurückgeführt und durch indexierte Iteration geschlossen.
+- Der Generator erzeugt in getrennten Prozessen unter kanonischem `PYTHONHASHSEED=0` byteidentisch 17.741 Katalogdatensätze.
+- Der Source-Vertrag prüft alle vier Python-Klassen, 18 Vokabularfelder, 84 Map-Domänen, Referenzreihenfolge, Duplikate, leere Domänen und das Fehlen einer Python-Laufzeitbrücke.
+- Ein vorhandenes, aber wegen fehlender lokaler Modular-Laufzeit nicht startbares Concat-Probe-ELF wird als compilerabhängig übersprungen; der Paritätsrunner setzt bei verfügbarer Laufzeit `LD_LIBRARY_PATH` explizit (`TEST-FIXED-024`).
+- Die FHS-Installationsprobe bestätigt den Input-Katalog unter `share/reta/assets` und die beiden von `mojo-runtime-exec` benötigten installierten Frischehelfer (`TEST-FIXED-025`). `RETA_TARGET_DIR` und isolierte Testziele machen denselben Test im source-only Archiv unabhängig von lokalen Binaries (`TEST-FIXED-026`).
+- Mehrbyteige Row-Range-Präfixe werden bei Python-kompatiblem `text[1:]` und Regex-Escaping codepointweise verarbeitet; `ä{1,2}` ist als nativer Regressionsfall enthalten (`MOJO-FIXED-041`).
+- Der öffentliche Launcher leitet `--mojo-input-snapshot` an das Schema-Ziel weiter (`MOJO-FIXED-042`). Der lokale Compilerlauf `scripts/test_stage12c5w.sh` baut zuerst `src/main.mojo`, danach den nativen Input-Modultest und die Python/PyPy3-Snapshotparität.
+- Der offizielle Modular-Mojo-Compiler fehlt in der Erstellungsumgebung; compilerabhängige Ergebnisse werden daher erst nach dem lokalen Stage-Lauf als bestanden gewertet.
+- Fokussierte compilerunabhängige Gates: **58 bestanden, 1 begründeter Skip**. Gesamter portabler Source-Testbestand: **134 bestanden, 1 begründeter Skip**. Defektkatalog: **92/92 konsistent**, Python-Bereinigungspunkte: **19**.

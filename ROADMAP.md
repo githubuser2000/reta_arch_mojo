@@ -467,3 +467,17 @@ Die Zahl **12** ist die geplante Releasegliederung. Interne Teilpakete oder Fehl
 - [x] CSV-, Generator- und Kombi-Reihenfolge als nativer Orchestrator.
 - [x] 20 reguläre plus 18 schwere Compilerziele.
 - [ ] Lokalen Modular-Compilerlauf `scripts/test_stage12c5u.sh` ausführen.
+
+## Stage 12c5w – Compilerreparatur und vollständiger Input-Vertrag
+
+- [x] Reservierten lokalen Bezeichner `alias` aus dem vollständigen Importgraphen entfernen.
+- [x] `src/main.mojo` als erstes Compiler-Gate jeder Stage-12c5w-Prüfung bauen.
+- [x] Alle vier öffentlichen Klassen und 18 Felder von `input_semantics.py` typisiert besitzen.
+- [x] 17.741 dynamisch erzeugte Vokabulardatensätze reproduzierbar und ohne Python-Laufzeit laden.
+- [x] Hashseedabhängigkeit des Generatorimports erkennen und mit kanonischem `PYTHONHASHSEED=0` schließen.
+- [x] FHS-Installation des Input-Katalogs und der von `mojo-runtime-exec` benötigten Frischehelfer schließen.
+- [x] FHS-Layouttests mit `RETA_TARGET_DIR` von lokalen Buildartefakten entkoppeln.
+- [x] Row-Range-Zeichenschnitte und Präfix-Escaping für mehrbyteige Unicode-Präfixe härten.
+- [x] `--mojo-input-snapshot` im öffentlichen `reta-mojo`-Launcher verdrahten.
+- [ ] Lokalen Modular-Lauf `scripts/test_stage12c5w.sh` ausführen und etwaige nachfolgende Compilerdiagnose zurückführen.
+- Maschinenstand: **69/92 vollständig**, **83/92 mindestens teilweise**, **38.174/48.831 angegriffene** und **30.672/48.831 vollständig native Referenzzeilen**.

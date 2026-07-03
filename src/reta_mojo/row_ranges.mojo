@@ -17,11 +17,31 @@ struct ParsedIntSet(Copyable):
     var values: Set[Int]
 
 
+@fieldwise_init
+struct RowRangeSyntaxSnapshot(Copyable, Equatable):
+    var multiple_prefix: String
+    var comma_split_pattern: String
+
+
 struct RowRangeSyntax(Copyable):
     var multiple_prefix: String
+    var comma_split_pattern: String
 
-    def __init__(out self, var multiple_prefix: String = "v"):
+    def __init__(
+        out self,
+        var multiple_prefix: String = "v",
+        var comma_split_pattern: String = ",(?![^\\[\\]\\{\\}\\(\\)]*[\\]\\}\\)])",
+    ):
         self.multiple_prefix = multiple_prefix^
+        self.comma_split_pattern = comma_split_pattern^
+
+    @staticmethod
+    def from_schema(multiple_prefix: String = "v") -> Self:
+        return Self(multiple_prefix)
+
+    @staticmethod
+    def from_i18n(multiple_prefix: String = "v") -> Self:
+        return Self(multiple_prefix)
 
     def split_comma_list(self, text: String) -> List[String]:
         return split_top_level_commas(text)
@@ -37,12 +57,41 @@ struct RowRangeSyntax(Copyable):
             result += parts[index]
         return result^
 
+    def integer_range_pattern(self) -> String:
+        return "^(" + _regex_escape(self.multiple_prefix) + "?-?\\d+)(-\\d+)?((\\+)(\\d+))*$"
+
+    def fraction_range_pattern(self) -> String:
+        return "^(" + _regex_escape(self.multiple_prefix) + "?-?\\d+/\\d+)(-\\d+/\\d+)?((\\+)(\\d+/\\d+))*$"
+
     def is_integer_range_token(self, text: String) -> Bool:
         return is_integer_range_token(text, self.multiple_prefix)
 
     def is_fraction_range_token(self, text: String) -> Bool:
         return is_fraction_range_token(text, self.multiple_prefix)
 
+    def snapshot(self) -> RowRangeSyntaxSnapshot:
+        return RowRangeSyntaxSnapshot(
+            self.multiple_prefix.copy(), self.comma_split_pattern.copy()
+        )
+
+
+
+def _regex_escape(text: String) -> String:
+    # Escape by Unicode codepoint, not by UTF-8 byte.  A translated or custom
+    # multiple-prefix may contain non-ASCII text and must stay well-formed.
+    var result = String()
+    for character_slice in text.codepoint_slices():
+        var character = String(character_slice)
+        if (
+            character == "." or character == "^" or character == "$"
+            or character == "*" or character == "+" or character == "?"
+            or character == "{" or character == "}" or character == "["
+            or character == "]" or character == "\\" or character == "|"
+            or character == "(" or character == ")"
+        ):
+            result += "\\"
+        result += character
+    return result^
 
 def _slice(text: String, start: Int, end: Int) -> String:
     return String(StringSlice(text)[byte=start:end])
@@ -50,6 +99,19 @@ def _slice(text: String, start: Int, end: Int) -> String:
 
 def _tail(text: String, start: Int) -> String:
     return String(StringSlice(text)[byte=start:])
+
+
+def _drop_first_codepoint(text: String) -> String:
+    # Python's text[1:] drops one Unicode codepoint.  A byte slice at offset 1
+    # would assert for every multibyte first character.
+    var result = String()
+    var first = True
+    for character_slice in text.codepoint_slices():
+        if first:
+            first = False
+            continue
+        result += String(character_slice)
+    return result^
 
 
 def _without_last(text: String) -> String:
@@ -172,7 +234,7 @@ def is_row_range_token(text: String, multiple_prefix: String = "v") raises -> Bo
     if direct.valid:
         return True
     if text.byte_length() > 0:
-        return parse_explicit_int_set(_tail(text, 1)).valid
+        return parse_explicit_int_set(_drop_first_codepoint(text)).valid
     return False
 
 

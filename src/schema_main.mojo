@@ -9,6 +9,7 @@ from reta_mojo.input_semantics import (
     positive_columns,
     negative_columns,
     build_prompt_vocabulary,
+    InputBundle,
 )
 from reta_mojo.parameter_semantics import (
     build_parameter_semantics,
@@ -58,12 +59,46 @@ def main() raises:
     if command == "--mojo-vocabulary":
         var vocabulary = build_prompt_vocabulary(sheaf)
         print("Hauptparameter:", len(vocabulary.main_parameters))
-        print("Spaltenoptionen:", len(vocabulary.column_options))
-        print("Kanonische Spaltengruppen:", len(vocabulary.values_by_main))
-        print("Zeilenoptionen:", len(vocabulary.row_options))
-        print("Ausgabeoptionen:", len(vocabulary.output_options))
-        print("Kombinationsoptionen:", len(vocabulary.combination_options))
-        print("Ausgabemodi:", len(vocabulary.output_modes))
+        print("Spaltenoptionen:", len(vocabulary.spalten))
+        print("Kanonische Spaltengruppen:", len(vocabulary.spalten_dict))
+        print("Zeilenoptionen:", len(vocabulary.zeilen_paras))
+        print("Ausgabeoptionen:", len(vocabulary.ausgabe_paras))
+        print("Kombinationsoptionen:", len(vocabulary.kombi_main_paras))
+        print("Ausgabemodi:", len(vocabulary.ausgabe_art))
+        return
+
+    if command == "--mojo-input-snapshot":
+        var vocabulary = build_prompt_vocabulary(sheaf)
+        var snapshot = vocabulary.snapshot()
+        var input_bundle = InputBundle.from_schema(schema)
+        var input_snapshot = input_bundle.snapshot()
+        print("main_parameters_len=" + String(snapshot.main_parameters_len))
+        print("spalten_len=" + String(snapshot.spalten_len))
+        print("spalten_dict_keys=" + String(snapshot.spalten_dict_keys))
+        print("ausgabe_paras_len=" + String(snapshot.ausgabe_paras_len))
+        print("kombi_main_paras_len=" + String(snapshot.kombi_main_paras_len))
+        print("zeilen_paras_len=" + String(snapshot.zeilen_paras_len))
+        print("haupt_for_neben_len=" + String(snapshot.haupt_for_neben_len))
+        print("ausgabe_art_len=" + String(snapshot.ausgabe_art_len))
+        print("befehle_len=" + String(snapshot.befehle_len))
+        print("befehle2_len=" + String(snapshot.befehle2_len))
+        print(
+            "gebrochen_erlaubte_zahlen_len="
+            + String(snapshot.gebrochen_erlaubte_zahlen_len)
+        )
+        print("multiple_prefix=" + input_snapshot.row_ranges.multiple_prefix)
+        print(
+            "comma_split_pattern="
+            + input_snapshot.row_ranges.comma_split_pattern
+        )
+        print(
+            "prompt_vocabulary_builder_available="
+            + (
+                "true"
+                if input_snapshot.prompt_vocabulary_builder_available
+                else "false"
+            )
+        )
         return
 
     if command == "--mojo-parse-cli":
