@@ -56,7 +56,7 @@ NATIVE = {
     "reta_architecture/architecture_activation.py": ("generiert nativ", "src/reta_mojo/architecture_activation.mojo + tools/generate_architecture_activation.py", "7 Fenster, 34 Units, 34 Commit-Gates, 34 Rollbacks und 7 Transaktionen; Referenz- und native Kreuzvalidierung passed"),
     "reta_architecture/architecture_validation.py": ("generiert nativ", "src/reta_mojo/architecture_validation.mojo + tools/generate_architecture_validation.py", "51 Checks, 17 Schichten und 3.448 geprüfte Objekte; Referenz- und native Kreuzvalidierung passed"),
     "reta_architecture/architecture_progress.py": ("generiert nativ", "src/reta_mojo/architecture_progress.mojo + tools/generate_architecture_progress.py", "30 Oberflächen, 34 Schritte, 7 Wellen und ein dokumentierter Umweltblock; native Kreuzvalidierung konsistent"),
-    "reta_architecture/console_io.py": ("teilweise nativ", "src/reta_mojo/console_io.mojo", "reine Chunk-, Deduplikations-, Whitespace- und Debugformatierung nativ; Terminal-/Rich-I/O bleibt Systemgrenze"),
+    "reta_architecture/console_io.py": ("nativ", "src/reta_mojo/console_io.mojo + src/console_io_main.mojo", "vollständiger Stage-39-Besitzer: Help-Texte, CLI-/Debug-Effekte, Terminalkontext, Chunks, schlüsselbasierte Eindeutigkeit, geordnete Default-Struktur, Bundle und Snapshot typisiert; Rich und dynamische Callables als explizite Capability-Grenzen"),
     "reta_architecture/runtime_compat.py": ("nativ", "src/reta_mojo/runtime_compat.mojo + arithmetic.mojo + console_io.mojo + row_ranges.mojo", "vollständige 17-Funktionen-Oberfläche plus isZeilenAngabe-Alias, nPmEnum-Gruppen, 13 globale Vertragsnamen, Hilfe-/Wrapping-/Konsolenadapter und Unicode-isDigit-Semantik typisiert; keine Python- oder Prozessbrücke"),
     "reta_architecture/table_state.py": ("nativ", "src/reta_mojo/table_state.mojo", "typisierter Tabellenzustand, Abschnittsnamen und Zeilengrenzen"),
     "reta_architecture/table_wrapping.py": ("nativ", "src/reta_mojo/table_wrapping.mojo + runtime_compat.mojo", "vollständige zwölf Funktionen und beide Klassenoberflächen typisiert; expliziter Runtime-State ersetzt das Python-Modulglobal, Backendfähigkeiten ersetzen dynamische pyphen/pyhyphen-Objekte, und sämtliche Fallbacks arbeiten Unicode-sicher"),
@@ -125,7 +125,7 @@ native_lines = sum(r[1] for r in original_rows if r[0] in NATIVE)
 total_lines = sum(r[1] for r in original_rows)
 content = [
     "# Portierungsmatrix Python → Mojo\n\n",
-    "Stand: 2. Juli 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der gebündelten Python-Kompatibilitätsreferenz.\n\n",
+    "Stand: 3. Juli 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der gebündelten Python-Kompatibilitätsreferenz.\n\n",
     f"- Ursprüngliche Python-Dateien: **{len(original_rows)}**\n",
     f"- Ursprüngliche Python-Zeilen insgesamt: **{total_lines}**\n",
     "- Eingebettete Python-Brücken: **0**; expliziter Mojo-Kindprozessadapter: **1**\n",

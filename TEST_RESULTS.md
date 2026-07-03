@@ -1850,3 +1850,16 @@ Erstellungsumgebung war kein offizieller Mojo-Compiler installiert.
 - Der öffentliche Launcher leitet `--mojo-input-snapshot` an das Schema-Ziel weiter (`MOJO-FIXED-042`). Der lokale Compilerlauf `scripts/test_stage12c5w.sh` baut zuerst `src/main.mojo`, danach den nativen Input-Modultest und die Python/PyPy3-Snapshotparität.
 - Der offizielle Modular-Mojo-Compiler fehlt in der Erstellungsumgebung; compilerabhängige Ergebnisse werden daher erst nach dem lokalen Stage-Lauf als bestanden gewertet.
 - Fokussierte compilerunabhängige Gates: **58 bestanden, 1 begründeter Skip**. Gesamter portabler Source-Testbestand: **134 bestanden, 1 begründeter Skip**. Defektkatalog: **92/92 konsistent**, Python-Bereinigungspunkte: **19**.
+
+## Stage 12c5x – Modulimport-Reparatur und vollständiges Console-IO
+
+- Der gemeldete Importfehler ist geschlossen: `table_generation.mojo` verwendet jetzt das vorhandene Modul `.combi_join` statt `.kombi_join`.
+- Ein compilerunabhängiger Paketresolver prüft **260/260** relative Mojo-Importe gegen vorhandene Module.
+- `console_io.py` besitzt einen vollständigen typisierten Mojo-Vertrag samt Bundle/Snapshot, Chunking, exakter und schlüsselbasierter Eindeutigkeit, Ausgabe-/Debug-Effektplanung, vier Hilfetextpfaden, Terminalkontext und geordnetem Default-Container.
+- Fokussierte Source-/Ownership-/Installations-/Defekt-/Archiv-/Boundary-Gates: **57/57 bestanden**.
+- Gesamter portabler Source-Testbestand: **141 bestanden, 1 begründeter compilerabhängiger Skip**.
+- Defektkatalog: **94/94 konsistent**; Python-Bereinigungspunkte: **19**.
+- `tools/porting_metrics.py`: **70/92** vollständig, **83/92** mindestens teilweise, **38.174/48.831** angegriffene und **31.021/48.831** vollständig native Referenzzeilen.
+- Installierbare Compilerziele: **22 reguläre + 18 schwere = 40**.
+- Der offizielle Modular-Mojo-Compiler fehlt in der Erstellungsumgebung; `scripts/test_stage12c5x.sh` reproduziert lokal zuerst den vollständigen Importgraphen und den zuvor gescheiterten Table-Generation-Einstieg, danach Console-IO-Modultest und Python/PyPy3-Parität.
+

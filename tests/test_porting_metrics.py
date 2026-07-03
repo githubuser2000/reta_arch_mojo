@@ -19,7 +19,7 @@ def test_porting_metrics_are_derived_from_complete_reference_inventory() -> None
     data = _load_module().compute()
     assert data["reference_files"] == 92
     assert data["reference_lines"] == 48831
-    assert data["fully_native_files"] == 69
+    assert data["fully_native_files"] == 70
     assert data["at_least_partly_ported_files"] == 83
     assert data["touched_reference_lines"] == 38174
     assert data["fully_native_files"] <= data["at_least_partly_ported_files"]
@@ -119,3 +119,8 @@ def test_table_generation_owner_is_in_the_authoritative_mapping() -> None:
 def test_input_semantics_owner_is_complete() -> None:
     mapping = _load_module().native_mapping()
     assert mapping["reta_architecture/input_semantics.py"][0] == "generiert nativ"
+
+
+def test_console_io_is_fully_native() -> None:
+    mapping = _load_module().native_mapping()
+    assert mapping["reta_architecture/console_io.py"][0] == "nativ"

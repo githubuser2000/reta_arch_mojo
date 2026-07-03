@@ -18,7 +18,7 @@ from .generated_table_columns import (
     GeneratedTableResult,
     apply_native_generated_columns,
 )
-from .kombi_join import (
+from .combi_join import (
     KombiJoinBundle,
     KombiLineSelection,
     KombiSourceBundle,

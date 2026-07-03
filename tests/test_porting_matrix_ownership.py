@@ -16,6 +16,7 @@ EXPECTED = {
     "libs/lib4tables_concat.py": "nativ",
     "reta_architecture/concat_csv.py": "nativ",
     "libs/center.py": "nativ",
+    "reta_architecture/console_io.py": "nativ",
     "reta_architecture/runtime_compat.py": "nativ",
     "libs/lib4tables.py": "nativ",
     "i18n/words.py": "generiert nativ",

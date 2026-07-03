@@ -1,6 +1,6 @@
 # Portierungsmatrix Python → Mojo
 
-Stand: 2. Juli 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der gebündelten Python-Kompatibilitätsreferenz.
+Stand: 3. Juli 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der gebündelten Python-Kompatibilitätsreferenz.
 
 - Ursprüngliche Python-Dateien: **92**
 - Ursprüngliche Python-Zeilen insgesamt: **48831**
@@ -55,7 +55,7 @@ Stand: 2. Juli 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der g
 | `reta_architecture/completion_runtime.py` | 192 | 8 | 2 | 1 | generiert nativ | `src/reta_mojo/completion_runtime.mojo + assets/prompt_language` | fünfsprachiger Completion-Runtimevertrag reproduzierbar geladen und typisiert |
 | `reta_architecture/completion_word.py` | 265 | 21 | 6 | 0 | nativ | `src/reta_mojo/completion_word.mojo` | UTF-8-Cursor-, WORD-, Satz-, Anzeige- und Metadatenvertrag vollständig nativ |
 | `reta_architecture/concat_csv.py` | 305 | 18 | 2 | 0 | nativ | `src/reta_mojo/concat_csv.mojo + fraction_concat_columns.mojo` | CSV-Presheafverkettung, exakte Bruchpaargruppierung, fünf Quelltabellen, Transposition, Überschriften, Auswahl und generierte Spaltenmetadaten vollständig nativ |
-| `reta_architecture/console_io.py` | 349 | 41 | 6 | 0 | teilweise nativ | `src/reta_mojo/console_io.mojo` | reine Chunk-, Deduplikations-, Whitespace- und Debugformatierung nativ; Terminal-/Rich-I/O bleibt Systemgrenze |
+| `reta_architecture/console_io.py` | 349 | 41 | 6 | 0 | nativ | `src/reta_mojo/console_io.mojo + src/console_io_main.mojo` | vollständiger Stage-39-Besitzer: Help-Texte, CLI-/Debug-Effekte, Terminalkontext, Chunks, schlüsselbasierte Eindeutigkeit, geordnete Default-Struktur, Bundle und Snapshot typisiert; Rich und dynamische Callables als explizite Capability-Grenzen |
 | `reta_architecture/execution_network.py` | 412 | 45 | 11 | 3 | nativ | `src/reta_mojo/execution_network.mojo + src/architecture_execution_network_main.mojo` | typisierte FIFO-/LIFO-/Prioritätsplanung, Kanal-/Semaphorgrenzen, native Mojo-Threads und deterministische Reduktion; 0 POSIX-Prozessprimitive; Nutzlastgrenze ist UTF-8-Text mit expliziter Operationskennung |
 | `reta_architecture/facade.py` | 709 | 49 | 1 | 1 | teilweise nativ | `src/reta_mojo/architecture_facade.mojo + assets/architecture_facade.tsv + src/architecture_facade_main.mojo` | 45 typisierte Fassadenfelder, 49 Methoden, 45 Bootstrap-Schritte, 44 Rebuild-Einstiege, 98 Abhängigkeitskanten und 48 Snapshot-Einträge in exakter AST-Reihenfolge; heterogene Besitzer werden erst nach ihrer eigenen vollständigen Portierung als Laufzeitobjekte aggregiert |
 | `reta_architecture/generated_columns.py` | 2010 | 38 | 3 | 0 | teilweise nativ | `src/reta_mojo/generated_columns.mojo` | vier Generatorfamilien zweisprachig nativ; restliche Generator- und Metaspalten folgen in Stufe 7 |

@@ -23,7 +23,7 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 
 ## Übersicht
 
-- Einträge insgesamt: **92**
+- Einträge insgesamt: **94**
 - offene bestätigte Python-Fehler: **5**
 - zu entscheidende Python-Fehlerkandidaten: **13**
 - bereits im Python-Baum behobene Fehler: **7**
@@ -1266,3 +1266,31 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 - spätere Python-Aktion: Keine Python-Referenzänderung erforderlich; betroffen war nur die native Kommandoverteilung.
 - Mojo-Orte: `bin/reta-mojo`, `src/schema_main.mojo`, `tests/test_input_semantics_complete_source.py`
 - Belege: `STAGE12C5W_COMPILER_INPUT_SEMANTICS.md`, `bin/reta-mojo`, `scripts/check_input_semantics_parity.py`
+
+### MOJO-FIXED-043 – Table-Generation importierte einen nicht existierenden kombi_join-Modulnamen
+
+- Ursprung: `mojo_port`
+- Klasse / Schwere: `unresolved_relative_module_import` / `high`
+- Python-Status: `correct_reference`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5x`
+- Reproduktion: `scripts/build.sh oder mojo build -I src src/table_generation_main.mojo ausführen; table_generation.mojo importierte .kombi_join, obwohl das vorhandene Modul combi_join.mojo heißt.`
+- heutiger Vertrag: TableGeneration importiert den kanonischen Besitzer .combi_join. Ein paketweiter Source-Test löst alle relativen reta_mojo-Importe gegen tatsächlich vorhandene .mojo-Dateien auf und verhindert erneute Schreibweisenabweichungen vor dem Compilerlauf.
+- spätere Python-Aktion: Keine Python-Änderung erforderlich; der Referenzimport und der Modulname waren korrekt.
+- Python-Orte: `python_reference/reta_architecture/table_generation.py`, `python_reference/reta_architecture/combi_join.py`
+- Mojo-Orte: `src/reta_mojo/table_generation.mojo`, `src/reta_mojo/combi_join.mojo`, `tests/test_mojo_relative_imports.py`
+- Belege: `STAGE12C5X_MODULE_IMPORT_CONSOLE_IO.md`, `src/reta_mojo/table_generation.mojo`, `tests/test_mojo_relative_imports.py`
+
+### MOJO-FIXED-044 – CLI-Hilfeasset und reta_help_text wurden durch eine zusätzliche Newline vermischt
+
+- Ursprung: `mojo_port`
+- Klasse / Schwere: `function_cli_newline_contract_conflation` / `medium`
+- Python-Status: `correct_reference`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5x`
+- Reproduktion: `assets/reta_help_de.txt beziehungsweise reta_help_en.txt byteweise mit Python reta_architecture.console_io.reta_help_text vergleichen; das für reta -h erzeugte Asset enthält genau eine zusätzliche abschließende Newline.`
+- heutiger Vertrag: Der native CLI-Startup verwendet das unveränderte Ausgabeasset einschließlich zusätzlicher Newline. console_io.reta_help_text entfernt ausschließlich diese eine generierte Newline und entspricht dadurch wieder dem reinen Python-Dateiinhalt; Prompt-Help-Assets benötigen keine Korrektur.
+- spätere Python-Aktion: Keine Python-Änderung erforderlich; Funktions- und CLI-Vertrag sind dort bereits getrennt.
+- Python-Orte: `python_reference/reta_architecture/console_io.py:199`, `python_reference/doc/readme-reta.md`, `python_reference/doc/readme-reta-en.md`
+- Mojo-Orte: `src/reta_mojo/console_io.mojo`, `assets/reta_help_de.txt`, `assets/reta_help_en.txt`, `scripts/check_console_io_parity.py`
+- Belege: `STAGE12C5X_MODULE_IMPORT_CONSOLE_IO.md`, `src/reta_mojo/console_io.mojo`, `scripts/check_console_io_parity.py`

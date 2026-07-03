@@ -88,12 +88,14 @@ Mojo-Programme und der verbleibende Python-Kompatibilitätsbaum liegen
 standardmäßig getrennt unter `lib/reta`; Fedora-/RPM-Pakete können
 `LIBEXECDIR=/usr/libexec/reta` setzen. Relative Symlinks erhalten die
 historische Projektstruktur ohne Datenkopie. Seit Stage 12c5h kopiert der
-Installer ausschließlich die 39 in `scripts/install_targets.txt` deklarierten
+Installer ausschließlich die 40 in `scripts/install_targets.txt` deklarierten
 regulären und schweren Compilerziele; lokale Debug-/Altdateien unter
 `target/bin` werden nicht mehr versehentlich installiert. Details:
 [`STAGE12C4M_FHS_RESOURCE_INSTALLATION.md`](STAGE12C4M_FHS_RESOURCE_INSTALLATION.md).
 
 ## Stufen 7–10: Generatoren, Kombinationen, Markup und Prompt
+
+Stage 12c5x korrigiert den gemeldeten Tabellen-Generatorimport: Das vorhandene Modul heißt `combi_join.mojo`, nicht `kombi_join.mojo`. Ein paketweiter Source-Test löst nun alle 260 relativen Mojo-Importe gegen reale Dateien auf. Außerdem ist `reta_architecture/console_io.py` vollständig durch einen typisierten Console-/Help-/Utility-Besitzer ersetzt; `reta-mojo-console-io` bietet Diagnose und Python/PyPy3-Parität. Details: [`STAGE12C5X_MODULE_IMPORT_CONSOLE_IO.md`](STAGE12C5X_MODULE_IMPORT_CONSOLE_IO.md).
 
 Stage 12c5w repariert den lokalen Gesamtbuild: `alias` war in Mojo als Deklarationsschlüsselwort reserviert und darf nicht als Schleifenvariable verwendet werden. Zusätzlich ist `reta_architecture/input_semantics.py` mit allen vier Klassen, 18 Vokabularfeldern und einem deterministischen Katalog aus 17.741 Datensätzen vollständig nativ beziehungsweise reproduzierbar generiert. Unicode-Präfixe der Row-Range-Syntax sind codepoint-sicher; FHS-Layouttests können ihre Compilerziele reproduzierbar über `RETA_TARGET_DIR` beziehen. Details: [`STAGE12C5W_COMPILER_INPUT_SEMANTICS.md`](STAGE12C5W_COMPILER_INPUT_SEMANTICS.md).
 

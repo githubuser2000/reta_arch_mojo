@@ -451,7 +451,7 @@ bin/reta-mojo-table-generation --summary
 scripts/test_stage12c5u.sh
 ```
 
-Damit bestanden in Stage 12c5u 20 reguläre und 18 schwere Compilerziele. Mit dem nachfolgenden Ausgabe-Syntax-Ziel bestehen nun **21 reguläre und 18 schwere, insgesamt 39 installierbare Compilerziele**.
+Damit bestanden in Stage 12c5u 20 reguläre und 18 schwere Compilerziele. Das Ausgabe-Syntax-Ziel erhöhte die Menge auf 21 reguläre Ziele; mit dem Console-IO-Ziel aus Stage 12c5x bestehen nun **22 reguläre und 18 schwere, insgesamt 40 installierbare Compilerziele**.
 
 
 ## Native Ausgabe-Semantik und Syntax (Stage 12c5v)
@@ -482,3 +482,23 @@ scripts/test_stage12c5w.sh
 Die wiederholte Modular-Meldung `Failed to initialize Crashpad` ist nicht der Buildabbruch; erfolgreich erzeugte Ziele bleiben gültig. Maßgeblich ist die erste nachfolgende `error:`-Diagnose. Stage 12c5w schließt den gemeldeten reservierten Bezeichner `alias` und vergleicht anschließend den 18-Felder-Vokabularsnapshot mit Python beziehungsweise PyPy3. Für Paketierungs- oder Layoutprüfungen kann die Quelle obligatorischer Binaries mit `RETA_TARGET_DIR=/pfad/zu/target/bin scripts/install.sh` explizit gesetzt werden.
 
 Der FHS-Installer kopiert außerdem `check_mojo_binary_freshness.sh` und `current_source_id.sh` in den privaten Skriptbaum. Ohne diese beiden Helfer würde ein installierter `mojo-runtime-exec` vor der eigentlichen Laufzeitsuche abbrechen.
+
+## Vollständiges Console-IO und Modulimportprüfung (Stage 12c5x)
+
+Der reguläre Build erzeugt `target/bin/reta-mojo-console-io`. Das Diagnoseziel
+deckt Chunking, geordnete Eindeutigkeit, Console-Effektplanung, beide Hilfetexte,
+Terminalkontext und den geordneten Default-Container ab:
+
+```bash
+scripts/build.sh
+bin/reta-mojo-console-io --summary
+bin/reta-mojo-console-io --chunks 2 a b c d e
+scripts/test_stage12c5x.sh
+```
+
+Der Stage-Test kompiliert zuerst `src/main.mojo` und danach ausdrücklich
+`src/table_generation_main.mojo`. Zusätzlich prüft ein compilerunabhängiger
+Resolver alle 260 relativen Importe in `src/reta_mojo`; dadurch wird eine
+Abweichung wie `.kombi_join` gegenüber der vorhandenen Datei
+`combi_join.mojo` vor dem Modular-Parserlauf erkannt.
+

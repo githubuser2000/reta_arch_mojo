@@ -6,6 +6,7 @@ generate-readme-native
 reta-extract-html-classes-native
 grundStrukHtml-native
 reta-mojo-combi-join
+reta-mojo-console-io
 reta-mojo-domain-probe
 reta-mojo-compat-bin
 reta-mojo-exports

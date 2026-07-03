@@ -21,7 +21,7 @@ reta-mojo-parallel-execution  reta-mojo-row-preparation
 reta-mojo-i18n          reta-mojo-semantics
 reta-mojo-exports       reta-mojo-facade
 reta-mojo-workflow      reta-mojo-sheaves      reta-mojo-table-generation
-reta-mojo-output-syntax
+reta-mojo-output-syntax  reta-mojo-console-io
 reta-mojo-domain-probe
 reta-extract-html-classes generate4readme
 ```
@@ -79,7 +79,7 @@ enthält nur die öffentlichen relativen Launcher-Symlinks.
 Die **kompilierten ELF-Dateien** werden nicht direkt nach `/usr/bin`, sondern
 nach `/usr/lib/reta/target/bin` installiert. Autoritativ ist
 `scripts/install_targets.txt`. Sind beide Buildskripte vollständig gelaufen,
-sind es genau **39** Ziele:
+sind es genau **40** Ziele:
 
 ```text
 generate-html-native              generate-readme-native
@@ -89,7 +89,7 @@ reta-mojo-compat-bin
 reta-mojo-exports                 reta-mojo-facade
 reta-mojo-workflow                reta-mojo-sheaves
 reta-mojo-table-generation        reta-mojo-output-syntax
-reta-mojo-i18n
+reta-mojo-console-io              reta-mojo-i18n
 reta-mojo-native                  reta-mojo-package-integrity
 reta-mojo-table                   reta-mojo-tags
 reta-native                       reta-prompt-complete
@@ -106,12 +106,12 @@ reta-mojo-semantics               reta-mojo-traces
 reta-mojo-validation              reta-mojo-witnesses
 ```
 
-Die ersten 21 stammen aus `scripts/build.sh`; die letzten 18 sind optionale
+Die ersten 22 stammen aus `scripts/build.sh`; die letzten 18 sind optionale
 schwere Ziele aus `scripts/build-heavy.sh`. Nicht gebaute optionale Ziele werden
 übersprungen. Andere Dateien in `target/bin`, insbesondere lokale Debug- oder
 Altvarianten wie `reta-native-o0`, werden ausdrücklich **nicht** installiert.
 
-`/usr/bin` enthält demgegenüber **52 öffentliche Namen als relative Symlinks**
+`/usr/bin` enthält demgegenüber **53 öffentliche Namen als relative Symlinks**
 auf Launcher unter `/usr/lib/reta/bin`; darunter sind Komfortnamen und Profile,
 also nicht 52 verschiedene ELFs. Die zwei internen Helfer `mojo-real` und
 `mojo-runtime-exec` bleiben nur privat unter `/usr/lib/reta/bin`. Standardmäßig
@@ -215,6 +215,7 @@ zu einem einzigen Releasebinary `target/bin/reta` zusammengeführt werden.
 ./bin/reta-mojo-sheaves --html 4
 ./bin/reta-mojo-table-generation --summary
 ./bin/reta-mojo-output-syntax --summary
+./bin/reta-mojo-console-io --summary
 ./bin/reta-mojo-domain-probe pair religionen sternpolygon
 ./bin/reta-mojo-domain-probe reverse 4
 ./bin/reta-extract-html-classes htmlclassesPy.jsonl
@@ -243,6 +244,7 @@ zu einem einzigen Releasebinary `target/bin/reta` zusammengeführt werden.
 | Prägarben-/Garbendiagnose | `target/bin/reta-mojo-sheaves` | 269 lokale CSV-/i18n-/Assetsektionen, Promptzustand, Parametersemantik, Generator-/Ausgabesektionen und 669 vollständige HTML-Referenzen vollständig nativ |
 | Tabellen-Gluing | `target/bin/reta-mojo-table-generation` | typisierter Plan für CSV-Anfügung, Last-Line-Capture, zwölf Generatorfamilien und Galaxie-/Universum-Kombi-Join |
 | Ausgabesemantik/-syntax | `target/bin/reta-mojo-output-syntax` | sieben Modi, Aliase, Flags, Syntaxdeskriptoren, Bundle/Snapshot sowie typisierte HTML-/BBCode-/Textzellen |
+| Console-/Help-/Utility-Semantik | `target/bin/reta-mojo-console-io` | Chunking, geordnete Eindeutigkeit, Ausgabe-/Debug-Effektplanung, beide Hilfetexte, Terminalkontext und geordneter Default-Container vollständig nativ |
 | Domain-Probe-Kern | `target/bin/reta-mojo-domain-probe` | neun Alias-/Paar-/Spalten-/JSON-Befehle direkt über native Schema- und Parametersemantik; HTML-, Schema- und Architektur-Snapshots bleiben Referenzgrenze |
 | HTML-Klassenextraktion | `target/bin/reta-extract-html-classes-native` | erzeugt die einzeilige All-Spalten-HTML-Tabelle nativ, analysiert doppelte Attribute/Klassen und schreibt 15-Feld-JSONL ohne Python, Regex oder Unterprozess |
 | Quellbaum-Integrität | `target/bin/reta-mojo-package-integrity` | reguläre Dateien und Dateisymlinks, Runtime-Filter, 74 Pflichtpfade, CSV-Zeilen und binärer SHA-256-Gesamtdigest vollständig nativ; native Linux/POSIX-Verzeichnis-FFI und OpenSSL als Systemgrenzen |
