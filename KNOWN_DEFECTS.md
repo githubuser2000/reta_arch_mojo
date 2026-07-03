@@ -23,7 +23,7 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 
 ## Übersicht
 
-- Einträge insgesamt: **83**
+- Einträge insgesamt: **85**
 - offene bestätigte Python-Fehler: **5**
 - zu entscheidende Python-Fehlerkandidaten: **13**
 - bereits im Python-Baum behobene Fehler: **7**
@@ -1145,3 +1145,30 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 - Python-Orte: `python_reference/reta_architecture/table_output.py`
 - Mojo-Orte: `src/reta_mojo/table_rendering.mojo`, `tests/test_native_reta_utf8_html.mojo`, `tests/test_stage12c5s_source.py`
 - Belege: `STAGE12C5S_STALE_BINARY_UTF8_TABLE_HANDLING.md`, `src/reta_mojo/table_rendering.mojo`, `tests/test_stage12c5s_source.py`
+
+### MOJO-FIXED-039 – OutputModeSpec deklarierte Writable ohne write_to-Vertrag
+
+- Ursprung: `mojo_port`
+- Klasse / Schwere: `invalid_protocol_conformance` / `high`
+- Python-Status: `correct_reference`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5v`
+- Reproduktion: `Den neuen output_modes.mojo-Besitzer statisch oder mit scripts/test_stage12c5v.sh prüfen; OutputModeSpec führte Writable in der Traitliste, implementierte aber keine write_to-Methode.`
+- heutiger Vertrag: OutputModeSpec ist Copyable und Equatable, beansprucht aber keinen nicht implementierten Writer-Vertrag. Diagnoseausgaben serialisieren die einzelnen typisierten Felder explizit.
+- spätere Python-Aktion: Keine Python-Änderung erforderlich; Dataclasses benötigen keinen Mojo-Writer-Protocolvertrag.
+- Python-Orte: `python_reference/reta_architecture/output_semantics.py`
+- Mojo-Orte: `src/reta_mojo/output_modes.mojo`, `tests/test_output_syntax_complete_source.py`
+- Belege: `STAGE12C5V_NATIVE_OUTPUT_SEMANTICS_SYNTAX.md`, `src/reta_mojo/output_modes.mojo`, `tests/test_output_syntax_complete_source.py`
+
+### TEST-FIXED-022 – Source-Suite verlangte ein nicht mitgeliefertes Probe-Binary und veraltete Interpreterdetails
+
+- Ursprung: `test_infrastructure`
+- Klasse / Schwere: `source_archive_test_assumption` / `medium`
+- Python-Status: `not_applicable`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5v`
+- Reproduktion: `python3 -m pytest -q über alle test_*source.py-Dateien in einem frischen source-only Archiv ausführen; concat_csv erwartete target/tests/concat_csv_probe, während zwei Prompttests die vor der Resolverzentralisierung verwendeten .venv- beziehungsweise RETA_PYTHON-Textfragmente verlangten.`
+- heutiger Vertrag: Source-only Prüfungen überspringen ausschließlich die echte compilerabhängige Concat-Parität, wenn ihr Probe-Binary fehlt. Prompttests prüfen die zentrale Interpreterauflösung semantisch statt eine überholte Implementierungsform. Der gesamte Source-Testbestand besteht mit 128 Tests und einem begründeten Skip.
+- spätere Python-Aktion: Keine Python-Referenzänderung erforderlich; die Reparatur betrifft ausschließlich portable Tests und die bereits zentralisierte Interpreterwahl.
+- Mojo-Orte: `tests/test_concat_csv_source.py`, `tests/test_prompt_external_source.py`, `tests/test_prompt_preparation_source.py`, `scripts/select_reference_python.sh`
+- Belege: `STAGE12C5V_NATIVE_OUTPUT_SEMANTICS_SYNTAX.md`, `tests/test_concat_csv_source.py`, `tests/test_prompt_external_source.py`, `tests/test_prompt_preparation_source.py`

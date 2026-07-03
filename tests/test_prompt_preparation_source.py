@@ -60,7 +60,7 @@ def test_front_parity_gate_is_source_archive_portable() -> None:
     checker = (ROOT / "scripts/check_prompt_preparation_parity.sh").read_text(
         encoding="utf-8"
     )
-    assert "RETA_PYTHON" in checker
-    assert "command -v python3" in checker
+    assert "scripts/select_reference_python.sh" in checker
+    assert 'PYTHON=$(' in checker
     assert "PYTHONHASHSEED=0 .venv/bin/python" not in checker
 

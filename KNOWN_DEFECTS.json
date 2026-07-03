@@ -2003,6 +2003,57 @@
         "src/reta_mojo/table_rendering.mojo",
         "tests/test_stage12c5s_source.py"
       ]
+    },
+    {
+      "id": "MOJO-FIXED-039",
+      "title": "OutputModeSpec deklarierte Writable ohne write_to-Vertrag",
+      "origin": "mojo_port",
+      "classification": "invalid_protocol_conformance",
+      "severity": "high",
+      "python_status": "correct_reference",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5v",
+      "reproducer": "Den neuen output_modes.mojo-Besitzer statisch oder mit scripts/test_stage12c5v.sh prüfen; OutputModeSpec führte Writable in der Traitliste, implementierte aber keine write_to-Methode.",
+      "python_locations": [
+        "python_reference/reta_architecture/output_semantics.py"
+      ],
+      "mojo_locations": [
+        "src/reta_mojo/output_modes.mojo",
+        "tests/test_output_syntax_complete_source.py"
+      ],
+      "current_contract": "OutputModeSpec ist Copyable und Equatable, beansprucht aber keinen nicht implementierten Writer-Vertrag. Diagnoseausgaben serialisieren die einzelnen typisierten Felder explizit.",
+      "post_port_fix": "Keine Python-Änderung erforderlich; Dataclasses benötigen keinen Mojo-Writer-Protocolvertrag.",
+      "evidence": [
+        "STAGE12C5V_NATIVE_OUTPUT_SEMANTICS_SYNTAX.md",
+        "src/reta_mojo/output_modes.mojo",
+        "tests/test_output_syntax_complete_source.py"
+      ]
+    },
+    {
+      "id": "TEST-FIXED-022",
+      "title": "Source-Suite verlangte ein nicht mitgeliefertes Probe-Binary und veraltete Interpreterdetails",
+      "origin": "test_infrastructure",
+      "classification": "source_archive_test_assumption",
+      "severity": "medium",
+      "python_status": "not_applicable",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5v",
+      "reproducer": "python3 -m pytest -q über alle test_*source.py-Dateien in einem frischen source-only Archiv ausführen; concat_csv erwartete target/tests/concat_csv_probe, während zwei Prompttests die vor der Resolverzentralisierung verwendeten .venv- beziehungsweise RETA_PYTHON-Textfragmente verlangten.",
+      "python_locations": [],
+      "mojo_locations": [
+        "tests/test_concat_csv_source.py",
+        "tests/test_prompt_external_source.py",
+        "tests/test_prompt_preparation_source.py",
+        "scripts/select_reference_python.sh"
+      ],
+      "current_contract": "Source-only Prüfungen überspringen ausschließlich die echte compilerabhängige Concat-Parität, wenn ihr Probe-Binary fehlt. Prompttests prüfen die zentrale Interpreterauflösung semantisch statt eine überholte Implementierungsform. Der gesamte Source-Testbestand besteht mit 128 Tests und einem begründeten Skip.",
+      "post_port_fix": "Keine Python-Referenzänderung erforderlich; die Reparatur betrifft ausschließlich portable Tests und die bereits zentralisierte Interpreterwahl.",
+      "evidence": [
+        "STAGE12C5V_NATIVE_OUTPUT_SEMANTICS_SYNTAX.md",
+        "tests/test_concat_csv_source.py",
+        "tests/test_prompt_external_source.py",
+        "tests/test_prompt_preparation_source.py"
+      ]
     }
   ],
   "audit": {

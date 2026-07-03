@@ -8,8 +8,8 @@ Dies ist ein inkrementeller, getesteter Port des hochgeladenen Python-Projekts `
 abgeschlossene Release-Stufen:       9 von 12 = 75,0 %
 Stufen 9/10/12:                       Ausgabe, Prompt/i18n und Releaseparität in Arbeit
 Stufe 11:                             11a–11j = 100 %
-Stufe 12:                             12a–12b fertig, 12c zu ca. 99,9 % = ca. 72,0 %
-vollständig nativ/generiert:          66 von 92 = 71,7 %
+Stufe 12:                             12a–12b fertig, 12c zu ca. 99,95 % = ca. 72,2 %
+vollständig nativ/generiert:          68 von 92 = 73,9 %
 mindestens teilweise portiert:       83 von 92 = 90,2 %
 angegriffene Referenzzeilen:          38.174 von 48.831 = 78,2 %
 funktionaler Nutzerumfang:            ca. 96–98 %
@@ -18,9 +18,9 @@ funktionaler Nutzerumfang:            ca. 96–98 %
 Die Metriken messen **orthogonale Bezugsgrößen** und sind nicht als ein einziges wechselndes Gesamtprozent zu lesen:
 
 - **96–98 % geschätzte Funktionsabdeckung**: Anteil der praktisch relevanten Befehls- und Verhaltensfamilien mit einem nativen Pfad. Der atomare Fallback ist nur eine Sicherheitsgrenze und wird nicht als transpiliert gezählt.
-- **71,7 % vollständiger Dateibesitz**: Nur Dateien, deren gesamter wirksamer Vertrag nativ oder reproduzierbar generiert ersetzt ist.
+- **73,9 % vollständiger Dateibesitz**: Nur Dateien, deren gesamter wirksamer Vertrag nativ oder reproduzierbar generiert ersetzt ist.
 - **78,2 % angegriffene Referenzzeilen**: maschinenberechneter Umfang vollständig und teilweise besessener Referenzdateien.
-- **83,3 % Stufenfortschritt**: gewichtete Releaseplanung; eine Stufe kann weit fortgeschritten sein, obwohl große historische Python-Besitzer noch sichtbar bleiben.
+- **83,9 % Stufenfortschritt**: gewichtete Releaseplanung; eine Stufe kann weit fortgeschritten sein, obwohl große historische Python-Besitzer noch sichtbar bleiben.
 
 Der Port ist daher nicht von über 90 % auf rund 65 % zurückgefallen. Die frühere Zahl bezeichnete die Funktionsoberfläche, die strengere Zahl den Quellersatz. Der vollständige Plan steht in [`ROADMAP.md`](ROADMAP.md).
 
@@ -88,12 +88,14 @@ Mojo-Programme und der verbleibende Python-Kompatibilitätsbaum liegen
 standardmäßig getrennt unter `lib/reta`; Fedora-/RPM-Pakete können
 `LIBEXECDIR=/usr/libexec/reta` setzen. Relative Symlinks erhalten die
 historische Projektstruktur ohne Datenkopie. Seit Stage 12c5h kopiert der
-Installer ausschließlich die 38 in `scripts/install_targets.txt` deklarierten
+Installer ausschließlich die 39 in `scripts/install_targets.txt` deklarierten
 regulären und schweren Compilerziele; lokale Debug-/Altdateien unter
 `target/bin` werden nicht mehr versehentlich installiert. Details:
 [`STAGE12C4M_FHS_RESOURCE_INSTALLATION.md`](STAGE12C4M_FHS_RESOURCE_INSTALLATION.md).
 
 ## Stufen 7–10: Generatoren, Kombinationen, Markup und Prompt
+
+Stage 12c5v schließt `reta_architecture/output_semantics.py` und `output_syntax.py` vollständig. Aliasauflösung, Syntaxkonstruktion, optionale Zero-Width-Grenze, sieben Syntaxdeskriptoren, Bundle/Snapshot, Zeilenfarben und Zellenöffnungen sind typisiert; `reta-mojo-output-syntax` bietet Diagnose und Python/PyPy3-Parität. Details: [`STAGE12C5V_NATIVE_OUTPUT_SEMANTICS_SYNTAX.md`](STAGE12C5V_NATIVE_OUTPUT_SEMANTICS_SYNTAX.md).
 
 Stage 12c5u schließt `reta_architecture/table_generation.py` vollständig. Ein typisierter Plan orchestriert CSV-Gluing, Last-Line-Capture, generierte Spalten und beide Kombi-Tabellen; `reta-mojo-table-generation` bietet native Diagnose und Python/PyPy3-Parität. Details: [`STAGE12C5U_NATIVE_TABLE_GENERATION.md`](STAGE12C5U_NATIVE_TABLE_GENERATION.md).
 

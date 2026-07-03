@@ -30,6 +30,8 @@ EXPECTED = {
     "reta_architecture/completion_word.py": "nativ",
     "reta_architecture/parameter_runtime.py": "weitgehend nativ",
     "reta_architecture/table_generation.py": "nativ",
+    "reta_architecture/output_semantics.py": "nativ",
+    "reta_architecture/output_syntax.py": "nativ",
     "reta_architecture/prompt_interaction.py": "nativ",
     "reta_architecture/prompt_language.py": "generiert nativ",
     "retaPrompt.py": "weitgehend nativ",

@@ -6,6 +6,8 @@ import re
 import subprocess
 import sys
 
+import pytest
+
 ROOT = Path(__file__).resolve().parents[1]
 PY_CONCAT = ROOT / "python_reference/reta_architecture/concat_csv.py"
 PY_FACADE = ROOT / "python_reference/libs/lib4tables_concat.py"
@@ -103,6 +105,9 @@ def test_legacy_concat_facade_maps_exact_python_method_surface() -> None:
 
 
 def test_concat_csv_probe_stays_byte_identical_to_python_reference() -> None:
+    probe = ROOT / "target/tests/concat_csv_probe"
+    if not probe.is_file():
+        pytest.skip("requires the compiled Mojo concat_csv_probe")
     subprocess.run(
         [sys.executable, "scripts/check_concat_csv_parity.py"],
         cwd=ROOT,

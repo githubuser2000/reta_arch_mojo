@@ -32,7 +32,8 @@ def test_prompt_launcher_preserves_project_python_interpreter() -> None:
     root = Path(__file__).resolve().parents[1]
     source = (root / "bin" / "reta-prompt-profile").read_text(encoding="utf-8")
     assert '[ -z "${RETA_PYTHON-}" ]' in source
-    assert '[ -x "$ROOT/.venv/bin/python" ]' in source
+    assert 'scripts/select_reference_python.sh' in source
+    assert 'RETA_PROJECT_ROOT="$ROOT"' in source
     assert 'export RETA_PYTHON' in source
 
 

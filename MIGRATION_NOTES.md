@@ -1110,3 +1110,14 @@ Byteindizes werden nur noch zum Erkennen der ASCII-HTML-Syntax verwendet. Das Ma
 ## Stage 12c5u: Tabellenbau als typisierter Gluing-Orchestrator
 
 `table_generation.py` mutiert nicht länger implizit einen heterogenen Program-Graph. `TableGenerationPlan` beschreibt Spalten-, Generator-, Bruch- und Kombi-Anforderungen; `TableGenerationResult` besitzt Tabelle, Auswahl, generierte Namen, Bruchschlüssel und beide Kombi-Relationen. Die historische Reihenfolge CSV → Last-Line → Generatoren → Kombi bleibt explizit erhalten.
+
+
+## Stage 12c5v: vollständige Ausgabesemantik und Syntax
+
+- `output_semantics.py` besitzt nun den kompletten Klassen- und Methodenvertrag einschließlich Aliasauflösung, Syntaxkonstruktion, Zustandsanwendung und sortierter Snapshots.
+- `output_syntax.py` wechselt von teilweise nativ zu vollständig nativ; sieben Klassen werden als typisierte immutable Deskriptoren und ein `OutputSyntaxBundle` abgebildet.
+- Die optionale Python-Callbackgrenze für erzwungene Breite null ist explizit; ohne Callback bleibt die Breite unverändert.
+- HTML-Zellen verwenden den reproduzierbaren `HtmlCellCatalog`, statt dynamische `SpaltenParameter`, `OrderedDict` und generierte Tagobjekte erneut nachzubauen.
+- `reta-mojo-output-syntax` ist das 21. reguläre Buildziel; der Installer kennt nun 39 offizielle reguläre und schwere Ziele.
+- Fortschritt: **68/92 vollständig**, **83/92 mindestens teilweise**, **30.423/48.831 vollständig native Referenzzeilen**, **55.639 Mojo-Zeilen in `src/`**, aktive `std.python`-Brücken **0**.
+- In der compilerlosen Erstellungsumgebung bestanden die fokussierten Gates **43/43** und der portable Source-Testbestand **128/128** mit einem begründeten compilerabhängigen Skip. `MOJO-FIXED-039` entfernt einen unbegründeten `Writable`-Vertrag; `TEST-FIXED-022` macht die Source-Suite archivportabel. `scripts/test_stage12c5v.sh` führt die vorbereitete native Kompilierung und Python/PyPy3-Parität lokal aus.

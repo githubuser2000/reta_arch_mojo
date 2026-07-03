@@ -451,4 +451,22 @@ bin/reta-mojo-table-generation --summary
 scripts/test_stage12c5u.sh
 ```
 
-Damit bestehen 20 reguläre und 18 schwere, insgesamt 38 installierbare Compilerziele.
+Damit bestanden in Stage 12c5u 20 reguläre und 18 schwere Compilerziele. Mit dem nachfolgenden Ausgabe-Syntax-Ziel bestehen nun **21 reguläre und 18 schwere, insgesamt 39 installierbare Compilerziele**.
+
+
+## Native Ausgabe-Semantik und Syntax (Stage 12c5v)
+
+Der reguläre Build erzeugt `target/bin/reta-mojo-output-syntax`. Das Ziel
+prüft die vollständigen Besitzer von `output_semantics.py` und
+`output_syntax.py`:
+
+```bash
+bin/reta-mojo-output-syntax --summary
+bin/reta-mojo-output-syntax --canonical markdown
+bin/reta-mojo-output-syntax --apply csv 33 false true
+scripts/test_stage12c5v.sh
+```
+
+Der Stage-Test vergleicht die sieben Modi, Syntaxklassennamen, Flags, Aliase,
+Snapshotbesitzer und die optionale Breiten-Callbacksemantik mit der
+Python-/PyPy3-Referenz.
