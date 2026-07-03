@@ -3,9 +3,10 @@ set -eu
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 cd "$ROOT"
 TEST_DIR=${RETA_TEST_TARGET_DIR:-"$ROOT/target/test-bin"}
-BIN_DIR=${RETA_TARGET_DIR:-"$ROOT/target/bin"}
 PYTHON=$("$ROOT/scripts/select_reference_python.sh")
-mkdir -p "$TEST_DIR" "$BIN_DIR"
+mkdir -p "$TEST_DIR"
+"$ROOT/scripts/require_built_targets.sh" scripts/build-heavy.sh \
+    reta-mojo-parallel-execution
 
 "$ROOT/bin/mojo-real" build --no-optimization -j 4 -I src \
     tests/test_prompt_legacy_echo.mojo \
@@ -33,10 +34,6 @@ mkdir -p "$TEST_DIR" "$BIN_DIR"
     tests/test_parallel_table_execution.mojo \
     -o "$TEST_DIR/test-parallel-table-execution"
 "$TEST_DIR/test-parallel-table-execution"
-
-"$ROOT/bin/mojo-real" build --no-optimization -j 4 -I src \
-    src/architecture_parallel_execution_main.mojo \
-    -o "$BIN_DIR/reta-mojo-parallel-execution"
 
 ./scripts/check_parallel_execution_parity.sh
 printf '%s\n' 'stage11i focused tests complete'

@@ -91,7 +91,7 @@ NATIVE = {
     "reta_architecture/table_output.py": ("nativ", "src/reta_mojo/table_output.mojo + table_rendering.mojo + src/table_output_main.mojo", "vollständige TableOutput-/TableOutputBundle-Oberfläche mit typisiertem Rendererzustand, geordneter Spaltenprojektion, Ergebnisbuffer, ANSI-Farbpolitik sowie nativer Shell-/CSV-/Markdown-/Emacs-/HTML-/BBCode-/Nichts-Ausgabe; kein Python-Objektgraph"),
     "reta_architecture/table_generation.py": ("nativ", "src/reta_mojo/table_generation.mojo + generated_table_columns.mojo + concat_csv.mojo + combi_join.mojo + src/table_generation_main.mojo", "vollständige TableGenerationResult-/TableGenerationBundle-Oberfläche; typisierter Plan ersetzt den heterogenen Program-Objektgraph, und die beobachtbare Reihenfolge CSV-Gluing → Last-Line-Capture → Generatorfamilien → Kombi-Join ist als besitzender nativer Orchestrator aktiviert"),
     "reta_architecture/table_runtime.py": ("teilweise nativ", "src/reta_mojo/native_reta_cli.mojo + table_preparation.mojo", "typisierter nativer Laufzeitplan für häufige Zeilen-, Spalten- und Ausgabeparameter"),
-    "libs/lib4tables_prepare.py": ("teilweise nativ", "src/reta_mojo/table_preparation.mojo + row_filtering.mojo", "deterministische Zeilenauswahl und Vorbereitung nativ; Generatorverkettung noch Bridge"),
+    "libs/lib4tables_prepare.py": ("nativ", "src/reta_mojo/legacy_lib4tables_prepare.mojo + table_adapters.mojo + table_preparation.mojo + row_filtering.mojo + table_wrapping.mojo", "vollständige fünf Modulhelfer, expliziter Ersatz der fünf Modulglobalen und komplette Prepare-Fassade mit 20 Methoden-/Property-Einträgen; Filterung, Wrapping, Breiten, Zählgruppen, Tagging und Zeilenvorbereitung delegieren ausschließlich an native Besitzer"),
 }
 
 

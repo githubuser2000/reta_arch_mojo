@@ -1,5 +1,18 @@
 # Öffentliche Programme und Compilerziele
 
+## Produktions-Baubefehl
+
+```bash
+scripts/build-all.sh
+```
+
+Dieser Aufruf baut schwere und reguläre Ziele. `scripts/build.sh` erzeugt dabei
+auch `libreta-mojo-diagnostics.so`; Stage-Tests sind für installierbare
+Artefakte nicht erforderlich. `scripts/build-and-test-shared-diagnostics.sh`
+ist nur ein optionales Paritätswerkzeug und trägt deshalb ausdrücklich
+`build-and-test` im Namen.
+
+
 ## Öffentliche Startnamen
 
 Die historischen Namen bleiben in der Projektwurzel sowie unter `bin/` beziehungsweise `run/` verfügbar:

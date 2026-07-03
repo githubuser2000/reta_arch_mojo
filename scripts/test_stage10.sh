@@ -2,7 +2,7 @@
 set -eu
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 cd "$ROOT"
-mkdir -p target/tests target/bin
+mkdir -p target/tests
 MOJO=${MOJO_BIN:-"$ROOT/bin/mojo-real"}
 
 build_and_run() {
@@ -35,9 +35,7 @@ build_and_run tests/test_table_rendering.mojo
 ./scripts/check_prompt_preparation_parity.sh
 ./scripts/check_prompt_completion_fixtures.sh
 ./scripts/check_native_io_boundaries.sh
-if [ ! -x target/bin/reta-prompt-complete ]; then
-    "$MOJO" build -I src src/prompt_completion_main.mojo -o target/bin/reta-prompt-complete
-fi
+"$ROOT/scripts/require_built_targets.sh" scripts/build.sh reta-prompt-complete
 REFERENCE_PYTHON=$("$ROOT/scripts/select_reference_python.sh")
 "$REFERENCE_PYTHON" scripts/check_prompt_completion_worker.py
 printf '%s\n' 'Stage 10 Prompt-Sprachprüfungen bestanden.'

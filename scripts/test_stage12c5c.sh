@@ -3,7 +3,7 @@ set -eu
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 cd "$ROOT"
 MOJO=${MOJO_BIN:-"$ROOT/bin/mojo-real"}
-mkdir -p target/tests target/bin
+mkdir -p target/tests
 
 "$MOJO" build -I src tests/test_package_integrity.mojo \
     -Xlinker -lcrypto -o target/tests/test_package_integrity_12c5c
@@ -13,8 +13,7 @@ mkdir -p target/tests target/bin
     -o target/tests/test_split_i18n_12c5c
 ./target/tests/test_split_i18n_12c5c
 
-"$MOJO" build -I src src/package_integrity_main.mojo \
-    -Xlinker -lcrypto -o target/bin/reta-mojo-package-integrity
+"$ROOT/scripts/require_built_targets.sh" scripts/build.sh reta-mojo-package-integrity
 PYTHONDONTWRITEBYTECODE=1 "$(scripts/select_reference_python.sh)" \
     scripts/check_package_integrity_parity.py
 

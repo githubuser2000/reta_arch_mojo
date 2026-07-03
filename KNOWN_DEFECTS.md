@@ -23,7 +23,7 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 
 ## Übersicht
 
-- Einträge insgesamt: **97**
+- Einträge insgesamt: **99**
 - offene bestätigte Python-Fehler: **5**
 - zu entscheidende Python-Fehlerkandidaten: **13**
 - bereits im Python-Baum behobene Fehler: **7**
@@ -1333,3 +1333,29 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 - spätere Python-Aktion: Keine Python-Änderung erforderlich; die Daten- und Python-Referenzpfade waren nicht Ursache des Binärtransportfehlers.
 - Mojo-Orte: `scripts/configure_mojo_runtime.sh`, `scripts/export_target.sh`, `tests/test_mojo_runtime_path.py`
 - Belege: `STAGE12C5Z_SHARED_DIAGNOSTIC_LIBRARY.md`, `scripts/export_target.sh`, `tests/test_mojo_runtime_path.py`
+
+### TEST-FIXED-028 – Installationsmanifesttest zählte verpflichtende Source-ID-Sidecar als unerlaubtes Compilerziel
+
+- Ursprung: `test_infrastructure`
+- Klasse / Schwere: `manifest_sidecar_misclassification` / `medium`
+- Python-Status: `not_applicable`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5aa`
+- Reproduktion: `scripts/build.sh und anschließend scripts/test_stage12c.sh ausführen; tests/test_install_target_manifest.py meldete reta-mojo-diagnostics.reta-source-id als zusätzliches nicht manifestiertes Ziel.`
+- heutiger Vertrag: Der Test trennt ausführbare Compilerziele von Source-ID-Sidecars. Nur manifestierte Executables werden als Ziele gezählt; für das atomare Shared-Diagnostics-Bundle ist genau die Loader-Sidecar zusätzlich erlaubt und separat geprüft.
+- spätere Python-Aktion: Keine Python-Referenzänderung erforderlich; betroffen war ausschließlich die native Installationsprüfung.
+- Mojo-Orte: `scripts/install.sh`, `tests/test_install_target_manifest.py`, `scripts/install_targets.txt`
+- Belege: `STAGE12C5AA_BUILD_OWNERSHIP_LEGACY_PREPARE.md`, `tests/test_install_target_manifest.py`
+
+### TEST-FIXED-029 – Stage-Testskripte bauten produktive Ziele und verschleierten den dauerhaften Buildvertrag
+
+- Ursprung: `test_infrastructure`
+- Klasse / Schwere: `build_test_ownership_conflation` / `high`
+- Python-Status: `not_applicable`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5aa`
+- Reproduktion: `Mehrere scripts/test_stage*.sh direkt ausführen; sie schrieben produktive Binaries nach target/bin oder bauten die Shared Library, sodass unklar war, ob neben build.sh und build-heavy.sh weitere Stage-Skripte dauerhaft nötig sind.`
+- heutiger Vertrag: scripts/build-all.sh ist der einzige Gesamteinstieg für alle installierbaren regulären, schweren und Shared-Library-Artefakte. Stage-Tests bauen nur isolierte Testprogramme; produktive Ziele werden vorausgesetzt und auf Frische geprüft. Die optionale Shared-Diagnostics-Parität trägt build-and-test ausdrücklich im Namen.
+- spätere Python-Aktion: Keine Python-Referenzänderung erforderlich; betroffen war ausschließlich die Trennung von Build- und Testinfrastruktur.
+- Mojo-Orte: `scripts/build-all.sh`, `scripts/build.sh`, `scripts/build-heavy.sh`, `scripts/require_built_targets.sh`, `scripts/build-and-test-shared-diagnostics.sh`, `tests/test_stage_build_separation.py`
+- Belege: `STAGE12C5AA_BUILD_OWNERSHIP_LEGACY_PREPARE.md`, `scripts/build-all.sh`, `tests/test_stage_build_separation.py`

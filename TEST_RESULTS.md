@@ -1,3 +1,31 @@
+# Testergebnisse – Stage 12c5aa
+
+```text
+vollständig nativ/generiert:          72/92 = 78,3 %
+vollständig native Referenzzeilen:    32.103/48.831 = 65,7 %
+portable Source-Tests:                 153 bestanden, 1 Skip
+fokussierte Build-/Installer-Gates:     67/67 bestanden
+Source-Archivvertrag:                    3/3 bestanden
+relative Mojo-Importe:                 270 auflösbar
+Defektkatalog:                           99/99 konsistent
+Python-Bereinigungspunkte:               19
+aktive std.python-Brücken:                0
+```
+
+Der gemeldete Installationsfehler war eine falsche Testklassifikation: Die
+Source-ID-Datei des Diagnose-Loaders ist eine verpflichtende Seitendatei und
+kein zusätzliches Compilerziel. `scripts/build-all.sh` ist der vollständige
+Produktionsbau; `scripts/build.sh` erzeugt bereits die Diagnose-Shared-Library.
+Das optionale tiefe Alt-vs.-DSO-Orakel heißt nun
+`scripts/build-and-test-shared-diagnostics.sh`.
+
+`libs/lib4tables_prepare.py` ist als vollständige typisierte Fassade über die
+bereits nativen Tabellen-, Filter-, Wrapping-, Tagging- und
+Zeilenvorbereitungskerne geschlossen. Der fokussierte Mojo-Modultest ist in
+`scripts/test_stage12c5aa.sh` vorbereitet; im source-only Arbeitsbaum war kein
+offizieller Modular-Compiler installiert, daher wird die native Kompilierung
+nicht als bestanden gezählt.
+
 # Testergebnisse – Stage 12c5z
 
 ```text
@@ -15,7 +43,7 @@ relative Mojo-Importe:              vollständig auflösbar
 aktive std.python-Brücken:            0
 ```
 
-Der hochgeladene Target-Baum ist zum ursprünglichen Stage-12c5y-Source-ID konsistent, aber seine fünf Runtimeeinträge sind absolute, nach der Übertragung gebrochene Symlinks. Die neue Exportprüfung ersetzt sie durch reale Dateien. Ein offizieller Modular-Mojo-Compiler ist in dieser Umgebung nicht installiert; der native `.so`-Build und die vier Python-/PyPy3-Paritätsläufe sind in `scripts/test_stage12c5z.sh` vorbereitet.
+Der hochgeladene Target-Baum ist zum ursprünglichen Stage-12c5y-Source-ID konsistent, aber seine fünf Runtimeeinträge sind absolute, nach der Übertragung gebrochene Symlinks. Die neue Exportprüfung ersetzt sie durch reale Dateien. Ein offizieller Modular-Mojo-Compiler ist in dieser Umgebung nicht installiert; der native `.so`-Build und die vier Python-/PyPy3-Paritätsläufe sind in `scripts/build-and-test-shared-diagnostics.sh` vorbereitet.
 
 # Testergebnisse – Stufe-9/10/11-Zwischenstand
 

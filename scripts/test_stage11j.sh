@@ -4,7 +4,9 @@ ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 cd "$ROOT"
 TEST_DIR=${RETA_TEST_TARGET_DIR:-"$ROOT/target/test-bin"}
 BIN_DIR=${RETA_TARGET_DIR:-"$ROOT/target/bin"}
-mkdir -p "$TEST_DIR" "$BIN_DIR"
+mkdir -p "$TEST_DIR"
+"$ROOT/scripts/require_built_targets.sh" scripts/build-heavy.sh \
+    reta-mojo-parallel-execution reta-mojo-row-preparation
 
 "$ROOT/bin/mojo-real" build --no-optimization -j 4 -I src \
     tests/test_parallel_execution_config.mojo \
@@ -20,13 +22,6 @@ mkdir -p "$TEST_DIR" "$BIN_DIR"
     tests/test_parallel_row_preparation.mojo \
     -o "$TEST_DIR/test-parallel-row-preparation"
 "$TEST_DIR/test-parallel-row-preparation"
-
-"$ROOT/bin/mojo-real" build --no-optimization -j 4 -I src \
-    src/architecture_parallel_execution_main.mojo \
-    -o "$BIN_DIR/reta-mojo-parallel-execution"
-"$ROOT/bin/mojo-real" build --no-optimization -j 4 -I src \
-    src/architecture_parallel_row_preparation_main.mojo \
-    -o "$BIN_DIR/reta-mojo-row-preparation"
 
 "$BIN_DIR/reta-mojo-row-preparation" --demo 2 1 >/dev/null
 ./scripts/check_parallel_row_preparation_parity.sh

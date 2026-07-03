@@ -99,13 +99,28 @@ def test_installer_copies_only_manifested_compiler_targets(tmp_path: Path) -> No
         )
         assert result.returncode == 0, result.stderr
         installed = stage / "usr/lib/reta/target/bin"
-        actual = {path.name for path in installed.iterdir() if path.is_file()}
+        actual_targets = {
+            path.name
+            for path in installed.iterdir()
+            if path.is_file() and not path.name.endswith(".reta-source-id")
+        }
+        sidecars = {
+            path.name
+            for path in installed.iterdir()
+            if path.is_file() and path.name.endswith(".reta-source-id")
+        }
         expected = {
             name for name in _manifest_names() if (ROOT / "target/bin" / name).is_file()
         }
-        assert actual == expected
-        assert "reta-unofficial-stale-test" not in actual
-        assert "reta-native-o0" not in actual
+        assert actual_targets == expected
+        expected_sidecars = (
+            {"reta-mojo-diagnostics.reta-source-id"}
+            if "reta-mojo-diagnostics" in expected
+            else set()
+        )
+        assert sidecars == expected_sidecars
+        assert "reta-unofficial-stale-test" not in actual_targets
+        assert "reta-native-o0" not in actual_targets
         layout = (stage / "usr/lib/reta/INSTALL_LAYOUT").read_text(encoding="utf-8")
         assert f"compiled_targets={len(expected)}" in layout
     finally:

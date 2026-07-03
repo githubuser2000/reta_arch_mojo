@@ -2359,6 +2359,56 @@
         "scripts/export_target.sh",
         "tests/test_mojo_runtime_path.py"
       ]
+    },
+    {
+      "id": "TEST-FIXED-028",
+      "title": "Installationsmanifesttest zählte verpflichtende Source-ID-Sidecar als unerlaubtes Compilerziel",
+      "origin": "test_infrastructure",
+      "classification": "manifest_sidecar_misclassification",
+      "severity": "medium",
+      "python_status": "not_applicable",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5aa",
+      "reproducer": "scripts/build.sh und anschließend scripts/test_stage12c.sh ausführen; tests/test_install_target_manifest.py meldete reta-mojo-diagnostics.reta-source-id als zusätzliches nicht manifestiertes Ziel.",
+      "python_locations": [],
+      "mojo_locations": [
+        "scripts/install.sh",
+        "tests/test_install_target_manifest.py",
+        "scripts/install_targets.txt"
+      ],
+      "current_contract": "Der Test trennt ausführbare Compilerziele von Source-ID-Sidecars. Nur manifestierte Executables werden als Ziele gezählt; für das atomare Shared-Diagnostics-Bundle ist genau die Loader-Sidecar zusätzlich erlaubt und separat geprüft.",
+      "post_port_fix": "Keine Python-Referenzänderung erforderlich; betroffen war ausschließlich die native Installationsprüfung.",
+      "evidence": [
+        "STAGE12C5AA_BUILD_OWNERSHIP_LEGACY_PREPARE.md",
+        "tests/test_install_target_manifest.py"
+      ]
+    },
+    {
+      "id": "TEST-FIXED-029",
+      "title": "Stage-Testskripte bauten produktive Ziele und verschleierten den dauerhaften Buildvertrag",
+      "origin": "test_infrastructure",
+      "classification": "build_test_ownership_conflation",
+      "severity": "high",
+      "python_status": "not_applicable",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5aa",
+      "reproducer": "Mehrere scripts/test_stage*.sh direkt ausführen; sie schrieben produktive Binaries nach target/bin oder bauten die Shared Library, sodass unklar war, ob neben build.sh und build-heavy.sh weitere Stage-Skripte dauerhaft nötig sind.",
+      "python_locations": [],
+      "mojo_locations": [
+        "scripts/build-all.sh",
+        "scripts/build.sh",
+        "scripts/build-heavy.sh",
+        "scripts/require_built_targets.sh",
+        "scripts/build-and-test-shared-diagnostics.sh",
+        "tests/test_stage_build_separation.py"
+      ],
+      "current_contract": "scripts/build-all.sh ist der einzige Gesamteinstieg für alle installierbaren regulären, schweren und Shared-Library-Artefakte. Stage-Tests bauen nur isolierte Testprogramme; produktive Ziele werden vorausgesetzt und auf Frische geprüft. Die optionale Shared-Diagnostics-Parität trägt build-and-test ausdrücklich im Namen.",
+      "post_port_fix": "Keine Python-Referenzänderung erforderlich; betroffen war ausschließlich die Trennung von Build- und Testinfrastruktur.",
+      "evidence": [
+        "STAGE12C5AA_BUILD_OWNERSHIP_LEGACY_PREPARE.md",
+        "scripts/build-all.sh",
+        "tests/test_stage_build_separation.py"
+      ]
     }
   ],
   "audit": {

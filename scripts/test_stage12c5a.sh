@@ -4,6 +4,7 @@ ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 cd "$ROOT"
 mkdir -p target/tests
 MOJO=${MOJO_BIN:-"$ROOT/bin/mojo-real"}
+BIN_DIR=${RETA_TARGET_DIR:-"$ROOT/target/bin"}
 
 "$MOJO" build -I src tests/test_prompt_interaction.mojo \
     -o target/tests/test_prompt_interaction_12c5a
@@ -20,15 +21,6 @@ scripts/check_prompt_session_parity.sh
     tests/test_native_boundary_audit.py
 python3 tools/check_known_defects.py
 
-if [ "${RETA_BUILD_PROMPT:-0}" = 1 ]; then
-    "$MOJO" build -I src src/prompt_main.mojo \
-        -Xlinker -rpath -Xlinker '$ORIGIN/../lib/mojo' \
-        -o target/bin/reta-prompt-native
-    python3 tools/sanitize_mojo_runpath.py \
-        target/bin/reta-prompt-native >/dev/null
-    scripts/test_prompt_bins.sh
-    scripts/check_prompt_session_pty_prefix.py target/bin/reta-prompt-native
-else
-    printf '%s\n' \
-        'Produktiver Promptbuild: RETA_BUILD_PROMPT=1 scripts/test_stage12c5a.sh'
-fi
+"$ROOT/scripts/require_built_targets.sh" scripts/build.sh reta-prompt-native
+scripts/test_prompt_bins.sh
+scripts/check_prompt_session_pty_prefix.py "$BIN_DIR/reta-prompt-native"

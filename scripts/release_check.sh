@@ -3,7 +3,7 @@ set -eu
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 cd "$ROOT"
 
-./scripts/build.sh
+./scripts/build-all.sh
 ./scripts/check_build_layout.sh
 ./scripts/check_multis3_parity.sh
 ./scripts/check_tag_schema.sh

@@ -39,8 +39,20 @@ printf '\n%s\n' 'Installierter Modular-Mojo-Compiler:'
 .venv/bin/mojo --version
 
 if [ "${RETA_SKIP_BUILD-0}" != "1" ]; then
-    printf '\n%s\n' 'Kompiliere native Mojo-Executables nach target/bin ...'
-    ./scripts/build.sh
+    case "${RETA_BUILD_SCOPE-all}" in
+        all)
+            printf '\n%s\n' 'Kompiliere alle regulären und schweren Mojo-Artefakte ...'
+            ./scripts/build-all.sh
+            ;;
+        regular)
+            printf '\n%s\n' 'Kompiliere nur reguläre Mojo-Artefakte ...'
+            ./scripts/build.sh
+            ;;
+        *)
+            printf 'Unbekannter RETA_BUILD_SCOPE: %s (erlaubt: all, regular)\n'                 "$RETA_BUILD_SCOPE" >&2
+            exit 2
+            ;;
+    esac
 else
     printf '\n%s\n' 'Kompilierung durch RETA_SKIP_BUILD=1 übersprungen.'
 fi

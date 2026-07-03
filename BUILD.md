@@ -26,6 +26,9 @@ Nur Compiler installieren:
 RETA_SKIP_BUILD=1 RETA_MOJO_PYTHON="$(command -v python3.14)" ./scripts/setup_mojo.sh
 ```
 
+`setup_mojo.sh` führt standardmäßig `scripts/build-all.sh` aus. Für einen
+bewusst nur regulären Erstbuild kann `RETA_BUILD_SCOPE=regular` gesetzt werden.
+
 `setup_mojo.sh` installiert auch die Python-Testabhängigkeiten. Bei einer bereits vorhandenen Mojo-`.venv` werden sie separat ergänzt:
 
 ```bash
@@ -70,6 +73,23 @@ RETA_MOJO_RUNTIME_LIBDIR=/pfad/zu/modular/lib \
 Die öffentlichen Launcher verwenden zusätzlich `bin/mojo-runtime-exec`. Damit
 laufen auch ältere übernommene ELF-Dateien, deren einzig vorhandener `RUNPATH`
 noch auf den Rechner zeigt, auf dem sie kompiliert wurden.
+
+## Vollständiger Build
+
+```bash
+./scripts/build-all.sh
+```
+
+Dies ist der einzige vollständige Produktions-Baueinstieg. Er führt zuerst
+`scripts/build-heavy.sh` und danach `scripts/build.sh` aus. Die gemeinsame
+Diagnosebibliothek `libreta-mojo-diagnostics.so` gehört bereits zum regulären
+`scripts/build.sh`; kein `test_stage*.sh` muss nach einem erfolgreichen Build
+zusätzlich aufgerufen werden.
+
+Stage-Skripte prüfen Verhalten und dürfen höchstens isolierte Programme unter
+`target/tests*` erzeugen. Das einzige kombinierte Build-/Testwerkzeug heißt
+absichtlich `scripts/build-and-test-shared-diagnostics.sh`: Es ist optional und
+baut vier frühere Einzelprogramme nur als temporäre Paritätsorakel.
 
 ## Regulärer Build
 
@@ -521,8 +541,18 @@ Der Test baut den vollständigen Paketimportgraph, `table_output_main.mojo`, den
 
 ## Gemeinsame Diagnosebibliothek (Stage 12c5z)
 
+Der produktive Build erfolgt bereits mit:
+
 ```bash
-scripts/test_stage12c5z.sh
+scripts/build.sh
+# oder vollständig einschließlich schwerer Ziele:
+scripts/build-all.sh
+```
+
+Die optionale tiefe Alt-vs.-Shared-Library-Parität lautet:
+
+```bash
+scripts/build-and-test-shared-diagnostics.sh
 ```
 
 Der Standardbuild erzeugt `target/bin/reta-mojo-diagnostics` und `target/lib/reta/libreta-mojo-diagnostics.so`. Die vier bisherigen Launcher für TableGeneration, OutputSyntax, ConsoleIO und TableOutput bleiben unverändert öffentlich, leiten aber auf den gemeinsamen Loader weiter. Die Shared Library trägt `$ORIGIN/../mojo`, während Executables `$ORIGIN/../lib/mojo` verwenden. Für direkte Alt-vs.-Bibliothek-Parität können die vier Einzelprogramme mit `RETA_BUILD_STANDALONE_DIAGNOSTICS=1` zusätzlich gebaut werden. Ein transferierbarer Binärbaum wird mit `scripts/export_target.sh` erzeugt.

@@ -62,4 +62,5 @@ for library in "$TARGET_ROOT"/lib/reta/*.so; do
 done
 
 printf '\nBuild abgeschlossen. Tests werden nicht automatisch ausgeführt.\n'
-printf 'Optionale Gesamtprüfung: scripts/test_stage12c.sh\n'
+printf 'Vollständiger Build inklusive schwerer Ziele: scripts/build-all.sh\n'
+printf 'Optionale Shared-Diagnostics-Parität: scripts/build-and-test-shared-diagnostics.sh\n'

@@ -121,9 +121,10 @@ Compilerunabhängig geprüft werden:
 - alle vier Kompatibilitätslauncher,
 - sämtliche bestehenden Source-, Import-, Ownership- und Defektgates.
 
-Der echte Modular-Build ist in `scripts/test_stage12c5z.sh` vorbereitet. Er baut
-die Shared Library und zusätzlich die vier früheren Einzelprogramme nur als
-Paritätsorakel.
+Der produktive Modular-Build der Shared Library ist Bestandteil von
+`scripts/build.sh` und damit auch von `scripts/build-all.sh`. Die optionale tiefe
+Prüfung `scripts/build-and-test-shared-diagnostics.sh` baut zusätzlich die vier
+früheren Einzelprogramme ausschließlich als Paritätsorakel.
 
 ## Compilerunabhängiger Abschlussstand
 

@@ -32,6 +32,7 @@ from .generated_table_columns import *
 from .concat_csv import *
 from .combi_join import *
 from .legacy_lib4tables_concat import *
+from .legacy_lib4tables_prepare import Prepare, create_legacy_prepare, legacy_prepare_snapshot
 
 from .generated_aliases import *
 

@@ -9,7 +9,7 @@ abgeschlossene Release-Stufen:       9 von 12 = 75,0 %
 Stufen 9/10/12:                       Ausgabe, Prompt/i18n und Releaseparität in Arbeit
 Stufe 11:                             11a–11j = 100 %
 Stufe 12:                             12a–12b fertig, 12c zu ca. 99,95 % = ca. 72,2 %
-vollständig nativ/generiert:          71 von 92 = 77,2 %
+vollständig nativ/generiert:          72 von 92 = 78,3 %
 mindestens teilweise portiert:       83 von 92 = 90,2 %
 angegriffene Referenzzeilen:          38.174 von 48.831 = 78,2 %
 funktionaler Nutzerumfang:            ca. 96–98 %
@@ -18,7 +18,7 @@ funktionaler Nutzerumfang:            ca. 96–98 %
 Die Metriken messen **orthogonale Bezugsgrößen** und sind nicht als ein einziges wechselndes Gesamtprozent zu lesen:
 
 - **96–98 % geschätzte Funktionsabdeckung**: Anteil der praktisch relevanten Befehls- und Verhaltensfamilien mit einem nativen Pfad. Der atomare Fallback ist nur eine Sicherheitsgrenze und wird nicht als transpiliert gezählt.
-- **77,2 % vollständiger Dateibesitz**: Nur Dateien, deren gesamter wirksamer Vertrag nativ oder reproduzierbar generiert ersetzt ist.
+- **78,3 % vollständiger Dateibesitz**: Nur Dateien, deren gesamter wirksamer Vertrag nativ oder reproduzierbar generiert ersetzt ist.
 - **78,2 % angegriffene Referenzzeilen**: maschinenberechneter Umfang vollständig und teilweise besessener Referenzdateien.
 - **84,0 % Stufenfortschritt**: gewichtete Releaseplanung; eine Stufe kann weit fortgeschritten sein, obwohl große historische Python-Besitzer noch sichtbar bleiben.
 
@@ -43,6 +43,19 @@ Das Skript erzeugt `.venv`, installiert den Modular-Mojo-Compiler sowie die Pyth
 ```
 
 Details: [`BUILD.md`](BUILD.md).
+
+Für einen vollständigen lokalen Neubau ist nur ein Aufruf nötig:
+
+```bash
+./scripts/build-all.sh
+```
+
+Er führt `build-heavy.sh` und danach `build.sh` aus. Die gemeinsame
+Diagnosebibliothek wird bereits von `build.sh` erzeugt; kein Stage-Testskript
+ist dafür dauerhaft zusätzlich aufzurufen.
+
+Auch `setup_mojo.sh` und `release_check.sh` verwenden diesen vollständigen
+Baueinstieg; `RETA_BUILD_SCOPE=regular` bleibt als bewusste Kurzvariante.
 
 `pytest` ist keine Mojo-Bibliothek, sondern wird von den Python-Source- und Paritätstests benötigt. Alle Shelltests starten es über `scripts/run_pytest.sh`; der Resolver bevorzugt einen expliziten `RETA_TEST_PYTHON`-Pfad und danach `.venv/bin/python3`. Für eine bereits vorhandene `.venv` genügt:
 
@@ -75,8 +88,7 @@ Source-only Archive enthalten bewusst kein `target/`. Jeder Build versieht sein 
 Für eine manuelle Installation ist `/usr/local` der Standard:
 
 ```bash
-./scripts/build-heavy.sh
-./scripts/build.sh
+./scripts/build-all.sh
 sudo ./scripts/install.sh
 ```
 

@@ -499,3 +499,14 @@ Die Zahl **12** ist die geplante Releasegliederung. Interne Teilpakete oder Fehl
 - nächster sinnvoller Bibliotheksblock: die eng gekoppelten Architekturdiagnosen aus `build-heavy.sh` nach fachlichen Gruppen konsolidieren, nicht alle 18 Ziele blind in eine monolithische DSO werfen;
 - Testprogramme bleiben kurzlebige, nicht installierte Prozesse, bis Messungen zeigen, dass deren Buildzeit oder Speicherverbrauch die bessere Fehlerisolation überwiegt;
 - portable Binärübergaben müssen über `scripts/export_target.sh` erfolgen, damit keine absoluten `.venv`-Symlinks weitergegeben werden.
+
+## Stage 12c5aa – Build-Besitz und vollständige Prepare-Fassade
+
+- [x] `scripts/build-all.sh` als einzigen vollständigen Produktions-Baueinstieg hinzufügen.
+- [x] Gemeinsame Diagnosebibliothek ausschließlich dem regulären Build zuordnen.
+- [x] Tiefes Build-/Paritätswerkzeug in `build-and-test-shared-diagnostics.sh` umbenennen.
+- [x] Historische Stage-Tests von installierbaren `target/bin`-Artefakten entkoppeln.
+- [x] Source-ID-Sidecar im Installationsmanifest separat und korrekt prüfen (`TEST-FIXED-028`).
+- [x] `libs/lib4tables_prepare.py` vollständig typisiert über vorhandene native Tabellenkerne besitzen.
+- [ ] Lokalen fokussierten Modular-Test `scripts/test_stage12c5aa.sh` ausführen.
+- Maschinenstand: **72/92 vollständig**, **83/92 mindestens teilweise**, **38.174/48.831 angegriffene** und **32.103/48.831 vollständig native Referenzzeilen**.

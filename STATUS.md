@@ -1,3 +1,15 @@
+# Status – Stage 12c5aa
+
+- einziger vollständiger Produktions-Baueinstieg: `scripts/build-all.sh`
+- `scripts/build.sh` baut die gemeinsame Diagnosebibliothek bereits mit; kein Stage-Test ist dafür zusätzlich erforderlich
+- optionales Alt-vs.-Shared-Library-Orakel umbenannt in `scripts/build-and-test-shared-diagnostics.sh`
+- historische Stage-Tests schreiben keine installierbaren Programme mehr nach `target/bin`
+- Installerprüfung trennt Compilerziele korrekt von der verpflichtenden Source-ID-Seitendatei
+- `libs/lib4tables_prepare.py` vollständig als typisierte Legacy-Fassade über vorhandene native Tabellenkerne besessen
+- vollständig nativ/generiert: **72/92 = 78,3 %**; vollständig native Referenzzeilen: **32.103/48.831 = 65,7 %**
+- Mojo-Zeilen: **57.136**, davon **52.579** unter `src/reta_mojo`; aktive `std.python`-Brücken: **0**
+- portable Source-Suite: **153 bestanden, 1 Skip**; fokussierte Infrastruktur: **67/67**; Archivvertrag: **3/3**; Defektkatalog: **99/99**
+
 # Status – Stage 12c5z
 
 - vier installierbare Mojo-Diagnoseprogramme zu einer Shared Library plus einem kleinen C-Loader konsolidiert
