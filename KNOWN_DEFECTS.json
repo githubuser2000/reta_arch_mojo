@@ -43,19 +43,21 @@
       "python_status": "open",
       "mojo_status": "fixed",
       "discovered_stage": "12c4r",
-      "reproducer": "rpb 'universum v2/3'",
+      "reproducer": "rpb 'universum v2/3' sowie rpb 'universum v1/2,2/3'",
       "python_locations": [
         "python_reference/reta_architecture/prompt_execution.py:1841"
       ],
       "mojo_locations": [
         "src/reta_mojo/prompt_table_execution.mojo"
       ],
-      "current_contract": "Mojo erweitert Zähler- und Nennerachsen innerhalb der real vorhandenen Bruch-CSV-Form, erzeugt Ganzzahl-/Reziprokprojektionen und stürzt nicht ab.",
-      "post_port_fix": "Leere zahlenReiheKeineWteiler sicher behandeln und die Bruchvielfachen-Expansion anhand der tatsächlichen Domänenform statt des globalen Zahlenvorrats aufbauen.",
+      "current_contract": "Mojo erweitert Zähler- und Nennerachsen innerhalb der real vorhandenen Bruch-CSV-Form, erzeugt Ganzzahl-/Reziprokprojektionen und stürzt nicht ab. Gemischte 1/n- und echte n/m-Vielfache verwenden getrennte Grenzen: Reziproke bis 1023, echte Brüche nur innerhalb des ausgewählten CSV-Rechtecks.",
+      "post_port_fix": "Leere zahlenReiheKeineWteiler sicher behandeln, echte Bruchvielfache anhand der tatsächlichen Domänenform aufbauen und gemischte 1/n+n/m-Achsen vor der Expansion in getrennte, anschließend deterministisch vereinigte Bereiche zerlegen.",
       "evidence": [
         "STAGE12C4R_DEFECT_LEDGER_FRACTION_MULTIPLES.md",
         "tests/test_prompt_table_execution.mojo",
-        "scripts/check_prompt_true_fraction_multiples.py"
+        "scripts/check_prompt_true_fraction_multiples.py",
+        "STAGE12C5AZ_MIXED_FRACTION_MULTIPLE_AXES.md",
+        "tests/test_prompt_mixed_fraction_multiple_source.py"
       ]
     },
     {

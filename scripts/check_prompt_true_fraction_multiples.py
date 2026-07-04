@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate the corrected Mojo contract beside the frozen Python crash."""
+"""Validate corrected true-fraction and mixed reciprocal Mojo contracts."""
 from __future__ import annotations
 
 import csv
@@ -25,6 +25,7 @@ CASES = [
     "universum v20/3",
     "universum motive v2/3",
     "universum v1/2,2/3",
+    "universum vielfache 1/2,2/3",
 ]
 
 
@@ -100,21 +101,25 @@ def assert_csv_rectangles() -> None:
 def assert_python_bug_is_still_reproducible() -> None:
     environment = os.environ.copy()
     environment["PYTHONHASHSEED"] = "0"
-    completed = subprocess.run(
-        [sys.executable, "python_reference/rpb", "universum v2/3"],
-        cwd=ROOT,
-        env=environment,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True,
-        timeout=120,
-    )
-    if completed.returncode == 0:
-        fail("Python reference unexpectedly stopped reproducing PY-OPEN-002")
-    if "IndexError: string index out of range" not in completed.stderr:
-        fail("Python reference failed differently; defect evidence must be reviewed")
-    if "prompt_execution.py" not in completed.stderr:
-        fail("Python traceback no longer points to prompt_execution.py")
+    for command in ("universum v2/3", "universum v1/2,2/3"):
+        completed = subprocess.run(
+            [sys.executable, "python_reference/rpb", command],
+            cwd=ROOT,
+            env=environment,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            timeout=120,
+        )
+        if completed.returncode == 0:
+            fail(
+                "Python reference unexpectedly stopped reproducing PY-OPEN-002 "
+                f"for {command!r}"
+            )
+        if "IndexError: string index out of range" not in completed.stderr:
+            fail("Python reference failed differently; defect evidence must be reviewed")
+        if "prompt_execution.py" not in completed.stderr:
+            fail("Python traceback no longer points to prompt_execution.py")
 
 
 def assert_domain_plan(
@@ -241,16 +246,31 @@ def main() -> int:
     )
     if result["universum motive v2/3"] != "FALLBACK":
         fail("different fraction CSV rectangles must remain atomic fallback")
-    if result["universum v1/2,2/3"] != "FALLBACK":
-        fail("mixed reciprocal and true-fraction bounds must remain fallback")
 
-    assert_direct_execution(
-        result["universum v2/3"], Path(sys.argv[2]).resolve()
+    mixed = assert_domain_plan(
+        result["universum v1/2,2/3"],
+        "--gebrochen-rational_Universum_n/m=",
+        list(range(2, 21, 2)),
+        set(range(3, 22, 3)),
+        13,
     )
+    if set(row_values(mixed[0])) != {1, 2, 3, 4, 6}:
+        fail("wrong whole-number projection for mixed reciprocal/true fraction")
+    expected_reciprocals = set(range(2, 1024, 2)) | {1, 3, 9}
+    if set(row_values(mixed[1])) != expected_reciprocals:
+        fail("mixed reciprocal axis did not preserve both independent bounds")
+    if set(row_values(mixed[-1])) != {6, 12, 18}:
+        fail("mixed equal-axis projection drifted")
+    if result["universum vielfache 1/2,2/3"] != result["universum v1/2,2/3"]:
+        fail("compact and spelled mixed-axis plans differ")
+
+    runner = Path(sys.argv[2]).resolve()
+    assert_direct_execution(result["universum v2/3"], runner)
+    assert_direct_execution(result["universum v1/2,2/3"], runner)
 
     print(
-        "true fraction multiples: Python crash reproduced; "
-        "Mojo contract 12/12 and direct invocations 13/13 valid"
+        "true fraction multiples: Python crashes reproduced; "
+        "Mojo contract 13/13, mixed bounds, and direct invocations valid"
     )
     return 0
 

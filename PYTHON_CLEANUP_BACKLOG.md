@@ -29,11 +29,11 @@ Offene oder zu entscheidende Einträge: **20**
 - Priorität: `high`
 - Python-Status: `open`
 - Mojo-Status: `fixed`
-- Reproduktion: `rpb 'universum v2/3'`
-- heutiger Vertrag: Mojo erweitert Zähler- und Nennerachsen innerhalb der real vorhandenen Bruch-CSV-Form, erzeugt Ganzzahl-/Reziprokprojektionen und stürzt nicht ab.
-- Python-Arbeitsauftrag: Leere zahlenReiheKeineWteiler sicher behandeln und die Bruchvielfachen-Expansion anhand der tatsächlichen Domänenform statt des globalen Zahlenvorrats aufbauen.
+- Reproduktion: `rpb 'universum v2/3' sowie rpb 'universum v1/2,2/3'`
+- heutiger Vertrag: Mojo erweitert Zähler- und Nennerachsen innerhalb der real vorhandenen Bruch-CSV-Form, erzeugt Ganzzahl-/Reziprokprojektionen und stürzt nicht ab. Gemischte 1/n- und echte n/m-Vielfache verwenden getrennte Grenzen: Reziproke bis 1023, echte Brüche nur innerhalb des ausgewählten CSV-Rechtecks.
+- Python-Arbeitsauftrag: Leere zahlenReiheKeineWteiler sicher behandeln, echte Bruchvielfache anhand der tatsächlichen Domänenform aufbauen und gemischte 1/n+n/m-Achsen vor der Expansion in getrennte, anschließend deterministisch vereinigte Bereiche zerlegen.
 - Python-Orte: `python_reference/reta_architecture/prompt_execution.py:1841`
-- Belege: `STAGE12C4R_DEFECT_LEDGER_FRACTION_MULTIPLES.md`, `tests/test_prompt_table_execution.mojo`, `scripts/check_prompt_true_fraction_multiples.py`
+- Belege: `STAGE12C4R_DEFECT_LEDGER_FRACTION_MULTIPLES.md`, `tests/test_prompt_table_execution.mojo`, `scripts/check_prompt_true_fraction_multiples.py`, `STAGE12C5AZ_MIXED_FRACTION_MULTIPLE_AXES.md`, `tests/test_prompt_mixed_fraction_multiple_source.py`
 
 ## 3. PY-CAND-001 – Prompt-Ausgabereihenfolge hängt von Python-set und PYTHONHASHSEED ab
 

@@ -1,3 +1,15 @@
+# Stage 12c5az
+
+Der quellseitige Stand trennt reziproke und echte Bruchvielfachen in typisierte Teilachsen. Der fokussierte Benutzerlauf kompiliert `test_prompt_table_execution.mojo`, erzeugt den 13-Fälle-Probestrom und führt die 13 direkten nativen Aufrufe sowohl für `universum v2/3` als auch für `universum v1/2,2/3` aus. Die Erstellungsumgebung kompiliert kein Mojo; statische Source-, Defekt-, Matrix- und Archivverträge werden hier separat geprüft.
+
+# Stage 12c5ay
+
+Der Benutzerlauf von 12c5aw baute alle regulären und schweren Executables sowie die Shared Library erfolgreich. Shared Diagnostics bestand mit 54 statischen Tests und byteidentischer Console-/Table-Parität. Die allgemeine Mojo-Suite bestand anschließend durch sämtliche Architektur-, CSV-, Generator-, Legacy-, Prompt-, Ausgabe- und Parallelkonfigurationstests bis zum ersten Laufzeitabbruch in `test_parallel_number_processes.mojo`. Ursache war ausschließlich die veraltete Erwartung `stats.mode == "processes"`; das produktive Modul normalisiert historische Prozessschreibweisen bewusst auf den Thread-Backendwert `threads`. Sechs betroffene Assertions und ein neuer Quellvertrag sind vorbereitet. Quellseitig bestanden 76 gezielte statische Verträge; alle acht neuen historischen Prompt-Referenzkommandos liefen erfolgreich und erzeugten nichtleere kanonische Ströme. Die Erstellungsumgebung kompiliert kein Mojo; der Benutzerlauf ist `scripts/test_stage12c5ay.sh`.
+
+# Stage 12c5ax
+
+Der quellseitige Stand enthält sechs neue Mojo-Verträge für den effektfreien historischen Prompt-Besitzentscheid. Acht kompakte Familien sind als bytegenaue Python↔Mojo-Laufzeitfälle vorbereitet; das isolierte native Arbeitsverzeichnis enthält absichtlich nur CSV-Ressourcen und keine Python-Promptdatei. Der vollständige `alles`-Datenstrom bleibt wegen seiner hohen Referenzkosten im bestehenden Full-All-/Releaseworkflow, während der Stage-Test seinen nativen Plan direkt prüft. Die Erstellungsumgebung kompiliert kein Mojo; der Benutzerlauf ist `scripts/test_stage12c5ax.sh`.
+
 # Stage 12c5aw
 
 Der Benutzerlauf kompilierte `test_legacy_reta_program.mojo` nach der Runtime-Grenzen-Reparatur erfolgreich. Zwei von drei Tests bestanden; der verbleibende Test zeigte ausschließlich die falsche Erwartung, eine bestehende 1024-Grenze müsse auf 77 sinken. Der korrigierte Vertrag bewahrt die Python-Semantik und ergänzt den positiven Erhöhungsfall auf 2048.

@@ -20,6 +20,11 @@ from .prompt_fraction_execution import (
     create_prompt_fraction_range,
     parse_prompt_fraction,
 )
+from .prompt_historical_ownership import (
+    is_classic_integer_prompt_table_family,
+    is_fraction_prompt_table_family,
+    is_historical_prompt_table_family,
+)
 from .prompt_language import (
     PromptLanguageCatalog,
     normalize_prompt_language,
@@ -161,41 +166,7 @@ def _is_control_command(canonical: String) -> Bool:
 
 
 def _is_table_command(canonical: String) -> Bool:
-    return (
-        canonical == "mond"
-        or canonical == "richtung"
-        or canonical == "r"
-        or canonical == "primzahlkreuz"
-        or canonical == "alles"
-        or canonical == "thomas"
-        or canonical == "t"
-        or canonical == "emotion"
-        or canonical == "E"
-        or canonical == "wirklichkeit"
-        or canonical == "W"
-        or canonical == "triebe"
-        or canonical == "T"
-        or canonical == "impulse"
-        or canonical == "I"
-        or canonical == "bewusstsein"
-        or canonical == "B"
-        or canonical == "geist"
-        or canonical == "G"
-        or canonical == "freiheit"
-        or canonical == "gleichheit"
-        or canonical == "groesse"
-        or canonical == "kugeln"
-        or canonical == "kreise"
-        or canonical == "netzwerk"
-        or canonical == "komplex"
-        or canonical == "absicht"
-        or canonical == "absichten"
-        or canonical == "motiv"
-        or canonical == "motive"
-        or canonical == "a"
-        or canonical == "universum"
-        or canonical == "u"
-    )
+    return is_historical_prompt_table_family(canonical)
 
 
 def _only_classic_integer_table_commands(words: List[String]) -> Bool:
@@ -205,49 +176,14 @@ def _only_classic_integer_table_commands(words: List[String]) -> Bool:
         var canonical = words[index]
         if not _is_table_command(canonical):
             continue
-        if not (
-            canonical == "mond"
-            or canonical == "richtung"
-            or canonical == "r"
-            or canonical == "primzahlkreuz"
-            or canonical == "alles"
-            or canonical == "thomas"
-            or canonical == "t"
-        ):
+        if not is_classic_integer_prompt_table_family(canonical):
             return False
         found = True
     return found
 
 
 def _is_fraction_table_command(canonical: String) -> Bool:
-    return (
-        canonical == "emotion"
-        or canonical == "E"
-        or canonical == "wirklichkeit"
-        or canonical == "W"
-        or canonical == "triebe"
-        or canonical == "T"
-        or canonical == "impulse"
-        or canonical == "I"
-        or canonical == "bewusstsein"
-        or canonical == "B"
-        or canonical == "geist"
-        or canonical == "G"
-        or canonical == "freiheit"
-        or canonical == "gleichheit"
-        or canonical == "groesse"
-        or canonical == "kugeln"
-        or canonical == "kreise"
-        or canonical == "netzwerk"
-        or canonical == "komplex"
-        or canonical == "absicht"
-        or canonical == "absichten"
-        or canonical == "motiv"
-        or canonical == "motive"
-        or canonical == "a"
-        or canonical == "universum"
-        or canonical == "u"
-    )
+    return is_fraction_prompt_table_family(canonical)
 
 
 def _contains(values: List[String], needle: String) -> Bool:
@@ -636,6 +572,27 @@ def _has_positive_fraction(pairs: List[_PromptFractionPair]) -> Bool:
     return False
 
 
+def _has_positive_true_fraction(pairs: List[_PromptFractionPair]) -> Bool:
+    for index in range(len(pairs)):
+        var pair = pairs[index].copy()
+        if not pair.excluded and pair.numerator != 1:
+            return True
+    return False
+
+
+def _fraction_pairs_for_axis(
+    pairs: List[_PromptFractionPair], reciprocal: Bool
+) -> List[_PromptFractionPair]:
+    var result = List[_PromptFractionPair]()
+    for index in range(len(pairs)):
+        var pair = pairs[index].copy()
+        if reciprocal and pair.numerator == 1:
+            result.append(pair.copy())
+        elif not reciprocal and pair.numerator != 1:
+            result.append(pair.copy())
+    return result^
+
+
 def _fraction_multiple_mode(pairs: List[_PromptFractionPair]) -> Bool:
     for index in range(len(pairs)):
         if pairs[index].multiple:
@@ -695,13 +652,16 @@ def _fraction_multiple_supported(
     if not multiple_mode or not _has_true_fraction(pairs):
         return True
     var domain = _fraction_multiple_domain(canonical_words)
-    if not domain.supported or not _has_positive_fraction(pairs):
+    if not domain.supported or not _has_positive_true_fraction(pairs):
         return False
-    # Mixed reciprocal and true-fraction multiple axes have two incompatible
-    # upper bounds in the legacy prompt (1024 versus the fraction CSV shape).
-    # Keep that compound form atomic until it receives its own explicit contract.
+    # Reciprocal 1/n multiples and true n/m multiples deliberately use different
+    # bounds.  They are split below: reciprocal rows use the historical 1024
+    # ceiling, while proper fractions expand only inside this domain rectangle.
+    # Negative reciprocal components retain their frozen Python behavior until
+    # their subtraction algebra receives a separate explicit contract.
     for index in range(len(pairs)):
-        if pairs[index].numerator == 1:
+        var pair = pairs[index].copy()
+        if pair.numerator == 1 and pair.excluded:
             return False
     return True
 
@@ -747,11 +707,17 @@ def _fraction_exclusions_supported(
     return True
 
 
-def _expanded_reciprocal_multiple_rows(
-    pairs: List[_PromptFractionPair], upper_exclusive: Int
+def _merge_expanded_reciprocal_multiple_rows(
+    seed_rows: List[String],
+    pairs: List[_PromptFractionPair],
+    upper_exclusive: Int,
 ) -> List[String]:
+    """Merge a bounded 1/n-multiple axis into existing reciprocal projections."""
     var attempts = List[Int]()
     var exclusions = List[Int]()
+    for index in range(len(seed_rows)):
+        if seed_rows[index].byte_length() > 0:
+            attempts.append(Int(seed_rows[index]))
     for index in range(len(pairs)):
         var pair = pairs[index].copy()
         if pair.numerator != 1 or pair.denominator <= 0:
@@ -773,6 +739,14 @@ def _expanded_reciprocal_multiple_rows(
         if not _contains_int(exclusions, ordered[index]):
             result.append(String(ordered[index]))
     return result^
+
+
+def _expanded_reciprocal_multiple_rows(
+    pairs: List[_PromptFractionPair], upper_exclusive: Int
+) -> List[String]:
+    return _merge_expanded_reciprocal_multiple_rows(
+        List[String](), pairs, upper_exclusive
+    )
 
 
 def _append_fraction_invocations(
@@ -1043,10 +1017,14 @@ def plan_prompt_table_commands(
     var true_fraction_multiple_mode = (
         has_fraction and multiple_mode and _has_true_fraction(fraction_pairs)
     )
+    var reciprocal_multiple_pairs = _fraction_pairs_for_axis(
+        fraction_pairs, True
+    )
+    var true_fraction_pairs = _fraction_pairs_for_axis(fraction_pairs, False)
     var effective_fraction_pairs = _copy_fraction_pairs(fraction_pairs)
     if true_fraction_multiple_mode:
         effective_fraction_pairs = _expand_true_fraction_multiples(
-            fraction_pairs, _fraction_multiple_domain(canonical_words)
+            true_fraction_pairs, _fraction_multiple_domain(canonical_words)
         )
 
     # The pure compact numeric default for zero is a peculiar stable legacy
@@ -1093,6 +1071,14 @@ def plan_prompt_table_commands(
     if multiple_mode and has_fraction and not true_fraction_multiple_mode:
         reciprocal_rows = _expanded_reciprocal_multiple_rows(
             fraction_pairs, 1024
+        )
+    elif (
+        multiple_mode
+        and true_fraction_multiple_mode
+        and len(reciprocal_multiple_pairs) > 0
+    ):
+        reciprocal_rows = _merge_expanded_reciprocal_multiple_rows(
+            reciprocal_rows, reciprocal_multiple_pairs, 1024
         )
     elif has_positive_fraction:
         # Legacy subtraction only promotes explicit -1/n axes into the

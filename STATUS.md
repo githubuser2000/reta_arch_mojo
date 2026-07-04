@@ -1,3 +1,31 @@
+# Status – Stage 12c5az
+
+- Gemischte `1/n`- und echte `n/m`-Vielfachen innerhalb einer einzelnen Bruchdomäne werden nicht mehr atomar an Python zurückgegeben.
+- Reziproke Vielfache verwenden die historische 1024er-Grenze; echte Brüche bleiben an das physische Zähler×Nenner-Rechteck der ausgewählten CSV gebunden.
+- `universum v1/2,2/3` erzeugt 13 native Aufrufe; die reziproke Menge ist `{2,4,...,1022} ∪ {1,3,9}`.
+- Mehrere verschieden große Bruchdomänen bleiben bewusst atomar, bis ein domänenspezifischer Mehrfachplan existiert.
+- `PY-OPEN-002` umfasst nun ausdrücklich auch die gemischte Absturzform; Python bleibt eingefroren, Mojo besitzt den korrigierten Vertrag.
+- Der Benutzer führt den Modular-Lauf mit `scripts/test_stage12c5az.sh` aus.
+
+# Status – Stage 12c5ay
+
+- Der vollständige Benutzerlauf von 12c5aw bestätigt den kompletten nativen Build, die Shared-Diagnostics-Parität und alle Mojo-Tests bis einschließlich `test_parallel_number_processes.mojo`.
+- Der dortige Abbruch war ein veralteter Testvertrag: historische `processes`-Schreibweisen werden seit der Thread-Migration korrekt auf `threads` normalisiert.
+- Vier Number- und zwei Row-Verträge prüfen nun den tatsächlich aufgelösten Thread-Backendmodus.
+- Ein neuer Source-Vertrag bindet alle zehn `*_in_processes`-Aliase an ihre nativen `*_threaded`-Besitzer und verbietet erneute Prozessmodus-Statistikerwartungen.
+- Stage 12c5ay enthält außerdem die 33 atomar klassifizierten historischen Promptfamilien aus 12c5ax.
+- Fortschritt bleibt streng bei **89/92 = 96,7 %** vollständig nativ/generiert und **92/92 = 100,0 %** mindestens teilweise; die Änderung korrigiert Laufzeitverträge und vertieft Promptbesitz.
+- Der Benutzer führt den Modular-Lauf mit `scripts/test_stage12c5ay.sh` aus.
+
+# Status – Stage 12c5ax
+
+- Der historische Kompaktpfad verwendet einen reinen, effektfreien Ownership-Besitzer statt einer zweiten Allowlist im Controller.
+- Alle **33** durch den Tabellenplaner implementierten Familien sind atomar klassifiziert; neun unnötige Python-Fallbacks sind entfernt.
+- Acht schnelle Familien besitzen einen isolierten bytegenauen Python↔Mojo-End-to-End-Vertrag; `alles` ist im Stage-Gate planvollständig und bleibt im Full-All-Workflow stromvollständig.
+- Unbekannte Parameter sowie Shell- und Speicherzweige bleiben vollständig am atomaren Kindprozessrand; keine teilweise Ausgabe wird zugelassen.
+- Fortschritt bleibt streng bei **89/92 = 96,7 %** vollständig nativ/generiert und **92/92 = 100,0 %** mindestens teilweise; die Änderung vertieft den nativen Verhaltensbesitz statt eine Datei künstlich hochzustufen.
+- Der Benutzer führt den Modular-Lauf mit `scripts/test_stage12c5ax.sh` aus.
+
 # Status – Stage 12c5aw
 
 - Der Benutzerlauf bestätigt: Der frühere Compile-Time-`getenv`-Abbruch ist geschlossen; `test_legacy_reta_program.mojo` kompiliert und startet.
@@ -312,6 +340,6 @@
 - EIGR umgeht den defekten Python-`deepcopy(module)`-Wrapper über dessen expliziten, direkt lauffähigen `reta.py`-Argumentvertrag
 ## Weiterhin an der Kompatibilitätsgrenze
 - wenige verbleibende Rich-/Terminalsonderfälle außerhalb der seit 12c4i bytegleichen paginierten Kernpfade
-- echte `v n/m`-Vielfache mit Zähler größer 1 und weitere hintere Prompt-Sonderzweige
+- mehrere gleichzeitig ausgewählte, verschieden große Bruch-CSV-Domänen und weitere hintere Prompt-Sonderzweige
 - vollständige i18n-Laufzeit außerhalb des Promptvokabulars
 Siehe [`ROADMAP.md`](ROADMAP.md) für alle zwölf Stufen.

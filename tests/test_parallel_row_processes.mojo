@@ -31,7 +31,10 @@ def main() raises:
     religion_rows.append(IndexedStringRow(3, ["5", "line\nbreak"]))
     var religion_reference = decode_religion_rows_serial(religion_rows, "html")
     var religion = decode_religion_rows_in_processes(religion_rows, "html", config)
-    assert_true(religion.stats.mode == "processes", "religion process mode")
+    assert_true(
+        religion.stats.mode == "threads",
+        "religion legacy process alias uses threads",
+    )
     checks += 1
     assert_true(religion.stats.workers == 2, "religion workers")
     checks += 1
@@ -81,7 +84,10 @@ def main() raises:
     kombi_rows.append(IndexedStringRow(3, ["5", "gamma"]))
     var kombi_reference = decode_kombi_rows_serial(kombi_rows)
     var kombi = decode_kombi_rows_in_processes(kombi_rows, config)
-    assert_true(kombi.stats.mode == "processes", "kombi process mode")
+    assert_true(
+        kombi.stats.mode == "threads",
+        "kombi legacy process alias uses threads",
+    )
     checks += 1
     assert_true(kombi.stats.chunks == 2, "kombi chunks")
     checks += 1

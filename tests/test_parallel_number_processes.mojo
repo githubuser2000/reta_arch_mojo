@@ -24,7 +24,10 @@ def main() raises:
 
     var moon_reference = moon_numbers_serial(numbers)
     var moon = moon_numbers_in_processes(numbers, config)
-    assert_true(moon.stats.mode == "processes", "moon process mode")
+    assert_true(
+        moon.stats.mode == "threads",
+        "moon legacy process alias uses threads",
+    )
     checks += 1
     assert_true(moon.stats.chunks == 5, "moon chunks")
     checks += 1
@@ -67,7 +70,10 @@ def main() raises:
 
     var factors_reference = prime_factors_serial(numbers)
     var factors = prime_factors_in_processes(numbers, config)
-    assert_true(factors.stats.mode == "processes", "factor process mode")
+    assert_true(
+        factors.stats.mode == "threads",
+        "factor legacy process alias uses threads",
+    )
     checks += 1
     assert_true(len(factors.values) == len(factors_reference), "factor count")
     checks += 1
@@ -104,7 +110,10 @@ def main() raises:
     var filtered = filter_numbers_in_processes(
         numbers, "ordinary_multiples", criteria, 0, True, config
     )
-    assert_true(filtered.stats.mode == "processes", "filter process mode")
+    assert_true(
+        filtered.stats.mode == "threads",
+        "filter legacy process alias uses threads",
+    )
     checks += 1
     assert_true(len(filtered.values) == len(filtered_reference), "filter count")
     checks += 1
@@ -120,7 +129,10 @@ def main() raises:
 
     var pairs_reference = factor_pairs_serial(numbers, True)
     var pairs = factor_pairs_in_processes(numbers, True, config)
-    assert_true(pairs.stats.mode == "processes", "pair process mode")
+    assert_true(
+        pairs.stats.mode == "threads",
+        "pair legacy process alias uses threads",
+    )
     checks += 1
     assert_true(len(pairs.values) == len(pairs_reference), "pair count")
     checks += 1

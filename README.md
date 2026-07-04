@@ -1,5 +1,42 @@
 # reta.arch → Mojo
 
+## Aktueller Stand 12c5az
+
+Gemischte reziproke und echte Bruchvielfache sind nun innerhalb einer einzelnen
+Bruchdomäne vollständig nativ. `universum v1/2,2/3` trennt die reziproke
+1024er-Zeilenachse vom physischen Universum-Zähler×Nenner-Rechteck und vereinigt
+beide Projektionen deterministisch; der zuvor atomare Fallback entfällt. Mehrere
+verschieden große Bruch-CSV-Domänen bleiben bewusst getrennt. Der eingefrorene
+Python-Absturz wird weiterhin als `PY-OPEN-002` reproduziert. Fokussierter
+Benutzerlauf: `scripts/test_stage12c5az.sh`. Details:
+[`STAGE12C5AZ_MIXED_FRACTION_MULTIPLE_AXES.md`](STAGE12C5AZ_MIXED_FRACTION_MULTIPLE_AXES.md).
+
+## Aktueller Stand 12c5ay
+
+Der vollständige Benutzerlauf von 12c5aw bestätigte den kompletten Produktionsbuild,
+die Shared-Diagnostics-Parität und den überwiegenden Teil der Mojo-Suite. Der erste
+neue Laufzeitabbruch lag in einem veralteten Testvertrag: historische
+`*_in_processes`-Namen benutzen seit der Thread-Migration ausschließlich den nativen
+Thread-Backendmodus. Sechs Number-/Row-Assertions erwarten deshalb nun den
+aufgelösten Statistikwert `threads` statt des nicht mehr existierenden
+Prozessbackends. Stage 12c5ay enthält außerdem die native historische
+Promptfamilien-Portierung aus 12c5ax. Fokussierter Benutzerlauf:
+`scripts/test_stage12c5ay.sh`. Details:
+[`STAGE12C5AY_THREAD_ONLY_PROCESS_ALIASES.md`](STAGE12C5AY_THREAD_ONLY_PROCESS_ALIASES.md).
+
+## Aktueller Stand 12c5ax
+
+Der historische Kompakt- und Ein-Zeichen-Promptpfad besitzt nun alle 33 bereits
+typisierten Tabellenfamilien über einen eigenen reinen Ownership-Entscheid.
+Damit fallen `r mond`, `r primzahlkreuz`, `r alles`, Freiheit/Gleichheit,
+Kugeln/Kreise, Netzwerk und Komplexität nicht länger trotz vorhandenem nativen
+Plan an `retaPrompt.py`. Acht schnelle End-to-End-Familien werden bytegenau in
+einem Python-freien Laufzeitverzeichnis geprüft; der teure `alles`-Pfad bleibt
+im Stage-Gate planvollständig und im vorhandenen Full-All-Releaseworkflow
+stromvollständig. Fokussierter Benutzerlauf: `scripts/test_stage12c5ax.sh`.
+Details:
+[`STAGE12C5AX_NATIVE_HISTORICAL_PROMPT_FAMILIES.md`](STAGE12C5AX_NATIVE_HISTORICAL_PROMPT_FAMILIES.md).
+
 ## Aktueller Stand 12c5aw
 
 Der erste echte Lauf nach der `getenv`-Reparatur bestätigte die erfolgreiche
@@ -226,21 +263,20 @@ Die Metriken messen **orthogonale Bezugsgrößen** und sind nicht als ein einzig
 
 Der Port ist daher nicht von über 90 % auf rund 65 % zurückgefallen. Die frühere Zahl bezeichnete die Funktionsoberfläche, die strengere Zahl den Quellersatz. Der vollständige Plan steht in [`ROADMAP.md`](ROADMAP.md).
 
-### Aktueller Fokus: Stage 12c5aw
+### Aktueller Fokus: Stage 12c5az
 
 Der Entwicklungsablauf lautet:
 
 ```bash
-./do.sh 12c5aw
+./do.sh 12c5az
 ```
 
-Die Stage-Kette bestätigt zuerst 12c5av einschließlich des reparierten
-`getenv`-Compilerpfads, der nativen Legacy-Startpfade und der konfigurierbaren
-Produktionsbuilds. Der bereits kompilierte Legacy-Test prüft nun zusätzlich die
-historisch monotone Obergrenze: 77 verkleinert 1024 nicht, 2048 erhöht sie.
-Die Mojo-Kompilierungen führt ausschließlich der Benutzer aus. Erst bei
-vollständig erfolgreicher Ausführung werden Shared Diagnostics,
-`scripts/test_all.sh` und der Git-Commit gestartet.
+Die Stage-Kette bestätigt zuerst 12c5ay einschließlich der thread-only
+Legacy-Prozessaliase. Danach kompiliert der Benutzer den vollständigen
+Prompt-Tabellenvertrag und die Bruchvielfachenprobe. Der neue Vertrag beweist,
+dass `v1/n` bis Zeile 1023 und echte `v n/m` nur im realen CSV-Rechteck
+expandieren, ohne sich gegenseitig eine falsche Obergrenze aufzuzwingen. Die
+Mojo-Kompilierungen führt ausschließlich der Benutzer aus.
 
 ## Installation mit Python 3.14
 
@@ -482,7 +518,7 @@ Geprüft sind 27 kompakte deutsch/englische Kurzsprachenkontexte, 23 vollständi
 
 `src/reta_mojo/prompt_table_execution.mojo` plant 18 Domänenfamilien: `mond`, `richtung`, `primzahlkreuz`, `alles`, `thomas`, `emotion`, `wirklichkeit`, `triebe`, `impulse`, `bewusstsein`, `geist`, `freiheit/gleichheit`, `groesse`, `kugeln/kreise`, `netzwerk`, `komplex`, `absicht/motiv` und `universum`. Mehrere Fachwörter in einer Eingabe erzeugen mehrere native Aufrufe wie die unabhängigen Python-Zweige; `range`, Invertierung und Ausgabeparameter werden weitergereicht. Stage 10n ergänzt die zwei dynamischen Eigenschaftsachsen `EIGN…` und `EIGR…` mit allen 165 deutschen Katalogbefehlen.
 
-Neben den Ganzzahlpfaden werden ganzzahlige `vielfache`/`teiler`/`einzeln`, positive `1/n`- und `n/m`-Ausdrücke, reduzierte Achsen sowie historische Rechteck- und Versatzformen wie `1/2-3/3` und `4/5+2/2` nativ geplant. Stage 10d ergänzt stabile negative Bruchausschlüsse, Bruchteiler und Reziprok-Vielfache wie `v1/256,-1/512`; Stage 10i übernimmt zusätzlich Nullwerte, rein negative Selektoren und kollidierende All-Zeilen-Ausschlüsse. Die eigentlichen Tabellen laufen im kompilierten `reta-native`-Kern. Echte `v n/m`-Vielfache mit Zähler größer 1 bleiben an der Kompatibilitätsgrenze, weil die Python-Referenz in diesem Zweig selbst mit `IndexError` abbricht.
+Neben den Ganzzahlpfaden werden ganzzahlige `vielfache`/`teiler`/`einzeln`, positive `1/n`- und `n/m`-Ausdrücke, reduzierte Achsen sowie historische Rechteck- und Versatzformen wie `1/2-3/3` und `4/5+2/2` nativ geplant. Stage 10d ergänzt stabile negative Bruchausschlüsse, Bruchteiler und Reziprok-Vielfache wie `v1/256,-1/512`; Stage 10i übernimmt zusätzlich Nullwerte, rein negative Selektoren und kollidierende All-Zeilen-Ausschlüsse. Die eigentlichen Tabellen laufen im kompilierten `reta-native`-Kern. Echte `v n/m`-Vielfache mit Zähler größer 1 werden seit Stage 12c4r trotz des reproduzierbaren Python-`IndexError` nativ anhand der realen CSV-Rechtecke korrigiert; Stage 12c5az ergänzt gemischte `v1/n`+`v n/m`-Achsen mit getrennten Obergrenzen.
 
 `--nocolor` ist im Shellrenderer jetzt wirksam. Außerdem kann eine explizite, nicht vorhandene Ergebnisposition nicht mehr auf die vollständige Spaltenmenge zurückfallen. Ein explizites `--oberesmaximum` hebt nun wie in Python beide historischen Zeilengrenzen an; ohne Angabe bleibt die Kurzgrenze korrekt bei 163.
 
@@ -609,7 +645,7 @@ Details: [`TEST_RESULTS.md`](TEST_RESULTS.md).
 
 ## Nächster Portierungsblock
 
-Stufe 9 wird mit seltenen Terminal-/Rich-Sonderfällen fortgesetzt. Stufe 10 erweitert die bereits native Promptausführung und i18n-Laufzeit. Stufe 11 ist mit 11a–11j abgeschlossen. Stage 12a und 12b sind abgeschlossen: Sämtliche nativen Parallelpfade verwenden Mojo-Threads, und `generate_html` besitzt nun auch die vollständige `--alles`-Mitteltabelle. Stage 12c ist bis 12c4i fortgesetzt: `rpb a1` trennt Befehlszeile und Tabellenkopf wieder exakt, `--breite=0` verwendet die reale TTY-Breite, und Pipe-, Skript- sowie echte TTY-Eingabe laufen nativ in Mojo. Die Rohbefehle `shell`, `python` und `math`, nicht-native `reta`-Zeilen und atomare Restfallbacks starten direkt am expliziten Mojo-Kindprozessadapter. Stabile Kombinationen aus `vielfache`, `teiler` und `1/n`, klassische Bruch-No-ops und gemischte Tokens wie `mond 1/2,3` werden nativ geplant. Weder Prompt noch historischer Tabellenlauncher betten Python ein; vollständig besessene `./reta`-Argumentvektoren laufen automatisch nativ, während Restsemantik atomar als Referenzkindprozess ausgeführt wird. Offen bleiben echte `v n/m` mit Zähler größer eins, weitere Restalgorithmen sowie 12d–12e.
+Stufe 9 wird mit seltenen Terminal-/Rich-Sonderfällen fortgesetzt. Stufe 10 erweitert die bereits native Promptausführung und i18n-Laufzeit. Stufe 11 ist mit 11a–11j abgeschlossen. Stage 12a und 12b sind abgeschlossen: Sämtliche nativen Parallelpfade verwenden Mojo-Threads, und `generate_html` besitzt nun auch die vollständige `--alles`-Mitteltabelle. Stage 12c ist bis 12c4i fortgesetzt: `rpb a1` trennt Befehlszeile und Tabellenkopf wieder exakt, `--breite=0` verwendet die reale TTY-Breite, und Pipe-, Skript- sowie echte TTY-Eingabe laufen nativ in Mojo. Die Rohbefehle `shell`, `python` und `math`, nicht-native `reta`-Zeilen und atomare Restfallbacks starten direkt am expliziten Mojo-Kindprozessadapter. Stabile Kombinationen aus `vielfache`, `teiler` und `1/n`, klassische Bruch-No-ops und gemischte Tokens wie `mond 1/2,3` werden nativ geplant. Weder Prompt noch historischer Tabellenlauncher betten Python ein; vollständig besessene `./reta`-Argumentvektoren laufen automatisch nativ, während Restsemantik atomar als Referenzkindprozess ausgeführt wird. Offen bleiben mehrere gleichzeitig ausgewählte, verschieden große Bruchdomänen, seltene hintere Restalgorithmen sowie 12d–12e.
 
 ## Dokumentation
 

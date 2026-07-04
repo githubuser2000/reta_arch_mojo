@@ -438,9 +438,35 @@ def test_true_fraction_multiples_follow_each_csv_rectangle() raises:
     assert_true("_Galaxie_n/m=22" in _tokens(_plan("motive v22/3")))
     assert_true("_Universum_n/m=20" in _tokens(_plan("universum v20/3")))
 
-    # Different data rectangles and mixed 1/n+n/m upper bounds remain atomic.
+    # Different data rectangles remain atomic.  Mixed reciprocal and true
+    # fraction multiples now split their bounds: 1/n uses rows below 1024,
+    # while n/m remains clipped to the selected physical CSV rectangle.
     assert_false(_plan("universum motive v2/3").handled)
-    assert_false(_plan("universum v1/2,2/3").handled)
+    var mixed_axes = _plan("universum v1/2,2/3")
+    assert_true(mixed_axes.handled)
+    assert_equal(len(mixed_axes.invocations), 13)
+    assert_true(
+        "--vorhervonausschnitt=2,1,4,6,3" in _tokens(mixed_axes, 0)
+    )
+    assert_true(
+        "--vorhervonausschnitt=1,2,3,4,6,8,9,10"
+        in _tokens(mixed_axes, 1)
+    )
+    assert_true(",1018,1020,1022" in _tokens(mixed_axes, 1))
+    assert_true(
+        "--gebrochen-rational_Universum_n/m=20"
+        in _tokens(mixed_axes, 11)
+    )
+    var mixed_spelled = _plan("universum vielfache 1/2,2/3")
+    assert_equal(
+        serialize_prompt_table_plan(mixed_spelled),
+        serialize_prompt_table_plan(mixed_axes),
+    )
+    var mixed_english = _plan("universe multiple 1/2,2/3", "english")
+    assert_true(mixed_english.handled)
+    assert_equal(len(mixed_english.invocations), 13)
+    assert_true("-language=english" in _tokens(mixed_english, 0))
+    assert_false(_plan("universum v-1/4,2/3").handled)
     assert_false(_plan("universum v-2/3").handled)
 
     _emit_true_fraction_multiple_plan("universum v2/3")

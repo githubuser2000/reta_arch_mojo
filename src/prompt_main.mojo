@@ -21,7 +21,6 @@ from reta_mojo.prompt_language import (
     prompt_root_commands,
     prompt_vocabulary_alias,
     prepare_prompt_tokens,
-    normalize_prompt_language,
 )
 from reta_mojo.prompt_table_execution import (
     PromptTablePlan,
@@ -41,6 +40,10 @@ from reta_mojo.native_reta_cli import (
     run_native_reta,
 )
 from reta_mojo.prompt_execution_runtime import render_prompt_table_plan
+from reta_mojo.prompt_historical_ownership import (
+    historical_prompt_execution_supported,
+    is_prompt_numeric_syntax_token,
+)
 from reta_mojo.native_cli_startup import native_cli_startup
 from reta_mojo.resource_paths import asset_root, csv_resource, reference_root
 from reta_mojo.prompt_runtime import (
@@ -385,196 +388,11 @@ def _compact_announcement_tokens(
     return result^
 
 
-def _is_prompt_numeric_syntax_token(value: String) -> Bool:
-    if value.byte_length() == 0:
-        return False
-    var bytes = value.as_bytes()
-    for index in range(len(bytes)):
-        var code = Int(bytes[index])
-        if code >= 48 and code <= 57:
-            continue
-        if (
-            code == 32
-            or code == 9
-            or code == 43
-            or code == 44
-            or code == 45
-            or code == 46
-            or code == 47
-            or code == 58
-            or code == 59
-            or code == 91
-            or code == 93
-            or code == 40
-            or code == 41
-            or code == 123
-            or code == 125
-        ):
-            continue
-        return False
-    return True
-
-
 def _is_pure_numeric_prompt(values: List[String]) -> Bool:
     if len(values) == 0:
         return False
     for index in range(len(values)):
-        if not _is_prompt_numeric_syntax_token(values[index]):
-            return False
-    return True
-
-
-def _canonical_prompt_command(
-    token: String, language: String, catalog: PromptLanguageCatalog
-) -> String:
-    var normalized = normalize_prompt_language(language)
-    for index in range(len(catalog.vocabulary)):
-        var entry = catalog.vocabulary[index].copy()
-        if (
-            entry.language == normalized
-            and entry.domain == "command"
-            and entry.translated == token
-        ):
-            return entry.canonical
-    return token
-
-
-def _is_prompt_table_canonical(value: String) -> Bool:
-    return (
-        value == "mond"
-        or value == "richtung"
-        or value == "r"
-        or value == "primzahlkreuz"
-        or value == "alles"
-        or value == "thomas"
-        or value == "t"
-        or value == "emotion"
-        or value == "E"
-        or value == "wirklichkeit"
-        or value == "W"
-        or value == "triebe"
-        or value == "T"
-        or value == "impulse"
-        or value == "I"
-        or value == "bewusstsein"
-        or value == "B"
-        or value == "geist"
-        or value == "G"
-        or value == "freiheit"
-        or value == "gleichheit"
-        or value == "groesse"
-        or value == "kugeln"
-        or value == "kreise"
-        or value == "netzwerk"
-        or value == "komplex"
-        or value == "absicht"
-        or value == "absichten"
-        or value == "motiv"
-        or value == "motive"
-        or value == "a"
-        or value == "universum"
-        or value == "u"
-    )
-
-
-def _historical_prompt_control_supported(canonical: String) -> Bool:
-    return (
-        canonical == "mulpri"
-        or canonical == "p"
-        or canonical == "range"
-        or canonical == "R"
-        or canonical == "invertieren"
-        or canonical == "e"
-        or canonical == "ee"
-        or canonical == "vielfache"
-        or canonical == "v"
-        or canonical == "teiler"
-        or canonical == "w"
-        or canonical == "einzeln"
-        or canonical
-        == "keineEinZeichenZeilenPlusKeineAusgabeWelcherBefehlEsWar"
-    )
-
-
-def _historical_prompt_parameter_supported(
-    token: String, language: String, catalog: PromptLanguageCatalog
-) -> Bool:
-    if token == "-ausgabe" or token == "-output":
-        return True
-    if not token.startswith("--"):
-        return False
-    var name = String(token[byte=2:])
-    if "=" in name:
-        name = String(name.split("=")[0])
-    var normalized = normalize_prompt_language(language)
-    for index in range(len(catalog.vocabulary)):
-        var entry = catalog.vocabulary[index].copy()
-        if (
-            entry.language == normalized
-            and entry.domain == "output"
-            and entry.translated == name
-        ):
-            return (
-                entry.canonical == "keineueberschriften"
-                or entry.canonical == "keineleereninhalte"
-                or entry.canonical == "keinenummerierung"
-                or entry.canonical == "nocolor"
-                or entry.canonical == "breite"
-                or entry.canonical == "art"
-                or entry.canonical == "spaltenreihenfolgeundnurdiese"
-            )
-    return False
-
-
-def _historical_prompt_execution_supported(
-    raw_tokens: List[String],
-    planning_tokens: List[String],
-    language: String,
-    catalog: PromptLanguageCatalog,
-) -> Bool:
-    # Number-only compact defaults compose the same typed table and mulpri
-    # branches as lettered shorthand.  They are accepted only when every
-    # expanded token below is explicitly owned.
-    for index in range(len(planning_tokens)):
-        var token = planning_tokens[index]
-        # Only pure numeric/rational/range syntax is data.  Every other token
-        # must be owned explicitly; otherwise a localized storage/shell/session
-        # command could be silently dropped while its table sibling runs.
-        if _is_prompt_numeric_syntax_token(token):
-            continue
-        if _historical_prompt_parameter_supported(token, language, catalog):
-            continue
-        var canonical = _canonical_prompt_command(token, language, catalog)
-        if _historical_prompt_control_supported(canonical):
-            continue
-        if not _is_prompt_table_canonical(canonical):
-            return False
-        if not (
-            canonical == "richtung"
-            or canonical == "r"
-            or canonical == "bewusstsein"
-            or canonical == "B"
-            or canonical == "emotion"
-            or canonical == "E"
-            or canonical == "triebe"
-            or canonical == "T"
-            or canonical == "wirklichkeit"
-            or canonical == "W"
-            or canonical == "universum"
-            or canonical == "u"
-            or canonical == "thomas"
-            or canonical == "t"
-            or canonical == "impulse"
-            or canonical == "I"
-            or canonical == "geist"
-            or canonical == "G"
-            or canonical == "groesse"
-            or canonical == "absicht"
-            or canonical == "absichten"
-            or canonical == "motiv"
-            or canonical == "motive"
-            or canonical == "a"
-        ):
+        if not is_prompt_numeric_syntax_token(values[index]):
             return False
     return True
 
@@ -721,7 +539,7 @@ def _run_command(
     )
     var owns_table = table_plan.handled
     if (historical_echo or numeric_default) and (owns_table or owns_mulpri):
-        if not _historical_prompt_execution_supported(
+        if not historical_prompt_execution_supported(
             raw_tokens, planning_tokens, profile.language, catalog
         ):
             owns_table = False
@@ -878,7 +696,7 @@ def _run_native_one_shot(
     )
     var owns_table = table_plan.handled
     if (historical_echo or numeric_default) and (owns_table or owns_mulpri):
-        if not _historical_prompt_execution_supported(
+        if not historical_prompt_execution_supported(
             raw_tokens, planning_tokens, profile.language, catalog
         ):
             owns_table = False
