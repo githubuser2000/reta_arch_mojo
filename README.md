@@ -1,5 +1,27 @@
 # reta.arch → Mojo
 
+## Aktueller Stand 12c5an
+
+`mojo_bridge.py` ist jetzt eine vollständige native Kompatibilitätsfassade mit
+15 öffentlichen Namen und 19 Funktionsdefinitionen. Native TTY-, Completion-
+und HTML-Besitzer ersetzen die frühere eingebettete Python-Brücke; verbleibende
+`reta.py`-/Prompt-Kompatibilität ist ausschließlich ein expliziter
+Kindprozessrand. Zusätzlich ist `parameter_runtime.py` vollständig nativ und
+verwendet statt mutierbarer Program-Objekte einen typisierten
+`ParameterRuntimePlan`. Fokussierte Prüfung: `scripts/test_stage12c5an.sh`.
+Details:
+[`STAGE12C5AN_NATIVE_MOJO_BRIDGE_PARAMETER_RUNTIME.md`](STAGE12C5AN_NATIVE_MOJO_BRIDGE_PARAMETER_RUNTIME.md).
+
+## Aktueller Stand 12c5am
+
+Der letzte 12c5al-Assetfehler war eine hostabhängige Prozessorkernzahl im
+`parallel_execution`-Teil des Gesamtsnapshots. Der Generator verwendet dafür
+nun acht kanonische Kerne. Zusätzlich besitzen `retaPrompt.py` und
+`reta_architecture/generated_columns.py` vollständige typisierte native
+Besitzerfassaden ohne Python-Laufzeit oder Algorithmusduplikation. Fokussierte
+Prüfung: `scripts/test_stage12c5am.sh`. Details:
+[`STAGE12C5AM_NATIVE_RETA_PROMPT_GENERATED_INTEGRATION.md`](STAGE12C5AM_NATIVE_RETA_PROMPT_GENERATED_INTEGRATION.md).
+
 ## Aktueller Stand 12c5al
 
 Der eingefrorene `i18n/words_legacy_monolith.py` besitzt jetzt eine vollständige
@@ -78,8 +100,8 @@ Dies ist ein inkrementeller, getesteter Port des hochgeladenen Python-Projekts `
 abgeschlossene Release-Stufen:       9 von 12 = 75,0 %
 Stufen 9/10/12:                       Ausgabe, Prompt/i18n und Releaseparität in Arbeit
 Stufe 11:                             11a–11j = 100 %
-Stufe 12:                             12a–12b fertig, 12c zu ca. 99,97 % = ca. 72,2 %
-vollständig nativ/generiert:          80 von 92 = 87,0 %
+Stufe 12:                             12a–12b fertig, 12c zu ca. 99,98 % = ca. 72,6 %
+vollständig nativ/generiert:          83 von 92 = 90,2 %
 mindestens teilweise portiert:       86 von 92 = 93,5 %
 angegriffene Referenzzeilen:          46.561 von 48.831 = 95,4 %
 funktionaler Nutzerumfang:            ca. 96–98 %
@@ -88,24 +110,24 @@ funktionaler Nutzerumfang:            ca. 96–98 %
 Die Metriken messen **orthogonale Bezugsgrößen** und sind nicht als ein einziges wechselndes Gesamtprozent zu lesen:
 
 - **96–98 % geschätzte Funktionsabdeckung**: Anteil der praktisch relevanten Befehls- und Verhaltensfamilien mit einem nativen Pfad. Der atomare Fallback ist nur eine Sicherheitsgrenze und wird nicht als transpiliert gezählt.
-- **87,0 % vollständiger Dateibesitz**: Nur Dateien, deren gesamter wirksamer Vertrag nativ oder reproduzierbar generiert ersetzt ist.
+- **90,2 % vollständiger Dateibesitz**: Nur Dateien, deren gesamter wirksamer Vertrag nativ oder reproduzierbar generiert ersetzt ist.
 - **95,4 % angegriffene Referenzzeilen**: maschinenberechneter Umfang vollständig und teilweise besessener Referenzdateien.
 - **84,0 % Stufenfortschritt**: gewichtete Releaseplanung; eine Stufe kann weit fortgeschritten sein, obwohl große historische Python-Besitzer noch sichtbar bleiben.
 
 Der Port ist daher nicht von über 90 % auf rund 65 % zurückgefallen. Die frühere Zahl bezeichnete die Funktionsoberfläche, die strengere Zahl den Quellersatz. Der vollständige Plan steht in [`ROADMAP.md`](ROADMAP.md).
 
-### Aktueller Fokus: Stage 12c5al
+### Aktueller Fokus: Stage 12c5an
 
-Der historische I18n-Monolith ist nun vollständig im gemeinsamen nativen
-Baumkatalog enthalten. Der Entwicklungsablauf lautet:
+Der Entwicklungsablauf lautet:
 
 ```bash
-./do.sh 12c5al
+./do.sh 12c5an
 ```
 
-Erst nach erfolgreicher Regeneration, dem nativen Acht-Klassen-/Vier-Funktionen-
-Test und der bytegenauen Fünf-Sprachen-Parität werden Shared Diagnostics und
-`test_all.sh` gestartet.
+Zuerst werden alle noch nicht lokal bestätigten Vorgängerstages erneut geprüft.
+Danach kompiliert der Stage-Test die native `mojo_bridge.py`-Fassade und die
+vollständige Parameter-Runtime. Erst nach erfolgreicher Ausführung werden Shared
+Diagnostics, `test_all.sh` und der Git-Commit gestartet.
 
 ## Installation mit Python 3.14
 

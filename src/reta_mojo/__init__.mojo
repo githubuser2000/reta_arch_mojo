@@ -47,6 +47,51 @@ from .legacy_libreta_prompt import (
     verifyBruchNganzZahlCommaList,
     legacy_libreta_prompt_exported_names,
 )
+from .legacy_reta_prompt_catalog import (
+    legacy_reta_prompt_exported_names,
+    legacy_reta_prompt_exported_count,
+)
+from .legacy_mojo_bridge_catalog import (
+    legacy_mojo_bridge_public_names,
+    legacy_mojo_bridge_function_names,
+    legacy_mojo_bridge_public_count,
+    legacy_mojo_bridge_function_count,
+)
+from .legacy_mojo_bridge import (
+    NativePromptReadlineConfiguration,
+    LegacyMojoBridgeSnapshot,
+    LegacyMojoBridgeBundle,
+    bootstrap_legacy_mojo_bridge,
+    run_reta_encoded,
+    run_reta_subprocess_encoded,
+    read_prompt_line_encoded,
+    run_reta_prompt_subprocess_encoded,
+    run_shell_line,
+    run_python_code,
+    run_math_expression,
+    run_reta_line,
+    run_reta_prompt_line_encoded,
+    run_shell_prompt_line,
+    run_python_prompt_line,
+    run_math_prompt_line,
+    generate_html_document,
+    legacy_mojo_bridge_owner_snapshot,
+)
+from .legacy_reta_prompt import (
+    LegacyRetaPromptSnapshot,
+    LegacyRetaPromptBundle,
+    bootstrap_legacy_reta_prompt,
+    newSession,
+    speichern,
+    PromptAllesVorGroesserSchleife,
+    PromptLoescheVorSpeicherungBefehle,
+    promptSpeicherungB,
+    promptSpeicherungA,
+    promptInput,
+    PromptScope,
+    start,
+    legacy_reta_prompt_owner_snapshot,
+)
 from .prompt_runtime import *
 from .prompt_catalog import *
 from .grundstrukturen_catalog import *
@@ -139,6 +184,15 @@ from .compat_text import *
 from .runtime_compat import *
 from .console_io import *
 
+from .generated_columns import *
+from .generated_columns_integration import (
+    GeneratedColumnsApplicationRequest,
+    GeneratedColumnsIntegrationSnapshot,
+    GeneratedColumnsRuntime,
+    bootstrap_generated_columns_runtime,
+    apply_generated_columns_request,
+    generated_columns_integration_contract,
+)
 from .generated_table_columns import *
 from .concat_csv import *
 from .combi_join import *

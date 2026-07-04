@@ -1,4 +1,4 @@
-# Build und Tests – Stage 12c5af
+# Build und Tests – Stage 12c5an
 
 Der vollständige Produktionsbuild bleibt absichtlich ein Vollbuild:
 
@@ -16,7 +16,7 @@ schweren Ziele.
 Der aktuelle fokussierte Compilerlauf ist:
 
 ```sh
-scripts/test_stage12c5af.sh
+scripts/test_stage12c5an.sh
 ```
 
 Die vollständige Testsuite erkennt drei systemnahe Linkerklassen automatisch: Persistenztests verwenden `-lsqlite3 -lcrypto`, Paketintegrität verwendet `-lcrypto`, alle übrigen Tests erhalten keine zusätzlichen Linkerflags. Danach kann die Gesamtprüfung unverändert gestartet werden:

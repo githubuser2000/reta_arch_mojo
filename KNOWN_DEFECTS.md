@@ -23,7 +23,7 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 
 ## Übersicht
 
-- Einträge insgesamt: **119**
+- Einträge insgesamt: **121**
 - offene bestätigte Python-Fehler: **5**
 - zu entscheidende Python-Fehlerkandidaten: **13**
 - bereits im Python-Baum behobene Fehler: **7**
@@ -1626,3 +1626,31 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 - spätere Python-Aktion: Keine Python-Änderung erforderlich; betroffen war ausschließlich die Reproduzierbarkeit des generierten nativen Architekturkatalogs und seiner Paritätsharnesses.
 - Mojo-Orte: `tools/generate_architecture_probe_assets.py`, `src/reta_mojo/architecture_probe_assets.mojo`, `src/reta_mojo/resource_paths.mojo`, `scripts/check_architecture_probe_parity.py`, `scripts/check_domain_probe_parity.py`, `tests/test_architecture_probe_assets_source.py`, `scripts/test_stage12c5al.sh`
 - Belege: `STAGE12C5AL_NATIVE_LEGACY_I18N_MONOLITH.md`, `tools/generate_architecture_probe_assets.py`, `tests/test_architecture_probe_assets_source.py`, `scripts/test_stage12c5al.sh`
+
+### TEST-FIXED-043 – Architektursnapshot übernahm die Prozessorkernzahl des Buildrechners
+
+- Ursprung: `test_infrastructure`
+- Klasse / Schwere: `host_cpu_dependent_architecture_snapshot` / `high`
+- Python-Status: `not_applicable`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5al`
+- Reproduktion: `./do.sh 12c5al auf einem Rechner mit anderer physischer/logischer Kernzahl ausführen; trotz manifestisolierter Referenzkopie unterschieden sich ausschließlich snapshot-json.json und das daraus abgeleitete manifest.tsv.`
+- heutiger Vertrag: Der Architekturassetgenerator importiert die Referenzmodule unter einer kanonischen Prozessortopologie von acht physischen, virtuellen und verfügbaren Kernen. CPU-Zahl, Prozessaffinität und /proc/cpuinfo-Fallback sind vor dem Import kontrolliert; bereits geladene reta_architecture-Module werden verworfen. Ein sitecustomize-Störtest mit abweichenden Kernzahlen muss weiterhin alle 63 Assets byteidentisch bestätigen.
+- spätere Python-Aktion: Keine Python-Änderung erforderlich; reale Laufzeitparallelität erkennt weiterhin die tatsächliche Hardware. Nur der unveränderliche Architekturkatalog verwendet kanonische Snapshotwerte.
+- Python-Orte: `python_reference/reta_architecture/parallel_execution.py`, `python_reference/reta_architecture/facade.py`
+- Mojo-Orte: `tools/generate_architecture_probe_assets.py`, `assets/architecture_probe/snapshot-json.json`, `tests/test_architecture_probe_assets_source.py`, `scripts/test_stage12c5al.sh`
+- Belege: `STAGE12C5AM_NATIVE_RETA_PROMPT_GENERATED_INTEGRATION.md`, `tools/generate_architecture_probe_assets.py`, `tests/test_architecture_probe_assets_source.py`
+
+### MOJO-FIXED-054 – Parameteraliase wurden innerhalb kanonischer Gruppen lexikographisch statt in Python-Einfügereihenfolge ausgegeben
+
+- Ursprung: `mojo_port`
+- Klasse / Schwere: `parameter_alias_order_mismatch` / `high`
+- Python-Status: `correct_reference`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5am`
+- Reproduktion: `./do.sh 12c5am ausführen; domain probe parity bricht bei (column, 4) ab, weil Mojo groesse,gross,größe statt Python größe,groesse,gross ausgibt.`
+- heutiger Vertrag: Parametergruppen und Paarspalten werden weiterhin kanonisch nach Haupt- und Unterparameter sortiert. Die Aliaslisten innerhalb jeder Gruppe bewahren dagegen exakt die beobachtbare Python-Einfügereihenfolge; sie werden nicht lexikographisch sortiert.
+- spätere Python-Aktion: Keine Python-Änderung erforderlich; die Referenzreihenfolge ist korrekt und Teil der Text- sowie JSON-Parität.
+- Python-Orte: `python_reference/reta_architecture/sheaves.py`, `python_reference/reta_domain_probe_py.py`
+- Mojo-Orte: `src/reta_mojo/parameter_semantics.mojo`, `tests/test_parameter_semantics.mojo`, `tests/test_parameter_semantics_order_source.py`
+- Belege: `STAGE12C5AN_NATIVE_MOJO_BRIDGE_PARAMETER_RUNTIME.md`, `tests/test_parameter_semantics.mojo`, `tests/test_parameter_semantics_order_source.py`, `scripts/check_domain_probe_parity.py`

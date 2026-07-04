@@ -47,6 +47,6 @@ def test_porting_matrix_generator_tracks_the_new_owner() -> None:
             break
     assert mapping is not None
     status, target, note = mapping["reta_architecture/parameter_runtime.py"]
-    assert status == "weitgehend nativ"
+    assert status == "nativ"
     assert "parameter_runtime.mojo" in target
-    assert "produktive" in note
+    assert "ParameterRuntimePlan" in note

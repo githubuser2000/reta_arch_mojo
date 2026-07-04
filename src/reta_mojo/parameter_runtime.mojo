@@ -714,3 +714,97 @@ def parameter_runtime_effective_highest(
             highest = max(highest, value + 1)
     return highest
 
+
+
+@fieldwise_init
+struct ParameterRuntimeWidthResult(Copyable, Equatable):
+    """Typed replacement for the mutating legacy width helper."""
+
+    var handled: Bool
+    var width: Int
+    var widths: List[Int]
+    var zero_locked: Bool
+
+
+@fieldwise_init
+struct ParameterRuntimeLegacySnapshot(Copyable, Equatable):
+    var module_functions: Int
+    var nested_helpers: Int
+    var historical_globals: Int
+    var dynamic_program_object: Bool
+    var lazy_python_imports: Bool
+    var diagnostics_are_values: Bool
+
+
+def parameter_runtime_legacy_snapshot() -> ParameterRuntimeLegacySnapshot:
+    return ParameterRuntimeLegacySnapshot(
+        8,
+        3,
+        6,
+        False,
+        False,
+        True,
+    )
+
+
+def produce_all_spalten_numbers(
+    tokens: List[String],
+    maximum_columns: Int,
+    maximum_rows: Int,
+) raises -> List[Int]:
+    """Return the resolved physical columns without mutating a Program object."""
+    return build_parameter_runtime_plan(
+        tokens, maximum_columns, maximum_rows
+    ).columns
+
+
+def apply_width_parameter(
+    command: String,
+    negative_prefix: String = "",
+    maximum_columns: Int = 746,
+    maximum_rows: Int = 1024,
+) raises -> ParameterRuntimeWidthResult:
+    """Apply one historical width command through the shared typed parser."""
+    if negative_prefix.byte_length() > 0:
+        return ParameterRuntimeWidthResult(False, 21, List[Int](), False)
+    var token = command if command.startswith("--") else "--" + command
+    var tokens = ["-ausgabe", token]
+    var plan = build_parameter_runtime_plan(
+        tokens, maximum_columns, maximum_rows
+    )
+    var handled = (
+        command.startswith("breite=")
+        or command.startswith("width=")
+        or command.startswith("breiten=")
+        or command.startswith("widths=")
+    )
+    return ParameterRuntimeWidthResult(
+        handled,
+        plan.width,
+        plan.widths.copy(),
+        plan.width == 0,
+    )
+
+
+def parameters_to_commands_and_numbers(
+    tokens: List[String],
+    maximum_columns: Int,
+    maximum_rows: Int,
+) raises -> ParameterRuntimePlan:
+    """Typed replacement for the six-value legacy mutation return contract."""
+    return build_parameter_runtime_plan(tokens, maximum_columns, maximum_rows)
+
+
+def parameter_runtime_owner_contract() -> List[String]:
+    return [
+        "python_owner=reta_architecture/parameter_runtime.py",
+        "legacy_globals=explicit-values",
+        "program_mutation=ParameterRuntimePlan",
+        "column_resolution=produce_all_spalten_numbers",
+        "width_resolution=apply_width_parameter",
+        "parameter_parse=parameters_to_commands_and_numbers",
+        "upper_limits=typed",
+        "diagnostics=plan-values",
+        "runtime_imports=static",
+        "python_runtime=none",
+    ]

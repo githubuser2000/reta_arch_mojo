@@ -56,5 +56,5 @@ def test_prompt_interaction_is_recorded_in_the_porting_matrix_generator() -> Non
         encoding="utf-8"
     )
     assert '"reta_architecture/prompt_interaction.py": ("nativ"' in generator
-    assert '"retaPrompt.py": ("weitgehend nativ"' in generator
+    assert '"retaPrompt.py": ("nativ"' in generator
     assert '"libs/LibRetaPrompt.py": ("nativ"' in generator

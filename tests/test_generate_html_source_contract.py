@@ -7,9 +7,12 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_native_generator_does_not_write_middle_alx_implicitly() -> None:
     source = (ROOT / "src" / "generate_html_main.mojo").read_text(encoding="utf-8")
+    owner = (ROOT / "src/reta_mojo/html_document.mojo").read_text(encoding="utf-8")
     assert '_write_text_file("middle.alx", middle)' not in source
-    assert "RETA_GENERATE_HTML_MIDDLE_OUTPUT" in source
-    assert "RETA_GENERATE_HTML_LEGACY_MIDDLE" in source
+    assert '_write_text_file("middle.alx", middle)' not in owner
+    assert "RETA_GENERATE_HTML_MIDDLE_OUTPUT" in owner
+    assert "RETA_GENERATE_HTML_LEGACY_MIDDLE" in owner
+    assert "assemble_html_document" in source
 
 
 def test_public_launcher_is_cwd_neutral_and_fhs_safe() -> None:

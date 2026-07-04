@@ -26,6 +26,7 @@ OUT = ROOT / "assets" / "architecture_probe"
 SOURCE_MANIFEST = ROOT / "SOURCE_MANIFEST.sha256"
 SYMLINK_MANIFEST = ROOT / "SOURCE_SYMLINKS.txt"
 CANONICAL_HOME = "/__reta_canonical_home__"
+CANONICAL_PROCESSOR_CORES = 8
 REFERENCE_TOKEN = "@@RETA_REFERENCE_ROOT@@"
 HOME_TOKEN = "@@RETA_HOME@@"
 
@@ -105,6 +106,9 @@ def _canonical_reference_tree():
 
 def _prepare_imports(reference_root: Path) -> None:
     sys.dont_write_bytecode = True
+    for module_name in tuple(sys.modules):
+        if module_name == "reta_architecture" or module_name.startswith("reta_architecture."):
+            del sys.modules[module_name]
     for value in (reference_root, reference_root / "libs", reference_root / "i18n"):
         sys.path.insert(0, str(value))
 
@@ -139,10 +143,27 @@ def build_assets() -> dict[str, str]:
             "LINES": "80",
             "RETA_ARCHITECTURE_CANONICAL_SNAPSHOT": "1",
         }
+        real_path_exists = os.path.exists
+
+        def canonical_path_exists(path: object) -> bool:
+            if os.fspath(path) == "/proc/cpuinfo":
+                return False
+            return real_path_exists(path)
+
         with open(os.devnull, "r", encoding="utf-8") as null_stdin, patch.dict(
             os.environ, canonical_environment, clear=False
         ), patch.object(sys, "stdin", null_stdin), patch(
             "os.get_terminal_size", side_effect=OSError
+        ), patch(
+            "os.cpu_count", return_value=CANONICAL_PROCESSOR_CORES
+        ), patch(
+            "os.process_cpu_count", return_value=CANONICAL_PROCESSOR_CORES, create=True
+        ), patch(
+            "os.sched_getaffinity",
+            return_value=set(range(CANONICAL_PROCESSOR_CORES)),
+            create=True,
+        ), patch(
+            "os.path.exists", side_effect=canonical_path_exists
         ):
             from reta_architecture import RetaArchitecture  # type: ignore
             import reta_architecture.architecture_progress as progress_module  # type: ignore

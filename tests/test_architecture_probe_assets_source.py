@@ -49,6 +49,36 @@ def test_generator_ignores_local_unmanifested_outputs_git_parent_and_home() -> N
         marker.unlink(missing_ok=True)
 
 
+def test_generator_ignores_host_processor_topology() -> None:
+    with tempfile.TemporaryDirectory(prefix="reta-sitecustomize-") as directory:
+        sitecustomize = Path(directory) / "sitecustomize.py"
+        sitecustomize.write_text(
+            "import os\n"
+            "os.cpu_count = lambda: 173\n"
+            "os.process_cpu_count = lambda: 19\n"
+            "os.sched_getaffinity = lambda _pid: set(range(17))\n",
+            encoding="utf-8",
+        )
+        env = {**os.environ, "PYTHONPATH": directory}
+        subprocess.run(
+            [sys.executable, str(ROOT / "tools/generate_architecture_probe_assets.py"), "--check"],
+            cwd=ROOT,
+            env=env,
+            check=True,
+        )
+    snapshot = __import__("json").loads(
+        (ASSETS / "snapshot-json.json").read_text(encoding="utf-8")
+    )
+    parallel = snapshot["parallel_execution"]
+    assert parallel["default_workers"] == 8
+    assert parallel["processor_cores"] == {
+        "physical": 8,
+        "virtual": 8,
+        "available": 8,
+        "default_workers": 8,
+    }
+
+
 def test_generator_uses_manifest_isolation_and_portable_home_token() -> None:
     source = (ROOT / "tools/generate_architecture_probe_assets.py").read_text(encoding="utf-8")
     assert "_canonical_reference_tree" in source
@@ -56,6 +86,10 @@ def test_generator_uses_manifest_isolation_and_portable_home_token() -> None:
     assert "TemporaryDirectory" in source
     assert '"os.get_terminal_size"' in source
     assert "side_effect=OSError" in source
+    assert "CANONICAL_PROCESSOR_CORES = 8" in source
+    assert '"os.cpu_count"' in source
+    assert '"os.process_cpu_count"' in source
+    assert '"os.sched_getaffinity"' in source
     prompt = (ASSETS / "prompt-session-json.json").read_text(encoding="utf-8")
     assert "@@RETA_HOME@@/.ReTaPromptHistory" in prompt
     assert "/home/oai" not in prompt

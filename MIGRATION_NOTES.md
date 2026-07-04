@@ -1,3 +1,9 @@
+# Migration Notes – Stage 12c5am
+
+- Unveränderliche Architektursnapshots dürfen keine Hardwareinventur enthalten. Reale Parallelität bleibt dynamisch, der katalogisierte Architekturvertrag verwendet dagegen acht kanonische Kerne.
+- `retaPrompt.py` wird nicht als zweiter interaktiver Controller nachgebaut. Seine historische Oberfläche ist eine typisierte Fassade; beobachtbare Terminal-/Prozess-I/O bleibt beim einzigen Besitzer `prompt_main.mojo`.
+- `generated_columns.py` erhält keine zweite Algorithmuskopie. Eine typisierte Request-/Result-Grenze ersetzt nur das dynamische `Concat`-Objekt und ruft die vorhandene native Pipeline in historischer Reihenfolge auf.
+
 # Migration Notes – Stage 12c5ae
 
 - Der Python-`ProgramWorkflowBundle` wird jetzt durch einen besitzenden Mojo-Wert mit expliziten Zwischenresultaten ersetzt.
@@ -1186,3 +1192,9 @@ Vier vollständig native Diagnoseoberflächen teilen seit Stage 12c5z eine versi
   berücksichtigt.
 - Fortschrittsmetriken sind monoton statt bei jeder Stage manuell exakt.
 - Die vollständige Mojo-Testsuite verwendet den portablen Runtimewrapper.
+
+## Stage 12c5an
+
+- `mojo_bridge.py` wird nicht mehr als eingebettete Python-Brücke benötigt; seine 15 öffentlichen Namen und 19 Funktionsdefinitionen besitzen eine native Mojo-Fassade.
+- TTY/History/Completion, externe Befehle und HTML-Gesamtseite sind klar getrennte Besitzer. Nicht vollständig portierte `reta.py`-/Promptpfade bleiben als explizite Kindprozesse sichtbar.
+- `parameter_runtime.py` mutiert kein heterogenes Program-Objekt mehr. Spalten-, Breiten-, Parameter- und Obergrenzenauswertung liefern typisierte Planwerte.

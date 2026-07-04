@@ -68,7 +68,11 @@ def test_parameter_groups_and_pair_storage_match_python_order() raises:
         ParameterEntry(["Religionen"], ["Zeta", "zeta"], [9])
     )
     schema.parameter_entries.append(
-        ParameterEntry(["Religionen"], ["Alpha", "alpha"], [1])
+        ParameterEntry(
+            ["Religionen"],
+            ["Alpha", "Größe", "groesse", "gross", "größe"],
+            [1],
+        )
     )
     schema.parameter_entries.append(
         ParameterEntry(["Religionen"], ["Mitte", "mitte"], [5])
@@ -78,6 +82,10 @@ def test_parameter_groups_and_pair_storage_match_python_order() raises:
     var groups = parameter_alias_groups_for_main(sheaf, "religionen")
     assert_equal(len(groups), 3)
     assert_equal(groups[0].parameter_canonical, "Alpha")
+    assert_equal(groups[0].aliases[1], "Größe")
+    assert_equal(groups[0].aliases[2], "groesse")
+    assert_equal(groups[0].aliases[3], "gross")
+    assert_equal(groups[0].aliases[4], "größe")
     assert_equal(groups[1].parameter_canonical, "Mitte")
     assert_equal(groups[2].parameter_canonical, "Zeta")
     assert_equal(len(sheaf.pair_to_columns), 3)

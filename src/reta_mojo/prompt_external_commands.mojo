@@ -272,6 +272,16 @@ def run_reta_line_native(
     return _run_reference_python_script("reta.py", arguments, reference_root)
 
 
+def run_reta_prompt_arguments_native(
+    arguments: List[String],
+    reference_root: String = "python_reference",
+) raises -> Int:
+    """Run historical ``retaPrompt.py`` with an already-tokenized argument list."""
+    return _run_reference_python_script(
+        "retaPrompt.py", arguments, reference_root
+    )
+
+
 def run_reta_prompt_fallback_native(
     profile_arguments: List[String],
     line: String,

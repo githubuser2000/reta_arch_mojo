@@ -151,13 +151,14 @@ def test_table_output_owner_is_complete() -> None:
     assert mapping["reta_architecture/table_output.py"][0] == "nativ"
 
 
-def test_generated_columns_owner_is_widely_native() -> None:
+def test_generated_columns_owner_is_fully_native() -> None:
     mapping = _load_module().native_mapping()
     status, owner, note = mapping["reta_architecture/generated_columns.py"]
-    assert status == "weitgehend nativ"
+    assert status == "nativ"
     assert "generated_columns.mojo" in owner
     assert "prime_universe_columns.mojo" in owner
-    assert "vollständige typisierte Registry" in note
+    assert "generated_columns_integration.mojo" in owner
+    assert "GeneratedColumnsApplicationRequest" in note
 
 
 def test_native_architecture_probe_is_in_the_authoritative_mapping() -> None:

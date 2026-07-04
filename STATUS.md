@@ -1,3 +1,21 @@
+# Status – Stage 12c5an
+
+- `mojo_bridge.py` besitzt jetzt eine vollständige native 15-Namen-/19-Funktionen-Kompatibilitätsoberfläche. TTY, Completion und HTML sind direkte Mojo-Besitzer; nur noch nicht vollständig portierte `reta.py`-/Promptfälle verwenden den bereits expliziten Mojo-Kindprozessrand.
+- Die HTML-Gesamtseitenlogik liegt einmalig in `html_document.mojo`; `generate_html_main.mojo` und die Bridge teilen denselben nativen Mittelteil-/Asset-/stdout-Vertrag.
+- `reta_architecture/parameter_runtime.py` ist vollständig nativ: `produce_all_spalten_numbers`, `apply_width_parameter` und `parameters_to_commands_and_numbers` sind typisierte Adapter über `ParameterRuntimePlan`, ohne dynamisches Program-Objekt oder Lazy-Pythonimporte.
+- vollständig nativ/generiert: **83/92 = 90,2 %**; mindestens teilweise: **86/92 = 93,5 %**; angegriffene Referenzzeilen: **46.561/48.831 = 95,4 %**; vollständig native Referenzzeilen: **43.122/48.831 = 88,3 %**.
+- Portable Prüfung: **219 Source-Vertragstests bestanden, 1 Skip**; zusätzliche fokussierte Gruppen **49/49** und **25/25**. Defektkatalog bleibt **120**, Python-Bereinigungspunkte **19**.
+- Fokussierter lokaler Compilerlauf: `scripts/test_stage12c5an.sh`; vollständiger fail-fast Ablauf: `./do.sh 12c5an`.
+
+# Status – Stage 12c5am
+
+- Der lokal gemeldete 12c5al-Assetfehler ist vollständig lokalisiert: Nur `parallel_execution` im Gesamtsnapshot übernahm die Host-Prozessorkernzahl. Der Generator importiert die Referenzarchitektur nun unter acht kanonischen Kernen; `snapshot-json.json` und `manifest.tsv` sind damit rechnerunabhängig (`TEST-FIXED-043`).
+- `retaPrompt.py` besitzt eine vollständige native 55-Namen-Besitzerfassade. Mutable Importzeit-Globals sind in `LegacyRetaPromptBundle` zusammengeführt; Sitzungs-, Speicher-, Lösch-, Eingabe-, Sprach- und Scope-Grenzen delegieren an bestehende native Besitzer.
+- `reta_architecture/generated_columns.py` ist vollständig nativ besessen: Die frühere heterogene `Concat`-Mutation ist durch `GeneratedColumnsApplicationRequest` und `GeneratedTableResult` ersetzt; alle zehn Morphismen bleiben bei ihren vorhandenen nativen Algorithmusbesitzern.
+- vollständig nativ/generiert: **82/92 = 89,1 %**; mindestens teilweise: **86/92 = 93,5 %**; angegriffene Referenzzeilen: **46.561/48.831 = 95,4 %**; vollständig native Referenzzeilen: **42.228/48.831 = 86,5 %**.
+- Portable Prüfung: **211 Source-Vertragstests bestanden, 1 Skip**; fokussierte Stage-/Infrastrukturgruppe **88/88**; Defektkatalog **120**, Python-Bereinigungspunkte **19**.
+- Fokussierter lokaler Compilerlauf: `scripts/test_stage12c5am.sh`; vollständiger fail-fast Ablauf: `./do.sh 12c5am`.
+
 # Status – Stage 12c5al
 
 - `i18n/words_legacy_monolith.py` ist vollständig generiert nativ: fünf Sprachen, 68/70 öffentliche Wurzeln, acht Klassen, vier Funktionen und 6.718/6.720 Zeilen je Sprachkatalog.

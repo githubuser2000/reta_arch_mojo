@@ -332,8 +332,8 @@ def build_parameter_semantics(schema: RetaContextSchema) -> ParameterSemanticsSh
                     )
             _sort_ints(pair_columns[pair_index].columns)
 
-    for index in range(len(parameter_groups)):
-        _sort_strings(parameter_groups[index].aliases)
+    # Preserve Python alias insertion order inside each canonical group.
+    # Only groups themselves are sorted canonically; aliases are observable.
     _sort_parameter_groups(parameter_groups)
     _sort_pair_columns(pair_columns)
 

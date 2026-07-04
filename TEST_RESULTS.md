@@ -1,3 +1,43 @@
+# Stage 12c5an
+
+```text
+mojo_bridge-Oberfläche:                    15 öffentliche Namen
+mojo_bridge-Funktionen:                    19 Definitionen
+Parameter-Runtime:                          8 Modulfunktionsgrenzen
+Source-Vertragstests:                     219 bestanden, 1 Skip
+fokussierte Bridge-/Parametergruppe:       49/49 bestanden
+Paket-/Import-/Boundary-Gruppe:             25/25 bestanden
+vollständig nativ/generiert:               83/92 = 90,2 %
+vollständig native Referenzzeilen:         43.122/48.831 = 88,3 %
+```
+
+`generate_html_main.mojo` und die historische Bridge teilen jetzt
+`html_document.mojo`; dadurch existiert nur noch ein nativer Besitzer der
+Gesamtseitenorchestrierung. Der echte Modular-Nachweis erfolgt lokal mit
+`scripts/test_stage12c5an.sh` beziehungsweise `./do.sh 12c5an`.
+
+# Stage 12c5am
+
+```text
+Host-unabhängige Architekturassets:          63/63 identisch
+kanonische Snapshot-Prozessorkerne:          8/8/8
+retaPrompt-Oberfläche:                       55 Namen
+Generated-Columns-Registry:                  10 Morphismen
+Source-Vertragstests:                       211 bestanden, 1 Skip
+fokussierte Stage-/Infrastrukturtests:        88/88 bestanden
+Defektkatalog:                               120 Einträge
+vollständig nativ/generiert:                 82/92 = 89,1 %
+mindestens teilweise portiert:               86/92 = 93,5 %
+angegriffene Referenzzeilen:                  46.561/48.831 = 95,4 %
+vollständig native Referenzzeilen:            42.228/48.831 = 86,5 %
+```
+
+Der 12c5al-Build war vollständig erfolgreich; der Stage-Test scheiterte nur an
+hostabhängigen Prozessorzahlen im Gesamtsnapshot. Ein künstlicher
+`sitecustomize`-Störtest meldet andere CPU-Zahlen, ohne die 63 Assets zu ändern.
+Der echte Mojo-Nachweis der beiden neuen Besitzerfassaden erfolgt lokal mit
+`scripts/test_stage12c5am.sh` beziehungsweise `./do.sh 12c5am`.
+
 # Stage 12c5al
 
 ```text
