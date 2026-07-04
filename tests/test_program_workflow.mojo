@@ -88,5 +88,34 @@ def test_program_workflow_loads_and_pads_religion_table() raises:
     assert_equal(loaded.table.rows[2][1], '<x & "y">')
 
 
+def test_complete_typed_owner_replaces_dynamic_program_graph() raises:
+    var bundle = configure_program_workflow(
+        ".",
+        ProgramWorkflowI18n("art", "bbcode", "html", "de"),
+        default_program_workflow_csv_names(),
+        1025,
+    )
+    var args = List[String]()
+    args.append("reta")
+    args.append("--art=html")
+    var parameters = bundle._read_positive_and_negative_parameters(args, 32, 16)
+    assert_equal(parameters.runtime.output_mode, "html")
+    assert_equal(len(parameters.param_lines_not), 0)
+    var flags = bundle._reset_runtime_flags(parameters.runtime.width)
+    assert_false(flags.html_or_bbcode)
+    assert_false(flags.width_was_set)
+    var generation_plan = table_generation_plan_from_runtime(
+        parameters.runtime, [0, 1, 2], "de"
+    )
+    assert_equal(generation_plan.output_mode, "html")
+    assert_equal(generation_plan.displaying_rows, [0, 1, 2])
+    var first = bundle.combi_table_workflow(
+        bundle.csv_names.kombi13, 40, 3, 5
+    )
+    assert_true(first.valid)
+    assert_equal(first.csv_number, 0)
+    assert_equal(bundle.snapshot().methods, 11)
+
+
 def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()

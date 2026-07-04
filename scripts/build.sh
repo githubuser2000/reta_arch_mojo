@@ -5,21 +5,53 @@ cd "$ROOT"
 TARGET_DIR=${RETA_TARGET_DIR:-"$ROOT/target/bin"}
 TARGET_ROOT=$(dirname -- "$TARGET_DIR")
 RUNTIME_LINK_DIR=${RETA_MOJO_RUNTIME_LINK_DIR:-"$TARGET_ROOT/lib/mojo"}
+MOJO=${MOJO_BIN:-"$ROOT/bin/mojo-real"}
 mkdir -p "$TARGET_DIR" "$RUNTIME_LINK_DIR"
 MOJO_RUNTIME_RPATH='$ORIGIN/../lib/mojo'
+BUILD_SOURCE_ID=${RETA_BUILD_SOURCE_ID:-$("$ROOT/scripts/current_source_id.sh")}
 RETA_MOJO_RUNTIME_LINK_DIR="$RUNTIME_LINK_DIR" \
     "$ROOT/scripts/configure_mojo_runtime.sh" >/dev/null
+
+ACTIVE_TMP=
+cleanup_tmp() {
+    [ -n "$ACTIVE_TMP" ] || return 0
+    rm -f "$ACTIVE_TMP" "$ACTIVE_TMP.reta-source-id"
+}
+trap cleanup_tmp EXIT HUP INT TERM
 
 build() {
     source_file=$1
     output_name=$2
     shift 2
+    final_output="$TARGET_DIR/$output_name"
+    ACTIVE_TMP="$TARGET_DIR/.${output_name}.tmp.$$"
+    rm -f "$ACTIVE_TMP" "$ACTIVE_TMP.reta-source-id"
     printf 'Kompiliere %-35s -> %s\n' "$source_file" "$output_name"
-    "$ROOT/bin/mojo-real" build "$@" "$source_file" \
+    if "$MOJO" build "$@" "$source_file" \
         -Xlinker -rpath -Xlinker "$MOJO_RUNTIME_RPATH" \
-        -o "$TARGET_DIR/$output_name"
-    python3 "$ROOT/tools/sanitize_mojo_runpath.py" "$TARGET_DIR/$output_name" >/dev/null
-    "$ROOT/scripts/stamp_mojo_binary.sh" "$TARGET_DIR/$output_name"
+        -o "$ACTIVE_TMP"; then
+        :
+    else
+        compiler_status=$?
+        cleanup_tmp
+        ACTIVE_TMP=
+        return "$compiler_status"
+    fi
+    python3 "$ROOT/tools/sanitize_mojo_runpath.py" "$ACTIVE_TMP" >/dev/null
+    file -b "$ACTIVE_TMP" | grep -q '^ELF 64-bit' || {
+        printf 'Compiler erzeugte kein gültiges 64-Bit-ELF: %s\n' "$ACTIVE_TMP" >&2
+        cleanup_tmp
+        ACTIVE_TMP=
+        return 1
+    }
+    RETA_BUILD_SOURCE_ID="$BUILD_SOURCE_ID" \
+        "$ROOT/scripts/stamp_mojo_binary.sh" "$ACTIVE_TMP"
+
+    # Publish only a completely compiled, sanitised and stamped artifact.  A
+    # failed compiler invocation leaves the previous known-good binary intact.
+    mv -f "$ACTIVE_TMP" "$final_output"
+    mv -f "$ACTIVE_TMP.reta-source-id" "$final_output.reta-source-id"
+    ACTIVE_TMP=
 }
 
 build src/main.mojo reta-mojo-native -I src
@@ -31,7 +63,12 @@ build src/architecture_exports_main.mojo reta-mojo-exports -I src
 build src/architecture_facade_main.mojo reta-mojo-facade -I src
 build src/program_workflow_main.mojo reta-mojo-workflow -I src
 build src/sheaves_main.mojo reta-mojo-sheaves -I src
-"$ROOT/scripts/build_diagnostics_shared.sh"
+RETA_TARGET_DIR="$TARGET_DIR" \
+RETA_TARGET_LIB_DIR="$TARGET_ROOT/lib/reta" \
+RETA_MOJO_RUNTIME_LINK_DIR="$RUNTIME_LINK_DIR" \
+MOJO_BIN="$MOJO" \
+RETA_BUILD_SOURCE_ID="$BUILD_SOURCE_ID" \
+    "$ROOT/scripts/build_diagnostics_shared.sh"
 if [ "${RETA_BUILD_STANDALONE_DIAGNOSTICS:-0}" = 1 ]; then
     build src/table_generation_main.mojo reta-mojo-table-generation -I src
     build src/output_syntax_main.mojo reta-mojo-output-syntax -I src
@@ -48,6 +85,9 @@ build src/grundstruk_html_main.mojo grundStrukHtml-native -I src
 build src/generate_html_main.mojo generate-html-native -I src
 build src/generate_readme_main.mojo generate-readme-native -I src
 build src/extract_html_classes_main.mojo reta-extract-html-classes-native -I src
+
+trap - EXIT HUP INT TERM
+cleanup_tmp
 
 printf '\nKompilierte Mojo-Executables:\n'
 for executable in "$TARGET_DIR"/*; do

@@ -6,24 +6,29 @@ if [ "$#" -ne 1 ]; then
     exit 2
 fi
 BINARY=$1
-MANIFEST=${RETA_SOURCE_MANIFEST:-"$ROOT/SOURCE_MANIFEST.sha256"}
-# Installed trees need not carry the development manifest.
-[ -f "$MANIFEST" ] || exit 0
+TARGET_DIR=${RETA_TARGET_DIR:-"$ROOT/target/bin"}
+TARGET_ROOT=$(dirname -- "$TARGET_DIR")
+TARGET_LIB_DIR=${RETA_TARGET_LIB_DIR:-"$TARGET_ROOT/lib/reta"}
 case "$BINARY" in
-    "$ROOT"/target/bin/*) ;;
+    "$TARGET_DIR"/*|"$TARGET_LIB_DIR"/*) ;;
     *) exit 0 ;;
 esac
-CURRENT=$("$ROOT/scripts/current_source_id.sh")
+
+# Installed trees intentionally do not contain src/.  Their artifacts were
+# checked before installation and therefore need no development-tree guard.
+CURRENT=${RETA_CURRENT_SOURCE_ID:-$("$ROOT/scripts/current_source_id.sh" 2>/dev/null || true)}
+[ -n "$CURRENT" ] || exit 0
 REBUILD_COMMAND=${RETA_REBUILD_COMMAND:-scripts/build.sh}
 STAMP=$BINARY.reta-source-id
 if [ ! -f "$STAMP" ] || [ "$(sed -n '1p' "$STAMP")" != "$CURRENT" ]; then
     printf '%s\n' \
         "Veraltetes oder unmarkiertes Mojo-Binary: $BINARY" \
-        "Der Quellstand wurde nach diesem Build ausgetauscht." \
+        "Quellen oder Buildrezept stimmen nicht mit diesem Binary überein." \
         "Bitte neu kompilieren: $REBUILD_COMMAND" >&2
     exit 78
 fi
-if find "$ROOT/src" -type f -newer "$BINARY" -print -quit 2>/dev/null | grep -q .; then
+if [ -d "$ROOT/src" ] && \
+   find "$ROOT/src" -type f -newer "$BINARY" -print -quit 2>/dev/null | grep -q .; then
     printf '%s\n' \
         "Mojo-Quellen sind neuer als das Binary: $BINARY" \
         "Bitte neu kompilieren: $REBUILD_COMMAND" >&2

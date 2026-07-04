@@ -1,3 +1,21 @@
+# Status – Stage 12c5af
+
+- Der gemeldete Kompilierablauf war durch `do.sh` falsch bewertet: `[ "echo $?" == "0" ]` prüfte keinen Exitstatus. Der Ablauf verwendet jetzt `set -eu` und committet erst nach Build und Tests.
+- Reguläre, schwere und Shared-Diagnostics-Ziele werden unter temporären Namen gebaut, als ELF geprüft, sanitisiert und erst danach veröffentlicht. Ein Fehlschlag bewahrt das vorige Binary und den ursprünglichen Compilerstatus.
+- Der globale Heavy-`EXIT`-Sanitizer ist entfernt; er konnte zuvor nach einem Abbruch alte ELF-Dateien berühren.
+- Frischemarken beruhen nun auf Live-Inhalt von Mojo-Quellen, Assets und Buildrezepten statt allein auf einem möglicherweise nicht aktualisierten Release-Manifest.
+- `build-all.sh` prüft nach dem Kompilieren sämtliche 20 regulären und 18 schweren Executables sowie die Shared Library. `install.sh` verweigert vorhandene veraltete oder unmarkierte Ziele.
+- Inkrementelles Kompilieren bleibt bewusst deaktiviert. Fokussiert bestätigt: **210 Source-/Infrastrukturtests bestanden, 1 Skip**, atomare reguläre/Heavy-Abbruchpfade und Shared-Paarbildung bestanden; Defektkatalog **113**.
+
+# Status – Stage 12c5ae
+
+- `scripts/test_all.sh` verknüpft Persistenztests gezielt mit `sqlite3` und `crypto` sowie Paketintegrität mit `crypto`; alle anderen Ziele bleiben ohne unnötige Systembibliotheken.
+- `test_table_runtime_complete.mojo` importiert die drei historischen Unterstrich-Helfer explizit; Sternimporte blenden solche Namen in Mojo absichtlich aus.
+- `reta_architecture/program_workflow.py` ist vollständig nativ: elf Methoden, I18n, Parameterplan, Religionstabelle, Anzeigeauswahl, Spaltenschema, Tabellengenerierung, Kombi-Pläne und Renderergrenze sind explizit typisiert.
+- Doppelte lokale Deklarationen in `table_generation.mojo` und `program_workflow.mojo` wurden entfernt.
+- vollständig nativ/generiert: **77/92 = 83,7 %**; vollständig native Referenzzeilen: **33.809/48.831 = 69,2 %**; mindestens teilweise: **83/92 = 90,2 %**; produktive Mojo-Zeilen: **59.240**, davon **54.683** in `src/reta_mojo`.
+- portable Source-Tests: **179 bestanden, 1 Skip**; fokussierte Infrastruktur: **67/67**; lokaler Compilerlauf: `scripts/test_stage12c5ae.sh`; vollständige Suite danach erneut mit `scripts/test_all.sh`; Defektkatalog **111**, relative Mojo-Importe **302**, Manifest **1.420 Dateien / 114 Symlinks**.
+
 # Status – Stage 12c5ad
 
 - Der lokale 12c5ac-Lauf bestätigte Shared Diagnostics, Legacy Prepare, `LegacyPromptMapEntry` und die vollständige PromptPreparation-Fassade. Der einzige Python-Fehler war ein veralteter exakter Fortschrittswert; Fortschritt wird nun monoton plus Besitzerassertion geprüft (`TEST-FIXED-033`).

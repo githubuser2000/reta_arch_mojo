@@ -1,7 +1,14 @@
 from std.collections import List, Set
 from std.testing import assert_equal, assert_false, assert_true, TestSuite
 from reta_mojo.csv_table import parse_semicolon_csv
-from reta_mojo.table_runtime import *
+from reta_mojo.table_runtime import (
+    Tables,
+    _concat_class,
+    _get_text_wrap_things,
+    _prepare_class,
+    bootstrap_table_runtime,
+    table_reduced_in_lines_by_type_set,
+)
 from reta_mojo.table_state import bootstrap_table_state
 
 

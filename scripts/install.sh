@@ -103,6 +103,7 @@ install -m 0755 "$ROOT/scripts/select_reference_python.sh" \
 
 rm -rf "$STAGE_LIBEXECDIR/target/bin"
 install -d "$STAGE_LIBEXECDIR/target/bin"
+CURRENT_SOURCE_ID=$("$ROOT/scripts/current_source_id.sh")
 INSTALLED_TARGETS=0
 while IFS= read -r name || [ -n "$name" ]; do
     case "$name" in
@@ -110,12 +111,22 @@ while IFS= read -r name || [ -n "$name" ]; do
     esac
     executable="$TARGETDIR/$name"
     [ -f "$executable" ] || continue
+    RETA_TARGET_DIR="$TARGETDIR" \
+    RETA_TARGET_LIB_DIR="$TARGETLIBDIR" \
+    RETA_REBUILD_COMMAND=scripts/build-all.sh \
+    RETA_CURRENT_SOURCE_ID="$CURRENT_SOURCE_ID" \
+        "$ROOT/scripts/check_mojo_binary_freshness.sh" "$executable"
     install -m 0755 "$executable" "$STAGE_LIBEXECDIR/target/bin/$name"
     INSTALLED_TARGETS=$((INSTALLED_TARGETS + 1))
 done < "$ROOT/scripts/install_targets.txt"
 
 INSTALLED_LIBRARIES=0
 if [ "$INSTALL_DIAGNOSTICS" = 1 ]; then
+    RETA_TARGET_DIR="$TARGETDIR" \
+    RETA_TARGET_LIB_DIR="$TARGETLIBDIR" \
+    RETA_REBUILD_COMMAND=scripts/build.sh \
+    RETA_CURRENT_SOURCE_ID="$CURRENT_SOURCE_ID" \
+        "$ROOT/scripts/check_mojo_binary_freshness.sh" "$DIAGNOSTICS_LIBRARY"
     install -m 0755 "$DIAGNOSTICS_LIBRARY" \
         "$STAGE_LIBEXECDIR/target/lib/reta/libreta-mojo-diagnostics.so"
     install -m 0644 "$DIAGNOSTICS_LIBRARY.reta-source-id" \

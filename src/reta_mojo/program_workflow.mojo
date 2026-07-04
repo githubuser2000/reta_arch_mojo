@@ -8,7 +8,7 @@ language-specific motive-column replacement, runtime-flag reset, kombi-branch
 planning and the ordered orchestration graph.
 """
 
-from std.collections import List
+from std.collections import List, Set
 from std.collections.string import atol
 
 from .csv_table import CsvTable, read_semicolon_csv, read_text_file
@@ -21,6 +21,15 @@ from .parallel_execution import (
     parallel_config_from_environment,
 )
 from .resource_paths import asset_resource, csv_resource
+from .parameter_runtime import ParameterRuntimePlan, build_parameter_runtime_plan
+from .column_selection import ColumnSelectionBundle, bootstrap_column_selection
+from .row_filtering import RowFilterConfig
+from .table_preparation import DisplaySelection, select_display_lines
+from .table_generation import (
+    TableGenerationPlan,
+    TableGenerationResult,
+    bootstrap_table_generation,
+)
 
 
 @fieldwise_init
@@ -84,6 +93,50 @@ struct KombiWorkflowPlan(Copyable):
 
 
 @fieldwise_init
+struct ProgramWorkflowI18n(Copyable):
+    var art_parameter: String
+    var bbcode_value: String
+    var html_value: String
+    var language: String
+
+
+def default_program_workflow_i18n() -> ProgramWorkflowI18n:
+    return ProgramWorkflowI18n("art", "bbcode", "html", "de")
+
+
+@fieldwise_init
+struct ProgramWorkflowParameterReadResult(Copyable):
+    var runtime: ParameterRuntimePlan
+    var param_lines: List[String]
+    var param_lines_not: List[String]
+    var explicit_order_requested: Bool
+    var explicit_positions: List[Int]
+
+
+@fieldwise_init
+struct ProgramWorkflowBeginResult(Copyable):
+    var religion: ProgramWorkflowReligionTable
+    var flags: ProgramWorkflowFlags
+    var parameters: ProgramWorkflowParameterReadResult
+    var display_selection: DisplaySelection
+    var column_selection: ColumnSelectionBundle
+    var generation: TableGenerationResult
+
+
+@fieldwise_init
+struct ProgramWorkflowExecutionResult(Copyable):
+    var begin: ProgramWorkflowBeginResult
+    var first_kombi: KombiWorkflowPlan
+    var second_kombi: KombiWorkflowPlan
+    var final_table: CsvTable
+    var final_display_lines: List[Int]
+    var selected_columns: List[Int]
+    var output_mode: String
+    var render_owner: String
+    var orchestration_steps: List[String]
+
+
+@fieldwise_init
 struct ProgramWorkflowSnapshot(Copyable):
     var class_name: String
     var repo_root: String
@@ -99,9 +152,176 @@ struct ProgramWorkflowSnapshot(Copyable):
 @fieldwise_init
 struct ProgramWorkflowBundle(Copyable):
     var repo_root: String
+    var i18n: ProgramWorkflowI18n
     var csv_names: ProgramWorkflowCsvNames
     var gebrochen_spalten_maximum_plus1: Int
     var catalog: ProgramWorkflowCatalog
+
+    def _csv_path(self, csv_file_name: String) -> String:
+        return program_workflow_csv_path(csv_file_name)
+
+    def _decode_religion_cell(
+        self, cell: String, output_kind: String
+    ) raises -> String:
+        return decode_religion_cell(cell, output_kind)
+
+    def _requested_religion_output_kind(
+        self, argv: List[String]
+    ) -> String:
+        return requested_religion_output_kind(
+            argv,
+            self.i18n.art_parameter,
+            self.i18n.bbcode_value,
+            self.i18n.html_value,
+        )
+
+    def _load_religion_table(
+        self,
+        argv: List[String],
+        highest_row: Int,
+        config: ParallelExecutionConfig = parallel_config_from_environment(),
+    ) raises -> ProgramWorkflowReligionTable:
+        return load_program_workflow_religion_table(
+            self.csv_names.religion,
+            self._requested_religion_output_kind(argv),
+            highest_row,
+            config,
+        )
+
+    def _apply_language_specific_motive_column(
+        self, table: CsvTable, language: String = ""
+    ) raises -> CsvTable:
+        var active_language = language if language.byte_length() > 0 else self.i18n.language
+        return apply_language_specific_motive_column(
+            table, self.csv_names, active_language
+        )
+
+    def _reset_runtime_flags(self, text_width: Int = 21) -> ProgramWorkflowFlags:
+        return reset_program_workflow_flags(text_width)
+
+    def _read_positive_and_negative_parameters(
+        self,
+        argv: List[String],
+        maximum_columns: Int,
+        maximum_rows: Int,
+    ) raises -> ProgramWorkflowParameterReadResult:
+        var runtime = build_parameter_runtime_plan(
+            argv, maximum_columns, maximum_rows
+        )
+        return ProgramWorkflowParameterReadResult(
+            runtime.copy(),
+            runtime.positive_rows.copy(),
+            runtime.negative_rows.copy(),
+            runtime.explicit_order_requested,
+            runtime.explicit_positions.copy(),
+        )
+
+    def bring_all_important_begin_things(
+        self,
+        argv: List[String],
+        maximum_columns: Int,
+        maximum_rows: Int,
+        highest_row: Int,
+        language: String = "",
+        config: ParallelExecutionConfig = parallel_config_from_environment(),
+    ) raises -> ProgramWorkflowBeginResult:
+        var loaded = self._load_religion_table(argv, highest_row, config)
+        var table = self._apply_language_specific_motive_column(
+            loaded.table, language
+        )
+        loaded.table = table.copy()
+        var parameters = self._read_positive_and_negative_parameters(
+            argv,
+            maximum_columns if maximum_columns > 0 else table.maximum_columns,
+            maximum_rows,
+        )
+        var filter_config = RowFilterConfig(
+            parameters.runtime.highest,
+            min(parameters.runtime.highest, 163),
+            len(parameters.param_lines) > 0 or len(parameters.param_lines_not) > 0,
+        )
+        var selection = select_display_lines(
+            filter_config,
+            table,
+            parameters.param_lines,
+            parameters.param_lines_not,
+        )
+        var generation_plan = table_generation_plan_from_runtime(
+            parameters.runtime,
+            _sorted_workflow_rows(selection.rows),
+            language if language.byte_length() > 0 else self.i18n.language,
+        )
+        var generation = bootstrap_table_generation().build_for_program(
+            table, generation_plan
+        )
+        return ProgramWorkflowBeginResult(
+            loaded^,
+            self._reset_runtime_flags(parameters.runtime.width),
+            parameters^,
+            selection^,
+            bootstrap_column_selection(),
+            generation^,
+        )
+
+    def combi_table_workflow(
+        self,
+        csv_file_name: String,
+        new_table_columns: Int,
+        rows_of_combi: Int,
+        rows_of_combi2: Int,
+    ) -> KombiWorkflowPlan:
+        return plan_kombi_workflow(
+            csv_file_name,
+            self.csv_names,
+            new_table_columns,
+            rows_of_combi,
+            rows_of_combi2,
+        )
+
+    def workflow_everything(
+        self,
+        argv: List[String],
+        maximum_columns: Int,
+        maximum_rows: Int,
+        highest_row: Int,
+        language: String = "",
+        config: ParallelExecutionConfig = parallel_config_from_environment(),
+    ) raises -> ProgramWorkflowExecutionResult:
+        var begin = self.bring_all_important_begin_things(
+            argv,
+            maximum_columns,
+            maximum_rows,
+            highest_row,
+            language,
+            config,
+        )
+        var columns = begin.generation.table.maximum_columns
+        var first = self.combi_table_workflow(
+            self.csv_names.kombi13,
+            columns,
+            len(begin.generation.rows_of_combi),
+            len(begin.generation.rows_of_combi2),
+        )
+        var second = self.combi_table_workflow(
+            self.csv_names.kombi15,
+            columns,
+            len(begin.generation.rows_of_combi),
+            len(begin.generation.rows_of_combi2),
+        )
+        return ProgramWorkflowExecutionResult(
+            begin.copy(),
+            first^,
+            second^,
+            begin.generation.table.copy(),
+            _sorted_workflow_rows(begin.display_selection.rows),
+            begin.generation.output_columns.copy(),
+            begin.parameters.runtime.output_mode.copy(),
+            "TableOutput",
+            program_workflow_steps(self.catalog),
+        )
+
+    def snapshot(self) -> ProgramWorkflowSnapshot:
+        return program_workflow_snapshot(self)
 
 
 def load_program_workflow_catalog(
@@ -348,6 +568,40 @@ def program_workflow_steps(
     return result^
 
 
+def _sorted_workflow_rows(values: Set[Int]) -> List[Int]:
+    var result = List[Int]()
+    for value in values:
+        result.append(value)
+    for index in range(1, len(result)):
+        var value = result[index]
+        var position = index - 1
+        while position >= 0 and result[position] > value:
+            result[position + 1] = result[position]
+            position -= 1
+        result[position + 1] = value
+    return result^
+
+
+def table_generation_plan_from_runtime(
+    runtime: ParameterRuntimePlan,
+    displaying_rows: List[Int],
+    language: String,
+) -> TableGenerationPlan:
+    return TableGenerationPlan(
+        runtime.columns.copy(),
+        runtime.modal_concepts.copy(),
+        runtime.meta_requests.copy(),
+        runtime.fraction_requests.copy(),
+        runtime.generated_commands.copy(),
+        runtime.kombi_requests.copy(),
+        displaying_rows.copy(),
+        runtime.positive_rows.copy(),
+        language,
+        runtime.output_mode.copy(),
+        runtime.highest,
+    )
+
+
 def program_workflow_snapshot(
     bundle: ProgramWorkflowBundle,
 ) -> ProgramWorkflowSnapshot:
@@ -372,6 +626,23 @@ def bootstrap_program_workflow(
 ) raises -> ProgramWorkflowBundle:
     return ProgramWorkflowBundle(
         repo_root,
+        default_program_workflow_i18n(),
+        csv_names.copy(),
+        gebrochen_spalten_maximum_plus1,
+        load_program_workflow_catalog(catalog_path),
+    )
+
+
+def configure_program_workflow(
+    repo_root: String,
+    i18n: ProgramWorkflowI18n,
+    csv_names: ProgramWorkflowCsvNames,
+    gebrochen_spalten_maximum_plus1: Int,
+    catalog_path: String = "",
+) raises -> ProgramWorkflowBundle:
+    return ProgramWorkflowBundle(
+        repo_root,
+        i18n.copy(),
         csv_names.copy(),
         gebrochen_spalten_maximum_plus1,
         load_program_workflow_catalog(catalog_path),

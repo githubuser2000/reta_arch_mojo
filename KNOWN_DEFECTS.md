@@ -23,7 +23,7 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 
 ## Übersicht
 
-- Einträge insgesamt: **108**
+- Einträge insgesamt: **113**
 - offene bestätigte Python-Fehler: **5**
 - zu entscheidende Python-Fehlerkandidaten: **13**
 - bereits im Python-Baum behobene Fehler: **7**
@@ -1480,3 +1480,69 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 - Python-Orte: `python_reference/reta_architecture/table_preparation.py:select_display_lines`, `python_reference/reta_architecture/table_preparation.py:tag_output_column`
 - Mojo-Orte: `src/reta_mojo/table_preparation.mojo:select_display_lines`, `src/reta_mojo/table_preparation.mojo:tag_output_column`, `tests/test_table_preparation_complete.mojo`
 - Belege: `STAGE12C5AD_NATIVE_TABLE_PREPARATION_RUNTIME.md`, `src/reta_mojo/table_preparation.mojo`, `tests/test_table_preparation_complete.mojo`
+
+### TEST-FIXED-035 – Gesamte Mojo-Testsuite vergaß SQLite- und SHA256-Linkerbibliotheken
+
+- Ursprung: `mojo_tests`
+- Klasse / Schwere: `test_build_link_contract` / `high`
+- Python-Status: `not_applicable`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5ae`
+- Reproduktion: `scripts/test_all.sh bis tests/test_execution_network_persistence.mojo ausführen; der Linker meldete undefinierte Referenzen auf sqlite3_* und SHA256.`
+- heutiger Vertrag: test_all.sh ordnet Linkerflags pro Testziel zu: Persistenz erhält -lsqlite3 -lcrypto, Paketintegrität -lcrypto und alle übrigen Tests keine Zusatzbibliotheken.
+- spätere Python-Aktion: Keine Python-Änderung erforderlich; dies war ausschließlich ein Test-Buildvertrag.
+- Mojo-Orte: `scripts/test_all.sh`, `tests/test_test_all_link_flags.py`
+- Belege: `STAGE12C5AE_TEST_ALL_LINKING_PROGRAM_WORKFLOW.md`, `scripts/test_all.sh`, `tests/test_test_all_link_flags.py`
+
+### TEST-FIXED-036 – TableRuntime-Test erwartete private Unterstrichnamen aus einem Sternimport
+
+- Ursprung: `mojo_tests`
+- Klasse / Schwere: `test_import_visibility` / `medium`
+- Python-Status: `not_applicable`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5ae`
+- Reproduktion: `scripts/test_stage12c5ad.sh ausführen; _prepare_class, _concat_class und _get_text_wrap_things waren nach from reta_mojo.table_runtime import * unbekannt.`
+- heutiger Vertrag: Historische private Helfer werden explizit aus table_runtime importiert; die öffentliche Paketoberfläche bleibt frei von Unterstrichnamen.
+- spätere Python-Aktion: Keine Python-Änderung erforderlich.
+- Mojo-Orte: `tests/test_table_runtime_complete.mojo`, `tests/test_table_runtime_complete_source.py`
+- Belege: `STAGE12C5AE_TEST_ALL_LINKING_PROGRAM_WORKFLOW.md`, `tests/test_table_runtime_complete.mojo`, `tests/test_table_runtime_complete_source.py`
+
+### MOJO-FIXED-051 – Workflow- und Kombi-Generierung enthielten doppelte lokale Deklarationen
+
+- Ursprung: `mojo_port`
+- Klasse / Schwere: `duplicate_local_declaration` / `high`
+- Python-Status: `correct_reference`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5ae`
+- Reproduktion: `program_workflow.mojo beziehungsweise table_generation.mojo mit dem Modular-Compiler parsen; pieces und galaxy_output_columns waren jeweils zweimal im selben Gültigkeitsbereich deklariert.`
+- heutiger Vertrag: Jeder lokale Arbeitswert wird genau einmal deklariert; Source-Verträge zählen beide kritischen Deklarationen.
+- spätere Python-Aktion: Keine Python-Änderung erforderlich; die Referenz enthielt keine doppelten lokalen Deklarationen.
+- Python-Orte: `python_reference/reta_architecture/program_workflow.py`
+- Mojo-Orte: `src/reta_mojo/program_workflow.mojo`, `src/reta_mojo/table_generation.mojo`, `tests/test_program_workflow_source.py`
+- Belege: `STAGE12C5AE_TEST_ALL_LINKING_PROGRAM_WORKFLOW.md`, `src/reta_mojo/program_workflow.mojo`, `src/reta_mojo/table_generation.mojo`, `tests/test_program_workflow_source.py`
+
+### TEST-FIXED-037 – do.sh prüfte den Build-Exitstatus als literalen Text statt als Statuswert
+
+- Ursprung: `test_infrastructure`
+- Klasse / Schwere: `build_driver_exit_status` / `high`
+- Python-Status: `not_applicable`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5af`
+- Reproduktion: `./do.sh ausführen; die Bedingung [ "echo $?" == "0" ] ist unter POSIX sh ungültig beziehungsweise immer falsch und übersprang Commit und Tests auch nach erfolgreichem Build.`
+- heutiger Vertrag: do.sh verwendet set -eu. Jeder fehlgeschlagene Build oder Test beendet den Ablauf unmittelbar; git commit wird erst nach build-all, Shared-Diagnostics-Parität und test_all ausgeführt.
+- spätere Python-Aktion: Keine Python-Änderung erforderlich; dies war ein Buildtreiberfehler.
+- Mojo-Orte: `do.sh`, `tests/test_atomic_build_publication.py`
+- Belege: `STAGE12C5AF_ATOMIC_BUILD_CORRECTNESS.md`, `do.sh`, `tests/test_atomic_build_publication.py`
+
+### TEST-FIXED-038 – Heavy-Build konnte nach Abbruch alte Binaries durch globalen EXIT-Sanitizer verjüngen
+
+- Ursprung: `test_infrastructure`
+- Klasse / Schwere: `non_atomic_build_publication` / `high`
+- Python-Status: `not_applicable`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5af`
+- Reproduktion: `scripts/build-heavy.sh während eines mittleren Compilerziels abbrechen; der frühere EXIT-Trap sanitisierte anschließend den gesamten target/bin-Ordner und änderte damit auch nicht neu gebaute ELF-Dateien.`
+- heutiger Vertrag: Jedes Ziel wird unter einem temporären Namen gebaut, geprüft, sanitisiert und markiert. Erst danach wird es veröffentlicht. Alte Ziele werden bei Fehlern nicht berührt; die Inhalts-ID umfasst Quellen, Assets und Buildrezepte, und build-all verifiziert alle Ziele abschließend.
+- spätere Python-Aktion: Keine Python-Änderung erforderlich; dies war ein Fehler der nativen Buildinfrastruktur.
+- Mojo-Orte: `scripts/build-heavy.sh`, `scripts/build.sh`, `scripts/build_diagnostics_shared.sh`, `scripts/current_source_id.sh`, `scripts/test_atomic_build.sh`
+- Belege: `STAGE12C5AF_ATOMIC_BUILD_CORRECTNESS.md`, `scripts/test_atomic_build.sh`, `tests/test_atomic_build_publication.py`

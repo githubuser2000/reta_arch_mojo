@@ -51,6 +51,25 @@ HEAVY = {
 }
 
 
+
+
+def _current_source_id() -> str:
+    return subprocess.run(
+        [str(ROOT / "scripts/current_source_id.sh")],
+        cwd=ROOT,
+        text=True,
+        stdout=subprocess.PIPE,
+        check=True,
+    ).stdout.strip() + "\n"
+
+
+def _write_stub_target(path: Path, source_id: str) -> None:
+    path.write_text("#!/bin/sh\nexit 0\n", encoding="utf-8")
+    path.chmod(0o755)
+    path.with_name(path.name + ".reta-source-id").write_text(
+        source_id, encoding="utf-8"
+    )
+
 def _manifest_names() -> list[str]:
     return [
         line
@@ -67,69 +86,52 @@ def test_manifest_is_complete_unique_and_excludes_stale_debug_targets() -> None:
 
 
 def test_installer_copies_only_manifested_compiler_targets(tmp_path: Path) -> None:
-    target_dir = ROOT / "target/bin"
-    target_dir_preexisted = target_dir.exists()
-    target_dir.mkdir(parents=True, exist_ok=True)
-    created_required: list[Path] = []
+    target_dir = tmp_path / "compiled-target" / "bin"
+    target_dir.mkdir(parents=True)
+    source_id = _current_source_id()
     for name in ("reta-native", "reta-mojo-compat-bin", "generate-html-native"):
-        path = target_dir / name
-        if not path.exists():
-            path.write_text("#!/bin/sh\nexit 0\n", encoding="utf-8")
-            path.chmod(0o755)
-            created_required.append(path)
+        _write_stub_target(target_dir / name, source_id)
 
     stale = target_dir / "reta-unofficial-stale-test"
     stale.write_text("stale\n", encoding="utf-8")
     stale.chmod(0o755)
     stage = tmp_path / "stage"
-    try:
-        result = subprocess.run(
-            [str(ROOT / "scripts/install.sh")],
-            cwd=ROOT,
-            env={
-                **os.environ,
-                "DESTDIR": str(stage),
-                "PREFIX": "/usr",
-                "RETA_INSTALL_MOJO_RUNTIME": "0",
-            },
-            text=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            check=False,
-        )
-        assert result.returncode == 0, result.stderr
-        installed = stage / "usr/lib/reta/target/bin"
-        actual_targets = {
-            path.name
-            for path in installed.iterdir()
-            if path.is_file() and not path.name.endswith(".reta-source-id")
-        }
-        sidecars = {
-            path.name
-            for path in installed.iterdir()
-            if path.is_file() and path.name.endswith(".reta-source-id")
-        }
-        expected = {
-            name for name in _manifest_names() if (ROOT / "target/bin" / name).is_file()
-        }
-        assert actual_targets == expected
-        expected_sidecars = (
-            {"reta-mojo-diagnostics.reta-source-id"}
-            if "reta-mojo-diagnostics" in expected
-            else set()
-        )
-        assert sidecars == expected_sidecars
-        assert "reta-unofficial-stale-test" not in actual_targets
-        assert "reta-native-o0" not in actual_targets
-        layout = (stage / "usr/lib/reta/INSTALL_LAYOUT").read_text(encoding="utf-8")
-        assert f"compiled_targets={len(expected)}" in layout
-    finally:
-        stale.unlink(missing_ok=True)
-        for path in created_required:
-            path.unlink(missing_ok=True)
-        if not target_dir_preexisted:
-            target_dir.rmdir()
-            target_dir.parent.rmdir()
+    result = subprocess.run(
+        [str(ROOT / "scripts/install.sh")],
+        cwd=ROOT,
+        env={
+            **os.environ,
+            "DESTDIR": str(stage),
+            "PREFIX": "/usr",
+            "RETA_INSTALL_MOJO_RUNTIME": "0",
+            "RETA_TARGET_DIR": str(target_dir),
+        },
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr
+    installed = stage / "usr/lib/reta/target/bin"
+    actual_targets = {
+        path.name
+        for path in installed.iterdir()
+        if path.is_file() and not path.name.endswith(".reta-source-id")
+    }
+    sidecars = {
+        path.name
+        for path in installed.iterdir()
+        if path.is_file() and path.name.endswith(".reta-source-id")
+    }
+    expected = {
+        name for name in _manifest_names() if (target_dir / name).is_file()
+    }
+    assert actual_targets == expected
+    assert sidecars == set()
+    assert "reta-unofficial-stale-test" not in actual_targets
+    assert "reta-native-o0" not in actual_targets
+    layout = (stage / "usr/lib/reta/INSTALL_LAYOUT").read_text(encoding="utf-8")
+    assert f"compiled_targets={len(expected)}" in layout
 
 
 def test_build_layout_checks_every_regular_target() -> None:
@@ -146,19 +148,14 @@ def test_installer_places_shared_diagnostics_bundle_atomically(tmp_path: Path) -
     library_dir = target_root / "lib" / "reta"
     target_dir.mkdir(parents=True)
     library_dir.mkdir(parents=True)
+    source_id = _current_source_id()
     for name in (
         "reta-native",
         "reta-mojo-compat-bin",
         "generate-html-native",
         "reta-mojo-diagnostics",
     ):
-        path = target_dir / name
-        path.write_text("#!/bin/sh\nexit 0\n", encoding="utf-8")
-        path.chmod(0o755)
-    source_id = "install-shared-test\n"
-    (target_dir / "reta-mojo-diagnostics.reta-source-id").write_text(
-        source_id, encoding="utf-8"
-    )
+        _write_stub_target(target_dir / name, source_id)
     library = library_dir / "libreta-mojo-diagnostics.so"
     library.write_bytes(b"fake-shared-library")
     (library_dir / "libreta-mojo-diagnostics.so.reta-source-id").write_text(

@@ -315,4 +315,3 @@ Snapshotprüfungen werden ausschließlich als kurzlebige Testprogramme unter
 `target/tests` durch `scripts/test_stage12c5ad.sh` gebaut. `scripts/test_all.sh`
 baut die gesamte native Testsuite unter `target/tests-all` und startet jedes
 Programm über `bin/mojo-runtime-exec`.
-

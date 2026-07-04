@@ -1,3 +1,32 @@
+# Stage 12c5af
+
+```text
+fokussierte Source-/Infrastrukturtests: 210 bestanden, 1 Skip
+atomarer regulärer Abbruchpfad:           bestanden
+atomarer Heavy-Abbruchpfad:               bestanden
+atomare Shared-Diagnostics-Paarbildung:   bestanden
+Defektkatalog:                            113 konsistent
+```
+
+Ein C-basierter Fake-Compiler führt die echten Veröffentlichungswege aus. Beim
+zweiten regulären und schweren Ziel wird Exitstatus 9 erzwungen; das vorhandene
+Ziel bleibt jeweils bytegleich und temporäre Dateien werden entfernt. Der
+vollständige Modular-Build konnte in dieser Umgebung nicht erneut ausgeführt
+werden, weil der offizielle Compiler und Alexanders lokale Runtimepfade hier
+nicht installiert sind. Der lokale Abschlusslauf ist `scripts/test_stage12c5af.sh`.
+
+# Stage 12c5ae
+
+```text
+vollständig nativ/generiert:          77/92 = 83,7 %
+vollständig native Referenzzeilen:    33.809/48.831 = 69,2 %
+portable Source-Tests:                 179 bestanden, 1 Skip
+fokussierte Source-/Infrastrukturtests: 67/67 bestanden
+aktive std.python-Brücken:                0
+```
+
+Der fehlgeschlagene Gesamt-Testlauf war ein Buildvertrag-Fehler: Persistenz und Paketintegrität benötigen explizite Systembibliotheken. Der TableRuntime-Fehler entstand durch einen Sternimport, der Unterstrichnamen nicht exportiert. Beide Pfade sind korrigiert. `program_workflow.py` besitzt nun einen vollständigen typisierten Mojo-Gegenpart.
+
 # Stage 12c5ad
 
 ```text

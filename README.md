@@ -1,5 +1,19 @@
 # reta.arch → Mojo
 
+## Aktueller Stand 12c5af
+
+Die Produktionsbuilds bleiben bewusst vollständig statt inkrementell. Alle
+Mojo-Ziele werden nun über temporäre Dateien atomar veröffentlicht; ein
+Compilerfehler bewahrt das vorherige Binary und seinen ursprünglichen
+Exitstatus. Die Frischeprüfung hasht Live-Quellen, Assets und Buildrezepte.
+`do.sh` baut und testet vor dem Commit. Fokussierte Prüfung:
+`scripts/test_stage12c5af.sh`. Details:
+[`STAGE12C5AF_ATOMIC_BUILD_CORRECTNESS.md`](STAGE12C5AF_ATOMIC_BUILD_CORRECTNESS.md).
+
+## Aktueller Stand 12c5ae
+
+Der vollständige Testlauf verknüpft Persistenz- und SHA256-Ziele nun mit ihren erforderlichen Systembibliotheken. Der TableRuntime-Test importiert private Legacy-Helfer explizit. Zusätzlich ist `program_workflow.py` vollständig als typisierte Orchestrierung ohne heterogenen Python-Programmobjektgraph portiert. Nach `scripts/build-all.sh` zuerst `scripts/test_stage12c5ae.sh`, anschließend für die Gesamtprüfung `scripts/test_all.sh` ausführen.
+
 ## Aktueller Stand 12c5ad
 
 `table_preparation.py`, `table_runtime.py` und die vollständige Factory-/Snapshot-Oberfläche von `table_state.py` besitzen jetzt explizite typisierte Mojo-Besitzer. Der Metriktest prüft Fortschritt monoton statt mit einer bei jeder Stage veraltenden exakten Zahl. Ein kompletter Build bleibt `scripts/build-all.sh`; die fokussierte Prüfung ist `scripts/test_stage12c5ad.sh`. `scripts/test_all.sh` ist vor Releases oder nach mehreren Stages sinnvoll, nicht nach jedem kleinen Patch.

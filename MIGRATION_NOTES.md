@@ -1,4 +1,9 @@
-# Migrationsnotizen Python → Mojo
+# Migration Notes – Stage 12c5ae
+
+- Der Python-`ProgramWorkflowBundle` wird jetzt durch einen besitzenden Mojo-Wert mit expliziten Zwischenresultaten ersetzt.
+- Positive/negative Parameter, Anzeigeauswahl und Tabellengenerierung werden nicht mehr über beliebige Attributschreibzugriffe auf ein heterogenes `Program`-Objekt gekoppelt.
+- Die Renderphase bleibt eine klare Besitzergrenze zu `TableOutput`; sie ist kein dynamischer Callback.
+- Private historische Helfer werden in Tests explizit importiert und nicht versehentlich als öffentliche Paketoberfläche behandelt.
 
 ## 1. Keine mechanische Umschrift
 
@@ -1181,4 +1186,3 @@ Vier vollständig native Diagnoseoberflächen teilen seit Stage 12c5z eine versi
   berücksichtigt.
 - Fortschrittsmetriken sind monoton statt bei jeder Stage manuell exakt.
 - Die vollständige Mojo-Testsuite verwendet den portablen Runtimewrapper.
-

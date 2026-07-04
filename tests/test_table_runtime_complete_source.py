@@ -134,3 +134,12 @@ def test_gestirn_metadata_assignment_is_single_and_well_formed() -> None:
     assignment = "self.state.generated_columns.parameters[metadata_index] = ("
     assert source.count(assignment) == 1
     assert f"{assignment}\n                result.generated_parameter\n            )" in source
+
+
+def test_runtime_test_imports_private_legacy_helpers_explicitly() -> None:
+    source = (ROOT / "tests/test_table_runtime_complete.mojo").read_text(encoding="utf-8")
+    assert "from reta_mojo.table_runtime import (" in source
+    assert "_prepare_class," in source
+    assert "_concat_class," in source
+    assert "_get_text_wrap_things," in source
+    assert "from reta_mojo.table_runtime import *" not in source

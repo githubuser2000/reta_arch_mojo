@@ -2628,6 +2628,128 @@
         "src/reta_mojo/table_preparation.mojo",
         "tests/test_table_preparation_complete.mojo"
       ]
+    },
+    {
+      "id": "TEST-FIXED-035",
+      "title": "Gesamte Mojo-Testsuite vergaß SQLite- und SHA256-Linkerbibliotheken",
+      "origin": "mojo_tests",
+      "classification": "test_build_link_contract",
+      "severity": "high",
+      "python_status": "not_applicable",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5ae",
+      "reproducer": "scripts/test_all.sh bis tests/test_execution_network_persistence.mojo ausführen; der Linker meldete undefinierte Referenzen auf sqlite3_* und SHA256.",
+      "python_locations": [],
+      "mojo_locations": [
+        "scripts/test_all.sh",
+        "tests/test_test_all_link_flags.py"
+      ],
+      "current_contract": "test_all.sh ordnet Linkerflags pro Testziel zu: Persistenz erhält -lsqlite3 -lcrypto, Paketintegrität -lcrypto und alle übrigen Tests keine Zusatzbibliotheken.",
+      "post_port_fix": "Keine Python-Änderung erforderlich; dies war ausschließlich ein Test-Buildvertrag.",
+      "evidence": [
+        "STAGE12C5AE_TEST_ALL_LINKING_PROGRAM_WORKFLOW.md",
+        "scripts/test_all.sh",
+        "tests/test_test_all_link_flags.py"
+      ]
+    },
+    {
+      "id": "TEST-FIXED-036",
+      "title": "TableRuntime-Test erwartete private Unterstrichnamen aus einem Sternimport",
+      "origin": "mojo_tests",
+      "classification": "test_import_visibility",
+      "severity": "medium",
+      "python_status": "not_applicable",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5ae",
+      "reproducer": "scripts/test_stage12c5ad.sh ausführen; _prepare_class, _concat_class und _get_text_wrap_things waren nach from reta_mojo.table_runtime import * unbekannt.",
+      "python_locations": [],
+      "mojo_locations": [
+        "tests/test_table_runtime_complete.mojo",
+        "tests/test_table_runtime_complete_source.py"
+      ],
+      "current_contract": "Historische private Helfer werden explizit aus table_runtime importiert; die öffentliche Paketoberfläche bleibt frei von Unterstrichnamen.",
+      "post_port_fix": "Keine Python-Änderung erforderlich.",
+      "evidence": [
+        "STAGE12C5AE_TEST_ALL_LINKING_PROGRAM_WORKFLOW.md",
+        "tests/test_table_runtime_complete.mojo",
+        "tests/test_table_runtime_complete_source.py"
+      ]
+    },
+    {
+      "id": "MOJO-FIXED-051",
+      "title": "Workflow- und Kombi-Generierung enthielten doppelte lokale Deklarationen",
+      "origin": "mojo_port",
+      "classification": "duplicate_local_declaration",
+      "severity": "high",
+      "python_status": "correct_reference",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5ae",
+      "reproducer": "program_workflow.mojo beziehungsweise table_generation.mojo mit dem Modular-Compiler parsen; pieces und galaxy_output_columns waren jeweils zweimal im selben Gültigkeitsbereich deklariert.",
+      "python_locations": [
+        "python_reference/reta_architecture/program_workflow.py"
+      ],
+      "mojo_locations": [
+        "src/reta_mojo/program_workflow.mojo",
+        "src/reta_mojo/table_generation.mojo",
+        "tests/test_program_workflow_source.py"
+      ],
+      "current_contract": "Jeder lokale Arbeitswert wird genau einmal deklariert; Source-Verträge zählen beide kritischen Deklarationen.",
+      "post_port_fix": "Keine Python-Änderung erforderlich; die Referenz enthielt keine doppelten lokalen Deklarationen.",
+      "evidence": [
+        "STAGE12C5AE_TEST_ALL_LINKING_PROGRAM_WORKFLOW.md",
+        "src/reta_mojo/program_workflow.mojo",
+        "src/reta_mojo/table_generation.mojo",
+        "tests/test_program_workflow_source.py"
+      ]
+    },
+    {
+      "id": "TEST-FIXED-037",
+      "title": "do.sh prüfte den Build-Exitstatus als literalen Text statt als Statuswert",
+      "origin": "test_infrastructure",
+      "classification": "build_driver_exit_status",
+      "severity": "high",
+      "python_status": "not_applicable",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5af",
+      "reproducer": "./do.sh ausführen; die Bedingung [ \"echo $?\" == \"0\" ] ist unter POSIX sh ungültig beziehungsweise immer falsch und übersprang Commit und Tests auch nach erfolgreichem Build.",
+      "python_locations": [],
+      "mojo_locations": [
+        "do.sh",
+        "tests/test_atomic_build_publication.py"
+      ],
+      "current_contract": "do.sh verwendet set -eu. Jeder fehlgeschlagene Build oder Test beendet den Ablauf unmittelbar; git commit wird erst nach build-all, Shared-Diagnostics-Parität und test_all ausgeführt.",
+      "post_port_fix": "Keine Python-Änderung erforderlich; dies war ein Buildtreiberfehler.",
+      "evidence": [
+        "STAGE12C5AF_ATOMIC_BUILD_CORRECTNESS.md",
+        "do.sh",
+        "tests/test_atomic_build_publication.py"
+      ]
+    },
+    {
+      "id": "TEST-FIXED-038",
+      "title": "Heavy-Build konnte nach Abbruch alte Binaries durch globalen EXIT-Sanitizer verjüngen",
+      "origin": "test_infrastructure",
+      "classification": "non_atomic_build_publication",
+      "severity": "high",
+      "python_status": "not_applicable",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5af",
+      "reproducer": "scripts/build-heavy.sh während eines mittleren Compilerziels abbrechen; der frühere EXIT-Trap sanitisierte anschließend den gesamten target/bin-Ordner und änderte damit auch nicht neu gebaute ELF-Dateien.",
+      "python_locations": [],
+      "mojo_locations": [
+        "scripts/build-heavy.sh",
+        "scripts/build.sh",
+        "scripts/build_diagnostics_shared.sh",
+        "scripts/current_source_id.sh",
+        "scripts/test_atomic_build.sh"
+      ],
+      "current_contract": "Jedes Ziel wird unter einem temporären Namen gebaut, geprüft, sanitisiert und markiert. Erst danach wird es veröffentlicht. Alte Ziele werden bei Fehlern nicht berührt; die Inhalts-ID umfasst Quellen, Assets und Buildrezepte, und build-all verifiziert alle Ziele abschließend.",
+      "post_port_fix": "Keine Python-Änderung erforderlich; dies war ein Fehler der nativen Buildinfrastruktur.",
+      "evidence": [
+        "STAGE12C5AF_ATOMIC_BUILD_CORRECTNESS.md",
+        "scripts/test_atomic_build.sh",
+        "tests/test_atomic_build_publication.py"
+      ]
     }
   ],
   "audit": {

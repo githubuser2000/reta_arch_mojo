@@ -92,14 +92,14 @@ def test_build_install_launcher_and_main_are_wired() -> None:
     assert launcher.stat().st_mode & 0o111
 
 
-def test_porting_matrix_marks_program_workflow_partial_native() -> None:
+def test_porting_matrix_marks_program_workflow_fully_native() -> None:
     matrix = (ROOT / "PORTING_MATRIX.md").read_text(encoding="utf-8")
     row = next(
         line
         for line in matrix.splitlines()
         if "`reta_architecture/program_workflow.py`" in line
     )
-    assert "| teilweise nativ |" in row
+    assert "| nativ |" in row
     assert "program_workflow.mojo" in row
 
 
@@ -130,3 +130,49 @@ def test_output_kind_priority_and_fast_fixture_are_regression_covered() -> None:
     assert '["reta", "--art=bbcode", "--art=html"]' in parity
     assert "한글 中文 Việt" in fixture
     assert "MOJO-FIXED-032" in (ROOT / "KNOWN_DEFECTS.json").read_text(encoding="utf-8")
+
+
+def test_complete_typed_workflow_replaces_heterogeneous_program_object() -> None:
+    text = MODULE.read_text(encoding="utf-8")
+    for token in (
+        "struct ProgramWorkflowI18n",
+        "struct ProgramWorkflowParameterReadResult",
+        "struct ProgramWorkflowBeginResult",
+        "struct ProgramWorkflowExecutionResult",
+        "def _csv_path(",
+        "def _decode_religion_cell(",
+        "def _requested_religion_output_kind(",
+        "def _load_religion_table(",
+        "def _apply_language_specific_motive_column(",
+        "def _reset_runtime_flags(",
+        "def _read_positive_and_negative_parameters(",
+        "def bring_all_important_begin_things(",
+        "def workflow_everything(",
+        "def combi_table_workflow(",
+        "def snapshot(",
+        "def table_generation_plan_from_runtime(",
+        "def configure_program_workflow(",
+    ):
+        assert token in text
+    assert "build_parameter_runtime_plan" in text
+    assert "bootstrap_table_generation" in text
+    assert "bootstrap_column_selection" in text
+    assert "select_display_lines" in text
+
+
+def test_table_generation_has_only_one_galaxy_output_declaration() -> None:
+    source = (ROOT / "src/reta_mojo/table_generation.mojo").read_text(encoding="utf-8")
+    assert source.count("var galaxy_output_columns = List[Int]()") == 1
+
+
+def test_complete_workflow_is_explicitly_exported_by_package() -> None:
+    package = (ROOT / "src/reta_mojo/__init__.mojo").read_text(encoding="utf-8")
+    assert "from .program_workflow import (" in package
+    assert "ProgramWorkflowExecutionResult," in package
+    assert "configure_program_workflow," in package
+
+
+def test_workflow_basename_has_one_local_declaration() -> None:
+    text = MODULE.read_text(encoding="utf-8")
+    body = text.split("def program_workflow_basename", 1)[1].split("def program_workflow_csv_path", 1)[0]
+    assert body.count("var pieces = path.split") == 1

@@ -61,7 +61,7 @@ def test_legacy_prompt_facade_is_in_the_authoritative_mapping() -> None:
 
 def test_program_workflow_core_is_in_the_authoritative_mapping() -> None:
     mapping = _load_module().native_mapping()
-    assert mapping["reta_architecture/program_workflow.py"][0] == "teilweise nativ"
+    assert mapping["reta_architecture/program_workflow.py"][0] == "nativ"
 
 
 def test_architecture_facade_graph_is_in_the_authoritative_mapping() -> None:

@@ -19,8 +19,17 @@ for test_file in tests/test_*.mojo; do
             ;;
     esac
     name=$(basename "$test_file" .mojo)
+    set --
+    case "$test_file" in
+        tests/test_execution_network_persistence.mojo|tests/test_persistence.mojo)
+            set -- -Xlinker -lsqlite3 -Xlinker -lcrypto
+            ;;
+        tests/test_package_integrity.mojo)
+            set -- -Xlinker -lcrypto
+            ;;
+    esac
     printf '\n== build %s ==\n' "$test_file"
-    "$ROOT/bin/mojo-real" build -I src -I tests "$test_file" -o "$TARGET/$name"
+    "$ROOT/bin/mojo-real" build -I src -I tests "$test_file" "$@" -o "$TARGET/$name"
     printf '== run %s ==\n' "$name"
     "$ROOT/bin/mojo-runtime-exec" "$TARGET/$name"
 done

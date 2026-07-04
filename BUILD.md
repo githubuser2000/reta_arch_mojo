@@ -1,4 +1,29 @@
-# Build- und Binärlayout
+# Build und Tests – Stage 12c5af
+
+Der vollständige Produktionsbuild bleibt absichtlich ein Vollbuild:
+
+```sh
+scripts/build-all.sh
+```
+
+Eine inkrementelle Zielauswahl ist nicht aktiviert. Ohne compilergetreuen
+Abhängigkeitsgraphen wäre sie nicht zuverlässig genug. Einzelne Ausgaben werden
+jedoch atomar veröffentlicht: Der Compiler schreibt in eine temporäre Datei;
+erst nach ELF-Prüfung, RUNPATH-Bereinigung und Inhaltsmarkierung ersetzt sie das
+vorherige Ziel. `build-all.sh` prüft abschließend sämtliche regulären und
+schweren Ziele.
+
+Der aktuelle fokussierte Compilerlauf ist:
+
+```sh
+scripts/test_stage12c5af.sh
+```
+
+Die vollständige Testsuite erkennt drei systemnahe Linkerklassen automatisch: Persistenztests verwenden `-lsqlite3 -lcrypto`, Paketintegrität verwendet `-lcrypto`, alle übrigen Tests erhalten keine zusätzlichen Linkerflags. Danach kann die Gesamtprüfung unverändert gestartet werden:
+
+```sh
+scripts/test_all.sh
+```
 
 ## Grundsatz
 
@@ -605,4 +630,3 @@ RETA_TEST_HEAVY=1 scripts/test_all.sh
 `test_all.sh` führt jedes Testbinary über `bin/mojo-runtime-exec` aus und teilt
 damit Runtime-Suche, Source-ID-Frischeprüfung und Ressourcenauflösung mit den
 Stage-Tests.
-

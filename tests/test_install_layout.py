@@ -7,9 +7,22 @@ import subprocess
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def _current_source_id() -> str:
+    return subprocess.run(
+        [str(ROOT / "scripts/current_source_id.sh")],
+        cwd=ROOT,
+        text=True,
+        stdout=subprocess.PIPE,
+        check=True,
+    ).stdout.strip() + "\n"
+
+
 def _write_stub_target(path: Path) -> None:
     path.write_text("#!/bin/sh\nexit 0\n", encoding="utf-8")
     path.chmod(0o755)
+    path.with_name(path.name + ".reta-source-id").write_text(
+        _current_source_id(), encoding="utf-8"
+    )
 
 
 def _layout_target_dir(tmp_path: Path) -> Path:

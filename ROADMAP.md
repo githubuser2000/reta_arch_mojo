@@ -1,4 +1,6 @@
-# Portierungsfahrplan Python → Mojo
+# Roadmap – Aktualisierung 12c5ae
+
+`program_workflow.py` ist vollständig nativ. Die noch teilweise portierten Hauptblöcke konzentrieren sich damit auf `reta.py`, `retaPrompt.py`, `parameter_runtime.py`, `generated_columns.py`, `architecture_facade.py` und den Domain-Probe-Rand. Der nächste Schwerpunkt ist die weitere Verkleinerung der produktiven Kompatibilitätsgrenze, nicht die Erzeugung zusätzlicher Diagnoseprogramme.
 
 Geplanter Umfang: **12 Release-Stufen**. Eine Stufe zählt erst als abgeschlossen, wenn Quellcode, Referenztests, Compilerziele, Dokumentation und ein source-only Archiv gemeinsam geprüft sind.
 
@@ -530,4 +532,3 @@ Die Zahl **12** ist die geplante Releasegliederung. Interne Teilpakete oder Fehl
 - Maschinenstand: **76/92 vollständig**, **83/92 mindestens teilweise**,
   **38.174/48.831 angegriffene** und **33.430/48.831 vollständig native
   Referenzzeilen**.
-
