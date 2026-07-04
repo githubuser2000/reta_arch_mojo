@@ -753,9 +753,10 @@ def produce_all_spalten_numbers(
     maximum_rows: Int,
 ) raises -> List[Int]:
     """Return the resolved physical columns without mutating a Program object."""
-    return build_parameter_runtime_plan(
+    var plan = build_parameter_runtime_plan(
         tokens, maximum_columns, maximum_rows
-    ).columns
+    )
+    return plan.columns.copy()
 
 
 def apply_width_parameter(

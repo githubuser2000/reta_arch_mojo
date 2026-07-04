@@ -99,6 +99,7 @@ NATIVE = {
     "libs/lib4tables_prepare.py": ("nativ", "src/reta_mojo/legacy_lib4tables_prepare.mojo + table_adapters.mojo + table_preparation.mojo + row_filtering.mojo + table_wrapping.mojo", "vollständige fünf Modulhelfer, expliziter Ersatz der fünf Modulglobalen und komplette Prepare-Fassade mit 20 Methoden-/Property-Einträgen; Filterung, Wrapping, Breiten, Zählgruppen, Tagging und Zeilenvorbereitung delegieren ausschließlich an native Besitzer"),
     "tests/test_py_reta_truth_matrix.py": ("nativ", "src/reta_mojo/py_reta_truth.mojo + tests/test_py_reta_truth_native.mojo", "beide historischen Matrixwahrheiten laufen gegen den nativen Schema- und Parametersemantikbesitzer; keine Python-Matrixinspektion"),
     "tests/test_py_reta_truth_output_invariants.py": ("nativ", "src/reta_mojo/py_reta_truth.mojo + tests/test_py_reta_truth_native.mojo", "Religion-CSV-Kopf, Spalten 744/745 und Tagzuordnung werden semantisch über native CSV-, Ressourcen- und Tag-APIs geprüft statt Python-Quelltext zu durchsuchen"),
+    "tests/test_command_parity.py": ("generiert nativ", "src/reta_mojo/command_parity.mojo + assets/command_parity.tsv + assets/command_parity/*.out + tests/test_command_parity_native.mojo + scripts/check_command_parity_native.py", "die vier historischen End-to-End-Kommandos werden aus der kanonischen Referenzmatrix reproduzierbar eingefroren; drei Ströme sind bytegleich, HTML verwendet exakt die historische p4-/Leerraumnormalisierung, und die Laufzeitprüfung führt ausschließlich das native reta-Binary aus"),
 }
 
 

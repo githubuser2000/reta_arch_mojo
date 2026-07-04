@@ -1,5 +1,17 @@
 # reta.arch → Mojo
 
+## Aktueller Stand 12c5aq
+
+Der bislang unberührte End-to-End-Test `tests/test_command_parity.py` ist als
+generiert-nativer Vier-Fälle-Vertrag übernommen. Die Fallmatrix wird direkt
+aus dem Referenz-AST gelesen, drei Ausgaben sind bytegleich und HTML verwendet
+die historische `p4_`-/Leerraumnormalisierung. Der Laufzeittest startet nur
+das native `reta-native`-ELF. Zusätzlich ist der implizite Rückgabekopiervorgang
+des Spaltenplans in `produce_all_spalten_numbers()` Mojo-1.0-konform explizit.
+Fokussierte Prüfung:
+`scripts/test_stage12c5aq.sh`. Details:
+[`STAGE12C5AQ_GENERATED_NATIVE_COMMAND_PARITY.md`](STAGE12C5AQ_GENERATED_NATIVE_COMMAND_PARITY.md).
+
 ## Aktueller Stand 12c5ap
 
 Der in `test_parameter_runtime_complete.mojo` gemeldete
@@ -125,32 +137,32 @@ abgeschlossene Release-Stufen:       9 von 12 = 75,0 %
 Stufen 9/10/12:                       Ausgabe, Prompt/i18n und Releaseparität in Arbeit
 Stufe 11:                             11a–11j = 100 %
 Stufe 12:                             12a–12b fertig, 12c zu ca. 99,98 % = ca. 72,6 %
-vollständig nativ/generiert:          86 von 92 = 93,5 %
-mindestens teilweise portiert:       89 von 92 = 96,7 %
-angegriffene Referenzzeilen:          46.729 von 48.831 = 95,7 %
+vollständig nativ/generiert:          87 von 92 = 94,6 %
+mindestens teilweise portiert:       90 von 92 = 97,8 %
+angegriffene Referenzzeilen:          47.027 von 48.831 = 96,3 %
 funktionaler Nutzerumfang:            ca. 96–98 %
 ```
 
 Die Metriken messen **orthogonale Bezugsgrößen** und sind nicht als ein einziges wechselndes Gesamtprozent zu lesen:
 
 - **96–98 % geschätzte Funktionsabdeckung**: Anteil der praktisch relevanten Befehls- und Verhaltensfamilien mit einem nativen Pfad. Der atomare Fallback ist nur eine Sicherheitsgrenze und wird nicht als transpiliert gezählt.
-- **93,5 % vollständiger Dateibesitz**: Nur Dateien, deren gesamter wirksamer Vertrag nativ oder reproduzierbar generiert ersetzt ist.
-- **95,7 % angegriffene Referenzzeilen**: maschinenberechneter Umfang vollständig und teilweise besessener Referenzdateien.
+- **94,6 % vollständiger Dateibesitz**: Nur Dateien, deren gesamter wirksamer Vertrag nativ oder reproduzierbar generiert ersetzt ist.
+- **96,3 % angegriffene Referenzzeilen**: maschinenberechneter Umfang vollständig und teilweise besessener Referenzdateien.
 - **84,0 % Stufenfortschritt**: gewichtete Releaseplanung; eine Stufe kann weit fortgeschritten sein, obwohl große historische Python-Besitzer noch sichtbar bleiben.
 
 Der Port ist daher nicht von über 90 % auf rund 65 % zurückgefallen. Die frühere Zahl bezeichnete die Funktionsoberfläche, die strengere Zahl den Quellersatz. Der vollständige Plan steht in [`ROADMAP.md`](ROADMAP.md).
 
-### Aktueller Fokus: Stage 12c5ap
+### Aktueller Fokus: Stage 12c5aq
 
 Der Entwicklungsablauf lautet:
 
 ```bash
-./do.sh 12c5ap
+./do.sh 12c5aq
 ```
 
-Die Stage-Kette bestätigt zuerst 12c5ao einschließlich des reparierten
-`List[String]`-Parameter-Runtime-Tests. Danach baut sie den nativen
-Py-Reta-Wahrheitstest für Matrix, CSV-Endspalten und Tags. Erst bei vollständig
+Die Stage-Kette bestätigt zuerst 12c5ap. Danach werden die vier kanonischen
+Kommandofälle reproduzierbar geprüft, der typisierte Mojo-Katalog gebaut und
+dieselben Fälle gegen `target/bin/reta-native` ausgeführt. Erst bei vollständig
 erfolgreicher Ausführung werden Shared Diagnostics, `scripts/test_all.sh` und
 der Git-Commit gestartet.
 

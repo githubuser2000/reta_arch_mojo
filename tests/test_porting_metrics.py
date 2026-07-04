@@ -20,8 +20,8 @@ def test_porting_metrics_are_derived_from_complete_reference_inventory() -> None
     assert data["reference_files"] == 92
     assert data["reference_lines"] == 48831
     assert data["fully_native_files"] >= 76
-    assert data["at_least_partly_ported_files"] == 89
-    assert data["touched_reference_lines"] == 46729
+    assert data["at_least_partly_ported_files"] == 90
+    assert data["touched_reference_lines"] == 47027
     assert data["fully_native_files"] <= data["at_least_partly_ported_files"]
     assert data["fully_native_reference_lines"] <= data["touched_reference_lines"]
 
@@ -188,3 +188,11 @@ def test_reta_program_has_typed_partial_facade() -> None:
     assert status == "teilweise nativ"
     assert "legacy_reta_program.mojo" in owner
     assert "27-Namen-/18-Methoden" in note
+
+
+def test_command_parity_matrix_is_generated_native() -> None:
+    mapping = _load_module().native_mapping()
+    status, owner, note = mapping["tests/test_command_parity.py"]
+    assert status == "generiert nativ"
+    assert "command_parity.mojo" in owner
+    assert "vier" in note

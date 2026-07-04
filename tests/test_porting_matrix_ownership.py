@@ -44,6 +44,7 @@ EXPECTED = {
     "libs/LibRetaPrompt.py": "nativ",
     "tests/test_py_reta_truth_matrix.py": "nativ",
     "tests/test_py_reta_truth_output_invariants.py": "nativ",
+    "tests/test_command_parity.py": "generiert nativ",
 }
 
 

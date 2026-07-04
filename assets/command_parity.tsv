@@ -1,0 +1,5 @@
+label	mode	asset	sha256	tokens...
+shell-religion-basic	exact	shell-religion-basic.out	8b3a3ebd821ad9399b4978b2c7f6c5e3500ed0762055b51da7e38839bab2826a	-zeilen	--vorhervonausschnitt=1-3	-spalten	--religionen=sternpolygon	--breite=40
+markdown-religion-basic	exact	markdown-religion-basic.out	0a2f6b9c8c02edf13933cfe4e06912628cbf78f8b43934caf9d005eb6c784f8e	-zeilen	--vorhervonausschnitt=1-3	-spalten	--religionen=sternpolygon	--breite=40	-ausgabe	--art=markdown
+html-religion-basic	html	html-religion-basic.out	a8a0d2a1bdc526900647d5ab9bb0f7963adcb941160624dcff19f2bc18a55d5e	-zeilen	--vorhervonausschnitt=1-3	-spalten	--religionen=sternpolygon	--breite=20	-ausgabe	--art=html
+shell-fractional-csv-gluing	exact	shell-fractional-csv-gluing.out	9a37c341d65e55ea40a17bdec9a3e07c0b50aa09561512791722a654264dc35f	-zeilen	--vorhervonausschnitt=1-3	-spalten	--gebrochenuniversum=5	--breite=40

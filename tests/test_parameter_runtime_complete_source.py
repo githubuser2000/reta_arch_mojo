@@ -26,6 +26,7 @@ def test_every_module_function_has_a_native_owner_or_typed_replacement() -> None
         assert f"def {name}(" in source
     assert "def parameter_runtime_legacy_snapshot(" in source
     assert "runtime_imports=static" in source
+    assert "return plan.columns.copy()" in source
 
 
 def test_mutable_program_object_is_replaced_by_one_plan() -> None:
