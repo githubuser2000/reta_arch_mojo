@@ -82,3 +82,23 @@ def test_package_export_and_porting_claim_are_complete() -> None:
     )
     assert "| nativ |" in row
     assert "legacy_lib4tables_prepare.mojo" in row
+
+
+def test_zero_terminal_width_sentinel_and_warning_cleanup_are_locked_in() -> None:
+    mojo_test = (ROOT / "tests/test_legacy_lib4tables_prepare.mojo").read_text(
+        encoding="utf-8"
+    )
+    adapters = (ROOT / "src/reta_mojo/table_adapters.mojo").read_text(
+        encoding="utf-8"
+    )
+    assert "var unlimited_context = make_parallel_row_preparation_context(" in mojo_test
+    assert 'assert_equal(unlimited.cells[0], ["abcdef"])' in mojo_test
+    assert "shell_rows_amount=80, text_width=3" in mojo_test
+    function = adapters.split("def parametersCmdWithSomeBereich", 1)[1].split(
+        "def deleteDoublesInSets", 1
+    )[0]
+    assert "len(piece)" not in function
+    assert "len(negative_prefix)" not in function
+    assert "piece.byte_length()" in function
+    assert "negative_prefix.byte_length()" in function
+    assert "var accepted = (" in function

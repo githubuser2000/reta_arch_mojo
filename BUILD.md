@@ -556,3 +556,16 @@ scripts/build-and-test-shared-diagnostics.sh
 ```
 
 Der Standardbuild erzeugt `target/bin/reta-mojo-diagnostics` und `target/lib/reta/libreta-mojo-diagnostics.so`. Die vier bisherigen Launcher für TableGeneration, OutputSyntax, ConsoleIO und TableOutput bleiben unverändert öffentlich, leiten aber auf den gemeinsamen Loader weiter. Die Shared Library trägt `$ORIGIN/../mojo`, während Executables `$ORIGIN/../lib/mojo` verwenden. Für direkte Alt-vs.-Bibliothek-Parität können die vier Einzelprogramme mit `RETA_BUILD_STANDALONE_DIAGNOSTICS=1` zusätzlich gebaut werden. Ein transferierbarer Binärbaum wird mit `scripts/export_target.sh` erzeugt.
+
+## Fokussierter Stage-12c5ab-Compilerlauf
+
+Nach `scripts/build-all.sh` ist für die neue Legacy-Prompt-Fassade keine
+weitere Produktionsdatei zu bauen. Die optionale Prüfung erzeugt nur
+Testartefakte unter `target/tests`:
+
+```bash
+scripts/test_stage12c5ab.sh
+```
+
+Sie prüft zugleich den korrigierten Prepare-Wrappingvertrag und die
+Python-/Mojo-Parität der 48-Namen-Fassade.

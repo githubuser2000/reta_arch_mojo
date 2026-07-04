@@ -1148,3 +1148,16 @@ Byteindizes werden nur noch zum Erkennen der ASCII-HTML-Syntax verwendet. Das Ma
 ## Gemeinsame Binärgrenzen statt duplizierter Diagnose-Executables
 
 Vier vollständig native Diagnoseoberflächen teilen seit Stage 12c5z eine versionierte C-ABI in `libreta-mojo-diagnostics.so`. Nur triviale C-Werte (`argc`, `argv`, Integerstatus) überschreiten die Grenze; Mojo-Besitzwerte werden innerhalb der Bibliothek erzeugt und vernichtet. Ein kleiner Loader behält die bisherigen Programmnamen und isoliert ABI-/Source-ID-Prüfungen. Testprogramme bleiben dagegen separate, nicht installierte Prozesse, weil ihre Absturz- und Globalzustandsisolation diagnostisch wertvoller ist als eine gemeinsame Test-DSO. Weitere produktive Diagnosefamilien können nach demselben Muster gruppiert werden.
+
+## Stage 12c5ab – Importzeit-Fassade ohne Prozessglobals
+
+- `shell_rows_amount=0` bleibt als unbegrenzte Breite erhalten; Tests dürfen
+  diesen Sentinel nicht mit `text_width` überschreiben.
+- `libs/LibRetaPrompt.py` wird nicht durch eine neue Monolithklasse ersetzt.
+  `LegacyLibRetaPromptBundle` ist eine dünne explizite Besitzgrenze über die
+  bereits nativen Prompt-Subsysteme.
+- Historische Sets und Dictionaries werden als deterministisch geordnete
+  Listen beziehungsweise Einträge abgebildet, damit Snapshot und Parität ohne
+  Python-Hashreihenfolge reproduzierbar bleiben.
+- Die Fassade ist eine Bibliotheksoberfläche; sie erzeugt kein neues
+  installierbares Compilerziel.

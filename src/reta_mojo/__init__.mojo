@@ -14,6 +14,25 @@ from .column_selection import *
 from .morphisms import *
 
 from .input_semantics import *
+from .legacy_libreta_prompt import (
+    LegacyPromptArchitectureView,
+    LegacyPromptModes,
+    LegacyPromptMapEntry,
+    LegacyFractionVerification,
+    LegacyFractionListVerification,
+    LegacyLibRetaPromptSnapshot,
+    LegacyLibRetaPromptBundle,
+    legacy_prompt_modes,
+    bootstrap_legacy_libreta_prompt,
+    Primzahlkreuz_pro_contra_strs,
+    isReTaParameter,
+    is15or16command,
+    stextFromKleinKleinKleinBefehl,
+    verkuerze_dict,
+    verifyBruchNganzZahlBetweenCommas,
+    verifyBruchNganzZahlCommaList,
+    legacy_libreta_prompt_exported_names,
+)
 from .prompt_runtime import *
 from .prompt_catalog import *
 from .grundstrukturen_catalog import *

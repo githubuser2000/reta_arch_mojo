@@ -295,3 +295,11 @@ Datei mit Endung `.reta-source-id`. Diese Dateien sind keine Executables und
 werden nicht als öffentliche Befehle installiert. Sie verhindern im
 Entwicklungsbaum, dass ein Launcher nach einem source-only Update versehentlich
 ein altes Binary startet.
+
+## Bibliotheksfassade ohne neues Programm
+
+`legacy_libreta_prompt.mojo` ist absichtlich kein weiteres installierbares
+Diagnoseprogramm. Die historische Python-Datei war eine Importzeit-Fassade;
+der native Ersatz wird von bestehenden Prompt-Einstiegen importiert. Nur
+`scripts/test_stage12c5ab.sh` erzeugt kurzlebige Testprogramme unter
+`target/tests`.

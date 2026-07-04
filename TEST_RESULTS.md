@@ -1,3 +1,26 @@
+# Testergebnisse – Stage 12c5ab
+
+```text
+vollständig nativ/generiert:          73/92 = 79,3 %
+vollständig native Referenzzeilen:    32.183/48.831 = 65,9 %
+portable Source-Tests:                 158 bestanden, 1 Skip
+Defektkatalog:                         102 Einträge
+Python-Bereinigungspunkte:              19
+aktive std.python-Brücken:               0
+```
+
+Der lokale Stage-12c5aa-Lauf bestätigte vier der fünf Prepare-Modultests. Der
+einzige Fehlschlag erwartete Wrapping trotz `shell_rows_amount=0`; dieser Wert
+steht im Python- und Mojo-Vertrag für unbegrenzte Breite. Der korrigierte Test
+prüft nun sowohl den unbegrenzten als auch den auf drei Zeichen begrenzten
+Kontext. Die drei veralteten `len(String)`-Aufrufe und die überschrieben
+initialisierte Bool-Variable sind entfernt.
+
+Die neue vollständige `LibRetaPrompt`-Fassade besitzt 48 Namen, 21
+materialisierte Sammlungen und die vorhandenen Prompt-Helfer über native
+Besitzer. `scripts/test_stage12c5ab.sh` kompiliert den korrigierten Prepare-Test,
+den neuen Fassadentest und die 27-Felder-Python-/Mojo-Paritätsprobe.
+
 # Testergebnisse – Stage 12c5aa
 
 ```text

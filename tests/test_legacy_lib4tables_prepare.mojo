@@ -59,8 +59,16 @@ def test_prepare_filter_wrapping_and_row_preparation() raises:
     assert_equal(prepare.cellWork("abcdef", 3), ["abc", "def"])
 
     var rows_as_numbers = _set([0, 1])
-    var context = make_parallel_row_preparation_context(
+    var unlimited_context = make_parallel_row_preparation_context(
         rows_as_numbers, text_width=3
+    )
+    var unlimited = prepare.prepare4out_LoopBody(
+        2, ["abcdef", "xy"], unlimited_context
+    )
+    assert_equal(unlimited.cells[0], ["abcdef"])
+
+    var context = make_parallel_row_preparation_context(
+        rows_as_numbers, shell_rows_amount=80, text_width=3
     )
     var prepared = prepare.prepare4out_LoopBody(
         2, ["abcdef", "xy"], context

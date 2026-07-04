@@ -301,16 +301,17 @@ def parametersCmdWithSomeBereich(
     var pieces = ranges.split(",")
     for index in range(len(pieces)):
         var piece = String(pieces[index])
-        if len(piece) == 0:
+        if piece.byte_length() == 0:
             continue
-        var accepted = False
-        if len(negative_prefix) == 0:
-            accepted = not piece.startswith("-")
-        else:
-            accepted = piece.startswith(negative_prefix)
+        var has_negative_prefix = negative_prefix.byte_length() > 0
+        var accepted = (
+            piece.startswith(negative_prefix)
+            if has_negative_prefix
+            else not piece.startswith("-")
+        )
         if not accepted:
             continue
-        if len(negative_prefix) > 0:
+        if has_negative_prefix:
             piece = String(StringSlice(piece)[byte=negative_prefix.byte_length():])
         if is_row_range(piece):
             result.add("_" + symbol + "_" + piece)

@@ -1,3 +1,13 @@
+# Status – Stage 12c5ab
+
+- lokaler Prepare-Fehlschlag als falsche Testerwartung bei `shell_rows_amount=0` identifiziert; unbegrenzte und reale Terminalbreite nun getrennt geprüft
+- vier Modular-Compilerwarnungen in `table_adapters.mojo` beseitigt
+- `libs/LibRetaPrompt.py` mit allen 48 Importzeitnamen als explizites typisiertes Bundle vollständig besessen
+- keine zusätzliche installierbare Executable; Modultest und 27-Felder-Paritätsprobe nur unter `target/tests`
+- vollständig nativ/generiert: **73/92 = 79,3 %**; vollständig native Referenzzeilen: **32.183/48.831 = 65,9 %**
+- Mojo-Zeilen: **57.622**, davon **53.065** unter `src/reta_mojo`; aktive `std.python`-Brücken: **0**
+- portable Source-Suite: **158 bestanden, 1 Skip**; Defektkatalog: **102 Einträge**
+
 # Status – Stage 12c5aa
 
 - einziger vollständiger Produktions-Baueinstieg: `scripts/build-all.sh`

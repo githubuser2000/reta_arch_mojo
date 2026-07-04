@@ -508,5 +508,5 @@ Die Zahl **12** ist die geplante Releasegliederung. Interne Teilpakete oder Fehl
 - [x] Historische Stage-Tests von installierbaren `target/bin`-Artefakten entkoppeln.
 - [x] Source-ID-Sidecar im Installationsmanifest separat und korrekt prüfen (`TEST-FIXED-028`).
 - [x] `libs/lib4tables_prepare.py` vollständig typisiert über vorhandene native Tabellenkerne besitzen.
-- [ ] Lokalen fokussierten Modular-Test `scripts/test_stage12c5aa.sh` ausführen.
+- [x] Lokalen fokussierten Modular-Test `scripts/test_stage12c5aa.sh` ausführen; 4/5 Tests bestanden, der fünfte deckte eine falsche Erwartung bei unbegrenzter Terminalbreite auf (`TEST-FIXED-030`).
 - Maschinenstand: **72/92 vollständig**, **83/92 mindestens teilweise**, **38.174/48.831 angegriffene** und **32.103/48.831 vollständig native Referenzzeilen**.
