@@ -1,4 +1,4 @@
-# Build und Tests – Stage 12c5ao
+# Build und Tests – Stage 12c5aw
 
 Der vollständige Produktionsbuild bleibt absichtlich ein Vollbuild:
 
@@ -13,10 +13,58 @@ erst nach ELF-Prüfung, RUNPATH-Bereinigung und Inhaltsmarkierung ersetzt sie da
 vorherige Ziel. `build-all.sh` prüft abschließend sämtliche regulären und
 schweren Ziele.
 
-Der aktuelle fokussierte Compilerlauf prüft zuerst `test_parameter_semantics.mojo`, danach Bridge und vollständige Parameter-Runtime:
+## Compileroptionen für alle Produktionsziele
+
+Alle drei Produktions-Baueinstiege akzeptieren zusätzliche Optionen für
+`mojo build`. Der empfohlene Trenner `--` hält Skriptoptionen und
+Compileroptionen eindeutig auseinander:
 
 ```sh
-scripts/test_stage12c5ao.sh
+scripts/build.sh -- [MOJO_BUILD_OPTION ...]
+scripts/build-heavy.sh [--optimize-heavy] -- [MOJO_BUILD_OPTION ...]
+scripts/build-all.sh [--optimize-heavy] -- [MOJO_BUILD_OPTION ...]
+```
+
+Beispiele:
+
+```sh
+# Reguläre Ziele mit Optimierungsstufe 2
+scripts/build.sh -- --optimization-level 2
+
+# Vollbuild mit explizitem CPU-Modell und acht Compilerjobs
+scripts/build-all.sh -- --target-cpu <CPU-NAME> -j 8
+
+# Optimierungsstufe 2 auch für die sonst absichtlich mit O0 gebauten Schwerziele
+scripts/build-all.sh --optimize-heavy -- --optimization-level 2 -j 8
+```
+
+`--optimization-level` akzeptiert 0 bis 3; Mojos Standard ist 3 und
+`--no-optimization` entspricht 0. Einige sehr große Metadatenziele bleiben
+standardmäßig bewusst bei O0, selbst wenn für den übrigen Build ein anderer
+Grad angegeben wurde. `--optimize-heavy` entfernt diese lokale
+Sicherheitsvorgabe. Alternativ kann `RETA_HEAVY_DEFAULT_NO_OPT=0` gesetzt
+werden.
+
+Die Optionen werden bytegetreu, also auch mit getrennten Werten und
+Leerzeichen, an jedes reguläre und schwere Mojo-Ziel sowie an die gemeinsame
+Mojo-Diagnosebibliothek weitergereicht. Der kleine C-Diagnoseloader behält
+seine getrennten C-Optionen. Quellpfad, Ausgabeart, Ausgabedatei, RUNPATH und
+atomare Veröffentlichung bleiben Eigentum der Skripte.
+
+Die jeweilige Hilfe zeigt die Schnittstelle direkt:
+
+```sh
+scripts/build.sh --help
+scripts/build-heavy.sh --help
+scripts/build-all.sh --help
+```
+
+Der aktuelle fokussierte Compilerlauf durchläuft die vollständige Stage-Kette,
+prüft die nativen Legacy-Startpfade und den monotonen Obergrenzenvertrag sowie
+die compilerunabhängige Argumentweitergabe der Build-Skripte:
+
+```sh
+scripts/test_stage12c5aw.sh
 ```
 
 Die vollständige Testsuite erkennt drei systemnahe Linkerklassen automatisch: Persistenztests verwenden `-lsqlite3 -lcrypto`, Paketintegrität verwendet `-lcrypto`, alle übrigen Tests erhalten keine zusätzlichen Linkerflags. Danach kann die Gesamtprüfung unverändert gestartet werden:

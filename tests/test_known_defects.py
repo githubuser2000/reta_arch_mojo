@@ -49,6 +49,7 @@ def test_backfill_audit_covers_all_previously_scattered_confirmed_defects() -> N
         "PY-CAND-004",
         "PY-OPEN-004",
         "PY-OPEN-005",
+        "PY-OPEN-006",
         "PY-CAND-005",
         "PY-CAND-006",
         "MOJO-FIXED-006",

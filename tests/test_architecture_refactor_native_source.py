@@ -109,10 +109,18 @@ def test_reference_test_package_and_monolith_are_generated_native() -> None:
     assert "leer" in init_note
 
 
-def test_stage_12c5ar_is_current_and_compilation_stays_user_invoked() -> None:
+def test_stage_12c5ar_remains_in_current_chain_and_compilation_stays_user_invoked() -> None:
     current = (ROOT / "scripts/test_current_stage.sh").read_text(encoding="utf-8")
+    monotonic_stage = (ROOT / "scripts/test_stage12c5aw.sh").read_text(encoding="utf-8")
+    current_stage = (ROOT / "scripts/test_stage12c5av.sh").read_text(encoding="utf-8")
+    startup_stage = (ROOT / "scripts/test_stage12c5au.sh").read_text(encoding="utf-8")
+    prompt_stage = (ROOT / "scripts/test_stage12c5at.sh").read_text(encoding="utf-8")
     stage = (ROOT / "scripts/test_stage12c5ar.sh").read_text(encoding="utf-8")
-    assert "test_stage12c5ar.sh" in current
+    assert "test_stage12c5aw.sh" in current
+    assert "test_stage12c5av.sh" in monotonic_stage
+    assert "test_stage12c5au.sh" in current_stage
+    assert "test_stage12c5at.sh" in startup_stage
+    assert "test_stage12c5as.sh" in prompt_stage
     assert "tests/test_architecture_refactor_native.mojo" in stage
     assert "generate_architecture_refactor_contracts.py --check" in stage
     # Production builds remain separate from test compilation.

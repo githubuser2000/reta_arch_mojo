@@ -1,6 +1,22 @@
 #!/usr/bin/env sh
 set -eu
 
+case ${1:-} in
+    -h|--help)
+        cat <<'USAGE'
+Verwendung: scripts/build_diagnostics_shared.sh [--] [MOJO_BUILD_OPTION ...]
+
+Alle übergebenen Mojo-Optionen gelten für den Shared-Library-Build. Der kleine
+C-Loader wird weiterhin mit seinen eigenen festen, sicherheitsrelevanten
+C-Compileroptionen gebaut.
+USAGE
+        exit 0
+        ;;
+    --)
+        shift
+        ;;
+esac
+
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 cd "$ROOT"
 TARGET_DIR=${RETA_TARGET_DIR:-"$ROOT/target/bin"}
@@ -28,7 +44,7 @@ trap cleanup_tmp EXIT HUP INT TERM
 cleanup_tmp
 
 printf 'Kompiliere gemeinsame Mojo-Diagnosebibliothek -> %s\n' "$LIBRARY"
-"$MOJO" build --emit shared-lib -I src \
+"$MOJO" build -I src "$@" --emit shared-lib \
     src/reta_diagnostics_abi.mojo \
     -Xlinker -rpath -Xlinker "$MOJO_LIBRARY_RUNTIME_RPATH" \
     -o "$TMP_LIBRARY"

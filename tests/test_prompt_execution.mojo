@@ -5,11 +5,12 @@ from reta_mojo.prompt_execution import *
 def test_bundle_maps_large_python_owner_to_native_components() raises:
     var bundle = bootstrap_prompt_execution()
     assert_true(prompt_execution_bundle_valid(bundle))
-    assert_equal(bundle.command_runner_owner, "prompt_table_execution.mojo")
+    assert_equal(bundle.command_runner_owner, "prompt_execution_runtime.mojo")
     assert_equal(
         bundle.fraction_manager_owner, "prompt_fraction_execution.mojo"
     )
     assert_equal(bundle.reta_executor_owner, "native_reta_cli.mojo")
+    assert_equal(bundle.ownership_count, 22)
 
 
 def test_snapshot_matches_python_architecture_surface() raises:

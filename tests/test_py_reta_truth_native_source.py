@@ -58,9 +58,17 @@ def test_truth_reference_tests_are_claimed_native_and_current_stage_builds_them(
     package = (ROOT / "src/reta_mojo/__init__.mojo").read_text(encoding="utf-8")
     assert "from .py_reta_truth import *" in package
     current = (ROOT / "scripts/test_current_stage.sh").read_text(encoding="utf-8")
-    assert "test_stage12c5ar.sh" in current
-    current_stage = (ROOT / "scripts/test_stage12c5ar.sh").read_text(encoding="utf-8")
-    assert "test_stage12c5aq.sh" in current_stage
+    assert "test_stage12c5aw.sh" in current
+    monotonic_stage = (ROOT / "scripts/test_stage12c5aw.sh").read_text(encoding="utf-8")
+    assert "test_stage12c5av.sh" in monotonic_stage
+    build_stage = (ROOT / "scripts/test_stage12c5av.sh").read_text(encoding="utf-8")
+    assert "test_stage12c5au.sh" in build_stage
+    startup_stage = (ROOT / "scripts/test_stage12c5au.sh").read_text(encoding="utf-8")
+    assert "test_stage12c5at.sh" in startup_stage
+    current_stage = (ROOT / "scripts/test_stage12c5at.sh").read_text(encoding="utf-8")
+    assert "test_stage12c5as.sh" in current_stage
+    refactor_stage = (ROOT / "scripts/test_stage12c5ar.sh").read_text(encoding="utf-8")
+    assert "test_stage12c5aq.sh" in refactor_stage
     command_stage = (ROOT / "scripts/test_stage12c5aq.sh").read_text(encoding="utf-8")
     assert "test_stage12c5ap.sh" in command_stage
     stage = (ROOT / "scripts/test_stage12c5ap.sh").read_text(encoding="utf-8")

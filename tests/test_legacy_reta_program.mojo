@@ -1,11 +1,13 @@
 from std.testing import assert_equal, assert_false, assert_true, TestSuite
 from reta_mojo.legacy_reta_program import *
 from reta_mojo.legacy_reta_program_catalog import *
+from reta_mojo.parallel_execution import make_parallel_config
 
 
 def test_complete_module_and_program_surface() raises:
-    var program = bootstrap_legacy_reta_program(
-        ["-zeilen", "--vorhervonausschnitt=1-3", "-spalten", "--alles"]
+    var program = bootstrap_legacy_reta_program_with_parallel_config(
+        ["-zeilen", "--vorhervonausschnitt=1-3", "-spalten", "--alles"],
+        make_parallel_config("off", 1, 64, 128, "", "unit"),
     )
     var snapshot = program.snapshot()
     assert_equal(snapshot.exported_names_len, 27)
@@ -24,8 +26,9 @@ def test_complete_module_and_program_surface() raises:
 
 
 def test_parameter_and_output_adapters_mutate_typed_state() raises:
-    var program = bootstrap_legacy_reta_program(
-        ["-zeilen", "--vorhervonausschnitt=1-3", "-spalten", "--alles"]
+    var program = bootstrap_legacy_reta_program_with_parallel_config(
+        ["-zeilen", "--vorhervonausschnitt=1-3", "-spalten", "--alles"],
+        make_parallel_config("off", 1, 64, 128, "", "unit"),
     )
     assert_true(breiteBreitenSysArgvPara(program, "breite=0"))
     assert_equal(program.runtime.width, 0)
@@ -34,8 +37,13 @@ def test_parameter_and_output_adapters_mutate_typed_state() raises:
     assert_false(apply_output_mode(program, "unknown"))
     var columns = produceAllSpaltenNumbers(program)
     assert_true(len(columns) > 0)
+    # Historical `oberesMaximum` is monotonic: a later explicit value may
+    # raise the table ceiling, but it never shrinks the 1024 floor established
+    # by `--vorhervonausschnitt=1-3` during bootstrap.
     assert_true(oberesMaximum(program, "--oberesmaximum=77"))
-    assert_equal(program.runtime.highest, 77)
+    assert_equal(program.runtime.highest, 1024)
+    assert_true(oberesMaximum(program, "--oberesmaximum=2048"))
+    assert_equal(program.runtime.highest, 2048)
     invertAlles(program)
     assert_true(program.invert_alles)
     set_propInfoLog(program, False)
@@ -43,7 +51,9 @@ def test_parameter_and_output_adapters_mutate_typed_state() raises:
 
 
 def test_workflow_and_legacy_helpers_delegate_to_native_owners() raises:
-    var program = bootstrap_legacy_reta_program()
+    var program = bootstrap_legacy_reta_program_with_parallel_config(
+        [], make_parallel_config("off", 1, 64, 128, "", "unit")
+    )
     var first = combiTableWorkflow(
         program,
         program.workflow.csv_names.kombi13,
@@ -57,10 +67,16 @@ def test_workflow_and_legacy_helpers_delegate_to_native_owners() raises:
         render_color("red", "x"),
         '<span style="color:red;">x</span>',
     )
-    assert_equal(helpPage(), "owner=console_io/reta_help")
+    var help = helpPage()
+    assert_equal(help.byte_length(), 12042)
+    assert_true(help.startswith("Hauptprogramm ist reta oder reta.py\n"))
     var owners = legacy_reta_program_owner_snapshot()
-    assert_equal(len(owners), 9)
-    assert_equal(owners[7], "unsupported=explicit-child-process")
+    assert_equal(len(owners), 10)
+    assert_equal(
+        owners[7],
+        "startup=native_cli_startup.mojo/native_cli_controls.mojo",
+    )
+    assert_equal(owners[8], "unsupported=explicit-child-process")
 
 
 def main() raises:

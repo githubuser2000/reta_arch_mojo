@@ -37,6 +37,46 @@ struct ProcessorCoreCounts(Copyable):
 
 
 @fieldwise_init
+struct ParallelEnvironmentValues(Copyable):
+    var parallel_present: Bool
+    var parallel: String
+    var mode_present: Bool
+    var mode: String
+    var workers: String
+    var chunk_size: String
+    var threshold: String
+    var start_method: String
+
+
+def default_parallel_environment_values() -> ParallelEnvironmentValues:
+    return ParallelEnvironmentValues(
+        False, String(), False, String(), String(), String(), String(), String()
+    )
+
+
+def parallel_environment_values(
+    parallel: String = "",
+    mode: String = "",
+    workers: String = "",
+    chunk_size: String = "",
+    threshold: String = "",
+    start_method: String = "",
+    parallel_present: Bool = False,
+    mode_present: Bool = False,
+) -> ParallelEnvironmentValues:
+    return ParallelEnvironmentValues(
+        parallel_present,
+        parallel,
+        mode_present,
+        mode,
+        workers,
+        chunk_size,
+        threshold,
+        start_method,
+    )
+
+
+@fieldwise_init
 struct ParallelExecutionConfig(Copyable):
     var mode: String
     var workers: Int
@@ -289,27 +329,51 @@ def make_parallel_config(
     )
 
 
-def parallel_config_from_environment() -> ParallelExecutionConfig:
-    var mode = String(
-        getenv("RETA_PARALLEL_MODE", getenv("RETA_PARALLEL", "auto"))
+def parallel_config_from_environment_values(
+    values: ParallelEnvironmentValues,
+) -> ParallelExecutionConfig:
+    var mode = String("auto")
+    if values.mode_present:
+        mode = values.mode.copy()
+    elif values.parallel_present:
+        mode = values.parallel.copy()
+    var source = (
+        "environment"
+        if values.parallel_present or values.mode_present
+        else "defaults"
     )
-    var workers = _positive_int(String(getenv("RETA_PARALLEL_WORKERS", "")), 0)
-    var chunk_size = _positive_int(
-        String(getenv("RETA_PARALLEL_CHUNK_SIZE", "")), 64
-    )
-    var threshold = _positive_int(
-        String(getenv("RETA_PARALLEL_THRESHOLD", "")), 128
-    )
-    var start = String(getenv("RETA_PARALLEL_START_METHOD", ""))
-    var source = "defaults"
-    if (
-        String(getenv("RETA_PARALLEL", "")).byte_length() > 0
-        or String(getenv("RETA_PARALLEL_MODE", "")).byte_length() > 0
-    ):
-        source = "environment"
     return make_parallel_config(
-        mode, workers, chunk_size, threshold, start, source
+        mode,
+        _positive_int(values.workers.copy(), 0),
+        _positive_int(values.chunk_size.copy(), 64),
+        _positive_int(values.threshold.copy(), 128),
+        values.start_method.copy(),
+        source,
     )
+
+
+def read_parallel_environment() -> ParallelEnvironmentValues:
+    # ``getenv`` is a runtime effect. Keep it out of default-argument
+    # expressions because Mojo 1.0 tries to evaluate those at compile time.
+    var sentinel = "__RETA_ENV_UNSET_12C5AS__"
+    var parallel_raw = String(getenv("RETA_PARALLEL", sentinel))
+    var mode_raw = String(getenv("RETA_PARALLEL_MODE", sentinel))
+    var parallel_present = parallel_raw != sentinel
+    var mode_present = mode_raw != sentinel
+    return ParallelEnvironmentValues(
+        parallel_present,
+        parallel_raw if parallel_present else String(),
+        mode_present,
+        mode_raw if mode_present else String(),
+        String(getenv("RETA_PARALLEL_WORKERS", "")),
+        String(getenv("RETA_PARALLEL_CHUNK_SIZE", "")),
+        String(getenv("RETA_PARALLEL_THRESHOLD", "")),
+        String(getenv("RETA_PARALLEL_START_METHOD", "")),
+    )
+
+
+def parallel_config_from_environment() -> ParallelExecutionConfig:
+    return parallel_config_from_environment_values(read_parallel_environment())
 
 
 def _linux_physical_cpu_count() raises -> Int:
@@ -358,9 +422,13 @@ def processor_core_counts() -> ProcessorCoreCounts:
 
 
 def bootstrap_parallel_execution(
-    config: ParallelExecutionConfig = parallel_config_from_environment(),
+    config: ParallelExecutionConfig,
 ) -> ParallelExecutionBundle:
     return ParallelExecutionBundle(config.copy(), processor_core_counts())
+
+
+def bootstrap_parallel_execution_from_environment() -> ParallelExecutionBundle:
+    return bootstrap_parallel_execution(parallel_config_from_environment())
 
 
 def _consume_value(argv: List[String], index: Int) -> Tuple[String, Int]:
@@ -372,7 +440,7 @@ def _consume_value(argv: List[String], index: Int) -> Tuple[String, Int]:
 
 def extract_parallel_config_from_argv(
     argv: List[String],
-    inherited: ParallelExecutionConfig = parallel_config_from_environment(),
+    inherited: ParallelExecutionConfig,
 ) -> ParallelArgvResult:
     var clean = List[String]()
     var mode = inherited.mode.copy()
@@ -462,6 +530,14 @@ def extract_parallel_config_from_argv(
         make_parallel_config(
             mode, workers, chunk_size, threshold, start_method, source
         ),
+    )
+
+
+def extract_parallel_config_from_environment_argv(
+    argv: List[String],
+) -> ParallelArgvResult:
+    return extract_parallel_config_from_argv(
+        argv, parallel_config_from_environment()
     )
 
 

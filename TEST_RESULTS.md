@@ -1,3 +1,17 @@
+# Stage 12c5aw
+
+Der Benutzerlauf kompilierte `test_legacy_reta_program.mojo` nach der Runtime-Grenzen-Reparatur erfolgreich. Zwei von drei Tests bestanden; der verbleibende Test zeigte ausschließlich die falsche Erwartung, eine bestehende 1024-Grenze müsse auf 77 sinken. Der korrigierte Vertrag bewahrt die Python-Semantik und ergänzt den positiven Erhöhungsfall auf 2048.
+
+Portable Abschlussprüfung: **99 eindeutige Tests bestanden**. Enthalten sind Buildoptionen und POSIX-Shellsyntax, Legacy-Programm-/Startup-/Parallelverträge, historische Stage-Ketten, Portierungsmatrix und Metriken, Defektledger, atomare Buildveröffentlichung, Statusreporting und drei Quellarchivverträge. Defektledger: **123 Einträge**, davon **20 Python-Aufräumpunkte**, konsistent. Die Erstellungsumgebung führt keine Mojo-Kompilierung aus.
+
+# Stage 12c5av
+
+Die neue statische Prüfung validiert POSIX-Shellsyntax, Hilfetexte, bytegetreue Argumentweitergabe einschließlich Leerzeichen, O0-Sicherheitsvorgaben und Dokumentation. Sie startet selbst keine Mojo-Kompilierung; der vorangehende Stage-12c5au-Lauf bleibt Aufgabe des Benutzers.
+
+# Stage 12c5au
+
+Der quellseitige Stand enthält einen neuen fokussierten Mojo-Test für sieben native Startup-/Kontrollfamilien. Kompiliert wird ausschließlich durch den Benutzer. Die portable Prüfung umfasst den Reihenfolgevertrag Kontrolle → Startup → CSV → native Tabelle → atomarer Fallback sowie die exakte Hilfetext- und Source-ID-Dokumentation.
+
 # Stage 12c5ao
 
 ## Compilerstatus

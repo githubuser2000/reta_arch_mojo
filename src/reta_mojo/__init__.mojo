@@ -117,6 +117,7 @@ from .legacy_reta_program import (
     LegacyRetaProgramRunResult,
     LegacyRetaProgram,
     bootstrap_legacy_reta_program,
+    bootstrap_legacy_reta_program_with_parallel_config,
     render_color,
     produceAllSpaltenNumbers,
     breiteBreitenSysArgvPara,
@@ -273,6 +274,8 @@ from .native_cli_startup import *
 from .prompt_execution_helpers import *
 
 from .prompt_execution import *
+
+from .prompt_execution_runtime import *
 
 from .py_reta_truth import *
 

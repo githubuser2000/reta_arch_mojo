@@ -4,6 +4,8 @@ from reta_mojo.parallel_execution import (
     decode_religion_cell,
     extract_parallel_config_from_argv,
     make_parallel_config,
+    parallel_config_from_environment_values,
+    parallel_environment_values,
     parallel_config_snapshot_json,
     parallel_execution_bundle_snapshot_json,
     parse_kombi_number,
@@ -26,6 +28,52 @@ def main() raises:
     assert_true(cores.available >= 1, "available cores")
     checks += 1
     assert_true(cores.default_workers() >= 1, "default workers")
+    checks += 1
+
+    var default_environment = parallel_config_from_environment_values(
+        parallel_environment_values()
+    )
+    assert_true(default_environment.mode == "auto", "environment default mode")
+    checks += 1
+    assert_true(
+        default_environment.source == "defaults", "environment default source"
+    )
+    checks += 1
+
+    var inherited_environment = parallel_config_from_environment_values(
+        parallel_environment_values(
+            "processes", "", "3", "7", "9", "fork", True, False
+        )
+    )
+    assert_true(
+        inherited_environment.mode == "threads", "legacy environment mode"
+    )
+    checks += 1
+    assert_true(inherited_environment.workers == 3, "environment workers")
+    checks += 1
+    assert_true(inherited_environment.chunk_size == 7, "environment chunk")
+    checks += 1
+    assert_true(inherited_environment.threshold == 9, "environment threshold")
+    checks += 1
+    assert_true(
+        inherited_environment.source == "environment", "environment source"
+    )
+    checks += 1
+
+    var explicit_empty_mode = parallel_config_from_environment_values(
+        parallel_environment_values(
+            "processes", "", "", "", "", "", True, True
+        )
+    )
+    assert_true(
+        explicit_empty_mode.mode == "off",
+        "present empty mode overrides inherited parallel value",
+    )
+    checks += 1
+    assert_true(
+        explicit_empty_mode.source == "environment",
+        "present empty mode keeps environment source",
+    )
     checks += 1
 
     var process_alias_config = make_parallel_config(

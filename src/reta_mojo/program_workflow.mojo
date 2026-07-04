@@ -18,7 +18,6 @@ from .parallel_execution import (
     ParallelOperationStats,
     decode_religion_cell,
     decode_religion_rows_threaded,
-    parallel_config_from_environment,
 )
 from .resource_paths import asset_resource, csv_resource
 from .parameter_runtime import ParameterRuntimePlan, build_parameter_runtime_plan
@@ -179,7 +178,7 @@ struct ProgramWorkflowBundle(Copyable):
         self,
         argv: List[String],
         highest_row: Int,
-        config: ParallelExecutionConfig = parallel_config_from_environment(),
+        config: ParallelExecutionConfig,
     ) raises -> ProgramWorkflowReligionTable:
         return load_program_workflow_religion_table(
             self.csv_names.religion,
@@ -222,8 +221,8 @@ struct ProgramWorkflowBundle(Copyable):
         maximum_columns: Int,
         maximum_rows: Int,
         highest_row: Int,
-        language: String = "",
-        config: ParallelExecutionConfig = parallel_config_from_environment(),
+        language: String,
+        config: ParallelExecutionConfig,
     ) raises -> ProgramWorkflowBeginResult:
         var loaded = self._load_religion_table(argv, highest_row, config)
         var table = self._apply_language_specific_motive_column(
@@ -284,8 +283,8 @@ struct ProgramWorkflowBundle(Copyable):
         maximum_columns: Int,
         maximum_rows: Int,
         highest_row: Int,
-        language: String = "",
-        config: ParallelExecutionConfig = parallel_config_from_environment(),
+        language: String,
+        config: ParallelExecutionConfig,
     ) raises -> ProgramWorkflowExecutionResult:
         var begin = self.bring_all_important_begin_things(
             argv,
@@ -479,7 +478,7 @@ def load_program_workflow_religion_table(
     csv_file_name: String,
     output_kind: String,
     highest_row: Int,
-    config: ParallelExecutionConfig = parallel_config_from_environment(),
+    config: ParallelExecutionConfig,
 ) raises -> ProgramWorkflowReligionTable:
     var raw_table = read_semicolon_csv(program_workflow_csv_path(csv_file_name))
     var decoded = decode_religion_rows_threaded(

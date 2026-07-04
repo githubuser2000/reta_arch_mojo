@@ -27,10 +27,7 @@ from reta_mojo.prompt_table_execution import (
     PromptTablePlan,
     plan_prompt_table_commands,
 )
-from reta_mojo.prompt_legacy_echo import (
-    compact_prompt_announcement_line,
-    legacy_table_echo_tokens,
-)
+from reta_mojo.prompt_legacy_echo import compact_prompt_announcement_line
 from reta_mojo.native_prompt_input import read_native_prompt_line
 from reta_mojo.prompt_external_commands import (
     run_math_prompt_line_native,
@@ -43,6 +40,7 @@ from reta_mojo.native_reta_cli import (
     native_reta_tokens_supported,
     run_native_reta,
 )
+from reta_mojo.prompt_execution_runtime import render_prompt_table_plan
 from reta_mojo.native_cli_startup import native_cli_startup
 from reta_mojo.resource_paths import asset_root, csv_resource, reference_root
 from reta_mojo.prompt_runtime import (
@@ -201,34 +199,6 @@ def _run_fallback(
     )
 
 
-def _run_native_table_tokens(
-    tokens: List[String],
-    historical_echo: Bool = False,
-    suppress_command_echo: Bool = False,
-    command_echo_newline: Bool = False,
-) raises -> Bool:
-    if len(tokens) == 0:
-        return False
-    if not suppress_command_echo:
-        var display_tokens = legacy_table_echo_tokens(
-            tokens
-        ) if historical_echo else tokens.copy()
-        var command_line = String("reta")
-        for index in range(len(display_tokens)):
-            command_line += " " + display_tokens[index]
-        # Rich's ``Syntax`` renderable emits a complete physical line even
-        # though the Python helper calls ``Console.print(..., end="")``.
-        # Reproduce the observable byte stream, not the helper's internal
-        # keyword argument: the command echo always ends before the table.
-        _ = command_echo_newline  # retained in the typed plan for compatibility
-        print(command_line)
-    print(
-        run_native_reta(tokens, csv_resource("religion.csv")),
-        end="",
-    )
-    return True
-
-
 def _run_native_reta_prompt_command(command: PromptCommand) raises -> Bool:
     if command.kind != KIND_RETA or len(command.words) < 1:
         return False
@@ -251,18 +221,21 @@ def _run_native_table_plan(
     historical_echo: Bool = False,
     suppress_command_echo: Bool = False,
 ) raises -> Bool:
-    if not plan.handled:
+    var execution = render_prompt_table_plan(
+        plan,
+        csv_resource("religion.csv"),
+        historical_echo,
+        suppress_command_echo,
+    )
+    if not execution.handled:
         return False
-    if len(plan.invocations) == 0:
-        return True
-    for index in range(len(plan.invocations)):
-        if not _run_native_table_tokens(
-            plan.invocations[index].tokens,
-            historical_echo,
-            suppress_command_echo,
-            plan.invocations[index].command_echo_newline,
-        ):
-            return False
+    for index in range(len(execution.invocations)):
+        var invocation = execution.invocations[index].copy()
+        if invocation.command_echo.byte_length() > 0:
+            # Rich's historical Syntax renderable always occupied a complete
+            # physical line, independently of the old ``end`` keyword.
+            print(invocation.command_echo)
+        print(invocation.table_output, end="")
     return True
 
 

@@ -23,8 +23,8 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 
 ## Übersicht
 
-- Einträge insgesamt: **122**
-- offene bestätigte Python-Fehler: **5**
+- Einträge insgesamt: **123**
+- offene bestätigte Python-Fehler: **6**
 - zu entscheidende Python-Fehlerkandidaten: **13**
 - bereits im Python-Baum behobene Fehler: **7**
 
@@ -285,6 +285,19 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 - spätere Python-Aktion: Den fachlich gültigen Orchestrierungsnamen bestätigen und die Testassertion auf den aktuellen stabilen Namen aktualisieren.
 - Python-Orte: `python_reference/tests/test_architecture_refactor.py:732-740`
 - Belege: `MIGRATION_NOTES.md`, `TEST_RESULTS.md`, `STAGE12C4S_DEFECT_BACKFILL_NATIVE_CONTROL_MAINS.md`, `scripts/check_documented_python_baseline.py`
+
+### PY-OPEN-006 – Python-Progress-Test sucht Git-Metadaten im eingefrorenen Unterbaum
+
+- Ursprung: `python_reference_tests`
+- Klasse / Schwere: `test_bug` / `low`
+- Python-Status: `open`
+- Mojo-Status: `not_applicable`
+- entdeckt in: `12c5at`
+- Reproduktion: `python3 -m pytest -q python_reference/tests/test_architecture_refactor.py::ArchitectureRefactorRegressionTest::test_architecture_progress_layer_is_explicit`
+- heutiger Vertrag: REPO_ROOT zeigt innerhalb des eingefrorenen Referenzbaums auf python_reference. Die Git-Metadaten liegen jedoch im Projektwurzelverzeichnis. Der Snapshot meldet deshalb korrekt outstanding_work=0 und status=passed, während der Test fälschlich den Zweig ohne Repositorymetadaten nimmt und mindestens einen offenen Punkt verlangt.
+- spätere Python-Aktion: Die Umgebungsentscheidung vom fachlichen Snapshotvertrag trennen oder die tatsächliche Projektwurzel robust bestimmen; anschließend bei status=passed unabhängig vom Ablageort exakt null offene Punkte erwarten.
+- Python-Orte: `python_reference/tests/test_architecture_refactor.py:1773-1780`
+- Belege: `STAGE12C5AT_NATIVE_PROMPT_EXECUTION.md`, `tests/test_documented_python_defects.py`
 
 ### PY-CAND-005 – Kanonischer Parameteralias hängt bei set-Einträgen von Python-Hashreihenfolge ab
 

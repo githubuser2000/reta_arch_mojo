@@ -94,3 +94,12 @@ def test_meta_fraction_star_div_rounding_candidate_is_backlogged() -> None:
             for row in rows
         )
     assert "PY-CAND-013" in _defect_ids()
+
+
+def test_architecture_progress_repository_probe_bug_is_backlogged() -> None:
+    source = (
+        ROOT / "python_reference" / "tests" / "test_architecture_refactor.py"
+    ).read_text(encoding="utf-8")
+    assert 'if (REPO_ROOT / ".git").exists()' in source
+    assert 'self.assertGreaterEqual(snapshot["counts"]["outstanding_work"], 1)' in source
+    assert "PY-OPEN-006" in _defect_ids()

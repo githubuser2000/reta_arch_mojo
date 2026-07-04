@@ -439,6 +439,27 @@
       ]
     },
     {
+      "id": "PY-OPEN-006",
+      "title": "Python-Progress-Test sucht Git-Metadaten im eingefrorenen Unterbaum",
+      "origin": "python_reference_tests",
+      "classification": "test_bug",
+      "severity": "low",
+      "python_status": "open",
+      "mojo_status": "not_applicable",
+      "discovered_stage": "12c5at",
+      "reproducer": "python3 -m pytest -q python_reference/tests/test_architecture_refactor.py::ArchitectureRefactorRegressionTest::test_architecture_progress_layer_is_explicit",
+      "python_locations": [
+        "python_reference/tests/test_architecture_refactor.py:1773-1780"
+      ],
+      "mojo_locations": [],
+      "current_contract": "REPO_ROOT zeigt innerhalb des eingefrorenen Referenzbaums auf python_reference. Die Git-Metadaten liegen jedoch im Projektwurzelverzeichnis. Der Snapshot meldet deshalb korrekt outstanding_work=0 und status=passed, während der Test fälschlich den Zweig ohne Repositorymetadaten nimmt und mindestens einen offenen Punkt verlangt.",
+      "post_port_fix": "Die Umgebungsentscheidung vom fachlichen Snapshotvertrag trennen oder die tatsächliche Projektwurzel robust bestimmen; anschließend bei status=passed unabhängig vom Ablageort exakt null offene Punkte erwarten.",
+      "evidence": [
+        "STAGE12C5AT_NATIVE_PROMPT_EXECUTION.md",
+        "tests/test_documented_python_defects.py"
+      ]
+    },
+    {
       "id": "PY-CAND-005",
       "title": "Kanonischer Parameteralias hängt bei set-Einträgen von Python-Hashreihenfolge ab",
       "origin": "python_reference",

@@ -11,7 +11,9 @@ def test_prompt_execution_bundle_is_native_and_typed():
     assert "struct PromptExecutionSnapshot" in source
     assert "def bootstrap_prompt_execution()" in source
     assert "def prompt_execution_snapshot_json" in source
-    assert "prompt_table_execution.mojo" in source
+    assert "prompt_execution_runtime.mojo" in source
+    assert "def prompt_execution_owners()" in source
+    assert "bundle.ownership_count == 22" in source
     assert "prompt_fraction_execution.mojo" in source
     assert "native_reta_cli.mojo" in source
     assert "std.python" not in source

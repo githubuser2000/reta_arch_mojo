@@ -8,6 +8,7 @@ MOJO=ROOT/'src'/'reta_mojo'/'legacy_reta_program.mojo'
 CATALOG=ROOT/'src'/'reta_mojo'/'legacy_reta_program_catalog.mojo'
 GEN=ROOT/'tools'/'generate_legacy_reta_program_catalog.py'
 PACKAGE=ROOT/'src'/'reta_mojo'/'__init__.mojo'
+MOJO_TEST=ROOT/'tests'/'test_legacy_reta_program.mojo'
 
 def _public_and_methods():
     tree=ast.parse(SOURCE.read_text(encoding='utf-8'))
@@ -43,7 +44,7 @@ def test_generated_catalog_matches_python_surface_exactly():
 def test_native_facade_has_all_historical_program_adapters():
     text=MOJO.read_text()
     for name in [
-        'produceAllSpaltenNumbers','breiteBreitenSysArgvPara','apply_output_mode',
+        'bootstrap_legacy_reta_program_with_parallel_config','produceAllSpaltenNumbers','breiteBreitenSysArgvPara','apply_output_mode',
         'storeParamtersForColumns','parametersToCommandsAndNumbers','helpPage',
         'bringAllImportantBeginThings','oberesMaximumArg','oberesMaximum2',
         'oberesMaximum','propInfoLog','set_propInfoLog','invertAlles','run',
@@ -54,6 +55,10 @@ def test_native_facade_has_all_historical_program_adapters():
     assert 'run_native_reta' in text
     assert 'run_reta_arguments_native' in text
     assert 'std.python' not in text and 'PythonObject' not in text
+    assert 'extract_parallel_config_from_argv(' in text
+    assert 'parallel_config_from_environment()' in text
+    assert 'normalize_native_cli_controls' in text
+    assert 'native_cli_startup' in text
 
 def test_catalog_generator_and_package_export_are_present():
     assert GEN.exists()
@@ -61,3 +66,12 @@ def test_catalog_generator_and_package_export_are_present():
     assert 'from .legacy_reta_program_catalog import (' in package
     assert 'from .legacy_reta_program import (' in package
     assert 'bootstrap_legacy_reta_program,' in package
+    assert 'bootstrap_legacy_reta_program_with_parallel_config,' in package
+
+
+def test_upper_limit_adapter_test_preserves_historical_monotonic_ceiling():
+    text=MOJO_TEST.read_text()
+    assert 'oberesMaximum(program, "--oberesmaximum=77")' in text
+    assert 'assert_equal(program.runtime.highest, 1024)' in text
+    assert 'oberesMaximum(program, "--oberesmaximum=2048")' in text
+    assert 'assert_equal(program.runtime.highest, 2048)' in text

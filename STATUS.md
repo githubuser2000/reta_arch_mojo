@@ -1,3 +1,29 @@
+# Status – Stage 12c5aw
+
+- Der Benutzerlauf bestätigt: Der frühere Compile-Time-`getenv`-Abbruch ist geschlossen; `test_legacy_reta_program.mojo` kompiliert und startet.
+- Die danach sichtbare Erwartung `1024 == 77` war ein Testfehler. Die historische obere Grenze ist monoton und darf nicht sinken.
+- Der Mojo-Regressionsfall prüft nun `--oberesmaximum=77` → 1024 sowie `--oberesmaximum=2048` → 2048.
+- `build.sh`, `build-heavy.sh` und `build-all.sh` akzeptieren weiterhin explizite Mojo-Optimierungs-, CPU-, Target-, Debug-, Define- und Threadoptionen.
+- Portable Abschlussprüfung: **99 eindeutige statische Tests bestanden**; Defektledger **123**, Python-Aufräumpunkte **20**, konsistent.
+- Fortschritt: **89/92 = 96,7 %** vollständig nativ/generiert, **92/92 = 100,0 %** mindestens teilweise, **48.831/48.831 = 100,0 %** angegriffene Referenzzeilen.
+- Der Benutzer führt den vollständigen Modular-Lauf mit `scripts/test_stage12c5aw.sh` aus.
+
+# Status – Stage 12c5av
+
+- `build.sh`, `build-heavy.sh` und `build-all.sh` akzeptieren nun einen unveränderten `MOJO_BUILD_OPTION`-Argumentvektor nach `--`.
+- `build-all.sh` reicht denselben Vektor an schwere und reguläre Ziele weiter; `build.sh` schließt auch `libreta-mojo-diagnostics.so` ein.
+- `--optimize-heavy` beziehungsweise `RETA_HEAVY_DEFAULT_NO_OPT=0` entfernt die lokale O0-Vorgabe der besonders großen Metadatenziele.
+- Ausgabeart, Zielpfad, RUNPATH, Source-ID und atomare Veröffentlichung bleiben fest im Besitz der Skripte.
+- Der Benutzer führt den Modular-Compilerlauf mit `scripts/test_stage12c5av.sh` aus.
+
+# Status – Stage 12c5au
+
+- Das vom Benutzer nachgereichte `target.tar.xz` trägt exakt die 12c5ar-Source-ID `a168a91c…`; es bestätigt den alten Fehler, enthält aber nicht den seit 12c5as vorhandenen Fix.
+- Die historische `LegacyRetaProgram`-Fassade verarbeitet leere Aufrufe, Sprachwahl, Hilfe, `-debug`, `-nichts` und `-nothing` nun vor CSV-I/O und ohne Python-Kindprozess.
+- `helpPage()` liefert die exakten nativen Hilfetextassets; `info_log` wird aus dem übergebenen Kontrollvektor initialisiert.
+- Unbewiesene Vektoren bleiben atomar und erhalten beim Fallback weiterhin die unveränderten Originalargumente.
+- Der Benutzer führt den Modular-Compilerlauf mit `scripts/test_stage12c5au.sh` aus.
+
 # Status – Stage 12c5ao
 
 - `GeneratedColumnsApplicationRequest` verlangt keine implizite Kopie von `CsvTable` oder Listen mehr; die geliehene Integrationsgrenze kopiert alle nicht `ImplicitlyCopyable`-Werte ausdrücklich (`MOJO-FIXED-055`).

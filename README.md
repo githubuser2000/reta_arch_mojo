@@ -1,5 +1,79 @@
 # reta.arch → Mojo
 
+## Aktueller Stand 12c5aw
+
+Der erste echte Lauf nach der `getenv`-Reparatur bestätigte die erfolgreiche
+Kompilierung von `test_legacy_reta_program.mojo` und deckte anschließend eine
+verkehrte Testannahme auf: `--oberesmaximum=77` darf die bereits durch den
+Bereichspfad gesetzte historische 1024-Grenze nicht verkleinern. Der
+Regressionsvertrag prüft nun ausdrücklich 77 → 1024 und 2048 → 2048. Enthalten
+sind außerdem die konfigurierbaren Mojo-Buildoptionen aus 12c5av. Fokussierter
+Benutzerlauf: `scripts/test_stage12c5aw.sh`. Details:
+[`STAGE12C5AW_MONOTONIC_UPPER_LIMIT.md`](STAGE12C5AW_MONOTONIC_UPPER_LIMIT.md).
+
+## Aktueller Stand 12c5av
+
+Die drei Produktions-Baueinstiege reichen nun beliebige `MOJO_BUILD_OPTION`-Werte
+bytegetreu an alle regulären, schweren und Shared-Library-Ziele weiter. Damit
+lassen sich unter anderem `--optimization-level`, `--target-cpu`, Debugflags,
+Defines und `-j` direkt beim Skriptaufruf festlegen. Besonders große
+Metadatenziele behalten standardmäßig ihre O0-Sicherheitsvorgabe;
+`--optimize-heavy` hebt sie ausdrücklich auf. Beispiel:
+
+```sh
+scripts/build-all.sh --optimize-heavy -- --optimization-level 2 -j 8
+```
+
+Die historische `reta.py`-Programmfassade besitzt gleichzeitig ihre nativen
+Start-, Sprach-, Hilfe- und Kontrollpfade aus Stage 12c5au. Der Benutzer führt
+weiterhin alle Mojo-Kompilierungen aus. Fokussierter Lauf:
+`scripts/test_stage12c5av.sh`. Details:
+[`STAGE12C5AV_CONFIGURABLE_COMPILER_OPTIONS.md`](STAGE12C5AV_CONFIGURABLE_COMPILER_OPTIONS.md).
+
+## Aktueller Stand 12c5au
+
+Die historische `reta.py`-Programmfassade besitzt nun auch ihre Start- und
+Kontrollpfade selbst. Leerer Aufruf, reine Sprachwahl, deutsche/englische
+Hilfe, `-debug`, `-nichts` und `-nothing` werden vor jeder CSV-Auflösung und
+ohne Python-Kindprozess verarbeitet. Das nachgereichte `target.tar.xz` wurde
+über seine Source-ID eindeutig als 12c5ar-Build erkannt; es kann den neueren
+12c5as/12c5at-Fix daher nicht prüfen. Fokussierter lokaler Compilerlauf:
+`scripts/test_stage12c5au.sh`. Details:
+[`STAGE12C5AU_NATIVE_LEGACY_RETA_STARTUP.md`](STAGE12C5AU_NATIVE_LEGACY_RETA_STARTUP.md).
+
+## Aktueller Stand 12c5at
+
+Die deterministische Tabellen-Ausführung aus
+`reta_architecture/prompt_execution.py` besitzt nun eine eigene typisierte
+Runtime-Grenze. Alle 22 Top-Level-Oberflächen sind in Originalreihenfolge mit
+lebenden Mojo-Evidenzen verbunden. Planung und Tabellenrendering erfolgen ohne
+Terminal-I/O; erst `prompt_main.mojo` emittiert das vollständige Ergebnis.
+Noch nicht bewiesene historische Verbundbefehle bleiben sichtbar an der
+atomaren Kompatibilitätsgrenze.
+Fokussierte Prüfung: `scripts/test_stage12c5at.sh`. Details:
+[`STAGE12C5AT_NATIVE_PROMPT_EXECUTION.md`](STAGE12C5AT_NATIVE_PROMPT_EXECUTION.md).
+
+## Aktueller Stand 12c5as
+
+Der von `scripts/test_all.sh` gemeldete Mojo-1.0-Abbruch in
+`test_legacy_reta_program.mojo` ist an der eigentlichen Ursache behoben:
+`getenv` wird nicht mehr transitiv aus Default-Argumenten ausgewertet. Die
+Parallelkonfiguration besitzt nun eine reine, injizierbare Wertetransformation
+und eine getrennte Runtime-I/O-Grenze. Auch alle Program-Workflow-Einstiege
+verlangen ihre Konfiguration ausdrücklich. Fokussierte Prüfung:
+`scripts/test_stage12c5as.sh`. Details:
+[`STAGE12C5AS_RUNTIME_SAFE_PARALLEL_CONFIG.md`](STAGE12C5AS_RUNTIME_SAFE_PARALLEL_CONFIG.md).
+
+## Aktueller Stand 12c5ar
+
+Der 1.804-zeilige Python-Regressionsmonolith
+`tests/test_architecture_refactor.py` ist als exakter generiert-nativer Katalog
+mit 70 Verträgen, 1.060 Assertions und lebenden Mojo-Evidenzzielen gebunden.
+Damit sind alle 92 Referenzdateien mindestens teilweise portiert und alle
+48.831 Referenzzeilen angegriffen. Fokussierte Prüfung:
+`scripts/test_stage12c5ar.sh`. Details:
+[`STAGE12C5AR_NATIVE_ARCHITECTURE_REFACTOR_TEST_INVENTORY.md`](STAGE12C5AR_NATIVE_ARCHITECTURE_REFACTOR_TEST_INVENTORY.md).
+
 ## Aktueller Stand 12c5aq
 
 Der bislang unberührte End-to-End-Test `tests/test_command_parity.py` ist als
@@ -137,34 +211,36 @@ abgeschlossene Release-Stufen:       9 von 12 = 75,0 %
 Stufen 9/10/12:                       Ausgabe, Prompt/i18n und Releaseparität in Arbeit
 Stufe 11:                             11a–11j = 100 %
 Stufe 12:                             12a–12b fertig, 12c zu ca. 99,98 % = ca. 72,6 %
-vollständig nativ/generiert:          87 von 92 = 94,6 %
-mindestens teilweise portiert:       90 von 92 = 97,8 %
-angegriffene Referenzzeilen:          47.027 von 48.831 = 96,3 %
+vollständig nativ/generiert:          89 von 92 = 96,7 %
+mindestens teilweise portiert:       92 von 92 = 100,0 %
+angegriffene Referenzzeilen:          48.831 von 48.831 = 100,0 %
 funktionaler Nutzerumfang:            ca. 96–98 %
 ```
 
 Die Metriken messen **orthogonale Bezugsgrößen** und sind nicht als ein einziges wechselndes Gesamtprozent zu lesen:
 
 - **96–98 % geschätzte Funktionsabdeckung**: Anteil der praktisch relevanten Befehls- und Verhaltensfamilien mit einem nativen Pfad. Der atomare Fallback ist nur eine Sicherheitsgrenze und wird nicht als transpiliert gezählt.
-- **94,6 % vollständiger Dateibesitz**: Nur Dateien, deren gesamter wirksamer Vertrag nativ oder reproduzierbar generiert ersetzt ist.
-- **96,3 % angegriffene Referenzzeilen**: maschinenberechneter Umfang vollständig und teilweise besessener Referenzdateien.
+- **96,7 % vollständiger Dateibesitz**: Nur Dateien, deren gesamter wirksamer Vertrag nativ oder reproduzierbar generiert ersetzt ist.
+- **100,0 % angegriffene Referenzzeilen**: maschinenberechneter Umfang vollständig und teilweise besessener Referenzdateien.
 - **84,0 % Stufenfortschritt**: gewichtete Releaseplanung; eine Stufe kann weit fortgeschritten sein, obwohl große historische Python-Besitzer noch sichtbar bleiben.
 
 Der Port ist daher nicht von über 90 % auf rund 65 % zurückgefallen. Die frühere Zahl bezeichnete die Funktionsoberfläche, die strengere Zahl den Quellersatz. Der vollständige Plan steht in [`ROADMAP.md`](ROADMAP.md).
 
-### Aktueller Fokus: Stage 12c5aq
+### Aktueller Fokus: Stage 12c5aw
 
 Der Entwicklungsablauf lautet:
 
 ```bash
-./do.sh 12c5aq
+./do.sh 12c5aw
 ```
 
-Die Stage-Kette bestätigt zuerst 12c5ap. Danach werden die vier kanonischen
-Kommandofälle reproduzierbar geprüft, der typisierte Mojo-Katalog gebaut und
-dieselben Fälle gegen `target/bin/reta-native` ausgeführt. Erst bei vollständig
-erfolgreicher Ausführung werden Shared Diagnostics, `scripts/test_all.sh` und
-der Git-Commit gestartet.
+Die Stage-Kette bestätigt zuerst 12c5av einschließlich des reparierten
+`getenv`-Compilerpfads, der nativen Legacy-Startpfade und der konfigurierbaren
+Produktionsbuilds. Der bereits kompilierte Legacy-Test prüft nun zusätzlich die
+historisch monotone Obergrenze: 77 verkleinert 1024 nicht, 2048 erhöht sie.
+Die Mojo-Kompilierungen führt ausschließlich der Benutzer aus. Erst bei
+vollständig erfolgreicher Ausführung werden Shared Diagnostics,
+`scripts/test_all.sh` und der Git-Commit gestartet.
 
 ## Installation mit Python 3.14
 

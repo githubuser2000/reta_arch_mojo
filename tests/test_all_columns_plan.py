@@ -57,6 +57,9 @@ def test_generate_html_has_no_runtime_bridge() -> None:
     generate_html = (ROOT / "src" / "generate_html_main.mojo").read_text(
         encoding="utf-8"
     )
+    html_document = (
+        ROOT / "src" / "reta_mojo" / "html_document.mojo"
+    ).read_text(encoding="utf-8")
     native_cli = (ROOT / "src" / "reta_mojo" / "native_reta_cli.mojo").read_text(
         encoding="utf-8"
     )
@@ -65,7 +68,8 @@ def test_generate_html_has_no_runtime_bridge() -> None:
     ).read_text(encoding="utf-8")
     assert "std.subprocess" not in generate_html
     assert "std.python" not in generate_html
-    assert "run_native_reta(tokens" in generate_html
+    assert "assemble_html_document" in generate_html
+    assert "run_native_reta(tokens" in html_document
     # Stage 12c4y moved the all-columns owner from the productive CLI shell
     # into parameter_runtime.  The CLI must delegate instead of duplicating it.
     assert "load_all_column_selection" not in native_cli
