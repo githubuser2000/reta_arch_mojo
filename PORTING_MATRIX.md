@@ -5,7 +5,7 @@ Stand: 4. Juli 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der g
 - Ursprüngliche Python-Dateien: **92**
 - Ursprüngliche Python-Zeilen insgesamt: **48831**
 - Eingebettete Python-Brücken: **0**; expliziter Mojo-Kindprozessadapter: **1**
-- Quellzeilen der bereits angegriffenen Architekturmodule: **46674**
+- Quellzeilen der bereits angegriffenen Architekturmodule: **46729**
 - Native Mojo-Quellzeilen: siehe `src/` (inklusive generiertem Kategoriekatalog)
 
 | Python-Datei | Zeilen | Funktionen | Klassen | dynamische Aufrufe | Status | Mojo/Ziel | Anmerkung |
@@ -101,5 +101,5 @@ Stand: 4. Juli 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der g
 | `tests/__init__.py` | 0 | 0 | 0 | 0 | Python-Referenz/Bridge | `python_reference/tests/__init__.py` | noch nicht nativ portiert |
 | `tests/test_architecture_refactor.py` | 1804 | 80 | 2 | 0 | Python-Referenz/Bridge | `python_reference/tests/test_architecture_refactor.py` | noch nicht nativ portiert |
 | `tests/test_command_parity.py` | 298 | 11 | 1 | 0 | Python-Referenz/Bridge | `python_reference/tests/test_command_parity.py` | noch nicht nativ portiert |
-| `tests/test_py_reta_truth_matrix.py` | 20 | 3 | 0 | 0 | Python-Referenz/Bridge | `python_reference/tests/test_py_reta_truth_matrix.py` | noch nicht nativ portiert |
-| `tests/test_py_reta_truth_output_invariants.py` | 35 | 4 | 0 | 0 | Python-Referenz/Bridge | `python_reference/tests/test_py_reta_truth_output_invariants.py` | noch nicht nativ portiert |
+| `tests/test_py_reta_truth_matrix.py` | 20 | 3 | 0 | 0 | nativ | `src/reta_mojo/py_reta_truth.mojo + tests/test_py_reta_truth_native.mojo` | beide historischen Matrixwahrheiten laufen gegen den nativen Schema- und Parametersemantikbesitzer; keine Python-Matrixinspektion |
+| `tests/test_py_reta_truth_output_invariants.py` | 35 | 4 | 0 | 0 | nativ | `src/reta_mojo/py_reta_truth.mojo + tests/test_py_reta_truth_native.mojo` | Religion-CSV-Kopf, Spalten 744/745 und Tagzuordnung werden semantisch über native CSV-, Ressourcen- und Tag-APIs geprüft statt Python-Quelltext zu durchsuchen |

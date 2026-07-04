@@ -42,6 +42,8 @@ EXPECTED = {
     "reta_architecture/prompt_execution.py": "teilweise nativ",
     "retaPrompt.py": "nativ",
     "libs/LibRetaPrompt.py": "nativ",
+    "tests/test_py_reta_truth_matrix.py": "nativ",
+    "tests/test_py_reta_truth_output_invariants.py": "nativ",
 }
 
 

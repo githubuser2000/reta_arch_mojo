@@ -14,7 +14,7 @@ def test_complete_legacy_surface_is_explicit() raises:
 
 
 def test_column_and_parse_adapters_share_one_plan() raises:
-    var tokens = [
+    var tokens: List[String] = [
         "-spalten",
         "--religionen=sternpolygon",
         "-ausgabe",
