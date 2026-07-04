@@ -14,6 +14,7 @@ from .resource_paths import asset_resource
 from .row_ranges import (
     RowRangeSyntax,
     RowRangeSyntaxSnapshot,
+    is_row_range_token as _row_range_is_token,
     split_top_level_commas,
 )
 from .schema import RetaContextSchema
@@ -65,6 +66,19 @@ struct CanonicalColumnSelection(Copyable):
     var parameter_canonical: String
     var negative: Bool
     var columns: List[Int]
+
+
+def is_row_range_token(
+    text: String, multiple_prefix: String = "v"
+) raises -> Bool:
+    """Public input-semantics facade for the native row-range recognizer.
+
+    Mojo wildcard imports do not re-export names imported from another module.
+    The Python architecture owner presents row-range syntax as part of its input
+    bundle, so callers may deliberately stay on this facade instead of knowing
+    the lower-level ``row_ranges`` owner.
+    """
+    return _row_range_is_token(text, multiple_prefix)
 
 
 def _slice_input(text: String, start: Int, end: Int) -> String:

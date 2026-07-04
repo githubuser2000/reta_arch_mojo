@@ -1,10 +1,26 @@
 #!/usr/bin/env sh
 set -eu
+
+report_shared_build_status() {
+    status=$?
+    trap - 0
+    if [ -n "${TMP_COMPARE-}" ]; then
+        rm -rf "$TMP_COMPARE"
+    fi
+    if [ "$status" -eq 0 ]; then
+        printf '%s: JA\n' 'Kompilierung und Shared-Diagnostics-Prüfung erfolgreich'
+    else
+        printf '%s: NEIN (Exitstatus %s)\n' 'Kompilierung und Shared-Diagnostics-Prüfung erfolgreich' "$status" >&2
+    fi
+    exit "$status"
+}
+trap report_shared_build_status 0
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 cd "$ROOT"
 MOJO=${MOJO_BIN:-"$ROOT/bin/mojo-real"}
 TEST_PYTHON=$("$ROOT/scripts/find_test_python.sh")
 REFERENCE_PYTHON=${RETA_REFERENCE_PYTHON:-"$("$ROOT/scripts/select_reference_python.sh")"}
+TMP_COMPARE=
 mkdir -p target/tests
 
 # Optional deep verification: rebuild the shared owner and its loader, then
@@ -24,7 +40,9 @@ mkdir -p target/tests
     -o target/tests/reta-mojo-table-output-12c5z
 
 TMP_COMPARE=$(mktemp -d "${TMPDIR:-/tmp}/reta-diagnostics-parity.XXXXXX")
-trap 'rm -rf "$TMP_COMPARE"' EXIT HUP INT TERM
+trap 'exit 129' HUP
+trap 'exit 130' INT
+trap 'exit 143' TERM
 compare_command() {
     public_launcher=$1
     standalone_binary=$2

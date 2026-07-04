@@ -1,5 +1,17 @@
 # reta.arch → Mojo
 
+## Aktueller Stand 12c5ag
+
+Der nach Stage 12c5af gemeldete Compilerabbruch in
+`test_input_semantics.mojo` ist behoben: die Bereichserkennung besitzt nun
+eine explizite Input-Semantics-Fassade statt eines nicht existierenden
+transitiven Wildcard-Reexports. `build-all.sh`,
+`build-and-test-shared-diagnostics.sh` und `test_all.sh` melden abschließend
+eindeutig `JA` oder `NEIN` und bewahren den realen Exitstatus. Zusätzlich ist
+die vollständige Registry-/Bundle-Oberfläche von `generated_columns.py`
+typisiert. Fokussierte Prüfung: `scripts/test_stage12c5ag.sh`. Details:
+[`STAGE12C5AG_COMPILER_STATUS_GENERATED_REGISTRY.md`](STAGE12C5AG_COMPILER_STATUS_GENERATED_REGISTRY.md).
+
 ## Aktueller Stand 12c5af
 
 Die Produktionsbuilds bleiben bewusst vollständig statt inkrementell. Alle
@@ -27,7 +39,7 @@ abgeschlossene Release-Stufen:       9 von 12 = 75,0 %
 Stufen 9/10/12:                       Ausgabe, Prompt/i18n und Releaseparität in Arbeit
 Stufe 11:                             11a–11j = 100 %
 Stufe 12:                             12a–12b fertig, 12c zu ca. 99,95 % = ca. 72,2 %
-vollständig nativ/generiert:          76 von 92 = 82,6 %
+vollständig nativ/generiert:          77 von 92 = 83,7 %
 mindestens teilweise portiert:       83 von 92 = 90,2 %
 angegriffene Referenzzeilen:          38.174 von 48.831 = 78,2 %
 funktionaler Nutzerumfang:            ca. 96–98 %
@@ -36,22 +48,22 @@ funktionaler Nutzerumfang:            ca. 96–98 %
 Die Metriken messen **orthogonale Bezugsgrößen** und sind nicht als ein einziges wechselndes Gesamtprozent zu lesen:
 
 - **96–98 % geschätzte Funktionsabdeckung**: Anteil der praktisch relevanten Befehls- und Verhaltensfamilien mit einem nativen Pfad. Der atomare Fallback ist nur eine Sicherheitsgrenze und wird nicht als transpiliert gezählt.
-- **82,6 % vollständiger Dateibesitz**: Nur Dateien, deren gesamter wirksamer Vertrag nativ oder reproduzierbar generiert ersetzt ist.
+- **83,7 % vollständiger Dateibesitz**: Nur Dateien, deren gesamter wirksamer Vertrag nativ oder reproduzierbar generiert ersetzt ist.
 - **78,2 % angegriffene Referenzzeilen**: maschinenberechneter Umfang vollständig und teilweise besessener Referenzdateien.
 - **84,0 % Stufenfortschritt**: gewichtete Releaseplanung; eine Stufe kann weit fortgeschritten sein, obwohl große historische Python-Besitzer noch sichtbar bleiben.
 
 Der Port ist daher nicht von über 90 % auf rund 65 % zurückgefallen. Die frühere Zahl bezeichnete die Funktionsoberfläche, die strengere Zahl den Quellersatz. Der vollständige Plan steht in [`ROADMAP.md`](ROADMAP.md).
 
-### Aktueller Fokus: Stage 12c5ad
+### Aktueller Fokus: Stage 12c5ag
 
-Die lokale TablePreparation-/TableRuntime-Grenze ist vollständig typisiert.
-Headerbreite und Generated-Tag-Branchreihenfolge folgen exakt der Python-
-Referenz; der Runtimebesitzer synchronisiert Tabellenzustand, Prepare, Concat,
-KombiJoin, Output und Gestirnmetadaten. Der normale Prüfzyklus lautet:
+Die gemeldete Compiler-Sichtbarkeitslücke in `test_input_semantics.mojo` ist
+behoben. Die drei übergeordneten Kompilierabläufe melden ihren echten
+Gesamtstatus als `JA` oder `NEIN`; die Generated-Column-Registry besitzt nun
+eine typisierte, geordnete Mojo-Oberfläche. Der schnelle Prüfzyklus lautet:
 
 ```bash
+./scripts/test_stage12c5ag.sh
 ./scripts/build-all.sh
-./scripts/test_stage12c5ad.sh
 ```
 
 Die vollständige native Mojo-Testprogrammsuite ist nach mehreren Stages oder

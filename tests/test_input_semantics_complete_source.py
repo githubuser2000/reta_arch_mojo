@@ -153,6 +153,8 @@ def test_no_python_bridge_and_reserved_alias_regression_is_fixed() -> None:
     assert "def _drop_first_codepoint(" in source
     assert "parse_explicit_int_set(_drop_first_codepoint(text))" in source
     assert "parse_explicit_int_set(_tail(text, 1))" not in source
+    assert "is_row_range_token as _row_range_is_token" in source
+    assert "def is_row_range_token(" in MOJO_INPUT.read_text(encoding="utf-8")
 
 
 def test_installer_accepts_an_explicit_compiler_target_directory() -> None:

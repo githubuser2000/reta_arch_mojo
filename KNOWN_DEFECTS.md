@@ -19,11 +19,11 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 
 - letzter vollständiger Rückwärtsaudit: `12c4s`
 - geprüfte Quellen: **24**
-- Reichweite: Vollständig bezogen auf alle bis Stage 12c5g im Projekt bestätigten oder plausibel begründeten verhaltensrelevanten Befunde; unbekannte künftige Fehler können naturgemäß erst nach ihrer Entdeckung aufgenommen werden.
+- Reichweite: Vollständig bezogen auf alle bis Stage 12c5ag im Projekt bestätigten oder plausibel begründeten verhaltensrelevanten Befunde; unbekannte künftige Fehler können naturgemäß erst nach ihrer Entdeckung aufgenommen werden.
 
 ## Übersicht
 
-- Einträge insgesamt: **113**
+- Einträge insgesamt: **114**
 - offene bestätigte Python-Fehler: **5**
 - zu entscheidende Python-Fehlerkandidaten: **13**
 - bereits im Python-Baum behobene Fehler: **7**
@@ -1546,3 +1546,16 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 - spätere Python-Aktion: Keine Python-Änderung erforderlich; dies war ein Fehler der nativen Buildinfrastruktur.
 - Mojo-Orte: `scripts/build-heavy.sh`, `scripts/build.sh`, `scripts/build_diagnostics_shared.sh`, `scripts/current_source_id.sh`, `scripts/test_atomic_build.sh`
 - Belege: `STAGE12C5AF_ATOMIC_BUILD_CORRECTNESS.md`, `scripts/test_atomic_build.sh`, `tests/test_atomic_build_publication.py`
+
+### TEST-FIXED-039 – Input-Semantics-Test erwartete einen transitiven Mojo-Wildcard-Reexport
+
+- Ursprung: `test_infrastructure`
+- Klasse / Schwere: `module_export_visibility` / `medium`
+- Python-Status: `not_applicable`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5ag`
+- Reproduktion: `scripts/test_all.sh ausführen; tests/test_input_semantics.mojo brach mit use of unknown declaration 'is_row_range_token' ab, obwohl die Implementierung in row_ranges.mojo vorhanden war.`
+- heutiger Vertrag: Die Input-Semantics-Grenze stellt den nativen Bereichserkenner über eine explizite typisierte Fassade bereit. Der Test kompiliert diese Besitzergrenze direkt und verlässt sich nicht mehr auf transitive Wildcard-Reexports.
+- spätere Python-Aktion: Keine Python-Änderung erforderlich; Python-Importsemantik und Mojo-Modulreexports unterscheiden sich hier bewusst.
+- Mojo-Orte: `src/reta_mojo/input_semantics.mojo`, `src/reta_mojo/row_ranges.mojo`, `tests/test_input_semantics.mojo`, `scripts/test_stage12c5ag.sh`
+- Belege: `STAGE12C5AG_COMPILER_STATUS_GENERATED_REGISTRY.md`, `tests/test_input_semantics_complete_source.py`, `scripts/test_stage12c5ag.sh`

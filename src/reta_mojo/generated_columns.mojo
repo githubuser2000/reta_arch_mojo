@@ -11,6 +11,182 @@ from .number_theory import (
 
 
 @fieldwise_init
+struct GeneratedColumnSpecSnapshot(Copyable):
+    var method_name: String
+    var trigger_columns: List[Int]
+    var tags: List[String]
+    var description: String
+
+
+@fieldwise_init
+struct GeneratedColumnSpec(Copyable):
+    """Typed metadata for one generated-column morphism."""
+
+    var method_name: String
+    var trigger_columns: List[Int]
+    var tags: List[String]
+    var description: String
+
+    def snapshot(self) -> GeneratedColumnSpecSnapshot:
+        return GeneratedColumnSpecSnapshot(
+            self.method_name,
+            self.trigger_columns.copy(),
+            self.tags.copy(),
+            self.description,
+        )
+
+
+@fieldwise_init
+struct GeneratedColumnRegistrySnapshot(Copyable):
+    var class_name: String
+    var count: Int
+    var morphisms: List[GeneratedColumnSpecSnapshot]
+
+
+@fieldwise_init
+struct GeneratedColumnRegistry(Copyable):
+    """Ordered registry matching ``DEFAULT_GENERATED_COLUMN_REGISTRY``."""
+
+    var specs: List[GeneratedColumnSpec]
+
+    def names(self) -> List[String]:
+        var result = List[String]()
+        for index in range(len(self.specs)):
+            result.append(self.specs[index].method_name)
+        return result^
+
+    def snapshot(self) -> GeneratedColumnRegistrySnapshot:
+        var morphisms = List[GeneratedColumnSpecSnapshot]()
+        for index in range(len(self.specs)):
+            morphisms.append(self.specs[index].snapshot())
+        return GeneratedColumnRegistrySnapshot(
+            "GeneratedColumnRegistry", len(morphisms), morphisms^
+        )
+
+
+@fieldwise_init
+struct GeneratedColumnsBundleSnapshot(Copyable):
+    var class_name: String
+    var count: Int
+    var morphisms: List[GeneratedColumnSpecSnapshot]
+
+
+@fieldwise_init
+struct GeneratedColumnsBundle(Copyable):
+    """Native architecture bundle for generated-column ownership."""
+
+    var registry: GeneratedColumnRegistry
+
+    def snapshot(self) -> GeneratedColumnsBundleSnapshot:
+        var snapshot = self.registry.snapshot()
+        return GeneratedColumnsBundleSnapshot(
+            "GeneratedColumnsBundle",
+            snapshot.count,
+            snapshot.morphisms.copy(),
+        )
+
+
+@fieldwise_init
+struct GeneratedColumnsSurfaceEntry(Copyable):
+    var python_name: String
+    var native_entry: String
+    var owner_module: String
+
+
+def default_generated_column_registry() -> GeneratedColumnRegistry:
+    return GeneratedColumnRegistry(
+        [
+            GeneratedColumnSpec(
+                "concatVervielfacheZeile",
+                [19, 90],
+                ["legacy-column-propagation"],
+                "Propagates selected row content to multiples of the source row.",
+            ),
+            GeneratedColumnSpec(
+                "concatModallogik",
+                List[Int](),
+                ["modal-logic", "generated-concepts"],
+                "Generates modal-logic columns from selected concept-row pairs.",
+            ),
+            GeneratedColumnSpec(
+                "concat1RowPrimUniverse2",
+                List[Int](),
+                ["prim-universe", "fractional-generated-column"],
+                "Generates prime-universe and fractional relation columns from selected commands.",
+            ),
+            GeneratedColumnSpec(
+                "concat1PrimzahlkreuzProContra",
+                List[Int](),
+                ["prime-cross", "pro-contra", "generated-column"],
+                "Generates prime-cross pro/contra columns from row-number structure.",
+            ),
+            GeneratedColumnSpec(
+                "concatPrimCreativityType",
+                [64],
+                ["sternPolygon", "galaxie"],
+                "Generates the prime/sun/moon creativity type column.",
+            ),
+            GeneratedColumnSpec(
+                "concatGleichheitFreiheitDominieren",
+                [132],
+                ["sternPolygon", "universum"],
+                "Generates equality/freedom/domination classification from row number.",
+            ),
+            GeneratedColumnSpec(
+                "concatGeistEmotionEnergieMaterieTopologie",
+                [242],
+                ["sternPolygon", "universum"],
+                "Generates mind/emotion/energy/matter/topology classification.",
+            ),
+            GeneratedColumnSpec(
+                "concatMondExponzierenLogarithmusTyp",
+                [64],
+                ["sternPolygon", "universum", "galaxie"],
+                "Generates moon/exponent/logarithm relation columns.",
+            ),
+            GeneratedColumnSpec(
+                "concatLovePolygon",
+                [9],
+                ["sternPolygon", "galaxie", "gleichfoermigesPolygon"],
+                "Generates love-polygon text from the existing structure-size columns.",
+            ),
+            GeneratedColumnSpec(
+                "createSpalteGestirn",
+                [64],
+                ["sternPolygon", "universum", "galaxie"],
+                "Generates the Gestirn/Sonne/Mond/Planet classification column from row numbers.",
+            ),
+        ]
+    )
+
+
+def bootstrap_generated_columns() -> GeneratedColumnsBundle:
+    return GeneratedColumnsBundle(default_generated_column_registry())
+
+
+def generated_columns_surface() -> List[GeneratedColumnsSurfaceEntry]:
+    """Map every Python owner entry to its native implementation boundary."""
+    return [
+        GeneratedColumnsSurfaceEntry("GeneratedColumnSpec", "GeneratedColumnSpec", "generated_columns.mojo"),
+        GeneratedColumnsSurfaceEntry("GeneratedColumnRegistry", "GeneratedColumnRegistry", "generated_columns.mojo"),
+        GeneratedColumnsSurfaceEntry("GeneratedColumnsBundle", "GeneratedColumnsBundle", "generated_columns.mojo"),
+        GeneratedColumnsSurfaceEntry("concat_love_polygon", "love_polygon_value", "generated_table_columns.mojo"),
+        GeneratedColumnsSurfaceEntry("gleichheit_freiheit_vergleich", "equality_freedom_value", "generated_columns.mojo"),
+        GeneratedColumnsSurfaceEntry("geist_emotion_energie_materie_topologie", "mind_energy_topology_value", "generated_columns.mojo"),
+        GeneratedColumnsSurfaceEntry("concat_gleichheit_freiheit_dominieren", "apply_native_generated_columns", "generated_table_columns.mojo"),
+        GeneratedColumnsSurfaceEntry("concat_geist_emotion_energie_materie_topologie", "apply_native_generated_columns", "generated_table_columns.mojo"),
+        GeneratedColumnsSurfaceEntry("concat_prim_creativity_type", "prime_creativity_value", "generated_columns.mojo"),
+        GeneratedColumnsSurfaceEntry("concat_mond_exponzieren_logarithmus_typ", "moon_relation_value", "generated_table_columns.mojo"),
+        GeneratedColumnsSurfaceEntry("concat_vervielfache_zeile", "propagate_multiples_column", "generated_table_columns.mojo"),
+        GeneratedColumnsSurfaceEntry("concat_modallogik", "modal_logic_column", "generated_table_columns.mojo"),
+        GeneratedColumnsSurfaceEntry("concat_primzahlkreuz_pro_contra", "generate_prime_cross_columns", "prime_cross_columns.mojo"),
+        GeneratedColumnsSurfaceEntry("concat_prim_universe_row", "generate_integer_prime_universe_columns + generate_fractional_prime_universe_columns", "prime_universe_columns.mojo"),
+        GeneratedColumnsSurfaceEntry("create_spalte_gestirn", "create_spalte_gestirn", "table_runtime.mojo"),
+        GeneratedColumnsSurfaceEntry("bootstrap_generated_columns", "bootstrap_generated_columns", "generated_columns.mojo"),
+    ]
+
+
+@fieldwise_init
 struct GeneratedColumnLabels(Copyable):
     var equality_header: String
     var domination: String

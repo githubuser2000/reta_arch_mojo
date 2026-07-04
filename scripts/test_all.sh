@@ -1,5 +1,17 @@
 #!/usr/bin/env sh
 set -eu
+
+report_test_build_status() {
+    status=$?
+    trap - 0
+    if [ "$status" -eq 0 ]; then
+        printf '%s: JA\n' 'Kompilierung und Ausführung aller ausgewählten Mojo-Tests erfolgreich'
+    else
+        printf '%s: NEIN (Exitstatus %s)\n' 'Kompilierung und Ausführung aller ausgewählten Mojo-Tests erfolgreich' "$status" >&2
+    fi
+    exit "$status"
+}
+trap report_test_build_status 0
 # Vollständige native Mojo-Testprogrammsuite. Für den normalen Entwicklungs-
 # zyklus genügt das aktuelle fokussierte Stage-Skript. Diese Suite ist vor
 # Releases oder nach mehreren Stages sinnvoll; RETA_TEST_HEAVY=1 nimmt auch
@@ -7,6 +19,7 @@ set -eu
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 cd "$ROOT"
 TARGET=${RETA_TEST_TARGET_DIR:-"$ROOT/target/tests-all"}
+MOJO=${MOJO_BIN:-"$ROOT/bin/mojo-real"}
 mkdir -p "$TARGET"
 
 for test_file in tests/test_*.mojo; do
@@ -29,7 +42,7 @@ for test_file in tests/test_*.mojo; do
             ;;
     esac
     printf '\n== build %s ==\n' "$test_file"
-    "$ROOT/bin/mojo-real" build -I src -I tests "$test_file" "$@" -o "$TARGET/$name"
+    "$MOJO" build -I src -I tests "$test_file" "$@" -o "$TARGET/$name"
     printf '== run %s ==\n' "$name"
     "$ROOT/bin/mojo-runtime-exec" "$TARGET/$name"
 done

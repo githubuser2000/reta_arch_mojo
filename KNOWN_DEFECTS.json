@@ -2750,6 +2750,31 @@
         "scripts/test_atomic_build.sh",
         "tests/test_atomic_build_publication.py"
       ]
+    },
+    {
+      "id": "TEST-FIXED-039",
+      "title": "Input-Semantics-Test erwartete einen transitiven Mojo-Wildcard-Reexport",
+      "origin": "test_infrastructure",
+      "classification": "module_export_visibility",
+      "severity": "medium",
+      "python_status": "not_applicable",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5ag",
+      "reproducer": "scripts/test_all.sh ausführen; tests/test_input_semantics.mojo brach mit use of unknown declaration 'is_row_range_token' ab, obwohl die Implementierung in row_ranges.mojo vorhanden war.",
+      "python_locations": [],
+      "mojo_locations": [
+        "src/reta_mojo/input_semantics.mojo",
+        "src/reta_mojo/row_ranges.mojo",
+        "tests/test_input_semantics.mojo",
+        "scripts/test_stage12c5ag.sh"
+      ],
+      "current_contract": "Die Input-Semantics-Grenze stellt den nativen Bereichserkenner über eine explizite typisierte Fassade bereit. Der Test kompiliert diese Besitzergrenze direkt und verlässt sich nicht mehr auf transitive Wildcard-Reexports.",
+      "post_port_fix": "Keine Python-Änderung erforderlich; Python-Importsemantik und Mojo-Modulreexports unterscheiden sich hier bewusst.",
+      "evidence": [
+        "STAGE12C5AG_COMPILER_STATUS_GENERATED_REGISTRY.md",
+        "tests/test_input_semantics_complete_source.py",
+        "scripts/test_stage12c5ag.sh"
+      ]
     }
   ],
   "audit": {
@@ -2780,6 +2805,6 @@
       "STAGE12C5G_NATIVE_KOMBI_JOIN_UNORDERED_PARITY.md",
       "STAGE12C5Y_NATIVE_TABLE_OUTPUT.md"
     ],
-    "scope_note": "Vollständig bezogen auf alle bis Stage 12c5g im Projekt bestätigten oder plausibel begründeten verhaltensrelevanten Befunde; unbekannte künftige Fehler können naturgemäß erst nach ihrer Entdeckung aufgenommen werden."
+    "scope_note": "Vollständig bezogen auf alle bis Stage 12c5ag im Projekt bestätigten oder plausibel begründeten verhaltensrelevanten Befunde; unbekannte künftige Fehler können naturgemäß erst nach ihrer Entdeckung aufgenommen werden."
   }
 }

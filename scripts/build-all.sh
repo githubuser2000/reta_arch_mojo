@@ -1,5 +1,17 @@
 #!/usr/bin/env sh
 set -eu
+
+report_full_build_status() {
+    status=$?
+    trap - 0
+    if [ "$status" -eq 0 ]; then
+        printf '%s: JA\n' 'Kompilierung des vollständigen nativen Builds erfolgreich'
+    else
+        printf '%s: NEIN (Exitstatus %s)\n' 'Kompilierung des vollständigen nativen Builds erfolgreich' "$status" >&2
+    fi
+    exit "$status"
+}
+trap report_full_build_status 0
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 cd "$ROOT"
 TARGET_DIR=${RETA_TARGET_DIR:-"$ROOT/target/bin"}
