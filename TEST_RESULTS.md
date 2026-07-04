@@ -1,3 +1,79 @@
+# Stage 12c5al
+
+```text
+I18n-Katalog:                             68.265 Zeilen
+Legacy-Monolith:                           8 Klassen, 4 Funktionen
+Architekturassets unter Git/HOME/TTY:      63/63 identisch
+Source-Vertragstests:                     202 bestanden, 1 Skip
+fokussierte Stage-/Infrastrukturtests:      72/72 bestanden
+Defektkatalog:                             119 Einträge
+vollständig nativ/generiert:              80/92 = 87,0 %
+mindestens teilweise portiert:            86/92 = 93,5 %
+angegriffene Referenzzeilen:               46.561/48.831 = 95,4 %
+vollständig native Referenzzeilen:         40.088/48.831 = 82,1 %
+```
+
+Compilerunabhängig werden Generatorreproduzierbarkeit, manifestisolierte
+Architekturassets, Klassen-/Funktionsinventar, Installationslayout und
+Portierungsmetriken geprüft. Der echte Mojo-Nachweis
+erfolgt lokal mit `scripts/test_stage12c5al.sh` beziehungsweise `./do.sh 12c5al`.
+
+# Stage 12c5ak
+
+```text
+fokussierte portable Abschlussgruppe:    62/62 bestanden
+Source-Vertragstests:                    198 bestanden, 1 Skip
+Domänenprobe:                             16/16 Befehle nativ
+Architekturprobe:                         63 statische + 1 dynamischer Befehl
+vollständig nativ/generiert:              79/92 = 85,9 %
+mindestens teilweise portiert:            85/92 = 92,4 %
+angegriffene Referenzzeilen:               41.130/48.831 = 84,2 %
+vollständig native Referenzzeilen:         34.657/48.831 = 71,0 %
+Defektkatalog:                             118 Einträge
+Python-Bereinigungspunkte:                  19
+```
+
+Der Generator ist unabhängig von Hashseed und vorherigem Python-Cachezustand:
+Er entfernt Laufzeitartefakte, verhindert Bytecode-Neuerzeugung und reproduziert
+anschließend alle 63 statischen Architekturprobe-Assets bytegenau. Ein
+Modular-Mojo-Compiler ist in der Prüfungsumgebung nicht vorhanden; der native
+Compiler-, 16-Fälle-Domänen- und 64-Fälle-Architekturparitätsnachweis erfolgt
+lokal mit `scripts/test_stage12c5ak.sh` beziehungsweise `./do.sh 12c5ak`.
+
+# Stage 12c5aj
+
+```text
+lokal aus 12c5ai bestätigt:             17 Mojo-Tests bestanden
+Domänenprobe-Blocker:                   pairs-json-Reihenfolge lokalisiert
+Paritätsfälle in 12c5aj:                14
+mindestens teilweise portiert:          84/92 = 91,3 %
+angegriffene Referenzzeilen:             40.690/48.831 = 83,3 %
+Defektkatalog:                           118 Einträge
+Python-Bereinigungspunkte:               19
+```
+
+Die neue Stage kompiliert die kanonisch sortierte Parametergarbe und zwei
+Prompt-Execution-Module. Compilerunabhängig bestanden **62 fokussierte Tests**
+sowie **192 Source-Vertragstests**; ein compilerabhängiger Test wurde begründet
+übersprungen. Der vollständige Modular-Nachweis erfolgt lokal mit
+`scripts/test_stage12c5aj.sh`.
+
+# Stage 12c5ai
+
+```text
+portable fokussierte Tests:             100 bestanden
+Mojo-Testfunktionen ohne raises:         0
+Domänenprobe nativ:                      15/16 Befehle
+Schema-Referenzsnapshot:                 5.611 Byte
+Defektkatalog:                           117 Einträge
+Python-Bereinigungspunkte:               19
+```
+
+Der gemeldete Parserabbruch in `test_legacy_table_handling.mojo` und vier
+weitere latente Effektannotationslücken in drei zusätzlichen Modulen sind geschlossen. Der lokale Stage-Test
+kompiliert diese Ziele zuerst, bevor er den neuen nativen `schema-json`-Pfad
+bytegenau gegen Python prüft.
+
 # Stage 12c5af
 
 ```text

@@ -1,9 +1,10 @@
 """Native core CLI for the historical reta_domain_probe_py.py surface.
 
-The native stage owns parameter aliases, canonical pairs, direct-column
-queries and their compact JSON representations. HTML-reference and complete
-architecture snapshots remain separate owners and are intentionally rejected
-instead of silently invoking Python.
+The native stage owns parameter aliases, canonical pairs, exact column
+metadata, HTML-reference queries and their compact JSON representations.
+The complete schema snapshot is serialized from the native typed catalog.
+The full architecture aggregate is loaded from the reproducibly generated
+immutable architecture-probe snapshot; no Python runtime is invoked.
 """
 
 from std.collections import List
@@ -11,9 +12,12 @@ from std.collections.string import atol
 from std.sys import argv
 
 from reta_mojo.schema_catalog import bootstrap_reta_schema
+from reta_mojo.schema_snapshot import schema_snapshot_json
+from reta_mojo.architecture_probe_assets import load_architecture_snapshot_json
 from reta_mojo.parameter_semantics import (
     CanonicalPair,
     ColumnCanonicalPairs,
+    ColumnParameterMeta,
     ParameterAliasGroup,
     ParameterSemanticsSheaf,
     build_parameter_semantics,
@@ -23,6 +27,7 @@ from reta_mojo.parameter_semantics import (
     resolve_main_alias,
     reverse_map_canonical_pairs,
 )
+from reta_mojo.sheaves import HtmlReferenceSheaf, load_html_reference_sheaf
 
 
 def _json_escape(text: String) -> String:
@@ -66,6 +71,29 @@ def _print_python_int_list(values: List[Int]) -> None:
             print(", ", end="")
         print(values[index], end="")
     print("]")
+
+
+def _python_repr_escape(text: String) -> String:
+    return (
+        text.replace("\\", "\\\\")
+        .replace("'", "\\'")
+        .replace("\n", "\\n")
+        .replace("\r", "\\r")
+        .replace("\t", "\\t")
+    )
+
+
+def _print_python_string(text: String) -> None:
+    print("'" + _python_repr_escape(text) + "'", end="")
+
+
+def _print_python_string_list(values: List[String]) -> None:
+    print("[", end="")
+    for index in range(len(values)):
+        if index > 0:
+            print(", ", end="")
+        _print_python_string(values[index])
+    print("]", end="")
 
 
 def _contains_int(values: List[Int], value: Int) -> Bool:
@@ -217,6 +245,111 @@ def _print_pair_json(
     print("}")
 
 
+def _print_column_meta_json(meta: ColumnParameterMeta) -> None:
+    print('{"column_number":', end="")
+    print(meta.column_number, end="")
+    print(',"parameter_main":', end="")
+    _print_json_string(meta.parameter_main)
+    print(',"parameter_main_aliases":', end="")
+    _print_string_list(meta.parameter_main_aliases)
+    print(',"parameter":', end="")
+    _print_json_string(meta.parameter_name)
+    print(',"parameter_aliases":', end="")
+    _print_string_list(meta.parameter_aliases)
+    print("}", end="")
+
+
+def _print_column_meta_python(meta: ColumnParameterMeta) -> None:
+    print("{'column_number': ", end="")
+    print(meta.column_number, end="")
+    print(", 'parameter_main': ", end="")
+    _print_python_string(meta.parameter_main)
+    print(", 'parameter_main_aliases': ", end="")
+    _print_python_string_list(meta.parameter_main_aliases)
+    print(", 'parameter': ", end="")
+    _print_python_string(meta.parameter_name)
+    print(", 'parameter_aliases': ", end="")
+    _print_python_string_list(meta.parameter_aliases)
+    print("}", end="")
+
+
+def _empty_html_json(column_number: Int) -> String:
+    return (
+        '{"column_number":' + String(column_number)
+        + ',"classes":[],"class_string":"","class_attributes":[]'
+        + ',"extra_class_strings":[],"all_classes":[],"data_attributes":{}'
+        + ',"attributes":[],"attributes_first":{},"text":""'
+        + ',"raw_open_tag":"","raw_html":"","html_elements":[]}'
+    )
+
+
+def _html_payload(
+    html_sheaf: HtmlReferenceSheaf, column_number: Int
+) -> String:
+    var payload = html_sheaf.html_meta_for_column(column_number)
+    if payload == "{}":
+        return _empty_html_json(column_number)
+    return payload^
+
+
+def _print_column_json(
+    sheaf: ParameterSemanticsSheaf,
+    html_sheaf: HtmlReferenceSheaf,
+    column_number: Int,
+) -> None:
+    var matches = sheaf.exact_meta_for_column(column_number)
+    var pairs = _pairs_for_column(
+        reverse_map_canonical_pairs(sheaf), column_number
+    )
+    print('{"column_number":', end="")
+    print(column_number, end="")
+    print(',"matches":[', end="")
+    for index in range(len(matches)):
+        if index > 0:
+            print(",", end="")
+        _print_column_meta_json(matches[index])
+    print('],"summary_pairs":[', end="")
+    for index in range(len(pairs)):
+        if index > 0:
+            print(",", end="")
+        print('{"main":', end="")
+        _print_json_string(pairs[index].main_name)
+        print(',"parameter":', end="")
+        _print_json_string(pairs[index].parameter_name)
+        print("}", end="")
+    print('],"html":', end="")
+    print(_html_payload(html_sheaf, column_number), end="")
+    print("}")
+
+
+def _print_pair_html_json(
+    sheaf: ParameterSemanticsSheaf,
+    html_sheaf: HtmlReferenceSheaf,
+    input_main: String,
+    input_parameter: String,
+    pair: CanonicalPair,
+) -> None:
+    var columns = column_numbers_for_pair(
+        sheaf, pair.main_name, pair.parameter_name
+    )
+    print('{"input_main":', end="")
+    _print_json_string(input_main)
+    print(',"input_parameter":', end="")
+    _print_json_string(input_parameter)
+    print(',"canonical_main":', end="")
+    _print_json_string(pair.main_name)
+    print(',"canonical_parameter":', end="")
+    _print_json_string(pair.parameter_name)
+    print(',"columns":', end="")
+    _print_int_list(columns)
+    print(',"html":[', end="")
+    for index in range(len(columns)):
+        if index > 0:
+            print(",", end="")
+        print(_html_payload(html_sheaf, columns[index]), end="")
+    print("]}")
+
+
 def _pairs_for_column(
     reverse: List[ColumnCanonicalPairs], column: Int
 ) -> List[CanonicalPair]:
@@ -250,7 +383,14 @@ def _help(program_name: String) -> None:
     print("  " + program_name + " main-json <hauptparameter>")
     print("  " + program_name + " pair <hauptparameter> <unterparameter>")
     print("  " + program_name + " pair-json <hauptparameter> <unterparameter>")
+    print("  " + program_name + " column <spaltennummer>")
+    print("  " + program_name + " column-json <spaltennummer>")
     print("  " + program_name + " reverse <spaltennummer>")
+    print("  " + program_name + " html-json <spaltennummer>")
+    print("  " + program_name + " html-all-json")
+    print("  " + program_name + " pair-html-json <hauptparameter> <unterparameter>")
+    print("  " + program_name + " schema-json")
+    print("  " + program_name + " architecture-json")
 
 
 def main() raises:
@@ -332,6 +472,28 @@ def main() raises:
         )
         return
 
+    if command == "column" or command == "column-json":
+        if len(args) != 3:
+            raise Error(command + " benötigt eine Spaltennummer")
+        var column = atol(String(args[2]))
+        var matches = sheaf.exact_meta_for_column(column)
+        if len(matches) == 0:
+            raise Error(
+                "Unbekannte oder nicht-direkte Spalte: " + String(column)
+            )
+        var html_sheaf = load_html_reference_sheaf()
+        if command == "column-json":
+            _print_column_json(sheaf, html_sheaf, column)
+            return
+        for index in range(len(matches)):
+            print(String(column) + " => ", end="")
+            _print_column_meta_python(matches[index])
+            print()
+        _print_reverse_text(
+            _pairs_for_column(reverse_map_canonical_pairs(sheaf), column)
+        )
+        return
+
     if command == "reverse":
         if len(args) != 3:
             raise Error("reverse benötigt eine Spaltennummer")
@@ -341,7 +503,49 @@ def main() raises:
         )
         return
 
-    raise Error(
-        "Befehl noch nicht nativ besessen: " + command
-        + "; HTML- und Gesamtsnapshots bleiben vorerst Referenzgrenze"
-    )
+    if command == "html-json":
+        if len(args) != 3:
+            raise Error("html-json benötigt eine Spaltennummer")
+        var html_sheaf = load_html_reference_sheaf()
+        print(_html_payload(html_sheaf, atol(String(args[2]))))
+        return
+
+    if command == "html-all-json":
+        if len(args) != 2:
+            raise Error("html-all-json akzeptiert keine Argumente")
+        var html_sheaf = load_html_reference_sheaf()
+        for index in range(len(html_sheaf.reference_map)):
+            print(html_sheaf.reference_map[index].payload_json)
+        return
+
+    if command == "schema-json":
+        if len(args) != 2:
+            raise Error("schema-json akzeptiert keine Argumente")
+        print(schema_snapshot_json(schema))
+        return
+
+    if command == "architecture-json":
+        if len(args) != 2:
+            raise Error("architecture-json akzeptiert keine Argumente")
+        print(load_architecture_snapshot_json(), end="")
+        return
+
+    if command == "pair-html-json":
+        if len(args) != 4:
+            raise Error(
+                "pair-html-json benötigt Haupt- und Unterparameter"
+            )
+        var input_main = String(args[2])
+        var input_parameter = String(args[3])
+        var pair = canonicalize_pair(sheaf, input_main, input_parameter)
+        if not pair.valid:
+            raise Error(
+                "Unbekanntes Paar: " + input_main + " / " + input_parameter
+            )
+        var html_sheaf = load_html_reference_sheaf()
+        _print_pair_html_json(
+            sheaf, html_sheaf, input_main, input_parameter, pair
+        )
+        return
+
+    raise Error("Unbekannter Befehl: " + command)

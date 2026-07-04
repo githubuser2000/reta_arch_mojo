@@ -93,13 +93,13 @@ enthält nur die öffentlichen relativen Launcher-Symlinks.
 Die **kompilierten ELF-Dateien** werden nicht direkt nach `/usr/bin`, sondern
 nach `/usr/lib/reta/target/bin` installiert. Autoritativ ist
 `scripts/install_targets.txt`. Sind beide Buildskripte vollständig gelaufen,
-sind es **38 Executables plus eine Shared Library**:
+sind es **39 Executables plus eine Shared Library**:
 
 ```text
 generate-html-native              generate-readme-native
 reta-extract-html-classes-native   grundStrukHtml-native
 reta-mojo-combi-join              reta-mojo-domain-probe
-reta-mojo-compat-bin
+reta-mojo-architecture-probe      reta-mojo-compat-bin
 reta-mojo-exports                 reta-mojo-facade
 reta-mojo-workflow                reta-mojo-sheaves
 reta-mojo-diagnostics             reta-mojo-i18n
@@ -119,14 +119,14 @@ reta-mojo-semantics               reta-mojo-traces
 reta-mojo-validation              reta-mojo-witnesses
 ```
 
-Die ersten 20 Executables und `libreta-mojo-diagnostics.so` stammen aus `scripts/build.sh`; die letzten 18 Executables sind optionale
+Die ersten 21 Executables und `libreta-mojo-diagnostics.so` stammen aus `scripts/build.sh`; die letzten 18 Executables sind optionale
 schwere Ziele aus `scripts/build-heavy.sh`. Nicht gebaute optionale Ziele werden
 übersprungen. Andere Dateien in `target/bin`, insbesondere lokale Debug- oder
 Altvarianten wie `reta-native-o0`, werden ausdrücklich **nicht** installiert.
 
-`/usr/bin` enthält demgegenüber **55 öffentliche Namen als relative Symlinks**
+`/usr/bin` enthält demgegenüber **56 öffentliche Namen als relative Symlinks**
 auf Launcher unter `/usr/lib/reta/bin`; darunter sind Komfortnamen und Profile,
-also nicht 53 verschiedene ELFs. Die zwei internen Helfer `mojo-real` und
+also nicht 54 verschiedene ELFs. Die zwei internen Helfer `mojo-real` und
 `mojo-runtime-exec` bleiben nur privat unter `/usr/lib/reta/bin`. Standardmäßig
 installiert `scripts/install.sh` nach `/usr/local`; `/usr` wird erst mit
 `PREFIX=/usr` gewählt.
@@ -259,7 +259,8 @@ zu einem einzigen Releasebinary `target/bin/reta` zusammengeführt werden.
 | Ausgabesemantik/-syntax | `bin/reta-mojo-output-syntax` → gemeinsame Diagnosebibliothek | sieben Modi, Aliase, Flags, Syntaxdeskriptoren, Bundle/Snapshot sowie typisierte HTML-/BBCode-/Textzellen |
 | Gemeinsame Diagnose-ABI | `target/bin/reta-mojo-diagnostics` + `target/lib/reta/libreta-mojo-diagnostics.so` | vier kompatible Befehlsoberflächen für TableGeneration, OutputSyntax, ConsoleIO und TableOutput; versionierte C-ABI und Source-ID-Paarprüfung |
 | Console-/Help-/Utility-Semantik | `bin/reta-mojo-console-io` → gemeinsame Diagnosebibliothek | Chunking, geordnete Eindeutigkeit, Ausgabe-/Debug-Effektplanung, beide Hilfetexte, Terminalkontext und geordneter Default-Container vollständig nativ |
-| Domain-Probe-Kern | `target/bin/reta-mojo-domain-probe` | neun Alias-/Paar-/Spalten-/JSON-Befehle direkt über native Schema- und Parametersemantik; HTML-, Schema- und Architektur-Snapshots bleiben Referenzgrenze |
+| Domain-Probe-Kern | `target/bin/reta-mojo-domain-probe` | alle 16 Referenzbefehle nativ: Alias-/Paar-/Spaltenabfragen, HTML-, Schema- und vollständiger Architektursnapshot ohne Python-Laufzeit |
+| Architektur-Gesamtprobe | `target/bin/reta-mojo-architecture-probe` | 63 reproduzierbare JSON-/Markdown-Oberflächen aus installierten Assets plus dynamische native Paketintegrität; portable Referenzpfadauflösung |
 | HTML-Klassenextraktion | `target/bin/reta-extract-html-classes-native` | erzeugt die einzeilige All-Spalten-HTML-Tabelle nativ, analysiert doppelte Attribute/Klassen und schreibt 15-Feld-JSONL ohne Python, Regex oder Unterprozess |
 | Quellbaum-Integrität | `target/bin/reta-mojo-package-integrity` | reguläre Dateien und Dateisymlinks, Runtime-Filter, 74 Pflichtpfade, CSV-Zeilen und binärer SHA-256-Gesamtdigest vollständig nativ; native Linux/POSIX-Verzeichnis-FFI und OpenSSL als Systemgrenzen |
 | Parametersemantik | `target/bin/reta-mojo-semantics` | 431-Familien-Katalog, 4.155 Parameterpaare, 14 Datenslots, Normal-/Inversionsmodus und vollständiger UTF-8-Inhaltsfingerabdruck nativ; Python nur zur reproduzierbaren Katalogregeneration |
@@ -315,3 +316,17 @@ Snapshotprüfungen werden ausschließlich als kurzlebige Testprogramme unter
 `target/tests` durch `scripts/test_stage12c5ad.sh` gebaut. `scripts/test_all.sh`
 baut die gesamte native Testsuite unter `target/tests-all` und startet jedes
 Programm über `bin/mojo-runtime-exec`.
+
+## `reta-mojo-architecture-probe`
+
+Vollständiger nativer Ersatz für `reta_architecture_probe_py.py`:
+
+```sh
+./bin/reta-mojo-architecture-probe snapshot-json
+./bin/reta-mojo-architecture-probe architecture-map-json
+./bin/reta-mojo-architecture-probe architecture-diagram-md
+./bin/reta-mojo-architecture-probe package-integrity-json
+```
+
+63 statische Oberflächen stammen aus reproduzierbaren installierten Assets;
+Paketintegrität wird gegen den aktuellen Referenzbaum berechnet.

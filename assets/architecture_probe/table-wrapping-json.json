@@ -1,0 +1,1 @@
+{"class":"TableWrappingBundle","runtime":{"class":"TextWrapRuntime","shell_rows_amount":80,"has_hyphenator":false,"has_dictionary":true,"has_fill":true,"wrapping_type":"pyhyphen"},"morphisms":["alxwrap","wrap_cell_text","width_for_row","split_more_if_not_small"],"legacy_owner":"libs.lib4tables_prepare.Prepare"}

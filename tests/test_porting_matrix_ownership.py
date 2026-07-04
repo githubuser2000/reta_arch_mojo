@@ -20,6 +20,7 @@ EXPECTED = {
     "reta_architecture/runtime_compat.py": "nativ",
     "libs/lib4tables.py": "nativ",
     "i18n/words.py": "generiert nativ",
+    "i18n/words_legacy_monolith.py": "generiert nativ",
     "i18n/words_bootstrap.py": "generiert nativ",
     "i18n/words_context.py": "generiert nativ",
     "i18n/words_matrix.py": "generiert nativ",
@@ -38,6 +39,7 @@ EXPECTED = {
     "reta_architecture/prompt_interaction.py": "nativ",
     "reta_architecture/prompt_language.py": "generiert nativ",
     "reta_architecture/prompt_preparation.py": "nativ",
+    "reta_architecture/prompt_execution.py": "teilweise nativ",
     "retaPrompt.py": "weitgehend nativ",
     "libs/LibRetaPrompt.py": "nativ",
 }

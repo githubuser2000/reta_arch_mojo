@@ -12,6 +12,9 @@ PYREF = ROOT / "python_reference"
 sys.path.insert(0, str(PYREF))
 
 import i18n.words as words  # noqa: E402
+import i18n.words_context as words_context  # noqa: E402
+import i18n.words_matrix as words_matrix  # noqa: E402
+import i18n.words_runtime as words_runtime  # noqa: E402
 from reta_architecture.schema import RetaContextSchema  # noqa: E402
 from reta_architecture.sheaves import ParameterSemanticsSheaf  # noqa: E402
 from reta_architecture.tag_schema import ST, tableTags  # noqa: E402
@@ -125,8 +128,20 @@ def generate_catalog(schema: RetaContextSchema) -> str:
             "        language_aliases^, translation_domains^, parameters_main^,",
             "        row_parameters^, output_parameters^, output_modes^,",
             "        combination_parameters^, scopes^, parameter_entries^,",
+            f"        {len(schema.kombi_para_n_data_matrix or {})},",
+            f"        {len(schema.kombi_para_n_data_matrix2 or {})},",
             "        tag_names^,",
-            f"        SchemaModuleNames({q(modules.get('context', ''))}, {q(modules.get('matrix', ''))}, {q(modules.get('runtime', ''))}),",
+            "        SchemaModuleNames(",
+            f"            {q(modules.get('context', ''))},",
+            f"            {q(modules.get('matrix', ''))},",
+            f"            {q(modules.get('runtime', ''))},",
+            f"            {q(modules.get('compatibility', ''))},",
+            f"            {q(modules.get('compat:bootstrap', ''))},",
+            f"            {q(modules.get('compat:context', ''))},",
+            f"            {q(modules.get('compat:legacy_monolith', ''))},",
+            f"            {q(modules.get('compat:matrix', ''))},",
+            f"            {q(modules.get('compat:runtime', ''))},",
+            "        ),",
             "    )",
             "",
         ]
@@ -197,8 +212,19 @@ def generate_parity_constants(sheaf: ParameterSemanticsSheaf) -> str:
 
 def main() -> None:
     schema = deterministic_schema(
-        RetaContextSchema.from_words_module(words, tag_enum=ST, table_tags=tableTags)
+        RetaContextSchema.from_words_parts(
+            context_module=words_context,
+            matrix_module=words_matrix,
+            runtime_module=words_runtime,
+            tag_enum=ST,
+            table_tags=tableTags,
+        )
     )
+    schema.schema_modules.setdefault("compatibility", str(getattr(words, "__name__", "i18n.words")))
+    if hasattr(words, "MODULE_SPLIT"):
+        schema.schema_modules.update(
+            {f"compat:{key}": value for key, value in dict(words.MODULE_SPLIT).items()}
+        )
     sheaf = ParameterSemanticsSheaf.from_schema(schema)
     (ROOT / "src/reta_mojo/schema_catalog.mojo").write_text(
         generate_catalog(schema), encoding="utf-8"

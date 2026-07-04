@@ -20,8 +20,8 @@ def test_porting_metrics_are_derived_from_complete_reference_inventory() -> None
     assert data["reference_files"] == 92
     assert data["reference_lines"] == 48831
     assert data["fully_native_files"] >= 76
-    assert data["at_least_partly_ported_files"] == 83
-    assert data["touched_reference_lines"] == 38174
+    assert data["at_least_partly_ported_files"] == 86
+    assert data["touched_reference_lines"] == 46561
     assert data["fully_native_files"] <= data["at_least_partly_ported_files"]
     assert data["fully_native_reference_lines"] <= data["touched_reference_lines"]
 
@@ -76,7 +76,7 @@ def test_readme_generator_is_in_the_authoritative_mapping() -> None:
 
 def test_native_domain_probe_core_is_in_the_authoritative_mapping() -> None:
     mapping = _load_module().native_mapping()
-    assert mapping["reta_domain_probe_py.py"][0] == "teilweise nativ"
+    assert mapping["reta_domain_probe_py.py"][0] == "generiert nativ"
 
 
 def test_html_class_extractor_is_in_the_authoritative_mapping() -> None:
@@ -158,3 +158,16 @@ def test_generated_columns_owner_is_widely_native() -> None:
     assert "generated_columns.mojo" in owner
     assert "prime_universe_columns.mojo" in owner
     assert "vollständige typisierte Registry" in note
+
+
+def test_native_architecture_probe_is_in_the_authoritative_mapping() -> None:
+    mapping = _load_module().native_mapping()
+    assert mapping["reta_architecture_probe_py.py"][0] == "generiert nativ"
+
+
+def test_legacy_i18n_monolith_is_generated_native() -> None:
+    mapping = _load_module().native_mapping()
+    status, owner, note = mapping["i18n/words_legacy_monolith.py"]
+    assert status == "generiert nativ"
+    assert "i18n_words.mojo" in owner
+    assert "acht Klassen" in note

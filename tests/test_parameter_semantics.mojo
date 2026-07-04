@@ -59,5 +59,32 @@ def test_invalid_pair_and_reverse_map() raises:
     assert_equal(reverse[3].column, 314)
 
 
+def test_parameter_groups_and_pair_storage_match_python_order() raises:
+    var schema = empty_schema()
+    schema.parameters_main.append(
+        AliasGroup("Religionen", ["Religionen", "religionen"])
+    )
+    schema.parameter_entries.append(
+        ParameterEntry(["Religionen"], ["Zeta", "zeta"], [9])
+    )
+    schema.parameter_entries.append(
+        ParameterEntry(["Religionen"], ["Alpha", "alpha"], [1])
+    )
+    schema.parameter_entries.append(
+        ParameterEntry(["Religionen"], ["Mitte", "mitte"], [5])
+    )
+
+    var sheaf = build_parameter_semantics(schema)
+    var groups = parameter_alias_groups_for_main(sheaf, "religionen")
+    assert_equal(len(groups), 3)
+    assert_equal(groups[0].parameter_canonical, "Alpha")
+    assert_equal(groups[1].parameter_canonical, "Mitte")
+    assert_equal(groups[2].parameter_canonical, "Zeta")
+    assert_equal(len(sheaf.pair_to_columns), 3)
+    assert_equal(sheaf.pair_to_columns[0].parameter_canonical, "Alpha")
+    assert_equal(sheaf.pair_to_columns[1].parameter_canonical, "Mitte")
+    assert_equal(sheaf.pair_to_columns[2].parameter_canonical, "Zeta")
+
+
 def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()

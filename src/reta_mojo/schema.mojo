@@ -46,6 +46,12 @@ struct SchemaModuleNames(Copyable):
     var context: String
     var matrix: String
     var runtime: String
+    var compatibility: String
+    var compat_bootstrap: String
+    var compat_context: String
+    var compat_legacy_monolith: String
+    var compat_matrix: String
+    var compat_runtime: String
 
 
 @fieldwise_init
@@ -59,6 +65,8 @@ struct RetaContextSchema(Copyable):
     var combination_parameters: List[NamedValue]
     var scopes: List[NamedValue]
     var parameter_entries: List[ParameterEntry]
+    var kombi_parameter_matrix_size: Int
+    var kombi_parameter_matrix2_size: Int
     var tag_names: List[String]
     var schema_modules: SchemaModuleNames
 
@@ -74,8 +82,10 @@ def empty_schema() -> RetaContextSchema:
         List[NamedValue](),
         List[NamedValue](),
         List[ParameterEntry](),
+        0,
+        0,
         List[String](),
-        SchemaModuleNames("", "", ""),
+        SchemaModuleNames("", "", "", "", "", "", "", "", ""),
     )
 
 

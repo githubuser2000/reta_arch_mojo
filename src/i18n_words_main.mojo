@@ -24,6 +24,7 @@ def _print_summary(language: String) raises:
     print("matrix_rows=" + String(snapshot.matrix_rows))
     print("runtime_rows=" + String(snapshot.runtime_rows))
     print("facade_rows=" + String(snapshot.facade_rows))
+    print("legacy_monolith_rows=" + String(snapshot.legacy_monolith_rows))
 
 
 def main() raises:

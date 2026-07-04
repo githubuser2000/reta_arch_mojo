@@ -82,6 +82,10 @@ def reference_root() -> String:
     return "python_reference"
 
 
+def home_root() -> String:
+    return _clean_root(String(getenv("HOME", "")))
+
+
 def csv_resource(filename: String) -> String:
     return _join_resource(csv_root(), filename)
 

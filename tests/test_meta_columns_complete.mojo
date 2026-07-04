@@ -28,7 +28,7 @@ from reta_mojo.tag_schema import (
 )
 
 
-def test_meta_bundle_and_surface_cover_python_owner():
+def test_meta_bundle_and_surface_cover_python_owner() raises:
     var bundle = bootstrap_meta_columns()
     assert_equal(len(bundle.specs), 3)
     var snapshot = meta_columns_snapshot(bundle)

@@ -502,7 +502,7 @@ bin/reta-mojo-table-generation --summary
 scripts/test_stage12c5u.sh
 ```
 
-Bis Stage 12c5y bestanden 23 reguläre und 18 schwere Einzel-Executables. Stage 12c5z ersetzt vier Diagnose-Executables durch einen Loader und eine Shared Library. Standardmäßig entstehen daher **20 reguläre plus 18 schwere Executables sowie eine gemeinsame Bibliothek**. Die vier alten Einzelziele bleiben mit `RETA_BUILD_STANDALONE_DIAGNOSTICS=1` als optionale Paritätsorakel baubar.
+Bis Stage 12c5y bestanden 23 reguläre und 18 schwere Einzel-Executables. Stage 12c5z ersetzt vier Diagnose-Executables durch einen Loader und eine Shared Library. Mit Stage 12c5ak entstehen standardmäßig **21 reguläre plus 18 schwere Executables sowie eine gemeinsame Bibliothek**. Die vier alten Einzelziele bleiben mit `RETA_BUILD_STANDALONE_DIAGNOSTICS=1` als optionale Paritätsorakel baubar.
 
 
 ## Native Ausgabe-Semantik und Syntax (Stage 12c5v)
@@ -630,3 +630,28 @@ RETA_TEST_HEAVY=1 scripts/test_all.sh
 `test_all.sh` führt jedes Testbinary über `bin/mojo-runtime-exec` aus und teilt
 damit Runtime-Suche, Source-ID-Frischeprüfung und Ressourcenauflösung mit den
 Stage-Tests.
+
+## Architekturprobe
+
+Der reguläre Vollbuild erzeugt zusätzlich:
+
+```text
+target/bin/reta-mojo-architecture-probe
+```
+
+Die Probe lädt 63 reproduzierbare JSON-/Markdown-Assets und berechnet
+`package-integrity-json` dynamisch nativ. Prüfung:
+
+```sh
+scripts/test_stage12c5ak.sh
+```
+
+
+## Stage 12c5al – Legacy-I18n-Katalog prüfen
+
+```sh
+scripts/test_stage12c5al.sh
+```
+
+Der Test regeneriert 68.265 Katalogzeilen, kompiliert den gemeinsamen nativen
+I18n-Besitzer und vergleicht alle fünf Sprachdateien bytegenau.

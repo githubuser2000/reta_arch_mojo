@@ -1,0 +1,1 @@
+{"class":"PromptPreparationBundle","command_rotator":"verdreheWoReTaBefehl","regex_rewriter":"regExReplace","output_preparer":"promptVorbereitungGrosseAusgabe","cached_parameter_value_domains":{"zeilen":0,"spalten":0,"ausgabe":0,"kombination":0},"beenden_commands_len":5}

@@ -76,6 +76,7 @@ if [ "${RETA_BUILD_STANDALONE_DIAGNOSTICS:-0}" = 1 ]; then
     build src/table_output_main.mojo reta-mojo-table-output -I src
 fi
 build src/domain_probe_main.mojo reta-mojo-domain-probe -I src
+build src/architecture_probe_main.mojo reta-mojo-architecture-probe -I src -Xlinker -lcrypto
 build src/combi_join_main.mojo reta-mojo-combi-join -I src
 build src/reta_native_main.mojo reta-native -I src
 build src/compat_main.mojo reta-mojo-compat-bin -I src

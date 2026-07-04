@@ -187,6 +187,40 @@ def _sort_ints(mut values: List[Int]) -> None:
         values[position + 1] = key
 
 
+def _parameter_group_greater(
+    left: ParameterAliasGroup, right: ParameterAliasGroup
+) -> Bool:
+    if left.main_canonical != right.main_canonical:
+        return left.main_canonical > right.main_canonical
+    return left.parameter_canonical > right.parameter_canonical
+
+
+def _sort_parameter_groups(mut values: List[ParameterAliasGroup]) -> None:
+    for index in range(1, len(values)):
+        var key = values[index].copy()
+        var position = index - 1
+        while position >= 0 and _parameter_group_greater(values[position], key):
+            values[position + 1] = values[position].copy()
+            position -= 1
+        values[position + 1] = key^
+
+
+def _pair_columns_greater(left: PairColumns, right: PairColumns) -> Bool:
+    if left.main_canonical != right.main_canonical:
+        return left.main_canonical > right.main_canonical
+    return left.parameter_canonical > right.parameter_canonical
+
+
+def _sort_pair_columns(mut values: List[PairColumns]) -> None:
+    for index in range(1, len(values)):
+        var key = values[index].copy()
+        var position = index - 1
+        while position >= 0 and _pair_columns_greater(values[position], key):
+            values[position + 1] = values[position].copy()
+            position -= 1
+        values[position + 1] = key^
+
+
 def _resolve_main_alias_entries(entries: List[MainAliasEntry], source_alias: String) -> String:
     for index in range(len(entries)):
         if entries[index].source_alias == source_alias:
@@ -300,6 +334,8 @@ def build_parameter_semantics(schema: RetaContextSchema) -> ParameterSemanticsSh
 
     for index in range(len(parameter_groups)):
         _sort_strings(parameter_groups[index].aliases)
+    _sort_parameter_groups(parameter_groups)
+    _sort_pair_columns(pair_columns)
 
     return ParameterSemanticsSheaf(
         groups^,

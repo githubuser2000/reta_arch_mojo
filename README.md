@@ -1,5 +1,45 @@
 # reta.arch → Mojo
 
+## Aktueller Stand 12c5al
+
+Der eingefrorene `i18n/words_legacy_monolith.py` besitzt jetzt eine vollständige
+generiert-native Kompatibilitätsoberfläche. Alle fünf Sprachen, acht Klassen,
+vier Funktionen und 68.265 Katalogzeilen werden ohne Python-Laufzeit geladen.
+Fokussierte Prüfung: `scripts/test_stage12c5al.sh`. Details:
+[`STAGE12C5AL_NATIVE_LEGACY_I18N_MONOLITH.md`](STAGE12C5AL_NATIVE_LEGACY_I18N_MONOLITH.md).
+
+
+## Aktueller Stand 12c5ak
+
+Die letzte offene Domänenprobe `architecture-json` ist nativ. Zusätzlich
+ersetzt `reta-mojo-architecture-probe` alle 64 Referenzkommandos von
+`reta_architecture_probe_py.py`: 63 reproduzierbare JSON-/Markdown-Assets und
+die dynamische native Paketintegrität. Absolute Referenzpfade werden erst zur
+Laufzeit portabel eingesetzt; Python oder Unterprozesse sind nicht nötig.
+Fokussierte Prüfung: `scripts/test_stage12c5ak.sh`. Details:
+[`STAGE12C5AK_NATIVE_ARCHITECTURE_PROBES.md`](STAGE12C5AK_NATIVE_ARCHITECTURE_PROBES.md).
+
+## Aktueller Stand 12c5aj
+
+Der lokal bestätigte 12c5ai-Lauf schließt alle acht `raises`-Reparaturen und
+den nativen Schema-Snapshot. Die verbliebene Domänenprobeabweichung war eine
+reine Reihenfolgefrage: Die native Parametergarbe sortiert Unterparameter und
+Paarspalten nun zentral wie Python. Zusätzlich besitzt
+`prompt_execution.py` erstmals eine native Bundle-/Snapshot-Fassade und sechs
+reine Hilfsmorphismen. Fokussierte Prüfung: `scripts/test_stage12c5aj.sh`.
+Details:
+[`STAGE12C5AJ_PARAMETER_ORDER_PROMPT_EXECUTION.md`](STAGE12C5AJ_PARAMETER_ORDER_PROMPT_EXECUTION.md).
+
+## Aktueller Stand 12c5ai
+
+Der von `scripts/test_all.sh` gemeldete Effektfehler in
+`test_legacy_table_handling.mojo` ist behoben. Alle Mojo-Testfunktionen tragen
+nun explizit `raises`; ein Quellvertrag verhindert neue Ausnahmen.
+`reta-mojo-domain-probe schema-json` serialisiert das vollständige typisierte
+Schema bytegenau ohne Python-Laufzeit. Fokussierte Prüfung:
+`scripts/test_stage12c5ai.sh`. Details:
+[`STAGE12C5AI_TEST_EFFECTS_NATIVE_SCHEMA_JSON.md`](STAGE12C5AI_TEST_EFFECTS_NATIVE_SCHEMA_JSON.md).
+
 ## Aktueller Stand 12c5ag
 
 Der nach Stage 12c5af gemeldete Compilerabbruch in
@@ -38,41 +78,34 @@ Dies ist ein inkrementeller, getesteter Port des hochgeladenen Python-Projekts `
 abgeschlossene Release-Stufen:       9 von 12 = 75,0 %
 Stufen 9/10/12:                       Ausgabe, Prompt/i18n und Releaseparität in Arbeit
 Stufe 11:                             11a–11j = 100 %
-Stufe 12:                             12a–12b fertig, 12c zu ca. 99,95 % = ca. 72,2 %
-vollständig nativ/generiert:          77 von 92 = 83,7 %
-mindestens teilweise portiert:       83 von 92 = 90,2 %
-angegriffene Referenzzeilen:          38.174 von 48.831 = 78,2 %
+Stufe 12:                             12a–12b fertig, 12c zu ca. 99,97 % = ca. 72,2 %
+vollständig nativ/generiert:          80 von 92 = 87,0 %
+mindestens teilweise portiert:       86 von 92 = 93,5 %
+angegriffene Referenzzeilen:          46.561 von 48.831 = 95,4 %
 funktionaler Nutzerumfang:            ca. 96–98 %
 ```
 
 Die Metriken messen **orthogonale Bezugsgrößen** und sind nicht als ein einziges wechselndes Gesamtprozent zu lesen:
 
 - **96–98 % geschätzte Funktionsabdeckung**: Anteil der praktisch relevanten Befehls- und Verhaltensfamilien mit einem nativen Pfad. Der atomare Fallback ist nur eine Sicherheitsgrenze und wird nicht als transpiliert gezählt.
-- **83,7 % vollständiger Dateibesitz**: Nur Dateien, deren gesamter wirksamer Vertrag nativ oder reproduzierbar generiert ersetzt ist.
-- **78,2 % angegriffene Referenzzeilen**: maschinenberechneter Umfang vollständig und teilweise besessener Referenzdateien.
+- **87,0 % vollständiger Dateibesitz**: Nur Dateien, deren gesamter wirksamer Vertrag nativ oder reproduzierbar generiert ersetzt ist.
+- **95,4 % angegriffene Referenzzeilen**: maschinenberechneter Umfang vollständig und teilweise besessener Referenzdateien.
 - **84,0 % Stufenfortschritt**: gewichtete Releaseplanung; eine Stufe kann weit fortgeschritten sein, obwohl große historische Python-Besitzer noch sichtbar bleiben.
 
 Der Port ist daher nicht von über 90 % auf rund 65 % zurückgefallen. Die frühere Zahl bezeichnete die Funktionsoberfläche, die strengere Zahl den Quellersatz. Der vollständige Plan steht in [`ROADMAP.md`](ROADMAP.md).
 
-### Aktueller Fokus: Stage 12c5ag
+### Aktueller Fokus: Stage 12c5al
 
-Die gemeldete Compiler-Sichtbarkeitslücke in `test_input_semantics.mojo` ist
-behoben. Die drei übergeordneten Kompilierabläufe melden ihren echten
-Gesamtstatus als `JA` oder `NEIN`; die Generated-Column-Registry besitzt nun
-eine typisierte, geordnete Mojo-Oberfläche. Der schnelle Prüfzyklus lautet:
+Der historische I18n-Monolith ist nun vollständig im gemeinsamen nativen
+Baumkatalog enthalten. Der Entwicklungsablauf lautet:
 
 ```bash
-./scripts/test_stage12c5ag.sh
-./scripts/build-all.sh
+./do.sh 12c5al
 ```
 
-Die vollständige native Mojo-Testprogrammsuite ist nach mehreren Stages oder
-vor einem Release sinnvoll:
-
-```bash
-./scripts/test_all.sh
-```
-
+Erst nach erfolgreicher Regeneration, dem nativen Acht-Klassen-/Vier-Funktionen-
+Test und der bytegenauen Fünf-Sprachen-Parität werden Shared Diagnostics und
+`test_all.sh` gestartet.
 
 ## Installation mit Python 3.14
 
@@ -151,13 +184,13 @@ standardmäßig getrennt unter `lib/reta`; Fedora-/RPM-Pakete können
 `LIBEXECDIR=/usr/libexec/reta` setzen. Relative Symlinks erhalten die
 historische Projektstruktur ohne Datenkopie. Seit Stage 12c5h kopiert der
 Installer ausschließlich die in `scripts/install_targets.txt` deklarierten
-38 Executables und die gemeinsame Diagnosebibliothek; lokale Debug-/Altdateien unter
+39 Executables und die gemeinsame Diagnosebibliothek; lokale Debug-/Altdateien unter
 `target/bin` werden nicht mehr versehentlich installiert. Details:
 [`STAGE12C4M_FHS_RESOURCE_INSTALLATION.md`](STAGE12C4M_FHS_RESOURCE_INSTALLATION.md).
 
 ## Stufen 7–10: Generatoren, Kombinationen, Markup und Prompt
 
-Stage 12c5z konsolidiert vier installierbare Diagnoseprogramme in `libreta-mojo-diagnostics.so` und einen kleinen ABI-geprüften Loader. Die bisherigen Befehlsnamen bleiben als kompatible Launcher bestehen; die Standardinstallation enthält nun 38 Executables plus eine Shared Library. `scripts/export_target.sh` ersetzt die beim lokalen Build sinnvollen absoluten Runtime-Symlinks durch echte Dateien für die Rechnerübergabe. Details: [`STAGE12C5Z_SHARED_DIAGNOSTIC_LIBRARY.md`](STAGE12C5Z_SHARED_DIAGNOSTIC_LIBRARY.md).
+Stage 12c5z konsolidiert vier installierbare Diagnoseprogramme in `libreta-mojo-diagnostics.so` und einen kleinen ABI-geprüften Loader. Die bisherigen Befehlsnamen bleiben als kompatible Launcher bestehen; die Standardinstallation enthält nun 39 Executables plus eine Shared Library. `scripts/export_target.sh` ersetzt die beim lokalen Build sinnvollen absoluten Runtime-Symlinks durch echte Dateien für die Rechnerübergabe. Details: [`STAGE12C5Z_SHARED_DIAGNOSTIC_LIBRARY.md`](STAGE12C5Z_SHARED_DIAGNOSTIC_LIBRARY.md).
 
 Stage 12c5y schließt `reta_architecture/table_output.py` vollständig. `TableOutputConfig`, `TableOutput`, Ergebnisbuffer, Spaltenprojektion, ANSI-Farbpolitik und Bundle/Snapshot sind typisiert; alle sieben Ausgabearten delegieren an die bereits nativen und breit getesteten Serializer. `reta-mojo-table-output` war zunächst ein eigenes Diagnoseziel und wird seit Stage 12c5z über die gemeinsame Diagnosebibliothek bereitgestellt. Details: [`STAGE12C5Y_NATIVE_TABLE_OUTPUT.md`](STAGE12C5Y_NATIVE_TABLE_OUTPUT.md).
 

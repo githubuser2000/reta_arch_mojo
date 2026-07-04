@@ -35,6 +35,16 @@ struct I18nWordsSnapshot(Copyable):
     var matrix_rows: Int
     var runtime_rows: Int
     var facade_rows: Int
+    var legacy_monolith_rows: Int
+
+
+@fieldwise_init
+struct LegacyI18nMonolithSnapshot(Copyable):
+    var language: String
+    var rows: Int
+    var roots: Int
+    var functions: Int
+    var classes: Int
 
 
 def canonical_i18n_language(language: String) -> String:
@@ -245,6 +255,32 @@ def i18n_words_root_count(catalog: I18nWordsCatalog) -> Int:
     return count
 
 
+def i18n_words_module_root_count(
+    catalog: I18nWordsCatalog, module: String
+) -> Int:
+    var count = 0
+    for index in range(len(catalog.nodes)):
+        var node = catalog.nodes[index].copy()
+        if node.module != module:
+            continue
+        if node.path.find("[") < 0 and node.path.find(".") < 0:
+            count += 1
+    return count
+
+
+def i18n_words_module_root_kind_count(
+    catalog: I18nWordsCatalog, module: String, kind: String
+) -> Int:
+    var count = 0
+    for index in range(len(catalog.nodes)):
+        var node = catalog.nodes[index].copy()
+        if node.module != module or node.kind != kind:
+            continue
+        if node.path.find("[") < 0 and node.path.find(".") < 0:
+            count += 1
+    return count
+
+
 def i18n_words_snapshot(catalog: I18nWordsCatalog) -> I18nWordsSnapshot:
     return I18nWordsSnapshot(
         catalog.language,
@@ -255,6 +291,7 @@ def i18n_words_snapshot(catalog: I18nWordsCatalog) -> I18nWordsSnapshot:
         i18n_words_module_count(catalog, "i18n.words_matrix"),
         i18n_words_module_count(catalog, "i18n.words_runtime"),
         i18n_words_module_count(catalog, "i18n.words"),
+        i18n_words_module_count(catalog, "i18n.words_legacy_monolith"),
     )
 
 
@@ -300,3 +337,35 @@ def i18n_debug_value(enabled: Bool, text: String) -> None:
 def i18n_debug_pair(enabled: Bool, name: String, text: String) -> None:
     if enabled:
         print(name + ": " + text)
+
+
+def legacy_i18n_monolith_snapshot(
+    catalog: I18nWordsCatalog
+) -> LegacyI18nMonolithSnapshot:
+    var module = "i18n.words_legacy_monolith"
+    return LegacyI18nMonolithSnapshot(
+        catalog.language,
+        i18n_words_module_count(catalog, module),
+        i18n_words_module_root_count(catalog, module),
+        i18n_words_module_root_kind_count(catalog, module, "function"),
+        i18n_words_module_root_kind_count(catalog, module, "class"),
+    )
+
+
+def legacy_i18n_classify(catalog: I18nWordsCatalog, mod: Int) raises -> String:
+    # The preserved monolith and split runtime share the exact classify law.
+    return classify_i18n_relation(catalog, mod)
+
+
+def legacy_i18n_duplicate_strings(values: List[String]) -> List[String]:
+    return duplicate_i18n_strings(values)
+
+
+def legacy_i18n_debug_value(enabled: Bool, text: String) -> None:
+    i18n_debug_value(enabled, text)
+
+
+def legacy_i18n_debug_pair(
+    enabled: Bool, name: String, text: String
+) -> None:
+    i18n_debug_pair(enabled, name, text)

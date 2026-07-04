@@ -1,17 +1,17 @@
-# Roadmap – Aktualisierung 12c5ae
+# Roadmap – Aktualisierung 12c5aj
 
-`program_workflow.py` ist vollständig nativ. Die noch teilweise portierten Hauptblöcke konzentrieren sich damit auf `reta.py`, `retaPrompt.py`, `parameter_runtime.py`, `generated_columns.py`, `architecture_facade.py` und den Domain-Probe-Rand. Der nächste Schwerpunkt ist die weitere Verkleinerung der produktiven Kompatibilitätsgrenze, nicht die Erzeugung zusätzlicher Diagnoseprogramme.
+`program_workflow.py` ist vollständig nativ. `prompt_execution.py` besitzt nun eine erste native Bundle-/Helfergrenze; die großen verbleibenden Blöcke konzentrieren sich auf `reta.py`, `retaPrompt.py`, den interaktiven Prompt-Execution-Effektblock, `parameter_runtime.py`, `generated_columns.py`, `architecture_facade.py` und den vollständigen Architektursnapshot. Der nächste Schwerpunkt ist die weitere Verkleinerung der produktiven Kompatibilitätsgrenze, nicht die Erzeugung zusätzlicher Diagnoseprogramme.
 
 Geplanter Umfang: **12 Release-Stufen**. Eine Stufe zählt erst als abgeschlossen, wenn Quellcode, Referenztests, Compilerziele, Dokumentation und ein source-only Archiv gemeinsam geprüft sind.
 
-## Fortschrittsmaße nach Stage 12c5t
+## Fortschrittsmaße nach Stage 12c5aj
 
 | Maß | Stand | Aussage |
 |---|---:|---|
 | abgeschlossene Release-Stufen | **9/12 = 75,0 %** | Stufen 1–8 und 11 sind abgeschlossen; Stufe 12 ist mit 12a, 12b, 12c1–12c3 und 12c4a–12c5t zu etwa 74,0 % abgeschlossen, während 9 und 10 noch Restpfade besitzen |
-| vollständig native oder generierte Python-Dateien | **67/92 = 72,8 %** | Datei vollständig ersetzt oder als reproduzierbares Laufzeitasset abgebildet |
-| mindestens angegriffene Python-Dateien | **83/92 = 90,2 %** | Status direkt aus der autoritativen `NATIVE`-Zuordnung |
-| angegriffene Referenzzeilen | **38.174/48.831 = 78,2 %** | maschinenberechnet statt manuell fortgeschrieben |
+| vollständig native oder generierte Python-Dateien | **77/92 = 83,7 %** | Datei vollständig ersetzt oder als reproduzierbares Laufzeitasset abgebildet |
+| mindestens angegriffene Python-Dateien | **84/92 = 91,3 %** | Status direkt aus der autoritativen `NATIVE`-Zuordnung |
+| angegriffene Referenzzeilen | **40.690/48.831 = 83,3 %** | maschinenberechnet statt manuell fortgeschrieben |
 | funktionaler Nutzerumfang | **ca. 96–98 %** | praktisch nutzbarer Reta-Umfang ohne Python-Algorithmus |
 
 Die Stufenquote ist höher als die Quellzeilenquote, weil die letzten Stufen besonders große dynamische Module bündeln: vollständige Ausgabeaufbereitung, Prompt-Sprache, i18n-Matrix, Architekturvalidierung und Parallelisierung.
@@ -532,3 +532,56 @@ Die Zahl **12** ist die geplante Releasegliederung. Interne Teilpakete oder Fehl
 - Maschinenstand: **76/92 vollständig**, **83/92 mindestens teilweise**,
   **38.174/48.831 angegriffene** und **33.430/48.831 vollständig native
   Referenzzeilen**.
+
+## Stage 12c5ai – Mojo-Testeffekte und nativer Schema-Snapshot
+
+- [x] Gemeldeten `cannot call function that may raise`-Fehler im Legacy-Table-Handling-Test beheben.
+- [x] Gesamten Mojo-Testbaum auf fehlende `raises`-Annotationen prüfen und fünf Fundstellen korrigieren.
+- [x] Dauerhaften Quellvertrag für Testeffekte hinzufügen.
+- [x] `schema-json` aus dem typisierten nativen Schema bytegenau serialisieren.
+- [x] Schemakataloggenerator auf die echten Splitmodule und Kombinationsgrößen umstellen.
+- [ ] Lokalen Modular-Lauf `scripts/test_stage12c5ai.sh` ausführen.
+- [ ] Danach `./do.sh 12c5ai` bis zum vollständigen `test_all.sh`-Abschluss ausführen.
+- Offen in der Domänenprobe: nur noch `architecture-json`.
+
+
+
+## Stage 12c5aj – kanonische Parametergarbe und Prompt-Execution-Besitz
+
+- [x] Lokal bestätigte 12c5ai-Testeffekt- und Schema-Reparaturen dokumentieren.
+- [x] `ParameterAliasGroup` und `PairColumns` zentral in Python-Reihenfolge sortieren.
+- [x] Parität um `params`, `pairs` und `main-json` erweitern.
+- [x] `PromptExecutionBundle` und exakten Snapshot nativ zusammensetzen.
+- [x] Sechs reine Helfer aus `prompt_execution.py` typisiert übertragen.
+- [x] Dauerhafte Source- und Mojo-Regressionstests hinzufügen.
+- [ ] Lokalen Modular-Lauf `scripts/test_stage12c5aj.sh` ausführen.
+- [ ] Danach `./do.sh 12c5aj` bis zum vollständigen `test_all.sh`-Abschluss ausführen.
+- Offen: der große interaktive `PromptGrosseAusgabe`-Effektblock und `architecture-json`.
+
+
+## Stage 12c5ak – native Architektur- und Domänenproben
+
+- [x] `architecture-json` als letztes Domänenprobe-Kommando nativ bereitstellen.
+- [x] 48 Architekturabschnitte reproduzierbar mit `PYTHONHASHSEED=0` einfrieren.
+- [x] Absolute Referenzpfade durch einen zur Laufzeit aufgelösten portablen Token ersetzen.
+- [x] Sämtliche 63 statischen JSON-/Markdown-Kommandos von `reta_architecture_probe_py.py` nativ laden.
+- [x] `package-integrity-json` dynamisch über den nativen Manifestbesitzer ausführen.
+- [x] Eigenes reguläres Ziel, Launcher, Installmanifest und vollständige Parität ergänzen.
+- [x] Generator gegen Hashseed-, Bytecode- und Cachezustandsabweichungen härten.
+- [ ] Lokalen Modular-Lauf `scripts/test_stage12c5ak.sh` ausführen.
+- [ ] Danach `./do.sh 12c5ak` bis zum vollständigen `test_all.sh`-Abschluss ausführen.
+
+Maschinenstand: **79/92 vollständig**, **85/92 mindestens teilweise**, **41.130/48.831 angegriffene Referenzzeilen**.
+
+
+## Stage 12c5al – vollständiger nativer Legacy-I18n-Monolith
+
+- [x] Historischen Monolithen ohne `__all__` über seine wirksame öffentliche Domänenoberfläche erfassen.
+- [x] Alle acht Klassen und vier Funktionen in den fünfsprachigen typisierten Baumkatalog integrieren.
+- [x] Debug-, Duplikat- und Klassifikationsverhalten an vorhandene native Besitzer delegieren.
+- [x] Katalogformat auf v2 anheben und 68.265 Zeilen bytegenau regenerierbar machen.
+- [x] Snapshot-, Source-, Installations- und Portierungsmetriken aktualisieren.
+- [ ] Lokalen Modular-Lauf `scripts/test_stage12c5al.sh` ausführen.
+- [ ] Danach `./do.sh 12c5al` bis zum vollständigen `test_all.sh`-Abschluss ausführen.
+
+Maschinenstand: **80/92 vollständig**, **86/92 mindestens teilweise**, **46.561/48.831 angegriffene Referenzzeilen**.

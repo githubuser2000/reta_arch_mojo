@@ -1,0 +1,1 @@
+{"class":"KombiJoinBundle","implementation":"KombiJoin","morphisms":["prepareTableJoin","removeOneNumber","tableJoin","prepare_kombi","readKombiCsv","kombiNumbersCorrectTestAndSet"],"csv_sources":["kombi.csv","kombi-meta.csv"],"role":"Kombi CSV presheaf sections -> joined table section"}

@@ -1,3 +1,40 @@
+# Status – Stage 12c5al
+
+- `i18n/words_legacy_monolith.py` ist vollständig generiert nativ: fünf Sprachen, 68/70 öffentliche Wurzeln, acht Klassen, vier Funktionen und 6.718/6.720 Zeilen je Sprachkatalog.
+- Der gemeinsame I18n-Katalog umfasst jetzt **68.265** Zeilen; Debug-, Duplikat- und Klassifikationsverhalten delegiert auf bereits native Besitzer.
+- Die historische Datei ohne `__all__` wird über ihre wirksame nicht-private Domänenoberfläche reproduzierbar erfasst; importierte Hilfsmodule und Typing-Objekte bleiben ausgeschlossen.
+- Der lokal bestätigte 12c5ak-Buildblocker ist geschlossen: Architekturassets entstehen aus einer temporären, nur vom Source-Manifest bestimmten Referenzkopie außerhalb von Git. `$HOME`, Terminalhöhe, `target` und lokale `.alx`-Dateien ändern die 63 statischen Assets nicht mehr (`TEST-FIXED-042`).
+- vollständig nativ/generiert: **80/92 = 87,0 %**; mindestens teilweise: **86/92 = 93,5 %**; angegriffene Referenzzeilen: **46.561/48.831 = 95,4 %**; vollständig native Referenzzeilen: **40.088/48.831 = 82,1 %**.
+- Portable Prüfung: **202 Source-Vertragstests bestanden, 1 Skip**; fokussierte Stage-/Infrastrukturgruppe **72/72**; Defektkatalog **119**, Python-Bereinigungspunkte **19**.
+- Fokussierter lokaler Compilerlauf: `scripts/test_stage12c5al.sh`; vollständiger fail-fast Ablauf: `./do.sh 12c5al`.
+
+# Status – Stage 12c5ak
+
+- `reta-mojo-domain-probe` besitzt jetzt alle **16/16** Referenzbefehle einschließlich des 48-Abschnitt-`architecture-json`-Gesamtsnapshots.
+- `reta_architecture_probe_py.py` ist vollständig generiert nativ: **63** statische JSON-/Markdown-Oberflächen plus dynamisches `package-integrity-json` über den nativen SHA-256-Besitzer.
+- `PYTHONHASHSEED=0` friert die historisch set-/dict-abhängige Snapshotreihenfolge reproduzierbar ein; absolute Referenzpfade werden über `@@RETA_REFERENCE_ROOT@@` erst zur Laufzeit eingesetzt.
+- Neues reguläres/installierbares Ziel: `reta-mojo-architecture-probe`; reguläre Compilerziele: **21**, Installmanifest insgesamt: **39** Executables.
+- vollständig nativ/generiert: **79/92 = 85,9 %**; mindestens teilweise: **85/92 = 92,4 %**; angegriffene Referenzzeilen: **41.130/48.831 = 84,2 %**; Mojo-Zeilen in `src/`: **60.322**.
+- Fokussierter lokaler Compilerlauf: `scripts/test_stage12c5ak.sh`; vollständiger fail-fast Ablauf: `./do.sh 12c5ak`.
+
+# Status – Stage 12c5aj
+
+- Der lokale 12c5ai-Lauf bestätigte alle acht `raises`-Korrekturen und den vollständigen nativen `schema-json`-Snapshot.
+- Die verbliebene `pairs-json religionen`-Abweichung ist zentral geschlossen: `ParameterAliasGroup` und `PairColumns` werden wie Python nach kanonischem Haupt- und Unterparameter sortiert.
+- Der Domänenparitätsharness prüft nun 14 statt 11 Text-/JSON-Oberflächen und deckt `params`, `pairs`, `pairs-json` und `main-json` gemeinsam ab.
+- `reta_architecture/prompt_execution.py` ist erstmals teilweise nativ: Bundle, exakter Snapshot und sechs reine Helfer besitzen explizite Mojo-Owner; der große interaktive Effektblock bleibt offen.
+- vollständig nativ/generiert: **77/92 = 83,7 %**; mindestens teilweise: **84/92 = 91,3 %**; angegriffene Referenzzeilen: **40.690/48.831 = 83,3 %**; Mojo-Zeilen in `src/`: **60.123**.
+- Fokussierter lokaler Compilerlauf: `scripts/test_stage12c5aj.sh`; vollständiger fail-fast Ablauf: `./do.sh 12c5aj`.
+
+# Status – Stage 12c5ai
+
+- Der lokal gemeldete Parsefehler in `test_legacy_table_handling.mojo` ist behoben: alle betroffenen Testfunktionen propagieren mögliche `std.testing`-, Index- und Delegationsfehler explizit mit `raises`.
+- Eine vollständige Quellsuche fand und korrigierte dieselbe latente Lücke zusätzlich in einer Meta-, einer Output-Semantics- und zwei Table-Generation-Testfunktionen; insgesamt wurden acht Testfunktionen gehärtet.
+- `tests/test_mojo_test_effect_signatures.py` erzwingt die Effektannotation für sämtliche `tests/test_*.mojo`.
+- `reta-mojo-domain-probe schema-json` ist vollständig nativ: 33 Aliasgruppen, 431 Parametermatrixeinträge, Kombinationsgrößen 12/14, sieben Tags und neun Splitmodul-Metadaten werden direkt aus `RetaContextSchema` kompakt serialisiert.
+- Der Schemakataloggenerator verwendet nun die realen Module `words_context`, `words_matrix` und `words_runtime`; nur `architecture-json` bleibt von den 16 Probe-Kommandos offen.
+- Fokussierter lokaler Compilerlauf: `scripts/test_stage12c5ai.sh`; vollständiger fail-fast Ablauf: `./do.sh 12c5ai`.
+
 # Status – Stage 12c5af
 
 - Der gemeldete Kompilierablauf war durch `do.sh` falsch bewertet: `[ "echo $?" == "0" ]` prüfte keinen Exitstatus. Der Ablauf verwendet jetzt `set -eu` und committet erst nach Build und Tests.
@@ -81,9 +118,9 @@
 - Stufe 12: **12a–12b abgeschlossen; 12c zu ca. 99,95 %; insgesamt ca. 72,2 %**
 - Geschätzter funktionaler Portierungsstand: **96–98 %**
 - Konservativ vollständig native oder reproduzierbar generierte Originaldateien: **71/92 = 77,2 %**
-- Mindestens teilweise portierte Originaldateien: **83/92 = 90,2 %**
-- Gewichteter angegriffener Referenzzeilenstand: **38.174/48.831 = 78,2 %**
-- Nativer Mojo-Quellcode in `src/`: **56.729 Zeilen**
+- Mindestens teilweise portierte Originaldateien: **84/92 = 91,3 %**
+- Gewichteter angegriffener Referenzzeilenstand: **40.690/48.831 = 83,3 %**
+- Nativer Mojo-Quellcode in `src/`: **60.123 Zeilen**
 - Stage-12c5y-Fokus: `reta_architecture/table_output.py` ist vollständig typisiert besessen. `TableOutputConfig` ersetzt den heterogenen `Tables`-Objektgraph an der Renderergrenze; Modus, Syntaxklasse, Farbe, OneTable, Nummerierung, globale und spaltenspezifische Breiten, Heading-/No-blank-Flags, Sprache, Quellspalten und Zeilennummernobergrenze sind explizit. `onlyThatColumns`, Ergebnisbuffer/`cliout2`, ANSI-Farbpolitik, `TableOutputBundle.create` und Snapshot sind nativ; Shell, CSV, Markdown, Emacs, HTML, BBCode und Nichts delegieren an die vorhandenen nativen Serializer. `reta-mojo-table-output` erhöht die Menge auf **23 reguläre + 18 schwere = 41 Compilerziele**. Vollständig nativ/generiert **71/92 = 77,2 %**, vollständig native Referenzzeilen **31.790/48.831 = 65,1 %**, produktive Mojo-Zeilen **56.729**, davon **52.263** in `src/reta_mojo`, aktive `std.python`-Brücken **0**. Fokussierte Source-Gates **60/60**, gesamter portabler Source-Bestand **144 bestanden, 1 begründeter Skip**, Importresolver **264/264**, Defektkatalog **95/95**, Python-Bereinigungspunkte **19**. `scripts/test_stage12c5y.sh` baut Paketimportgraph, Besitzer, Renderer und Python/PyPy3-Parität.
 - Stage-12c5x-Fokus: Der gemeldete Parserfehler in `table_generation.mojo` ist geschlossen: das vorhandene Modul heißt `combi_join.mojo`; der Import `.kombi_join` verwies auf eine nicht existierende Datei (`MOJO-FIXED-043`). Ein paketweiter Resolver prüft jetzt alle **260** relativen Mojo-Importe. `reta_architecture/console_io.py` ist vollständig typisiert besessen: Chunking, `unique_everseen`, Console-/Debug-Effektplanung, deutsche und englische Prompt-/Reta-Hilfe, Terminalkontext, geordneter Default-Container, Bundle und Snapshot laufen ohne Python- oder Kindprozessgrenze. Die absichtlich unterschiedliche Schluss-Newline von Funktions- und CLI-Hilfe ist getrennt modelliert (`MOJO-FIXED-044`). `reta-mojo-console-io` erhöht die installierbare Menge auf **22 reguläre + 18 schwere = 40 Compilerziele**. Vollständig nativ/generiert **70/92 = 76,1 %**, vollständig native Referenzzeilen **31.021/48.831 = 63,5 %**, produktive Mojo-Zeilen **56.330**, aktive `std.python`-Brücken **0**. `scripts/test_stage12c5x.sh` baut den vollständigen Importgraphen, den zuvor gescheiterten Table-Generation-Einstieg und den nativen Console-IO-Paritätsbesitzer. Compilerunabhängig bestanden die fokussierten Gates **57/57**; der gesamte portable Source-Bestand besteht mit **141 Tests** und einem begründeten compilerabhängigen Skip. Fehlerkatalog **94/94**, Python-Bereinigungspunkte **19**.
 - Stage-12c5w-Fokus: Der von dir gemeldete Gesamtbuildfehler ist geschlossen: `alias` ist ein reserviertes Mojo-Deklarationsschlüsselwort und wurde in `output_modes.mojo` durch indexierte `alias_index`-Iteration ersetzt (`MOJO-FIXED-040`). `input_semantics.py` ist nun mit `RowRangeSyntax`, dem vollständigen 18-Felder-`PromptVocabulary`, Builder und `InputBundle` vollständig besessen. Ein unter `PYTHONHASHSEED=0` reproduzierter Katalog enthält **17.741** Datensätze, darunter **4.160** Spaltenoptionen, **84** `spalten_dict`-Schlüssel und **386** Befehle; `TEST-FIXED-023` sichert die Hashseed-Reproduzierbarkeit. Der Row-Range-Port behandelt Python-Zeichenschnitte und Präfix-Escaping jetzt codepoint-sicher (`MOJO-FIXED-041`); `bin/reta-mojo` reicht den neuen Snapshotbefehl korrekt an das Schema-Ziel durch (`MOJO-FIXED-042`). Der Installer liefert seine Frischehelfer mit und akzeptiert für reproduzierbare source-only Layouttests `RETA_TARGET_DIR` (`TEST-FIXED-025/026`). Vollständig nativ/generiert **69/92 = 75,0 %**, vollständig native Referenzzeilen **30.672/48.831 = 62,8 %**, produktive Mojo-Zeilen **55.849**, aktive `std.python`-Brücken **0**. `scripts/test_stage12c5w.sh` baut zuerst den vollständigen `src/main.mojo`-Importgraphen und prüft danach den nativen Modulvertrag sowie die Python/PyPy3-Snapshotparität. Compilerunabhängig bestanden **58 Tests** mit einem begründeten Skip; der gesamte portable Source-Bestand besteht mit **134 Tests** und demselben Skip. Fehlerkatalog **92/92**, Python-Bereinigungspunkte **19**.

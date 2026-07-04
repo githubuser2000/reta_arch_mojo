@@ -30,7 +30,9 @@ MODULES = (
     "i18n.words_matrix",
     "i18n.words_runtime",
     "i18n.words",
+    "i18n.words_legacy_monolith",
 )
+LEGACY_MONOLITH = "i18n.words_legacy_monolith"
 SCALAR_TYPES = (str, int, bool, float, type(None))
 
 
@@ -199,7 +201,17 @@ class Flattener:
         raise TypeError(f"unsupported public i18n value at {module}:{path}: {type(value)!r}")
 
     def module(self, module: ModuleType) -> None:
-        names: Iterable[str] = getattr(module, "__all__", ())
+        declared = getattr(module, "__all__", None)
+        if declared is None and module.__name__ == LEGACY_MONOLITH:
+            # The preserved pre-split module predates ``__all__``.  Its public
+            # compatibility surface is the effective non-private domain
+            # namespace after import.  Imported helper modules and typing
+            # objects are rejected by ``_is_domain_value`` below.
+            names: Iterable[str] = tuple(
+                name for name in vars(module) if not name.startswith("_")
+            )
+        else:
+            names = declared or ()
         for name in names:
             if name.startswith("__") or not hasattr(module, name):
                 continue
@@ -261,7 +273,7 @@ def generate(output: Path) -> dict[str, Any]:
         languages.append(metadata)
 
     manifest = {
-        "format": "reta-i18n-words-tree-v1",
+        "format": "reta-i18n-words-tree-v2",
         "canonical_languages": list(LANGUAGES),
         "source_modules": list(MODULES),
         "total_rows": sum(item["rows"] for item in languages),

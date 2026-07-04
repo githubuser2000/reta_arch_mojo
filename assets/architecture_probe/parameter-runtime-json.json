@@ -1,0 +1,1 @@
+{"class":"ParameterRuntimeBundle","column_function":"produce_all_spalten_numbers","width_function":"apply_width_parameter","parse_function":"parameters_to_commands_and_numbers","upper_limit_argument_function":"upper_limit_values_for_argument","upper_limit_aggregate_function":"upper_limit_from_arguments","upper_limit_apply_function":"apply_upper_limit_argument"}

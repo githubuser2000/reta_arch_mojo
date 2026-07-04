@@ -37,7 +37,8 @@ grep -q '^Spalten: 746$' "$TMP/csv-info.out"
     "$STAGE/usr/bin/reta-mojo-i18n" --summary english >"$TMP/i18n-summary.out"
 )
 grep -q '^language=english$' "$TMP/i18n-summary.out"
-grep -q '^rows=6935$' "$TMP/i18n-summary.out"
+grep -q '^rows=13655$' "$TMP/i18n-summary.out"
+grep -q '^legacy_monolith_rows=6720$' "$TMP/i18n-summary.out"
 grep -q '^matrix_rows=4766$' "$TMP/i18n-summary.out"
 
 (

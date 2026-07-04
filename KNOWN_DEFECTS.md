@@ -19,11 +19,11 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 
 - letzter vollständiger Rückwärtsaudit: `12c4s`
 - geprüfte Quellen: **24**
-- Reichweite: Vollständig bezogen auf alle bis Stage 12c5ag im Projekt bestätigten oder plausibel begründeten verhaltensrelevanten Befunde; unbekannte künftige Fehler können naturgemäß erst nach ihrer Entdeckung aufgenommen werden.
+- Reichweite: Vollständig bezogen auf alle bis Stage 12c5al im Projekt bestätigten oder plausibel begründeten verhaltensrelevanten Befunde; unbekannte künftige Fehler können naturgemäß erst nach ihrer Entdeckung aufgenommen werden.
 
 ## Übersicht
 
-- Einträge insgesamt: **114**
+- Einträge insgesamt: **119**
 - offene bestätigte Python-Fehler: **5**
 - zu entscheidende Python-Fehlerkandidaten: **13**
 - bereits im Python-Baum behobene Fehler: **7**
@@ -1559,3 +1559,70 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 - spätere Python-Aktion: Keine Python-Änderung erforderlich; Python-Importsemantik und Mojo-Modulreexports unterscheiden sich hier bewusst.
 - Mojo-Orte: `src/reta_mojo/input_semantics.mojo`, `src/reta_mojo/row_ranges.mojo`, `tests/test_input_semantics.mojo`, `scripts/test_stage12c5ag.sh`
 - Belege: `STAGE12C5AG_COMPILER_STATUS_GENERATED_REGISTRY.md`, `tests/test_input_semantics_complete_source.py`, `scripts/test_stage12c5ag.sh`
+
+### TEST-FIXED-040 – do.sh leitete bei Aufruf über einen externen Symlink das falsche Projektverzeichnis aus $0 ab
+
+- Ursprung: `test_infrastructure`
+- Klasse / Schwere: `build_driver_working_directory` / `high`
+- Python-Status: `not_applicable`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5ah`
+- Reproduktion: `do.sh über einen Symlink in /bin oder einem anderen Verzeichnis starten; der frühere dirname-$0-Wechsel konnte /bin als Projektwurzel verwenden und dort falsche oder fehlende Skripte ansprechen.`
+- heutiger Vertrag: do.sh bleibt im aktuellen Arbeitsverzeichnis, prüft dort Vollbuild, aktuellen Stage-Test, Shared-Diagnostics und Gesamttests und bricht nach jedem fehlgeschlagenen Schritt mit unverändertem Exitstatus ab. Spätere Tests und der Git-Commit werden nicht ausgeführt; die Originaldiagnose bleibt sichtbar.
+- spätere Python-Aktion: Keine Python-Änderung erforderlich; dies war ein Fehler des nativen Buildtreibers.
+- Mojo-Orte: `do.sh`, `tests/test_do_sh_fail_fast.py`
+- Belege: `STAGE12C5AH_FAIL_FAST_DOMAIN_PROBE_HTML.md`, `tests/test_do_sh_fail_fast.py`, `tests/test_compile_status_reporting.py`
+
+### TEST-FIXED-041 – Acht Mojo-Testfunktionen propagierten mögliche Fehler ohne raises
+
+- Ursprung: `mojo_tests`
+- Klasse / Schwere: `missing_raises_effect_annotation` / `high`
+- Python-Status: `not_applicable`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5ai`
+- Reproduktion: `scripts/test_all.sh aus Stage 12c5ag ausführen; tests/test_legacy_table_handling.mojo brach beim Parsen an assert_equal, geprüftem Indexzugriff und delegierten Funktionen mit cannot call function that may raise in a context that cannot raise ab.`
+- heutiger Vertrag: Jede Mojo-Testfunktion ist explizit mit raises markiert. Ein portabler Quellvertrag durchsucht sämtliche tests/test_*.mojo und verhindert neue Testfunktionen mit implizit nichtwerfendem Kontext.
+- spätere Python-Aktion: Keine Python-Änderung erforderlich; betroffen war ausschließlich die Effektannotation der Mojo-Testprogramme.
+- Mojo-Orte: `tests/test_legacy_table_handling.mojo`, `tests/test_meta_columns_complete.mojo`, `tests/test_output_semantics_complete.mojo`, `tests/test_table_generation_complete.mojo`, `tests/test_mojo_test_effect_signatures.py`, `scripts/test_stage12c5ai.sh`
+- Belege: `STAGE12C5AI_TEST_EFFECTS_NATIVE_SCHEMA_JSON.md`, `tests/test_mojo_test_effect_signatures.py`, `scripts/test_stage12c5ai.sh`
+
+### MOJO-FIXED-052 – Nativer Schemakatalog meldete die Kompatibilitätsfassade statt der realen Splitmodule
+
+- Ursprung: `mojo_port`
+- Klasse / Schwere: `schema_snapshot_module_ownership_mismatch` / `medium`
+- Python-Status: `correct_reference`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5ai`
+- Reproduktion: `Den generierten nativen Schemakatalog mit RetaContextSchema.snapshot vergleichen; context, matrix und runtime standen sämtlich auf i18n.words, und die beiden Kombinationsmatrixgrößen waren im nativen Typ nicht repräsentiert.`
+- heutiger Vertrag: Der Generator extrahiert das Schema aus words_context, words_matrix und words_runtime, konserviert die vollständigen Kompatibilitätsmetadaten und serialisiert beide Kombinationsmatrixgrößen sowie alle übrigen Snapshotfelder bytegenau nativ.
+- spätere Python-Aktion: Keine Python-Änderung erforderlich; die Python-Referenz besaß die korrekten Splitmodul- und Größeninformationen.
+- Python-Orte: `python_reference/reta_architecture/facade.py`, `python_reference/reta_architecture/schema.py`
+- Mojo-Orte: `tools/generate_schema_catalog.py`, `src/reta_mojo/schema.mojo`, `src/reta_mojo/schema_catalog.mojo`, `src/reta_mojo/schema_snapshot.mojo`, `tests/test_schema_snapshot.mojo`
+- Belege: `STAGE12C5AI_TEST_EFFECTS_NATIVE_SCHEMA_JSON.md`, `tests/test_schema_snapshot_source.py`, `tests/test_schema_snapshot.mojo`
+
+### MOJO-FIXED-053 – Parametergarbe bewahrte Matrix-Einfügereihenfolge statt Python-Kanonsortierung
+
+- Ursprung: `mojo_port`
+- Klasse / Schwere: `parameter_semantics_order_mismatch` / `high`
+- Python-Status: `correct_reference`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5ah/12c5ai`
+- Reproduktion: `./do.sh 12c5ai ausführen; der aktuelle Stage-Test bricht bei pairs-json religionen ab, weil Python mit Hinduismus beginnt, Mojo aber mit Superkräfte.`
+- heutiger Vertrag: Die native Parametergarbe sortiert ParameterAliasGroup und PairColumns nach (main_canonical, parameter_canonical), nachdem Aliase und direkte Spalten vereinigt wurden. Text-, JSON-, Reverse- und Metadatenpfade folgen damit derselben stabilen Python-Reihenfolge; der Paritätstest deckt params, pairs, pairs-json und main-json gemeinsam ab.
+- spätere Python-Aktion: Keine Python-Änderung erforderlich; ParameterSemanticsSheaf._rebuild_alias_maps sortiert Parametergruppen und Paarspalten bereits kanonisch.
+- Python-Orte: `python_reference/reta_architecture/sheaves.py`, `python_reference/reta_domain_probe_py.py`
+- Mojo-Orte: `src/reta_mojo/parameter_semantics.mojo`, `src/domain_probe_main.mojo`, `tests/test_parameter_semantics.mojo`, `scripts/check_domain_probe_parity.py`
+- Belege: `STAGE12C5AJ_PARAMETER_ORDER_PROMPT_EXECUTION.md`, `tests/test_parameter_semantics_order_source.py`, `tests/test_parameter_semantics.mojo`
+
+### TEST-FIXED-042 – Architektur-Assetprüfung hing von HOME, Terminal, Git und lokalen Referenzdateien ab
+
+- Ursprung: `test_infrastructure`
+- Klasse / Schwere: `non_deterministic_architecture_asset_generation` / `high`
+- Python-Status: `not_applicable`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5ak`
+- Reproduktion: `./do.sh 12c5ak in einem normalen Git-Arbeitsbaum ausführen; generate_architecture_probe_assets.py --check meldete Abweichungen unter anderem in snapshot-json, topology-json, table-wrapping-json, prompt-session-json, sheaves-json und architecture-progress-json.`
+- heutiger Vertrag: Statische Architekturassets werden ausschließlich aus einer temporären, manifestbasierten Kopie des Python-Referenzbaums außerhalb von Git erzeugt. HOME und Terminalgeometrie sind während der Generierung kanonisch; Referenzwurzel und Homeverzeichnis werden als portable Token gespeichert und erst im nativen Lauf aufgelöst. Ungetrackte Dateien, target, ein lesbarer Git-Verlauf und das aufrufende Terminal können den Snapshot nicht mehr verändern.
+- spätere Python-Aktion: Keine Python-Änderung erforderlich; betroffen war ausschließlich die Reproduzierbarkeit des generierten nativen Architekturkatalogs und seiner Paritätsharnesses.
+- Mojo-Orte: `tools/generate_architecture_probe_assets.py`, `src/reta_mojo/architecture_probe_assets.mojo`, `src/reta_mojo/resource_paths.mojo`, `scripts/check_architecture_probe_parity.py`, `scripts/check_domain_probe_parity.py`, `tests/test_architecture_probe_assets_source.py`, `scripts/test_stage12c5al.sh`
+- Belege: `STAGE12C5AL_NATIVE_LEGACY_I18N_MONOLITH.md`, `tools/generate_architecture_probe_assets.py`, `tests/test_architecture_probe_assets_source.py`, `scripts/test_stage12c5al.sh`

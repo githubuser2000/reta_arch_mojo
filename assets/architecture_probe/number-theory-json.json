@@ -1,0 +1,1 @@
+{"class":"NumberTheoryBundle","morphisms":["moonNumber","primFak","divisorGenerator","primRepeat","primCreativity","primMultiple","isPrimMultiple","couldBePrimeNumberPrimzahlkreuz","couldBePrimeNumberPrimzahlkreuz_fuer_innen","couldBePrimeNumberPrimzahlkreuz_fuer_aussen"],"legacy_owner":"libs.lib4tables","dependency_profile":"math-only"}

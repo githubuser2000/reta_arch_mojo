@@ -21,7 +21,7 @@ from reta_mojo.legacy_table_handling import (
 )
 
 
-def test_snapshot_matches_python_all_surface():
+def test_snapshot_matches_python_all_surface() raises:
     var runtime = bootstrap_table_handling()
     var snapshot = table_handling_snapshot(runtime)
     assert_equal(len(snapshot.exported_names), 27)
@@ -31,7 +31,7 @@ def test_snapshot_matches_python_all_surface():
     assert_equal(len(snapshot.output_modes), 7)
 
 
-def test_explicit_runtime_replaces_module_globals():
+def test_explicit_runtime_replaces_module_globals() raises:
     var runtime = bootstrap_table_handling(128, 33, True, False)
     assert_equal(runtime.table_state.highest_rows[1024], 128)
     assert_equal(runtime.output_state.text_width, 33)
@@ -42,7 +42,7 @@ def test_explicit_runtime_replaces_module_globals():
     assert_equal(table_handling_cliout(runtime, "hidden"), "")
 
 
-def test_output_syntax_reexports_are_typed():
+def test_output_syntax_reexports_are_typed() raises:
     assert_equal(OutputSyntax().canonical_name, "shell")
     assert_equal(NichtsSyntax().canonical_name, "nichts")
     assert_equal(csvSyntax().canonical_name, "csv")
@@ -52,7 +52,7 @@ def test_output_syntax_reexports_are_typed():
     assert_equal(htmlSyntax().canonical_name, "html")
 
 
-def test_number_theory_reexports_delegate_to_native_owners():
+def test_number_theory_reexports_delegate_to_native_owners() raises:
     assert_equal(len(moonNumber(8)[0]), 1)
     assert_equal(primFak(12), [2, 2, 3])
     assert_equal(divisorGenerator(12), [1, 2, 3, 4, 6, 12])

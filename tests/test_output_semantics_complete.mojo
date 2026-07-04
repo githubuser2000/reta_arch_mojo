@@ -13,7 +13,7 @@ from reta_mojo.output_syntax import (
 )
 
 
-def test_output_semantics_snapshot_matches_python_order() -> None:
+def test_output_semantics_snapshot_matches_python_order() raises:
     var semantics = bootstrap_output_semantics("/tmp/reta")
     var snapshot = semantics.snapshot()
     assert_equal(snapshot.class_name, "RetaOutputSemantics")

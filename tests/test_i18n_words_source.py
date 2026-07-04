@@ -8,7 +8,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_generated_catalog_inventory() -> None:
     manifest = json.loads((ROOT / "assets/i18n_words/manifest.json").read_text())
-    assert manifest["format"] == "reta-i18n-words-tree-v1"
+    assert manifest["format"] == "reta-i18n-words-tree-v2"
     assert manifest["canonical_languages"] == [
         "deutsch",
         "english",
@@ -22,14 +22,15 @@ def test_generated_catalog_inventory() -> None:
         "i18n.words_matrix",
         "i18n.words_runtime",
         "i18n.words",
+        "i18n.words_legacy_monolith",
     ]
-    assert manifest["total_rows"] == 34667
+    assert manifest["total_rows"] == 68265
     expected = {
-        "deutsch": 6927,
-        "english": 6935,
-        "vietnamese": 6935,
-        "chinese": 6935,
-        "korean": 6935,
+        "deutsch": 13645,
+        "english": 13655,
+        "vietnamese": 13655,
+        "chinese": 13655,
+        "korean": 13655,
     }
     for item in manifest["languages"]:
         language = item["language"]
@@ -38,6 +39,8 @@ def test_generated_catalog_inventory() -> None:
         assert sum(1 for _ in path.open(encoding="utf-8")) == expected[language]
         assert item["rows"] == expected[language]
         assert item["module_rows"]["i18n.words_matrix"] in {4764, 4766}
+        assert item["module_rows"]["i18n.words_legacy_monolith"] in {6718, 6720}
+        assert item["module_roots"]["i18n.words_legacy_monolith"] in {68, 70}
 
 
 def test_native_owner_has_no_python_bridge() -> None:
@@ -47,6 +50,8 @@ def test_native_owner_has_no_python_bridge() -> None:
     assert "asset_resource" in source
     assert "duplicate_i18n_strings" in source
     assert "classify_i18n_relation" in source
+    assert "legacy_i18n_monolith_snapshot" in source
+    assert "legacy_i18n_duplicate_strings" in source
 
 
 def test_generator_and_runtime_are_wired() -> None:
@@ -98,3 +103,22 @@ def test_generated_catalog_contains_no_checkout_absolute_paths() -> None:
         rows = (ROOT / f"assets/i18n_words/{language}.tsv").read_text(encoding="utf-8")
         assert str(ROOT) not in rows
         assert "\tstr\tpython_reference/i18n\n" in rows
+
+
+def test_legacy_monolith_catalog_covers_all_classes_and_functions() -> None:
+    rows = (ROOT / "assets/i18n_words/deutsch.tsv").read_text(encoding="utf-8").splitlines()
+    roots = []
+    for row in rows:
+        module, path, kind, value = row.split("\t", 3)
+        if module != "i18n.words_legacy_monolith":
+            continue
+        if "[" not in path and "." not in path:
+            roots.append((path, kind, value))
+    classes = [path for path, kind, _ in roots if kind == "class"]
+    functions = [path for path, kind, _ in roots if kind == "function"]
+    assert classes == [
+        "tableHandling", "concat", "lib4tables", "retapy",
+        "nested", "retaPrompt", "csvFileNames", "readMeFileNames",
+    ]
+    assert functions == ["alxp", "x", "finde_mehrfache_vorkommen", "classify"]
+    assert len(roots) == 68

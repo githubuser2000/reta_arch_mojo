@@ -12,7 +12,7 @@ def _small_table() -> CsvTable:
     return CsvTable(rows^, 3)
 
 
-def test_table_generation_bundle_snapshot_covers_python_contract() -> None:
+def test_table_generation_bundle_snapshot_covers_python_contract() raises:
     var snapshot = bootstrap_table_generation().snapshot()
     assert_equal(snapshot.class_name, "TableGenerationBundle")
     assert_equal(len(snapshot.csv_sources), 5)
@@ -21,7 +21,7 @@ def test_table_generation_bundle_snapshot_covers_python_contract() -> None:
     assert_equal(len(snapshot.kombi_csvs), 2)
 
 
-def test_capture_last_line_number_clamps_to_physical_table() -> None:
+def test_capture_last_line_number_clamps_to_physical_table() raises:
     var table = _small_table()
     assert_equal(capture_last_line_number(table, -1), 2)
     assert_equal(capture_last_line_number(table, 1), 1)

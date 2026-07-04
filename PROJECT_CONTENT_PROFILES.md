@@ -45,6 +45,25 @@ normalerweise nicht. Ein spezielles Probe-Binary wie
 `target/tests/concat_csv_probe` soll lokal über sein Buildskript neu erzeugt
 werden.
 
+## Wann `.git/` oder Teile von `target/` ausnahmsweise gebraucht werden
+
+`.git/` wird nur angefordert, wenn die Diagnose zwingend Historie benötigt:
+Regression per `git bisect`, exakte Umbenennungs-/Commitanalyse, Vergleich eines
+lokal abweichenden Arbeitsbaums oder Prüfung von Submodul-/LFS-Zuständen. Nach
+Möglichkeit genügt dann ein `git bundle`, `git log`, `git diff` oder ein einzelner
+Commit statt des gesamten Ordners. `.git/config` ist vor einer Übergabe auf
+Zugangsdaten in Remote-URLs zu prüfen.
+
+Aus `target/` werden nur konkrete Artefakte angefordert, wenn das Problem erst
+nach erfolgreicher Kompilierung auftritt: Loader-/RUNPATH-/ABI-Fehler, Crash,
+abweichende Laufzeitausgabe oder Verdacht auf ein veraltetes Binary. Benötigt
+werden dann gewöhnlich nur das betroffene Executable, seine
+`.reta-source-id`, die direkt beteiligte `.so` samt Sidecar und gegebenenfalls
+Ausgaben von `file`, `readelf -h -d`, `ldd` und `sha256sum`. Der gesamte
+`target/`-Baum ist nur bei einem systematischen Mischstand vieler Ziele oder
+einem reproduzierbaren Buildvergleich sinnvoll und wird dann ausdrücklich
+angefordert.
+
 ## Für einen lokalen vollständigen Build
 
 Benötigt werden das Sourcearchiv, ein offizieller Modular-Mojo-Compiler und die
