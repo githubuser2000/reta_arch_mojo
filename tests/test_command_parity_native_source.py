@@ -88,7 +88,9 @@ def test_command_parity_reference_is_generated_native_and_current() -> None:
     package = (ROOT / "src/reta_mojo/__init__.mojo").read_text(encoding="utf-8")
     assert "from .command_parity import *" in package
     current = (ROOT / "scripts/test_current_stage.sh").read_text(encoding="utf-8")
-    assert "test_stage12c5az.sh" in current
+    assert "test_stage12c5ba.sh" in current
+    build_fix_stage = (ROOT / "scripts/test_stage12c5ba.sh").read_text(encoding="utf-8")
+    assert "test_stage12c5az.sh" in build_fix_stage
     mixed_fraction_stage = (ROOT / "scripts/test_stage12c5az.sh").read_text(encoding="utf-8")
     assert "test_stage12c5ay.sh" in mixed_fraction_stage
     process_alias_stage = (ROOT / "scripts/test_stage12c5ay.sh").read_text(encoding="utf-8")

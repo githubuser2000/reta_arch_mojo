@@ -616,3 +616,12 @@ Maschinenstand: **80/92 vollständig**, **86/92 mindestens teilweise**, **46.561
 - [x] Erneute Einführung von `stats.mode == "processes"` statisch verbieten.
 - [x] Stage 12c5ax mit allen historischen Promptfamilien in die aktuelle Kette übernehmen.
 - [ ] Benutzerseitigen Modular-Lauf `scripts/test_stage12c5ay.sh` ausführen.
+
+## Stage 12c5ba – eindeutige Buildthreads und negative Bruch-No-ops
+
+- [x] Benutzer-`-j` gegen die drei internen `-j 4`-Defaults deduplizieren.
+- [x] Ohne Benutzerwert den konservativen Threaddefault exakt einmal bewahren.
+- [x] Mehrere explizite Benutzer-Threadoptionen vor dem Compiler ablehnen.
+- [x] Potenziell werfende `Int(String)`-Konvertierung der gemischten Reziprokachse mit `raises` propagieren.
+- [x] Drei reihenfolgensensitive negative-first Bruchvielfachen-Zweige ohne Python-Kindprozess besitzen und positive-first Gegenfälle atomar halten.
+- [ ] Benutzerseitigen Modular-Lauf `scripts/build-all.sh -- -j 8 && scripts/test_stage12c5ba.sh` ausführen.

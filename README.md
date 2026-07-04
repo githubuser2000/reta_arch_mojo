@@ -1,5 +1,19 @@
 # reta.arch → Mojo
 
+## Aktueller Stand 12c5ba
+
+Der 12c5az-Benutzerbuild deckte zwei reale Compilergrenzen auf. Ein
+weitergereichtes `-j 8` kollidierte bei drei schweren Zielen mit deren internem
+`-j 4`; nun gewinnt genau ein Benutzerwert, während der konservative Default
+nur ohne Threadoption ergänzt wird. Die gemischte Bruchachsen-Hilfe propagiert
+außerdem ihre potenziell werfende `Int(String)`-Konvertierung ausdrücklich mit
+`raises`. Zusätzlich laufen die historischen negative-first No-op-Zweige
+`universum v-1/4,2/3`, `universum v-2/3` und `universum v-2/3,1/4` ohne
+Python-Kindprozess als behandelte leere Pläne; der positive-first Gegenfall
+bleibt wegen seiner realen Referenzausgabe atomarer Fallback. Fokussierter Benutzerlauf: `scripts/test_stage12c5ba.sh`.
+Details:
+[`STAGE12C5BA_BUILD_THREADS_RAISES_NEGATIVE_FRACTION_NOOPS.md`](STAGE12C5BA_BUILD_THREADS_RAISES_NEGATIVE_FRACTION_NOOPS.md).
+
 ## Aktueller Stand 12c5az
 
 Gemischte reziproke und echte Bruchvielfache sind nun innerhalb einer einzelnen

@@ -93,7 +93,9 @@ def test_stage_12c5as_remains_in_current_chain_and_keeps_compilation_user_invoke
     startup_stage = (ROOT / "scripts/test_stage12c5au.sh").read_text(encoding="utf-8")
     prompt_stage = (ROOT / "scripts/test_stage12c5at.sh").read_text(encoding="utf-8")
     stage = (ROOT / "scripts/test_stage12c5as.sh").read_text(encoding="utf-8")
-    assert "test_stage12c5az.sh" in current
+    assert "test_stage12c5ba.sh" in current
+    build_fix_stage = (ROOT / "scripts/test_stage12c5ba.sh").read_text(encoding="utf-8")
+    assert "test_stage12c5az.sh" in build_fix_stage
     mixed_fraction_stage = (ROOT / "scripts/test_stage12c5az.sh").read_text(encoding="utf-8")
     assert "test_stage12c5ay.sh" in mixed_fraction_stage
     process_alias_stage = (ROOT / "scripts/test_stage12c5ay.sh").read_text(encoding="utf-8")

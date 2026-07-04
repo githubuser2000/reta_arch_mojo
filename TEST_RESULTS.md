@@ -1,3 +1,14 @@
+# Testergebnisse – Stage 12c5ba
+
+- Benutzerbefund 1: `scripts/build-all.sh -- -j 8` scheiterte bei `reta-mojo-execution-network`, weil intern zusätzlich `-j 4` gesetzt wurde.
+- Benutzerbefund 2: `prompt_main.mojo` scheiterte an `Int(seed_rows[index])` in einem nicht als `raises` markierten Hilfskontext.
+- Quellreparatur: Benutzer-Threadwert gewinnt; ohne Benutzerwert bleibt genau ein lokales `-j 4`; doppelte Benutzerwerte werden früh abgelehnt.
+- Quellreparatur: `_merge_expanded_reciprocal_multiple_rows` und `_expanded_reciprocal_multiple_rows` propagieren die Mojo-Effektgrenze ausdrücklich.
+- Zusätzlicher Port: drei reihenfolgensensitive negative-first Bruchvielfachen-No-ops sind behandelte Pläne mit null nativen Tabellenaufrufen; positive-first Varianten bleiben bei beobachtbarer Referenzausgabe atomar.
+- Echte Mojo-Kompilierung: ausstehend beim Benutzer; statische Fake-Compiler-, Quell-, Ledger-, Metrik- und Archivverträge werden durch `scripts/test_stage12c5ba.sh` gebündelt.
+- Portable Abschlussprüfung: **115 eindeutige Tests bestanden**; drei negative-first Referenzfälle liefern exakt eine Ankündigung und null Befehle, der positive-first Gegenfall liefert reale Ausgabe und der dokumentierte Kollisionsfall bleibt ein Python-Absturz.
+- Defektledger: **125 Einträge**, davon **20 Python-Aufräumpunkte**, konsistent.
+
 # Stage 12c5az
 
 Der quellseitige Stand trennt reziproke und echte Bruchvielfachen in typisierte Teilachsen. Der fokussierte Benutzerlauf kompiliert `test_prompt_table_execution.mojo`, erzeugt den 13-Fälle-Probestrom und führt die 13 direkten nativen Aufrufe sowohl für `universum v2/3` als auch für `universum v1/2,2/3` aus. Die Erstellungsumgebung kompiliert kein Mojo; statische Source-, Defekt-, Matrix- und Archivverträge werden hier separat geprüft.

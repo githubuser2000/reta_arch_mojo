@@ -15,6 +15,7 @@ def test_mixed_axes_have_separate_typed_bounds() -> None:
     assert "def _has_positive_true_fraction(" in source
     assert "def _fraction_pairs_for_axis(" in source
     assert "def _merge_expanded_reciprocal_multiple_rows(" in source
+    assert ") raises -> List[String]:" in source
     assert "reciprocal rows use the historical 1024" in source
     assert "proper fractions expand only inside this domain rectangle" in source
     assert "Mixed reciprocal and true-fraction multiple axes have two incompatible" not in source
@@ -35,7 +36,17 @@ def test_mixed_universe_contract_is_no_longer_a_fallback() -> None:
     assert "expected_reciprocals = set(range(2, 1024, 2)) | {1, 3, 9}" in checker
     assert "assert_direct_execution(result[\"universum v1/2,2/3\"], runner)" in checker
     assert 'result["universum vielfache 1/2,2/3"] != result["universum v1/2,2/3"]' in checker
-    assert 'assert_false(_plan("universum v-1/4,2/3").handled)' in test_source
+    assert 'var excluded_reciprocal = _plan("universum v-1/4,2/3")' in test_source
+    assert 'assert_true(excluded_reciprocal.handled)' in test_source
+    assert 'var negative_true_fraction = _plan("universum v-2/3")' in test_source
+    assert 'assert_true(negative_true_fraction.handled)' in test_source
+    assert 'var negative_first_mixed = _plan("universum v-2/3,1/4")' in test_source
+    assert 'assert_true(negative_first_mixed.handled)' in test_source
+    assert 'assert_false(_plan("universum v1/4,-2/3").handled)' in test_source
+    assert 'assert_false(_plan("universum v1/4,-1/8,2/3").handled)' in test_source
+    assert '"universum v-2/3,1/4",' in checker
+    assert 'result["universum v1/4,-2/3"] != "FALLBACK"' in checker
+    assert 'if result[command] != ""' in checker
 
 
 def test_cross_domain_fraction_rectangles_remain_atomic() -> None:

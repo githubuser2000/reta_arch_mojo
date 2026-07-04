@@ -52,6 +52,8 @@ esac
 
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 cd "$ROOT"
+. "$ROOT/scripts/mojo_build_options.sh"
+mojo_validate_build_options "$@"
 TARGET_DIR=${RETA_TARGET_DIR:-"$ROOT/target/bin"}
 TARGET_ROOT=$(dirname -- "$TARGET_DIR")
 RUNTIME_LINK_DIR=${RETA_MOJO_RUNTIME_LINK_DIR:-"$TARGET_ROOT/lib/mojo"}
@@ -127,6 +129,22 @@ build_heavy_default_noopt() {
     fi
 }
 
+build_heavy_default_noopt_threaded() {
+    description=$1
+    source_file=$2
+    output_name=$3
+    shift 3
+    if mojo_has_thread_option "$@"; then
+        # The caller selected the compiler worker count.  Forward it exactly
+        # once and suppress the local conservative default.
+        build_heavy_default_noopt \
+            "$description" "$source_file" "$output_name" "$@"
+    else
+        build_heavy_default_noopt \
+            "$description" "$source_file" "$output_name" -j 4 "$@"
+    fi
+}
+
 build_heavy_targets() {
     build_heavy_default_noopt \
         'Kompiliere vollständige native Parametersemantik ...' \
@@ -164,18 +182,18 @@ build_heavy_targets() {
     build_heavy 'Kompiliere native SQLite-Persistenz ...' \
         src/architecture_persistence_main.mojo reta-mojo-persistence \
         -Xlinker -lsqlite3 -Xlinker -lcrypto "$@"
-    build_heavy_default_noopt \
+    build_heavy_default_noopt_threaded \
         'Kompiliere natives deterministisches Ausführungsnetz ...' \
         src/architecture_execution_network_main.mojo \
-        reta-mojo-execution-network -j 4 "$@"
-    build_heavy_default_noopt \
+        reta-mojo-execution-network "$@"
+    build_heavy_default_noopt_threaded \
         'Kompiliere native Thread-Tabellenparallelisierung ...' \
         src/architecture_parallel_execution_main.mojo \
-        reta-mojo-parallel-execution -j 4 "$@"
-    build_heavy_default_noopt \
+        reta-mojo-parallel-execution "$@"
+    build_heavy_default_noopt_threaded \
         'Kompiliere native typisierte Thread-Zeilenvorbereitung ...' \
         src/architecture_parallel_row_preparation_main.mojo \
-        reta-mojo-row-preparation -j 4 "$@"
+        reta-mojo-row-preparation "$@"
 }
 
 print_forwarded_options "$@"

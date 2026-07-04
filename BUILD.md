@@ -1,4 +1,4 @@
-# Build und Tests – Stage 12c5aw
+# Build und Tests – Stage 12c5ba
 
 Der vollständige Produktionsbuild bleibt absichtlich ein Vollbuild:
 
@@ -51,6 +51,13 @@ Mojo-Diagnosebibliothek weitergereicht. Der kleine C-Diagnoseloader behält
 seine getrennten C-Optionen. Quellpfad, Ausgabeart, Ausgabedatei, RUNPATH und
 atomare Veröffentlichung bleiben Eigentum der Skripte.
 
+Eine Compiler-Threadoption darf nur einmal vorkommen. Bei `-j 8`, `--jobs=8`
+oder `--threads 8` unterdrückt der Benutzerwert das lokale `-j 4` der drei
+besonders großen Threadziele. Ohne Benutzerwert bleibt dieser konservative
+Default erhalten. Zwei explizite Threadoptionen werden vor dem ersten
+Compileraufruf mit Exitstatus 2 abgelehnt, statt Mojos spätere Meldung
+`Number of threads can only be specified once` zu provozieren.
+
 Die jeweilige Hilfe zeigt die Schnittstelle direkt:
 
 ```sh
@@ -64,7 +71,7 @@ prüft die nativen Legacy-Startpfade und den monotonen Obergrenzenvertrag sowie
 die compilerunabhängige Argumentweitergabe der Build-Skripte:
 
 ```sh
-scripts/test_stage12c5aw.sh
+scripts/test_stage12c5ba.sh
 ```
 
 Die vollständige Testsuite erkennt drei systemnahe Linkerklassen automatisch: Persistenztests verwenden `-lsqlite3 -lcrypto`, Paketintegrität verwendet `-lcrypto`, alle übrigen Tests erhalten keine zusätzlichen Linkerflags. Danach kann die Gesamtprüfung unverändert gestartet werden:

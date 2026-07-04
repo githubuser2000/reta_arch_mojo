@@ -58,7 +58,9 @@ def test_truth_reference_tests_are_claimed_native_and_current_stage_builds_them(
     package = (ROOT / "src/reta_mojo/__init__.mojo").read_text(encoding="utf-8")
     assert "from .py_reta_truth import *" in package
     current = (ROOT / "scripts/test_current_stage.sh").read_text(encoding="utf-8")
-    assert "test_stage12c5az.sh" in current
+    assert "test_stage12c5ba.sh" in current
+    build_fix_stage = (ROOT / "scripts/test_stage12c5ba.sh").read_text(encoding="utf-8")
+    assert "test_stage12c5az.sh" in build_fix_stage
     mixed_fraction_stage = (ROOT / "scripts/test_stage12c5az.sh").read_text(encoding="utf-8")
     assert "test_stage12c5ay.sh" in mixed_fraction_stage
     process_alias_stage = (ROOT / "scripts/test_stage12c5ay.sh").read_text(encoding="utf-8")

@@ -466,8 +466,21 @@ def test_true_fraction_multiples_follow_each_csv_rectangle() raises:
     assert_true(mixed_english.handled)
     assert_equal(len(mixed_english.invocations), 13)
     assert_true("-language=english" in _tokens(mixed_english, 0))
-    assert_false(_plan("universum v-1/4,2/3").handled)
-    assert_false(_plan("universum v-2/3").handled)
+    var excluded_reciprocal = _plan("universum v-1/4,2/3")
+    assert_true(excluded_reciprocal.handled)
+    assert_equal(len(excluded_reciprocal.invocations), 0)
+    var negative_true_fraction = _plan("universum v-2/3")
+    assert_true(negative_true_fraction.handled)
+    assert_equal(len(negative_true_fraction.invocations), 0)
+    var negative_first_mixed = _plan("universum v-2/3,1/4")
+    assert_true(negative_first_mixed.handled)
+    assert_equal(len(negative_first_mixed.invocations), 0)
+    # The same signs in positive-first order have nonempty reference behavior
+    # and therefore remain atomically delegated until that branch is ported.
+    assert_false(_plan("universum v1/4,-2/3").handled)
+    # A positive reciprocal combined with its own exclusion reaches the frozen
+    # Python IndexError branch and therefore remains atomic compatibility work.
+    assert_false(_plan("universum v1/4,-1/8,2/3").handled)
 
     _emit_true_fraction_multiple_plan("universum v2/3")
     _emit_true_fraction_multiple_plan("universum vielfache 2/3")
@@ -481,6 +494,11 @@ def test_true_fraction_multiples_follow_each_csv_rectangle() raises:
     _emit_true_fraction_multiple_plan("universum v20/3")
     _emit_true_fraction_multiple_plan("universum motive v2/3")
     _emit_true_fraction_multiple_plan("universum v1/2,2/3")
+    _emit_true_fraction_multiple_plan("universum v-1/4,2/3")
+    _emit_true_fraction_multiple_plan("universum v-2/3")
+    _emit_true_fraction_multiple_plan("universum v-2/3,1/4")
+    _emit_true_fraction_multiple_plan("universum v1/4,-2/3")
+    _emit_true_fraction_multiple_plan("universum v1/4,-1/8,2/3")
 
 
 def test_legacy_fraction_rectangles_and_offsets_are_native() raises:

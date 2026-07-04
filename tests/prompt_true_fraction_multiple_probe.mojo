@@ -28,3 +28,8 @@ def main() raises:
     _emit("universum motive v2/3")
     _emit("universum v1/2,2/3")
     _emit("universum vielfache 1/2,2/3")
+    _emit("universum v-1/4,2/3")
+    _emit("universum v-2/3")
+    _emit("universum v-2/3,1/4")
+    _emit("universum v1/4,-2/3")
+    _emit("universum v1/4,-1/8,2/3")

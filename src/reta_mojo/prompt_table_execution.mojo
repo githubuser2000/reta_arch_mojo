@@ -607,6 +607,25 @@ def _has_true_fraction(pairs: List[_PromptFractionPair]) -> Bool:
     return False
 
 
+def _fraction_multiple_is_reference_empty(
+    pairs: List[_PromptFractionPair], multiple_mode: Bool
+) -> Bool:
+    """Recognize the reference's order-sensitive negative-first no-op branch.
+
+    Once a true n/m fraction is present, the historical prompt emits no reta
+    invocation when the first parsed multiple component is excluded.  The same
+    components in positive-first order can instead produce output or reach the
+    documented IndexError branch, so this contract deliberately preserves the
+    parsed pair order rather than reducing it to unordered sign sets.
+    """
+    return (
+        multiple_mode
+        and _has_true_fraction(pairs)
+        and len(pairs) > 0
+        and pairs[0].excluded
+    )
+
+
 def _fraction_multiple_domain(
     canonical_words: List[String],
 ) -> _FractionMultipleDomain:
@@ -711,7 +730,7 @@ def _merge_expanded_reciprocal_multiple_rows(
     seed_rows: List[String],
     pairs: List[_PromptFractionPair],
     upper_exclusive: Int,
-) -> List[String]:
+) raises -> List[String]:
     """Merge a bounded 1/n-multiple axis into existing reciprocal projections."""
     var attempts = List[Int]()
     var exclusions = List[Int]()
@@ -743,7 +762,7 @@ def _merge_expanded_reciprocal_multiple_rows(
 
 def _expanded_reciprocal_multiple_rows(
     pairs: List[_PromptFractionPair], upper_exclusive: Int
-) -> List[String]:
+) raises -> List[String]:
     return _merge_expanded_reciprocal_multiple_rows(
         List[String](), pairs, upper_exclusive
     )
@@ -996,6 +1015,13 @@ def plan_prompt_table_commands(
     # selected first and the original values are then expanded as multiples.
     # Reciprocal ``1/n`` multiples are stable up to row 1023.  True ``v n/m``
     # instead uses the physical rectangle of exactly one selected fraction CSV.
+    # Negative-first true-fraction historical branches are observable no-ops
+    # rather than fallbacks: prompt_main retains the compact announcement,
+    # while the typed plan deliberately contains no reta invocation.
+    if has_fraction and _fraction_multiple_is_reference_empty(
+        fraction_pairs, multiple_mode
+    ):
+        return PromptTablePlan(True, List[PromptTableInvocation]())
     if (
         has_fraction
         and multiple_mode

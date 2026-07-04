@@ -3015,6 +3015,61 @@
         "tests/test_generated_columns_integration.mojo",
         "tests/test_generated_columns_integration_source.py"
       ]
+    },
+    {
+      "id": "TEST-FIXED-044",
+      "title": "Weitergereichte Compilerthreads kollidierten mit drei internen -j-Defaults",
+      "origin": "test_infrastructure",
+      "classification": "duplicate_compiler_thread_option",
+      "severity": "high",
+      "python_status": "not_applicable",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5az/12c5ba",
+      "reproducer": "scripts/build-all.sh -- -j 8 ausführen; reta-mojo-execution-network brach mit 'Number of threads can only be specified once' ab, weil build-heavy.sh zusätzlich intern -j 4 setzte.",
+      "python_locations": [],
+      "mojo_locations": [
+        "scripts/mojo_build_options.sh",
+        "scripts/build.sh",
+        "scripts/build-heavy.sh",
+        "scripts/build-all.sh",
+        "scripts/build_diagnostics_shared.sh",
+        "tests/test_build_compiler_options.py",
+        "tests/test_build_thread_option_dedup.py"
+      ],
+      "current_contract": "Die öffentlichen Buildskripte akzeptieren höchstens eine benutzerseitige Mojo-Threadoption. Für die drei besonders großen Ziele unterdrückt ein Benutzerwert den lokalen -j-4-Default; ohne Benutzerwert wird dieser Default exakt einmal ergänzt. Zwei explizite Benutzerwerte werden vor dem ersten Compileraufruf mit Exitstatus 2 abgelehnt.",
+      "post_port_fix": "Keine Python-Änderung erforderlich; betroffen war ausschließlich die native Mojo-Buildorchestrierung.",
+      "evidence": [
+        "STAGE12C5BA_BUILD_THREADS_RAISES_NEGATIVE_FRACTION_NOOPS.md",
+        "tests/test_build_compiler_options.py",
+        "tests/test_build_thread_option_dedup.py",
+        "scripts/test_stage12c5ba.sh"
+      ]
+    },
+    {
+      "id": "MOJO-FIXED-056",
+      "title": "Gemischte Reziprokachsen konvertierten String nach Int in einem nichtwerfenden Kontext",
+      "origin": "mojo_port",
+      "classification": "missing_raises_effect_annotation",
+      "severity": "high",
+      "python_status": "not_applicable",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5az/12c5ba",
+      "reproducer": "scripts/build-all.sh aus Stage 12c5az ausführen; src/prompt_main.mojo brach beim Import von prompt_table_execution.mojo an Int(seed_rows[index]) mit 'cannot call function that may raise in a context that cannot raise' ab.",
+      "python_locations": [],
+      "mojo_locations": [
+        "src/reta_mojo/prompt_table_execution.mojo",
+        "tests/test_prompt_mixed_fraction_multiple_source.py",
+        "tests/test_stage12c5ba_source.py",
+        "scripts/test_stage12c5ba.sh"
+      ],
+      "current_contract": "Die beiden internen Hilfsfunktionen zur Zusammenführung und Expansion reziproker Vielfachenzeilen sind ausdrücklich raises. Der bereits werfende öffentliche Tabellenplaner propagiert mögliche Int(String)-Konvertierungsfehler, ohne sie zu verschlucken oder eine Ersatzsemantik einzuführen.",
+      "post_port_fix": "Keine Python-Änderung erforderlich; betroffen war ausschließlich Mojos explizites Effektsystem.",
+      "evidence": [
+        "STAGE12C5BA_BUILD_THREADS_RAISES_NEGATIVE_FRACTION_NOOPS.md",
+        "tests/test_stage12c5ba_source.py",
+        "tests/test_prompt_mixed_fraction_multiple_source.py",
+        "scripts/test_stage12c5ba.sh"
+      ]
     }
   ],
   "audit": {

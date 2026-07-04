@@ -1,3 +1,13 @@
+# Status – Stage 12c5ba
+
+- Der Benutzerbuild von 12c5az deckte die doppelte Threadoption `-j 4` plus weitergereichtes `-j 8` auf; ein gemeinsamer POSIX-Helfer erzwingt nun höchstens eine benutzerseitige Threadoption und lässt den Benutzerwert gewinnen.
+- Ohne expliziten Benutzerwert behalten genau die drei großen Threadziele ihren konservativen lokalen Default `-j 4`.
+- Die gemischte Reziprokachsen-Hilfe und ihr Wrapper sind nun ausdrücklich `raises`, weil `Int(String)` unter Mojo 1.0 potenziell werfen kann.
+- `universum v-1/4,2/3`, `universum v-2/3` und `universum v-2/3,1/4` sind als historische negative-first leere native Pläne besessen; der positive-first Fall `universum v1/4,-2/3` und der kollidierende Fall `universum v1/4,-1/8,2/3` bleiben atomarer Fallback.
+- Alle echten Mojo- und Native-Kompilierungen führt weiterhin der Benutzer mit `scripts/build-all.sh -- -j 8` und `scripts/test_stage12c5ba.sh` aus.
+- Portable Quellprüfung: **115 eindeutige Tests bestanden**; Defektledger **125**, Python-Aufräumpunkte **20**, konsistent.
+- Fortschritt: **89/92 = 96,7 %** vollständig nativ/generiert, **92/92 = 100,0 %** mindestens teilweise, **48.831/48.831 = 100,0 %** angegriffene Referenzzeilen; **62.660** Mojo-Zeilen in `src/`, davon **58.066** in `src/reta_mojo/`.
+
 # Status – Stage 12c5az
 
 - Gemischte `1/n`- und echte `n/m`-Vielfachen innerhalb einer einzelnen Bruchdomäne werden nicht mehr atomar an Python zurückgegeben.

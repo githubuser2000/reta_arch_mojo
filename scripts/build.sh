@@ -29,6 +29,8 @@ esac
 
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 cd "$ROOT"
+. "$ROOT/scripts/mojo_build_options.sh"
+mojo_validate_build_options "$@"
 TARGET_DIR=${RETA_TARGET_DIR:-"$ROOT/target/bin"}
 TARGET_ROOT=$(dirname -- "$TARGET_DIR")
 RUNTIME_LINK_DIR=${RETA_MOJO_RUNTIME_LINK_DIR:-"$TARGET_ROOT/lib/mojo"}

@@ -108,7 +108,9 @@ def test_package_matrix_and_stage_claim_complete_native_facade() -> None:
     assert "| nativ |" in row
     assert "legacy_reta_prompt.mojo" in row
     current = (ROOT / "scripts/test_current_stage.sh").read_text(encoding="utf-8")
-    assert "test_stage12c5az.sh" in current
+    assert "test_stage12c5ba.sh" in current
+    build_fix_stage = (ROOT / "scripts/test_stage12c5ba.sh").read_text(encoding="utf-8")
+    assert "test_stage12c5az.sh" in build_fix_stage
     mixed_fraction_stage = (ROOT / "scripts/test_stage12c5az.sh").read_text(encoding="utf-8")
     assert "test_stage12c5ay.sh" in mixed_fraction_stage
     process_alias_stage = (ROOT / "scripts/test_stage12c5ay.sh").read_text(encoding="utf-8")

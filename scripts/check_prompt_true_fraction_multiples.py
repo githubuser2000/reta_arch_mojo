@@ -26,6 +26,11 @@ CASES = [
     "universum motive v2/3",
     "universum v1/2,2/3",
     "universum vielfache 1/2,2/3",
+    "universum v-1/4,2/3",
+    "universum v-2/3",
+    "universum v-2/3,1/4",
+    "universum v1/4,-2/3",
+    "universum v1/4,-1/8,2/3",
 ]
 
 
@@ -101,7 +106,11 @@ def assert_csv_rectangles() -> None:
 def assert_python_bug_is_still_reproducible() -> None:
     environment = os.environ.copy()
     environment["PYTHONHASHSEED"] = "0"
-    for command in ("universum v2/3", "universum v1/2,2/3"):
+    for command in (
+        "universum v2/3",
+        "universum v1/2,2/3",
+        "universum v1/4,-1/8,2/3",
+    ):
         completed = subprocess.run(
             [sys.executable, "python_reference/rpb", command],
             cwd=ROOT,
@@ -120,6 +129,33 @@ def assert_python_bug_is_still_reproducible() -> None:
             fail("Python reference failed differently; defect evidence must be reviewed")
         if "prompt_execution.py" not in completed.stderr:
             fail("Python traceback no longer points to prompt_execution.py")
+
+
+def assert_python_negative_multiple_noops() -> None:
+    environment = os.environ.copy()
+    environment["PYTHONHASHSEED"] = "0"
+    for command in (
+        "universum v-1/4,2/3",
+        "universum v-2/3",
+        "universum v-2/3,1/4",
+    ):
+        completed = subprocess.run(
+            [sys.executable, "python_reference/rpb", command],
+            cwd=ROOT,
+            env=environment,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            timeout=120,
+        )
+        if completed.returncode != 0 or completed.stderr:
+            fail(f"negative multiple reference branch changed for {command!r}")
+        lines = completed.stdout.splitlines()
+        if len(lines) != 1 or not lines[0].endswith("reta-Befehl:"):
+            fail(
+                "negative multiple reference branch no longer emits exactly "
+                f"one announcement and zero commands: {command!r}"
+            )
 
 
 def assert_domain_plan(
@@ -171,6 +207,7 @@ def main() -> int:
         fail("usage: check_prompt_true_fraction_multiples.py PROBE NATIVE_RETA")
     assert_csv_rectangles()
     assert_python_bug_is_still_reproducible()
+    assert_python_negative_multiple_noops()
     result = parse_probe(Path(sys.argv[1]).resolve())
 
     universe = assert_domain_plan(
@@ -264,13 +301,29 @@ def main() -> int:
     if result["universum vielfache 1/2,2/3"] != result["universum v1/2,2/3"]:
         fail("compact and spelled mixed-axis plans differ")
 
+    # These negative-first historical branches print only the compact transformation
+    # announcement.  An empty string is a handled zero-invocation plan;
+    # FALLBACK would re-enter the Python child and duplicate that effect.
+    for command in (
+        "universum v-1/4,2/3",
+        "universum v-2/3",
+        "universum v-2/3,1/4",
+    ):
+        if result[command] != "":
+            fail(f"stable negative multiple branch is not an empty native plan: {command}")
+    if result["universum v1/4,-2/3"] != "FALLBACK":
+        fail("positive-first excluded true fraction must remain atomic fallback")
+    if result["universum v1/4,-1/8,2/3"] != "FALLBACK":
+        fail("positive/excluded reciprocal collision must remain atomic fallback")
+
     runner = Path(sys.argv[2]).resolve()
     assert_direct_execution(result["universum v2/3"], runner)
     assert_direct_execution(result["universum v1/2,2/3"], runner)
 
     print(
         "true fraction multiples: Python crashes reproduced; "
-        "Mojo contract 13/13, mixed bounds, and direct invocations valid"
+        "Mojo contract 13/13, mixed bounds, negative no-op branches, "
+        "and direct invocations valid"
     )
     return 0
 

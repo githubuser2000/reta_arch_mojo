@@ -19,13 +19,14 @@ def test_build_scripts_are_valid_posix_shell_and_expose_help() -> None:
         "build-heavy.sh",
         "build-all.sh",
         "build_diagnostics_shared.sh",
+        "mojo_build_options.sh",
     )
     subprocess.run(
         ["sh", "-n", *(str(SCRIPTS / name) for name in names)],
         check=True,
         cwd=ROOT,
     )
-    for name in names:
+    for name in names[:-1]:
         result = subprocess.run(
             [str(SCRIPTS / name), "--help"],
             check=True,
@@ -44,6 +45,9 @@ def test_full_build_forwards_the_exact_argument_vector_to_both_subbuilds(
     scripts = project / "scripts"
     scripts.mkdir(parents=True)
     shutil.copy2(SCRIPTS / "build-all.sh", scripts / "build-all.sh")
+    shutil.copy2(
+        SCRIPTS / "mojo_build_options.sh", scripts / "mojo_build_options.sh"
+    )
 
     trace = project / "trace.txt"
     child = """#!/usr/bin/env sh
@@ -128,3 +132,187 @@ def test_build_documentation_has_optimization_and_cpu_examples() -> None:
         assert "--target-cpu" in text
         assert "--optimize-heavy" in text
         assert "MOJO_BUILD_OPTION" in text
+
+
+def _prepare_fake_heavy_project(tmp_path: Path) -> tuple[Path, Path, dict[str, str]]:
+    project = tmp_path / "heavy-project"
+    scripts = project / "scripts"
+    tools = project / "tools"
+    fake_bin = project / "fake-bin"
+    scripts.mkdir(parents=True)
+    tools.mkdir()
+    fake_bin.mkdir()
+    for name in ("build-heavy.sh", "mojo_build_options.sh"):
+        shutil.copy2(SCRIPTS / name, scripts / name)
+
+    (scripts / "configure_mojo_runtime.sh").write_text(
+        "#!/usr/bin/env sh\nexit 0\n", encoding="utf-8"
+    )
+    (scripts / "current_source_id.sh").write_text(
+        "#!/usr/bin/env sh\nprintf 'source-id\\n'\n", encoding="utf-8"
+    )
+    (scripts / "stamp_mojo_binary.sh").write_text(
+        "#!/usr/bin/env sh\nprintf '%s\\n' \"${RETA_BUILD_SOURCE_ID:-source-id}\" > \"$1.reta-source-id\"\n",
+        encoding="utf-8",
+    )
+    for name in (
+        "configure_mojo_runtime.sh",
+        "current_source_id.sh",
+        "stamp_mojo_binary.sh",
+    ):
+        (scripts / name).chmod(0o755)
+    (tools / "sanitize_mojo_runpath.py").write_text(
+        "raise SystemExit(0)\n", encoding="utf-8"
+    )
+
+    trace = project / "mojo-trace.txt"
+    fake_mojo = fake_bin / "mojo"
+    fake_mojo.write_text(
+        """#!/usr/bin/env sh
+set -eu
+printf 'CALL' >> "$TRACE"
+output=
+expect_output=0
+for argument do
+    printf '\t<%s>' "$argument" >> "$TRACE"
+    if [ "$expect_output" -eq 1 ]; then
+        output=$argument
+        expect_output=0
+    elif [ "$argument" = -o ]; then
+        expect_output=1
+    fi
+done
+printf '\n' >> "$TRACE"
+: "${output:?missing -o output}"
+: > "$output"
+""",
+        encoding="utf-8",
+    )
+    fake_mojo.chmod(0o755)
+    fake_file = fake_bin / "file"
+    fake_file.write_text(
+        "#!/usr/bin/env sh\nprintf 'ELF 64-bit LSB executable\\n'\n",
+        encoding="utf-8",
+    )
+    fake_file.chmod(0o755)
+    fake_python = fake_bin / "python3"
+    fake_python.write_text("#!/usr/bin/env sh\nexit 0\n", encoding="utf-8")
+    fake_python.chmod(0o755)
+
+    env = os.environ.copy()
+    env.update(
+        {
+            "TRACE": str(trace),
+            "MOJO_BIN": str(fake_mojo),
+            "PATH": str(fake_bin) + os.pathsep + env["PATH"],
+        }
+    )
+    return project, trace, env
+
+
+def _thread_options(line: str) -> list[str]:
+    fields = [field[1:-1] for field in line.split("\t")[1:]]
+    result: list[str] = []
+    index = 0
+    while index < len(fields):
+        field = fields[index]
+        if field in {"-j", "--jobs", "--threads"}:
+            result.append(field)
+            if index + 1 < len(fields):
+                result.append(fields[index + 1])
+                index += 2
+                continue
+        elif field.startswith("-j") and field != "-j":
+            result.append(field)
+        elif field.startswith("--jobs=") or field.startswith("--threads="):
+            result.append(field)
+        index += 1
+    return result
+
+
+def test_heavy_thread_default_is_suppressed_by_forwarded_user_value(
+    tmp_path: Path,
+) -> None:
+    project, trace, env = _prepare_fake_heavy_project(tmp_path)
+    completed = subprocess.run(
+        [str(project / "scripts/build-heavy.sh"), "--", "-j", "8"],
+        cwd=project,
+        env=env,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    assert completed.returncode == 0, completed.stderr
+    lines = trace.read_text(encoding="utf-8").splitlines()
+    threaded = [
+        line
+        for line in lines
+        if any(
+            name in line
+            for name in (
+                "architecture_execution_network_main.mojo",
+                "architecture_parallel_execution_main.mojo",
+                "architecture_parallel_row_preparation_main.mojo",
+            )
+        )
+    ]
+    assert len(threaded) == 3
+    assert all(_thread_options(line) == ["-j", "8"] for line in threaded)
+
+
+def test_heavy_thread_default_is_added_only_when_user_omits_it(
+    tmp_path: Path,
+) -> None:
+    project, trace, env = _prepare_fake_heavy_project(tmp_path)
+    completed = subprocess.run(
+        [str(project / "scripts/build-heavy.sh"), "--", "--optimization-level", "2"],
+        cwd=project,
+        env=env,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    assert completed.returncode == 0, completed.stderr
+    threaded = [
+        line
+        for line in trace.read_text(encoding="utf-8").splitlines()
+        if any(
+            name in line
+            for name in (
+                "architecture_execution_network_main.mojo",
+                "architecture_parallel_execution_main.mojo",
+                "architecture_parallel_row_preparation_main.mojo",
+            )
+        )
+    ]
+    assert len(threaded) == 3
+    assert all(_thread_options(line) == ["-j", "4"] for line in threaded)
+
+
+def test_public_build_scripts_reject_two_user_thread_options() -> None:
+    helper_path = SCRIPTS / "mojo_build_options.sh"
+    helper = helper_path.read_text(encoding="utf-8")
+    assert "mojo_thread_option_count" in helper
+    assert "Mojo-Compileroption für die Threadanzahl wurde mehrfach angegeben" in helper
+    completed = subprocess.run(
+        [
+            "sh",
+            "-c",
+            '. "$1"; shift; mojo_validate_build_options "$@"',
+            "sh",
+            str(helper_path),
+            "-j",
+            "8",
+            "--jobs=4",
+        ],
+        cwd=ROOT,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    assert completed.returncode == 2
+    assert "Threadanzahl wurde mehrfach angegeben" in completed.stderr
+    for name in ("build.sh", "build-heavy.sh", "build-all.sh"):
+        source = _text(name)
+        assert '. "$ROOT/scripts/mojo_build_options.sh"' in source
+        assert 'mojo_validate_build_options "$@"' in source
