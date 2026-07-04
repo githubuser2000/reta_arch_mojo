@@ -27,7 +27,7 @@ def test_snapshot_asset_is_complete_and_path_resolved() raises:
     assert_true(payload.find('"architecture_progress":') >= 0)
     assert_true(payload.find('"parallel_execution":') >= 0)
     assert_true(payload.find("@@RETA_REFERENCE_ROOT@@") < 0)
-    assert_true(len(payload) > 1_000_000)
+    assert_true(payload.byte_length() > 1_000_000)
 
 
 def test_markdown_asset_is_native_runtime_data() raises:

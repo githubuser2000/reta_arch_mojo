@@ -68,11 +68,12 @@ Diagnosen sind geordnete Planwerte statt unmittelbarer Seiteneffekte.
 
 Portable Prüfungen dieser Stage:
 
-- 211 Source-Vertragstests bestanden,
+- 220 Source-Vertragstests bestanden,
 - 1 begründeter compilerabhängiger Skip,
-- 82 fokussierte Bridge-, Parameter-, Domain-, HTML-, Metrik- und Infrastrukturtests bestanden.
+- 76 fokussierte Bridge-, Parameter-, Domain-, HTML-, Metrik- und Infrastrukturtests bestanden,
+- 3 Archiv-Roundtriptests bestanden.
 
-Zusätzlich korrigiert diese Stage die beobachtbare Aliasreihenfolge der Domain-Probe: kanonische Gruppen bleiben sortiert, ihre Aliaslisten bewahren jedoch die Python-Einfügereihenfolge.
+Zusätzlich korrigiert diese Stage die zwei beobachtbaren Aliasordnungen der Domain-Probe: normalisierte Parametergruppen sortieren die vereinigte Aliasmenge lexikographisch; `exact_meta_for_column` bewahrt dagegen die ursprüngliche `paraNdataMatrix`-Reihenfolge jedes Eintrags.
 
 Der lokale Modular-Test kompiliert zusätzlich:
 

@@ -4,7 +4,7 @@
 - Die HTML-Gesamtseitenlogik liegt einmalig in `html_document.mojo`; `generate_html_main.mojo` und die Bridge teilen denselben nativen Mittelteil-/Asset-/stdout-Vertrag.
 - `reta_architecture/parameter_runtime.py` ist vollständig nativ: `produce_all_spalten_numbers`, `apply_width_parameter` und `parameters_to_commands_and_numbers` sind typisierte Adapter über `ParameterRuntimePlan`, ohne dynamisches Program-Objekt oder Lazy-Pythonimporte.
 - vollständig nativ/generiert: **83/92 = 90,2 %**; mindestens teilweise: **86/92 = 93,5 %**; angegriffene Referenzzeilen: **46.561/48.831 = 95,4 %**; vollständig native Referenzzeilen: **43.122/48.831 = 88,3 %**.
-- Portable Prüfung: **219 Source-Vertragstests bestanden, 1 Skip**; zusätzliche fokussierte Gruppen **49/49** und **25/25**. Defektkatalog bleibt **120**, Python-Bereinigungspunkte **19**.
+- Portable Prüfung: **220 Source-Vertragstests bestanden, 1 Skip**; fokussierte Stage-/Infrastrukturgruppe **76/76**, Archiv-Roundtrip **3/3**. Defektkatalog **121**, Python-Bereinigungspunkte **19**.
 - Fokussierter lokaler Compilerlauf: `scripts/test_stage12c5an.sh`; vollständiger fail-fast Ablauf: `./do.sh 12c5an`.
 
 # Status – Stage 12c5am

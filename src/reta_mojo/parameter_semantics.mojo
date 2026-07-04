@@ -79,6 +79,7 @@ struct ParameterSemanticsSheaf(Copyable):
     var main_aliases: List[MainAliasEntry]
     var parameter_alias_groups: List[ParameterAliasGroup]
     var pair_to_columns: List[PairColumns]
+    var raw_parameter_entries: List[ParameterEntry]
     var global_parameter_dict_size: Int
     var global_data_dict_sizes: List[Int]
 
@@ -332,8 +333,8 @@ def build_parameter_semantics(schema: RetaContextSchema) -> ParameterSemanticsSh
                     )
             _sort_ints(pair_columns[pair_index].columns)
 
-    # Preserve Python alias insertion order inside each canonical group.
-    # Only groups themselves are sorted canonically; aliases are observable.
+    for index in range(len(parameter_groups)):
+        _sort_strings(parameter_groups[index].aliases)
     _sort_parameter_groups(parameter_groups)
     _sort_pair_columns(pair_columns)
 
@@ -342,6 +343,7 @@ def build_parameter_semantics(schema: RetaContextSchema) -> ParameterSemanticsSh
         main_aliases^,
         parameter_groups^,
         pair_columns^,
+        schema.parameter_entries.copy(),
         0,
         List[Int](),
     )
@@ -532,22 +534,24 @@ def _parameter_aliases_for_canonical(
 def exact_meta_for_column(
     sheaf: ParameterSemanticsSheaf, column_number: Int
 ) -> List[ColumnParameterMeta]:
+    # Python exposes the original ``paraNdataMatrix`` entry here, not the
+    # normalized alias groups used by ``params`` and ``pair-json``.  Keep both
+    # observable orders: normalized groups are sorted, while exact metadata
+    # preserves each source entry byte-for-byte.
     var result = List[ColumnParameterMeta]()
-    for index in range(len(sheaf.pair_to_columns)):
-        var pair = sheaf.pair_to_columns[index].copy()
-        if not _contains_int(pair.columns, column_number):
+    for index in range(len(sheaf.raw_parameter_entries)):
+        var entry = sheaf.raw_parameter_entries[index].copy()
+        if not _contains_int(entry.direct_columns, column_number):
+            continue
+        if len(entry.main_aliases) == 0 or len(entry.parameter_aliases) == 0:
             continue
         result.append(
             ColumnParameterMeta(
                 column_number,
-                pair.main_canonical.copy(),
-                _main_aliases_for_canonical(
-                    sheaf, pair.main_canonical
-                ),
-                pair.parameter_canonical.copy(),
-                _parameter_aliases_for_canonical(
-                    sheaf, pair.main_canonical, pair.parameter_canonical
-                ),
+                entry.main_aliases[0].copy(),
+                entry.main_aliases.copy(),
+                entry.parameter_aliases[0].copy(),
+                entry.parameter_aliases.copy(),
             )
         )
     for index in range(1, len(result)):

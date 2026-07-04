@@ -1198,3 +1198,4 @@ Vier vollständig native Diagnoseoberflächen teilen seit Stage 12c5z eine versi
 - `mojo_bridge.py` wird nicht mehr als eingebettete Python-Brücke benötigt; seine 15 öffentlichen Namen und 19 Funktionsdefinitionen besitzen eine native Mojo-Fassade.
 - TTY/History/Completion, externe Befehle und HTML-Gesamtseite sind klar getrennte Besitzer. Nicht vollständig portierte `reta.py`-/Promptpfade bleiben als explizite Kindprozesse sichtbar.
 - `parameter_runtime.py` mutiert kein heterogenes Program-Objekt mehr. Spalten-, Breiten-, Parameter- und Obergrenzenauswertung liefern typisierte Planwerte.
+- Die Parametergarbe hält zwei getrennte Aliasordnungen: lexikographisch normalisierte Gruppen für `params`/JSON und rohe Matrixeinträge für `column`/`exact_meta_for_column`.

@@ -125,8 +125,7 @@ Der Entwicklungsablauf lautet:
 ```
 
 Zuerst werden alle noch nicht lokal bestätigten Vorgängerstages erneut geprüft.
-Danach kompiliert der Stage-Test die native `mojo_bridge.py`-Fassade und die
-vollständige Parameter-Runtime. Erst nach erfolgreicher Ausführung werden Shared
+Danach kompiliert der Stage-Test zuerst die zweifache Parameter-Aliasordnung, anschließend die native `mojo_bridge.py`-Fassade und die vollständige Parameter-Runtime. Erst nach erfolgreicher Ausführung werden Shared
 Diagnostics, `test_all.sh` und der Git-Commit gestartet.
 
 ## Installation mit Python 3.14

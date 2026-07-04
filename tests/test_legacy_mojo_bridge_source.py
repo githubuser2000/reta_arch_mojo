@@ -61,6 +61,9 @@ def test_generated_catalog_matches_historical_surface() -> None:
     assert functions == _function_names()
     assert len(public) == 15
     assert len(functions) == 19
+    native_source = MOJO_SOURCE.read_text(encoding="utf-8")
+    for name in public[1:]:
+        assert f"def {name}(" in native_source
 
 
 def test_native_facade_uses_existing_native_boundaries() -> None:
@@ -111,5 +114,7 @@ def test_matrix_and_package_export_the_native_bridge_owner() -> None:
     assert "| nativ |" in row
     package = (ROOT / "src/reta_mojo/__init__.mojo").read_text(encoding="utf-8")
     assert "from .legacy_mojo_bridge import (" in package
+    for name in _public_names()[1:]:
+        assert re.search(rf"^\s*{re.escape(name)},$", package, re.MULTILINE)
     current = (ROOT / "scripts/test_current_stage.sh").read_text(encoding="utf-8")
     assert "test_stage12c5an.sh" in current

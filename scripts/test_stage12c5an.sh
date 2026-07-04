@@ -11,6 +11,12 @@ mkdir -p "$TARGET"
 # Keep the not-yet-locally-confirmed 12c5am stage as an explicit prerequisite.
 "$ROOT/scripts/test_stage12c5am.sh"
 
+printf '\n== build tests/test_parameter_semantics.mojo ==\n'
+"$MOJO" build -I src -I tests tests/test_parameter_semantics.mojo \
+    -o "$TARGET/test_parameter_semantics_12c5an"
+printf '== run test_parameter_semantics_12c5an ==\n'
+"$ROOT/bin/mojo-runtime-exec" "$TARGET/test_parameter_semantics_12c5an"
+
 printf '\n== generate/check exact legacy mojo_bridge catalog ==\n'
 PYTHONDONTWRITEBYTECODE=1 \
     "$TEST_PYTHON" tools/generate_legacy_mojo_bridge_catalog.py --check

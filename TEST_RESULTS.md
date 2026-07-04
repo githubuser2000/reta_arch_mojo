@@ -4,9 +4,9 @@
 mojo_bridge-Oberfläche:                    15 öffentliche Namen
 mojo_bridge-Funktionen:                    19 Definitionen
 Parameter-Runtime:                          8 Modulfunktionsgrenzen
-Source-Vertragstests:                     219 bestanden, 1 Skip
-fokussierte Bridge-/Parametergruppe:       49/49 bestanden
-Paket-/Import-/Boundary-Gruppe:             25/25 bestanden
+Source-Vertragstests:                     220 bestanden, 1 Skip
+fokussierte Stage-/Infrastrukturtests:       76/76 bestanden
+Archiv-Roundtriptests:                        3/3 bestanden
 vollständig nativ/generiert:               83/92 = 90,2 %
 vollständig native Referenzzeilen:         43.122/48.831 = 88,3 %
 ```

@@ -13,7 +13,7 @@ erst nach ELF-Prüfung, RUNPATH-Bereinigung und Inhaltsmarkierung ersetzt sie da
 vorherige Ziel. `build-all.sh` prüft abschließend sämtliche regulären und
 schweren Ziele.
 
-Der aktuelle fokussierte Compilerlauf ist:
+Der aktuelle fokussierte Compilerlauf prüft zuerst `test_parameter_semantics.mojo`, danach Bridge und vollständige Parameter-Runtime:
 
 ```sh
 scripts/test_stage12c5an.sh

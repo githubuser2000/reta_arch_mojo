@@ -1641,16 +1641,16 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 - Mojo-Orte: `tools/generate_architecture_probe_assets.py`, `assets/architecture_probe/snapshot-json.json`, `tests/test_architecture_probe_assets_source.py`, `scripts/test_stage12c5al.sh`
 - Belege: `STAGE12C5AM_NATIVE_RETA_PROMPT_GENERATED_INTEGRATION.md`, `tools/generate_architecture_probe_assets.py`, `tests/test_architecture_probe_assets_source.py`
 
-### MOJO-FIXED-054 – Parameteraliase wurden innerhalb kanonischer Gruppen lexikographisch statt in Python-Einfügereihenfolge ausgegeben
+### MOJO-FIXED-054 – Normalisierte Aliasgruppen und exakte Matrixmetadaten verwendeten fälschlich dieselbe Reihenfolge
 
 - Ursprung: `mojo_port`
-- Klasse / Schwere: `parameter_alias_order_mismatch` / `high`
+- Klasse / Schwere: `parameter_alias_dual_order_mismatch` / `high`
 - Python-Status: `correct_reference`
 - Mojo-Status: `fixed`
-- entdeckt in: `12c5am`
-- Reproduktion: `./do.sh 12c5am ausführen; domain probe parity bricht bei (column, 4) ab, weil Mojo groesse,gross,größe statt Python größe,groesse,gross ausgibt.`
-- heutiger Vertrag: Parametergruppen und Paarspalten werden weiterhin kanonisch nach Haupt- und Unterparameter sortiert. Die Aliaslisten innerhalb jeder Gruppe bewahren dagegen exakt die beobachtbare Python-Einfügereihenfolge; sie werden nicht lexikographisch sortiert.
-- spätere Python-Aktion: Keine Python-Änderung erforderlich; die Referenzreihenfolge ist korrekt und Teil der Text- sowie JSON-Parität.
+- entdeckt in: `12c5am/12c5an`
+- Reproduktion: `./do.sh 12c5am ausführen; zunächst wich column 4 ab, weil exact_meta_for_column sortierte Aliasgruppen statt der ursprünglichen Matrixreihenfolge verwendete. Nach reinem Bewahren der Einfügereihenfolge wich params religionen ab, weil Python dort die normalisierte Aliasmenge lexikographisch sortiert.`
+- heutiger Vertrag: Die native Parametergarbe besitzt zwei ausdrücklich getrennte Ordnungen wie die Python-Referenz: parameter_alias_groups sortiert die vereinigte Aliasmenge lexikographisch, während raw_parameter_entries die ursprüngliche paraNdataMatrix-Reihenfolge für exact_meta_for_column bytegenau bewahrt. Gruppen und Paarspalten bleiben zusätzlich kanonisch nach Haupt- und Unterparameter sortiert.
+- spätere Python-Aktion: Keine Python-Änderung erforderlich; die unterschiedlichen Ordnungen sind beabsichtigte beobachtbare Verträge der normalisierten Garbe und der exakten Matrixinspektion.
 - Python-Orte: `python_reference/reta_architecture/sheaves.py`, `python_reference/reta_domain_probe_py.py`
 - Mojo-Orte: `src/reta_mojo/parameter_semantics.mojo`, `tests/test_parameter_semantics.mojo`, `tests/test_parameter_semantics_order_source.py`
 - Belege: `STAGE12C5AN_NATIVE_MOJO_BRIDGE_PARAMETER_RUNTIME.md`, `tests/test_parameter_semantics.mojo`, `tests/test_parameter_semantics_order_source.py`, `scripts/check_domain_probe_parity.py`

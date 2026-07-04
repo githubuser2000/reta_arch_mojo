@@ -62,6 +62,7 @@ from .legacy_mojo_bridge import (
     LegacyMojoBridgeSnapshot,
     LegacyMojoBridgeBundle,
     bootstrap_legacy_mojo_bridge,
+    run_reta,
     run_reta_encoded,
     run_reta_subprocess_encoded,
     read_prompt_line_encoded,
