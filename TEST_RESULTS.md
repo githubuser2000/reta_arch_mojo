@@ -1,3 +1,22 @@
+# Testergebnisse – Stage 12c5bc
+
+- Der gemeldete FHS-Fehler wurde mit `tests/test_install_layout.py::test_user_local_prefix_keeps_data_below_home_share` reproduziert und nach der Launcher-Reparatur bestanden.
+- Der vollständige portable Installationslayouttest besteht mit `/usr`, `/usr/local`, `$HOME/.local`, `LIBEXECDIR=/usr/libexec/reta` und Deinstallation.
+- Der installierte Launcher gibt bei fehlendem optionalem `reta-mojo-table` nun deterministisch Exitstatus 127 und eine Ziel-/Quellenmeldung aus.
+- Die positive-first Bruchvielfachen-Quell- und Python-Referenzverträge aus 12c5bb bleiben grün.
+- Mojo-Kompilierung und direkte Laufzeitparität erfolgen benutzerseitig über `scripts/test_stage12c5bc.sh`.
+- Portable Abschlussgruppen: **27 + 27 + 39 + 3 = 96 eindeutige Tests bestanden**.
+- Instrumentierte Python-Referenz: positive-first Reziprokachse und negative-first No-op-Zweige unverändert bestätigt.
+- Quellmanifest: **1.624 Dateien**, **114 Symlinks**.
+- Portierungsmetriken: **89/92** vollständig nativ/generiert, **92/92** mindestens teilweise, **48.831/48.831** Referenzzeilen angegriffen; **62.690** Mojo-Zeilen in `src/`.
+
+# Testergebnisse – Stage 12c5bb
+
+- Instrumentierte Python-Referenz: Universum und Emotion erzeugen für positive-first `v1/n,-a/b` jeweils genau einen reziproken `reta`-Aufruf.
+- Referenzzeilenmengen: `{4,8,...,1020}` beziehungsweise `{2,4,...,1022}`.
+- Quellseitige Verträge prüfen die enge Signaturklasse, vier Probevarianten, den weiterhin atomaren Reziprokausschluss-Kollisionsfall und die direkte native Ein-Achsen-Ausführung.
+- Mojo-Kompilierung und direkte Laufzeitparität erfolgen benutzerseitig über `scripts/test_stage12c5bb.sh`.
+
 # Testergebnisse – Stage 12c5ba
 
 - Benutzerbefund 1: `scripts/build-all.sh -- -j 8` scheiterte bei `reta-mojo-execution-network`, weil intern zusätzlich `-j 4` gesetzt wurde.

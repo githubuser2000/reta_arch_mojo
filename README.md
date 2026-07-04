@@ -1,5 +1,27 @@
 # reta.arch → Mojo
 
+## Aktueller Stand 12c5bc
+
+Installierte `reta-mojo`-Launcher versuchen bei einem fehlenden optionalen
+ELF-Ziel nicht mehr, nicht installierte `src/*.mojo`-Dateien auszuführen. Im
+Quellbaum bleibt der `mojo run`-Fallback erhalten; im FHS-Binärlayout endet der
+Launcher deterministisch mit Exitstatus 127 und nennt das fehlende Ziel.
+Enthalten ist außerdem der positive-first Bruchvielfachen-Port aus 12c5bb.
+Fokussierter Benutzerlauf: `scripts/test_stage12c5bc.sh`. Details:
+[`STAGE12C5BC_INSTALLED_LAUNCHER_MISSING_TARGET.md`](STAGE12C5BC_INSTALLED_LAUNCHER_MISSING_TARGET.md).
+
+## Aktueller Stand 12c5bb
+
+Positive reziproke Bruchvielfache mit nachfolgenden ausgeschlossenen echten
+Brüchen sind nun ebenfalls nativ. `universum v1/4,-2/3` und
+`universum v1/2,-2/3` erzeugen genau eine bis 1023 begrenzte reziproke Achse;
+`emotion v1/4,-2/3` verwendet dieselbe Zeilenalgebra mit der historischen
+Emotionsspaltenprojektion. Die ausgeschlossenen echten Brüche erzeugen keine
+eigene `n/m`-CSV-Achse. Ausgeschlossene Reziproke und unbewiesene
+Positiv-/Negativkollisionen bleiben atomarer Fallback. Fokussierter
+Benutzerlauf: `scripts/test_stage12c5bb.sh`. Details:
+[`STAGE12C5BB_POSITIVE_RECIPROCAL_EXCLUDED_TRUE_FRACTIONS.md`](STAGE12C5BB_POSITIVE_RECIPROCAL_EXCLUDED_TRUE_FRACTIONS.md).
+
 ## Aktueller Stand 12c5ba
 
 Der 12c5az-Benutzerbuild deckte zwei reale Compilergrenzen auf. Ein
@@ -277,19 +299,19 @@ Die Metriken messen **orthogonale Bezugsgrößen** und sind nicht als ein einzig
 
 Der Port ist daher nicht von über 90 % auf rund 65 % zurückgefallen. Die frühere Zahl bezeichnete die Funktionsoberfläche, die strengere Zahl den Quellersatz. Der vollständige Plan steht in [`ROADMAP.md`](ROADMAP.md).
 
-### Aktueller Fokus: Stage 12c5az
+### Aktueller Fokus: Stage 12c5bc
 
 Der Entwicklungsablauf lautet:
 
 ```bash
-./do.sh 12c5az
+./do.sh 12c5bc
 ```
 
-Die Stage-Kette bestätigt zuerst 12c5ay einschließlich der thread-only
-Legacy-Prozessaliase. Danach kompiliert der Benutzer den vollständigen
-Prompt-Tabellenvertrag und die Bruchvielfachenprobe. Der neue Vertrag beweist,
-dass `v1/n` bis Zeile 1023 und echte `v n/m` nur im realen CSV-Rechteck
-expandieren, ohne sich gegenseitig eine falsche Obergrenze aufzuzwingen. Die
+Die Stage-Kette bestätigt zuerst 12c5bb mit dem positiven
+`v1/n,-a/b`-Ein-Achsen-Vertrag. Danach prüft sie das installierte FHS-Layout:
+Fehlt ein optionales ELF-Ziel, versucht `reta-mojo` keine im Binärpaket nicht
+vorhandene Mojo-Quelle mehr zu starten, sondern endet unabhängig von einer
+zufällig vorhandenen Compilerinstallation mit Exitstatus 127. Die
 Mojo-Kompilierungen führt ausschließlich der Benutzer aus.
 
 ## Installation mit Python 3.14

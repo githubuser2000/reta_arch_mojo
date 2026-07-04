@@ -11,8 +11,12 @@ def _text(path: str) -> str:
 
 def test_current_stage_and_previous_runtime_gate_are_chained() -> None:
     current = _text("scripts/test_current_stage.sh")
+    newest = _text("scripts/test_stage12c5bc.sh")
+    positive_first = _text("scripts/test_stage12c5bb.sh")
     stage = _text("scripts/test_stage12c5ba.sh")
-    assert "test_stage12c5ba.sh" in current
+    assert "test_stage12c5bc.sh" in current
+    assert '"$ROOT/scripts/test_stage12c5bb.sh"' in newest
+    assert '"$ROOT/scripts/test_stage12c5ba.sh"' in positive_first
     assert '"$ROOT/scripts/test_stage12c5az.sh"' in stage
     assert "tests/test_build_compiler_options.py" in stage
     assert "tests/test_build_thread_option_dedup.py" in stage

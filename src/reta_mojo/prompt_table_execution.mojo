@@ -580,6 +580,32 @@ def _has_positive_true_fraction(pairs: List[_PromptFractionPair]) -> Bool:
     return False
 
 
+def _positive_reciprocal_multiple_with_excluded_true_fractions(
+    pairs: List[_PromptFractionPair],
+) -> Bool:
+    """Recognize the stable positive-first reciprocal-only legacy branch.
+
+    A leading ``v1/n`` followed only by excluded proper fractions does not
+    create proper-fraction CSV invocations in the Python reference.  It keeps
+    exactly the bounded reciprocal-multiple axis.  Excluded reciprocals and
+    any positive proper fraction remain outside this deliberately narrow
+    contract because they reach different output or defect branches.
+    """
+    var has_positive_reciprocal_multiple = False
+    var has_excluded_true_fraction = False
+    for index in range(len(pairs)):
+        var pair = pairs[index].copy()
+        if pair.excluded:
+            if pair.numerator == 1:
+                return False
+            has_excluded_true_fraction = True
+        else:
+            if pair.numerator != 1 or not pair.multiple:
+                return False
+            has_positive_reciprocal_multiple = True
+    return has_positive_reciprocal_multiple and has_excluded_true_fraction
+
+
 def _fraction_pairs_for_axis(
     pairs: List[_PromptFractionPair], reciprocal: Bool
 ) -> List[_PromptFractionPair]:
@@ -671,7 +697,11 @@ def _fraction_multiple_supported(
     if not multiple_mode or not _has_true_fraction(pairs):
         return True
     var domain = _fraction_multiple_domain(canonical_words)
-    if not domain.supported or not _has_positive_true_fraction(pairs):
+    if not domain.supported:
+        return False
+    if _positive_reciprocal_multiple_with_excluded_true_fractions(pairs):
+        return True
+    if not _has_positive_true_fraction(pairs):
         return False
     # Reciprocal 1/n multiples and true n/m multiples deliberately use different
     # bounds.  They are split below: reciprocal rows use the historical 1024

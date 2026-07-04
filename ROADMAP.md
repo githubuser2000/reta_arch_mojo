@@ -625,3 +625,19 @@ Maschinenstand: **80/92 vollständig**, **86/92 mindestens teilweise**, **46.561
 - [x] Potenziell werfende `Int(String)`-Konvertierung der gemischten Reziprokachse mit `raises` propagieren.
 - [x] Drei reihenfolgensensitive negative-first Bruchvielfachen-Zweige ohne Python-Kindprozess besitzen und positive-first Gegenfälle atomar halten.
 - [ ] Benutzerseitigen Modular-Lauf `scripts/build-all.sh -- -j 8 && scripts/test_stage12c5ba.sh` ausführen.
+
+## Stage 12c5bb – positive reziproke Vielfache mit ausgeschlossenen echten Brüchen
+
+- [x] Positive-first `v1/n,-a/b`-Referenzpfade instrumentiert erfassen.
+- [x] Die enge Signaturklasse ohne positive echte Brüche und ohne ausgeschlossene Reziproke typisiert besitzen.
+- [x] Universum-, Emotion- und Teilerprojektionen quell- und laufzeitseitig binden.
+- [x] Ausgeschlossene echte Brüche aus der `n/m`-CSV-Materialisierung fernhalten.
+- [x] Den dokumentierten `v1/4,-1/8,2/3`-Kollisionsfall atomar lassen.
+- [ ] Benutzerseitigen Modular-Lauf `scripts/build-all.sh -- -j 8 && scripts/test_stage12c5bb.sh` ausführen.
+## Stage 12c5bc – installierter Launcher ohne optionales Ziel
+
+- [x] Fehlenden optionalen `reta-mojo-table`-Build im FHS-Layout reproduzieren.
+- [x] Quellbaum-Fallback nur bei tatsächlich vorhandener Mojo-Quelle zulassen.
+- [x] Im Binärlayout deterministischen Exitstatus 127 und konkrete Diagnose liefern.
+- [x] Positive-first Bruchvielfachen-Port aus 12c5bb vollständig in der Stage-Kette erhalten.
+- [ ] Benutzerseitigen Modular-Lauf `scripts/build-all.sh -- -j 8 && scripts/test_stage12c5bc.sh` ausführen.

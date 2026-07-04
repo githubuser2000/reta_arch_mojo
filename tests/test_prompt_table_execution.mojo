@@ -475,9 +475,33 @@ def test_true_fraction_multiples_follow_each_csv_rectangle() raises:
     var negative_first_mixed = _plan("universum v-2/3,1/4")
     assert_true(negative_first_mixed.handled)
     assert_equal(len(negative_first_mixed.invocations), 0)
-    # The same signs in positive-first order have nonempty reference behavior
-    # and therefore remain atomically delegated until that branch is ported.
-    assert_false(_plan("universum v1/4,-2/3").handled)
+    # Positive-first reciprocal multiples followed only by excluded proper
+    # fractions retain exactly one bounded reciprocal axis.
+    var positive_first = _plan("universum v1/4,-2/3")
+    assert_true(positive_first.handled)
+    assert_equal(len(positive_first.invocations), 1)
+    assert_true("--Universum=transzendentaliereziproke" in _tokens(positive_first))
+    assert_true("--vorhervonausschnitt=512,4,516,8" in _tokens(positive_first))
+    assert_true(",1008,500,1012,504,508" in _tokens(positive_first))
+    assert_false("--gebrochen-rational_" in _tokens(positive_first))
+
+    var positive_first_half = _plan("universum v1/2,-2/3")
+    assert_true(positive_first_half.handled)
+    assert_equal(len(positive_first_half.invocations), 1)
+    assert_true("--vorhervonausschnitt=2,4,6,8" in _tokens(positive_first_half))
+    assert_true(",1018,1020,1022" in _tokens(positive_first_half))
+
+    var positive_first_emotion = _plan("emotion v1/4,-2/3")
+    assert_true(positive_first_emotion.handled)
+    assert_equal(len(positive_first_emotion.invocations), 1)
+    assert_true("--Grundstrukturen=emotion" in _tokens(positive_first_emotion))
+    assert_true("--spaltenreihenfolgeundnurdiese=4,5" in _tokens(positive_first_emotion))
+
+    var positive_first_divisor = _plan("universum v1/4,-2/3 teiler")
+    assert_true(positive_first_divisor.handled)
+    assert_equal(len(positive_first_divisor.invocations), 1)
+    assert_true("--spaltenreihenfolgeundnurdiese=1" in _tokens(positive_first_divisor))
+
     # A positive reciprocal combined with its own exclusion reaches the frozen
     # Python IndexError branch and therefore remains atomic compatibility work.
     assert_false(_plan("universum v1/4,-1/8,2/3").handled)
@@ -498,6 +522,9 @@ def test_true_fraction_multiples_follow_each_csv_rectangle() raises:
     _emit_true_fraction_multiple_plan("universum v-2/3")
     _emit_true_fraction_multiple_plan("universum v-2/3,1/4")
     _emit_true_fraction_multiple_plan("universum v1/4,-2/3")
+    _emit_true_fraction_multiple_plan("universum v1/2,-2/3")
+    _emit_true_fraction_multiple_plan("emotion v1/4,-2/3")
+    _emit_true_fraction_multiple_plan("universum v1/4,-2/3 teiler")
     _emit_true_fraction_multiple_plan("universum v1/4,-1/8,2/3")
 
 

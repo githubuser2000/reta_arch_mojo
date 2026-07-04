@@ -30,6 +30,9 @@ CASES = [
     "universum v-2/3",
     "universum v-2/3,1/4",
     "universum v1/4,-2/3",
+    "universum v1/2,-2/3",
+    "emotion v1/4,-2/3",
+    "universum v1/4,-2/3 teiler",
     "universum v1/4,-1/8,2/3",
 ]
 
@@ -158,6 +161,55 @@ def assert_python_negative_multiple_noops() -> None:
             )
 
 
+def assert_python_positive_first_reciprocal_only() -> None:
+    environment = os.environ.copy()
+    environment["PYTHONHASHSEED"] = "0"
+    cases = {
+        "universum v1/4,-2/3": (
+            "--Universum=transzendentaliereziproke",
+            "--spaltenreihenfolgeundnurdiese=1,2",
+            set(range(4, 1024, 4)),
+        ),
+        "emotion v1/4,-2/3": (
+            "--Grundstrukturen=emotion",
+            "--spaltenreihenfolgeundnurdiese=4,5",
+            set(range(4, 1024, 4)),
+        ),
+    }
+    for command, (axis, columns, expected_rows) in cases.items():
+        completed = subprocess.run(
+            [sys.executable, "python_reference/rpb", command],
+            cwd=ROOT,
+            env=environment,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            timeout=120,
+        )
+        if completed.returncode != 0 or completed.stderr:
+            fail(f"positive-first reciprocal reference changed for {command!r}")
+        reta_lines = [
+            line for line in completed.stdout.splitlines() if line.startswith("reta ")
+        ]
+        if len(reta_lines) != 1:
+            fail(f"expected exactly one reta invocation for {command!r}")
+        arguments = reta_lines[0].split()
+        if axis not in arguments or columns not in arguments:
+            fail(f"wrong reciprocal output axis for {command!r}: {arguments!r}")
+        if any("--gebrochen-rational_" in value for value in arguments):
+            fail(f"excluded proper fraction leaked into a CSV axis for {command!r}")
+        selectors = [
+            value.removeprefix("--vorhervonausschnitt=")
+            for value in arguments
+            if value.startswith("--vorhervonausschnitt=")
+        ]
+        if len(selectors) != 1:
+            fail(f"reference has no unique reciprocal selector for {command!r}")
+        actual_rows = {int(value) for value in selectors[0].split(",") if value}
+        if actual_rows != expected_rows:
+            fail(f"wrong positive-first reciprocal rows for {command!r}")
+
+
 def assert_domain_plan(
     payload: str,
     prefix: str,
@@ -178,7 +230,9 @@ def assert_domain_plan(
     return plan
 
 
-def assert_direct_execution(payload: str, runner: Path) -> None:
+def assert_direct_execution(
+    payload: str, runner: Path, expected_count: int = 13
+) -> None:
     environment = os.environ.copy()
     environment["RETA_PYTHON"] = "/definitely/not/available"
     total_bytes = 0
@@ -198,8 +252,11 @@ def assert_direct_execution(payload: str, runner: Path) -> None:
                 + completed.stderr.decode("utf-8", errors="replace")[:500]
             )
         total_bytes += len(completed.stdout)
-    if len(plan) != 13 or total_bytes == 0:
-        fail("direct true-fraction execution did not exercise the complete plan")
+    if len(plan) != expected_count or total_bytes == 0:
+        fail(
+            "direct true-fraction execution did not exercise the complete plan: "
+            f"{len(plan)} != {expected_count}"
+        )
 
 
 def main() -> int:
@@ -208,6 +265,7 @@ def main() -> int:
     assert_csv_rectangles()
     assert_python_bug_is_still_reproducible()
     assert_python_negative_multiple_noops()
+    assert_python_positive_first_reciprocal_only()
     result = parse_probe(Path(sys.argv[1]).resolve())
 
     universe = assert_domain_plan(
@@ -311,19 +369,50 @@ def main() -> int:
     ):
         if result[command] != "":
             fail(f"stable negative multiple branch is not an empty native plan: {command}")
-    if result["universum v1/4,-2/3"] != "FALLBACK":
-        fail("positive-first excluded true fraction must remain atomic fallback")
+    positive_first = records(result["universum v1/4,-2/3"])
+    if len(positive_first) != 1:
+        fail("positive-first excluded true fraction must produce one reciprocal axis")
+    if set(row_values(positive_first[0])) != set(range(4, 1024, 4)):
+        fail("positive-first reciprocal axis lost its bounded multiples of four")
+    if "--Universum=transzendentaliereziproke" not in positive_first[0]:
+        fail("positive-first Universe reciprocal axis is missing")
+    if any("--gebrochen-rational_" in field for field in positive_first[0]):
+        fail("excluded true fraction leaked into a proper-fraction invocation")
+
+    positive_half = records(result["universum v1/2,-2/3"])
+    if len(positive_half) != 1 or set(row_values(positive_half[0])) != set(
+        range(2, 1024, 2)
+    ):
+        fail("positive-first reciprocal half axis is not complete")
+
+    positive_emotion = records(result["emotion v1/4,-2/3"])
+    if len(positive_emotion) != 1:
+        fail("emotion positive-first branch must have one reciprocal invocation")
+    if "--Grundstrukturen=emotion" not in positive_emotion[0]:
+        fail("emotion positive-first reciprocal axis is missing")
+    if "--spaltenreihenfolgeundnurdiese=4,5" not in positive_emotion[0]:
+        fail("emotion reciprocal columns drifted")
+
+    positive_divisor = records(result["universum v1/4,-2/3 teiler"])
+    if len(positive_divisor) != 1:
+        fail("positive-first divider branch must have one reciprocal invocation")
+    if "--spaltenreihenfolgeundnurdiese=1" not in positive_divisor[0]:
+        fail("divider command did not narrow the Universe reciprocal columns")
+
     if result["universum v1/4,-1/8,2/3"] != "FALLBACK":
         fail("positive/excluded reciprocal collision must remain atomic fallback")
 
     runner = Path(sys.argv[2]).resolve()
     assert_direct_execution(result["universum v2/3"], runner)
     assert_direct_execution(result["universum v1/2,2/3"], runner)
+    assert_direct_execution(
+        result["universum v1/4,-2/3"], runner, expected_count=1
+    )
 
     print(
         "true fraction multiples: Python crashes reproduced; "
         "Mojo contract 13/13, mixed bounds, negative no-op branches, "
-        "and direct invocations valid"
+        "positive-first reciprocal-only branches, and direct invocations valid"
     )
     return 0
 

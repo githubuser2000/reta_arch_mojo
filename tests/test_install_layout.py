@@ -173,7 +173,8 @@ def test_user_local_prefix_keeps_data_below_home_share(tmp_path: Path) -> None:
     installed_table = private / "target" / "bin" / "reta-mojo-table"
     if not installed_table.is_file():
         assert csv_info.returncode == 127
-        assert "Kein Compiler der Mojo-Programmiersprache" in csv_info.stderr
+        assert "Fehlendes Compilerziel" in csv_info.stderr
+        assert "Keine installierte Mojo-Quelle verfügbar" in csv_info.stderr
     else:
         runtime_probe = subprocess.run(
             [str(private / "scripts" / "find_mojo_runtime.sh")],

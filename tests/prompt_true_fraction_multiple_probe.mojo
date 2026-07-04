@@ -32,4 +32,7 @@ def main() raises:
     _emit("universum v-2/3")
     _emit("universum v-2/3,1/4")
     _emit("universum v1/4,-2/3")
+    _emit("universum v1/2,-2/3")
+    _emit("emotion v1/4,-2/3")
+    _emit("universum v1/4,-2/3 teiler")
     _emit("universum v1/4,-1/8,2/3")

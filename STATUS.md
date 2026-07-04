@@ -1,3 +1,23 @@
+# Status – Stage 12c5bc
+
+- `bin/reta-mojo` trennt nun Quellbaum-Fallback und installiertes Binärlayout ausdrücklich.
+- Bei fehlendem optionalem Ziel und fehlender installierter `src/*.mojo`-Quelle endet der Launcher mit Exitstatus 127 statt compilerabhängig mit Status 1.
+- Der Fehler aus `test_user_local_prefix_keeps_data_below_home_share` ist reproduziert und behoben; alle FHS-Layoutvarianten laufen portabel.
+- Stage 12c5bc enthält vollständig den positiven reziproken Ein-Achsen-Port aus 12c5bb.
+- Alle Mojo- und Native-Kompilierungen führt weiterhin der Benutzer mit `scripts/build-all.sh -- -j 8` und `scripts/test_stage12c5bc.sh` aus.
+- Portable Abschlussprüfung: **96 eindeutige Pytest-Verträge bestanden**; instrumentierte Python-Referenzzweige für positive-first und negative-first Bruchvielfache ebenfalls grün.
+- Quellmanifest: **1.624 Dateien**, **114 Symlinks**.
+- Fortschritt: **89/92 = 96,7 %** vollständig nativ/generiert, **92/92 = 100,0 %** mindestens teilweise, **48.831/48.831 = 100,0 %** angegriffene Referenzzeilen; **62.690** Mojo-Zeilen in `src/`, davon **58.096** in `src/reta_mojo/`.
+
+# Status – Stage 12c5bb
+
+- Positive-first Folgen aus ausdrücklich markierten reziproken Vielfachen und ausschließlich ausgeschlossenen echten Brüchen besitzen nun einen nativen Ein-Achsen-Plan.
+- `universum v1/4,-2/3` erzeugt genau die reziproken Vielfachen 4 bis 1020; `universum v1/2,-2/3` die geraden Zeilen 2 bis 1022.
+- Universum-, Emotions- und Teilerprojektionen sind gegen die instrumentierte Python-Referenz gebunden.
+- Es entsteht keine `--gebrochen-rational_*`-Achse aus den ausgeschlossenen echten Brüchen.
+- Ausgeschlossene Reziproke und unbewiesene Kollisionen bleiben atomarer Fallback.
+- Die Erstellungsumgebung kompiliert kein Mojo; verbindlicher Benutzerlauf: `scripts/build-all.sh -- -j 8 && scripts/test_stage12c5bb.sh`.
+
 # Status – Stage 12c5ba
 
 - Der Benutzerbuild von 12c5az deckte die doppelte Threadoption `-j 4` plus weitergereichtes `-j 8` auf; ein gemeinsamer POSIX-Helfer erzwingt nun höchstens eine benutzerseitige Threadoption und lässt den Benutzerwert gewinnen.
