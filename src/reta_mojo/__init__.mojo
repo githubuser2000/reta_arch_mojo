@@ -277,3 +277,5 @@ from .prompt_execution import *
 from .py_reta_truth import *
 
 from .command_parity import *
+
+from .architecture_refactor_contracts import *

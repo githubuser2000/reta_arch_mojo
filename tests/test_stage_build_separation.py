@@ -56,3 +56,11 @@ def test_full_mojo_suite_runs_through_portable_runtime_wrapper() -> None:
         line.strip() == '"$TARGET/$name"' for line in source.splitlines()
     )
     assert "RETA_TEST_HEAVY" in source
+
+
+def test_three_production_build_scripts_never_compile_test_sources() -> None:
+    for name in ("build.sh", "build-heavy.sh", "build-all.sh"):
+        source = (SCRIPTS / name).read_text(encoding="utf-8")
+        assert "tests/test_" not in source
+        assert '"$ROOT/scripts/test_all.sh"' not in source
+        assert '"$ROOT/scripts/test_current_stage.sh"' not in source

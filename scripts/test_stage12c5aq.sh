@@ -25,9 +25,9 @@ printf '== run test_command_parity_native_12c5aq ==\n'
 "$ROOT/bin/mojo-runtime-exec" "$TARGET/test_command_parity_native_12c5aq"
 
 if [ ! -x "$ROOT/target/bin/reta-native" ]; then
-    printf '\n== build native Reta command-parity target ==\n'
-    "$MOJO" build -I src src/reta_native_main.mojo \
-        -o "$ROOT/target/bin/reta-native"
+    printf '%s\n' \
+        'Fehlendes Produktionsbinary: target/bin/reta-native. Vor dem Stage-Test bitte scripts/build.sh oder scripts/build-all.sh ausführen.' >&2
+    exit 1
 fi
 printf '\n== native representative command parity ==\n'
 "$TEST_PYTHON" scripts/check_command_parity_native.py

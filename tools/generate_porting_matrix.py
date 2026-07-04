@@ -100,6 +100,8 @@ NATIVE = {
     "tests/test_py_reta_truth_matrix.py": ("nativ", "src/reta_mojo/py_reta_truth.mojo + tests/test_py_reta_truth_native.mojo", "beide historischen Matrixwahrheiten laufen gegen den nativen Schema- und Parametersemantikbesitzer; keine Python-Matrixinspektion"),
     "tests/test_py_reta_truth_output_invariants.py": ("nativ", "src/reta_mojo/py_reta_truth.mojo + tests/test_py_reta_truth_native.mojo", "Religion-CSV-Kopf, Spalten 744/745 und Tagzuordnung werden semantisch über native CSV-, Ressourcen- und Tag-APIs geprüft statt Python-Quelltext zu durchsuchen"),
     "tests/test_command_parity.py": ("generiert nativ", "src/reta_mojo/command_parity.mojo + assets/command_parity.tsv + assets/command_parity/*.out + tests/test_command_parity_native.mojo + scripts/check_command_parity_native.py", "die vier historischen End-to-End-Kommandos werden aus der kanonischen Referenzmatrix reproduzierbar eingefroren; drei Ströme sind bytegleich, HTML verwendet exakt die historische p4-/Leerraumnormalisierung, und die Laufzeitprüfung führt ausschließlich das native reta-Binary aus"),
+    "tests/__init__.py": ("generiert nativ", "src/reta_mojo/__init__.mojo", "der leere historische Python-Paketmarker besitzt keine Laufzeitsemantik; die native Paketoberfläche wird explizit durch das Mojo-Paketmodul exportiert"),
+    "tests/test_architecture_refactor.py": ("generiert nativ", "src/reta_mojo/architecture_refactor_contracts.mojo + assets/architecture_refactor_contracts.tsv + tests/test_architecture_refactor_native.mojo", "alle 70 historischen Regressionstests mit 1.060 Assertions sind in Originalreihenfolge und per AST-Fingerabdruck einem von 64 lebenden nativen Testbesitzern zugeordnet; der Monolith wird zur Laufzeit weder importiert noch ausgeführt"),
 }
 
 
