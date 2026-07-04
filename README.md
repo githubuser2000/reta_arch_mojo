@@ -1,5 +1,9 @@
 # reta.arch → Mojo
 
+## Aktueller Stand 12c5ac
+
+`prompt_preparation.py` besitzt jetzt neben der bereits produktiven nativen Algorithmik auch seine vollständige historische Fassadenoberfläche. `LegacyPromptMapEntry` ist für Mojo-Listenassertionen vollständig `Equatable & Writable`. Ein kompletter Build bleibt `scripts/build-all.sh`; die fokussierte optionale Prüfung ist `scripts/test_stage12c5ac.sh` und erzeugt nur Testartefakte unter `target/tests`.
+
 Dies ist ein inkrementeller, getesteter Port des hochgeladenen Python-Projekts `reta.arch` auf Mojo 1.0.0b2. Das Original umfasst 92 Python-Dateien und 48.831 Zeilen. Wegen der stark dynamischen Architektur werden zusammenhängende Laufzeitpfade typisiert übertragen; die Python-Referenz bleibt sichtbar, bis der jeweilige Pfad vollständig ersetzt ist.
 
 ## Fortschritt

@@ -18,6 +18,52 @@ def _contains(values: List[String], wanted: String) -> Bool:
     return False
 
 
+def test_legacy_facade_surface_and_snapshot() raises:
+    var bundle = _bundle()
+    var legacy = bundle.legacy_snapshot()
+    assert_equal(
+        legacy,
+        PromptPreparationLegacySnapshot(
+            "PromptPreparationBundle",
+            "verdreheWoReTaBefehl",
+            "regExReplace",
+            "promptVorbereitungGrosseAusgabe",
+            0,
+            0,
+            0,
+            0,
+            5,
+        ),
+    )
+
+    var configured = configure_prompt_preparation(
+        bundle.catalog,
+        bundle.preparation_catalog,
+        bundle.language,
+        bundle.exit_commands,
+    )
+    assert_equal(configured.snapshot().cached_parameter_value_domains, 114)
+
+    var rotated = verdreheWoReTaBefehl(
+        "prim 60", "reta -h", ["already"]
+    )
+    assert_true(rotated.rotated)
+    assert_equal(rotated.text1, "reta -h")
+
+    var regex_result = regExReplace(
+        bundle, ["reta", "r\"spalt\""]
+    )
+    assert_equal(regex_result.tokens, ["reta", "-spalten"])
+
+    var method_result = bundle.prepare_grosse_ausgabe(
+        "reta", 0, 0, 0, "15", List[String](), False
+    )
+    var function_result = promptVorbereitungGrosseAusgabe(
+        bundle, "reta", 0, 0, 0, "15", List[String](), False
+    )
+    assert_equal(method_result.tokens, function_result.tokens)
+
+
 def test_snapshot_and_rotation_contract() raises:
     var bundle = _bundle()
     var snapshot = bundle.snapshot()

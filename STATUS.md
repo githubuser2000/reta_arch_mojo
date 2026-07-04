@@ -1,3 +1,14 @@
+# Status – Stage 12c5ac
+
+- lokaler Shared-Diagnostics-Build bestätigt: **53/53** Paritäts-/Infrastrukturtests; Legacy-Prepare bestätigt: **5/5** native Tests
+- `LegacyPromptMapEntry` erfüllt nun `Equatable & Writable`; der direkte Listenvergleich in `std.testing.assert_equal` kompiliert damit
+- die im übergebenen Baum noch vorhandene produktiv bauende Dublette `scripts/test_stage12c5z.sh` tatsächlich entfernt
+- `reta_architecture/prompt_preparation.py` mit historischem configure/bootstrap-, Bundle-, Snapshot- und deutschem Funktionsvertrag vollständig nativ
+- keine neue installierbare Executable; Snapshot- und Modultests bleiben unter `target/tests`
+- vollständig nativ/generiert: **74/92 = 80,4 %**; vollständig native Referenzzeilen: **32.645/48.831 = 66,9 %**
+- Mojo-Zeilen: **57.778**, davon **53.221** unter `src/reta_mojo`; aktive `std.python`-Brücken: **0**
+- portable Source-Suite: **161 bestanden, 1 compilerabhängiger Skip**; fokussierte Infrastruktur: **39/39**; Archivvertrag: **3/3**; **282** relative Mojo-Importe; Defektkatalog: **104 Einträge**
+
 # Status – Stage 12c5ab
 
 - lokaler Prepare-Fehlschlag als falsche Testerwartung bei `shell_rows_amount=0` identifiziert; unbegrenzte und reale Terminalbreite nun getrennt geprüft

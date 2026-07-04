@@ -65,12 +65,15 @@ struct LegacyPromptModes(Copyable):
 
 
 @fieldwise_init
-struct LegacyPromptMapEntry(Copyable, Equatable):
+struct LegacyPromptMapEntry(Copyable, Equatable, Writable):
     var key: String
     var value: String
 
     def __eq__(self, other: Self) -> Bool:
         return self.key == other.key and self.value == other.value
+
+    def write_to[W: Writer](self, mut writer: W):
+        writer.write("(", self.key, ", ", self.value, ")")
 
 
 @fieldwise_init

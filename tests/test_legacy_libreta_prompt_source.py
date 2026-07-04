@@ -64,6 +64,12 @@ def test_import_time_globals_are_explicit_typed_fields() -> None:
     assert "subprocess" not in source
 
 
+def test_prompt_map_entries_support_mojo_list_assertions() -> None:
+    source = MOJO_FACADE.read_text(encoding="utf-8")
+    assert "struct LegacyPromptMapEntry(Copyable, Equatable, Writable):" in source
+    assert "def write_to[W: Writer](self, mut writer: W):" in source
+
+
 def test_existing_native_owners_are_reused_without_new_executable() -> None:
     source = MOJO_FACADE.read_text(encoding="utf-8")
     for owner in (

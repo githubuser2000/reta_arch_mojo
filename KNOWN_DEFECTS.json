@@ -2481,6 +2481,53 @@
         "STAGE12C5AB_PREPARE_PROMPT_FACADE.md",
         "tests/test_stage_build_separation.py"
       ]
+    },
+    {
+      "id": "MOJO-FIXED-048",
+      "title": "LegacyPromptMapEntry war für Listenassertionen nicht schreibbar",
+      "origin": "mojo_port",
+      "classification": "missing_writable_test_value_contract",
+      "severity": "medium",
+      "python_status": "not_applicable",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5ac",
+      "reproducer": "scripts/test_stage12c5ab.sh ausführen; Mojo verwirft assert_equal auf List[LegacyPromptMapEntry], weil der Elementtyp zwar Equatable, aber nicht Writable war.",
+      "python_locations": [],
+      "mojo_locations": [
+        "src/reta_mojo/legacy_libreta_prompt.mojo",
+        "tests/test_legacy_libreta_prompt.mojo",
+        "tests/test_legacy_libreta_prompt_source.py"
+      ],
+      "current_contract": "LegacyPromptMapEntry implementiert Equatable und Writable explizit. Listen können dadurch direkt und mit aussagekräftiger Fehlerdarstellung über std.testing.assert_equal verglichen werden.",
+      "post_port_fix": "Keine Python-Änderung erforderlich; betroffen war ausschließlich der Traitvertrag eines nativen Mojo-Testwerttyps.",
+      "evidence": [
+        "STAGE12C5AC_PROMPT_PREPARATION_TRAITS.md",
+        "src/reta_mojo/legacy_libreta_prompt.mojo",
+        "tests/test_legacy_libreta_prompt.mojo"
+      ]
+    },
+    {
+      "id": "TEST-FIXED-032",
+      "title": "Entferntes Shared-Diagnostics-Stage-Skript war im übergebenen Projektstand weiterhin enthalten",
+      "origin": "test_infrastructure",
+      "classification": "release_tree_stale_build_script",
+      "severity": "medium",
+      "python_status": "not_applicable",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5ac",
+      "reproducer": "tests/test_stage_build_separation.py im hochgeladenen 12c5ab-Projektstand ausführen; scripts/test_stage12c5z.sh wurde weiterhin als produktiv bauender Verstoß gefunden.",
+      "python_locations": [],
+      "mojo_locations": [
+        "scripts/test_stage12c5z.sh",
+        "scripts/build-and-test-shared-diagnostics.sh",
+        "tests/test_stage_build_separation.py"
+      ],
+      "current_contract": "Die alte Datei ist im tatsächlich ausgelieferten Quellbaum entfernt. Nur das ausdrücklich build-and-test benannte optionale Skript darf die gemeinsame Diagnosebibliothek für die tiefe Paritätsprüfung neu bauen.",
+      "post_port_fix": "Keine Python-Änderung erforderlich; der Fehler lag im übergebenen Build-/Releasebaum.",
+      "evidence": [
+        "STAGE12C5AC_PROMPT_PREPARATION_TRAITS.md",
+        "tests/test_stage_build_separation.py"
+      ]
     }
   ],
   "audit": {

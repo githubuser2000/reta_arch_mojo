@@ -1,3 +1,16 @@
+# Stage 12c5ac
+
+Vom lokalen Modular-Build bestätigt:
+
+```text
+Shared-Diagnostics-Parität:          53/53 bestanden
+Legacy-lib4tables-Prepare:             5/5 bestanden
+```
+
+Behoben wurde der Parsefehler von `assert_equal(List[LegacyPromptMapEntry], ...)` durch den vollständigen `Equatable & Writable`-Werttypvertrag. Die neue Prompt-Preparation-Legacy-Fassade und der fünfsprachige Snapshotvergleich werden durch `scripts/test_stage12c5ac.sh` kompiliert und ausgeführt.
+
+Compilerunabhängige Abschlusswerte: **161 Source-Tests bestanden, 1 compilerabhängiger Skip; 39/39 fokussierte Infrastrukturtests; 3/3 Source-Archivverträge; 282/282 relative Mojo-Importe**.
+
 # Testergebnisse – Stage 12c5ab
 
 ```text

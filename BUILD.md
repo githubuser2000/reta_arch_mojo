@@ -569,3 +569,13 @@ scripts/test_stage12c5ab.sh
 
 Sie prüft zugleich den korrigierten Prepare-Wrappingvertrag und die
 Python-/Mojo-Parität der 48-Namen-Fassade.
+## Fokussierte Stage-12c5ac-Prüfung
+
+Nach dem normalen Produktionsbuild kann die vollständige Prompt-Preparation-Fassade gezielt geprüft werden:
+
+```bash
+./scripts/test_stage12c5ac.sh
+```
+
+Das Skript baut ausschließlich Modultest und Snapshotprobe unter `target/tests`; es erzeugt keine installierbaren Programme oder Shared Libraries.
+

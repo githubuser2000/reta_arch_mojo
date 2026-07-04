@@ -64,3 +64,31 @@ def test_front_parity_gate_is_source_archive_portable() -> None:
     assert 'PYTHON=$(' in checker
     assert "PYTHONHASHSEED=0 .venv/bin/python" not in checker
 
+def test_legacy_prompt_preparation_surface_is_explicit_and_native() -> None:
+    owner = (ROOT / "src/reta_mojo/prompt_preparation.mojo").read_text(encoding="utf-8")
+    for declaration in (
+        "struct PromptPreparationLegacySnapshot",
+        "def legacy_snapshot(self)",
+        "def configure_prompt_preparation(",
+        "def verdreheWoReTaBefehl(",
+        "def regExReplace(",
+        "def promptVorbereitungGrosseAusgabe(",
+        "def prepare_grosse_ausgabe(",
+    ):
+        assert declaration in owner
+    assert "PythonObject" not in owner
+    assert "std.python" not in owner
+    package = (ROOT / "src/reta_mojo/__init__.mojo").read_text(encoding="utf-8")
+    assert "from .prompt_preparation import (" in package
+    assert "PromptPreparationLegacySnapshot," in package
+    assert "promptVorbereitungGrosseAusgabe," in package
+
+
+def test_prompt_preparation_is_claimed_as_fully_native() -> None:
+    matrix = (ROOT / "PORTING_MATRIX.md").read_text(encoding="utf-8")
+    row = next(
+        line for line in matrix.splitlines()
+        if "`reta_architecture/prompt_preparation.py`" in line
+    )
+    assert "| nativ |" in row
+

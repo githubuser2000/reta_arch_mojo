@@ -60,6 +60,63 @@ struct PromptPreparationSnapshot(Copyable):
     var native_regex_engine: String
 
 
+@fieldwise_init
+struct PromptPreparationLegacySnapshot(Copyable, Equatable, Writable):
+    """Observable snapshot of the historical Python facade.
+
+    Python populated four mutable parameter/value caches lazily.  The native
+    owner replaces them with one immutable generated catalog, so the legacy
+    cache counters remain zero while the productive domain count is exposed by
+    ``snapshot`` above.
+    """
+
+    var class_name: String
+    var command_rotator: String
+    var regex_rewriter: String
+    var output_preparer: String
+    var cached_zeilen: Int
+    var cached_spalten: Int
+    var cached_ausgabe: Int
+    var cached_kombination: Int
+    var beenden_commands_len: Int
+
+    def __eq__(self, other: Self) -> Bool:
+        return (
+            self.class_name == other.class_name
+            and self.command_rotator == other.command_rotator
+            and self.regex_rewriter == other.regex_rewriter
+            and self.output_preparer == other.output_preparer
+            and self.cached_zeilen == other.cached_zeilen
+            and self.cached_spalten == other.cached_spalten
+            and self.cached_ausgabe == other.cached_ausgabe
+            and self.cached_kombination == other.cached_kombination
+            and self.beenden_commands_len == other.beenden_commands_len
+        )
+
+    def write_to[W: Writer](self, mut writer: W):
+        writer.write(
+            "PromptPreparationLegacySnapshot(",
+            self.class_name,
+            ", ",
+            self.command_rotator,
+            ", ",
+            self.regex_rewriter,
+            ", ",
+            self.output_preparer,
+            ", ",
+            self.cached_zeilen,
+            ", ",
+            self.cached_spalten,
+            ", ",
+            self.cached_ausgabe,
+            ", ",
+            self.cached_kombination,
+            ", ",
+            self.beenden_commands_len,
+            ")",
+        )
+
+
 struct PromptPreparationBundle(Copyable):
     var catalog: PromptLanguageCatalog
     var preparation_catalog: PromptPreparationCatalog
@@ -88,6 +145,19 @@ struct PromptPreparationBundle(Copyable):
             count,
             len(self.exit_commands),
             "POSIX-ERE/native",
+        )
+
+    def legacy_snapshot(self) -> PromptPreparationLegacySnapshot:
+        return PromptPreparationLegacySnapshot(
+            "PromptPreparationBundle",
+            "verdreheWoReTaBefehl",
+            "regExReplace",
+            "promptVorbereitungGrosseAusgabe",
+            0,
+            0,
+            0,
+            0,
+            len(self.exit_commands),
         )
 
     def rotate_where_reta_command(
@@ -131,6 +201,26 @@ struct PromptPreparationBundle(Copyable):
             force_e,
         )
 
+    def prepare_grosse_ausgabe(
+        self,
+        placeholder: String,
+        prompt_mode: Int,
+        prompt_mode2: Int,
+        prompt_mode_last: Int,
+        text: String,
+        additional_tokens: List[String],
+        force_e: Bool = False,
+    ) raises -> PromptPreparationResult:
+        return self.prepare_large_output(
+            placeholder,
+            prompt_mode,
+            prompt_mode2,
+            prompt_mode_last,
+            text,
+            additional_tokens,
+            force_e,
+        )
+
 
 def _contains(values: List[String], wanted: String) -> Bool:
     for index in range(len(values)):
@@ -146,6 +236,18 @@ def _join(values: List[String], separator: String) -> String:
             result += separator
         result += values[index]
     return result^
+
+
+def configure_prompt_preparation(
+    catalog: PromptLanguageCatalog,
+    preparation_catalog: PromptPreparationCatalog,
+    language: String,
+    exit_commands: List[String],
+) -> PromptPreparationBundle:
+    """Explicit replacement for the Python module-global configuration."""
+    return PromptPreparationBundle(
+        catalog, preparation_catalog, language, exit_commands
+    )
 
 
 def bootstrap_prompt_preparation(
@@ -184,6 +286,43 @@ def rotate_where_reta_command(
             text2, text1, balanced_prompt_split(text2), True
         )
     return PromptRotationResult(text1, text2, text3.copy(), False)
+
+
+def verdreheWoReTaBefehl(
+    text1: String,
+    text2: String,
+    text3: List[String],
+    prompt_mode: Int = PROMPT_MODE_NORMAL,
+) -> PromptRotationResult:
+    return rotate_where_reta_command(text1, text2, text3, prompt_mode)
+
+
+def regExReplace(
+    bundle: PromptPreparationBundle,
+    tokens: List[String],
+) raises -> PromptRegexResult:
+    return bundle.regex_replace(tokens)
+
+
+def promptVorbereitungGrosseAusgabe(
+    bundle: PromptPreparationBundle,
+    placeholder: String,
+    prompt_mode: Int,
+    prompt_mode2: Int,
+    prompt_mode_last: Int,
+    text: String,
+    additional_tokens: List[String],
+    force_e: Bool = False,
+) raises -> PromptPreparationResult:
+    return bundle.prepare_grosse_ausgabe(
+        placeholder,
+        prompt_mode,
+        prompt_mode2,
+        prompt_mode_last,
+        text,
+        additional_tokens,
+        force_e,
+    )
 
 
 def _is_decimal(text: String) -> Bool:

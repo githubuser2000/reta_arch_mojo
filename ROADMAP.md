@@ -510,3 +510,10 @@ Die Zahl **12** ist die geplante Releasegliederung. Interne Teilpakete oder Fehl
 - [x] `libs/lib4tables_prepare.py` vollständig typisiert über vorhandene native Tabellenkerne besitzen.
 - [x] Lokalen fokussierten Modular-Test `scripts/test_stage12c5aa.sh` ausführen; 4/5 Tests bestanden, der fünfte deckte eine falsche Erwartung bei unbegrenzter Terminalbreite auf (`TEST-FIXED-030`).
 - Maschinenstand: **72/92 vollständig**, **83/92 mindestens teilweise**, **38.174/48.831 angegriffene** und **32.103/48.831 vollständig native Referenzzeilen**.
+## Stage 12c5ac – vollständige Prompt-Vorbereitungsfassade
+
+- historischer `configure_prompt_preparation`-/Bootstrapvertrag explizit typisiert
+- deutsche Legacy-Funktionsnamen und `prepare_grosse_ausgabe` als dünne native Weiterleitungen
+- fünfsprachiger frischer Legacy-Snapshot gegen Python
+- kein neues installierbares Compilerziel
+

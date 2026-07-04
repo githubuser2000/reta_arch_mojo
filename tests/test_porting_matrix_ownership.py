@@ -36,6 +36,7 @@ EXPECTED = {
     "reta_architecture/input_semantics.py": "generiert nativ",
     "reta_architecture/prompt_interaction.py": "nativ",
     "reta_architecture/prompt_language.py": "generiert nativ",
+    "reta_architecture/prompt_preparation.py": "nativ",
     "retaPrompt.py": "weitgehend nativ",
     "libs/LibRetaPrompt.py": "nativ",
 }

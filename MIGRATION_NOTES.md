@@ -1161,3 +1161,10 @@ Vier vollständig native Diagnoseoberflächen teilen seit Stage 12c5z eine versi
   Python-Hashreihenfolge reproduzierbar bleiben.
 - Die Fassade ist eine Bibliotheksoberfläche; sie erzeugt kein neues
   installierbares Compilerziel.
+## Stage 12c5ac
+
+- `LegacyPromptMapEntry` besitzt nun den vollständigen Mojo-Testwertvertrag `Equatable & Writable`.
+- `prompt_preparation.py` wird durch `prompt_preparation.mojo`, `prompt_regex.mojo` und den generierten Domänenkatalog vollständig besessen; historische Namen sind typisierte Weiterleitungen.
+- Die entfernten Python-Lazy-Caches werden nicht als mutable Globals nachgebildet, sondern durch den unveränderlichen Katalog ersetzt.
+- Die alte produktiv bauende Datei `scripts/test_stage12c5z.sh` ist aus dem ausgelieferten Baum entfernt.
+

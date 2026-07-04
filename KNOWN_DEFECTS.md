@@ -23,7 +23,7 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 
 ## Übersicht
 
-- Einträge insgesamt: **102**
+- Einträge insgesamt: **104**
 - offene bestätigte Python-Fehler: **5**
 - zu entscheidende Python-Fehlerkandidaten: **13**
 - bereits im Python-Baum behobene Fehler: **7**
@@ -1400,3 +1400,29 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 - spätere Python-Aktion: Keine Python-Änderung erforderlich; dies war ausschließlich ein Build- und Testbesitzfehler.
 - Mojo-Orte: `scripts/test_stage12c5z.sh`, `scripts/build-and-test-shared-diagnostics.sh`, `tests/test_stage_build_separation.py`
 - Belege: `STAGE12C5AB_PREPARE_PROMPT_FACADE.md`, `tests/test_stage_build_separation.py`
+
+### MOJO-FIXED-048 – LegacyPromptMapEntry war für Listenassertionen nicht schreibbar
+
+- Ursprung: `mojo_port`
+- Klasse / Schwere: `missing_writable_test_value_contract` / `medium`
+- Python-Status: `not_applicable`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5ac`
+- Reproduktion: `scripts/test_stage12c5ab.sh ausführen; Mojo verwirft assert_equal auf List[LegacyPromptMapEntry], weil der Elementtyp zwar Equatable, aber nicht Writable war.`
+- heutiger Vertrag: LegacyPromptMapEntry implementiert Equatable und Writable explizit. Listen können dadurch direkt und mit aussagekräftiger Fehlerdarstellung über std.testing.assert_equal verglichen werden.
+- spätere Python-Aktion: Keine Python-Änderung erforderlich; betroffen war ausschließlich der Traitvertrag eines nativen Mojo-Testwerttyps.
+- Mojo-Orte: `src/reta_mojo/legacy_libreta_prompt.mojo`, `tests/test_legacy_libreta_prompt.mojo`, `tests/test_legacy_libreta_prompt_source.py`
+- Belege: `STAGE12C5AC_PROMPT_PREPARATION_TRAITS.md`, `src/reta_mojo/legacy_libreta_prompt.mojo`, `tests/test_legacy_libreta_prompt.mojo`
+
+### TEST-FIXED-032 – Entferntes Shared-Diagnostics-Stage-Skript war im übergebenen Projektstand weiterhin enthalten
+
+- Ursprung: `test_infrastructure`
+- Klasse / Schwere: `release_tree_stale_build_script` / `medium`
+- Python-Status: `not_applicable`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5ac`
+- Reproduktion: `tests/test_stage_build_separation.py im hochgeladenen 12c5ab-Projektstand ausführen; scripts/test_stage12c5z.sh wurde weiterhin als produktiv bauender Verstoß gefunden.`
+- heutiger Vertrag: Die alte Datei ist im tatsächlich ausgelieferten Quellbaum entfernt. Nur das ausdrücklich build-and-test benannte optionale Skript darf die gemeinsame Diagnosebibliothek für die tiefe Paritätsprüfung neu bauen.
+- spätere Python-Aktion: Keine Python-Änderung erforderlich; der Fehler lag im übergebenen Build-/Releasebaum.
+- Mojo-Orte: `scripts/test_stage12c5z.sh`, `scripts/build-and-test-shared-diagnostics.sh`, `tests/test_stage_build_separation.py`
+- Belege: `STAGE12C5AC_PROMPT_PREPARATION_TRAITS.md`, `tests/test_stage_build_separation.py`

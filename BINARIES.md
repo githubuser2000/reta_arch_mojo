@@ -303,3 +303,7 @@ Diagnoseprogramm. Die historische Python-Datei war eine Importzeit-Fassade;
 der native Ersatz wird von bestehenden Prompt-Einstiegen importiert. Nur
 `scripts/test_stage12c5ab.sh` erzeugt kurzlebige Testprogramme unter
 `target/tests`.
+## Stage 12c5ac
+
+Es kommt kein installierbares Programm hinzu. `scripts/test_stage12c5ac.sh` erzeugt lediglich `target/tests/test_prompt_preparation_12c5ac` und eine Snapshotprobe; beide sind kurzlebige Testartefakte.
+
