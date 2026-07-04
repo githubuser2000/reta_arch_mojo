@@ -2967,6 +2967,31 @@
         "tests/test_parameter_semantics_order_source.py",
         "scripts/check_domain_probe_parity.py"
       ]
+    },
+    {
+      "id": "MOJO-FIXED-055",
+      "title": "Generated-Columns-Test verlangte eine implizite Kopie von CsvTable",
+      "origin": "mojo_port",
+      "classification": "non_implicit_copyable_ownership_boundary",
+      "severity": "high",
+      "python_status": "not_applicable",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5am",
+      "reproducer": "./do.sh 12c5am ausführen; der Modular-Compiler bricht in tests/test_generated_columns_integration.mojo beim Aufbau von GeneratedColumnsApplicationRequest mit 'CsvTable cannot be implicitly copied' ab.",
+      "python_locations": [],
+      "mojo_locations": [
+        "tests/test_generated_columns_integration.mojo",
+        "src/reta_mojo/generated_columns_integration.mojo",
+        "tests/test_generated_columns_integration_source.py",
+        "scripts/test_stage12c5ao.sh"
+      ],
+      "current_contract": "CsvTable, Listen und Strings der geliehenen GeneratedColumnsApplicationRequest-Grenze werden ausdrücklich mit .copy() in den besitzenden nativen Pipelineaufruf überführt. Der Testhelfer kopiert seinen Tisch ebenfalls sichtbar, sodass der Ursprungswert für nachfolgende Assert-Vergleiche erhalten bleibt.",
+      "post_port_fix": "Keine Python-Änderung erforderlich; betroffen war ausschließlich die strengere Mojo-1.0-Besitzsemantik für Copyable, aber nicht ImplicitlyCopyable.",
+      "evidence": [
+        "STAGE12C5AO_RETA_PROGRAM_SETUP_OWNERSHIP.md",
+        "tests/test_generated_columns_integration.mojo",
+        "tests/test_generated_columns_integration_source.py"
+      ]
     }
   ],
   "audit": {

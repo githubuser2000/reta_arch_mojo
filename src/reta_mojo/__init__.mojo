@@ -47,9 +47,43 @@ from .legacy_libreta_prompt import (
     verifyBruchNganzZahlCommaList,
     legacy_libreta_prompt_exported_names,
 )
+from .setup_metadata_catalog import (
+    setup_package_name,
+    setup_package_version,
+    setup_description,
+    setup_author,
+    setup_install_requirements,
+    setup_package_data_patterns,
+    setup_discovered_packages,
+    setup_command_class_names,
+    setup_command_class_bases,
+    setup_command_class_methods,
+    setup_command_method_count,
+    setup_defined_command_rows,
+    setup_active_command_rows,
+    setup_extract_message_files,
+    setup_extract_message_output,
+)
+from .setup_metadata import (
+    SetupCommandClassSpec,
+    SetupExtractMessagesPlan,
+    SetupInstallPlan,
+    SetupMetadataSnapshot,
+    setup_command_specs,
+    setup_extract_messages_plan,
+    setup_install_plan,
+    setup_metadata_snapshot,
+    setup_metadata_owner_contract,
+)
 from .legacy_reta_prompt_catalog import (
     legacy_reta_prompt_exported_names,
     legacy_reta_prompt_exported_count,
+)
+from .legacy_reta_program_catalog import (
+    legacy_reta_program_public_names,
+    legacy_reta_program_method_definitions,
+    legacy_reta_program_public_count,
+    legacy_reta_program_method_definition_count,
 )
 from .legacy_mojo_bridge_catalog import (
     legacy_mojo_bridge_public_names,
@@ -77,6 +111,31 @@ from .legacy_mojo_bridge import (
     run_math_prompt_line,
     generate_html_document,
     legacy_mojo_bridge_owner_snapshot,
+)
+from .legacy_reta_program import (
+    LegacyRetaProgramSnapshot,
+    LegacyRetaProgramRunResult,
+    LegacyRetaProgram,
+    bootstrap_legacy_reta_program,
+    render_color,
+    produceAllSpaltenNumbers,
+    breiteBreitenSysArgvPara,
+    apply_output_mode,
+    storeParamtersForColumns,
+    parametersToCommandsAndNumbers,
+    helpPage,
+    bringAllImportantBeginThings,
+    oberesMaximumArg,
+    oberesMaximum2,
+    oberesMaximum,
+    propInfoLog,
+    set_propInfoLog,
+    invertAlles,
+    workflowEverything,
+    run,
+    resultingTable,
+    combiTableWorkflow,
+    legacy_reta_program_owner_snapshot,
 )
 from .legacy_reta_prompt import (
     LegacyRetaPromptSnapshot,

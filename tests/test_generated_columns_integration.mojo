@@ -11,7 +11,7 @@ from reta_mojo.generated_columns_integration import *
 
 def _empty_request(table: CsvTable) -> GeneratedColumnsApplicationRequest:
     return GeneratedColumnsApplicationRequest(
-        table,
+        table.copy(),
         List[Int](),
         List[ModalConcept](),
         List[MetaColumnRequest](),

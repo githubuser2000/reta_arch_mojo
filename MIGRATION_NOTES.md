@@ -1199,3 +1199,10 @@ Vier vollständig native Diagnoseoberflächen teilen seit Stage 12c5z eine versi
 - TTY/History/Completion, externe Befehle und HTML-Gesamtseite sind klar getrennte Besitzer. Nicht vollständig portierte `reta.py`-/Promptpfade bleiben als explizite Kindprozesse sichtbar.
 - `parameter_runtime.py` mutiert kein heterogenes Program-Objekt mehr. Spalten-, Breiten-, Parameter- und Obergrenzenauswertung liefern typisierte Planwerte.
 - Die Parametergarbe hält zwei getrennte Aliasordnungen: lexikographisch normalisierte Gruppen für `params`/JSON und rohe Matrixeinträge für `column`/`exact_meta_for_column`.
+
+## Stage 12c5ao
+
+- `CsvTable` und die Listenfelder der Generated-Columns-Integration werden an der geliehenen Besitzergrenze ausdrücklich kopiert; Mojo 1.0 muss keine implizite Kopie eines nur `Copyable`-Werts mehr ableiten.
+- `legacy_reta_program.mojo` bildet 27 öffentliche `reta.py`-Namen und 18 Methoden über einen expliziten Programzustand ab. Native Tabellenargumente laufen direkt, verbleibende Legacyfälle bleiben ein sichtbarer Kindprozessrand.
+- `setup.py` ist vollständig generiert nativ: fünf Command-Klassen, acht Methoden, Paket-/Abhängigkeitsmetadaten, Gettext-Quellen und FHS-Installationsbesitz sind typisiert.
+- Maschinenstand: **84/92 vollständig**, **87/92 mindestens teilweise**, **46.674/48.831 angegriffene** und **43.235/48.831 vollständig native Referenzzeilen**; **61.994** Mojo-Zeilen in `src/`.

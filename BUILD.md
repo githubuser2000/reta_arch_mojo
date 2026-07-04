@@ -1,4 +1,4 @@
-# Build und Tests – Stage 12c5an
+# Build und Tests – Stage 12c5ao
 
 Der vollständige Produktionsbuild bleibt absichtlich ein Vollbuild:
 
@@ -16,7 +16,7 @@ schweren Ziele.
 Der aktuelle fokussierte Compilerlauf prüft zuerst `test_parameter_semantics.mojo`, danach Bridge und vollständige Parameter-Runtime:
 
 ```sh
-scripts/test_stage12c5an.sh
+scripts/test_stage12c5ao.sh
 ```
 
 Die vollständige Testsuite erkennt drei systemnahe Linkerklassen automatisch: Persistenztests verwenden `-lsqlite3 -lcrypto`, Paketintegrität verwendet `-lcrypto`, alle übrigen Tests erhalten keine zusätzlichen Linkerflags. Danach kann die Gesamtprüfung unverändert gestartet werden:
@@ -655,3 +655,15 @@ scripts/test_stage12c5al.sh
 
 Der Test regeneriert 68.265 Katalogzeilen, kompiliert den gemeinsamen nativen
 I18n-Besitzer und vergleicht alle fünf Sprachdateien bytegenau.
+
+## Stage 12c5ao – Besitz- und Kompatibilitätsprüfung
+
+```sh
+./do.sh 12c5ao
+```
+
+Der Stage-Test führt die komplette 12c5an-Kette als Voraussetzung aus. Damit
+wird insbesondere der früher beim `CsvTable`-Kopieren abgebrochene
+Generated-Columns-Test erneut mit dem Modular-Compiler gebaut. Anschließend
+werden `test_legacy_reta_program.mojo` und `test_setup_metadata.mojo` gebaut.
+Die neuen Fassaden erzeugen keine zusätzlichen installierbaren Executables.

@@ -20,8 +20,8 @@ def test_porting_metrics_are_derived_from_complete_reference_inventory() -> None
     assert data["reference_files"] == 92
     assert data["reference_lines"] == 48831
     assert data["fully_native_files"] >= 76
-    assert data["at_least_partly_ported_files"] == 86
-    assert data["touched_reference_lines"] == 46561
+    assert data["at_least_partly_ported_files"] == 87
+    assert data["touched_reference_lines"] == 46674
     assert data["fully_native_files"] <= data["at_least_partly_ported_files"]
     assert data["fully_native_reference_lines"] <= data["touched_reference_lines"]
 
@@ -172,3 +172,19 @@ def test_legacy_i18n_monolith_is_generated_native() -> None:
     assert status == "generiert nativ"
     assert "i18n_words.mojo" in owner
     assert "acht Klassen" in note
+
+
+def test_setup_metadata_is_generated_native() -> None:
+    mapping = _load_module().native_mapping()
+    status, owner, note = mapping["setup.py"]
+    assert status == "generiert nativ"
+    assert "setup_metadata.mojo" in owner
+    assert "fünf Command-Klassen" in note
+
+
+def test_reta_program_has_typed_partial_facade() -> None:
+    mapping = _load_module().native_mapping()
+    status, owner, note = mapping["reta.py"]
+    assert status == "teilweise nativ"
+    assert "legacy_reta_program.mojo" in owner
+    assert "27-Namen-/18-Methoden" in note

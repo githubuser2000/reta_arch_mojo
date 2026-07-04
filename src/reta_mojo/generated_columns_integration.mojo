@@ -66,14 +66,14 @@ struct GeneratedColumnsRuntime(Copyable):
         request: GeneratedColumnsApplicationRequest,
     ) raises -> GeneratedTableResult:
         return apply_native_generated_columns(
-            request.table,
-            request.selected_columns,
-            request.modal_concepts,
-            request.meta_requests,
-            request.fraction_requests,
-            request.generated_commands,
-            request.language,
-            request.output_mode,
+            request.table.copy(),
+            request.selected_columns.copy(),
+            request.modal_concepts.copy(),
+            request.meta_requests.copy(),
+            request.fraction_requests.copy(),
+            request.generated_commands.copy(),
+            request.language.copy(),
+            request.output_mode.copy(),
             request.last_row,
         )
 

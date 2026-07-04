@@ -1,5 +1,18 @@
 # reta.arch → Mojo
 
+## Aktueller Stand 12c5ao
+
+Der lokale Stage-12c5am-Lauf bestätigte alle Vorgänger bis zur
+Generated-Columns-Integration und deckte anschließend eine strenge Mojo-1.0-
+Besitzverletzung auf: `CsvTable` ist `Copyable`, aber nicht
+`ImplicitlyCopyable`. Die Integrationsgrenze kopiert Tabelle, Listen und Strings
+nun ausdrücklich. Zusätzlich besitzt `reta.py` eine typisierte 27-Namen-/
+18-Methoden-Fassade für den bereits nativen Programmkern; noch nicht bewiesene
+Argumentvektoren bleiben sichtbar am Kindprozessrand. `setup.py` ist als
+reproduzierbarer Metadaten-, Command- und Gettext-Plan vollständig generiert
+nativ. Fokussierte Prüfung: `scripts/test_stage12c5ao.sh`. Details:
+[`STAGE12C5AO_RETA_PROGRAM_SETUP_OWNERSHIP.md`](STAGE12C5AO_RETA_PROGRAM_SETUP_OWNERSHIP.md).
+
 ## Aktueller Stand 12c5an
 
 `mojo_bridge.py` ist jetzt eine vollständige native Kompatibilitätsfassade mit
@@ -101,32 +114,34 @@ abgeschlossene Release-Stufen:       9 von 12 = 75,0 %
 Stufen 9/10/12:                       Ausgabe, Prompt/i18n und Releaseparität in Arbeit
 Stufe 11:                             11a–11j = 100 %
 Stufe 12:                             12a–12b fertig, 12c zu ca. 99,98 % = ca. 72,6 %
-vollständig nativ/generiert:          83 von 92 = 90,2 %
-mindestens teilweise portiert:       86 von 92 = 93,5 %
-angegriffene Referenzzeilen:          46.561 von 48.831 = 95,4 %
+vollständig nativ/generiert:          84 von 92 = 91,3 %
+mindestens teilweise portiert:       87 von 92 = 94,6 %
+angegriffene Referenzzeilen:          46.674 von 48.831 = 95,6 %
 funktionaler Nutzerumfang:            ca. 96–98 %
 ```
 
 Die Metriken messen **orthogonale Bezugsgrößen** und sind nicht als ein einziges wechselndes Gesamtprozent zu lesen:
 
 - **96–98 % geschätzte Funktionsabdeckung**: Anteil der praktisch relevanten Befehls- und Verhaltensfamilien mit einem nativen Pfad. Der atomare Fallback ist nur eine Sicherheitsgrenze und wird nicht als transpiliert gezählt.
-- **90,2 % vollständiger Dateibesitz**: Nur Dateien, deren gesamter wirksamer Vertrag nativ oder reproduzierbar generiert ersetzt ist.
-- **95,4 % angegriffene Referenzzeilen**: maschinenberechneter Umfang vollständig und teilweise besessener Referenzdateien.
+- **91,3 % vollständiger Dateibesitz**: Nur Dateien, deren gesamter wirksamer Vertrag nativ oder reproduzierbar generiert ersetzt ist.
+- **95,6 % angegriffene Referenzzeilen**: maschinenberechneter Umfang vollständig und teilweise besessener Referenzdateien.
 - **84,0 % Stufenfortschritt**: gewichtete Releaseplanung; eine Stufe kann weit fortgeschritten sein, obwohl große historische Python-Besitzer noch sichtbar bleiben.
 
 Der Port ist daher nicht von über 90 % auf rund 65 % zurückgefallen. Die frühere Zahl bezeichnete die Funktionsoberfläche, die strengere Zahl den Quellersatz. Der vollständige Plan steht in [`ROADMAP.md`](ROADMAP.md).
 
-### Aktueller Fokus: Stage 12c5an
+### Aktueller Fokus: Stage 12c5ao
 
 Der Entwicklungsablauf lautet:
 
 ```bash
-./do.sh 12c5an
+./do.sh 12c5ao
 ```
 
-Zuerst werden alle noch nicht lokal bestätigten Vorgängerstages erneut geprüft.
-Danach kompiliert der Stage-Test zuerst die zweifache Parameter-Aliasordnung, anschließend die native `mojo_bridge.py`-Fassade und die vollständige Parameter-Runtime. Erst nach erfolgreicher Ausführung werden Shared
-Diagnostics, `test_all.sh` und der Git-Commit gestartet.
+Die Stage-Kette baut zuerst erneut den zuvor fehlgeschlagenen
+`test_generated_columns_integration.mojo`. Danach folgen die typisierte
+`reta.py`-Fassade und der vollständige native `setup.py`-Metadatenvertrag. Erst
+bei vollständig erfolgreicher Ausführung werden Shared Diagnostics,
+`scripts/test_all.sh` und der Git-Commit gestartet.
 
 ## Installation mit Python 3.14
 

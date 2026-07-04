@@ -1,3 +1,12 @@
+# Status – Stage 12c5ao
+
+- `GeneratedColumnsApplicationRequest` verlangt keine implizite Kopie von `CsvTable` oder Listen mehr; die geliehene Integrationsgrenze kopiert alle nicht `ImplicitlyCopyable`-Werte ausdrücklich (`MOJO-FIXED-055`).
+- `reta.py` besitzt jetzt einen vollständigen 27-Namen-/18-Methoden-Katalog und einen typisierten `LegacyRetaProgram` über Parameter-, Workflow-, Parallel- und Tabellenbesitzer. Noch nicht bewiesene Legacy-Argumentvektoren bleiben korrekt als Kindprozessgrenze markiert, deshalb bleibt die Datei teilweise nativ.
+- `setup.py` ist vollständig generiert nativ: Metadaten, Abhängigkeiten, Paketdaten, zwei Pakete, fünf Command-Klassen mit acht Methoden, cmdclass-Zuordnungen und sechs Gettext-Quellen sind reproduzierbar typisiert; Installation gehört `scripts/install.sh`.
+- vollständig nativ/generiert: **84/92 = 91,3 %**; mindestens teilweise: **87/92 = 94,6 %**; angegriffene Referenzzeilen: **46.674/48.831 = 95,6 %**; vollständig native Referenzzeilen: **43.235/48.831 = 88,5 %**.
+- Portable Prüfung: **227 Source-Vertragstests bestanden, 1 Skip**; fokussierte Stage-/Infrastrukturgruppe **85/85**. Defektkatalog **122**, Python-Bereinigungspunkte **19**.
+- Fokussierter lokaler Compilerlauf: `scripts/test_stage12c5ao.sh`; vollständiger fail-fast Ablauf: `./do.sh 12c5ao`.
+
 # Status – Stage 12c5an
 
 - `mojo_bridge.py` besitzt jetzt eine vollständige native 15-Namen-/19-Funktionen-Kompatibilitätsoberfläche. TTY, Completion und HTML sind direkte Mojo-Besitzer; nur noch nicht vollständig portierte `reta.py`-/Promptfälle verwenden den bereits expliziten Mojo-Kindprozessrand.

@@ -23,7 +23,7 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 
 ## Übersicht
 
-- Einträge insgesamt: **121**
+- Einträge insgesamt: **122**
 - offene bestätigte Python-Fehler: **5**
 - zu entscheidende Python-Fehlerkandidaten: **13**
 - bereits im Python-Baum behobene Fehler: **7**
@@ -1654,3 +1654,16 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 - Python-Orte: `python_reference/reta_architecture/sheaves.py`, `python_reference/reta_domain_probe_py.py`
 - Mojo-Orte: `src/reta_mojo/parameter_semantics.mojo`, `tests/test_parameter_semantics.mojo`, `tests/test_parameter_semantics_order_source.py`
 - Belege: `STAGE12C5AN_NATIVE_MOJO_BRIDGE_PARAMETER_RUNTIME.md`, `tests/test_parameter_semantics.mojo`, `tests/test_parameter_semantics_order_source.py`, `scripts/check_domain_probe_parity.py`
+
+### MOJO-FIXED-055 – Generated-Columns-Test verlangte eine implizite Kopie von CsvTable
+
+- Ursprung: `mojo_port`
+- Klasse / Schwere: `non_implicit_copyable_ownership_boundary` / `high`
+- Python-Status: `not_applicable`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5am`
+- Reproduktion: `./do.sh 12c5am ausführen; der Modular-Compiler bricht in tests/test_generated_columns_integration.mojo beim Aufbau von GeneratedColumnsApplicationRequest mit 'CsvTable cannot be implicitly copied' ab.`
+- heutiger Vertrag: CsvTable, Listen und Strings der geliehenen GeneratedColumnsApplicationRequest-Grenze werden ausdrücklich mit .copy() in den besitzenden nativen Pipelineaufruf überführt. Der Testhelfer kopiert seinen Tisch ebenfalls sichtbar, sodass der Ursprungswert für nachfolgende Assert-Vergleiche erhalten bleibt.
+- spätere Python-Aktion: Keine Python-Änderung erforderlich; betroffen war ausschließlich die strengere Mojo-1.0-Besitzsemantik für Copyable, aber nicht ImplicitlyCopyable.
+- Mojo-Orte: `tests/test_generated_columns_integration.mojo`, `src/reta_mojo/generated_columns_integration.mojo`, `tests/test_generated_columns_integration_source.py`, `scripts/test_stage12c5ao.sh`
+- Belege: `STAGE12C5AO_RETA_PROGRAM_SETUP_OWNERSHIP.md`, `tests/test_generated_columns_integration.mojo`, `tests/test_generated_columns_integration_source.py`

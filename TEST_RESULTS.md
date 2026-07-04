@@ -1,3 +1,30 @@
+# Stage 12c5ao
+
+## Compilerstatus
+
+Der vom Benutzer gelieferte Stage-12c5am-Lauf bestätigte Vollbuild, 63 Architekturassets, 64 Architekturprobe-Fälle, 16 Domänenprobe-Fälle, fünf I18n-Sprachen und die vier `retaPrompt`-Tests. Der anschließende Compilerabbruch bei `CsvTable` ist durch ausdrückliche `.copy()`-Übergaben geschlossen; der echte Modular-Nachweis erfolgt mit `./do.sh 12c5ao`.
+
+## Portable Ergebnisse
+
+```text
+Source-Verträge:                         227 bestanden, 1 Skip
+fokussierte Stage-/Infrastrukturtests:    85/85
+bekannte Defekte:                         122
+Python-Bereinigungspunkte:                 19
+vollständig nativ/generiert:              84/92 = 91,3 %
+mindestens teilweise portiert:            87/92 = 94,6 %
+angegriffene Referenzzeilen:               46.674/48.831 = 95,6 %
+vollständig native Referenzzeilen:        43.235/48.831 = 88,5 %
+Mojo-Zeilen in src/:                      61.994
+Mojo-Zeilen in src/reta_mojo/:            57.191
+```
+
+## Neue lokale Compilerziele
+
+- `tests/test_generated_columns_integration.mojo` – korrigierter Copyable-Besitzvertrag
+- `tests/test_legacy_reta_program.mojo` – 27 Namen, 18 Methoden und typisierter Programzustand
+- `tests/test_setup_metadata.mojo` – fünf Command-Klassen, acht Methoden und Gettext-/Installationsplan
+
 # Stage 12c5an
 
 ```text

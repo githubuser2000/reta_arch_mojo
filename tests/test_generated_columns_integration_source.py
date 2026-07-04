@@ -32,6 +32,10 @@ def test_dynamic_concat_object_is_replaced_by_typed_request() -> None:
     assert "from std.python import" not in source
     assert "getattr(" not in source
     assert "setattr(" not in source
+    # CsvTable/List/String are Copyable but not ImplicitlyCopyable in Mojo 1.0.
+    # The borrowed request is therefore copied explicitly at the owner boundary.
+    assert "request.table.copy()" in source
+    assert "request.selected_columns.copy()" in source
 
 
 def test_integration_reuses_every_existing_algorithm_owner() -> None:
