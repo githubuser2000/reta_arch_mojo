@@ -23,7 +23,7 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 
 ## Übersicht
 
-- Einträge insgesamt: **104**
+- Einträge insgesamt: **108**
 - offene bestätigte Python-Fehler: **5**
 - zu entscheidende Python-Fehlerkandidaten: **13**
 - bereits im Python-Baum behobene Fehler: **7**
@@ -1426,3 +1426,57 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 - spätere Python-Aktion: Keine Python-Änderung erforderlich; der Fehler lag im übergebenen Build-/Releasebaum.
 - Mojo-Orte: `scripts/test_stage12c5z.sh`, `scripts/build-and-test-shared-diagnostics.sh`, `tests/test_stage_build_separation.py`
 - Belege: `STAGE12C5AC_PROMPT_PREPARATION_TRAITS.md`, `tests/test_stage_build_separation.py`
+
+### TEST-FIXED-033 – Portierungsmetriktest behandelte erfolgreichen Fortschritt als Fehler
+
+- Ursprung: `test_infrastructure`
+- Klasse / Schwere: `stale_derived_metric_expectation` / `medium`
+- Python-Status: `not_applicable`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5ad`
+- Reproduktion: `scripts/test_stage12c5ac.sh nach der vollständigen Portierung von prompt_preparation.py ausführen; tools/porting_metrics.py meldete korrekt 74 vollständig native Dateien, während tests/test_porting_metrics.py weiterhin exakt 73 erwartete.`
+- heutiger Vertrag: Unveränderliche Inventargrößen bleiben exakt geprüft. Fortschrittswerte werden als monotoner Mindeststand geprüft und neue vollständig native Besitzer zusätzlich einzeln in der Portierungsmatrix nachgewiesen. Dadurch erkennt der Test Rückschritte, ohne jeden erfolgreichen Portierungsschritt als Fehler zu melden.
+- spätere Python-Aktion: Keine Python-Referenzänderung erforderlich; betroffen war ausschließlich eine abgeleitete Fortschrittserwartung der Testinfrastruktur.
+- Mojo-Orte: `tests/test_porting_metrics.py`, `tools/porting_metrics.py`, `tools/generate_porting_matrix.py`
+- Belege: `STAGE12C5AD_NATIVE_TABLE_PREPARATION_RUNTIME.md`, `tests/test_porting_metrics.py`, `tools/porting_metrics.py`
+
+### MOJO-FIXED-049 – TableRuntime-Gestirn-Metadaten enthielten eine duplizierte unvollständige Zuweisung
+
+- Ursprung: `mojo_port`
+- Klasse / Schwere: `duplicate_assignment_parse_error` / `high`
+- Python-Status: `correct_reference`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5ad`
+- Reproduktion: `src/reta_mojo/table_runtime.mojo statisch prüfen oder den neuen Runtime-Test kompilieren; unmittelbar vor der Gestirn-Parameterzuweisung stand dieselbe öffnende Zuweisung zweimal, wodurch der neue Modulpfad nicht parsbar gewesen wäre.`
+- heutiger Vertrag: Die generierte Gestirn-Parameterbeschreibung wird genau einmal atomar in den typisierten GeneratedColumnSection geschrieben; Tags und Star-Column-Zustand werden anschließend synchronisiert. Ein Source-Test sichert den vollständigen Besitzerpfad und die Stage kompiliert ihn fokussiert.
+- spätere Python-Aktion: Keine spätere Python-Änderung erforderlich; die Referenz enthielt keine doppelte Zuweisung.
+- Python-Orte: `python_reference/reta_architecture/table_runtime.py:Tables.Maintable.createSpalteGestirn`
+- Mojo-Orte: `src/reta_mojo/table_runtime.mojo:Tables.createSpalteGestirn`, `tests/test_table_runtime_complete_source.py`
+- Belege: `STAGE12C5AD_NATIVE_TABLE_PREPARATION_RUNTIME.md`, `src/reta_mojo/table_runtime.mojo`, `tests/test_table_runtime_complete_source.py`
+
+### TEST-FIXED-034 – Prompt-Katalogtest prüfte Interpreterkonfiguration am falschen Skript
+
+- Ursprung: `test_infrastructure`
+- Klasse / Schwere: `delegated_configuration_assertion_mismatch` / `low`
+- Python-Status: `not_applicable`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5ad`
+- Reproduktion: `tests/test_completion_native_ownership.py ausführen; der Test verlangte RETA_PYTHON und command -v python3 direkt in check_prompt_language_catalog.sh, obwohl die Interpreterwahl bereits korrekt an select_reference_python.sh delegiert war.`
+- heutiger Vertrag: Der Katalogcheck muss den zentralen Referenzinterpreter-Resolver verwenden. Die Priorität RETA_REFERENCE_PYTHON, RETA_PYTHON, PyPy3 und Python3 wird dort geprüft; der aufrufende Check dupliziert diese Logik nicht.
+- spätere Python-Aktion: Keine Python-Referenzänderung erforderlich; betroffen war nur eine veraltete Testannahme über die Position der Konfigurationslogik.
+- Mojo-Orte: `scripts/check_prompt_language_catalog.sh`, `scripts/select_reference_python.sh`, `tests/test_completion_native_ownership.py`
+- Belege: `STAGE12C5AD_NATIVE_TABLE_PREPARATION_RUNTIME.md`, `scripts/select_reference_python.sh`, `tests/test_completion_native_ownership.py`
+
+### MOJO-FIXED-050 – TablePreparation wich bei unregelmäßigen Headern und Generated-Tag-Branchreihenfolge von Python ab
+
+- Ursprung: `mojo_port`
+- Klasse / Schwere: `table_preparation_branch_and_header_parity` / `high`
+- Python-Status: `correct_reference`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5ad`
+- Reproduktion: `Eine Tabelle mit zweispaltigem Header und dreispaltiger Datenzeile vorbereiten oder einen neuen generierten Parameter zusammen mit einem Override markieren; der erste Port verwendete table.maximum_columns als headingsAmount und wendete Overrides bereits beim ersten Parametereintrag an.`
+- heutiger Vertrag: headings_amount ist exakt die Länge von Zeile 0. Ein neuer Ausgabeparameter erhält zunächst die normalen Katalogtags; GeneratedTagOverrides werden nur bei explizit bereits vorhandenem Parameter ausgewertet. Beide Grenzfälle besitzen native Regressionstests.
+- spätere Python-Aktion: Keine Python-Änderung erforderlich; die Referenzbranchreihenfolge und Headersemantik waren korrekt.
+- Python-Orte: `python_reference/reta_architecture/table_preparation.py:select_display_lines`, `python_reference/reta_architecture/table_preparation.py:tag_output_column`
+- Mojo-Orte: `src/reta_mojo/table_preparation.mojo:select_display_lines`, `src/reta_mojo/table_preparation.mojo:tag_output_column`, `tests/test_table_preparation_complete.mojo`
+- Belege: `STAGE12C5AD_NATIVE_TABLE_PREPARATION_RUNTIME.md`, `src/reta_mojo/table_preparation.mojo`, `tests/test_table_preparation_complete.mojo`

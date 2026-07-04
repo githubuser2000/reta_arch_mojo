@@ -2528,6 +2528,106 @@
         "STAGE12C5AC_PROMPT_PREPARATION_TRAITS.md",
         "tests/test_stage_build_separation.py"
       ]
+    },
+    {
+      "id": "TEST-FIXED-033",
+      "title": "Portierungsmetriktest behandelte erfolgreichen Fortschritt als Fehler",
+      "origin": "test_infrastructure",
+      "classification": "stale_derived_metric_expectation",
+      "severity": "medium",
+      "python_status": "not_applicable",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5ad",
+      "reproducer": "scripts/test_stage12c5ac.sh nach der vollständigen Portierung von prompt_preparation.py ausführen; tools/porting_metrics.py meldete korrekt 74 vollständig native Dateien, während tests/test_porting_metrics.py weiterhin exakt 73 erwartete.",
+      "python_locations": [],
+      "mojo_locations": [
+        "tests/test_porting_metrics.py",
+        "tools/porting_metrics.py",
+        "tools/generate_porting_matrix.py"
+      ],
+      "current_contract": "Unveränderliche Inventargrößen bleiben exakt geprüft. Fortschrittswerte werden als monotoner Mindeststand geprüft und neue vollständig native Besitzer zusätzlich einzeln in der Portierungsmatrix nachgewiesen. Dadurch erkennt der Test Rückschritte, ohne jeden erfolgreichen Portierungsschritt als Fehler zu melden.",
+      "post_port_fix": "Keine Python-Referenzänderung erforderlich; betroffen war ausschließlich eine abgeleitete Fortschrittserwartung der Testinfrastruktur.",
+      "evidence": [
+        "STAGE12C5AD_NATIVE_TABLE_PREPARATION_RUNTIME.md",
+        "tests/test_porting_metrics.py",
+        "tools/porting_metrics.py"
+      ]
+    },
+    {
+      "id": "MOJO-FIXED-049",
+      "title": "TableRuntime-Gestirn-Metadaten enthielten eine duplizierte unvollständige Zuweisung",
+      "origin": "mojo_port",
+      "classification": "duplicate_assignment_parse_error",
+      "severity": "high",
+      "python_status": "correct_reference",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5ad",
+      "reproducer": "src/reta_mojo/table_runtime.mojo statisch prüfen oder den neuen Runtime-Test kompilieren; unmittelbar vor der Gestirn-Parameterzuweisung stand dieselbe öffnende Zuweisung zweimal, wodurch der neue Modulpfad nicht parsbar gewesen wäre.",
+      "python_locations": [
+        "python_reference/reta_architecture/table_runtime.py:Tables.Maintable.createSpalteGestirn"
+      ],
+      "mojo_locations": [
+        "src/reta_mojo/table_runtime.mojo:Tables.createSpalteGestirn",
+        "tests/test_table_runtime_complete_source.py"
+      ],
+      "current_contract": "Die generierte Gestirn-Parameterbeschreibung wird genau einmal atomar in den typisierten GeneratedColumnSection geschrieben; Tags und Star-Column-Zustand werden anschließend synchronisiert. Ein Source-Test sichert den vollständigen Besitzerpfad und die Stage kompiliert ihn fokussiert.",
+      "post_port_fix": "Keine spätere Python-Änderung erforderlich; die Referenz enthielt keine doppelte Zuweisung.",
+      "evidence": [
+        "STAGE12C5AD_NATIVE_TABLE_PREPARATION_RUNTIME.md",
+        "src/reta_mojo/table_runtime.mojo",
+        "tests/test_table_runtime_complete_source.py"
+      ]
+    },
+    {
+      "id": "TEST-FIXED-034",
+      "title": "Prompt-Katalogtest prüfte Interpreterkonfiguration am falschen Skript",
+      "origin": "test_infrastructure",
+      "classification": "delegated_configuration_assertion_mismatch",
+      "severity": "low",
+      "python_status": "not_applicable",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5ad",
+      "reproducer": "tests/test_completion_native_ownership.py ausführen; der Test verlangte RETA_PYTHON und command -v python3 direkt in check_prompt_language_catalog.sh, obwohl die Interpreterwahl bereits korrekt an select_reference_python.sh delegiert war.",
+      "python_locations": [],
+      "mojo_locations": [
+        "scripts/check_prompt_language_catalog.sh",
+        "scripts/select_reference_python.sh",
+        "tests/test_completion_native_ownership.py"
+      ],
+      "current_contract": "Der Katalogcheck muss den zentralen Referenzinterpreter-Resolver verwenden. Die Priorität RETA_REFERENCE_PYTHON, RETA_PYTHON, PyPy3 und Python3 wird dort geprüft; der aufrufende Check dupliziert diese Logik nicht.",
+      "post_port_fix": "Keine Python-Referenzänderung erforderlich; betroffen war nur eine veraltete Testannahme über die Position der Konfigurationslogik.",
+      "evidence": [
+        "STAGE12C5AD_NATIVE_TABLE_PREPARATION_RUNTIME.md",
+        "scripts/select_reference_python.sh",
+        "tests/test_completion_native_ownership.py"
+      ]
+    },
+    {
+      "id": "MOJO-FIXED-050",
+      "title": "TablePreparation wich bei unregelmäßigen Headern und Generated-Tag-Branchreihenfolge von Python ab",
+      "origin": "mojo_port",
+      "classification": "table_preparation_branch_and_header_parity",
+      "severity": "high",
+      "python_status": "correct_reference",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5ad",
+      "reproducer": "Eine Tabelle mit zweispaltigem Header und dreispaltiger Datenzeile vorbereiten oder einen neuen generierten Parameter zusammen mit einem Override markieren; der erste Port verwendete table.maximum_columns als headingsAmount und wendete Overrides bereits beim ersten Parametereintrag an.",
+      "python_locations": [
+        "python_reference/reta_architecture/table_preparation.py:select_display_lines",
+        "python_reference/reta_architecture/table_preparation.py:tag_output_column"
+      ],
+      "mojo_locations": [
+        "src/reta_mojo/table_preparation.mojo:select_display_lines",
+        "src/reta_mojo/table_preparation.mojo:tag_output_column",
+        "tests/test_table_preparation_complete.mojo"
+      ],
+      "current_contract": "headings_amount ist exakt die Länge von Zeile 0. Ein neuer Ausgabeparameter erhält zunächst die normalen Katalogtags; GeneratedTagOverrides werden nur bei explizit bereits vorhandenem Parameter ausgewertet. Beide Grenzfälle besitzen native Regressionstests.",
+      "post_port_fix": "Keine Python-Änderung erforderlich; die Referenzbranchreihenfolge und Headersemantik waren korrekt.",
+      "evidence": [
+        "STAGE12C5AD_NATIVE_TABLE_PREPARATION_RUNTIME.md",
+        "src/reta_mojo/table_preparation.mojo",
+        "tests/test_table_preparation_complete.mojo"
+      ]
     }
   ],
   "audit": {

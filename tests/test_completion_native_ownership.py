@@ -41,6 +41,10 @@ def test_catalog_reproduction_check_is_source_archive_portable() -> None:
     script = (
         ROOT / "scripts/check_prompt_language_catalog.sh"
     ).read_text(encoding="utf-8")
-    assert "RETA_PYTHON" in script
-    assert "command -v python3" in script
+    selector = (ROOT / "scripts/select_reference_python.sh").read_text(
+        encoding="utf-8"
+    )
+    assert "select_reference_python.sh" in script
+    assert "RETA_PYTHON" in selector
+    assert "command -v" in selector and "python3" in selector
     assert '.venv/bin/python scripts/generate_prompt_nested_catalog.py' not in script

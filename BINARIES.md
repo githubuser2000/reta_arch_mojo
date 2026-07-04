@@ -307,3 +307,12 @@ der native Ersatz wird von bestehenden Prompt-Einstiegen importiert. Nur
 
 Es kommt kein installierbares Programm hinzu. `scripts/test_stage12c5ac.sh` erzeugt lediglich `target/tests/test_prompt_preparation_12c5ac` und eine Snapshotprobe; beide sind kurzlebige Testartefakte.
 
+## Stage 12c5ad
+
+Die vollständigen Besitzer für TablePreparation, TableRuntime und TableState
+erzeugen **keine neue installierbare Executable**. Ihre Modul- und
+Snapshotprüfungen werden ausschließlich als kurzlebige Testprogramme unter
+`target/tests` durch `scripts/test_stage12c5ad.sh` gebaut. `scripts/test_all.sh`
+baut die gesamte native Testsuite unter `target/tests-all` und startet jedes
+Programm über `bin/mojo-runtime-exec`.
+

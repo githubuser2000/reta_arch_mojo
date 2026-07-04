@@ -1,5 +1,9 @@
 #!/usr/bin/env sh
 set -eu
+# Vollständige native Mojo-Testprogrammsuite. Für den normalen Entwicklungs-
+# zyklus genügt das aktuelle fokussierte Stage-Skript. Diese Suite ist vor
+# Releases oder nach mehreren Stages sinnvoll; RETA_TEST_HEAVY=1 nimmt auch
+# die zwei besonders speicher-/zeitintensiven Compilerziele hinzu.
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 cd "$ROOT"
 TARGET=${RETA_TEST_TARGET_DIR:-"$ROOT/target/tests-all"}
@@ -18,5 +22,5 @@ for test_file in tests/test_*.mojo; do
     printf '\n== build %s ==\n' "$test_file"
     "$ROOT/bin/mojo-real" build -I src -I tests "$test_file" -o "$TARGET/$name"
     printf '== run %s ==\n' "$name"
-    "$TARGET/$name"
+    "$ROOT/bin/mojo-runtime-exec" "$TARGET/$name"
 done

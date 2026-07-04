@@ -579,3 +579,30 @@ Nach dem normalen Produktionsbuild kann die vollständige Prompt-Preparation-Fas
 
 Das Skript baut ausschließlich Modultest und Snapshotprobe unter `target/tests`; es erzeugt keine installierbaren Programme oder Shared Libraries.
 
+## Stage 12c5ad: fokussierter Build-/Testzyklus
+
+Der normale Entwicklungszyklus nach dieser Stage ist:
+
+```bash
+scripts/build-all.sh
+scripts/test_stage12c5ad.sh
+```
+
+`test_stage12c5ad.sh` baut nur kurzlebige Testprogramme unter `target/tests`.
+Die vollständige native Mojo-Testprogrammsuite ist nicht nach jedem kleinen
+Patch nötig, sondern vor Releases oder nach mehreren Stages:
+
+```bash
+scripts/test_all.sh
+```
+
+Die beiden besonders schweren Compilerziele werden nur explizit ergänzt:
+
+```bash
+RETA_TEST_HEAVY=1 scripts/test_all.sh
+```
+
+`test_all.sh` führt jedes Testbinary über `bin/mojo-runtime-exec` aus und teilt
+damit Runtime-Suche, Source-ID-Frischeprüfung und Ressourcenauflösung mit den
+Stage-Tests.
+

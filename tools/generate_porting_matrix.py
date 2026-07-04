@@ -87,10 +87,10 @@ NATIVE = {
     "reta_architecture/row_filtering.py": ("nativ", "src/reta_mojo/row_filtering.mojo", "Zeilenbereiche, Zeit, Zählgruppen, Primklassen, Gestirne, Vielfache, Potenzen, Invertierung und Positionsfilter"),
     "reta_architecture/generated_columns.py": ("teilweise nativ", "src/reta_mojo/generated_columns.mojo", "vier Generatorfamilien zweisprachig nativ; restliche Generator- und Metaspalten folgen in Stufe 7"),
     "reta_architecture/meta_columns.py": ("nativ", "src/reta_mojo/meta_columns.mojo + src/reta_mojo/prime_effect_columns.mojo + assets/meta_columns_catalog.tsv", "alle 14 öffentlichen Funktionen, drei Bundle-Spezifikationen, Meta-/Konkreta-Zustandsmaschine, Bruchwertauflösung, Überschriften/Tags, Primwirkungsfamilie, 87 kanonische Brüche und 884 exakt geordnete Kombinationspaare vollständig ohne Python-Laufzeit"),
-    "reta_architecture/table_preparation.py": ("weitgehend nativ", "src/reta_mojo/table_preparation.mojo + parallel_row_preparation.mojo", "Zeilenauswahl, Tabellenprojektion, Unicode-sicherer Zellenumbruch und typisierte serielle/threadbasierte Vorbereitung unabhängiger Datenzeilen nativ; globale Header-Tag-Mutation bleibt bewusst seriell"),
+    "reta_architecture/table_preparation.py": ("nativ", "src/reta_mojo/table_preparation.mojo + parallel_row_preparation.mojo + tag_schema.mojo", "vollständige drei Ergebnis-/Bundle-Klassen und sieben Modulgrenzen typisiert: Zeilenauswahl, serialisierte Header-Tag-Gluing-Grenze, Spaltenbijektion, Haupt-/Kombi-Orchestrierung, Unicode-sicheres Wrapping, Religionnummern und separat austauschbare Threadstrategie ohne Pythonobjektgraph"),
     "reta_architecture/table_output.py": ("nativ", "src/reta_mojo/table_output.mojo + table_rendering.mojo + src/table_output_main.mojo", "vollständige TableOutput-/TableOutputBundle-Oberfläche mit typisiertem Rendererzustand, geordneter Spaltenprojektion, Ergebnisbuffer, ANSI-Farbpolitik sowie nativer Shell-/CSV-/Markdown-/Emacs-/HTML-/BBCode-/Nichts-Ausgabe; kein Python-Objektgraph"),
     "reta_architecture/table_generation.py": ("nativ", "src/reta_mojo/table_generation.mojo + generated_table_columns.mojo + concat_csv.mojo + combi_join.mojo + src/table_generation_main.mojo", "vollständige TableGenerationResult-/TableGenerationBundle-Oberfläche; typisierter Plan ersetzt den heterogenen Program-Objektgraph, und die beobachtbare Reihenfolge CSV-Gluing → Last-Line-Capture → Generatorfamilien → Kombi-Join ist als besitzender nativer Orchestrator aktiviert"),
-    "reta_architecture/table_runtime.py": ("teilweise nativ", "src/reta_mojo/native_reta_cli.mojo + table_preparation.mojo", "typisierter nativer Laufzeitplan für häufige Zeilen-, Spalten- und Ausgabeparameter"),
+    "reta_architecture/table_runtime.py": ("nativ", "src/reta_mojo/table_runtime.mojo + table_state.mojo + table_output.mojo + legacy_lib4tables_prepare.mojo + combi_join.mojo", "vollständige Tables-/Maintable-/TableRuntimeBundle-Oberfläche mit explizitem Besitz von State, Prepare, Concat, KombiJoin und Output; synchronisierte Anzeige-, Breiten-, Nummerierungs- und Obergrenzenproperties, Gestirn-Endomorphismus, Zeilenreduktion, FillBoth und exakter Bundle-Snapshot ohne Lazy-Pythonimporte"),
     "libs/lib4tables_prepare.py": ("nativ", "src/reta_mojo/legacy_lib4tables_prepare.mojo + table_adapters.mojo + table_preparation.mojo + row_filtering.mojo + table_wrapping.mojo", "vollständige fünf Modulhelfer, expliziter Ersatz der fünf Modulglobalen und komplette Prepare-Fassade mit 20 Methoden-/Property-Einträgen; Filterung, Wrapping, Breiten, Zählgruppen, Tagging und Zeilenvorbereitung delegieren ausschließlich an native Besitzer"),
 }
 
@@ -125,7 +125,7 @@ native_lines = sum(r[1] for r in original_rows if r[0] in NATIVE)
 total_lines = sum(r[1] for r in original_rows)
 content = [
     "# Portierungsmatrix Python → Mojo\n\n",
-    "Stand: 3. Juli 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der gebündelten Python-Kompatibilitätsreferenz.\n\n",
+    "Stand: 4. Juli 2026. Die Matrix unterscheidet echten nativen Mojo-Code von der gebündelten Python-Kompatibilitätsreferenz.\n\n",
     f"- Ursprüngliche Python-Dateien: **{len(original_rows)}**\n",
     f"- Ursprüngliche Python-Zeilen insgesamt: **{total_lines}**\n",
     "- Eingebettete Python-Brücken: **0**; expliziter Mojo-Kindprozessadapter: **1**\n",

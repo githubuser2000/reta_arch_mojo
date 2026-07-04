@@ -517,3 +517,17 @@ Die Zahl **12** ist die geplante Releasegliederung. Interne Teilpakete oder Fehl
 - fünfsprachiger frischer Legacy-Snapshot gegen Python
 - kein neues installierbares Compilerziel
 
+## Stage 12c5ad – vollständige Tabellenvorbereitung und Laufzeit
+
+- [x] `table_preparation.py` vollständig typisieren.
+- [x] Header-/Tag-Gluing, Spaltenbijektion und Haupt-/Kombi-Ergebnisse besitzen.
+- [x] `table_runtime.py` samt `Tables`, `Maintable` und Bundle vollständig besitzen.
+- [x] `table_state.py` um Factory- und Snapshotoberfläche ergänzen.
+- [x] Fortschrittsmetriktest gegen erfolgreiche Inkremente härten.
+- [x] `test_all.sh` über den portablen Runtimewrapper ausführen.
+- [ ] Lokalen Modular-Lauf `scripts/test_stage12c5ad.sh` ausführen.
+- [ ] Nach mehreren weiteren Stages oder vor einem Release `scripts/test_all.sh` ausführen.
+- Maschinenstand: **76/92 vollständig**, **83/92 mindestens teilweise**,
+  **38.174/48.831 angegriffene** und **33.430/48.831 vollständig native
+  Referenzzeilen**.
+

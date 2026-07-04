@@ -47,3 +47,12 @@ def test_setup_and_release_use_the_explicit_full_build_entry_point() -> None:
     assert './scripts/build-all.sh' in setup
     assert '${RETA_BUILD_SCOPE-all}' in setup
     assert './scripts/build-all.sh' in release
+
+
+def test_full_mojo_suite_runs_through_portable_runtime_wrapper() -> None:
+    source = (SCRIPTS / "test_all.sh").read_text(encoding="utf-8")
+    assert '"$ROOT/bin/mojo-runtime-exec" "$TARGET/$name"' in source
+    assert not any(
+        line.strip() == '"$TARGET/$name"' for line in source.splitlines()
+    )
+    assert "RETA_TEST_HEAVY" in source

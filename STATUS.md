@@ -1,3 +1,14 @@
+# Status – Stage 12c5ad
+
+- Der lokale 12c5ac-Lauf bestätigte Shared Diagnostics, Legacy Prepare, `LegacyPromptMapEntry` und die vollständige PromptPreparation-Fassade. Der einzige Python-Fehler war ein veralteter exakter Fortschrittswert; Fortschritt wird nun monoton plus Besitzerassertion geprüft (`TEST-FIXED-033`).
+- `reta_architecture/table_preparation.py` ist vollständig nativ: Ergebniswerte, Bundle, Spaltenbijektion, serialisierte Header-/Tag-Gluing-Grenze, Haupt-/Kombi-Orchestrierung, Religionnummern und separat austauschbare Threadstrategie.
+- `reta_architecture/table_runtime.py` und die Factory-/Snapshot-Oberfläche von `table_state.py` sind vollständig nativ: `Tables`, `Maintable`, Komponentenbesitz, Anzeige-/Breiten-/Nummerierungszustand, Gestirn-Endomorphismus und Bundle-Snapshots.
+- Paritätskorrekturen: Headerbreite stammt aus Zeile 0; Generated-Tag-Overrides greifen nur bei bereits vorhandenem Parameter (`MOJO-FIXED-050`); eine doppelte Gestirn-Zuweisung wurde entfernt (`MOJO-FIXED-049`).
+- `scripts/test_all.sh` startet Testbinaries jetzt über `mojo-runtime-exec`. Im normalen Zyklus genügt das aktuelle Stage-Skript; die Gesamtsuite ist vor Releases oder nach mehreren Stages vorgesehen.
+- vollständig nativ/generiert: **76/92 = 82,6 %**; vollständig native Referenzzeilen: **33.430/48.831 = 68,5 %**; mindestens teilweise: **83/92 = 90,2 %**; produktive Mojo-Zeilen: **58.936**, davon **54.379** in `src/reta_mojo`.
+- Compilerunabhängig: **268 portable Source-Tests bestanden, 1 Skip**, fokussierte Infrastruktur **62/62**, Defektkatalog **108**, Python-Bereinigungspunkte **19**, relative Mojo-Importe vollständig auflösbar.
+- Lokaler Compilerlauf: `scripts/test_stage12c5ad.sh`; vollständige Mojo-Suite: `scripts/test_all.sh`; besonders schwere zwei Testziele zusätzlich mit `RETA_TEST_HEAVY=1`.
+
 # Status – Stage 12c5ac
 
 - lokaler Shared-Diagnostics-Build bestätigt: **53/53** Paritäts-/Infrastrukturtests; Legacy-Prepare bestätigt: **5/5** native Tests

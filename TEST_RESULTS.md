@@ -1,3 +1,35 @@
+# Stage 12c5ad
+
+```text
+vollständig nativ/generiert:          76/92 = 82,6 %
+vollständig native Referenzzeilen:    33.430/48.831 = 68,5 %
+portable Source-Tests:                 268 bestanden, 1 Skip
+fokussierte Infrastruktur:              62/62 bestanden
+Defektkatalog:                          108 Einträge
+Python-Bereinigungspunkte:               19
+aktive std.python-Brücken:                0
+```
+
+Der gemeldete Metrikfehler war eine veraltete exakte Fortschrittserwartung und
+ist als `TEST-FIXED-033` geschlossen. `table_preparation.py`, `table_runtime.py`
+und die vollständige `table_state.py`-Factory-/Snapshot-Oberfläche besitzen nun
+typisierte Mojo-Gegenstücke. Die Source-Suite schließt den großen Meta-Spalten-
+Katalogtest ein; der eine Skip betrifft weiterhin ausschließlich ein nicht im
+source-only Archiv enthaltenes kompiliertes Probeprogramm.
+
+Der lokale Modular-Lauf ist vorbereitet als:
+
+```bash
+scripts/test_stage12c5ad.sh
+```
+
+Die vollständige native Testprogrammsuite ist vor Releases oder nach mehreren
+Stages sinnvoll:
+
+```bash
+scripts/test_all.sh
+```
+
 # Stage 12c5ac
 
 Vom lokalen Modular-Build bestätigt:

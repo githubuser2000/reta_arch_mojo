@@ -1168,3 +1168,17 @@ Vier vollständig native Diagnoseoberflächen teilen seit Stage 12c5z eine versi
 - Die entfernten Python-Lazy-Caches werden nicht als mutable Globals nachgebildet, sondern durch den unveränderlichen Katalog ersetzt.
 - Die alte produktiv bauende Datei `scripts/test_stage12c5z.sh` ist aus dem ausgelieferten Baum entfernt.
 
+## Stage 12c5ad – TablePreparation und TableRuntime
+
+- Die beiden historischen `old2Rows`-Dictionaries werden als eine typisierte
+  Bijektion besessen.
+- Header-/Tag-Mutation bleibt serialisiert; Threadparallelität ist eine äußere
+  Strategie über denselben reinen Zeilenkern.
+- `Tables` besitzt State, Prepare, Concat, KombiJoin, TableOutput und Maintable
+  explizit statt über Lazy-Pythonimporte.
+- Die sichtbare Gestirn-Ausgabeposition ist von der physischen angehängten
+  Tabellenspalte getrennt; der Vanilla-Spaltenoffset wird beim Metadatenindex
+  berücksichtigt.
+- Fortschrittsmetriken sind monoton statt bei jeder Stage manuell exakt.
+- Die vollständige Mojo-Testsuite verwendet den portablen Runtimewrapper.
+
