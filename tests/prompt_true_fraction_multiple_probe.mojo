@@ -67,3 +67,12 @@ def main() raises:
     _emit("motive universum 15_13 16_2 v2/3,5")
     _emit("motive universum 15_13 16_2 v2/3")
     _emit("mond motive EIGNgut universum v2/3,5")
+    _emit("mond motive universum 15_13 16_2 v2/3,5")
+    _emit(
+        "mond richtung primzahlkreuz alles thomas motive EIGNgut "
+        "universum 15_13 16_2 v2/3,5"
+    )
+    _emit(
+        "mond richtung primzahlkreuz alles thomas motive EIGNgut "
+        "EIGRwerte universum 15_13 16_2 v2/3,5"
+    )

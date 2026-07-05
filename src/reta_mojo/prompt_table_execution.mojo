@@ -859,15 +859,6 @@ def _is_fraction_domain_table_command(canonical: String) -> Bool:
     return is_physical_fraction_prompt_table_family(canonical)
 
 
-def _has_classic_integer_table_command(
-    canonical_words: List[String],
-) -> Bool:
-    for index in range(len(canonical_words)):
-        if is_classic_integer_prompt_table_family(canonical_words[index]):
-            return True
-    return False
-
-
 def _only_fraction_domains_or_inert_classic_commands(
     canonical_words: List[String],
     has_explicit_integer_axis: Bool,
@@ -1809,28 +1800,13 @@ def plan_prompt_table_commands(
     var fraction_domain_count = _fraction_multiple_domain_count(canonical_words)
     if true_fraction_multiple_mode and fraction_domain_count > 1:
         # Domain-specific expansion is fully defined for physical fraction
-        # families plus the classic integer-table group.  Proven comma-local
-        # ordinary selectors compose through one shared ordered-union base;
-        # Thomas precedes the physical blocks and the remaining classic tables
-        # follow them.  Numeric shortcuts, property commands and unrelated table
-        # families continue to fall back atomically until they receive their own
-        # composition law.
-        var has_multi_domain_extension = (
-            len(numeric15_values) > 0
-            or len(numeric16_values) > 0
-            or has_property_command
-        )
-        # The physical/property/numeric composition is owned below.  Mixing
-        # those new extension axes with classic integer-only tables remains
-        # atomic until their combined outer order is independently frozen.
-        if (
-            not _only_fraction_domains_or_inert_classic_commands(
-                canonical_words, len(row_parts) > 0
-            )
-            or (
-                has_multi_domain_extension
-                and _has_classic_integer_table_command(canonical_words)
-            )
+        # families and every proven outer axis.  Proven comma-local ordinary
+        # selectors compose through one shared ordered-union base: Thomas
+        # precedes the physical blocks, EIGN/EIGR remain between Motives and
+        # Universe, Moon/All/Prime-cross/Direction follow the physical blocks,
+        # and numeric family 16 precedes family 15 at the final tail.
+        if not _only_fraction_domains_or_inert_classic_commands(
+            canonical_words, len(row_parts) > 0
         ):
             return PromptTablePlan(False, List[PromptTableInvocation]())
         var multi_counting = _contains(canonical_words, "range") or _contains(

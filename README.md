@@ -1176,3 +1176,17 @@ Fokussierter Lauf:
 ```bash
 RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bm.sh -- -j 4
 ```
+
+## Stage 12c5bn – kombinierte äußere Tabellenachsen
+
+Die bisher getrennt bewiesenen Mehrdomänenverträge sind nun gemeinsam aktiv.
+Klassische Ganzzahlfamilien, `EIGN…`/`EIGR…` und numerische 16/15-Katalogachsen
+können in einem einzigen korrigierten echten Bruchvielfachplan auftreten. Die
+feste Ordnung lautet Thomas vor den physischen Blöcken, EIGN/EIGR zwischen
+Motive und Universum, danach Mond, Alles, Primzahlkreuz und Richtung sowie zum
+Schluss Familie 16 vor 15.
+
+Der vollständige Motive-/Universum-Fall besitzt 34 Aufrufe, mit zusätzlichem
+EIGR 35. Die Python-Referenz dient nur als Beleg der äußeren Zweigreihenfolge;
+ihre bekannte gemeinsame n/m-Rechteckbildung wird nicht übernommen. Details:
+[`STAGE12C5BN_COMBINED_OUTER_AXES.md`](STAGE12C5BN_COMBINED_OUTER_AXES.md).

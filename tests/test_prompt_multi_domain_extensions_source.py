@@ -39,7 +39,7 @@ def test_numeric_tail_keeps_16_before_15() -> None:
     assert "projected whole rows" not in helper or "shared outer axes" in helper
 
 
-def test_runtime_probe_covers_property_numeric_and_atomic_classic_mix() -> None:
+def test_runtime_probe_covers_property_numeric_and_combined_classic_mix() -> None:
     mojo = MOJO_TEST.read_text(encoding="utf-8")
     probe = PROBE.read_text(encoding="utf-8")
     checker = CHECKER.read_text(encoding="utf-8")
@@ -49,6 +49,7 @@ def test_runtime_probe_covers_property_numeric_and_atomic_classic_mix() -> None:
         "motive universum 15_13 16_2 v2/3,5",
         "motive universum 15_13 16_2 v2/3",
         "mond motive EIGNgut universum v2/3,5",
+        "mond motive universum 15_13 16_2 v2/3,5",
     )
     for command in commands:
         assert command in mojo
@@ -57,7 +58,10 @@ def test_runtime_probe_covers_property_numeric_and_atomic_classic_mix() -> None:
     assert "assert_equal(len(eign.invocations), 27)" in mojo
     assert "assert_equal(len(properties.invocations), 28)" in mojo
     assert "assert_equal(len(numeric.invocations), 28)" in mojo
-    assert "unproved classic/property composition must remain atomic" in checker
+    assert "wrong complete combined outer plan count" in checker
+    assert "var combined = _plan(" in mojo
+    assert "var combined_properties = _plan(" in mojo
+    assert "combined classic/property/catalog outer order" in checker
     assert 'assert_true("--grundstrukturen=emotion" in _tokens(positive_first_emotion))' in mojo
     assert '--Grundstrukturen=emotion" in _tokens(positive_first_emotion)' not in mojo
 

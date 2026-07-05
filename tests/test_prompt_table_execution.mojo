@@ -1174,10 +1174,52 @@ def test_multi_domain_property_and_numeric_extensions_are_native() raises:
     assert_equal(len(projected_numeric.invocations), 28)
     assert_false("--vielfachevonzahlen=" in _tokens(projected_numeric, 26))
 
-    # The combined order of classic integer tables with property/numeric
-    # extensions has not yet been frozen independently.
-    assert_false(
-        _plan("mond motive EIGNgut universum v2/3,5").handled
+    var classic_property = _plan(
+        "mond motive EIGNgut universum v2/3,5"
+    )
+    assert_true(classic_property.handled)
+    assert_equal(len(classic_property.invocations), 28)
+    assert_true("--konzept=gut" in _tokens(classic_property, 13))
+    assert_true("--Bedeutung=gestirn" in _tokens(classic_property, 27))
+
+    var classic_numeric = _plan(
+        "mond motive universum 15_13 16_2 v2/3,5"
+    )
+    assert_true(classic_numeric.handled)
+    assert_equal(len(classic_numeric.invocations), 29)
+    assert_true("--Bedeutung=gestirn" in _tokens(classic_numeric, 26))
+    assert_true("--Multiversum=" in _tokens(classic_numeric, 27))
+    assert_true("--Grundstrukturen=" in _tokens(classic_numeric, 28))
+
+    var combined = _plan(
+        "mond richtung primzahlkreuz alles thomas motive EIGNgut "
+        "universum 15_13 16_2 v2/3,5"
+    )
+    assert_true(combined.handled)
+    assert_equal(len(combined.invocations), 34)
+    assert_true("--galaxie=thomas" in _tokens(combined, 0))
+    assert_true("--konzept=gut" in _tokens(combined, 14))
+    assert_true("--Universum=transzendentalien" in _tokens(combined, 15))
+    assert_true("--Bedeutung=gestirn" in _tokens(combined, 28))
+    assert_true("--alles" in _tokens(combined, 29))
+    assert_true("--Bedeutung=primzahlkreuz" in _tokens(combined, 30))
+    assert_true(
+        "--Primzahlwirkung=Galaxieabsicht" in _tokens(combined, 31)
+    )
+    assert_true("--Multiversum=" in _tokens(combined, 32))
+    assert_true("--Grundstrukturen=" in _tokens(combined, 33))
+
+    var combined_properties = _plan(
+        "mond richtung primzahlkreuz alles thomas motive EIGNgut "
+        "EIGRwerte universum 15_13 16_2 v2/3,5"
+    )
+    assert_true(combined_properties.handled)
+    assert_equal(len(combined_properties.invocations), 35)
+    assert_true("--konzept=gut" in _tokens(combined_properties, 14))
+    assert_true("--konzept2=werte" in _tokens(combined_properties, 15))
+    assert_true(
+        "--Universum=transzendentalien"
+        in _tokens(combined_properties, 16)
     )
 
 

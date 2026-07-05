@@ -65,6 +65,15 @@ CASES = [
     "motive universum 15_13 16_2 v2/3,5",
     "motive universum 15_13 16_2 v2/3",
     "mond motive EIGNgut universum v2/3,5",
+    "mond motive universum 15_13 16_2 v2/3,5",
+    (
+        "mond richtung primzahlkreuz alles thomas motive EIGNgut "
+        "universum 15_13 16_2 v2/3,5"
+    ),
+    (
+        "mond richtung primzahlkreuz alles thomas motive EIGNgut "
+        "EIGRwerte universum 15_13 16_2 v2/3,5"
+    ),
 ]
 
 
@@ -433,8 +442,79 @@ def assert_multi_domain_extension_plans(result: dict[str, str]) -> None:
     ):
         fail("projected whole rows were multiplied a second time")
 
-    if result["mond motive EIGNgut universum v2/3,5"] != "FALLBACK":
-        fail("unproved classic/property composition must remain atomic")
+    classic_property = records(
+        result["mond motive EIGNgut universum v2/3,5"]
+    )
+    if len(classic_property) != 28:
+        fail(
+            "wrong classic/property multi-domain invocation count: "
+            f"{len(classic_property)}"
+        )
+    if "--konzept=gut" not in classic_property[13]:
+        fail("classic/property plan moved EIGN out of its physical position")
+    if "--Bedeutung=gestirn" not in classic_property[27]:
+        fail("classic/property plan lost the Moon suffix")
+
+    classic_numeric = records(
+        result["mond motive universum 15_13 16_2 v2/3,5"]
+    )
+    if len(classic_numeric) != 29:
+        fail(
+            "wrong classic/numeric multi-domain invocation count: "
+            f"{len(classic_numeric)}"
+        )
+    if "--Bedeutung=gestirn" not in classic_numeric[26]:
+        fail("classic/numeric plan moved Moon behind the catalog tail")
+    if not any(
+        value.startswith("--Multiversum=") for value in classic_numeric[27]
+    ):
+        fail("classic/numeric plan lost family-16 tail position")
+    if not any(
+        value.startswith("--Grundstrukturen=") for value in classic_numeric[28]
+    ):
+        fail("classic/numeric plan lost family-15 tail position")
+
+    combined_command = (
+        "mond richtung primzahlkreuz alles thomas motive EIGNgut "
+        "universum 15_13 16_2 v2/3,5"
+    )
+    combined = records(result[combined_command])
+    if len(combined) != 34:
+        fail(f"wrong complete combined outer plan count: {len(combined)}")
+    expected_markers = (
+        (0, "--galaxie=thomas"),
+        (14, "--konzept=gut"),
+        (15, "--Universum=transzendentalien"),
+        (28, "--Bedeutung=gestirn"),
+        (29, "--alles"),
+        (30, "--Bedeutung=primzahlkreuz"),
+        (31, "--Primzahlwirkung=Galaxieabsicht"),
+        (32, "--Multiversum="),
+        (33, "--Grundstrukturen="),
+    )
+    for index, marker in expected_markers:
+        if not any(value.startswith(marker) for value in combined[index]):
+            fail(
+                f"combined outer order drifted at {index}: "
+                f"expected {marker!r}, got {combined[index]!r}"
+            )
+
+    combined_properties_command = (
+        "mond richtung primzahlkreuz alles thomas motive EIGNgut "
+        "EIGRwerte universum 15_13 16_2 v2/3,5"
+    )
+    combined_properties = records(result[combined_properties_command])
+    if len(combined_properties) != 35:
+        fail(
+            "wrong combined EIGN/EIGR outer plan count: "
+            f"{len(combined_properties)}"
+        )
+    if "--konzept=gut" not in combined_properties[14]:
+        fail("combined property plan moved EIGN")
+    if "--konzept2=werte" not in combined_properties[15]:
+        fail("combined property plan moved EIGR")
+    if "--Universum=transzendentalien" not in combined_properties[16]:
+        fail("combined property plan moved Universe before EIGR")
 
     # The frozen Python controller executes numeric 16 before 15 after the
     # physical domain blocks.  Its n/m grid is known-bad, so only this stable
@@ -1035,7 +1115,8 @@ def main() -> int:
         "Mojo contract 13/13, mixed bounds, negative no-op branches, "
         "positive-first reciprocal-only and reciprocal-collision branches, "
         "domain-specific 26/26 and 44-plan grids, multi-domain property/numeric "
-        "extensions, and direct invocations valid"
+        "extensions, combined classic/property/catalog outer order, and direct "
+        "invocations valid"
     )
     return 0
 

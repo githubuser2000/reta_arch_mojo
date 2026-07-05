@@ -23,7 +23,7 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 
 ## Übersicht
 
-- Einträge insgesamt: **150**
+- Einträge insgesamt: **151**
 - offene bestätigte Python-Fehler: **6**
 - zu entscheidende Python-Fehlerkandidaten: **13**
 - bereits im Python-Baum behobene Fehler: **7**
@@ -2043,3 +2043,17 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 - Python-Orte: `python_reference/reta_architecture/prompt_execution.py`
 - Mojo-Orte: `src/reta_mojo/prompt_table_execution.mojo`, `src/reta_mojo/prompt_property_execution.mojo`, `tests/test_prompt_table_execution.mojo`, `tests/prompt_true_fraction_multiple_probe.mojo`, `scripts/check_prompt_true_fraction_multiples.py`
 - Belege: `STAGE12C5BM_MULTI_DOMAIN_PROPERTY_NUMERIC_AXES.md`, `tests/test_prompt_multi_domain_extensions_source.py`, `tests/test_prompt_table_execution.mojo`, `scripts/check_prompt_true_fraction_multiples.py`
+
+### MOJO-FIXED-066 – Kombinierte klassische, Eigenschafts- und Katalogachsen fielen bei Mehrdomänen-Brüchen atomar zurück
+
+- Ursprung: `mojo_port`
+- Klasse / Schwere: `combined_multi_domain_outer_axis_gate` / `high`
+- Python-Status: `correct_reference`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5bm/12c5bn`
+- Reproduktion: `mond richtung primzahlkreuz alles thomas motive EIGNgut universum 15_13 16_2 v2/3,5 über plan_prompt_table_commands ausführen; der Planer gab trotz bereits vorhandener vollständiger Außenordnung FALLBACK zurück, sobald klassische Familien und Eigenschafts- oder Katalogachsen gemeinsam vorkamen.`
+- heutiger Vertrag: Mehrere physische Bruchdomänen behalten ihre korrigierten unabhängigen Rechtecke. Die gemeinsame Außenordnung lautet Thomas, physische Emotion/Größe/Motive, EIGN vor EIGR, Universum, Mond/Alles/Primzahlkreuz/Richtung, numerische Familie 16 und Familie 15. Alle äußeren Ganzzahlachsen verwenden dieselbe geordnet deduplizierte Projektion; Primzahlkreuz übernimmt nur die explizite Vielfachenachse und sein Maximum 1029.
+- spätere Python-Aktion: Bei einer späteren Reparatur des Python-n/m-Rechtecks ist die unabhängig instrumentierte Außenordnung beizubehalten. Das defekte gemeinsame Python-Rechteck darf nicht als Soll für die nativen physischen Domänen übernommen werden.
+- Python-Orte: `python_reference/reta_architecture/prompt_execution.py`
+- Mojo-Orte: `src/reta_mojo/prompt_table_execution.mojo`, `tests/test_prompt_table_execution.mojo`, `tests/prompt_true_fraction_multiple_probe.mojo`, `scripts/check_prompt_true_fraction_multiples.py`
+- Belege: `STAGE12C5BN_COMBINED_OUTER_AXES.md`, `scripts/check_prompt_combined_outer_order_reference.py`, `tests/test_prompt_combined_outer_order_source.py`, `tests/test_prompt_table_execution.mojo`

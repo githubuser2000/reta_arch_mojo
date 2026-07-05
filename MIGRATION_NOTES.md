@@ -1307,3 +1307,17 @@ Vier vollständig native Diagnoseoberflächen teilen seit Stage 12c5z eine versi
   zunächst atomar, damit keine unbelegte kombinierte Reihenfolge entsteht.
 - `assert_python_positive_first_reciprocal_only` verwendet den instrumentierten
   Referenzsammler statt die vollständig gerenderte Ausgabe von `rpb` zu parsen.
+
+## Stage 12c5bn
+
+- Der Mehrdomänenplaner behandelt klassische Ganzzahlfamilien nicht mehr als
+  Konflikt, wenn zugleich EIGN/EIGR oder numerische 15/16-Katalogachsen
+  ausgewählt sind.
+- Die kombinierte Ordnung ist nun explizit: Thomas, physische Blöcke bis Motive,
+  EIGN, EIGR, Universum, Mond, Alles, Primzahlkreuz, Richtung, Familie 16,
+  Familie 15.
+- Alle äußeren Ganzzahlaufrufe teilen die geordnet deduplizierte Projektion der
+  physischen Domänen. Primzahlkreuz behält ausschließlich die explizite
+  Vielfachenachse und `--oberesmaximum=1029`.
+- Der alte `_has_classic_integer_table_command`-Gate entfällt; unrelated
+  Tabellenfamilien bleiben weiterhin an der atomaren Grenze.

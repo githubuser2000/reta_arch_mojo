@@ -2394,3 +2394,14 @@ Benutzerlauf.
 - Stage-12c5bm-Metrik: 89/92 vollständig, 92/92 mindestens teilweise,
   48.831/48.831 angegriffen; 63.537 Mojo-Zeilen in `src/`, 58.943 im
   Kernpaket; Defektledger 150/20.
+
+## Stage 12c5bn – portabler Prüfstand
+
+- Instrumentierte Python-Außenordnungsprobe: **14/14** Bedingungen bestanden.
+- Fokussierte Source-/Stage-Verträge: **30/30** bestanden.
+- Neue native Laufzeitverträge sind für 28-, 29-, 34- und 35-Aufrufpläne
+  vorbereitet; ihre tatsächliche Mojo-Kompilierung bleibt der Benutzerlauf
+  `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bn.sh -- -j 4`.
+- Stage-12c5bn-Metrik: **89/92** vollständig, **92/92** mindestens teilweise,
+  **48.831/48.831** angegriffen; **63.513** Mojo-Zeilen in `src/`, **58.919**
+  im Kernpaket; Defektledger **151/20**.

@@ -470,7 +470,7 @@
 - EIGR umgeht den defekten Python-`deepcopy(module)`-Wrapper über dessen expliziten, direkt lauffähigen `reta.py`-Argumentvertrag
 ## Weiterhin an der Kompatibilitätsgrenze
 - wenige verbleibende Rich-/Terminalsonderfälle außerhalb der seit 12c4i bytegleichen paginierten Kernpfade
-- kombinierte klassische Ganzzahlfamilien mit EIGN/EIGR- oder 15/16-Achsen sowie weitere noch unbelegte hintere Prompt-Sonderzweige
+- weitere noch unbelegte hintere Prompt-Effekt- und Sonderzweige außerhalb der nun vollständig kombinierten Tabellenachsen
 - vollständige i18n-Laufzeit außerhalb des Promptvokabulars
 Siehe [`ROADMAP.md`](ROADMAP.md) für alle zwölf Stufen.
 
@@ -529,3 +529,19 @@ Siehe [`ROADMAP.md`](ROADMAP.md) für alle zwölf Stufen.
 - Mojo-Umfang: **63.537** Zeilen in `src/`, davon **58.943** in
   `src/reta_mojo/`; Defektledger: **150** Einträge, weiterhin **20** spätere
   Python-Aufräumpunkte.
+
+## Stage 12c5bn – kombinierte äußere Tabellenachsen
+
+- Klassische Ganzzahlfamilien, EIGN/EIGR und numerische 16/15-Katalogachsen
+  komponieren nun gemeinsam um mehrere korrigierte physische Bruchdomänen.
+- Die instrumentierte Referenz bestätigt die Ordnung Thomas → physische Blöcke
+  bis Motive → EIGN → EIGR → Universum → Mond → Alles → Primzahlkreuz →
+  Richtung → Familie 16 → Familie 15.
+- Die vollständigen nativen Motive-/Universum-Pläne besitzen 34 Aufrufe mit
+  EIGN und 35 mit EIGN+EIGR; kleinere kombinierte Verträge besitzen 28 bzw. 29.
+- Das Python-Rechteck bleibt ausdrücklich kein Soll: jede physische Domäne
+  behält ihre korrigierte unabhängige Zähler×Nenner-Projektion.
+- Aktuelle Metrik: **89/92 = 96,7 %** vollständig nativ/generiert,
+  **92/92 = 100 %** mindestens teilweise, **48.831/48.831** angegriffen;
+  **63.513** Mojo-Zeilen in `src/`, davon **58.919** im Kernpaket;
+  Defektledger **151** Einträge und weiterhin **20** spätere Python-Punkte.

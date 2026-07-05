@@ -3770,6 +3770,34 @@
         "tests/test_prompt_table_execution.mojo",
         "scripts/check_prompt_true_fraction_multiples.py"
       ]
+    },
+    {
+      "id": "MOJO-FIXED-066",
+      "title": "Kombinierte klassische, Eigenschafts- und Katalogachsen fielen bei Mehrdomänen-Brüchen atomar zurück",
+      "origin": "mojo_port",
+      "classification": "combined_multi_domain_outer_axis_gate",
+      "severity": "high",
+      "python_status": "correct_reference",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5bm/12c5bn",
+      "reproducer": "mond richtung primzahlkreuz alles thomas motive EIGNgut universum 15_13 16_2 v2/3,5 über plan_prompt_table_commands ausführen; der Planer gab trotz bereits vorhandener vollständiger Außenordnung FALLBACK zurück, sobald klassische Familien und Eigenschafts- oder Katalogachsen gemeinsam vorkamen.",
+      "python_locations": [
+        "python_reference/reta_architecture/prompt_execution.py"
+      ],
+      "mojo_locations": [
+        "src/reta_mojo/prompt_table_execution.mojo",
+        "tests/test_prompt_table_execution.mojo",
+        "tests/prompt_true_fraction_multiple_probe.mojo",
+        "scripts/check_prompt_true_fraction_multiples.py"
+      ],
+      "current_contract": "Mehrere physische Bruchdomänen behalten ihre korrigierten unabhängigen Rechtecke. Die gemeinsame Außenordnung lautet Thomas, physische Emotion/Größe/Motive, EIGN vor EIGR, Universum, Mond/Alles/Primzahlkreuz/Richtung, numerische Familie 16 und Familie 15. Alle äußeren Ganzzahlachsen verwenden dieselbe geordnet deduplizierte Projektion; Primzahlkreuz übernimmt nur die explizite Vielfachenachse und sein Maximum 1029.",
+      "post_port_fix": "Bei einer späteren Reparatur des Python-n/m-Rechtecks ist die unabhängig instrumentierte Außenordnung beizubehalten. Das defekte gemeinsame Python-Rechteck darf nicht als Soll für die nativen physischen Domänen übernommen werden.",
+      "evidence": [
+        "STAGE12C5BN_COMBINED_OUTER_AXES.md",
+        "scripts/check_prompt_combined_outer_order_reference.py",
+        "tests/test_prompt_combined_outer_order_source.py",
+        "tests/test_prompt_table_execution.mojo"
+      ]
     }
   ],
   "audit": {

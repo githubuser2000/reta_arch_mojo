@@ -729,3 +729,14 @@ Der historische Assetgate ist jetzt vollständig read-only. Fünf gepinnte SHA-2
 - [x] Klassische Ganzzahlfamilien plus neue Eigenschafts-/Katalogachsen bis zu
   einem separaten Reihenfolgebeleg atomar halten.
 - [ ] Benutzerseitig `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bm.sh -- -j 4` ausführen.
+
+## Stage 12c5bn – kombinierte klassische, Eigenschafts- und Katalogachsen
+
+- [x] Gemeinsame Python-Außenordnung über Executor-argv unabhängig vom defekten
+  historischen n/m-Rechteck einfrieren.
+- [x] Thomas → physische Domänen → EIGN/EIGR → Universum →
+  Mond/Alles/Primzahlkreuz/Richtung → 16 → 15 als einen Vertrag binden.
+- [x] Den konservativen Classic+Property/Numeric-Fallback entfernen.
+- [x] 28-, 29-, 34- und 35-Aufrufpläne regressionsprüfen.
+- [x] Gemeinsame äußere Ganzzahlprojektion und Primzahlkreuz-Sonderachse prüfen.
+- [ ] Benutzerseitig `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bn.sh -- -j 4` ausführen.
