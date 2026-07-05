@@ -1332,3 +1332,17 @@ Vier vollständig native Diagnoseoberflächen teilen seit Stage 12c5z eine versi
   `--Grundstrukturen=emotion`; ein neuer Sourcevertrag schützt diese Trennung.
 - Der gemeldete Fehler nach dem erfolgreichen Vollbuild ist als
   `TEST-FIXED-061` dokumentiert.
+
+## Stage 12c5bp
+
+- Das Präfix `v` eines kommagetrennten Bruchausdrucks besitzt nun einen
+  expliziten typisierten Geltungsbereich und wird beim äußeren Split nicht mehr
+  auf die erste Komponente verengt.
+- Ein eigenständiges `vielfache`/`v` normalisiert sämtliche bereits geparsten
+  Bruchpaare auf denselben Modus; Kompakt- und Langform sind planidentisch.
+- Der positive-First-Kollisionswächter ist dadurch tatsächlich erreichbar.
+  Universum materialisiert 13, Emotion plus Universum 19 geordnete Aufrufe.
+- Gewöhnliche Ganzzahlkomponenten eines gemischten Ausdrucks erben den
+  Bruchmodus nicht und bleiben eine separate äußere Achse.
+- Der entsprechende Python-Absturz ist schon `PY-OPEN-002`;
+  `MOJO-FIXED-067` dokumentiert ausschließlich die Mojo-Parserlücke.

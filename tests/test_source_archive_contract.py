@@ -29,6 +29,29 @@ def test_source_archive_excludes_nested_caches_and_build_products(tmp_path: Path
     assert not any(name.endswith("prompt_python_bridge.mojo") for name in names)
 
 
+def test_git_index_contains_no_archive_excluded_temporary_files() -> None:
+    tracked = subprocess.run(
+        ["git", "ls-files", "-z"],
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+    ).stdout.decode("utf-8").split("\0")
+    forbidden_suffixes = (".pyc", ".pyo", ".tmp", ".swp", ".swo", "~")
+    offenders = sorted(
+        name
+        for name in tracked
+        if name
+        and (
+            name.endswith(forbidden_suffixes)
+            or "/__pycache__/" in f"/{name}/"
+            or "/.pytest_cache/" in f"/{name}/"
+            or name == "middle.alx"
+        )
+    )
+    assert offenders == []
+    assert "*.tmp" in (ROOT / ".gitignore").read_text(encoding="utf-8")
+
+
 def test_source_archive_supports_brotli_and_roundtrips(tmp_path: Path) -> None:
     output = tmp_path / "reta_arch_mojo_test.tar.br"
     subprocess.run(

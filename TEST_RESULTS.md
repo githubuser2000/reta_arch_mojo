@@ -2419,3 +2419,21 @@ Benutzerlauf.
 - Defektledger: **152** Einträge, weiterhin **20** spätere Python-Punkte.
 - Neuer fokussierter Lauf:
   `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bo.sh -- -j 4`.
+
+## Stage 12c5bp – vorbereiteter Prüfstand
+
+- Statische Parserverträge bestätigen die geerbte `multiple`-Eigenschaft über
+  sämtliche kommagetrennten Bruchkomponenten.
+- Kompaktform und ausgeschriebene `vielfache`-Form sind im Mojo-Laufzeitvertrag
+  serialisiert identisch.
+- Vorbereitete native Laufzeitverträge: **13 Aufrufe** für Universum und
+  **19 Aufrufe** für Emotion plus Universum.
+- Die Python-Referenz reproduziert für Kompakt-, Lang- und Mehrdomänenform
+  weiterhin `PY-OPEN-002` mit `IndexError` in `prompt_execution.py`.
+- Fokussierte compilerfreie Source-/Ledger-/Metrikprüfung: **74/74**.
+- Zusätzliche Archiv-/Stage-/Defektprüfung: **53/53**.
+- Referenzverträge: **5/5** Mehrdomänen-Erweiterungen, **14/14** kombinierte
+  Außenordnung und **10/10** klassische Bruchkomposition.
+- Defektledger: **153** Einträge, weiterhin **20** spätere Python-Punkte.
+- Die tatsächliche Mojo-Kompilierung bleibt der Benutzerlauf
+  `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bp.sh -- -j 4`.

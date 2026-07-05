@@ -23,7 +23,7 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 
 ## Übersicht
 
-- Einträge insgesamt: **152**
+- Einträge insgesamt: **153**
 - offene bestätigte Python-Fehler: **6**
 - zu entscheidende Python-Fehlerkandidaten: **13**
 - bereits im Python-Baum behobene Fehler: **7**
@@ -2070,3 +2070,17 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 - spätere Python-Aktion: Keine Python- oder Mojo-Produktionsänderung erforderlich. Der Fehler lag ausschließlich in einer case-sensitiven Assertion des Python-Laufzeitprüfers.
 - Mojo-Orte: `scripts/check_prompt_true_fraction_multiples.py`, `scripts/test_stage12c5bo.sh`, `tests/test_prompt_positive_first_fraction_multiple_source.py`, `tests/test_stage12c5bo_source.py`
 - Belege: `STAGE12C5BO_CANONICAL_EMOTION_OPTION_CHECK.md`, `scripts/check_prompt_true_fraction_multiples.py`, `tests/test_prompt_positive_first_fraction_multiple_source.py`, `tests/test_stage12c5bo_source.py`
+
+### MOJO-FIXED-067 – Führendes v verlor beim Komma-Split seinen vollständigen Bruchgeltungsbereich
+
+- Ursprung: `mojo_port`
+- Klasse / Schwere: `compact_v_fraction_scope_loss` / `high`
+- Python-Status: `not_applicable`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5bd/12c5bp`
+- Reproduktion: `universum v1/4,-1/8,2/3 oder emotion universum v1/4,-1/8,2/3 über plan_prompt_table_commands ausführen; der äußere Parser teilte den Kommaausdruck vor der Bruchanalyse und markierte nur 1/4 als Vielfaches, sodass der vorhandene positive-first-Kollisionszweig unerreichbar blieb und FALLBACK lieferte.`
+- heutiger Vertrag: Ein führendes kompaktes v gilt für sämtliche Bruchkomponenten desselben kommagetrennten Ausdrucks. Die ausgeschriebene Form vielfache 1/4,-1/8,2/3 normalisiert auf denselben typisierten Plan. Dadurch sind der 13-Aufruf-Universumsplan und der 19-Aufruf-Emotion/Universum-Plan erreichbar; jede Domäne behält ihr eigenes physisches Bruchrechteck und ihre eigene reziproke Differenzachse.
+- spätere Python-Aktion: Keine zusätzliche Python-Aufgabe anlegen: Der Python-Absturz dieser Formen ist bereits zentral als PY-OPEN-002 erfasst. Bei dessen späterer Reparatur muss das führende v ebenfalls über die vollständige Kommaliste gelten und mit der ausgeschriebenen vielfache-Form übereinstimmen.
+- Python-Orte: `python_reference/reta_architecture/prompt_execution.py`
+- Mojo-Orte: `src/reta_mojo/prompt_table_execution.mojo`, `tests/test_prompt_table_execution.mojo`, `tests/prompt_true_fraction_multiple_probe.mojo`, `scripts/check_prompt_true_fraction_multiples.py`, `tests/test_prompt_fraction_multiple_scope_source.py`
+- Belege: `STAGE12C5BP_FRACTION_MULTIPLE_SCOPE.md`, `tests/test_prompt_fraction_multiple_scope_source.py`, `tests/test_prompt_table_execution.mojo`, `scripts/check_prompt_true_fraction_multiples.py`

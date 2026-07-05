@@ -60,6 +60,8 @@ CASES = [
     "emotion v1/4,-2/3",
     "universum v1/4,-2/3 teiler",
     "universum v1/4,-1/8,2/3",
+    "universum vielfache 1/4,-1/8,2/3",
+    "emotion universum v1/4,-1/8,2/3",
     "motive EIGNgut universum v2/3",
     "motive EIGNgut EIGRwerte universum v2/3",
     "motive universum 15_13 16_2 v2/3,5",
@@ -315,6 +317,8 @@ def assert_python_bug_is_still_reproducible() -> None:
         "universum motive v2/3",
         "universum v1/2,2/3",
         "universum v1/4,-1/8,2/3",
+        "universum vielfache 1/4,-1/8,2/3",
+        "emotion universum v1/4,-1/8,2/3",
     ):
         completed = subprocess.run(
             [sys.executable, "python_reference/rpb", command],
@@ -1068,8 +1072,9 @@ def main() -> int:
     if "--spaltenreihenfolgeundnurdiese=1" not in positive_divisor[0]:
         fail("divider command did not narrow the Universe reciprocal columns")
 
+    collision_payload = result["universum v1/4,-1/8,2/3"]
     collision = assert_domain_plan(
-        result["universum v1/4,-1/8,2/3"],
+        collision_payload,
         "--gebrochen-rational_Universum_n/m=",
         list(range(2, 21, 2)),
         set(range(3, 22, 3)),
@@ -1085,6 +1090,44 @@ def main() -> int:
     if set(row_values(collision[-1])) != {6, 12, 18}:
         fail("reciprocal collision changed the equal-axis projection")
 
+    if result["universum vielfache 1/4,-1/8,2/3"] != collision_payload:
+        fail("long-form vielfache did not inherit the complete fraction scope")
+
+    multi_collision = records(result["emotion universum v1/4,-1/8,2/3"])
+    if len(multi_collision) != 19:
+        fail(f"wrong two-domain reciprocal collision count: {len(multi_collision)}")
+    emotion_collision = records_with(
+        multi_collision,
+        "--grundstrukturen=emotion",
+        "--spaltenreihenfolgeundnurdiese=4,5",
+    )
+    universe_collision = records_with(
+        multi_collision,
+        "--Universum=transzendentaliereziproke",
+        "--spaltenreihenfolgeundnurdiese=1",
+    )
+    if len(emotion_collision) != 1 or len(universe_collision) != 1:
+        fail("two-domain collision lost a unique reciprocal projection")
+    expected_emotion_collision = {1, 3} | {
+        value for value in range(4, 1024, 4) if value % 8 != 0
+    }
+    if set(row_values(emotion_collision[0])) != expected_emotion_collision:
+        fail("Emotion collision did not preserve compact-v subtraction scope")
+    if set(row_values(universe_collision[0])) != expected_collision_rows:
+        fail("Universe collision changed inside the two-domain plan")
+    assert_fraction_rectangle(
+        multi_collision,
+        "--gebrochen-rational_Gefuehle_n/m=",
+        list(range(2, 9, 2)),
+        {3, 6},
+    )
+    assert_fraction_rectangle(
+        multi_collision,
+        "--gebrochen-rational_Universum_n/m=",
+        list(range(2, 21, 2)),
+        set(range(3, 22, 3)),
+    )
+
     assert_multi_domain_extension_plans(result)
 
     runner = Path(sys.argv[2]).resolve()
@@ -1097,6 +1140,11 @@ def main() -> int:
         result["universum v1/4,-2/3"], runner, expected_count=1
     )
     assert_direct_execution(result["universum v1/4,-1/8,2/3"], runner)
+    assert_direct_execution(
+        result["emotion universum v1/4,-1/8,2/3"],
+        runner,
+        expected_count=19,
+    )
     # Execute the newly composed extension records themselves without
     # re-rendering all 55 already-covered physical domain invocations.
     assert_direct_execution(
@@ -1116,8 +1164,9 @@ def main() -> int:
     print(
         "true fraction multiples: Python crashes reproduced; "
         "Mojo contract 13/13, mixed bounds, negative no-op branches, "
-        "positive-first reciprocal-only and reciprocal-collision branches, "
-        "domain-specific 26/26 and 44-plan grids, multi-domain property/numeric "
+        "positive-first reciprocal-only and reciprocal-collision branches with "
+        "full compact-v scope, domain-specific 26/26 and 44-plan grids, "
+        "multi-domain property/numeric "
         "extensions, combined classic/property/catalog outer order, and direct "
         "invocations valid"
     )

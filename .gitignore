@@ -15,5 +15,6 @@ __pycache__/
 /middle.alx
 
 # Compiler/profiler leftovers
+*.tmp
 *.profraw
 *.profdata

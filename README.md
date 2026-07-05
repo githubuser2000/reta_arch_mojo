@@ -1206,3 +1206,23 @@ Fokussierter Lauf:
 ```sh
 RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bo.sh -- -j 4
 ```
+
+## Stage 12c5bp – vollständiger Bruchvielfachen-Geltungsbereich
+
+Der positive-First-Kollisionszweig war trotz vorhandener Planlogik noch nicht
+erreichbar: Beim äußeren Komma-Split von `v1/4,-1/8,2/3` blieb das führende
+`v` nur an `1/4` hängen. Der Parser vererbt diesen Modus nun an sämtliche
+Bruchkomponenten desselben Ausdrucks. Auch
+`vielfache 1/4,-1/8,2/3` wird auf exakt denselben typisierten Plan normalisiert.
+
+Damit entstehen der korrigierte 13-Aufruf-Universumsplan und der 19-Aufruf-
+Emotion/Universum-Plan tatsächlich nativ. Gemischte Ganzzahlteile bleiben
+separate äußere Achsen; jede physische Bruchdomäne behält ihr eigenes
+Zähler×Nenner-Rechteck. Details:
+[`STAGE12C5BP_FRACTION_MULTIPLE_SCOPE.md`](STAGE12C5BP_FRACTION_MULTIPLE_SCOPE.md).
+
+Fokussierter Lauf nach dem Produktionsbuild:
+
+```sh
+RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bp.sh -- -j 4
+```

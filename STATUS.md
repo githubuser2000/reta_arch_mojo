@@ -1,3 +1,23 @@
+# Status – Stage 12c5bp
+
+- Der nach der 12c5bo-Prüferkorrektur erreichbare nächste Kollisionsfall legte
+  eine echte Parserlücke offen: In `v1/4,-1/8,2/3` galt das führende `v` nur
+  für den ersten bereits kommagetrennten Bruchteil.
+- Der Bruchparser übernimmt den Vielfachenmodus nun in sämtliche Komponenten
+  desselben Kommaausdrucks. Die ausgeschriebene Form
+  `vielfache 1/4,-1/8,2/3` normalisiert auf denselben typisierten Plan.
+- Der korrigierte Universumsplan besitzt 13 Aufrufe; Emotion plus Universum
+  besitzt 19 Aufrufe mit getrennten physischen Rechtecken und getrennten
+  Reziprokdifferenzen.
+- Die drei Python-Formen reproduzieren weiterhin den bereits erfassten
+  `PY-OPEN-002`; es entsteht kein doppelter Python-Aufräumpunkt.
+- Compilerfrei bestätigt: **74/74** fokussierte Source-/Ledger-/Metrikverträge,
+  **53/53** Archiv-/Stage-Verträge sowie Referenzproben **5/5**, **14/14** und
+  **10/10**.
+- Defektledger: **153** Einträge, weiterhin **20** spätere Python-Punkte.
+- Fokussierter Benutzerlauf:
+  `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bp.sh -- -j 4`.
+
 # Status – Stage 12c5bo
 
 - Der vollständige native Benutzerbuild von 12c5bm war erfolgreich.

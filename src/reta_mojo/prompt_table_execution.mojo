@@ -656,12 +656,21 @@ def _parse_legacy_fraction_expression(
 def _parse_fraction_token(
     token: String,
     mut pairs: List[_PromptFractionPair],
+    inherited_multiple: Bool = False,
 ) raises -> Bool:
+    """Parse one fraction component with its enclosing compact v-scope.
+
+    In the historical compact syntax, a leading ``v`` before the first item of
+    a comma expression applies to every fraction item in that expression.  The
+    outer parser splits mixed fraction/integer tokens first, so that scope must
+    be passed explicitly instead of being inferred from each already-split
+    component.
+    """
     var comma_parts = token.split(",")
     for part_index in range(len(comma_parts)):
         var part = String(comma_parts[part_index])
         var excluded = False
-        var multiple = False
+        var multiple = inherited_multiple
         if part.startswith("v"):
             multiple = True
             part = String(part[byte=1:])
@@ -677,6 +686,29 @@ def _parse_fraction_token(
         ):
             return False
     return True
+
+
+def _fraction_pairs_with_multiple_scope(
+    pairs: List[_PromptFractionPair],
+) -> List[_PromptFractionPair]:
+    """Apply a standalone vielfache/v modifier to every parsed fraction.
+
+    The long-form modifier is a sibling token rather than a prefix on the
+    fraction text.  Normalizing the typed pairs here makes it semantically
+    identical to the inherited scope of a compact ``v...,...`` expression.
+    """
+    var result = List[_PromptFractionPair]()
+    for index in range(len(pairs)):
+        var pair = pairs[index].copy()
+        result.append(
+            _PromptFractionPair(
+                pair.numerator,
+                pair.denominator,
+                pair.excluded,
+                True,
+            )
+        )
+    return result^
 
 
 def _has_matching_exclusion(
@@ -1644,6 +1676,10 @@ def plan_prompt_table_commands(
             continue
         if _is_fraction_expression(token):
             has_fraction = True
+            # ``v1/4,-1/8,2/3`` is one compact multiple expression.  Splitting
+            # it into top-level components must not narrow the leading v to the
+            # first reciprocal only.
+            var comma_fraction_multiple = token.startswith("v")
             var mixed_integer_parts = List[String]()
             var mixed_parts = split_top_level_commas(token)
             for mixed_index in range(len(mixed_parts)):
@@ -1652,7 +1688,11 @@ def plan_prompt_table_commands(
                     unsupported = True
                     continue
                 if _is_fraction_expression(mixed_part):
-                    if not _parse_fraction_token(mixed_part, fraction_pairs):
+                    if not _parse_fraction_token(
+                        mixed_part,
+                        fraction_pairs,
+                        comma_fraction_multiple,
+                    ):
                         unsupported = True
                 else:
                     mixed_integer_parts.append(mixed_part)
@@ -1755,6 +1795,11 @@ def plan_prompt_table_commands(
     var single_mode = _contains(canonical_words, "einzeln")
     if single_mode:
         multiple_mode = False
+    if multiple_mode and (
+        _contains(canonical_words, "vielfache")
+        or _contains(canonical_words, "v")
+    ):
+        fraction_pairs = _fraction_pairs_with_multiple_scope(fraction_pairs)
     # Integer inputs have a stable combined legacy contract: divisors are
     # selected first and the original values are then expanded as multiples.
     # Reciprocal ``1/n`` multiples are stable up to row 1023.  True ``v n/m``

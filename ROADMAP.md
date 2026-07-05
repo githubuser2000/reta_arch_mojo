@@ -748,3 +748,14 @@ Der historische Assetgate ist jetzt vollständig read-only. Fünf gepinnte SHA-2
 - [x] Native Emotionsachse auf `--grundstrukturen=emotion` und Spalten 4,5 binden.
 - [x] Prüfstandsdefekt und Sourcevertrag dokumentieren.
 - [ ] Benutzerseitig `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bo.sh -- -j 4` ausführen.
+
+## Stage 12c5bp – vollständiger Geltungsbereich kommagetrennter Bruchvielfacher
+
+- [x] Den verlorenen Geltungsbereich des führenden `v` nach dem äußeren
+  Komma-Split lokalisieren.
+- [x] Den Vielfachenmodus an alle Bruchkomponenten desselben Tokens vererben.
+- [x] `vielfache 1/4,-1/8,2/3` und `v1/4,-1/8,2/3` auf denselben Plan
+  normalisieren.
+- [x] 13-Aufruf-Einzeldomänen- und 19-Aufruf-Mehrdomänenvertrag binden.
+- [x] Den Python-Absturz weiterhin über `PY-OPEN-002` statt als Duplikat führen.
+- [ ] Benutzerseitig `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bp.sh -- -j 4` ausführen.

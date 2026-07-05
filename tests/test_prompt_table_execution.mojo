@@ -813,6 +813,28 @@ def test_true_fraction_multiples_follow_each_csv_rectangle() raises:
     assert_false(",8," in _tokens(reciprocal_collision, 1))
     assert_true("--gebrochen-rational_Universum_n/m=20" in _tokens(reciprocal_collision, 11))
 
+    var long_reciprocal_collision = _plan(
+        "universum vielfache 1/4,-1/8,2/3"
+    )
+    assert_true(long_reciprocal_collision.handled)
+    assert_equal(
+        serialize_prompt_table_plan(long_reciprocal_collision),
+        serialize_prompt_table_plan(reciprocal_collision),
+    )
+
+    var multi_reciprocal_collision = _plan(
+        "emotion universum v1/4,-1/8,2/3"
+    )
+    assert_true(multi_reciprocal_collision.handled)
+    assert_equal(len(multi_reciprocal_collision.invocations), 19)
+    assert_true("--grundstrukturen=emotion" in _tokens(multi_reciprocal_collision, 1))
+    assert_true(
+        "--Universum=transzendentaliereziproke"
+        in _tokens(multi_reciprocal_collision, 7)
+    )
+    assert_false(",8," in _tokens(multi_reciprocal_collision, 1))
+    assert_false(",8," in _tokens(multi_reciprocal_collision, 7))
+
     _emit_true_fraction_multiple_plan("universum v2/3")
     _emit_true_fraction_multiple_plan("universum vielfache 2/3")
     _emit_true_fraction_multiple_plan("universum v2/3 teiler")
@@ -857,6 +879,8 @@ def test_true_fraction_multiples_follow_each_csv_rectangle() raises:
     _emit_true_fraction_multiple_plan("emotion v1/4,-2/3")
     _emit_true_fraction_multiple_plan("universum v1/4,-2/3 teiler")
     _emit_true_fraction_multiple_plan("universum v1/4,-1/8,2/3")
+    _emit_true_fraction_multiple_plan("universum vielfache 1/4,-1/8,2/3")
+    _emit_true_fraction_multiple_plan("emotion universum v1/4,-1/8,2/3")
 
 
 def test_legacy_fraction_rectangles_and_offsets_are_native() raises:

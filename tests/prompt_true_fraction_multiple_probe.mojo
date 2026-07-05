@@ -62,6 +62,8 @@ def main() raises:
     _emit("emotion v1/4,-2/3")
     _emit("universum v1/4,-2/3 teiler")
     _emit("universum v1/4,-1/8,2/3")
+    _emit("universum vielfache 1/4,-1/8,2/3")
+    _emit("emotion universum v1/4,-1/8,2/3")
     _emit("motive EIGNgut universum v2/3")
     _emit("motive EIGNgut EIGRwerte universum v2/3")
     _emit("motive universum 15_13 16_2 v2/3,5")
