@@ -88,7 +88,14 @@ def test_command_parity_reference_is_generated_native_and_current() -> None:
     package = (ROOT / "src/reta_mojo/__init__.mojo").read_text(encoding="utf-8")
     assert "from .command_parity import *" in package
     current = (ROOT / "scripts/test_current_stage.sh").read_text(encoding="utf-8")
-    assert "test_stage12c5bd.sh" in current
+    assert "test_stage12c5bg.sh" in current
+    deterministic_stage = (ROOT / "scripts/test_stage12c5bg.sh").read_text(encoding="utf-8")
+    multi_domain_stage = (ROOT / "scripts/test_stage12c5bf.sh").read_text(encoding="utf-8")
+    workflow_stage = (ROOT / "scripts/test_stage12c5be.sh").read_text(encoding="utf-8")
+    assert "test_stage12c5bf.sh" in deterministic_stage
+    assert "generate_command_parity_assets.py --check" in deterministic_stage
+    assert "test_stage12c5be.sh" in multi_domain_stage
+    assert "test_stage12c5bd.sh" in workflow_stage
     presheaf_stage = (ROOT / "scripts/test_stage12c5bd.sh").read_text(encoding="utf-8")
     assert "test_stage12c5bc.sh" in presheaf_stage
     installed_launcher_stage = (ROOT / "scripts/test_stage12c5bc.sh").read_text(encoding="utf-8")

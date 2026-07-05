@@ -1,5 +1,19 @@
 # reta.arch → Mojo
 
+## Aktueller Stand 12c5bg
+
+Der vollständige 12c5bf-Build ist benutzerseitig bestätigt. Die anschließende
+historische Stage-Kette deckte eine umgebungsabhängige Rich-Grenze der
+generierten Markdown-/HTML-Kommandoassets auf. Ein lokaler textueller
+Rich-Minimaladapter macht diese vier Referenzassets nun unabhängig von
+installierten Rich- und Benutzerpaketversionen.
+
+Positive gewöhnliche Ganzzahlen und Bereiche werden außerdem nativ mit echten
+Bruchvielfachen komponiert, ohne die aus dem Bruchrechteck projizierten
+Ganzzahlen ein zweites Mal zu vervielfachen. Fokussierter Benutzerlauf:
+`RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bg.sh`. Details:
+[`STAGE12C5BG_DETERMINISTIC_COMMAND_PARITY_INTEGER_FRACTION_AXES.md`](STAGE12C5BG_DETERMINISTIC_COMMAND_PARITY_INTEGER_FRACTION_AXES.md).
+
 ## Aktueller Stand 12c5bc
 
 Installierte `reta-mojo`-Launcher versuchen bei einem fehlenden optionalen
@@ -1078,3 +1092,20 @@ BBCode behält bei beiden Argumenten die historische Priorität. Details:
 ## Stage 12c5bf – domänenspezifische Mehrfachpläne für Bruchvielfache
 
 Die vier realen Bruch-CSV-Familien besitzen unterschiedliche Formen und werden deshalb nicht mehr über ein gemeinsames Rechteck approximiert. `universum motive v2/3` wird in 13 Galaxie- und 13 Universumsaufrufe zerlegt; der Vierdomänenfall erzeugt 44 geordnete Aufrufe. Gemischte Reziprokachsen bleiben unter 1024, während jede echte Bruchachse an ihrer eigenen physischen CSV-Form endet. Unbewiesene Mischungen mit weiteren Tabellenfamilien oder Ganzzahlen bleiben atomar. Details: [`STAGE12C5BF_MULTI_DOMAIN_FRACTION_PLANS.md`](STAGE12C5BF_MULTI_DOMAIN_FRACTION_PLANS.md).
+
+## Stage 12c5bg – deterministische Kommandoassets und positive Ganzzahlachsen
+
+Der vollständige Benutzerbuild von 12c5bf war erfolgreich; die historische
+Stage-Kette legte anschließend eine umgebungsabhängige Assetgrenze offen.
+Markdown- und HTML-Referenzausgaben werden jetzt mit einem kleinen
+repositoryeigenen Rich-Kompatibilitätsadapter erzeugt, sodass installierte
+Rich-Versionen und Benutzer-Site-Packages die vier kanonischen Kommandoassets
+nicht mehr verändern.
+
+Außerdem komponiert der native Promptplan positive gewöhnliche Ganzzahlen und
+Bereiche korrekt mit echten Bruchvielfachen. Projektionen aus dem
+Bruchrechteck, Originalausdruck und `v`-Ausdruck bleiben getrennte Achsen;
+`--vielfachevonzahlen` erhält ausschließlich die gewöhnliche Ganzzahlachse.
+Null- und Ausschlussformen bleiben bis zu einem eigenen Vertrag atomar.
+Details:
+[`STAGE12C5BG_DETERMINISTIC_COMMAND_PARITY_INTEGER_FRACTION_AXES.md`](STAGE12C5BG_DETERMINISTIC_COMMAND_PARITY_INTEGER_FRACTION_AXES.md).

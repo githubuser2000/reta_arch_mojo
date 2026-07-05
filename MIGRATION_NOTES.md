@@ -1,3 +1,17 @@
+# Migration Notes – Stage 12c5bg
+
+## Referenzassets besitzen nun ihre Präsentationslaufzeit
+
+Die Kommando-Paritätsmatrix war fachlich kanonisch, ihre Markdown-/HTML-Serialisierung jedoch nicht vollständig reproduzierbar: der eingefrorene Python-Baum importiert optional `rich`, und der Generator erbte die auf dem Testrechner installierte Version. Das widersprach dem Besitzmodell generierter Assets. Stage 12c5bg fügt deshalb keine Änderung in `python_reference` ein, sondern gibt dem Generator eine minimale lokale Präsentationslaufzeit. Sie wird über ein vorangestelltes `PYTHONPATH` geladen, während `PYTHONNOUSERSITE=1` Benutzerpakete ausschließt. Der beobachtbare Referenzstrom entspricht weiterhin den bereits versionierten Assets, ist aber unabhängig von Rich-Version und Python-Umgebung.
+
+## Gewöhnliche Vielfachen sind keine Bruchprojektionen
+
+Bei `v n/m` entstehen aus dem physischen CSV-Rechteck ganzzahlige Projektionen. Eine danebenstehende gewöhnliche Zahl wie `5` bezeichnet dagegen eine eigene Vielfachenachse. Beide Mengen dürfen nicht gemeinsam in `--vielfachevonzahlen` gelangen: Sonst würden bereits projizierte Werte ein zweites Mal expandiert. `_base_projected_fraction_multiple_tokens` bildet daher drei getrennte Abschnitte: projizierte Ganzzahlen, originale positive Komponenten und deren `v`-Präfixe. Die Option erhält nur die originalen Komponenten.
+
+Dieselbe Basis wird für den bisherigen Ein-Domänenpfad und für alle von 12c5bf eingeführten domänenspezifischen Mehrfachpläne verwendet. Damit ist das Kompositionsgesetz nicht dupliziert. `teiler`/`w` bewahrt die Zeilensuffixe, unterdrückt aber die gewöhnliche Vielfachenoption entsprechend der instrumentierten Referenz.
+
+Die Freigabe ist absichtlich eng: ausschließlich positive Werte und positive Bereiche. Null, in-token Ausschlüsse und separat negative Parameter besitzen in Python andere Zweige und bleiben bis zu einer eigenen Stage atomar.
+
 # Migration Notes – Stage 12c5bf
 
 ## Domänenspezifische Bruchvielfachen statt eines globalen Rechtecks

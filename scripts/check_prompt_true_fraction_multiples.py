@@ -28,7 +28,15 @@ CASES = [
     "emotion universum v8/3",
     "emotion universum v1/2,2/3",
     "mond universum motive v2/3",
+    "universum v2/3,5",
+    "universum v2/3,5 teiler",
     "universum motive v2/3,5",
+    "emotion universum v8/3,5",
+    "emotion universum v1/2,2/3,5",
+    "universum motive v2/3,5-7",
+    "universum motive v2/3,0",
+    "universum motive v2/3,5,-10",
+    "universum motive v2/3 -10",
     "universum v1/2,2/3",
     "universum vielfache 1/2,2/3",
     "universum v-1/4,2/3",
@@ -119,6 +127,65 @@ def row_values(record: list[str]) -> list[int]:
     if len(candidates) != 1:
         fail(f"record has no unique row selector: {record!r}")
     return [int(value) for value in candidates[0].split(",") if value]
+
+
+def row_selector(record: list[str]) -> str:
+    candidates = [
+        field.removeprefix("--vorhervonausschnitt=")
+        for field in record
+        if field.startswith("--vorhervonausschnitt=")
+    ]
+    if len(candidates) != 1:
+        fail(f"record has no unique raw row selector: {record!r}")
+    return candidates[0]
+
+
+def reference_records(command: str) -> list[list[str]]:
+    environment = os.environ.copy()
+    environment["PYTHONHASHSEED"] = "0"
+    completed = subprocess.run(
+        [
+            sys.executable,
+            "scripts/prompt_mixed_reciprocal_reference.py",
+            command,
+        ],
+        cwd=ROOT,
+        env=environment,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        timeout=120,
+        check=True,
+    )
+    lines = [line for line in completed.stdout.split(b"\n") if line]
+    if len(lines) != 1:
+        fail(f"unexpected reference-plan line count for {command!r}")
+    payload = lines[0].decode("utf-8")
+    if payload == "FALLBACK":
+        fail(f"Python reference unexpectedly rejected {command!r}")
+    return records(payload)
+
+
+def assert_python_integer_axis_composition() -> None:
+    """Freeze the stable integer-axis shell around Python's faulty n/m grid."""
+    ordinary = reference_records("universum v2/3,5")
+    if "--vielfachevonzahlen=5" not in ordinary[0]:
+        fail("Python reference lost the ordinary multiple option")
+    if not row_selector(ordinary[0]).endswith(",5,v5"):
+        fail("Python reference changed projected/integer/vN row ordering")
+
+    divider = reference_records("universum v2/3,5 teiler")
+    if any(field.startswith("--vielfachevonzahlen=") for field in divider[0]):
+        fail("Python divider branch unexpectedly retained multiple option")
+    if not row_selector(divider[0]).endswith(",5,v5"):
+        fail("Python divider branch changed integer-axis row ordering")
+
+    multi = reference_records("universum motive v2/3,5")
+    motive = records_with(multi, "--Menschliches=motivation")
+    universe = records_with(multi, "--Universum=transzendentalien")
+    if not motive or not universe:
+        fail("Python multi-domain integer composition lost a table family")
+    if "--vielfachevonzahlen=5" not in motive[0] or "--vielfachevonzahlen=5" not in universe[0]:
+        fail("Python multi-domain integer composition no longer duplicates the ordinary axis")
 
 
 def assert_csv_rectangles() -> None:
@@ -294,6 +361,7 @@ def main() -> int:
     assert_python_bug_is_still_reproducible()
     assert_python_negative_multiple_noops()
     assert_python_positive_first_reciprocal_only()
+    assert_python_integer_axis_composition()
     result = parse_probe(Path(sys.argv[1]).resolve())
 
     universe = assert_domain_plan(
@@ -455,10 +523,65 @@ def main() -> int:
 
     for command in (
         "mond universum motive v2/3",
-        "universum motive v2/3,5",
+        "universum motive v2/3,0",
+        "universum motive v2/3,5,-10",
+        "universum motive v2/3 -10",
     ):
         if result[command] != "FALLBACK":
             fail(f"unproved multi-domain composition escaped atomically: {command}")
+
+    single_integer = records(result["universum v2/3,5"])
+    if len(single_integer) != 13:
+        fail(f"wrong single-domain integer/fraction invocation count: {len(single_integer)}")
+    if "--vielfachevonzahlen=5" not in single_integer[0]:
+        fail("single-domain ordinary multiple option is missing")
+    if row_selector(single_integer[0]) != "2,1,4,6,3,5,v5":
+        fail("single-domain projected integer ordering drifted")
+    if any(field.startswith("--oberesmaximum=") for field in single_integer[0]):
+        fail("projected ordinary multiple base must not carry a synthetic maximum")
+
+    single_divider = records(result["universum v2/3,5 teiler"])
+    if len(single_divider) != 13:
+        fail("single-domain divider composition lost an invocation")
+    if any(field.startswith("--vielfachevonzahlen=") for field in single_divider[0]):
+        fail("divider composition incorrectly retained --vielfachevonzahlen")
+    if row_selector(single_divider[0]) != "2,1,4,6,3,5,v5":
+        fail("divider composition changed projected integer ordering")
+
+    multi_integer = records(result["universum motive v2/3,5"])
+    if len(multi_integer) != 26:
+        fail(f"wrong multi-domain integer/fraction invocation count: {len(multi_integer)}")
+    for index in (0, 13):
+        if "--vielfachevonzahlen=5" not in multi_integer[index]:
+            fail(f"ordinary multiple option missing from domain invocation {index}")
+        if row_selector(multi_integer[index]) != "2,1,4,6,3,5,v5":
+            fail(f"wrong projected integer ordering in domain invocation {index}")
+
+    clipped_integer = records(result["emotion universum v8/3,5"])
+    if len(clipped_integer) != 5:
+        fail(f"wrong clipped integer/fraction invocation count: {len(clipped_integer)}")
+    if row_selector(clipped_integer[0]) != "5,v5":
+        fail("Emotion empty whole projection did not retain ordinary multiples")
+    if row_selector(clipped_integer[2]) != "5,v5":
+        fail("Universe empty whole projection did not retain ordinary multiples")
+
+    mixed_integer = records(result["emotion universum v1/2,2/3,5"])
+    if len(mixed_integer) != 19:
+        fail(f"wrong mixed reciprocal/integer/fraction count: {len(mixed_integer)}")
+    if "--vielfachevonzahlen=5" not in mixed_integer[0] or "--vielfachevonzahlen=5" not in mixed_integer[7]:
+        fail("ordinary multiple option did not reach both mixed fraction domains")
+    if not row_selector(mixed_integer[0]).endswith(",5,v5"):
+        fail("Emotion mixed integer axis lost the original/vN suffix")
+    if not row_selector(mixed_integer[7]).endswith(",5,v5"):
+        fail("Universe mixed integer axis lost the original/vN suffix")
+
+    ranged_integer = records(result["universum motive v2/3,5-7"])
+    if len(ranged_integer) != 26:
+        fail("positive range did not retain complete multi-domain plan")
+    if "--vielfachevonzahlen=5-7" not in ranged_integer[0]:
+        fail("positive range spelling was not preserved")
+    if not row_selector(ranged_integer[0]).endswith(",5-7,v5-7"):
+        fail("positive range lost its original/vN selector suffix")
 
     mixed = assert_domain_plan(
         result["universum v1/2,2/3"],

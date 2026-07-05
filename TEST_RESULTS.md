@@ -1,3 +1,17 @@
+# Testergebnisse – Stage 12c5bg
+
+- Benutzerbuild 12c5bf: vollständiger nativer Build einschließlich schwerer Ziele und Shared Libraries erfolgreich.
+- Benutzerlauf 12c5be: `test_program_workflow.mojo` **5/5 bestanden**, Workflow-Hauptprogramm **16 Fälle ok**, portable Verträge **67 bestanden**.
+- Nachfolgende historische Stages: Architekturprobe **64 Fälle**, Domainprobe **16 Fälle**, vollständige I18n-Parität **5/5 Sprachen und 68.265/68.265 Zeilen**, retaPrompt-/Generated-Columns-, Parameter-/Bridge-, reta.py/setup- und Py-Reta-Wahrheitsverträge bestanden.
+- Erster verbleibender Abbruch: `test_stage12c5aq.sh` meldete ausschließlich `markdown-religion-basic.out`, `html-religion-basic.out` und `command_parity.tsv` als umgebungsabhängig.
+- Reproduktion in der Erstellungsumgebung: Die vorhandenen vier Hashes sind mit dem kanonischen Adapter identisch; selbst ein fremdes `rich`, dessen Import absichtlich fehlschlägt, wird nicht geladen.
+- Portable Quelltests binden den Adapter, die Ist-/Soll-Hashdiagnose, positive Einzel-/Mehrdomänenachsen, Bereichsschreibweisen, Teilerpfad und atomare Null-/Ausschlussgrenzen.
+- Breite portable Prüfung: **304 Source-Tests bestanden, 1 compilerabhängiger Skip**; fokussierte Stagegruppe **91 bestanden**; zusätzliche Build-/Installations-/Manifestverträge **87 bestanden**.
+- Die ursprüngliche Python-Kommandomatrix besteht mit **1 Test und 4 Subtests**.
+- Die instrumentierte Python-Referenz bestätigt die äußere Ganzzahlkomposition (`Projektionszeilen + Original + vOriginal`); der bekannte innere `n/m`-Indexfehler bleibt unter `PY-OPEN-002` eingefroren.
+- Defektledger: **131** Einträge, **20** Python-Aufräumpunkte, konsistent.
+- Mojo-Kompilierung der neuen Stage erfolgt benutzerseitig mit `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bg.sh`.
+
 # Testergebnisse – Stage 12c5bf
 
 - Neuer Quellvertrag für vier physische Bruchrechtecke und den domänenspezifischen Mehrfachplan.

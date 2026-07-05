@@ -3185,6 +3185,67 @@
         "scripts/test_stage12c5be.sh",
         "tests/test_stage12c5be_source.py"
       ]
+    },
+    {
+      "id": "MOJO-FIXED-059",
+      "title": "Echte Bruchvielfache verloren danebenstehende positive Ganzzahl-Multiplikatoren",
+      "origin": "mojo_port",
+      "classification": "fraction_integer_axis_composition_loss",
+      "severity": "high",
+      "python_status": "correct_reference",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5bf/12c5bg",
+      "reproducer": "Den nativen Plan für universum v2/3,5 beziehungsweise universum motive v2/3,5 prüfen; der Ein-Domänenpfad behandelte 5 nur als sichtbare Einzelzeile ohne --vielfachevonzahlen und v5, der Mehrdomänenpfad fiel vollständig zurück.",
+      "python_locations": [
+        "python_reference/reta_architecture/prompt_execution.py:1823",
+        "python_reference/reta_architecture/prompt_execution.py:1864"
+      ],
+      "mojo_locations": [
+        "src/reta_mojo/prompt_table_execution.mojo",
+        "tests/test_prompt_table_execution.mojo",
+        "tests/prompt_true_fraction_multiple_probe.mojo",
+        "scripts/check_prompt_true_fraction_multiples.py",
+        "tests/test_prompt_fraction_integer_axes_source.py"
+      ],
+      "current_contract": "Positive gewöhnliche Ganzzahlen und positive Bereiche werden neben echten Bruchvielfachen als eigene Vielfachenachse bewahrt. Ganzzahlige Projektionen des Bruchrasters bleiben davon getrennt, damit sie nicht doppelt vervielfacht werden; Originalschreibweise und v-Präfix bleiben in der historischen Zeilenreihenfolge. Teilerformen behalten die Zeilenachse, reichen --vielfachevonzahlen aber nicht weiter.",
+      "post_port_fix": "Keine Python-Änderung erforderlich; die instrumentierte Referenz bewahrt die äußere Komposition aus Projektionszeilen, Originalausdruck, v-Ausdruck und gewöhnlicher Vielfachenoption. Der bekannte Python-Indexfehler innerhalb des echten Bruchrasters bleibt separat unter PY-OPEN-002 dokumentiert.",
+      "evidence": [
+        "STAGE12C5BG_DETERMINISTIC_COMMAND_PARITY_INTEGER_FRACTION_AXES.md",
+        "tests/test_prompt_table_execution.mojo",
+        "tests/test_prompt_fraction_integer_axes_source.py",
+        "scripts/check_prompt_true_fraction_multiples.py"
+      ]
+    },
+    {
+      "id": "TEST-FIXED-047",
+      "title": "Generierte Markdown-/HTML-Paritätsassets hingen von der installierten Rich-Version ab",
+      "origin": "test_infrastructure",
+      "classification": "ambient_optional_renderer_dependency",
+      "severity": "high",
+      "python_status": "not_applicable",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5bf/12c5bg",
+      "reproducer": "Die vollständige Stage-Kette auf dem Fedora-/Python-3.14-System ausführen; test_stage12c5aq meldete ausschließlich markdown-religion-basic.out, html-religion-basic.out und das daraus abgeleitete command_parity.tsv als abweichend, während beide Shell-Assets identisch blieben.",
+      "python_locations": [
+        "python_reference/reta_architecture/console_io.py:35",
+        "python_reference/reta_architecture/console_io.py:282"
+      ],
+      "mojo_locations": [
+        "tools/generate_command_parity_assets.py",
+        "tools/reference_runtime_stubs/rich/console.py",
+        "tools/reference_runtime_stubs/rich/markdown.py",
+        "tools/reference_runtime_stubs/rich/syntax.py",
+        "tests/test_command_parity_asset_environment.py",
+        "scripts/test_stage12c5bg.sh"
+      ],
+      "current_contract": "Die eingefrorene Python-Referenz für Kommandoassets läuft mit einem repositoryeigenen textuellen Rich-Minimaladapter vor allen Umgebungs-Site-Packages. Benutzerpakete sind deaktiviert; eine fremde oder defekte Rich-Installation kann die vier kanonischen Asset-Hashes nicht mehr verändern. Abweichungen nennen Ist- und Soll-SHA-256.",
+      "post_port_fix": "Keine Änderung am eingefrorenen Python-Algorithmus erforderlich; betroffen war ausschließlich die Reproduzierbarkeit der generierten nativen Erwartungsassets über verschiedene Testumgebungen.",
+      "evidence": [
+        "STAGE12C5BG_DETERMINISTIC_COMMAND_PARITY_INTEGER_FRACTION_AXES.md",
+        "tools/generate_command_parity_assets.py",
+        "tests/test_command_parity_asset_environment.py",
+        "scripts/test_stage12c5bg.sh"
+      ]
     }
   ],
   "audit": {

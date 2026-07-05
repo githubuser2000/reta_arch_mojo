@@ -1,3 +1,16 @@
+# Status – Stage 12c5bg
+
+- Der vollständige Benutzerbuild von 12c5bf war erfolgreich: reguläre und schwere Executables sowie Shared Libraries wurden erzeugt und auf Frische/Layout geprüft.
+- Die historische Stage-Kette bestätigte 12c5be vollständig und lief über Architekturprobe, vollständige I18n-Fassade, retaPrompt-Fassade, Parameterlaufzeit, reta.py/setup und Py-Reta-Wahrheitsmatrix bis `test_stage12c5aq.sh`.
+- Der dortige Abbruch betraf ausschließlich drei generierte Dateien: Markdown-, HTML-Asset und `command_parity.tsv`. Ursache war die ambient installierte Rich-Version, nicht eine fachliche Python-/Mojo-Abweichung.
+- Der Kommandoassetgenerator verwendet nun einen repositoryeigenen textuellen Rich-Minimaladapter vor allen Site-Packages. Ein absichtlich defektes fremdes `rich` verändert keinen der vier kanonischen Hashes.
+- Positive gewöhnliche Ganzzahlen und Bereiche komponieren nun korrekt mit echten Bruchvielfachen. Projektionszeilen, Originalschreibweise und `v`-Schreibweise bleiben getrennt; nur die gewöhnliche Achse speist `--vielfachevonzahlen`.
+- Ein- und Mehrdomänenverträge umfassen 13 beziehungsweise 26 Aufrufe; gemischte Reziprok-/Bruch-/Ganzzahlachsen und abgeschnittene Domänen sind gebunden. Null, Ausschlüsse und separat negative Parameter bleiben atomar.
+- Neue Ledger-Einträge: `MOJO-FIXED-059` und `TEST-FIXED-047`; insgesamt **131** Befunde und weiterhin **20** spätere Python-Aufräumpunkte.
+- Portable Prüfung: **304 Source-Tests bestanden, 1 compilerabhängiger Skip**; **87** zusätzliche Build-/Installations-/Manifestverträge und die ursprünglichen **4** Kommando-Subtests sind grün.
+- Fortschritt: **89/92 = 96,7 %** vollständig nativ/generiert, **92/92 = 100,0 %** mindestens teilweise, **48.831/48.831 = 100,0 %** angegriffene Referenzzeilen; **63.209** Mojo-Zeilen in `src/`, davon **58.615** in `src/reta_mojo/`.
+- Die Erstellungsumgebung kompiliert kein Mojo. Verbindlicher fokussierter Benutzerlauf: `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bg.sh`, danach `RETA_TEST_HEAVY=1 scripts/test_all.sh`.
+
 # Status – Stage 12c5bf
 
 - Mehrere gleichzeitig ausgewählte echte Bruchdomänen werden nicht mehr pauschal an Python zurückgegeben. `prompt_table_execution.mojo` plant Emotion, Strukturgröße, Motive/Galaxie und Universum jeweils gegen ihr eigenes physisches CSV-Rechteck.

@@ -656,7 +656,7 @@ Maschinenstand: **80/92 vollständig**, **86/92 mindestens teilweise**, **46.561
 - [x] Verstecktes `RETA_DATA_DIR` aus dem fokussierten Workflow-Modultest entfernen.
 - [x] Lokalisierte HTML-/BBCode-Erkennung mit dem typisierten Rendererplan synchronisieren.
 - [x] Beide Rich-Modi und ihre historische BBCode-Priorität regressionsprüfen.
-- [ ] Benutzerseitig `scripts/test_stage12c5be.sh` ausführen.
+- [x] Benutzerseitiger 12c5be-Lauf bestätigt: Workflow **5/5**, Hauptprogramm **16 Fälle**, portable Verträge **67 bestanden**.
 - [ ] Danach `RETA_TEST_HEAVY=1 scripts/test_all.sh` vollständig fortsetzen.
 
 ## Stage 12c5bf – domänenspezifische Mehrfachpläne für echte Bruchvielfache
@@ -668,4 +668,15 @@ Maschinenstand: **80/92 vollständig**, **86/92 mindestens teilweise**, **46.561
 - [x] Gemischte Reziprokachsen pro Domäne unter der 1024er-Grenze vereinigen.
 - [x] Unbewiesene Mischungen mit klassischen Familien, Eigenschaften oder Ganzzahlen atomar halten.
 - [ ] Benutzerseitig `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bf.sh` ausführen.
+- [ ] Danach `RETA_TEST_HEAVY=1 scripts/test_all.sh` vollständig fortsetzen.
+
+## Stage 12c5bg – deterministische Kommandoassets und positive Ganzzahl-/Bruchachsen
+
+- [x] Den 12c5aq-Abbruch aus dem 12c5bf-Benutzerlauf auf eine ambient Rich-Version zurückführen.
+- [x] Die eingefrorene Python-Assetgenerierung mit einem lokalen textuellen Rich-Minimaladapter isolieren.
+- [x] Benutzer-Site-Packages ausschließen und Ist-/Soll-SHA-256 bei Abweichungen ausgeben.
+- [x] Positive Ganzzahlen und Bereiche neben `v n/m` ohne doppelte Projektion vervielfachen.
+- [x] Ein- und Mehrdomänen-, Reziprok-, abgeschnittene und Teilerkompositionen binden.
+- [x] Null-, Ausschluss- und separat negative Komponenten bis zu einem eigenen Vertrag atomar halten.
+- [ ] Benutzerseitig `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bg.sh` ausführen.
 - [ ] Danach `RETA_TEST_HEAVY=1 scripts/test_all.sh` vollständig fortsetzen.

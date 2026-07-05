@@ -49,9 +49,10 @@ def test_unproved_compositions_still_fall_back_atomically() -> None:
     source = MODULE.read_text(encoding="utf-8")
     test = MOJO_TEST.read_text(encoding="utf-8")
     assert "not _only_fraction_domain_table_commands(canonical_words)" in source
-    assert "len(row_parts) > 0" in source
     assert 'assert_false(_plan("mond universum motive v2/3").handled)' in test
-    assert 'assert_false(_plan("universum motive v2/3,5").handled)' in test
+    assert 'assert_false(_plan("universum motive v2/3,0").handled)' in test
+    assert 'assert_false(_plan("universum motive v2/3,5,-10").handled)' in test
+    assert 'var multi_integer_axis = _plan("universum motive v2/3,5")' in test
 
 
 def test_runtime_contract_covers_two_four_and_mixed_domains() -> None:
@@ -83,8 +84,10 @@ def test_stage_extends_12c5be_and_is_the_current_entrypoint() -> None:
     assert "tests/test_prompt_table_execution.mojo" in stage
     assert "tests/test_prompt_historical_ownership_source.py" in stage
     assert "check_prompt_true_fraction_multiples.sh" in stage
-    assert "test_stage12c5bf.sh" in current
-    assert "12c5bf" in do_sh
+    assert "test_stage12c5bg.sh" in current
+    assert "12c5bg" in do_sh
+    next_stage = (ROOT / "scripts/test_stage12c5bg.sh").read_text(encoding="utf-8")
+    assert "test_stage12c5bf.sh" in next_stage
     assert "26" in doc and "44" in doc
 
 

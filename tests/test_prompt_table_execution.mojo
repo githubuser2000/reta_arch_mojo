@@ -480,10 +480,70 @@ def test_true_fraction_multiples_follow_each_csv_rectangle() raises:
     assert_true("--Universum=transzendentaliereziproke" in _tokens(multi_mixed, 7))
     assert_true(",1018,1020,1022" in _tokens(multi_mixed, 7))
 
+    # Positive ordinary integer axes preserve their multiple semantics beside
+    # corrected proper-fraction projections.  The projected whole rows stay
+    # explicit, while only the original integer spellings enter
+    # --vielfachevonzahlen.
+    var integer_axis = _plan("universum v2/3,5")
+    assert_true(integer_axis.handled)
+    assert_equal(len(integer_axis.invocations), 13)
+    assert_true("--vielfachevonzahlen=5" in _tokens(integer_axis, 0))
+    assert_true(
+        "--vorhervonausschnitt=2,1,4,6,3,5,v5"
+        in _tokens(integer_axis, 0)
+    )
+    assert_false("--oberesmaximum=" in _tokens(integer_axis, 0))
+
+    var integer_axis_divisor = _plan("universum v2/3,5 teiler")
+    assert_true(integer_axis_divisor.handled)
+    assert_equal(len(integer_axis_divisor.invocations), 13)
+    assert_false("--vielfachevonzahlen=" in _tokens(integer_axis_divisor, 0))
+    assert_true(
+        "--vorhervonausschnitt=2,1,4,6,3,5,v5"
+        in _tokens(integer_axis_divisor, 0)
+    )
+
+    var multi_integer_axis = _plan("universum motive v2/3,5")
+    assert_true(multi_integer_axis.handled)
+    assert_equal(len(multi_integer_axis.invocations), 26)
+    assert_true("--menschliches=motive" in _tokens(multi_integer_axis, 0))
+    assert_true("--vielfachevonzahlen=5" in _tokens(multi_integer_axis, 0))
+    assert_true(
+        "--vorhervonausschnitt=2,1,4,6,3,5,v5"
+        in _tokens(multi_integer_axis, 0)
+    )
+    assert_true("--Universum=transzendentalien" in _tokens(multi_integer_axis, 13))
+    assert_true("--vielfachevonzahlen=5" in _tokens(multi_integer_axis, 13))
+
+    var clipped_integer_axis = _plan("emotion universum v8/3,5")
+    assert_true(clipped_integer_axis.handled)
+    assert_equal(len(clipped_integer_axis.invocations), 5)
+    assert_true("--grundstrukturen=emotion" in _tokens(clipped_integer_axis, 0))
+    assert_true("--vorhervonausschnitt=5,v5" in _tokens(clipped_integer_axis, 0))
+    assert_true("_Gefuehle_n/m=8" in _tokens(clipped_integer_axis, 1))
+    assert_true("--Universum=transzendentalien" in _tokens(clipped_integer_axis, 2))
+    assert_true("--vorhervonausschnitt=5,v5" in _tokens(clipped_integer_axis, 2))
+
+    var ranged_integer_axis = _plan("universum motive v2/3,5-7")
+    assert_true(ranged_integer_axis.handled)
+    assert_equal(len(ranged_integer_axis.invocations), 26)
+    assert_true("--vielfachevonzahlen=5-7" in _tokens(ranged_integer_axis, 0))
+    assert_true(",5-7,v5-7" in _tokens(ranged_integer_axis, 0))
+
+    var mixed_integer_axis = _plan("emotion universum v1/2,2/3,5")
+    assert_true(mixed_integer_axis.handled)
+    assert_equal(len(mixed_integer_axis.invocations), 19)
+    assert_true("--vielfachevonzahlen=5" in _tokens(mixed_integer_axis, 0))
+    assert_true(",5,v5" in _tokens(mixed_integer_axis, 0))
+    assert_true("--vielfachevonzahlen=5" in _tokens(mixed_integer_axis, 7))
+
     # Compositions without a unique domain law remain atomic rather than
-    # partially executing a misleading subset.
+    # partially executing a misleading subset.  Zero and excluded ordinary
+    # axes are not part of the proven positive-integer contract.
     assert_false(_plan("mond universum motive v2/3").handled)
-    assert_false(_plan("universum motive v2/3,5").handled)
+    assert_false(_plan("universum motive v2/3,0").handled)
+    assert_false(_plan("universum motive v2/3,5,-10").handled)
+    assert_false(_plan("universum motive v2/3 -10").handled)
 
     var mixed_axes = _plan("universum v1/2,2/3")
     assert_true(mixed_axes.handled)
@@ -575,7 +635,15 @@ def test_true_fraction_multiples_follow_each_csv_rectangle() raises:
     _emit_true_fraction_multiple_plan("emotion universum v8/3")
     _emit_true_fraction_multiple_plan("emotion universum v1/2,2/3")
     _emit_true_fraction_multiple_plan("mond universum motive v2/3")
+    _emit_true_fraction_multiple_plan("universum v2/3,5")
+    _emit_true_fraction_multiple_plan("universum v2/3,5 teiler")
     _emit_true_fraction_multiple_plan("universum motive v2/3,5")
+    _emit_true_fraction_multiple_plan("emotion universum v8/3,5")
+    _emit_true_fraction_multiple_plan("emotion universum v1/2,2/3,5")
+    _emit_true_fraction_multiple_plan("universum motive v2/3,5-7")
+    _emit_true_fraction_multiple_plan("universum motive v2/3,0")
+    _emit_true_fraction_multiple_plan("universum motive v2/3,5,-10")
+    _emit_true_fraction_multiple_plan("universum motive v2/3 -10")
     _emit_true_fraction_multiple_plan("universum v1/2,2/3")
     _emit_true_fraction_multiple_plan("universum v-1/4,2/3")
     _emit_true_fraction_multiple_plan("universum v-2/3")

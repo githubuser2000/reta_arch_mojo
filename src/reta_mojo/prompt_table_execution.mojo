@@ -344,6 +344,45 @@ def _base_multiple_tokens(
     return result^
 
 
+def _base_projected_fraction_multiple_tokens(
+    language: String,
+    projected_rows: List[String],
+    row_parts: List[String],
+    counting: Bool,
+    invert: Bool,
+    divisor_mode: Bool,
+) -> List[String]:
+    """Compose ordinary integer multiples with corrected n/m projections.
+
+    The historical prompt keeps three independent pieces on the integer side:
+    whole-number rows projected from the proper-fraction grid, the original
+    integer selector spellings, and their ``v``-prefixed multiple selectors.
+    Only the non-divider form also carries ``--vielfachevonzahlen``.  Keeping
+    the projected rows outside that option prevents a second, incorrect
+    multiple expansion while preserving the ordinary integer-axis semantics.
+    """
+    var result = List[String]()
+    var normalized = normalize_prompt_language(language)
+    if normalized != "deutsch":
+        result.append("-language=" + normalized)
+    var selected = _copy_strings(projected_rows)
+    for index in range(len(row_parts)):
+        selected.append(row_parts[index])
+    for index in range(len(row_parts)):
+        selected.append("v" + row_parts[index])
+    result.append("-zeilen")
+    if not divisor_mode:
+        result.append("--vielfachevonzahlen=" + _join_rows(row_parts))
+    if counting:
+        result.append("--zaehlung=" + _join_rows(selected))
+    else:
+        result.append("--vorhervonausschnitt=" + _join_rows(selected))
+    if invert:
+        result.append("--invertieren")
+    result.append("-spalten")
+    return result^
+
+
 def _base_multiple_divisor_tokens(
     language: String,
     row_parts: List[String],
@@ -816,6 +855,25 @@ def _fraction_multiple_supported(
     return True
 
 
+def _positive_integer_fraction_axis_supported(
+    row_parts: List[String],
+    row_values: List[Int],
+    saw_integer_component_exclusion: Bool,
+    saw_ignored_negative_integer: Bool,
+) -> Bool:
+    """Accept only proven positive ordinary axes beside true fractions."""
+    if saw_integer_component_exclusion or saw_ignored_negative_integer:
+        return False
+    if len(row_parts) == 0:
+        return True
+    if len(row_values) == 0:
+        return False
+    for index in range(len(row_values)):
+        if row_values[index] <= 0:
+            return False
+    return True
+
+
 def _copy_fraction_pairs(
     pairs: List[_PromptFractionPair],
 ) -> List[_PromptFractionPair]:
@@ -1033,6 +1091,8 @@ def _append_projected_axis_family(
     integer_columns: String,
     reciprocal_option: String,
     reciprocal_columns: String,
+    row_parts: List[String],
+    divisor_mode: Bool,
     suppress_empty: Bool,
     passthrough: List[String],
 ) -> None:
@@ -1040,7 +1100,16 @@ def _append_projected_axis_family(
     var reciprocal_rows = _copy_strings(projection.reciprocal_rows)
     var integer_base = List[String]()
     var reciprocal_base = List[String]()
-    if len(whole_rows) > 0:
+    if len(row_parts) > 0:
+        integer_base = _base_projected_fraction_multiple_tokens(
+            language,
+            whole_rows,
+            row_parts,
+            counting,
+            invert,
+            divisor_mode,
+        )
+    elif len(whole_rows) > 0:
         integer_base = _base_table_tokens(
             language, _join_rows(whole_rows), 1024, counting, invert
         )
@@ -1050,7 +1119,7 @@ def _append_projected_axis_family(
         )
     _add_axis_family(
         invocations,
-        len(whole_rows) > 0,
+        len(whole_rows) > 0 or len(row_parts) > 0,
         integer_base,
         integer_option,
         integer_columns,
@@ -1069,6 +1138,8 @@ def _plan_multi_domain_true_fraction_multiples(
     language: String,
     counting: Bool,
     invert: Bool,
+    row_parts: List[String],
+    divisor_mode: Bool,
     suppress_empty: Bool,
     passthrough: List[String],
 ) raises -> PromptTablePlan:
@@ -1089,6 +1160,8 @@ def _plan_multi_domain_true_fraction_multiples(
             "2,3",
             "--grundstrukturen=emotion",
             "4,5",
+            row_parts,
+            divisor_mode,
             suppress_empty,
             passthrough,
         )
@@ -1118,6 +1191,8 @@ def _plan_multi_domain_true_fraction_multiples(
             "1-3",
             "--strukturgroesse=organisation",
             "99",
+            row_parts,
+            divisor_mode,
             suppress_empty,
             passthrough,
         )
@@ -1131,6 +1206,8 @@ def _plan_multi_domain_true_fraction_multiples(
             "1,2",
             "--strukturgroesse=groesse",
             "4",
+            row_parts,
+            divisor_mode,
             suppress_empty,
             passthrough,
         )
@@ -1160,6 +1237,8 @@ def _plan_multi_domain_true_fraction_multiples(
             "1",
             "--menschliches=motive",
             "3",
+            row_parts,
+            divisor_mode,
             suppress_empty,
             passthrough,
         )
@@ -1191,6 +1270,8 @@ def _plan_multi_domain_true_fraction_multiples(
             "1",
             "--Universum=transzendentaliereziproke",
             "1",
+            row_parts,
+            divisor_mode,
             suppress_empty,
             passthrough,
         )
@@ -1412,19 +1493,27 @@ def plan_prompt_table_commands(
     var true_fraction_multiple_mode = (
         has_fraction and multiple_mode and _has_true_fraction(fraction_pairs)
     )
+    if (
+        true_fraction_multiple_mode
+        and not _positive_integer_fraction_axis_supported(
+            row_parts,
+            row_values,
+            saw_integer_component_exclusion,
+            saw_ignored_negative_integer,
+        )
+    ):
+        return PromptTablePlan(False, List[PromptTableInvocation]())
     var fraction_domain_count = _fraction_multiple_domain_count(canonical_words)
     if true_fraction_multiple_mode and fraction_domain_count > 1:
         # Domain-specific expansion is fully defined only for a pure set of
-        # physical fraction families.  Ordinary row selectors, numeric
-        # shortcuts, property commands and unrelated table families continue
-        # to fall back atomically until they receive their own composition law.
+        # physical fraction families.  Positive ordinary integer selectors now
+        # compose through a shared projected-multiple base.  Numeric shortcuts,
+        # property commands and unrelated table families continue to fall back
+        # atomically until they receive their own composition law.
         if (
-            len(row_parts) > 0
-            or len(row_values) > 0
-            or len(numeric15_values) > 0
+            len(numeric15_values) > 0
             or len(numeric16_values) > 0
             or has_property_command
-            or saw_ignored_negative_integer
             or not _only_fraction_domain_table_commands(canonical_words)
         ):
             return PromptTablePlan(False, List[PromptTableInvocation]())
@@ -1442,6 +1531,8 @@ def plan_prompt_table_commands(
             language,
             multi_counting,
             multi_invert,
+            row_parts,
+            divisor_mode,
             multi_suppress_empty,
             passthrough,
         )
@@ -1638,16 +1729,27 @@ def plan_prompt_table_commands(
                 language, _join_rows(normal_rows), counting, invert
             )
         elif true_fraction_multiple_mode:
-            # The expanded whole-number projections are already materialized;
-            # feeding them into --vielfachevonzahlen would expand them a second
-            # time and no longer describe the corrected fraction-grid contract.
-            integer_base = _base_table_tokens(
-                language,
-                _join_rows(normal_rows),
-                maximum,
-                counting,
-                invert,
-            )
+            if len(row_parts) > 0:
+                integer_base = _base_projected_fraction_multiple_tokens(
+                    language,
+                    whole_rows,
+                    row_parts,
+                    counting,
+                    invert,
+                    divisor_mode,
+                )
+            else:
+                # The expanded whole-number projections are already
+                # materialized; feeding them into --vielfachevonzahlen would
+                # expand them a second time and no longer describe the
+                # corrected fraction-grid contract.
+                integer_base = _base_table_tokens(
+                    language,
+                    _join_rows(normal_rows),
+                    maximum,
+                    counting,
+                    invert,
+                )
         elif multiple_mode and divisor_mode:
             integer_base = _base_multiple_divisor_tokens(
                 language, row_parts, normal_rows, counting, invert

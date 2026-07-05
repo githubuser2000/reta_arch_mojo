@@ -6,11 +6,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def test_current_stage_and_default_commit_name_are_12c5bf() -> None:
+def test_current_stage_extends_12c5bf_and_default_commit_is_current() -> None:
     current = (ROOT / "scripts/test_current_stage.sh").read_text(encoding="utf-8")
     do_sh = (ROOT / "do.sh").read_text(encoding="utf-8")
-    assert "test_stage12c5bf.sh" in current
-    assert "COMMIT_MESSAGE=${1:-12c5bf}" in do_sh
+    assert "test_stage12c5bg.sh" in current
+    assert "COMMIT_MESSAGE=${1:-12c5bg}" in do_sh
+    next_stage = (ROOT / "scripts/test_stage12c5bg.sh").read_text(encoding="utf-8")
+    assert "test_stage12c5bf.sh" in next_stage
 
 
 def test_stage_document_and_python_defect_evidence_are_linked() -> None:

@@ -22,6 +22,7 @@ REFERENCE_TEST = ROOT / "python_reference/tests/test_command_parity.py"
 REFERENCE_RETA = ROOT / "python_reference/reta.py"
 ASSET_DIR = ROOT / "assets/command_parity"
 MANIFEST = ROOT / "assets/command_parity.tsv"
+REFERENCE_RUNTIME_STUBS = ROOT / "tools/reference_runtime_stubs"
 
 
 def extract_cases() -> list[tuple[str, str, str]]:
@@ -87,6 +88,11 @@ def run_reference(command: str) -> str:
     env = dict(os.environ)
     env["PYTHONHASHSEED"] = "0"
     env["PYTHONWARNINGS"] = "ignore"
+    env["PYTHONNOUSERSITE"] = "1"
+    previous_pythonpath = env.get("PYTHONPATH", "")
+    env["PYTHONPATH"] = str(REFERENCE_RUNTIME_STUBS) + (
+        os.pathsep + previous_pythonpath if previous_pythonpath else ""
+    )
     proc = subprocess.run(
         [sys.executable, str(REFERENCE_RETA), *shlex.split(command)],
         cwd=ROOT,
@@ -143,8 +149,13 @@ def main() -> int:
 
     if mismatches:
         print("command parity assets differ:")
-        for path in mismatches:
-            print(f"  {path}")
+        for relative in mismatches:
+            path = ROOT / relative
+            expected = files[path]
+            actual = path.read_bytes() if path.exists() else b""
+            expected_hash = hashlib.sha256(expected).hexdigest()
+            actual_hash = hashlib.sha256(actual).hexdigest() if path.exists() else "missing"
+            print(f"  {relative}: actual={actual_hash} expected={expected_hash}")
         return 1
     action = "verified" if args.check else "generated"
     print(f"command parity assets {action}: {len(files) - 1} cases")
