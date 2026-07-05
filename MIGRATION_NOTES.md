@@ -1380,3 +1380,18 @@ Vier vollständig native Diagnoseoberflächen teilen seit Stage 12c5z eine versi
   danach geprüfte Systemkandidaten).
 - `generate_architecture_probe_assets.py` entfernt Laufzeitcaches mit
   `ENOTEMPTY`-/`EBUSY`-Retries und wiederholten Sweeps.
+
+
+## Stage 12c5bs
+
+- Die zweigliedrige `abc`-/`abcd`-Form wird über Mitgliedschaft statt nur über
+  das erste Wort erkannt. Der interne `PromptCommand` wird command-first
+  normalisiert, `raw` bleibt unverändert.
+- `loggen` und `nichtloggen` sind für native Tabellen- und `mulpri`-Vektoren
+  reine nachgelagerte Begleiteffekte. Der Eigentumsbeweis akzeptiert ihre
+  Position unabhängig; der Controller wendet den Zustand erst nach erfolgreicher
+  Ausgabe an.
+- Enthält ein Vektor beide Befehle, gewinnt `loggen` wie im historischen
+  Python-`if/elif`.
+- Die direkte Laufzeitprobe für `universum v1/4,-1/8,2/3` erwartet nun explizit
+  den komponentenlokalen Zwei-Aufruf-Plan statt den globalen Standardwert 13.

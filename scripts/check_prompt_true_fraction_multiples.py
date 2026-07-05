@@ -1227,7 +1227,9 @@ def main() -> int:
     assert_direct_execution(
         result["universum v1/4,-2/3"], runner, expected_count=1
     )
-    assert_direct_execution(result["universum v1/4,-1/8,2/3"], runner)
+    assert_direct_execution(
+        result["universum v1/4,-1/8,2/3"], runner, expected_count=2
+    )
     assert_direct_execution(result["universum v 1/4,-1/8,2/3"], runner)
     assert_direct_execution(
         result["emotion universum v1/4,-1/8,2/3"],

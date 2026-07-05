@@ -41,7 +41,10 @@ from reta_mojo.native_reta_cli import (
 )
 from reta_mojo.prompt_execution_runtime import render_prompt_table_plan
 from reta_mojo.prompt_historical_ownership import (
+    PROMPT_LOG_DISABLED,
+    PROMPT_LOG_ENABLED,
     historical_prompt_execution_supported,
+    historical_prompt_logging_update,
     is_prompt_numeric_syntax_token,
 )
 from reta_mojo.native_cli_startup import native_cli_startup
@@ -453,14 +456,6 @@ def _run_command(
     if command.kind == KIND_SHORT_COMMANDS:
         _print_commands(catalog, profile.language, True)
         return True
-    if command.kind == KIND_LOG_ON:
-        session.logging_enabled = True
-        print("Logging ist eingeschaltet.")
-        return True
-    if command.kind == KIND_LOG_OFF:
-        session.logging_enabled = False
-        print("Logging ist ausgeschaltet.")
-        return True
     if command.kind == KIND_STORE_NEXT:
         var payload = storage_payload(command)
         if payload.byte_length() == 0:
@@ -572,8 +567,23 @@ def _run_command(
             planning_tokens, profile.language, catalog
         )
         if handled_table or handled_mulpri:
+            var logging_update = historical_prompt_logging_update(
+                planning_tokens, profile.language, catalog
+            )
+            if logging_update == PROMPT_LOG_ENABLED:
+                session.logging_enabled = True
+            elif logging_update == PROMPT_LOG_DISABLED:
+                session.logging_enabled = False
             return True
 
+    if command.kind == KIND_LOG_ON:
+        session.logging_enabled = True
+        print("Logging ist eingeschaltet.")
+        return True
+    if command.kind == KIND_LOG_OFF:
+        session.logging_enabled = False
+        print("Logging ist ausgeschaltet.")
+        return True
     if command.kind == KIND_PRIME:
         _print_lines(prime_lines(command))
         return True
@@ -664,12 +674,6 @@ def _run_native_one_shot(
     if command.kind == KIND_SHORT_COMMANDS:
         _print_commands(catalog, profile.language, True)
         return True
-    if command.kind == KIND_LOG_ON:
-        print("Logging ist eingeschaltet.")
-        return True
-    if command.kind == KIND_LOG_OFF:
-        print("Logging ist ausgeschaltet.")
-        return True
     if command.kind == KIND_CLEAR:
         _clear_terminal_native()
         return True
@@ -739,6 +743,12 @@ def _run_native_one_shot(
         if handled_table or handled_mulpri:
             return True
 
+    if command.kind == KIND_LOG_ON:
+        print("Logging ist eingeschaltet.")
+        return True
+    if command.kind == KIND_LOG_OFF:
+        print("Logging ist ausgeschaltet.")
+        return True
     if command.kind == KIND_PRIME:
         _print_lines(prime_lines(command))
         return True

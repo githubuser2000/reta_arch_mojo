@@ -2470,3 +2470,15 @@ Benutzerlauf.
   teilweise; Mojo-Zeilen **63.640/59.030**.
 - Die tatsächliche Mojo-Kompilierung bleibt der Benutzerlauf
   `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5br.sh -- -j 8`.
+
+
+## Stage 12c5bs – vorbereiteter Prüfstand
+
+- Python-Referenz: `abc Haus` und `Haus abc` **2/2** byteidentisch.
+- Logging-Mitgliedschaft und `loggen`-Vorrang: **4/4** Referenzfälle.
+- Korrigierte lokale Direktprobe: `universum v1/4,-1/8,2/3` führt genau
+  **2** statt des globalen Standardwerts **13** Aufrufe aus.
+- Angrenzende Bruch-/Prompt-Sourceverträge: **26/26**.
+- Stage-, Ledger-, Portierungs- und Archivverträge: **65/65**.
+- Die tatsächliche Mojo-Kompilierung bleibt der Benutzerlauf
+  `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bs.sh -- -j 8`.

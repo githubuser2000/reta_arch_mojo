@@ -146,6 +146,43 @@ def test_extended_output_parameters_no_longer_force_atomic_fallback() raises:
     assert_true(_supported(english^, "english"))
 
 
+def test_logging_effects_are_position_independent_and_post_command() raises:
+    var catalog = load_prompt_language_catalog("assets")
+    var prefix: List[String] = ["loggen", "emotion", "1"]
+    var middle: List[String] = ["emotion", "nichtloggen", "1"]
+    var suffix: List[String] = ["emotion", "1", "loggen"]
+    assert_true(_supported(prefix^))
+    assert_true(_supported(middle^))
+    assert_true(_supported(suffix^))
+    assert_equal(
+        historical_prompt_logging_update(prefix^, "deutsch", catalog),
+        PROMPT_LOG_ENABLED,
+    )
+    assert_equal(
+        historical_prompt_logging_update(middle^, "deutsch", catalog),
+        PROMPT_LOG_DISABLED,
+    )
+    assert_equal(
+        historical_prompt_logging_update(suffix^, "deutsch", catalog),
+        PROMPT_LOG_ENABLED,
+    )
+    var both: List[String] = [
+        "nichtloggen", "emotion", "1", "loggen"
+    ]
+    assert_equal(
+        historical_prompt_logging_update(both^, "deutsch", catalog),
+        PROMPT_LOG_ENABLED,
+    )
+    var english: List[String] = [
+        "emotion", "1", "logging_no"
+    ]
+    assert_true(_supported(english^, "english"))
+    assert_equal(
+        historical_prompt_logging_update(english^, "english", catalog),
+        PROMPT_LOG_DISABLED,
+    )
+
+
 def test_atomic_rejection_keeps_unowned_effects_out_of_partial_execution() raises:
     var shell: List[String] = ["richtung", "shell", "echo", "2"]
     assert_false(_supported(shell^))

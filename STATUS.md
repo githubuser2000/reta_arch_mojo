@@ -1,4 +1,16 @@
-# Status – Stage 12c5br
+# Status – Stage 12c5bs
+
+## Stage 12c5bs – positionsunabhängige Prompt-Begleiteffekte
+
+- `abc Haus` und `Haus abc` werden bei genau zwei Wörtern gleichwertig nativ
+  geplant; der Rohtext bleibt erhalten.
+- `loggen` und `nichtloggen` dürfen native Tabellen- und `mulpri`-Kommandos an
+  jeder Wortposition begleiten und wirken erst nach erfolgreicher Ausführung.
+- Bei gleichzeitigem Auftreten gewinnt `loggen` unabhängig von der Reihenfolge.
+- Der kompakte Bruchausdruck `v1/4,-1/8,2/3` bleibt komponentenlokal und besitzt
+  in der direkten Probe genau zwei Aufrufe.
+- Benutzerprüfung: `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bs.sh -- -j 8`.
+
 
 - Der historische Prompt-Eigentumsbeweis akzeptiert jetzt alle **13/13**
   kanonischen Ausgabeparameter statt nur sieben.

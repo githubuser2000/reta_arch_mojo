@@ -776,3 +776,13 @@ Der historische Assetgate ist jetzt vollständig read-only. Fünf gepinnte SHA-2
 - [x] Zwei veraltete lokale-v-Assertions aus dem vollständigen Benutzerlauf korrigieren.
 - [x] Brotli-Interpreterauflösung und Cachelöschung portabel stabilisieren.
 - [ ] Benutzerseitig `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5br.sh -- -j 8` ausführen.
+
+
+## Stage 12c5bs – positionsunabhängige Prompt-Begleiteffekte
+
+- [x] `abc`/`abcd` bei genau zwei Wörtern in Präfix- und Suffixposition nativ klassifizieren.
+- [x] Rohtext bewahren und nur die typisierte Nutzwortreihenfolge normalisieren.
+- [x] `loggen`/`nichtloggen` als positionsfreie Begleiteffekte nativer Tabellen- und `mulpri`-Pläne besitzen.
+- [x] Loggingzustand erst nach erfolgreicher Tabellenwirkung anwenden und `loggen`-Priorität erhalten.
+- [x] Direkte kompakte Bruchprobe auf den korrekten lokalen Zwei-Aufruf-Vertrag festschreiben.
+- [ ] Benutzerseitig `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bs.sh -- -j 8` ausführen.

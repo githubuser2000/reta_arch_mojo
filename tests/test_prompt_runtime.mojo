@@ -2,6 +2,7 @@ from std.collections import List
 from std.testing import assert_equal, assert_true, assert_false, TestSuite
 from reta_mojo.prompt_runtime import *
 from reta_mojo.prompt_catalog import prompt_completion_words
+from reta_mojo.prompt_language import load_prompt_language_catalog
 from reta_mojo.prompt_session import (
     new_prompt_session,
     prompt_prefix,
@@ -109,6 +110,25 @@ def test_modulo_prompt_lines() raises:
 
 def test_abc_prompt_command() raises:
     assert_equal(abc_line(classify_prompt_command("abc Abz")), "1 2 26")
+    assert_equal(abc_line(classify_prompt_command("Abz abc")), "1 2 26")
+
+
+def test_localized_abc_command_is_position_independent() raises:
+    var catalog = load_prompt_language_catalog("assets")
+    var prefix = classify_prompt_command_localized(
+        "abc Abz", "deutsch", catalog
+    )
+    var suffix = classify_prompt_command_localized(
+        "Abz abc", "deutsch", catalog
+    )
+    assert_equal(prefix.kind, KIND_ABC)
+    assert_equal(suffix.kind, KIND_ABC)
+    assert_equal(prefix.raw, "abc Abz")
+    assert_equal(suffix.raw, "Abz abc")
+    assert_equal(prefix.words[0], "abc")
+    assert_equal(suffix.words[0], "abc")
+    assert_equal(abc_line(prefix), "1 2 26")
+    assert_equal(abc_line(suffix), "1 2 26")
 
 
 def test_rpe_wraps_non_reta_command() raises:

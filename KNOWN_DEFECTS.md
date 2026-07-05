@@ -23,7 +23,7 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 
 ## Übersicht
 
-- Einträge insgesamt: **159**
+- Einträge insgesamt: **160**
 - offene bestätigte Python-Fehler: **4**
 - zu entscheidende Python-Fehlerkandidaten: **13**
 - bereits im Python-Baum behobene Fehler: **9**
@@ -2163,3 +2163,17 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 - spätere Python-Aktion: Keine Architektur- oder Mojo-Produktionsänderung erforderlich. Der Fix stabilisiert nur die deterministische Asseterzeugung unter gleichzeitigem Cachezugriff.
 - Mojo-Orte: `tools/generate_architecture_probe_assets.py`, `tests/test_architecture_probe_assets_source.py`
 - Belege: `STAGE12C5BR_COMPLETE_PROMPT_OUTPUT_PARAMETERS.md`, `tools/generate_architecture_probe_assets.py`, `tests/test_architecture_probe_assets_source.py`
+
+### MOJO-FIXED-069 – Positionsunabhängige abc- und Logging-Begleiteffekte fielen an die Prompt-Kompatibilitätsgrenze
+
+- Ursprung: `mojo_port`
+- Klasse / Schwere: `prompt_position_independent_effect_ownership_gap` / `medium`
+- Python-Status: `correct_reference`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5br/12c5bs`
+- Reproduktion: `Haus abc beziehungsweise loggen 1 emotion, 1 loggen emotion oder 1 emotion nichtloggen über den nativen Prompt ausführen. abc wurde nur als erstes Wort klassifiziert; Loggingbefehle wurden entweder vor der Tabellenplanung vorzeitig als Einzelbefehl beendet oder vom historischen Eigentumsbeweis als unbesessener Effekt abgewiesen.`
+- heutiger Vertrag: abc und abcd werden bei genau zwei Wörtern in beiden Positionen erkannt; der interne PromptCommand wird auf command-first normalisiert, während raw unverändert bleibt. loggen und nichtloggen dürfen bei nativen Tabellen- und mulpri-Plänen an jeder Wortposition stehen, werden erst nach erfolgreicher Ausgabe angewendet und verwenden die historische if/elif-Priorität, sodass loggen bei gleichzeitigem Auftreten gewinnt.
+- spätere Python-Aktion: Keine Python-Korrektur erforderlich. Die positionsunabhängige Mengenmitgliedschaft und die nachgelagerte Loggingpriorität sind beabsichtigte Referenzsemantik und sollen bei einer späteren Python-Bereinigung erhalten bleiben.
+- Python-Orte: `python_reference/reta_architecture/prompt_execution.py`
+- Mojo-Orte: `src/reta_mojo/prompt_runtime.mojo`, `src/reta_mojo/prompt_historical_ownership.mojo`, `src/prompt_main.mojo`, `tests/test_prompt_runtime.mojo`, `tests/test_prompt_historical_ownership.mojo`, `scripts/check_prompt_position_independent_effects.py`
+- Belege: `STAGE12C5BS_POSITION_INDEPENDENT_PROMPT_EFFECTS.md`, `tests/test_prompt_position_independent_effects_source.py`, `tests/test_prompt_historical_ownership.mojo`, `tests/test_prompt_runtime.mojo`, `scripts/check_prompt_position_independent_effects.py`

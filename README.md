@@ -1258,3 +1258,24 @@ Fokussierter Lauf nach dem Produktionsbuild:
 ```sh
 RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5br.sh -- -j 8
 ```
+
+
+## Stage 12c5bs – positionsunabhängige Prompt-Begleiteffekte
+
+Die historische `abc`-Kurzform wird bei genau zwei Wörtern unabhängig von der
+Position erkannt: `abc Haus` und `Haus abc` besitzen denselben nativen
+`abc_line`-Plan, während der ursprüngliche Rohtext unverändert bleibt.
+
+`loggen` und `nichtloggen` sind außerdem keine isolierten Vorabkommandos, wenn
+sie einen nativen Tabellen- oder `mulpri`-Plan begleiten. Sie dürfen vor,
+zwischen oder nach dessen Tokens stehen und verändern den Sitzungszustand erst
+nach erfolgreicher nativer Ausführung. Bei gleichzeitigem Auftreten gewinnt
+entsprechend dem Python-`if/elif` stets `loggen`. Details:
+[`STAGE12C5BS_POSITION_INDEPENDENT_PROMPT_EFFECTS.md`](STAGE12C5BS_POSITION_INDEPENDENT_PROMPT_EFFECTS.md).
+
+Der Stage-Test bindet zusätzlich die korrigierte direkte Ausführung des
+komponentenlokalen `v1/4,-1/8,2/3` an genau zwei Aufrufe.
+
+```sh
+RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bs.sh -- -j 8
+```

@@ -147,6 +147,11 @@ def canonical_prompt_command(
     return token
 
 
+comptime PROMPT_LOG_UNCHANGED = -1
+comptime PROMPT_LOG_DISABLED = 0
+comptime PROMPT_LOG_ENABLED = 1
+
+
 def historical_prompt_control_supported(canonical: String) -> Bool:
     return (
         canonical == "mulpri"
@@ -161,6 +166,8 @@ def historical_prompt_control_supported(canonical: String) -> Bool:
         or canonical == "teiler"
         or canonical == "w"
         or canonical == "einzeln"
+        or canonical == "loggen"
+        or canonical == "nichtloggen"
         or canonical
         == "keineEinZeichenZeilenPlusKeineAusgabeWelcherBefehlEsWar"
     )
@@ -212,6 +219,31 @@ def historical_prompt_parameter_supported(
         ):
             return _contains_string(supported, entry.canonical)
     return False
+
+
+def historical_prompt_logging_update(
+    planning_tokens: List[String],
+    language: String,
+    catalog: PromptLanguageCatalog,
+) -> Int:
+    """Return the historical post-command logging state transition.
+
+    ``PromptVonGrosserAusgabeSonderBefehlAusgaben`` checks membership, not
+    position.  ``loggen`` wins over ``nichtloggen`` because the Python branch
+    is ``if ... elif ...``.  The caller applies this transition only after a
+    compound table/mulpri plan has completed, preserving the original effect
+    order and avoiding a visible standalone logging message.
+    """
+    var saw_disable = False
+    for index in range(len(planning_tokens)):
+        var canonical = canonical_prompt_command(
+            planning_tokens[index], language, catalog
+        )
+        if canonical == "loggen":
+            return PROMPT_LOG_ENABLED
+        if canonical == "nichtloggen":
+            saw_disable = True
+    return PROMPT_LOG_DISABLED if saw_disable else PROMPT_LOG_UNCHANGED
 
 
 def historical_prompt_execution_supported(

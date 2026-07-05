@@ -4004,6 +4004,37 @@
         "tools/generate_architecture_probe_assets.py",
         "tests/test_architecture_probe_assets_source.py"
       ]
+    },
+    {
+      "id": "MOJO-FIXED-069",
+      "title": "Positionsunabhängige abc- und Logging-Begleiteffekte fielen an die Prompt-Kompatibilitätsgrenze",
+      "origin": "mojo_port",
+      "classification": "prompt_position_independent_effect_ownership_gap",
+      "severity": "medium",
+      "python_status": "correct_reference",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5br/12c5bs",
+      "reproducer": "Haus abc beziehungsweise loggen 1 emotion, 1 loggen emotion oder 1 emotion nichtloggen über den nativen Prompt ausführen. abc wurde nur als erstes Wort klassifiziert; Loggingbefehle wurden entweder vor der Tabellenplanung vorzeitig als Einzelbefehl beendet oder vom historischen Eigentumsbeweis als unbesessener Effekt abgewiesen.",
+      "python_locations": [
+        "python_reference/reta_architecture/prompt_execution.py"
+      ],
+      "mojo_locations": [
+        "src/reta_mojo/prompt_runtime.mojo",
+        "src/reta_mojo/prompt_historical_ownership.mojo",
+        "src/prompt_main.mojo",
+        "tests/test_prompt_runtime.mojo",
+        "tests/test_prompt_historical_ownership.mojo",
+        "scripts/check_prompt_position_independent_effects.py"
+      ],
+      "current_contract": "abc und abcd werden bei genau zwei Wörtern in beiden Positionen erkannt; der interne PromptCommand wird auf command-first normalisiert, während raw unverändert bleibt. loggen und nichtloggen dürfen bei nativen Tabellen- und mulpri-Plänen an jeder Wortposition stehen, werden erst nach erfolgreicher Ausgabe angewendet und verwenden die historische if/elif-Priorität, sodass loggen bei gleichzeitigem Auftreten gewinnt.",
+      "post_port_fix": "Keine Python-Korrektur erforderlich. Die positionsunabhängige Mengenmitgliedschaft und die nachgelagerte Loggingpriorität sind beabsichtigte Referenzsemantik und sollen bei einer späteren Python-Bereinigung erhalten bleiben.",
+      "evidence": [
+        "STAGE12C5BS_POSITION_INDEPENDENT_PROMPT_EFFECTS.md",
+        "tests/test_prompt_position_independent_effects_source.py",
+        "tests/test_prompt_historical_ownership.mojo",
+        "tests/test_prompt_runtime.mojo",
+        "scripts/check_prompt_position_independent_effects.py"
+      ]
     }
   ],
   "audit": {

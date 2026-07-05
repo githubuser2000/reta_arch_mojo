@@ -35,7 +35,7 @@ def test_runtime_contract_separates_local_two_call_and_global_thirteen_call_plan
         assert f'result["{command}"]' in checker
     assert "expected_local_rows" in checker
     assert "expected_global_rows" in checker
-    assert 'assert_direct_execution(result["universum v1/4,-1/8,2/3"], runner)' in checker
+    assert 'result["universum v1/4,-1/8,2/3"], runner, expected_count=2' in checker
     assert 'assert_direct_execution(result["universum v 1/4,-1/8,2/3"], runner)' in checker
 
 

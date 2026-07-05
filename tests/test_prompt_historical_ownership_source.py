@@ -69,6 +69,27 @@ def test_all_planned_historical_table_families_share_one_catalog() -> None:
         assert planner.count(f'canonical == "{family}"') == 0
 
 
+def test_position_independent_logging_effect_is_typed_and_applied_after_tables() -> None:
+    owner = OWNER.read_text(encoding="utf-8")
+    controller = PROMPT_MAIN.read_text(encoding="utf-8")
+    assert "PROMPT_LOG_UNCHANGED = -1" in owner
+    assert "PROMPT_LOG_DISABLED = 0" in owner
+    assert "PROMPT_LOG_ENABLED = 1" in owner
+    assert "def historical_prompt_logging_update(" in owner
+    assert 'canonical == "loggen"' in owner
+    assert 'canonical == "nichtloggen"' in owner
+    assert "historical_prompt_logging_update(" in controller
+    update = controller.index("var logging_update = historical_prompt_logging_update(")
+    handled = controller.index("if handled_table or handled_mulpri:")
+    returned = controller.index("return True", update)
+    assert handled < update < returned
+    early_region = controller[
+        controller.index("def _run_command(") : controller.index("var historical_echo")
+    ]
+    assert "if command.kind == KIND_LOG_ON:" not in early_region
+    assert "if command.kind == KIND_LOG_OFF:" not in early_region
+
+
 def test_prompt_controller_delegates_instead_of_duplicating_predicate() -> None:
     source = PROMPT_MAIN.read_text(encoding="utf-8")
     assert "from reta_mojo.prompt_historical_ownership import (" in source
