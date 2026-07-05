@@ -13,7 +13,7 @@ def test_current_stage_chains_positive_first_fraction_runtime_gate() -> None:
     current = _text("scripts/test_current_stage.sh")
     newest = _text("scripts/test_stage12c5bd.sh")
     stage = _text("scripts/test_stage12c5bc.sh")
-    assert "test_stage12c5bd.sh" in current
+    assert "test_stage12c5bi.sh" in current
     assert '"$ROOT/scripts/test_stage12c5bc.sh"' in newest
     assert '"$ROOT/scripts/test_stage12c5bb.sh"' in stage
     assert "tests/test_install_layout.py" in stage

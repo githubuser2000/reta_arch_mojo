@@ -2,7 +2,7 @@
 # Build and verify from the current project root; commit only a fully green state.
 set -eu
 
-COMMIT_MESSAGE=${1:-12c5bh}
+COMMIT_MESSAGE=${1:-12c5bi}
 
 if [ ! -x scripts/build-all.sh ] \
     || [ ! -x scripts/test_current_stage.sh ] \

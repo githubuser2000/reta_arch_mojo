@@ -8,7 +8,8 @@ from reta_mojo.native_prompt_input import (
 
 
 def _sandbox_path(name: String) -> String:
-    var root = String(getenv("RETA_TEST_SANDBOX", "/tmp")).strip()
+    var root = String(getenv("RETA_TEST_SANDBOX", "/tmp"))
+    root = String(root.strip())
     if root.byte_length() == 0:
         root = "/tmp"
     if root.endswith("/"):

@@ -44,6 +44,7 @@ def main() raises:
     _emit("universum motive v2/3 -10")
     _emit("universum v2/3,0 teiler")
     _emit("universum v2/3,5,-10 teiler")
+    _emit("universum motive v2/3,0 teiler")
     _emit("universum v1/2,2/3")
     _emit("universum vielfache 1/2,2/3")
     _emit("universum v-1/4,2/3")

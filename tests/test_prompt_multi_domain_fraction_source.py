@@ -45,13 +45,14 @@ def test_multi_domain_path_builds_independent_projection_plans() -> None:
     assert "More than one table domain plus the implicit multiple command" in source
 
 
-def test_only_distinct_grammars_still_fall_back_atomically() -> None:
+def test_only_unrelated_table_grammars_still_fall_back_atomically() -> None:
     source = MODULE.read_text(encoding="utf-8")
     test = MOJO_TEST.read_text(encoding="utf-8")
     assert "not _only_fraction_domain_table_commands(canonical_words)" in source
     assert 'assert_false(_plan("mond universum motive v2/3").handled)' in test
-    assert 'assert_false(_plan("universum motive v2/3 -10").handled)' in test
-    assert 'assert_false(_plan("universum v2/3,0 teiler").handled)' in test
+    assert 'var standalone_negative = _plan("universum motive v2/3 -10")' in test
+    assert 'var zero_divider_axis = _plan("universum v2/3,0 teiler")' in test
+    assert 'var excluded_divider_axis = _plan("universum v2/3,5,-10 teiler")' in test
     assert 'var zero_integer_axis = _plan("universum motive v2/3,0")' in test
     assert 'var excluded_integer_axis = _plan("universum motive v2/3,5,-10")' in test
     assert 'var multi_integer_axis = _plan("universum motive v2/3,5")' in test
@@ -86,8 +87,8 @@ def test_stage_extends_12c5be_and_is_the_current_entrypoint() -> None:
     assert "tests/test_prompt_table_execution.mojo" in stage
     assert "tests/test_prompt_historical_ownership_source.py" in stage
     assert "check_prompt_true_fraction_multiples.sh" in stage
-    assert "test_stage12c5bg.sh" in current
-    assert "12c5bh" in do_sh
+    assert "test_stage12c5bi.sh" in current
+    assert "12c5bi" in do_sh
     next_stage = (ROOT / "scripts/test_stage12c5bg.sh").read_text(encoding="utf-8")
     assert "test_stage12c5bf.sh" in next_stage
     assert "26" in doc and "44" in doc

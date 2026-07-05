@@ -15,7 +15,7 @@ def test_current_stage_and_previous_runtime_gate_are_chained() -> None:
     newest = _text("scripts/test_stage12c5bc.sh")
     positive_first = _text("scripts/test_stage12c5bb.sh")
     stage = _text("scripts/test_stage12c5ba.sh")
-    assert "test_stage12c5bd.sh" in current
+    assert "test_stage12c5bi.sh" in current
     assert '"$ROOT/scripts/test_stage12c5bc.sh"' in current_stage
     assert '"$ROOT/scripts/test_stage12c5bb.sh"' in newest
     assert '"$ROOT/scripts/test_stage12c5ba.sh"' in positive_first

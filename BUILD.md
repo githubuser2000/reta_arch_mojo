@@ -77,8 +77,8 @@ scripts/test_stage12c5ba.sh
 Die vollständige Testsuite erkennt drei systemnahe Linkerklassen automatisch: Persistenztests verwenden `-lsqlite3 -lcrypto`, Paketintegrität verwendet `-lcrypto`, alle übrigen Tests erhalten keine zusätzlichen Linkerflags. Kompilierung und Ausführung sind getrennt wiederverwendbar:
 
 ```sh
-scripts/build-tests.sh
-scripts/run-tests.sh
+scripts/build-tests.sh -- -j 4
+scripts/run-tests.sh --jobs 4
 ```
 
 Der bisherige Gesamteinstieg bleibt kompatibel:
@@ -87,7 +87,7 @@ Der bisherige Gesamteinstieg bleibt kompatibel:
 scripts/test_all.sh
 ```
 
-`run-tests.sh --jobs N` parallelisiert ausschließlich als sicher klassifizierte Laufzeittests. Tests mit festen temporären Dateien und besonders ressourcenintensive Ziele bilden serielle Barrieren. Mehrere eigenständige Mojo-Compilerprozesse bleiben standardmäßig sequenziell; kontrollierte interne Compilerthreads können über `scripts/build-tests.sh -- -j N` gesetzt werden.
+`run-tests.sh --jobs N` parallelisiert ausschließlich als sicher klassifizierte Laufzeittests. Tests mit festen temporären Dateien und besonders ressourcenintensive Ziele bilden serielle Barrieren. Mehrere eigenständige Mojo-Compilerprozesse bleiben standardmäßig sequenziell; kontrollierte interne Compilerthreads können über `scripts/build-tests.sh -- -j N` gesetzt werden. Der kombinierte Einstieg trennt beide Regler ausdrücklich: `scripts/test_all.sh --heavy --run-jobs 4 -- -j 4`.
 
 ## Grundsatz
 
@@ -707,6 +707,25 @@ RETA_TEST_RUN_JOBS=2 scripts/test_all.sh
 prüft vorher das von `build-tests.sh` erzeugte Inhaltsmanifest. Tests mit
 festen `/tmp`-Namen und bekannte sehr lange oder speicherintensive Ziele
 bilden serielle Barrieren.
+
+## Stage 12c5bi: Testcompileroptionen und korrigierte Promptachsen
+
+Compilerthreadzahl und Laufzeitparallelität sind getrennte Parameter:
+
+```bash
+scripts/build-tests.sh --heavy -- -j 4
+scripts/run-tests.sh --jobs 4
+# kombiniert:
+scripts/test_all.sh --heavy --run-jobs 4 -- -j 4
+```
+
+Optionen hinter `--` gehen unverändert an jeden einzelnen sequenziellen
+`mojo build`-Aufruf. `--run-jobs` betrifft nur fertige Testprogramme. Der
+fokussierte Stage-Lauf akzeptiert denselben Compilervektor:
+
+```bash
+RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bi.sh -- -j 4
+```
 
 ## Architekturprobe
 

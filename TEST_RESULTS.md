@@ -1,3 +1,30 @@
+# Testergebnisse – Stage 12c5bi
+
+## Vom Benutzer bestätigter Ausgangsstand
+
+- `scripts/build-tests.sh -- -j 4` reichte `-j 4` erfolgreich durch alle vorherigen sequenziellen Testbuilds weiter.
+- Der Build stoppte reproduzierbar in `tests/test_native_prompt_input.mojo` an der Zuweisung eines `String` an eine durch `strip()` inferierte `StringSlice`-Variable.
+- Im vorherigen kombinierten Lauf bestanden 28/29 Tests aus `test_prompt_table_execution.mojo`; nur die Positionsassertion für die Universe-Ganzzahlachse schlug fehl.
+
+## Stage-12c5bi-Prüfung in der Erstellungsumgebung
+
+- Shellsyntax aller geänderten Build-/Stage-Skripte: bestanden.
+- Source-Verträge in drei Gruppen: **111 + 105 + 95 = 311 bestanden**, 1 compilerabhängiger Skip.
+- Zusätzliche Defekt-, Metrik-, Archiv-, Installations- und Testinfrastrukturverträge: **64 bestanden**.
+- Quellmanifest: **1.656 Dateien, 114 Symlinks**, konsistent.
+- Gebündelte eingefrorene Python-Referenz für 14 Ganzzahl-/Teilerkompositionen: bestanden.
+- Defektledger: 138 Einträge, 20 spätere Python-Aufräumpunkte, konsistent.
+- Mojo-/Native-Kompilierung: absichtlich nicht ausgeführt; sie bleibt beim Benutzer.
+
+## Verbindliche Laufbefehle
+
+```sh
+scripts/build-all.sh -- -j 4
+RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bi.sh -- -j 4
+scripts/build-tests.sh --heavy -- -j 4
+scripts/run-tests.sh --jobs 4
+```
+
 # Testergebnisse – Stage 12c5bg
 
 - Benutzerbuild 12c5bf: vollständiger nativer Build einschließlich schwerer Ziele und Shared Libraries erfolgreich.

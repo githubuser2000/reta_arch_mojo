@@ -6,7 +6,7 @@ ROOT = Path(__file__).resolve().parents[1]
 def test_current_stage_extends_bg_and_checks_new_runtime_contracts() -> None:
     current = (ROOT / "scripts/test_current_stage.sh").read_text(encoding="utf-8")
     stage = (ROOT / "scripts/test_stage12c5bh.sh").read_text(encoding="utf-8")
-    assert "test_stage12c5bh.sh" in current
+    assert "test_stage12c5bi.sh" in current
     assert "test_stage12c5bg.sh" in stage
     assert "generate_command_parity_assets.py --migrate-legacy" in stage
     assert "test_prompt_table_execution_12c5bh" in stage
@@ -30,3 +30,5 @@ def test_full_suite_wrapper_keeps_old_entrypoint_while_phases_are_reusable() -> 
     assert "scripts/build-tests.sh" in wrapper
     assert "scripts/run-tests.sh" in wrapper
     assert "RETA_TEST_RUN_JOBS" in wrapper
+    assert "--run-jobs" in wrapper
+    assert 'build-tests.sh" -- "$@"' in wrapper

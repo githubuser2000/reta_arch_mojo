@@ -1,3 +1,11 @@
+## Stage 12c5bi – Compileroptionen und verbleibende Bruch-Teilergrammatik
+
+- Testbuildoptionen werden hinter `--` bis zum einzelnen `mojo build` bewahrt; Laufzeitjobs bleiben ein unabhängiger Runnerparameter.
+- `String.strip()` wird an mutierbaren Testgrenzen ausdrücklich wieder in einen besitzenden `String` materialisiert.
+- Der 19-Aufruf-Mehrdomänenplan besitzt die Blockgrenze Emotion 0–5, Universe-Ganzzahl 6, Universe-Reziprok 7.
+- Separat negative Prompttokens sind konsumierte No-ops; nichtpositive Teilerachsen verwenden Divisorvereinigung, optionale Rohwiederholung und abschließende `v`-Formen.
+- Eine zusätzliche unabhängige Tabellenfamilie wie `mond` neben mehreren Bruchdomänen bleibt die nächste explizite Kompatibilitätsgrenze.
+
 # Migration Notes – Stage 12c5bg
 
 ## Referenzassets besitzen nun ihre Präsentationslaufzeit

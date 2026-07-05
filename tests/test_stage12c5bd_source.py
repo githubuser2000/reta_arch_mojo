@@ -12,7 +12,7 @@ def _text(path: str) -> str:
 def test_current_stage_chains_installed_launcher_and_fraction_runtime() -> None:
     current = _text("scripts/test_current_stage.sh")
     stage = _text("scripts/test_stage12c5bd.sh")
-    assert "test_stage12c5bd.sh" in current
+    assert "test_stage12c5bi.sh" in current
     assert '"$ROOT/scripts/test_stage12c5bc.sh"' in stage
     assert "tests/test_presheaves_complete.mojo" in stage
     assert "tests/test_prompt_reciprocal_collision_source.py" in stage

@@ -1,3 +1,16 @@
+# Status – Stage 12c5bi
+
+- Der Benutzerlauf `scripts/build-tests.sh -- -j 4` bestätigte die sequenzielle Weitergabe interner Compilerthreads und erreichte `test_native_prompt_input.mojo`; dort wurde eine echte StringSlice-/String-Typinferenzlücke im Test gefunden und behoben.
+- Der zuvor gemeldete einzige Tabellenplanerfehler lag im Test: Bei `emotion universum v1/2,2/3,5` ist Invocation 6 die Universe-Ganzzahlachse und Invocation 7 die Reziprokachse. Beide Rollen werden jetzt positiv gebunden.
+- `scripts/test_all.sh --heavy --run-jobs 4 -- -j 4` trennt Compilerthreads und Laufzeitjobs. Fokussierte Stages und die Bruchprobe akzeptieren dieselben Mojo-Optionen hinter `--`; mehrere Compilerprozesse bleiben sequenziell.
+- Separat geschriebene negative Tokens um echte Bruchvielfache sind als konsumierter No-op nativ. Nichtpositive `teiler`-Kompositionen besitzen eine explizite Divisor-/Rohwert-/`v`-Reihenfolge; Null bleibt ausschließlich als `v0` sichtbar.
+- Die Python-Referenzprobe bündelt 14 äußere Ganzzahl-/Teilerfälle in einem Prozess und bestätigt die unveränderte historische Grammatik wesentlich schneller.
+- Neue Ledger-Einträge: `MOJO-FIXED-061`, `TEST-FIXED-050`, `TEST-FIXED-051`, `TEST-FIXED-052`; insgesamt **138** Befunde und weiterhin **20** spätere Python-Aufräumpunkte.
+- Portable Abschlussprüfung: **311 Source-Verträge** und **64** zusätzliche Defekt-/Metrik-/Archiv-/Testinfrastrukturverträge bestanden.
+- Quellmanifest: **1.656 Dateien, 114 Symlinks**.
+- Fortschritt: **89/92 = 96,7 %** vollständig nativ/generiert, **92/92 = 100,0 %** mindestens teilweise, **48.831/48.831 = 100,0 %** angegriffene Referenzzeilen; **63.242** Mojo-Zeilen in `src/`, davon **58.648** in `src/reta_mojo/`.
+- Die Erstellungsumgebung kompiliert kein Mojo. Verbindlicher Benutzerlauf: `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bi.sh -- -j 4`; danach `scripts/build-tests.sh --heavy -- -j 4` und `scripts/run-tests.sh --jobs 4`.
+
 # Status – Stage 12c5bh
 
 - Der Benutzerbuild von 12c5bg war vollständig erfolgreich; Architekturprobe, i18n, Legacy-Fassaden, Parameterlaufzeit, setup und Py-Reta-Wahrheitsmatrix wurden bis zum historischen 12c5aq-Gate bestätigt.

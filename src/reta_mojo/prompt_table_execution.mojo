@@ -344,6 +344,35 @@ def _base_multiple_tokens(
     return result^
 
 
+def _projected_fraction_divisor_rows(
+    row_parts: List[String],
+) -> List[String]:
+    """Reproduce the outer Python ``vielfache`` + ``teiler`` integer suffix.
+
+    The frozen prompt first resolves the ordinary integer expression, computes
+    the divisor union of the surviving positive values, and appends the raw
+    source spelling again whenever that spelling contains more than one byte.
+    This last historical length test is why ``5`` is not duplicated, while
+    ``5,-10`` and ``5-7,-6`` retain their raw exclusion/range components.
+    Zero contributes no divisor but remains observable through its later ``v0``
+    selector.
+    """
+    var result = List[String]()
+    if len(row_parts) == 0:
+        return result^
+    try:
+        var values = range_to_numbers(_join_rows(row_parts), False, 0)
+        var divisors = python_divisor_set_order(values)
+        for index in range(len(divisors)):
+            result.append(String(divisors[index]))
+    except:
+        pass
+    if _join_rows(row_parts).byte_length() > 1:
+        for index in range(len(row_parts)):
+            result.append(row_parts[index])
+    return result^
+
+
 def _base_projected_fraction_multiple_tokens(
     language: String,
     projected_rows: List[String],
@@ -354,20 +383,25 @@ def _base_projected_fraction_multiple_tokens(
 ) -> List[String]:
     """Compose ordinary integer multiples with corrected n/m projections.
 
-    The historical prompt keeps three independent pieces on the integer side:
-    whole-number rows projected from the proper-fraction grid, the original
-    integer selector spellings, and their ``v``-prefixed multiple selectors.
-    Only the non-divider form also carries ``--vielfachevonzahlen``.  Keeping
-    the projected rows outside that option prevents a second, incorrect
-    multiple expansion while preserving the ordinary integer-axis semantics.
+    The historical prompt keeps the corrected whole-number projection separate
+    from the ordinary integer grammar.  In plain multiple mode the raw source
+    components and their ``v`` forms are appended and only the raw components
+    feed ``--vielfachevonzahlen``.  In divider mode the ordinary components are
+    first replaced by their stable divisor/raw-source suffix, while the ``v``
+    forms remain unchanged.  Projected rows are never multiplied a second time.
     """
     var result = List[String]()
     var normalized = normalize_prompt_language(language)
     if normalized != "deutsch":
         result.append("-language=" + normalized)
     var selected = _copy_strings(projected_rows)
-    for index in range(len(row_parts)):
-        selected.append(row_parts[index])
+    if divisor_mode:
+        var divisor_rows = _projected_fraction_divisor_rows(row_parts)
+        for index in range(len(divisor_rows)):
+            selected.append(divisor_rows[index])
+    else:
+        for index in range(len(row_parts)):
+            selected.append(row_parts[index])
     for index in range(len(row_parts)):
         selected.append("v" + row_parts[index])
     result.append("-zeilen")
@@ -861,29 +895,15 @@ def _integer_fraction_axis_supported(
     saw_ignored_negative_integer: Bool,
     divisor_mode: Bool,
 ) -> Bool:
-    """Accept proven ordinary selectors beside corrected true fractions.
+    """Accept every now-owned ordinary selector beside corrected fractions.
 
-    Comma-local zero and negative components are not CLI parameters in the
-    historical prompt.  They remain literal row-axis spellings and are passed
-    to both ``--vielfachevonzahlen`` and the matching ``v`` selectors.  A
-    separately written negative token is different: the old parser consumes it
-    as a parameter-like token, so that ambiguous form stays atomic.
-
-    The non-positive ``teiler`` composition has another expansion law (zero is
-    dropped, exclusions are subtracted before divisor enumeration).  Keep that
-    smaller remaining boundary explicit rather than applying the ordinary
-    multiple rule to it.
+    Comma-local positive, zero, range and exclusion components have explicit
+    plain-multiple and divider laws.  A separately written negative token is
+    consumed by the old prompt as a parameter-like no-op; retaining that no-op
+    produces the same corrected fraction plan as omitting the token.  The
+    arguments remain explicit here to document the parser facts at the ownership
+    boundary and to prevent a future accidental reclassification as passthrough.
     """
-    if saw_ignored_negative_integer:
-        return False
-    if len(row_parts) == 0:
-        return True
-    if divisor_mode:
-        if saw_integer_component_exclusion:
-            return False
-        for index in range(len(row_parts)):
-            if row_parts[index] == "0":
-                return False
     return True
 
 

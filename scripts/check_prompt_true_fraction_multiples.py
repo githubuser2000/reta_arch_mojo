@@ -42,6 +42,7 @@ CASES = [
     "universum motive v2/3 -10",
     "universum v2/3,0 teiler",
     "universum v2/3,5,-10 teiler",
+    "universum motive v2/3,0 teiler",
     "universum v1/2,2/3",
     "universum vielfache 1/2,2/3",
     "universum v-1/4,2/3",
@@ -145,26 +146,45 @@ def row_selector(record: list[str]) -> str:
     return candidates[0]
 
 
-def reference_records(command: str) -> list[list[str]]:
+_REFERENCE_PAYLOADS: dict[str, str] = {}
+
+
+def load_reference_payloads(commands: list[str]) -> None:
+    missing = [command for command in commands if command not in _REFERENCE_PAYLOADS]
+    if not missing:
+        return
     environment = os.environ.copy()
     environment["PYTHONHASHSEED"] = "0"
     completed = subprocess.run(
         [
             sys.executable,
             "scripts/prompt_mixed_reciprocal_reference.py",
-            command,
+            *missing,
         ],
         cwd=ROOT,
         env=environment,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
-        timeout=120,
+        timeout=600,
         check=True,
     )
     lines = [line for line in completed.stdout.split(b"\n") if line]
-    if len(lines) != 1:
-        fail(f"unexpected reference-plan line count for {command!r}")
-    payload = lines[0].decode("utf-8")
+    if len(lines) != len(missing):
+        fail(
+            "unexpected batched reference-plan line count: "
+            f"{len(lines)} != {len(missing)}"
+        )
+    for command, line in zip(missing, lines, strict=True):
+        _REFERENCE_PAYLOADS[command] = line.decode("utf-8")
+
+
+def reference_payload(command: str) -> str:
+    load_reference_payloads([command])
+    return _REFERENCE_PAYLOADS[command]
+
+
+def reference_records(command: str) -> list[list[str]]:
+    payload = reference_payload(command)
     if payload == "FALLBACK":
         fail(f"Python reference unexpectedly rejected {command!r}")
     return records(payload)
@@ -224,22 +244,25 @@ def assert_python_nonpositive_integer_axis_composition() -> None:
         if not row_selector(plan[0]).endswith(row_suffix):
             fail(f"Python reference changed non-positive row ordering for {command!r}")
 
-    # The standalone negative token is consumed as a parameter-like token by
-    # the old prompt and reaches the known broken n/m branch.  It is not the
-    # same grammar as a comma-local exclusion and remains an atomic boundary.
-    environment = os.environ.copy()
-    environment["PYTHONHASHSEED"] = "0"
-    completed = subprocess.run(
-        [sys.executable, "scripts/prompt_mixed_reciprocal_reference.py", "universum motive v2/3 -10"],
-        cwd=ROOT,
-        env=environment,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        timeout=120,
-        check=True,
-        text=True,
-    )
-    if completed.stdout.strip() != "FALLBACK":
+    divider_cases = {
+        "universum v2/3,0 teiler": ",v0",
+        "universum v2/3,5,-10 teiler": ",1,5,5,-10,v5,v-10",
+        "universum v2/3,-10 teiler": ",-10,v-10",
+        "universum v2/3,0,-10 teiler": ",-10,0,v-10,v0",
+        "universum v2/3,5-7,-6 teiler": ",1,5,7,-6,5-7,v-6,v5-7",
+    }
+    for command, row_suffix in divider_cases.items():
+        plan = reference_records(command)
+        if any(field.startswith("--vielfachevonzahlen=") for field in plan[0]):
+            fail(f"Python divider unexpectedly retained multiple option for {command!r}")
+        if not row_selector(plan[0]).endswith(row_suffix):
+            fail(f"Python divider changed its stable outer suffix for {command!r}")
+
+    # The standalone negative token is consumed as a parameter-like no-op by
+    # the old prompt and then reaches the known broken n/m rectangle.  The
+    # reference therefore still reports FALLBACK, while native Mojo preserves
+    # the consumed-token fact around its corrected rectangle.
+    if reference_payload("universum motive v2/3 -10") != "FALLBACK":
         fail("standalone negative true-fraction boundary changed")
 
 
@@ -412,6 +435,24 @@ def assert_direct_execution(
 def main() -> int:
     if len(sys.argv) != 3:
         fail("usage: check_prompt_true_fraction_multiples.py PROBE NATIVE_RETA")
+    load_reference_payloads(
+        [
+            "universum v2/3,5",
+            "universum v2/3,5 teiler",
+            "universum motive v2/3,5",
+            "universum motive v2/3,0",
+            "universum motive v2/3,5,-10",
+            "universum motive v2/3,-10",
+            "universum v2/3,0,-10",
+            "universum v2/3,5-7,-6",
+            "universum v2/3,0 teiler",
+            "universum v2/3,5,-10 teiler",
+            "universum v2/3,-10 teiler",
+            "universum v2/3,0,-10 teiler",
+            "universum v2/3,5-7,-6 teiler",
+            "universum motive v2/3 -10",
+        ]
+    )
     assert_csv_rectangles()
     assert_python_bug_is_still_reproducible()
     assert_python_negative_multiple_noops()
@@ -577,14 +618,34 @@ def main() -> int:
     if set(row_values(universe_reciprocal[0])) != set(range(2, 1024, 2)) | {1, 3, 9}:
         fail("Universe reciprocal domain mixed the wrong true-fraction projection")
 
-    for command in (
-        "mond universum motive v2/3",
-        "universum motive v2/3 -10",
-        "universum v2/3,0 teiler",
-        "universum v2/3,5,-10 teiler",
-    ):
-        if result[command] != "FALLBACK":
-            fail(f"unproved composition escaped atomically: {command}")
+    if result["mond universum motive v2/3"] != "FALLBACK":
+        fail("unrelated table family escaped atomically")
+
+    if result["universum motive v2/3 -10"] != result["universum motive v2/3"]:
+        fail("standalone negative no-op changed the corrected fraction plan")
+
+    zero_divider = records(result["universum v2/3,0 teiler"])
+    if len(zero_divider) != 13:
+        fail("zero divider composition lost a Universe invocation")
+    if any(field.startswith("--vielfachevonzahlen=") for field in zero_divider[0]):
+        fail("zero divider incorrectly retained --vielfachevonzahlen")
+    if row_selector(zero_divider[0]) != "2,1,4,6,3,v0":
+        fail("zero divider did not retain exactly the corrected projection and v0")
+
+    excluded_divider = records(result["universum v2/3,5,-10 teiler"])
+    if len(excluded_divider) != 13:
+        fail("excluded divider composition lost a Universe invocation")
+    if any(field.startswith("--vielfachevonzahlen=") for field in excluded_divider[0]):
+        fail("excluded divider incorrectly retained --vielfachevonzahlen")
+    if row_selector(excluded_divider[0]) != "2,1,4,6,3,1,5,5,-10,v5,v-10":
+        fail("excluded divider changed divisor/raw/v ordering")
+
+    multi_zero_divider = records(result["universum motive v2/3,0 teiler"])
+    if len(multi_zero_divider) != 26:
+        fail("multi-domain zero divider lost a physical domain")
+    for index in (0, 13):
+        if row_selector(multi_zero_divider[index]) != "2,1,4,6,3,v0":
+            fail(f"multi-domain zero divider drifted at invocation {index}")
 
     zero_axis = records(result["universum motive v2/3,0"])
     if len(zero_axis) != 26:
@@ -643,8 +704,8 @@ def main() -> int:
         fail("single-domain divider composition lost an invocation")
     if any(field.startswith("--vielfachevonzahlen=") for field in single_divider[0]):
         fail("divider composition incorrectly retained --vielfachevonzahlen")
-    if row_selector(single_divider[0]) != "2,1,4,6,3,5,v5":
-        fail("divider composition changed projected integer ordering")
+    if row_selector(single_divider[0]) != "2,1,4,6,3,1,5,v5":
+        fail("divider composition changed projected divisor ordering")
 
     multi_integer = records(result["universum motive v2/3,5"])
     if len(multi_integer) != 26:
@@ -666,11 +727,15 @@ def main() -> int:
     mixed_integer = records(result["emotion universum v1/2,2/3,5"])
     if len(mixed_integer) != 19:
         fail(f"wrong mixed reciprocal/integer/fraction count: {len(mixed_integer)}")
-    if "--vielfachevonzahlen=5" not in mixed_integer[0] or "--vielfachevonzahlen=5" not in mixed_integer[7]:
+    if "--vielfachevonzahlen=5" not in mixed_integer[0] or "--vielfachevonzahlen=5" not in mixed_integer[6]:
         fail("ordinary multiple option did not reach both mixed fraction domains")
+    if "--Universum=transzendentaliereziproke" not in mixed_integer[7]:
+        fail("mixed fraction invocation 7 is no longer the Universe reciprocal axis")
+    if any(field.startswith("--vielfachevonzahlen=") for field in mixed_integer[7]):
+        fail("Universe reciprocal axis incorrectly inherited ordinary multiples")
     if not row_selector(mixed_integer[0]).endswith(",5,v5"):
         fail("Emotion mixed integer axis lost the original/vN suffix")
-    if not row_selector(mixed_integer[7]).endswith(",5,v5"):
+    if not row_selector(mixed_integer[6]).endswith(",5,v5"):
         fail("Universe mixed integer axis lost the original/vN suffix")
 
     ranged_integer = records(result["universum motive v2/3,5-7"])

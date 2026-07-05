@@ -3268,7 +3268,7 @@
         "scripts/check_prompt_true_fraction_multiples.py",
         "tests/test_prompt_fraction_integer_axes_source.py"
       ],
-      "current_contract": "Kommalokale 0-, negative Ausschluss- und Bereich/Ausschluss-Komponenten bleiben als gewöhnliche äußere Ganzzahlachse erhalten. Ihre Quellschreibweisen gehen in --vielfachevonzahlen und in die v-präfigierten Zeilenselektoren ein; die korrigierten Bruchprojektionen werden nicht doppelt vervielfacht. Separat geschriebene negative Tokens sowie nichtpositive teiler-Kompositionen bleiben wegen anderer Grammatik atomar.",
+      "current_contract": "Kommalokale 0-, negative Ausschluss- und Bereich/Ausschluss-Komponenten bleiben als gewöhnliche äußere Ganzzahlachse erhalten. Ihre Quellschreibweisen gehen in --vielfachevonzahlen und in die v-präfigierten Zeilenselektoren ein; die korrigierten Bruchprojektionen werden nicht doppelt vervielfacht. Die in Stage 12c5bh noch offenen separat negativen No-op- und nichtpositiven teiler-Grammatiken sind inzwischen separat durch MOJO-FIXED-061 typisiert.",
       "post_port_fix": "Keine Änderung am äußeren Python-Vertrag erforderlich. Der bekannte Indexfehler im inneren echten Bruchraster bleibt separat unter PY-OPEN-002 dokumentiert; eine spätere Python-Bereinigung muss diese beiden Ebenen getrennt erhalten.",
       "evidence": [
         "STAGE12C5BH_SPLIT_TEST_PIPELINE_NONPOSITIVE_FRACTION_AXES.md",
@@ -3327,6 +3327,116 @@
       "evidence": [
         "STAGE12C5BH_SPLIT_TEST_PIPELINE_NONPOSITIVE_FRACTION_AXES.md",
         "tests/test_split_test_pipeline.py",
+        "BUILD.md"
+      ]
+    },
+    {
+      "id": "MOJO-FIXED-061",
+      "title": "Separat negative No-op-Tokens und nichtpositive Teilerachsen fielen bei echten Bruchvielfachen zurück",
+      "origin": "mojo_port",
+      "classification": "fraction_divider_and_standalone_negative_composition_gap",
+      "severity": "high",
+      "python_status": "correct_reference",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5bh/12c5bi",
+      "reproducer": "Die nativen Pläne für universum motive v2/3 -10, universum v2/3,0 teiler und universum v2/3,5,-10 teiler prüfen; alle drei Vektoren fielen trotz stabiler äußerer Promptgrammatik vollständig zurück.",
+      "python_locations": [
+        "python_reference/reta_architecture/prompt_execution.py:2347",
+        "python_reference/reta_architecture/prompt_execution.py:2367",
+        "python_reference/reta_architecture/prompt_execution.py:1823",
+        "python_reference/reta_architecture/prompt_execution.py:1864"
+      ],
+      "mojo_locations": [
+        "src/reta_mojo/prompt_table_execution.mojo",
+        "tests/test_prompt_table_execution.mojo",
+        "tests/prompt_true_fraction_multiple_probe.mojo",
+        "scripts/check_prompt_true_fraction_multiples.py",
+        "tests/test_prompt_fraction_integer_axes_source.py"
+      ],
+      "current_contract": "Ein separat geschriebenes negatives Token wird wie in der historischen Promptgrammatik konsumiert und verändert den korrigierten Bruchplan nicht. Im teiler-Zweig werden positive überlebende Werte in ihre Divisorvereinigung überführt, mehrbyteige Rohkomponenten danach bewahrt und v-Formen zuletzt angefügt; Null trägt keinen Divisor und bleibt als v0 sichtbar. --vielfachevonzahlen wird im teiler-Zweig nicht gesetzt.",
+      "post_port_fix": "Keine Änderung der äußeren Python-Grammatik erforderlich. Bei der späteren Behebung von PY-OPEN-002 muss die korrigierte innere Bruchrechteckberechnung diese bestehende No-op-/Divisor-/Rohwert-/v-Reihenfolge bewahren.",
+      "evidence": [
+        "STAGE12C5BI_COMPILER_OPTIONS_PROMPT_STRING_DIVIDER_AXES.md",
+        "tests/test_prompt_table_execution.mojo",
+        "scripts/check_prompt_true_fraction_multiples.py",
+        "tests/test_prompt_fraction_integer_axes_source.py"
+      ]
+    },
+    {
+      "id": "TEST-FIXED-050",
+      "title": "Prompt-History-Sandboxtest inferierte StringSlice und war danach nicht mehr zuweisbar",
+      "origin": "mojo_tests",
+      "classification": "borrowed_string_slice_reassignment_compile_failure",
+      "severity": "high",
+      "python_status": "not_applicable",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5bh/12c5bi",
+      "reproducer": "scripts/build-tests.sh -- -j 4 ausführen; tests/test_native_prompt_input.mojo brach bei root = \"/tmp\" ab, weil var root durch String(...).strip() als StringSlice inferiert worden war.",
+      "python_locations": [],
+      "mojo_locations": [
+        "tests/test_native_prompt_input.mojo",
+        "tests/test_stage12c5bi_source.py",
+        "scripts/test_stage12c5bi.sh"
+      ],
+      "current_contract": "Das Sandboxverzeichnis wird zunächst als besitzender String geladen und das Ergebnis von strip anschließend ausdrücklich wieder in einen String kopiert. Leerer Inhalt kann danach typkorrekt auf /tmp zurückgesetzt werden.",
+      "post_port_fix": "Keine Python-Änderung erforderlich; betroffen war ausschließlich ein Mojo-Test und dessen Ownership-Typinferenz.",
+      "evidence": [
+        "STAGE12C5BI_COMPILER_OPTIONS_PROMPT_STRING_DIVIDER_AXES.md",
+        "tests/test_native_prompt_input.mojo",
+        "tests/test_stage12c5bi_source.py"
+      ]
+    },
+    {
+      "id": "TEST-FIXED-051",
+      "title": "Mehrdomänen-Bruchtest prüfte die Universe-Ganzzahlachse am Reziprokindex",
+      "origin": "mojo_tests",
+      "classification": "wrong_invocation_block_index",
+      "severity": "medium",
+      "python_status": "not_applicable",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5bg/12c5bi",
+      "reproducer": "test_true_fraction_multiples_follow_each_csv_rectangle ausführen; die Assertion erwartete --vielfachevonzahlen=5 in Invocation 7, obwohl der Emotionblock 0–5 belegt, die Universe-Ganzzahlachse 6 und die Universe-Reziprokachse 7 ist.",
+      "python_locations": [],
+      "mojo_locations": [
+        "tests/test_prompt_table_execution.mojo",
+        "scripts/check_prompt_true_fraction_multiples.py",
+        "tests/test_stage12c5bi_source.py"
+      ],
+      "current_contract": "Der Test bindet die gewöhnliche Universe-Ganzzahlachse an Index 6. Index 7 wird zusätzlich positiv als transzendental-reziproke Achse und negativ als frei von --vielfachevonzahlen geprüft.",
+      "post_port_fix": "Keine Python- oder Mojo-Produktionsänderung erforderlich; betroffen war ausschließlich die Positionsannahme im Test.",
+      "evidence": [
+        "STAGE12C5BI_COMPILER_OPTIONS_PROMPT_STRING_DIVIDER_AXES.md",
+        "tests/test_prompt_table_execution.mojo",
+        "tests/test_stage12c5bi_source.py"
+      ]
+    },
+    {
+      "id": "TEST-FIXED-052",
+      "title": "Kombinierter Testeinstieg und fokussierte Stages konnten Compilerthreadoptionen nicht durchreichen",
+      "origin": "test_infrastructure",
+      "classification": "test_compiler_option_forwarding_gap",
+      "severity": "medium",
+      "python_status": "not_applicable",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5bh/12c5bi",
+      "reproducer": "scripts/test_all.sh oder scripts/test_stage12c5bh.sh mit einer gewünschten Threadzahl verwenden; der Wrapper bot keine Argumentgrenze für Mojo-Optionen und die Stage hardcodierte -j 4.",
+      "python_locations": [],
+      "mojo_locations": [
+        "scripts/test_all.sh",
+        "scripts/build-tests.sh",
+        "scripts/test_stage12c5bh.sh",
+        "scripts/test_stage12c5bi.sh",
+        "scripts/check_prompt_true_fraction_multiples.sh",
+        "scripts/mojo_build_options.sh",
+        "tests/test_split_test_pipeline.py",
+        "tests/test_stage12c5bi_source.py"
+      ],
+      "current_contract": "Compileroptionen hinter -- werden unverändert an jeden einzelnen mojo build-Aufruf weitergereicht. --run-jobs steuert unabhängig die Laufzeitparallelität. Mehrere eigenständige Compilerprozesse bleiben sequenziell und doppelte Threadoptionen werden früh abgelehnt.",
+      "post_port_fix": "Keine Python-Änderung erforderlich; dies ist eine reine Build- und Testinfrastrukturverbesserung.",
+      "evidence": [
+        "STAGE12C5BI_COMPILER_OPTIONS_PROMPT_STRING_DIVIDER_AXES.md",
+        "tests/test_split_test_pipeline.py",
+        "tests/test_stage12c5bi_source.py",
         "BUILD.md"
       ]
     }

@@ -29,6 +29,9 @@ def test_test_pipeline_has_separate_build_run_and_compatibility_entrypoints() ->
     assert "mojo build" not in run
     assert '"$ROOT/scripts/build-tests.sh"' in wrapper
     assert '"$ROOT/scripts/run-tests.sh"' in wrapper
+    assert '--run-jobs' in wrapper
+    assert '"$ROOT/scripts/build-tests.sh" -- "$@"' in wrapper
+    assert '"$ROOT/scripts/build-tests.sh" --heavy -- "$@"' in wrapper
     assert "find src tests assets -type f" in source_id
 
 
@@ -126,7 +129,7 @@ def test_shell_entrypoints_are_syntactically_valid_and_help_without_compiler() -
         ["sh", "-n", str(BUILD), str(RUN), str(WRAPPER), str(SOURCE_ID)],
         check=True,
     )
-    for script in (BUILD, RUN):
+    for script in (BUILD, RUN, WRAPPER):
         completed = subprocess.run(
             [str(script), "--help"],
             cwd=ROOT,

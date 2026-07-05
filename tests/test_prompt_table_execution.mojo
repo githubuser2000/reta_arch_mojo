@@ -499,7 +499,7 @@ def test_true_fraction_multiples_follow_each_csv_rectangle() raises:
     assert_equal(len(integer_axis_divisor.invocations), 13)
     assert_false("--vielfachevonzahlen=" in _tokens(integer_axis_divisor, 0))
     assert_true(
-        "--vorhervonausschnitt=2,1,4,6,3,5,v5"
+        "--vorhervonausschnitt=2,1,4,6,3,1,5,v5"
         in _tokens(integer_axis_divisor, 0)
     )
 
@@ -535,7 +535,12 @@ def test_true_fraction_multiples_follow_each_csv_rectangle() raises:
     assert_equal(len(mixed_integer_axis.invocations), 19)
     assert_true("--vielfachevonzahlen=5" in _tokens(mixed_integer_axis, 0))
     assert_true(",5,v5" in _tokens(mixed_integer_axis, 0))
-    assert_true("--vielfachevonzahlen=5" in _tokens(mixed_integer_axis, 7))
+    assert_true("--vielfachevonzahlen=5" in _tokens(mixed_integer_axis, 6))
+    assert_true(
+        "--Universum=transzendentaliereziproke"
+        in _tokens(mixed_integer_axis, 7)
+    )
+    assert_false("--vielfachevonzahlen=" in _tokens(mixed_integer_axis, 7))
 
     # Comma-local zero and exclusion components have a stable outer integer
     # axis even though Python's inner n/m rectangle is defective.  Preserve
@@ -595,12 +600,52 @@ def test_true_fraction_multiples_follow_each_csv_rectangle() raises:
         in _tokens(ranged_exclusion_axis, 0)
     )
 
-    # Unrelated table families, standalone negative tokens, and the distinct
-    # non-positive teiler algebra remain atomic until their own contracts.
+    # A separately written negative token is consumed by the historical prompt
+    # as a parameter-like no-op.  It must not alter the corrected multi-domain
+    # fraction plan.
     assert_false(_plan("mond universum motive v2/3").handled)
-    assert_false(_plan("universum motive v2/3 -10").handled)
-    assert_false(_plan("universum v2/3,0 teiler").handled)
-    assert_false(_plan("universum v2/3,5,-10 teiler").handled)
+    var standalone_negative = _plan("universum motive v2/3 -10")
+    var standalone_negative_base = _plan("universum motive v2/3")
+    assert_true(standalone_negative.handled)
+    assert_equal(
+        serialize_prompt_table_plan(standalone_negative),
+        serialize_prompt_table_plan(standalone_negative_base),
+    )
+
+    # The divider branch has a distinct outer integer law.  Zero contributes no
+    # divisor but keeps v0.  Positive values contribute their divisor union;
+    # multi-byte raw expressions are then retained before the v-prefixed forms.
+    var zero_divider_axis = _plan("universum v2/3,0 teiler")
+    assert_true(zero_divider_axis.handled)
+    assert_equal(len(zero_divider_axis.invocations), 13)
+    assert_false("--vielfachevonzahlen=" in _tokens(zero_divider_axis, 0))
+    assert_true(
+        "--vorhervonausschnitt=2,1,4,6,3,v0"
+        in _tokens(zero_divider_axis, 0)
+    )
+
+    var excluded_divider_axis = _plan("universum v2/3,5,-10 teiler")
+    assert_true(excluded_divider_axis.handled)
+    assert_equal(len(excluded_divider_axis.invocations), 13)
+    assert_false(
+        "--vielfachevonzahlen=" in _tokens(excluded_divider_axis, 0)
+    )
+    assert_true(
+        "--vorhervonausschnitt=2,1,4,6,3,1,5,5,-10,v5,v-10"
+        in _tokens(excluded_divider_axis, 0)
+    )
+
+    var multi_zero_divider_axis = _plan("universum motive v2/3,0 teiler")
+    assert_true(multi_zero_divider_axis.handled)
+    assert_equal(len(multi_zero_divider_axis.invocations), 26)
+    assert_true(
+        "--vorhervonausschnitt=2,1,4,6,3,v0"
+        in _tokens(multi_zero_divider_axis, 0)
+    )
+    assert_true(
+        "--vorhervonausschnitt=2,1,4,6,3,v0"
+        in _tokens(multi_zero_divider_axis, 13)
+    )
 
     var mixed_axes = _plan("universum v1/2,2/3")
     assert_true(mixed_axes.handled)
