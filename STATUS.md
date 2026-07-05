@@ -1,3 +1,15 @@
+# Status – Stage 12c5bd
+
+- Der gemeldete Prägarbentest war zu positionsabhängig: eine `cn`-Restriktion übernimmt korrekt 16 explizit chinesische und 16 sprachneutrale CSV-Sektionen.
+- Alle 32 Resultate tragen nach der Verfeinerung `cn` im Kontext und bewahren Quelle sowie Payload.
+- `universum v1/4,-1/8,2/3` ist nun ein nativer 13-Aufruf-Plan: positive Reziprokvielfache, ausgeschlossene Reziprokvielfache und die echte `2/3`-Bruchachse werden unabhängig berechnet.
+- Die eingefrorene Python-Referenz reproduziert für denselben Befehl weiterhin `PY-OPEN-002`; Mojo besitzt die korrigierte Semantik ohne Kindprozess.
+- Portable Prüfung: **284 Source-Tests bestanden, 1 übersprungen**; zusätzlich fokussierte Defekt-, Metrik-, Manifest- und Archivverträge grün.
+- Defektledger: **126** Einträge, davon **20** Python-Aufräumpunkte.
+- Quellmanifest: **1.629 Dateien**, **114 Symlinks**.
+- Fortschritt: **89/92 = 96,7 %** vollständig nativ/generiert, **92/92 = 100,0 %** mindestens teilweise, **48.831/48.831 = 100,0 %** angegriffene Referenzzeilen; **62.732** Mojo-Zeilen in `src/`, davon **58.138** in `src/reta_mojo/`.
+- Die verbindliche Mojo-Kompilierung bleibt beim Benutzer: `scripts/build-all.sh -- -j 8 && scripts/test_stage12c5bd.sh`.
+
 # Status – Stage 12c5bc
 
 - `bin/reta-mojo` trennt nun Quellbaum-Fallback und installiertes Binärlayout ausdrücklich.

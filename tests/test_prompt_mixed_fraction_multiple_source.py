@@ -48,7 +48,8 @@ def test_mixed_universe_contract_is_no_longer_a_fallback() -> None:
     assert 'var positive_first_half = _plan("universum v1/2,-2/3")' in test_source
     assert 'var positive_first_emotion = _plan("emotion v1/4,-2/3")' in test_source
     assert 'var positive_first_divisor = _plan("universum v1/4,-2/3 teiler")' in test_source
-    assert 'assert_false(_plan("universum v1/4,-1/8,2/3").handled)' in test_source
+    assert 'var reciprocal_collision = _plan("universum v1/4,-1/8,2/3")' in test_source
+    assert 'assert_equal(len(reciprocal_collision.invocations), 13)' in test_source
     assert '"universum v-2/3,1/4",' in checker
     assert 'positive_first = records(result["universum v1/4,-2/3"])' in checker
     assert 'set(range(4, 1024, 4))' in checker

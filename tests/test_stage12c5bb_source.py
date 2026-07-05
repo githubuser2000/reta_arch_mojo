@@ -11,9 +11,11 @@ def _text(path: str) -> str:
 
 def test_current_stage_chains_the_complete_previous_runtime_gate() -> None:
     current = _text("scripts/test_current_stage.sh")
+    newest = _text("scripts/test_stage12c5bd.sh")
     installed_stage = _text("scripts/test_stage12c5bc.sh")
     stage = _text("scripts/test_stage12c5bb.sh")
-    assert "test_stage12c5bc.sh" in current
+    assert "test_stage12c5bd.sh" in current
+    assert '"$ROOT/scripts/test_stage12c5bc.sh"' in newest
     assert '"$ROOT/scripts/test_stage12c5bb.sh"' in installed_stage
     assert '"$ROOT/scripts/test_stage12c5ba.sh"' in stage
     assert "tests/test_prompt_positive_first_fraction_multiple_source.py" in stage

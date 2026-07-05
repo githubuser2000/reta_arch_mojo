@@ -641,3 +641,10 @@ Maschinenstand: **80/92 vollständig**, **86/92 mindestens teilweise**, **46.561
 - [x] Im Binärlayout deterministischen Exitstatus 127 und konkrete Diagnose liefern.
 - [x] Positive-first Bruchvielfachen-Port aus 12c5bb vollständig in der Stage-Kette erhalten.
 - [ ] Benutzerseitigen Modular-Lauf `scripts/build-all.sh -- -j 8 && scripts/test_stage12c5bc.sh` ausführen.
+## Stage 12c5bd – Prägarbenvererbung und reziproke Bruchkollision
+
+- [x] Positionsabhängige `cn`-Prägarbenannahme durch einen vollständigen 16+16-Vererbungsvertrag ersetzen.
+- [x] Sprachneutrale Sektionen nach Verfeinerung mit `cn`-Kontext und unveränderter Nutzlast bewahren.
+- [x] `v1/4,-1/8,2/3` in Reziprokdifferenz und echte Bruch-CSV-Achse zerlegen.
+- [x] 13-Aufruf-Plan, Zeilenmenge und direkte native Ausführung in die bestehende Paritätskette aufnehmen.
+- [ ] Benutzerseitigen Modular-Lauf `scripts/build-all.sh -- -j 8 && scripts/test_stage12c5bd.sh` ausführen.

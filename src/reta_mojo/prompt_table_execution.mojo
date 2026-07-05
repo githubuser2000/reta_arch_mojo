@@ -606,6 +606,46 @@ def _positive_reciprocal_multiple_with_excluded_true_fractions(
     return has_positive_reciprocal_multiple and has_excluded_true_fraction
 
 
+def _positive_first_reciprocal_collision_with_true_fraction(
+    pairs: List[_PromptFractionPair],
+) -> Bool:
+    """Recognize one proven positive-first reciprocal subtraction class.
+
+    ``v1/a,-1/b,c/d`` (with c > 1) is decomposed into an independently
+    bounded reciprocal axis and one proper-fraction CSV rectangle.  The frozen
+    Python reference crashes while indexing this combination, but both native
+    projections are already deterministic.  Excluded proper fractions, a
+    non-reciprocal first component, or more than one positive reciprocal remain
+    outside this deliberately narrow correction contract.
+    """
+    if len(pairs) < 3:
+        return False
+    var first = pairs[0].copy()
+    if first.excluded or first.numerator != 1 or not first.multiple:
+        return False
+    var positive_reciprocals = 0
+    var excluded_reciprocals = 0
+    var positive_true_fractions = 0
+    for index in range(len(pairs)):
+        var pair = pairs[index].copy()
+        if not pair.multiple:
+            return False
+        if pair.numerator == 1:
+            if pair.excluded:
+                excluded_reciprocals += 1
+            else:
+                positive_reciprocals += 1
+        else:
+            if pair.excluded:
+                return False
+            positive_true_fractions += 1
+    return (
+        positive_reciprocals == 1
+        and excluded_reciprocals > 0
+        and positive_true_fractions > 0
+    )
+
+
 def _fraction_pairs_for_axis(
     pairs: List[_PromptFractionPair], reciprocal: Bool
 ) -> List[_PromptFractionPair]:
@@ -700,6 +740,8 @@ def _fraction_multiple_supported(
     if not domain.supported:
         return False
     if _positive_reciprocal_multiple_with_excluded_true_fractions(pairs):
+        return True
+    if _positive_first_reciprocal_collision_with_true_fraction(pairs):
         return True
     if not _has_positive_true_fraction(pairs):
         return False

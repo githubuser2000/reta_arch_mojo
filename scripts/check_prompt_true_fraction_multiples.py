@@ -399,8 +399,22 @@ def main() -> int:
     if "--spaltenreihenfolgeundnurdiese=1" not in positive_divisor[0]:
         fail("divider command did not narrow the Universe reciprocal columns")
 
-    if result["universum v1/4,-1/8,2/3"] != "FALLBACK":
-        fail("positive/excluded reciprocal collision must remain atomic fallback")
+    collision = assert_domain_plan(
+        result["universum v1/4,-1/8,2/3"],
+        "--gebrochen-rational_Universum_n/m=",
+        list(range(2, 21, 2)),
+        set(range(3, 22, 3)),
+        13,
+    )
+    expected_collision_rows = {1, 2, 3, 6, 9} | {
+        value for value in range(4, 1024, 4) if value % 8 != 0
+    }
+    if set(row_values(collision[1])) != expected_collision_rows:
+        fail("reciprocal subtraction collision lost its independent row axis")
+    if set(row_values(collision[0])) != {1, 2, 3, 4, 6}:
+        fail("reciprocal collision changed the whole-number projection")
+    if set(row_values(collision[-1])) != {6, 12, 18}:
+        fail("reciprocal collision changed the equal-axis projection")
 
     runner = Path(sys.argv[2]).resolve()
     assert_direct_execution(result["universum v2/3"], runner)
@@ -408,11 +422,13 @@ def main() -> int:
     assert_direct_execution(
         result["universum v1/4,-2/3"], runner, expected_count=1
     )
+    assert_direct_execution(result["universum v1/4,-1/8,2/3"], runner)
 
     print(
         "true fraction multiples: Python crashes reproduced; "
         "Mojo contract 13/13, mixed bounds, negative no-op branches, "
-        "positive-first reciprocal-only branches, and direct invocations valid"
+        "positive-first reciprocal-only and reciprocal-collision branches, "
+        "and direct invocations valid"
     )
     return 0
 

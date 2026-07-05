@@ -502,9 +502,20 @@ def test_true_fraction_multiples_follow_each_csv_rectangle() raises:
     assert_equal(len(positive_first_divisor.invocations), 1)
     assert_true("--spaltenreihenfolgeundnurdiese=1" in _tokens(positive_first_divisor))
 
-    # A positive reciprocal combined with its own exclusion reaches the frozen
-    # Python IndexError branch and therefore remains atomic compatibility work.
-    assert_false(_plan("universum v1/4,-1/8,2/3").handled)
+    # The frozen Python reference crashes here.  Mojo owns the independently
+    # bounded reciprocal subtraction and proper-fraction rectangle instead.
+    var reciprocal_collision = _plan("universum v1/4,-1/8,2/3")
+    assert_true(reciprocal_collision.handled)
+    assert_equal(len(reciprocal_collision.invocations), 13)
+    assert_true("--Universum=transzendentalien" in _tokens(reciprocal_collision, 0))
+    assert_true("--Universum=transzendentaliereziproke" in _tokens(reciprocal_collision, 1))
+    assert_true(
+        "--vorhervonausschnitt=1,2,3,4,516,6,9,12,524"
+        in _tokens(reciprocal_collision, 1)
+    )
+    assert_true(",1004,500,1012,508" in _tokens(reciprocal_collision, 1))
+    assert_false(",8," in _tokens(reciprocal_collision, 1))
+    assert_true("--gebrochen-rational_Universum_n/m=20" in _tokens(reciprocal_collision, 11))
 
     _emit_true_fraction_multiple_plan("universum v2/3")
     _emit_true_fraction_multiple_plan("universum vielfache 2/3")

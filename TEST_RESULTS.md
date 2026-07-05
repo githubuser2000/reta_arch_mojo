@@ -1,3 +1,12 @@
+# Testergebnisse – Stage 12c5bd
+
+- Prägarbenvertrag: 16 explizite `cn`- plus 16 geerbte sprachneutrale CSV-Sektionen.
+- Bruchkollision: `universum v1/4,-1/8,2/3` ergibt 13 native Tabellenaufrufe; Reziprokzeilen sind Vielfache von vier ohne Vielfache von acht, vereinigt mit `{1,2,3,6,9}`.
+- Python-Absturz `IndexError: string index out of range` bleibt als `PY-OPEN-002` reproduzierbar.
+- Vollständige portable Source-Suite: **284 bestanden, 1 übersprungen**.
+- Zusätzliche fokussierte Gruppen: **57** Defekt-/Metrik-/Ownership-Tests, **15** Manifest-/Defektprüfungen und **3** Archiv-Roundtrips bestanden.
+- Portable Abschlussprüfungen werden ohne Mojo-Kompilierung ausgeführt; der echte Modular-Lauf ist `scripts/test_stage12c5bd.sh`.
+
 # Testergebnisse – Stage 12c5bc
 
 - Der gemeldete FHS-Fehler wurde mit `tests/test_install_layout.py::test_user_local_prefix_keeps_data_below_home_share` reproduziert und nach der Launcher-Reparatur bestanden.

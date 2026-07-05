@@ -22,10 +22,19 @@ def test_filesystem_sections_preserve_context_and_payload() raises:
     query.language = restricted_dimension(["cn"])
     query.scopes = restricted_dimension(["csv"])
     var sections = bundle.csv.restrict(query)
-    assert_true(len(sections) > 0)
-    assert_true("csv/cn-" in sections[0].payload)
-    assert_true(sections[0].source.endswith(".csv"))
-    assert_true("cn" in sections[0].context.language.values)
+    var explicit_chinese = 0
+    var inherited_neutral = 0
+    for index in range(len(sections)):
+        var section = sections[index].copy()
+        assert_true(section.source.endswith(".csv"))
+        assert_true("cn" in section.context.language.values)
+        if "csv/cn-" in section.payload:
+            explicit_chinese += 1
+        else:
+            inherited_neutral += 1
+    assert_equal(len(sections), 32)
+    assert_equal(explicit_chinese, 16)
+    assert_equal(inherited_neutral, 16)
 
 
 def test_prompt_state_replaces_previous_section() raises:

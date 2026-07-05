@@ -23,7 +23,7 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 
 ## Übersicht
 
-- Einträge insgesamt: **125**
+- Einträge insgesamt: **126**
 - offene bestätigte Python-Fehler: **6**
 - zu entscheidende Python-Fehlerkandidaten: **13**
 - bereits im Python-Baum behobene Fehler: **7**
@@ -51,12 +51,12 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 - Python-Status: `open`
 - Mojo-Status: `fixed`
 - entdeckt in: `12c4r`
-- Reproduktion: `rpb 'universum v2/3' sowie rpb 'universum v1/2,2/3'`
-- heutiger Vertrag: Mojo erweitert Zähler- und Nennerachsen innerhalb der real vorhandenen Bruch-CSV-Form, erzeugt Ganzzahl-/Reziprokprojektionen und stürzt nicht ab. Gemischte 1/n- und echte n/m-Vielfache verwenden getrennte Grenzen: Reziproke bis 1023, echte Brüche nur innerhalb des ausgewählten CSV-Rechtecks.
-- spätere Python-Aktion: Leere zahlenReiheKeineWteiler sicher behandeln, echte Bruchvielfache anhand der tatsächlichen Domänenform aufbauen und gemischte 1/n+n/m-Achsen vor der Expansion in getrennte, anschließend deterministisch vereinigte Bereiche zerlegen.
+- Reproduktion: `rpb 'universum v2/3', rpb 'universum v1/2,2/3' sowie rpb 'universum v1/4,-1/8,2/3'`
+- heutiger Vertrag: Mojo erweitert Zähler- und Nennerachsen innerhalb der real vorhandenen Bruch-CSV-Form, erzeugt Ganzzahl-/Reziprokprojektionen und stürzt nicht ab. Gemischte 1/n- und echte n/m-Vielfache verwenden getrennte Grenzen: Reziproke bis 1023, echte Brüche nur innerhalb des ausgewählten CSV-Rechtecks. Positive-first Reziprok-Subtraktionen wie v1/4,-1/8,2/3 werden zusätzlich als unabhängige Differenzachse mit derselben echten Bruchprojektion materialisiert.
+- spätere Python-Aktion: Leere zahlenReiheKeineWteiler sicher behandeln, echte Bruchvielfache anhand der tatsächlichen Domänenform aufbauen, gemischte 1/n+n/m-Achsen vor der Expansion trennen und positive/ausgeschlossene Reziprokvielfache vor der Vereinigung deterministisch subtrahieren.
 - Python-Orte: `python_reference/reta_architecture/prompt_execution.py:1841`
 - Mojo-Orte: `src/reta_mojo/prompt_table_execution.mojo`
-- Belege: `STAGE12C4R_DEFECT_LEDGER_FRACTION_MULTIPLES.md`, `tests/test_prompt_table_execution.mojo`, `scripts/check_prompt_true_fraction_multiples.py`, `STAGE12C5AZ_MIXED_FRACTION_MULTIPLE_AXES.md`, `tests/test_prompt_mixed_fraction_multiple_source.py`
+- Belege: `STAGE12C4R_DEFECT_LEDGER_FRACTION_MULTIPLES.md`, `tests/test_prompt_table_execution.mojo`, `scripts/check_prompt_true_fraction_multiples.py`, `STAGE12C5AZ_MIXED_FRACTION_MULTIPLE_AXES.md`, `tests/test_prompt_mixed_fraction_multiple_source.py`, `STAGE12C5BD_PRESHEAF_INHERITANCE_RECIPROCAL_COLLISION.md`, `tests/test_prompt_reciprocal_collision_source.py`
 
 ### PY-CAND-001 – Prompt-Ausgabereihenfolge hängt von Python-set und PYTHONHASHSEED ab
 
@@ -1706,3 +1706,17 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 - spätere Python-Aktion: Keine Python-Änderung erforderlich; betroffen war ausschließlich Mojos explizites Effektsystem.
 - Mojo-Orte: `src/reta_mojo/prompt_table_execution.mojo`, `tests/test_prompt_mixed_fraction_multiple_source.py`, `tests/test_stage12c5ba_source.py`, `scripts/test_stage12c5ba.sh`
 - Belege: `STAGE12C5BA_BUILD_THREADS_RAISES_NEGATIVE_FRACTION_NOOPS.md`, `tests/test_stage12c5ba_source.py`, `tests/test_prompt_mixed_fraction_multiple_source.py`, `scripts/test_stage12c5ba.sh`
+
+### TEST-FIXED-045 – Prägarbentest verwarf sprachneutrale Sektionen bei sprachspezifischer Restriktion
+
+- Ursprung: `mojo_tests`
+- Klasse / Schwere: `overconstrained_presheaf_inheritance_assertion` / `medium`
+- Python-Status: `correct_reference`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5bc/12c5bd`
+- Reproduktion: `scripts/test_all.sh aus Stage 12c5bc ausführen; test_filesystem_sections_preserve_context_and_payload erwartete im ersten cn/csv-Treffer zwingend csv/cn-, obwohl die erste gültige Sektion sprachneutral war.`
+- heutiger Vertrag: Eine sprachspezifische Restriktion erbt sowohl explizit chinesische als auch sprachneutrale CSV-Sektionen. Der vollständige Vertrag zählt 16 cn-Sektionen und 16 neutrale Sektionen; alle 32 Resultate tragen nach der Verfeinerung cn im Kontext und bewahren Quelle sowie Nutzlast.
+- spätere Python-Aktion: Keine Python-Änderung erforderlich; die Python- und Mojo-Prägarbenverfeinerung war korrekt. Nur der zu positionsabhängige Mojo-Test wurde auf den vollständigen Vererbungsvertrag korrigiert.
+- Python-Orte: `python_reference/reta_architecture/presheaves.py`, `python_reference/reta_architecture/topology.py`
+- Mojo-Orte: `tests/test_presheaves_complete.mojo`, `src/reta_mojo/presheaves.mojo`, `src/reta_mojo/topology.mojo`, `tests/test_presheaf_inheritance_source.py`
+- Belege: `STAGE12C5BD_PRESHEAF_INHERITANCE_RECIPROCAL_COLLISION.md`, `tests/test_presheaves_complete.mojo`, `tests/test_presheaf_inheritance_source.py`, `scripts/test_stage12c5bd.sh`
