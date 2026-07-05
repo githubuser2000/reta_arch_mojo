@@ -64,8 +64,8 @@ def test_complete_output_parameter_tail_matches_python_whole_set_order() raises:
         _tokens(plan),
         "-zeilen|--vorhervonausschnitt=2|--oberesmaximum=1025|-spalten|"
         "--Primzahlwirkung=Galaxieabsicht|--breite=0|-ausgabe|"
-        "--spaltenreihenfolgeundnurdiese=3-6|--nocolor|"
-        "--keineleereninhalte|--endlessscreen|--keinenummerierung|"
+        "--nocolor|--keineleereninhalte|--endlessscreen|"
+        "--keinenummerierung|"
         "--breite=40|--dontwrap|--art=csv|--endless|--justtext|"
         "--onetable|--keineueberschriften|"
         "--spaltenreihenfolgeundnurdiese=0,1|--breiten=5,7",
@@ -1010,7 +1010,7 @@ def test_fraction_exclusions_and_prefixed_reciprocals_are_native() raises:
     assert_true(prefixed.handled)
     assert_equal(len(prefixed.invocations), 1)
     assert_true("--vorhervonausschnitt=512,4,516,520,12,524" in _tokens(prefixed))
-    assert_true(",500,1012,508" in _tokens(prefixed))
+    assert_true(",492,1004,496,1008,500,1012,504,508" in _tokens(prefixed))
 
 
 def test_eign_properties_are_native_in_full_python_set_order() raises:

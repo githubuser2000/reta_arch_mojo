@@ -4035,6 +4035,165 @@
         "tests/test_prompt_runtime.mojo",
         "scripts/check_prompt_position_independent_effects.py"
       ]
+    },
+    {
+      "id": "MOJO-FIXED-070",
+      "title": "Positionsunabhängige Informations-Begleiteffekte fielen an die Prompt-Kompatibilitätsgrenze",
+      "origin": "mojo_port",
+      "classification": "prompt_informational_companion_effect_ownership_gap",
+      "severity": "medium",
+      "python_status": "correct_reference",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5bs/12c5bt",
+      "reproducer": "hilfe, befehle oder kurzbefehle zusammen mit einem ansonsten vollständig nativen Tabellenkommando an beliebiger Wortposition ausführen. Die Einzelbefehle waren nativ, der zusammengesetzte Vektor wurde jedoch vom atomaren Eigentumsbeweis abgewiesen.",
+      "python_locations": [
+        "python_reference/reta_architecture/prompt_execution.py"
+      ],
+      "mojo_locations": [
+        "src/reta_mojo/prompt_historical_ownership.mojo",
+        "src/prompt_main.mojo",
+        "tests/test_prompt_historical_ownership.mojo",
+        "scripts/check_prompt_companion_effects.py"
+      ],
+      "current_contract": "kurzbefehle, befehle und h/help/hilfe werden über lokalisierte Mitgliedschaft unabhängig von ihrer Wortposition erkannt. Nach vollständigem nativem Eigentumsbeweis werden sie in der festen Python-Reihenfolge Kurzbefehle vor Befehle vor Hilfe und noch vor dem Tabellen- oder mulpri-Plan ausgegeben. Das anschließend ausgeführte zusammengesetzte leeren besitzt seit Stage 12c5bu einen eigenen nativen Terminalzeilenvertrag.",
+      "post_port_fix": "Keine Python-Korrektur erforderlich. Mengenmitgliedschaft und feste Branch-Reihenfolge sind beabsichtigte Referenzsemantik; eine spätere Bereinigung darf die Ausgabeabfolge nicht verändern.",
+      "evidence": [
+        "STAGE12C5BT_INFORMATIONAL_PROMPT_COMPANION_EFFECTS.md",
+        "tests/test_prompt_companion_effects_source.py",
+        "tests/test_prompt_historical_ownership.mojo",
+        "scripts/check_prompt_companion_effects.py",
+        "STAGE12C5BU_NATIVE_COMPOUND_CLEAR.md"
+      ]
+    },
+    {
+      "id": "TEST-FIXED-067",
+      "title": "Vollständiger Ausgabeparametertest erwartete interne Standardspalten trotz expliziter Benutzerwahl",
+      "origin": "test_infrastructure",
+      "classification": "stale_explicit_column_order_expectation",
+      "severity": "medium",
+      "python_status": "not_applicable",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5bs/12c5bt",
+      "reproducer": "scripts/test_all.sh auf 12c5bs ausführen; test_complete_output_parameter_tail_matches_python_whole_set_order erwartete zusätzlich --spaltenreihenfolgeundnurdiese=3-6, obwohl die explizite Benutzeroption --spaltenreihenfolgeundnurdiese=0,1 die interne Richtungs-Standardauswahl ersetzt.",
+      "python_locations": [],
+      "mojo_locations": [
+        "tests/test_prompt_table_execution.mojo",
+        "tests/test_prompt_table_execution_regressions.mojo",
+        "tests/test_prompt_table_execution_regressions_source.py"
+      ],
+      "current_contract": "Bei einer expliziten Ausgabe-Spaltenreihenfolge wird die intern für Richtung gewählte Standardprojektion nicht zusätzlich serialisiert. Der vollständige 13-Parameter-Vektor entspricht dem mit PYTHONHASHSEED=0 instrumentierten Python-Executor und enthält nur die Benutzerwahl 0,1.",
+      "post_port_fix": "Keine Produktionsänderung erforderlich. Die Abweichung lag ausschließlich im neu hinzugefügten Mojo-Sollstring.",
+      "evidence": [
+        "STAGE12C5BT_INFORMATIONAL_PROMPT_COMPANION_EFFECTS.md",
+        "tests/test_prompt_table_execution.mojo",
+        "tests/test_prompt_table_execution_regressions.mojo",
+        "tests/test_prompt_table_execution_regressions_source.py"
+      ]
+    },
+    {
+      "id": "TEST-FIXED-068",
+      "title": "Komponentenlokaler Reziproktest band einen verkürzten veralteten Set-Teilstring",
+      "origin": "test_infrastructure",
+      "classification": "stale_local_reciprocal_set_tail",
+      "severity": "low",
+      "python_status": "not_applicable",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5bs/12c5bt",
+      "reproducer": "scripts/test_all.sh auf 12c5bs ausführen; test_fraction_exclusions_and_prefixed_reciprocals_are_native suchte den nicht zusammenhängenden Teilstring ,500,1012,508, obwohl die CPython-Integer-Setfolge dazwischen 1004,496,1008 und 504 enthält.",
+      "python_locations": [],
+      "mojo_locations": [
+        "tests/test_prompt_table_execution.mojo",
+        "tests/test_prompt_table_execution_regressions.mojo",
+        "tests/test_prompt_table_execution_regressions_source.py"
+      ],
+      "current_contract": "Für universum v1/4,-1/8 bleibt v komponentenlokal, nur die literale Zeile 8 wird entfernt und der serialisierte Reziprokbereich endet mit ...,492,1004,496,1008,500,1012,504,508.",
+      "post_port_fix": "Keine Produktionsänderung erforderlich. Der Laufzeitplan und der instrumentierte Python-Prüfer waren bereits korrekt; nur die Mojo-Assertion war veraltet.",
+      "evidence": [
+        "STAGE12C5BT_INFORMATIONAL_PROMPT_COMPANION_EFFECTS.md",
+        "tests/test_prompt_table_execution.mojo",
+        "tests/test_prompt_table_execution_regressions.mojo",
+        "tests/test_prompt_table_execution_regressions_source.py"
+      ]
+    },
+    {
+      "id": "MOJO-FIXED-071",
+      "title": "Abgewiesene Präfix-Begleiteffekte konnten vor dem atomaren Fallback teilweise ausgeführt werden",
+      "origin": "mojo_port",
+      "classification": "prompt_rejected_compound_partial_control_dispatch",
+      "severity": "high",
+      "python_status": "correct_reference",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5bt",
+      "reproducer": "Ein vom Tabellenplaner erkennbares, vom historischen Eigentumsbeweis aber abgewiesenes Kommando mit führendem leeren, loggen, nichtloggen oder Informationswort ausführen. Nach der Planablehnung konnte der native Einzelbefehlsdispatch den Präfixeffekt noch sichtbar ausführen, statt den vollständigen Originalvektor atomar an Python zu übergeben.",
+      "python_locations": [
+        "python_reference/reta_architecture/prompt_execution.py"
+      ],
+      "mojo_locations": [
+        "src/prompt_main.mojo",
+        "tests/test_prompt_companion_effects_source.py",
+        "tests/test_prompt_historical_ownership.mojo"
+      ],
+      "current_contract": "Sobald ein Tabellen- oder mulpri-Kandidat existiert und der vollständige historische Eigentumsbeweis scheitert, verzweigt der interaktive Controller vor jedem Einzelbefehlsdispatch unmittelbar auf den Python-Fallback. Der native Einmalpfad signalisiert ebenso vor Hilfe-, Clear- oder Loggingdispatch unbesessen. Dadurch entstehen keine sichtbaren Teilwirkungen.",
+      "post_port_fix": "Keine Python-Korrektur erforderlich. Die atomare Ausführung des vollständigen Promptvektors ist Referenzsemantik und muss bei späterer Bereinigung erhalten bleiben.",
+      "evidence": [
+        "STAGE12C5BT_INFORMATIONAL_PROMPT_COMPANION_EFFECTS.md",
+        "src/prompt_main.mojo",
+        "tests/test_prompt_companion_effects_source.py",
+        "tests/test_prompt_historical_ownership.mojo"
+      ]
+    },
+    {
+      "id": "MOJO-FIXED-072",
+      "title": "Zusammengesetztes positionsunabhängiges leeren fiel trotz nativer Terminalgeometrie an Python zurück",
+      "origin": "mojo_port",
+      "classification": "prompt_compound_clear_terminal_rows_gap",
+      "severity": "medium",
+      "python_status": "correct_reference",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5bt/12c5bu",
+      "reproducer": "leeren emotion 1, emotion 1 leeren oder clear emotions 1 im englischen Profil über den nativen Prompt ausführen. Vor Stage 12c5bu wurde der zusammengesetzte Vektor atomar an Python übergeben, obwohl Einzel-Clear, Tabellenplan und TIOCGWINSZ-Spaltenabfrage bereits nativ waren.",
+      "python_locations": [
+        "python_reference/reta_architecture/prompt_execution.py"
+      ],
+      "mojo_locations": [
+        "src/reta_mojo/terminal_geometry.mojo",
+        "src/reta_mojo/prompt_historical_ownership.mojo",
+        "src/prompt_main.mojo",
+        "tests/test_terminal_geometry.mojo",
+        "tests/test_prompt_historical_ownership.mojo",
+        "scripts/check_prompt_compound_clear_native.py"
+      ],
+      "current_contract": "leeren beziehungsweise clear wird bei vollständig besessenen Tabellen- und mulpri-Vektoren lokalisiert und positionsunabhängig erkannt. Nach Kurzbefehlen, Befehlen und Hilfe werden terminal_rows() + 1 Leerzeilen ausgegeben; die Zeilenzahl stammt aus ioctl(TIOCGWINSZ), danach LINES und schließlich 24. Erst anschließend läuft der Tabellenplan. Das alleinstehende leeren behält den getrennten ANSI-Vertrag ESC[2J ESC[H, und abgewiesene zusammengesetzte Vektoren erzeugen keine Teilwirkung.",
+      "post_port_fix": "Keine Python-Korrektur erforderlich. Die Mitgliedschaft, Wirkungsreihenfolge und os.get_terminal_size().lines + 1 sind beabsichtigte Referenzsemantik und müssen bei einer späteren Python-Bereinigung erhalten bleiben.",
+      "evidence": [
+        "STAGE12C5BU_NATIVE_COMPOUND_CLEAR.md",
+        "scripts/check_prompt_companion_effects.py",
+        "scripts/check_prompt_compound_clear_native.py",
+        "tests/test_terminal_geometry_source.py"
+      ]
+    },
+    {
+      "id": "TEST-FIXED-069",
+      "title": "Companion-Effect-Test verlangte Writable für eine absichtlich nur Equatable Struktur",
+      "origin": "test_infrastructure",
+      "classification": "mojo_assert_equal_trait_mismatch",
+      "severity": "medium",
+      "python_status": "not_applicable",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5bt/12c5bu",
+      "reproducer": "RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bt.sh ausführen. Der Build von tests/test_prompt_historical_ownership.mojo scheiterte an assert_equal(first, second), weil PromptHistoricalCompanionEffects zwar Equatable, aber nicht Writable ist.",
+      "python_locations": [],
+      "mojo_locations": [
+        "tests/test_prompt_historical_ownership.mojo",
+        "src/reta_mojo/prompt_historical_ownership.mojo"
+      ],
+      "current_contract": "Strukturgleichheit wird mit assert_true(first == second) und assert_true(localized == first) geprüft. Damit bleibt der Produktionsdatentyp nur mit den tatsächlich benötigten Traits Copyable und Equatable ausgestattet; keine künstliche Writable-Implementierung wird eingeführt.",
+      "post_port_fix": "Keine Produktions- oder Python-Änderung erforderlich. Der Fehler lag ausschließlich in der Wahl der Mojo-Testassertion.",
+      "evidence": [
+        "STAGE12C5BU_NATIVE_COMPOUND_CLEAR.md",
+        "tests/test_prompt_historical_ownership.mojo",
+        "tests/test_terminal_geometry_source.py"
+      ]
     }
   ],
   "audit": {

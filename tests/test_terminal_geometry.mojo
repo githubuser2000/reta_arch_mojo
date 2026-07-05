@@ -2,8 +2,10 @@ from std.testing import assert_equal, assert_true, TestSuite
 from std.sys.info import CompilationTarget
 from reta_mojo.terminal_geometry import (
     automatic_cell_width,
+    compound_clear_line_count,
     effective_cell_width,
     terminal_columns,
+    terminal_rows,
     terminal_geometry_backend,
 )
 
@@ -24,6 +26,16 @@ def test_effective_width_matches_legacy_clamp() raises:
 
 def test_terminal_columns_has_positive_fallback() raises:
     assert_true(terminal_columns() > 0)
+
+
+def test_terminal_rows_has_positive_fallback() raises:
+    assert_true(terminal_rows() > 0)
+
+
+def test_compound_clear_uses_rows_plus_one() raises:
+    assert_equal(compound_clear_line_count(24), 25)
+    assert_equal(compound_clear_line_count(1), 2)
+    assert_equal(compound_clear_line_count(0), 2)
 
 
 def test_backend_matches_compilation_target() raises:

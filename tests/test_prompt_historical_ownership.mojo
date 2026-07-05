@@ -183,6 +183,47 @@ def test_logging_effects_are_position_independent_and_post_command() raises:
     )
 
 
+def test_informational_effects_are_position_independent_and_fixed_order() raises:
+    var catalog = load_prompt_language_catalog("assets")
+    var prefix: List[String] = [
+        "leeren", "hilfe", "kurzbefehle", "befehle", "emotion", "1"
+    ]
+    var suffix: List[String] = [
+        "emotion", "1", "befehle", "hilfe", "kurzbefehle", "leeren"
+    ]
+    assert_true(_supported(prefix^))
+    assert_true(_supported(suffix^))
+    var first = historical_prompt_companion_effects(
+        prefix^, "deutsch", catalog
+    )
+    var second = historical_prompt_companion_effects(
+        suffix^, "deutsch", catalog
+    )
+    assert_true(first.show_short_commands)
+    assert_true(first.show_commands)
+    assert_true(first.show_help)
+    assert_true(first.clear_before_table)
+    assert_true(first == second)
+
+    var english: List[String] = [
+        "emotion", "1", "commands", "help", "shortcuts", "clear"
+    ]
+    assert_true(_supported(english^, "english"))
+    var localized = historical_prompt_companion_effects(
+        english^, "english", catalog
+    )
+    assert_true(localized == first)
+
+    var no_effect: List[String] = ["emotion", "1"]
+    var empty = historical_prompt_companion_effects(
+        no_effect^, "deutsch", catalog
+    )
+    assert_false(empty.show_short_commands)
+    assert_false(empty.show_commands)
+    assert_false(empty.show_help)
+    assert_false(empty.clear_before_table)
+
+
 def test_atomic_rejection_keeps_unowned_effects_out_of_partial_execution() raises:
     var shell: List[String] = ["richtung", "shell", "echo", "2"]
     assert_false(_supported(shell^))
@@ -190,6 +231,12 @@ def test_atomic_rejection_keeps_unowned_effects_out_of_partial_execution() raise
         "richtung", "BefehlSpeichernDanach", "mond", "2"
     ]
     assert_false(_supported(storage^))
+    var compound_clear: List[String] = ["emotion", "1", "leeren"]
+    assert_true(_supported(compound_clear^))
+    var rejected_clear: List[String] = [
+        "leeren", "emotion", "1", "shell", "echo"
+    ]
+    assert_false(_supported(rejected_clear^))
     var unknown_parameter: List[String] = [
         "richtung", "mond", "2", "--unbekannt=ja"
     ]

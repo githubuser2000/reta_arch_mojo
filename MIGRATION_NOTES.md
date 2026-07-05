@@ -1395,3 +1395,25 @@ Vier vollständig native Diagnoseoberflächen teilen seit Stage 12c5z eine versi
   Python-`if/elif`.
 - Die direkte Laufzeitprobe für `universum v1/4,-1/8,2/3` erwartet nun explizit
   den komponentenlokalen Zwei-Aufruf-Plan statt den globalen Standardwert 13.
+
+
+## Stage 12c5bt
+
+- `PromptHistoricalCompanionEffects` besitzt die positionsunabhängigen
+  Informationswirkungen Kurzbefehle, Befehle und Hilfe als typisierten Vertrag.
+- `prompt_main.mojo` gibt diese Effekte nur nach vollständigem Eigentumsbeweis
+  und vor Tabellen-/`mulpri`-Ausführung in historischer fester Reihenfolge aus.
+- Zusammengesetztes `leeren` bleibt aufgrund der Terminalzeilenabhängigkeit
+  atomar am Kompatibilitätsrand.
+- Ein expliziter Ablehnungswächter steht vor dem Einzelbefehlsdispatch und
+  verhindert partielle Hilfe-/Clear-/Loggingwirkungen bei unbesessenen Kommandos.
+- Zwei aus dem 12c5bs-Gesamtlauf stammende veraltete Tabellenassertions wurden
+  ohne Produktionsänderung korrigiert und in einem fokussierten Mojo-Test
+  gebunden.
+
+## 12c5bu
+
+- Portiert die zusammengesetzte Promptwirkung `leeren`/`clear` ohne Python-Fallback.
+- Ergänzt native Terminalhöhe und die reine Regel `rows + 1`.
+- Bewahrt den getrennten ANSI-Vertrag für das alleinstehende Clear-Kommando.
+- Korrigiert den 12c5bt-Testbuild: `assert_equal` wurde auf einer nicht `Writable`-Struktur verwendet.

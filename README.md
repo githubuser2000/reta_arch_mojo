@@ -1279,3 +1279,42 @@ komponentenlokalen `v1/4,-1/8,2/3` an genau zwei Aufrufe.
 ```sh
 RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bs.sh -- -j 8
 ```
+
+
+## Stage 12c5bt – Informations-Begleiteffekte
+
+Die historischen Informationswörter `kurzbefehle`, `befehle` und
+`h`/`help`/`hilfe` sind nun positionsunabhängige Begleiteffekte eines nativen
+Tabellen- oder `mulpri`-Plans. Sie werden erst nach vollständigem atomarem
+Eigentumsbeweis, aber in der Python-Reihenfolge Kurzbefehle → Befehle → Hilfe
+vor der Tabellenwirkung ausgegeben. Das terminalabhängige zusammengesetzte `leeren` blieb in dieser Stage noch am
+Kompatibilitätsrand und wird in Stage 12c5bu nativ geschlossen. Scheitert der vollständige
+Eigentumsbeweis eines erkannten Tabellen-/`mulpri`-Kandidaten, erfolgt der
+Fallback nun vor jedem Einzelbefehlsdispatch atomar und ohne Teilwirkung.
+
+Der Stage-Test bindet außerdem die zwei aus dem vollständigen 12c5bs-Lauf
+gefundenen veralteten Tabellenassertions in einem kleinen fokussierten
+Mojo-Test. Details:
+[`STAGE12C5BT_INFORMATIONAL_PROMPT_COMPANION_EFFECTS.md`](STAGE12C5BT_INFORMATIONAL_PROMPT_COMPANION_EFFECTS.md).
+
+```sh
+RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bt.sh -- -j 8
+```
+
+## Stage 12c5bu – natives zusammengesetztes `leeren`
+
+`leeren` beziehungsweise `clear` ist nun auch als positionsunabhängiger
+Begleiteffekt eines vollständig nativen Tabellen- oder `mulpri`-Plans besessen.
+Der Controller gibt nach Kurzbefehlen, Befehlen und Hilfe, aber vor der Tabelle,
+exakt `Terminalzeilen + 1` Leerzeilen aus. Die Höhe wird über
+`ioctl(TIOCGWINSZ)`, danach `LINES` und schließlich 24 bestimmt.
+
+Das alleinstehende `leeren` bleibt ein getrennter ANSI-Clear-Befehl. Der erste
+12c5bt-Benutzerlauf zeigte außerdem einen Testcompilerfehler; Struct-Gleichheit
+wird nun über den vorhandenen `Equatable`-Operator statt über das zusätzlich
+`Writable` verlangende `assert_equal` geprüft. Details:
+[`STAGE12C5BU_NATIVE_COMPOUND_CLEAR.md`](STAGE12C5BU_NATIVE_COMPOUND_CLEAR.md).
+
+```sh
+RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bu.sh -- -j 8
+```

@@ -786,3 +786,23 @@ Der historische Assetgate ist jetzt vollständig read-only. Fünf gepinnte SHA-2
 - [x] Loggingzustand erst nach erfolgreicher Tabellenwirkung anwenden und `loggen`-Priorität erhalten.
 - [x] Direkte kompakte Bruchprobe auf den korrekten lokalen Zwei-Aufruf-Vertrag festschreiben.
 - [ ] Benutzerseitig `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bs.sh -- -j 8` ausführen.
+
+
+## Stage 12c5bt – Informations-Begleiteffekte
+
+- [x] `kurzbefehle`, `befehle` und Hilfe über lokalisierte Mengenmitgliedschaft besitzen.
+- [x] Historische Ausgabeordnung Kurzbefehle → Befehle → Hilfe vor der Tabelle bewahren.
+- [x] Zusammengesetztes `leeren` explizit am terminalabhängigen Kompatibilitätsrand halten.
+- [x] Abgewiesene Tabellen-/`mulpri`-Kandidaten vor jedem Einzelbefehlsdispatch atomar zurückgeben.
+- [x] Explizite Spaltenwahl gegen interne Richtungs-Standardwahl regressionsprüfen.
+- [x] Komponentenlokalen Reziprok-Settail vollständig binden.
+- [ ] Benutzerseitig `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bt.sh -- -j 8` ausführen.
+
+## Stage 12c5bu – natives zusammengesetztes `leeren`
+
+- [x] Terminalzeilen nativ über `TIOCGWINSZ`, `LINES` und 24-Fallback bestimmen.
+- [x] `leeren`/`clear` positionsunabhängig als Tabellen-/`mulpri`-Begleiteffekt besitzen.
+- [x] Historische Reihenfolge Informationsausgaben → Zeilen+1 → Tabelle bewahren.
+- [x] Standalone-ANSI-Clear und atomaren Fallback unverändert halten.
+- [x] Nicht-`Writable`-Struct im Mojo-Test über `Equatable` vergleichen.
+- [ ] Benutzerseitig `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bu.sh -- -j 8` ausführen.

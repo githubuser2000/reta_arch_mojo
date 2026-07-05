@@ -152,6 +152,54 @@ comptime PROMPT_LOG_DISABLED = 0
 comptime PROMPT_LOG_ENABLED = 1
 
 
+@fieldwise_init
+struct PromptHistoricalCompanionEffects(Copyable, Equatable):
+    """Position-independent effects around one table or mulpri plan."""
+
+    var show_short_commands: Bool
+    var show_commands: Bool
+    var show_help: Bool
+    var clear_before_table: Bool
+
+
+def historical_prompt_companion_effects(
+    planning_tokens: List[String],
+    language: String,
+    catalog: PromptLanguageCatalog,
+) -> PromptHistoricalCompanionEffects:
+    """Collect fixed-order informational effects from the whole prompt set.
+
+    The Python ``PromptGrosseAusgabe`` implementation checks membership rather
+    than token position and always emits ``kurzbefehle`` before ``befehle``
+    before ``hilfe``.  Its numeric/table block then prints terminal rows plus
+    one blank line for ``leeren`` before the first table branch.  Preserve that
+    order independently of the source spelling.
+    """
+    var show_short_commands = False
+    var show_commands = False
+    var show_help = False
+    var clear_before_table = False
+    for index in range(len(planning_tokens)):
+        var canonical = canonical_prompt_command(
+            planning_tokens[index], language, catalog
+        )
+        if canonical == "kurzbefehle":
+            show_short_commands = True
+        elif canonical == "befehle":
+            show_commands = True
+        elif (
+            canonical == "h"
+            or canonical == "help"
+            or canonical == "hilfe"
+        ):
+            show_help = True
+        elif canonical == "leeren":
+            clear_before_table = True
+    return PromptHistoricalCompanionEffects(
+        show_short_commands, show_commands, show_help, clear_before_table
+    )
+
+
 def historical_prompt_control_supported(canonical: String) -> Bool:
     return (
         canonical == "mulpri"
@@ -168,6 +216,12 @@ def historical_prompt_control_supported(canonical: String) -> Bool:
         or canonical == "einzeln"
         or canonical == "loggen"
         or canonical == "nichtloggen"
+        or canonical == "kurzbefehle"
+        or canonical == "befehle"
+        or canonical == "h"
+        or canonical == "help"
+        or canonical == "hilfe"
+        or canonical == "leeren"
         or canonical
         == "keineEinZeichenZeilenPlusKeineAusgabeWelcherBefehlEsWar"
     )

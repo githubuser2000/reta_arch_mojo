@@ -2482,3 +2482,36 @@ Benutzerlauf.
 - Stage-, Ledger-, Portierungs- und Archivverträge: **65/65**.
 - Die tatsächliche Mojo-Kompilierung bleibt der Benutzerlauf
   `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bs.sh -- -j 8`.
+
+
+## Stage 12c5bt – vorbereiteter Prüfstand
+
+- Benutzer-Vollbuild von 12c5bs: erfolgreich.
+- Neue Runtime-/Ownership-Verträge aus 12c5bs: 31/31 und 9/9 bestanden.
+- Vollständiger Lauf bestätigte den Produktionscode und fand zwei veraltete
+  `test_prompt_table_execution`-Assertions.
+- Python-Referenzordnung der Informations-Begleiteffekte ist als
+  Kurzbefehle → Befehle → Hilfe → Tabelle eingefroren.
+- Fokussierter neuer Mojo-Test bindet explizite Spaltenersetzung und den
+  vollständigen lokalen Reziprok-Settail.
+- Compilerfreier Source-Audit in drei Batches: **133 bestanden, 1 Skip**, **124 bestanden**, **185 bestanden**; zusammen **442 bestanden**.
+- Nach Manifestaktualisierung bestanden weitere **47** Archiv-, Profil-, Ledger- und Stage-Verträge.
+- Architektur-Referenzaudit: **70/70** Tests und **7/7** Subtests bestanden.
+- Defektledger **164/18**, Portierung **89/92** vollständig und **92/92** mindestens teilweise; Mojo-Zeilen **63.792/59.138**; Manifest **1.710 Dateien / 114 Symlinks**.
+- Die tatsächliche Mojo-Kompilierung bleibt der Benutzerlauf
+  `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bt.sh -- -j 8`.
+
+## Stage 12c5bu – vorbereitete Prüfungen
+
+- Python-Referenzordnung: Kurzbefehle → Befehle → Hilfe → Terminalzeilen+1 → Tabelle.
+- Mojo-Ownership-Test: lokalisierte Präfix-/Suffixformen und atomare Ablehnung.
+- Mojo-Terminaltest: Zeilenabfrage und deterministische `rows + 1`-Regel.
+- Native End-to-End-Probe mit `LINES=3`: drei lokalisierte/positionierte Varianten, vier führende Leerzeilen und anschließende Tabelle; Standalone-ANSI unverändert.
+- Source-Regressionsvertrag verhindert erneute Verwendung von `assert_equal` auf `PromptHistoricalCompanionEffects`.
+### Compilerfreie Verifikation 12c5bu
+
+- fokussierte Stage-/Ledger-/Archivverträge: **70/70**
+- alle 94 `*source.py`-Dateien in kleinen Batches: **393 bestanden**, **1 begründeter Skip**
+- Defektledger: **166 Einträge**, **18** spätere Python-Aufgaben
+- Portierung: **89/92 vollständig**, **92/92 mindestens teilweise**
+- Mojo-Zeilen: **63.849** in `src/`, davon **59.180** im Kernpaket

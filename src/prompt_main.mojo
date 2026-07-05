@@ -43,12 +43,17 @@ from reta_mojo.prompt_execution_runtime import render_prompt_table_plan
 from reta_mojo.prompt_historical_ownership import (
     PROMPT_LOG_DISABLED,
     PROMPT_LOG_ENABLED,
+    historical_prompt_companion_effects,
     historical_prompt_execution_supported,
     historical_prompt_logging_update,
     is_prompt_numeric_syntax_token,
 )
 from reta_mojo.native_cli_startup import native_cli_startup
 from reta_mojo.resource_paths import asset_root, csv_resource, reference_root
+from reta_mojo.terminal_geometry import (
+    compound_clear_line_count,
+    terminal_rows,
+)
 from reta_mojo.prompt_runtime import (
     KIND_EMPTY,
     KIND_EXIT,
@@ -119,6 +124,13 @@ def _print_lines(values: List[String]) -> None:
 
 def _clear_terminal_native() -> None:
     print("\x1b[2J\x1b[H", end="")
+
+
+def _print_compound_clear_lines() -> None:
+    # Python's table branch uses ``os.get_terminal_size().lines + 1`` blank
+    # lines rather than the standalone ANSI clear command.
+    for _ in range(compound_clear_line_count(terminal_rows())):
+        print()
 
 
 def _print_start_help() -> None:
@@ -447,15 +459,6 @@ def _run_command(
         return True
     if command.kind == KIND_EXIT:
         return False
-    if command.kind == KIND_HELP:
-        _print_prompt_help()
-        return True
-    if command.kind == KIND_COMMANDS:
-        _print_commands(catalog, profile.language, False)
-        return True
-    if command.kind == KIND_SHORT_COMMANDS:
-        _print_commands(catalog, profile.language, True)
-        return True
     if command.kind == KIND_STORE_NEXT:
         var payload = storage_payload(command)
         if payload.byte_length() == 0:
@@ -495,10 +498,6 @@ def _run_command(
                 _print_lines(numbered)
                 session.delete_next = True
         return True
-    if command.kind == KIND_CLEAR:
-        _clear_terminal_native()
-        return True
-
     var historical_echo = _uses_historical_prompt_echo(
         raw_tokens, compact_expansion
     )
@@ -536,11 +535,13 @@ def _run_command(
         catalog,
         planning_tokens_are_prepared,
     )
-    var owns_mulpri = (
+    var mulpri_candidate = (
         _has_mulpri(planning_tokens, profile.language, catalog)
         and len(_integer_argument_words(planning_tokens)) > 0
     )
-    var owns_table = table_plan.handled
+    var table_candidate = table_plan.handled
+    var owns_mulpri = mulpri_candidate
+    var owns_table = table_candidate
     if (historical_echo or numeric_default) and (owns_table or owns_mulpri):
         if not historical_prompt_execution_supported(
             raw_tokens, planning_tokens, profile.language, catalog
@@ -560,6 +561,17 @@ def _run_command(
             catalog,
             quiet_echo,
         )
+        var companion_effects = historical_prompt_companion_effects(
+            planning_tokens, profile.language, catalog
+        )
+        if companion_effects.show_short_commands:
+            _print_commands(catalog, profile.language, True)
+        if companion_effects.show_commands:
+            _print_commands(catalog, profile.language, False)
+        if companion_effects.show_help:
+            _print_prompt_help()
+        if companion_effects.clear_before_table:
+            _print_compound_clear_lines()
         var handled_table = _run_native_table_plan(
             table_plan, historical_echo, quiet_echo
         )
@@ -575,6 +587,25 @@ def _run_command(
             elif logging_update == PROMPT_LOG_DISABLED:
                 session.logging_enabled = False
             return True
+
+    if (table_candidate or mulpri_candidate) and not (
+        owns_table or owns_mulpri
+    ):
+        _run_fallback(profile, line)
+        return True
+
+    if command.kind == KIND_HELP:
+        _print_prompt_help()
+        return True
+    if command.kind == KIND_COMMANDS:
+        _print_commands(catalog, profile.language, False)
+        return True
+    if command.kind == KIND_SHORT_COMMANDS:
+        _print_commands(catalog, profile.language, True)
+        return True
+    if command.kind == KIND_CLEAR:
+        _clear_terminal_native()
+        return True
 
     if command.kind == KIND_LOG_ON:
         session.logging_enabled = True
@@ -665,19 +696,6 @@ def _run_native_one_shot(
 
     if command.kind == KIND_EMPTY or command.kind == KIND_EXIT:
         return True
-    if command.kind == KIND_HELP:
-        _print_prompt_help()
-        return True
-    if command.kind == KIND_COMMANDS:
-        _print_commands(catalog, profile.language, False)
-        return True
-    if command.kind == KIND_SHORT_COMMANDS:
-        _print_commands(catalog, profile.language, True)
-        return True
-    if command.kind == KIND_CLEAR:
-        _clear_terminal_native()
-        return True
-
     var historical_echo = _uses_historical_prompt_echo(
         raw_tokens, compact_expansion
     )
@@ -710,11 +728,13 @@ def _run_native_one_shot(
         catalog,
         planning_tokens_are_prepared,
     )
-    var owns_mulpri = (
+    var mulpri_candidate = (
         _has_mulpri(planning_tokens, profile.language, catalog)
         and len(_integer_argument_words(planning_tokens)) > 0
     )
-    var owns_table = table_plan.handled
+    var table_candidate = table_plan.handled
+    var owns_mulpri = mulpri_candidate
+    var owns_table = table_candidate
     if (historical_echo or numeric_default) and (owns_table or owns_mulpri):
         if not historical_prompt_execution_supported(
             raw_tokens, planning_tokens, profile.language, catalog
@@ -734,6 +754,17 @@ def _run_native_one_shot(
             catalog,
             quiet_echo,
         )
+        var companion_effects = historical_prompt_companion_effects(
+            planning_tokens, profile.language, catalog
+        )
+        if companion_effects.show_short_commands:
+            _print_commands(catalog, profile.language, True)
+        if companion_effects.show_commands:
+            _print_commands(catalog, profile.language, False)
+        if companion_effects.show_help:
+            _print_prompt_help()
+        if companion_effects.clear_before_table:
+            _print_compound_clear_lines()
         var handled_table = _run_native_table_plan(
             table_plan, historical_echo, quiet_echo
         )
@@ -742,6 +773,24 @@ def _run_native_one_shot(
         )
         if handled_table or handled_mulpri:
             return True
+
+    if (table_candidate or mulpri_candidate) and not (
+        owns_table or owns_mulpri
+    ):
+        return False
+
+    if command.kind == KIND_HELP:
+        _print_prompt_help()
+        return True
+    if command.kind == KIND_COMMANDS:
+        _print_commands(catalog, profile.language, False)
+        return True
+    if command.kind == KIND_SHORT_COMMANDS:
+        _print_commands(catalog, profile.language, True)
+        return True
+    if command.kind == KIND_CLEAR:
+        _clear_terminal_native()
+        return True
 
     if command.kind == KIND_LOG_ON:
         print("Logging ist eingeschaltet.")

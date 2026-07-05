@@ -2,8 +2,8 @@
 
 The terminal renderer must derive ``--breite=0`` from the current terminal,
 not from a compile-time 80-column default. Linux/macOS ``TIOCGWINSZ`` is
-queried through a small OS adapter on stdout first, then stdin/stderr, with
-``COLUMNS`` and finally 80 as fallbacks.
+queried through a small OS adapter on stdout first, then stdin/stderr. Width
+uses ``COLUMNS`` and 80 as fallbacks; height uses ``LINES`` and 24.
 """
 
 from std.collections.string import atol
@@ -35,7 +35,7 @@ def _terminal_size_request() -> UInt64:
     return UInt64(0)
 
 
-def _ioctl_terminal_columns(fd: Int) -> Int:
+def _ioctl_terminal_dimension(fd: Int, dimension: Int) -> Int:
     var request = _terminal_size_request()
     if request == 0:
         return 0
@@ -47,9 +47,20 @@ def _ioctl_terminal_columns(fd: Int) -> Int:
     var status = external_call["ioctl", c_int](
         c_int(fd), c_ulong(request), size
     )
-    if Int(status) == 0 and Int(size[1]) > 0:
-        return Int(size[1])
+    if Int(status) == 0:
+        if dimension == 0 and Int(size[0]) > 0:
+            return Int(size[0])
+        if dimension == 1 and Int(size[1]) > 0:
+            return Int(size[1])
     return 0
+
+
+def _ioctl_terminal_columns(fd: Int) -> Int:
+    return _ioctl_terminal_dimension(fd, 1)
+
+
+def _ioctl_terminal_rows(fd: Int) -> Int:
+    return _ioctl_terminal_dimension(fd, 0)
 
 
 def terminal_columns(fallback: Int = 80) -> Int:
@@ -74,6 +85,32 @@ def terminal_columns(fallback: Int = 80) -> Int:
         except:
             pass
     return max(1, fallback)
+
+
+def terminal_rows(fallback: Int = 24) -> Int:
+    """Return visible terminal rows, or the conventional 24-line fallback."""
+    var rows = _ioctl_terminal_rows(1)
+    if rows <= 0:
+        rows = _ioctl_terminal_rows(0)
+    if rows <= 0:
+        rows = _ioctl_terminal_rows(2)
+    if rows > 0:
+        return rows
+
+    var configured = String(getenv("LINES", "").strip())
+    if configured.byte_length() > 0:
+        try:
+            rows = atol(configured)
+            if rows > 0:
+                return rows
+        except:
+            pass
+    return max(1, fallback)
+
+
+def compound_clear_line_count(rows: Int) -> Int:
+    """Historical compound ``leeren`` output: terminal rows plus one line."""
+    return max(1, rows) + 1
 
 
 def automatic_cell_width(columns: Int) -> Int:

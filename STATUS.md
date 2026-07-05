@@ -1,4 +1,19 @@
-# Status – Stage 12c5bs
+# Status – Stage 12c5bt
+
+
+## Stage 12c5bt – Informations-Begleiteffekte und fokussierte Tabellenregressionen
+
+- `kurzbefehle`, `befehle` und `h`/`help`/`hilfe` begleiten native Tabellen-
+  und `mulpri`-Kommandos unabhängig von ihrer Wortposition.
+- Die sichtbare Reihenfolge bleibt Kurzbefehle → Befehle → Hilfe → Tabelle.
+- Zusammengesetztes `leeren` bleibt wegen seiner Terminalzeilensemantik am
+  atomaren Kompatibilitätsrand.
+- Abgewiesene Tabellen-/`mulpri`-Kandidaten verzweigen vor Hilfe-, Clear- oder
+  Logging-Einzelbefehlen atomar auf den Pythonpfad; Teilwirkungen sind ausgeschlossen.
+- Der reale 12c5bs-Gesamtlauf bestätigte alle vorherigen Ziele und fand zwei
+  veraltete Assertions: explizite Spaltenwahl ersetzt `3-6`, und die lokale
+  Reziprokachse endet mit `492,1004,496,1008,500,1012,504,508`.
+- Benutzerprüfung: `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bt.sh -- -j 8`.
 
 ## Stage 12c5bs – positionsunabhängige Prompt-Begleiteffekte
 
@@ -625,3 +640,14 @@ Siehe [`ROADMAP.md`](ROADMAP.md) für alle zwölf Stufen.
   **92/92 = 100 %** mindestens teilweise, **48.831/48.831** angegriffen;
   **63.513** Mojo-Zeilen in `src/`, davon **58.919** im Kernpaket;
   Defektledger **151** Einträge und weiterhin **20** spätere Python-Punkte.
+
+## Stage 12c5bu – zusammengesetztes `leeren`
+
+- `leeren`/`clear` ist bei Tabellen- und `mulpri`-Plänen lokalisiert und positionsunabhängig nativ.
+- Die Wirkung folgt Kurzbefehle → Befehle → Hilfe → Terminalzeilen+1 → Tabelle.
+- Terminalhöhe: stdout-/stdin-/stderr-`TIOCGWINSZ`, danach `LINES`, dann 24.
+- Standalone-`leeren` behält den bytegenauen ANSI-Clear-Vertrag.
+- Der in 12c5bt gefundene `assert_equal`-Traitfehler ist durch Equatable-Vergleiche behoben.
+
+- Compilerfreie 12c5bu-Prüfung: 70 fokussierte Verträge und 393 breite Sourceverträge grün; ein bekannter Probe-Build ist ohne kompiliertes Binary begründet übersprungen.
+- Aktuelle Metrik: 89/92 vollständig, 92/92 mindestens teilweise; 63.849 Mojo-Zeilen in `src/`, davon 59.180 in `src/reta_mojo/`; Ledger 166/18.
