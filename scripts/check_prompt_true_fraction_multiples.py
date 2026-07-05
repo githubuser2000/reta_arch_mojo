@@ -36,7 +36,12 @@ CASES = [
     "universum motive v2/3,5-7",
     "universum motive v2/3,0",
     "universum motive v2/3,5,-10",
+    "universum motive v2/3,-10",
+    "universum v2/3,0,-10",
+    "universum v2/3,5-7,-6",
     "universum motive v2/3 -10",
+    "universum v2/3,0 teiler",
+    "universum v2/3,5,-10 teiler",
     "universum v1/2,2/3",
     "universum vielfache 1/2,2/3",
     "universum v-1/4,2/3",
@@ -186,6 +191,56 @@ def assert_python_integer_axis_composition() -> None:
         fail("Python multi-domain integer composition lost a table family")
     if "--vielfachevonzahlen=5" not in motive[0] or "--vielfachevonzahlen=5" not in universe[0]:
         fail("Python multi-domain integer composition no longer duplicates the ordinary axis")
+
+
+def assert_python_nonpositive_integer_axis_composition() -> None:
+    """Freeze comma-local zero/exclusion spelling around Python's n/m bug."""
+    cases = {
+        "universum motive v2/3,0": (
+            "--vielfachevonzahlen=0",
+            ",0,v0",
+        ),
+        "universum motive v2/3,5,-10": (
+            "--vielfachevonzahlen=5,-10",
+            ",5,-10,v5,v-10",
+        ),
+        "universum motive v2/3,-10": (
+            "--vielfachevonzahlen=-10",
+            ",-10,v-10",
+        ),
+        "universum v2/3,0,-10": (
+            "--vielfachevonzahlen=-10,0",
+            ",-10,0,v-10,v0",
+        ),
+        "universum v2/3,5-7,-6": (
+            "--vielfachevonzahlen=-6,5-7",
+            ",-6,5-7,v-6,v5-7",
+        ),
+    }
+    for command, (multiple_option, row_suffix) in cases.items():
+        plan = reference_records(command)
+        if not plan or multiple_option not in plan[0]:
+            fail(f"Python reference changed non-positive multiple option for {command!r}")
+        if not row_selector(plan[0]).endswith(row_suffix):
+            fail(f"Python reference changed non-positive row ordering for {command!r}")
+
+    # The standalone negative token is consumed as a parameter-like token by
+    # the old prompt and reaches the known broken n/m branch.  It is not the
+    # same grammar as a comma-local exclusion and remains an atomic boundary.
+    environment = os.environ.copy()
+    environment["PYTHONHASHSEED"] = "0"
+    completed = subprocess.run(
+        [sys.executable, "scripts/prompt_mixed_reciprocal_reference.py", "universum motive v2/3 -10"],
+        cwd=ROOT,
+        env=environment,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        timeout=120,
+        check=True,
+        text=True,
+    )
+    if completed.stdout.strip() != "FALLBACK":
+        fail("standalone negative true-fraction boundary changed")
 
 
 def assert_csv_rectangles() -> None:
@@ -362,6 +417,7 @@ def main() -> int:
     assert_python_negative_multiple_noops()
     assert_python_positive_first_reciprocal_only()
     assert_python_integer_axis_composition()
+    assert_python_nonpositive_integer_axis_composition()
     result = parse_probe(Path(sys.argv[1]).resolve())
 
     universe = assert_domain_plan(
@@ -523,12 +579,54 @@ def main() -> int:
 
     for command in (
         "mond universum motive v2/3",
-        "universum motive v2/3,0",
-        "universum motive v2/3,5,-10",
         "universum motive v2/3 -10",
+        "universum v2/3,0 teiler",
+        "universum v2/3,5,-10 teiler",
     ):
         if result[command] != "FALLBACK":
-            fail(f"unproved multi-domain composition escaped atomically: {command}")
+            fail(f"unproved composition escaped atomically: {command}")
+
+    zero_axis = records(result["universum motive v2/3,0"])
+    if len(zero_axis) != 26:
+        fail(f"wrong zero/fraction invocation count: {len(zero_axis)}")
+    for index in (0, 13):
+        if "--vielfachevonzahlen=0" not in zero_axis[index]:
+            fail(f"zero multiple option missing from domain invocation {index}")
+        if row_selector(zero_axis[index]) != "2,1,4,6,3,0,v0":
+            fail(f"wrong corrected zero-axis ordering in domain invocation {index}")
+
+    excluded_axis = records(result["universum motive v2/3,5,-10"])
+    if len(excluded_axis) != 26:
+        fail(f"wrong excluded integer/fraction invocation count: {len(excluded_axis)}")
+    for index in (0, 13):
+        if "--vielfachevonzahlen=5,-10" not in excluded_axis[index]:
+            fail(f"excluded multiple option missing from domain invocation {index}")
+        if row_selector(excluded_axis[index]) != "2,1,4,6,3,5,-10,v5,v-10":
+            fail(f"wrong corrected exclusion-axis ordering in domain invocation {index}")
+
+    exclusion_only = records(result["universum motive v2/3,-10"])
+    if len(exclusion_only) != 26:
+        fail("exclusion-only integer axis lost a fraction domain")
+    if "--vielfachevonzahlen=-10" not in exclusion_only[0]:
+        fail("exclusion-only multiple option is missing")
+    if row_selector(exclusion_only[0]) != "2,1,4,6,3,-10,v-10":
+        fail("exclusion-only corrected row ordering drifted")
+
+    mixed_nonpositive = records(result["universum v2/3,0,-10"])
+    if len(mixed_nonpositive) != 13:
+        fail("mixed zero/exclusion axis lost a Universe invocation")
+    if "--vielfachevonzahlen=-10,0" not in mixed_nonpositive[0]:
+        fail("mixed zero/exclusion set order drifted")
+    if row_selector(mixed_nonpositive[0]) != "2,1,4,6,3,-10,0,v-10,v0":
+        fail("mixed zero/exclusion row ordering drifted")
+
+    ranged_exclusion = records(result["universum v2/3,5-7,-6"])
+    if len(ranged_exclusion) != 13:
+        fail("range/exclusion axis lost a Universe invocation")
+    if "--vielfachevonzahlen=-6,5-7" not in ranged_exclusion[0]:
+        fail("range/exclusion source order drifted")
+    if row_selector(ranged_exclusion[0]) != "2,1,4,6,3,-6,5-7,v-6,v5-7":
+        fail("range/exclusion corrected row ordering drifted")
 
     single_integer = records(result["universum v2/3,5"])
     if len(single_integer) != 13:

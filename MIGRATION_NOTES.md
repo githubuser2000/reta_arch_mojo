@@ -1236,3 +1236,12 @@ Vier vollständig native Diagnoseoberflächen teilen seit Stage 12c5z eine versi
 - `legacy_reta_program.mojo` bildet 27 öffentliche `reta.py`-Namen und 18 Methoden über einen expliziten Programzustand ab. Native Tabellenargumente laufen direkt, verbleibende Legacyfälle bleiben ein sichtbarer Kindprozessrand.
 - `setup.py` ist vollständig generiert nativ: fünf Command-Klassen, acht Methoden, Paket-/Abhängigkeitsmetadaten, Gettext-Quellen und FHS-Installationsbesitz sind typisiert.
 - Maschinenstand: **84/92 vollständig**, **87/92 mindestens teilweise**, **46.674/48.831 angegriffene** und **43.235/48.831 vollständig native Referenzzeilen**; **61.994** Mojo-Zeilen in `src/`.
+
+
+## Stage 12c5bh – getrennte Testpipeline und nichtpositive Bruchachsen
+
+- `scripts/build-tests.sh` kompiliert die vollständige Testsuite atomar und schreibt ein Inhaltsmanifest; `scripts/run-tests.sh` führt ausschließlich frische vorhandene Binaries aus.
+- `scripts/test_all.sh` bleibt als kompatibler kombinierter Einstieg erhalten. `RETA_TEST_RUN_JOBS=N` aktiviert nur die kontrollierte Laufzeitparallelität; verschachtelt parallele und sehr schwere Tests bleiben exklusiv.
+- `RETA_TEST_SANDBOX`/`TMPDIR` isoliert temporäre Testdateien. Der native Prompt-History-Test verwendet nicht länger globale feste Dateien als einzige Laufzeitadresse.
+- Zwei exakt bekannte alte Kommandoasset-Hashes können kontrolliert migriert werden. Unbekannte Abweichungen bleiben Fehler und werden nicht automatisch neu eingefroren.
+- Die äußere Ganzzahlachse kommalokaler `0`-/Ausschlusskomponenten neben echten Bruchvielfachen ist nativ. Separat geschriebene negative Tokens und nichtpositive `teiler`-Algebra bleiben eigene atomare Grenzen.

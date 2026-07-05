@@ -1,3 +1,15 @@
+# Status – Stage 12c5bh
+
+- Der Benutzerbuild von 12c5bg war vollständig erfolgreich; Architekturprobe, i18n, Legacy-Fassaden, Parameterlaufzeit, setup und Py-Reta-Wahrheitsmatrix wurden bis zum historischen 12c5aq-Gate bestätigt.
+- Der erneute 12c5aq-Abbruch war kein weiterer Rich-/Rendererfehler: Der Generator lieferte bereits die kanonischen Hashes, während zwei ältere versionierte Assets im lokalen Arbeitsbaum verblieben waren. `--migrate-legacy` ersetzt ausschließlich diese exakt bekannten Altzustände und lehnt jede unbekannte Abweichung ab.
+- Die vollständige Mojo-Testsuite ist in `build-tests.sh` und `run-tests.sh` getrennt; `test_all.sh` bleibt als kompatibler Wrapper. Binaries tragen ein Frischemanifest über Quellen, Assets und Testrezepte.
+- Laufzeitparallelität ist opt-in. Jeder Test erhält ein eigenes `TMPDIR`/`RETA_TEST_SANDBOX`; verschachtelt parallele und historisch sehr schwere Tests bleiben exklusive Barrieren. Mehrere eigenständige Mojo-Compilerprozesse werden weiterhin nicht automatisch parallel gestartet.
+- Kommalokale Null- und Ausschlussachsen neben echten Bruchvielfachen sind nativ: `v2/3,0`, `v2/3,-10`, `v2/3,5,-10` und Bereich/Ausschluss-Kombinationen bewahren `--vielfachevonzahlen` sowie die historischen `v`-Selektoren. Separat negative Tokens und nichtpositive `teiler`-Kompositionen bleiben atomar.
+- Neue Ledger-Einträge: `MOJO-FIXED-060`, `TEST-FIXED-048`, `TEST-FIXED-049`; insgesamt **134** Befunde und weiterhin **20** spätere Python-Aufräumpunkte.
+- Portable Prüfung: **307 Source-Tests bestanden, 1 compilerabhängiger Skip**; zusätzlich **91** Build-/Defekt-/Metrik-/Stage-/Kommandomatrix-Verträge und **4** Subtests grün.
+- Fortschritt: **89/92 = 96,7 %** vollständig nativ/generiert, **92/92 = 100,0 %** mindestens teilweise, **48.831/48.831 = 100,0 %** angegriffene Referenzzeilen; **63.222** Mojo-Zeilen in `src/`, davon **58.628** in `src/reta_mojo/`.
+- Die Erstellungsumgebung kompiliert kein Mojo. Verbindlicher Benutzerlauf: `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bh.sh`; anschließend einmal `scripts/build-tests.sh --heavy` und beliebig oft `scripts/run-tests.sh --jobs 2`.
+
 # Status – Stage 12c5bg
 
 - Der vollständige Benutzerbuild von 12c5bf war erfolgreich: reguläre und schwere Executables sowie Shared Libraries wurden erzeugt und auf Frische/Layout geprüft.

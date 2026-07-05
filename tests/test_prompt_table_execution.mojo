@@ -537,13 +537,70 @@ def test_true_fraction_multiples_follow_each_csv_rectangle() raises:
     assert_true(",5,v5" in _tokens(mixed_integer_axis, 0))
     assert_true("--vielfachevonzahlen=5" in _tokens(mixed_integer_axis, 7))
 
-    # Compositions without a unique domain law remain atomic rather than
-    # partially executing a misleading subset.  Zero and excluded ordinary
-    # axes are not part of the proven positive-integer contract.
+    # Comma-local zero and exclusion components have a stable outer integer
+    # axis even though Python's inner n/m rectangle is defective.  Preserve
+    # the source spellings in both --vielfachevonzahlen and the v-prefixed row
+    # selectors while continuing to use corrected domain rectangles.
+    var zero_integer_axis = _plan("universum motive v2/3,0")
+    assert_true(zero_integer_axis.handled)
+    assert_equal(len(zero_integer_axis.invocations), 26)
+    assert_true("--vielfachevonzahlen=0" in _tokens(zero_integer_axis, 0))
+    assert_true(
+        "--vorhervonausschnitt=2,1,4,6,3,0,v0"
+        in _tokens(zero_integer_axis, 0)
+    )
+    assert_true("--vielfachevonzahlen=0" in _tokens(zero_integer_axis, 13))
+
+    var excluded_integer_axis = _plan("universum motive v2/3,5,-10")
+    assert_true(excluded_integer_axis.handled)
+    assert_equal(len(excluded_integer_axis.invocations), 26)
+    assert_true(
+        "--vielfachevonzahlen=5,-10"
+        in _tokens(excluded_integer_axis, 0)
+    )
+    assert_true(
+        "--vorhervonausschnitt=2,1,4,6,3,5,-10,v5,v-10"
+        in _tokens(excluded_integer_axis, 0)
+    )
+
+    var exclusion_only_axis = _plan("universum motive v2/3,-10")
+    assert_true(exclusion_only_axis.handled)
+    assert_equal(len(exclusion_only_axis.invocations), 26)
+    assert_true("--vielfachevonzahlen=-10" in _tokens(exclusion_only_axis, 0))
+    assert_true(
+        "--vorhervonausschnitt=2,1,4,6,3,-10,v-10"
+        in _tokens(exclusion_only_axis, 0)
+    )
+
+    var mixed_nonpositive_axis = _plan("universum v2/3,0,-10")
+    assert_true(mixed_nonpositive_axis.handled)
+    assert_equal(len(mixed_nonpositive_axis.invocations), 13)
+    assert_true(
+        "--vielfachevonzahlen=-10,0" in _tokens(mixed_nonpositive_axis, 0)
+    )
+    assert_true(
+        "--vorhervonausschnitt=2,1,4,6,3,-10,0,v-10,v0"
+        in _tokens(mixed_nonpositive_axis, 0)
+    )
+
+    var ranged_exclusion_axis = _plan("universum v2/3,5-7,-6")
+    assert_true(ranged_exclusion_axis.handled)
+    assert_equal(len(ranged_exclusion_axis.invocations), 13)
+    assert_true(
+        "--vielfachevonzahlen=-6,5-7"
+        in _tokens(ranged_exclusion_axis, 0)
+    )
+    assert_true(
+        "--vorhervonausschnitt=2,1,4,6,3,-6,5-7,v-6,v5-7"
+        in _tokens(ranged_exclusion_axis, 0)
+    )
+
+    # Unrelated table families, standalone negative tokens, and the distinct
+    # non-positive teiler algebra remain atomic until their own contracts.
     assert_false(_plan("mond universum motive v2/3").handled)
-    assert_false(_plan("universum motive v2/3,0").handled)
-    assert_false(_plan("universum motive v2/3,5,-10").handled)
     assert_false(_plan("universum motive v2/3 -10").handled)
+    assert_false(_plan("universum v2/3,0 teiler").handled)
+    assert_false(_plan("universum v2/3,5,-10 teiler").handled)
 
     var mixed_axes = _plan("universum v1/2,2/3")
     assert_true(mixed_axes.handled)
@@ -643,7 +700,12 @@ def test_true_fraction_multiples_follow_each_csv_rectangle() raises:
     _emit_true_fraction_multiple_plan("universum motive v2/3,5-7")
     _emit_true_fraction_multiple_plan("universum motive v2/3,0")
     _emit_true_fraction_multiple_plan("universum motive v2/3,5,-10")
+    _emit_true_fraction_multiple_plan("universum motive v2/3,-10")
+    _emit_true_fraction_multiple_plan("universum v2/3,0,-10")
+    _emit_true_fraction_multiple_plan("universum v2/3,5-7,-6")
     _emit_true_fraction_multiple_plan("universum motive v2/3 -10")
+    _emit_true_fraction_multiple_plan("universum v2/3,0 teiler")
+    _emit_true_fraction_multiple_plan("universum v2/3,5,-10 teiler")
     _emit_true_fraction_multiple_plan("universum v1/2,2/3")
     _emit_true_fraction_multiple_plan("universum v-1/4,2/3")
     _emit_true_fraction_multiple_plan("universum v-2/3")

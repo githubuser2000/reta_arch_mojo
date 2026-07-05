@@ -32,3 +32,33 @@ def test_canonical_rich_stub_is_deliberately_tiny_and_text_only() -> None:
     assert "class Syntax" in syntax_source
     assert "class Markdown" in markdown_source
     assert "Console(width" not in console_source
+
+
+def test_legacy_migration_accepts_only_exact_whitelisted_hashes(tmp_path, monkeypatch) -> None:
+    import importlib.util
+    import hashlib
+
+    spec = importlib.util.spec_from_file_location("command_assets", GENERATOR)
+    assert spec and spec.loader
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+
+    old = b"old generated asset"
+    new = b"canonical generated asset"
+    path = tmp_path / "asset.out"
+    path.write_bytes(old)
+    monkeypatch.setattr(module, "ROOT", tmp_path)
+    monkeypatch.setattr(
+        module,
+        "LEGACY_ASSET_HASHES",
+        {"asset.out": {hashlib.sha256(old).hexdigest()}},
+    )
+    ok, unknown = module.migrate_legacy_assets({path: new}, ["asset.out"])
+    assert ok and unknown == []
+    assert path.read_bytes() == new
+
+    path.write_bytes(b"unexpected")
+    ok, unknown = module.migrate_legacy_assets({path: new}, ["asset.out"])
+    assert not ok
+    assert unknown and "asset.out:" in unknown[0]
+    assert path.read_bytes() == b"unexpected"

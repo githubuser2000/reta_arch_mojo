@@ -24,6 +24,19 @@ ASSET_DIR = ROOT / "assets/command_parity"
 MANIFEST = ROOT / "assets/command_parity.tsv"
 REFERENCE_RUNTIME_STUBS = ROOT / "tools/reference_runtime_stubs"
 
+# Hashes produced by the pre-12c5bg ambient-runtime snapshots that reached a
+# developer tree through the historical patch chain.  Only these exact stale
+# states may be migrated automatically; every unknown mismatch remains a hard
+# failure so a real reference change cannot silently rewrite fixtures.
+LEGACY_ASSET_HASHES: dict[str, set[str]] = {
+    "assets/command_parity/html-religion-basic.out": {
+        "17453b000830c6e0e70189ab4475204b29aa808763693e094cda854d223c3820",
+    },
+    "assets/command_parity.tsv": {
+        "87f6d8c460428b371cb9b5fea8ec280efec54063693df19cc0b2a9e2da25b0c0",
+    },
+}
+
 
 def extract_cases() -> list[tuple[str, str, str]]:
     tree = ast.parse(REFERENCE_TEST.read_text(encoding="utf-8"))
@@ -132,20 +145,55 @@ def expected_files() -> dict[Path, bytes]:
     return files
 
 
+
+def migrate_legacy_assets(files: dict[Path, bytes], mismatches: list[str]) -> tuple[bool, list[str]]:
+    """Replace only exact historical asset states; return success and errors."""
+    unknown: list[str] = []
+    for relative in mismatches:
+        path = ROOT / relative
+        actual = path.read_bytes() if path.exists() else b""
+        actual_hash = hashlib.sha256(actual).hexdigest() if path.exists() else "missing"
+        if actual_hash not in LEGACY_ASSET_HASHES.get(relative, set()):
+            unknown.append(f"{relative}: {actual_hash}")
+    if unknown:
+        return False, unknown
+    for relative in mismatches:
+        path = ROOT / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(files[path])
+    return True, []
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--check", action="store_true")
+    parser.add_argument("--migrate-legacy", action="store_true")
     args = parser.parse_args()
+
+    if args.check and args.migrate_legacy:
+        parser.error("--check and --migrate-legacy are mutually exclusive")
 
     files = expected_files()
     mismatches: list[str] = []
     for path, payload in files.items():
-        if args.check:
+        if args.check or args.migrate_legacy:
             if not path.exists() or path.read_bytes() != payload:
                 mismatches.append(path.relative_to(ROOT).as_posix())
         else:
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_bytes(payload)
+
+    if args.migrate_legacy and mismatches:
+        migrated, unknown = migrate_legacy_assets(files, mismatches)
+        if not migrated:
+            print("refusing to migrate unknown command parity assets:")
+            for item in unknown:
+                print(f"  {item}")
+            return 1
+        print(f"migrated legacy command parity assets: {len(mismatches)}")
+        return 0
+    if args.migrate_legacy:
+        print("command parity assets already canonical")
+        return 0
 
     if mismatches:
         print("command parity assets differ:")

@@ -22,14 +22,18 @@ def test_projected_integer_multiple_base_is_explicit_and_single_owned() -> None:
     ]
 
 
-def test_only_proven_positive_integer_components_enter_true_fraction_plans() -> None:
+def test_only_proven_integer_component_grammars_enter_true_fraction_plans() -> None:
     source = MODULE.read_text(encoding="utf-8")
-    assert "def _positive_integer_fraction_axis_supported(" in source
-    assert "saw_integer_component_exclusion or saw_ignored_negative_integer" in source
-    helper = source[source.index("def _positive_integer_fraction_axis_supported(") : source.index("def _copy_fraction_pairs(")]
-    assert helper.index("saw_integer_component_exclusion") < helper.index("len(row_parts) == 0")
-    assert "row_values[index] <= 0" in source
-    assert "and not _positive_integer_fraction_axis_supported(" in source
+    assert "def _integer_fraction_axis_supported(" in source
+    helper = source[
+        source.index("def _integer_fraction_axis_supported(") :
+        source.index("def _copy_fraction_pairs(")
+    ]
+    assert "if saw_ignored_negative_integer:" in helper
+    assert "if divisor_mode:" in helper
+    assert "if saw_integer_component_exclusion:" in helper
+    assert 'if row_parts[index] == "0":' in helper
+    assert "and not _integer_fraction_axis_supported(" in source
     assert "len(row_parts) > 0\n            or len(row_values) > 0" not in source
 
 
@@ -46,13 +50,21 @@ def test_single_and_multi_domain_runtime_contracts_are_bound() -> None:
         "universum motive v2/3,5-7",
         "universum motive v2/3,0",
         "universum motive v2/3,5,-10",
+        "universum motive v2/3,-10",
+        "universum v2/3,0,-10",
+        "universum v2/3,5-7,-6",
         "universum motive v2/3 -10",
+        "universum v2/3,0 teiler",
+        "universum v2/3,5,-10 teiler",
     ):
         assert command in test
         assert command in probe
         assert command in checker
     assert '"--vorhervonausschnitt=2,1,4,6,3,5,v5"' in test
+    assert '"--vorhervonausschnitt=2,1,4,6,3,0,v0"' in test
+    assert '"--vorhervonausschnitt=2,1,4,6,3,5,-10,v5,v-10"' in test
     assert "assert_python_integer_axis_composition" in checker
+    assert "assert_python_nonpositive_integer_axis_composition" in checker
     assert "wrong multi-domain integer/fraction invocation count" in checker
 
 

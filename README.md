@@ -644,6 +644,10 @@ man generate_html
 
 Siehe [`BINARIES.md`](BINARIES.md).
 
+## Stage 12c5bh: getrennte Testphasen und nichtpositive Bruchachsen
+
+Die vollständige Mojo-Suite kann jetzt einmal mit `scripts/build-tests.sh` kompiliert und danach beliebig oft mit `scripts/run-tests.sh` ausgeführt werden. `scripts/test_all.sh` bleibt als kompatibler Wrapper erhalten. Laufzeitparallelität ist über `--jobs N` beziehungsweise `RETA_TEST_RUN_JOBS=N` opt-in; jeder Lauf erhält ein eigenes temporäres Sandboxverzeichnis; bekannte Schwergewichte und verschachtelt parallele Tests bleiben exklusive Barrieren. Die historische 12c5aq-Kette migriert ausschließlich zwei exakt bekannte alte Kommandoasset-Hashes und lehnt jede unbekannte Abweichung weiterhin ab. Außerdem sind kommalokale Null- und Ausschlussachsen neben echten Bruchvielfachen nativ; separat geschriebene negative Tokens und nichtpositive Teilerkompositionen bleiben atomar. Details: [`STAGE12C5BH_SPLIT_TEST_PIPELINE_NONPOSITIVE_FRACTION_AXES.md`](STAGE12C5BH_SPLIT_TEST_PIPELINE_NONPOSITIVE_FRACTION_AXES.md).
+
 ## Tests
 
 ```bash

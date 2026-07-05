@@ -19,11 +19,11 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 
 - letzter vollständiger Rückwärtsaudit: `12c4s`
 - geprüfte Quellen: **24**
-- Reichweite: Vollständig bezogen auf alle bis Stage 12c5bf im Projekt bestätigten oder plausibel begründeten verhaltensrelevanten Befunde; unbekannte künftige Fehler können naturgemäß erst nach ihrer Entdeckung aufgenommen werden.
+- Reichweite: Vollständig bezogen auf alle bis Stage 12c5bh im Projekt bestätigten oder plausibel begründeten verhaltensrelevanten Befunde; unbekannte künftige Fehler können naturgemäß erst nach ihrer Entdeckung aufgenommen werden.
 
 ## Übersicht
 
-- Einträge insgesamt: **131**
+- Einträge insgesamt: **134**
 - offene bestätigte Python-Fehler: **6**
 - zu entscheidende Python-Fehlerkandidaten: **13**
 - bereits im Python-Baum behobene Fehler: **7**
@@ -1789,3 +1789,43 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 - Python-Orte: `python_reference/reta_architecture/console_io.py:35`, `python_reference/reta_architecture/console_io.py:282`
 - Mojo-Orte: `tools/generate_command_parity_assets.py`, `tools/reference_runtime_stubs/rich/console.py`, `tools/reference_runtime_stubs/rich/markdown.py`, `tools/reference_runtime_stubs/rich/syntax.py`, `tests/test_command_parity_asset_environment.py`, `scripts/test_stage12c5bg.sh`
 - Belege: `STAGE12C5BG_DETERMINISTIC_COMMAND_PARITY_INTEGER_FRACTION_AXES.md`, `tools/generate_command_parity_assets.py`, `tests/test_command_parity_asset_environment.py`, `scripts/test_stage12c5bg.sh`
+
+### MOJO-FIXED-060 – Kommalokale Null- und Ausschlussachsen neben echten Bruchvielfachen fielen atomar zurück
+
+- Ursprung: `mojo_port`
+- Klasse / Schwere: `fraction_nonpositive_integer_axis_fallback` / `high`
+- Python-Status: `correct_reference`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5bg/12c5bh`
+- Reproduktion: `Die nativen Pläne für universum motive v2/3,0, universum motive v2/3,-10 und universum motive v2/3,5,-10 prüfen; trotz stabiler äußerer Python-Achse fiel der gesamte Vektor zurück.`
+- heutiger Vertrag: Kommalokale 0-, negative Ausschluss- und Bereich/Ausschluss-Komponenten bleiben als gewöhnliche äußere Ganzzahlachse erhalten. Ihre Quellschreibweisen gehen in --vielfachevonzahlen und in die v-präfigierten Zeilenselektoren ein; die korrigierten Bruchprojektionen werden nicht doppelt vervielfacht. Separat geschriebene negative Tokens sowie nichtpositive teiler-Kompositionen bleiben wegen anderer Grammatik atomar.
+- spätere Python-Aktion: Keine Änderung am äußeren Python-Vertrag erforderlich. Der bekannte Indexfehler im inneren echten Bruchraster bleibt separat unter PY-OPEN-002 dokumentiert; eine spätere Python-Bereinigung muss diese beiden Ebenen getrennt erhalten.
+- Python-Orte: `python_reference/reta_architecture/prompt_execution.py:1823`, `python_reference/reta_architecture/prompt_execution.py:1864`
+- Mojo-Orte: `src/reta_mojo/prompt_table_execution.mojo`, `tests/test_prompt_table_execution.mojo`, `tests/prompt_true_fraction_multiple_probe.mojo`, `scripts/check_prompt_true_fraction_multiples.py`, `tests/test_prompt_fraction_integer_axes_source.py`
+- Belege: `STAGE12C5BH_SPLIT_TEST_PIPELINE_NONPOSITIVE_FRACTION_AXES.md`, `tests/test_prompt_table_execution.mojo`, `scripts/check_prompt_true_fraction_multiples.py`, `tests/test_prompt_fraction_integer_axes_source.py`
+
+### TEST-FIXED-048 – Frühere Patchkette ließ zwei alte Kommando-Paritätsassets im Arbeitsbaum zurück
+
+- Ursprung: `test_infrastructure`
+- Klasse / Schwere: `stale_generated_asset_patch_migration` / `high`
+- Python-Status: `not_applicable`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5bg/12c5bh`
+- Reproduktion: `test_stage12c5aq.sh nach erfolgreichem Vollbuild ausführen; der Generator erzeugt für HTML a8a0d2a1… und für das Manifest 9fdefe9a…, während der lokale Arbeitsbaum noch 17453b00… beziehungsweise 87f6d8c4… enthält.`
+- heutiger Vertrag: Der Generator kann ausschließlich die zwei exakt bekannten historischen SHA-256-Zustände migrieren und prüft danach erneut kanonisch. Unbekannte oder fehlende Assets werden nicht überschrieben, sondern bleiben ein harter Fehler. Damit wird ein alter Patchstand repariert, ohne neue Referenzänderungen automatisch zu akzeptieren.
+- spätere Python-Aktion: Keine Python- oder Mojo-Algorithmusänderung erforderlich; betroffen war die Zustandsübernahme generierter Testassets zwischen Stages.
+- Mojo-Orte: `tools/generate_command_parity_assets.py`, `scripts/test_stage12c5aq.sh`, `scripts/test_stage12c5bg.sh`, `scripts/test_stage12c5bh.sh`, `tests/test_stage12c5bh_source.py`
+- Belege: `STAGE12C5BH_SPLIT_TEST_PIPELINE_NONPOSITIVE_FRACTION_AXES.md`, `tools/generate_command_parity_assets.py`, `tests/test_stage12c5bh_source.py`
+
+### TEST-FIXED-049 – Gesamttests koppelten jede Ausführung unnötig an eine vollständige Neukompilierung
+
+- Ursprung: `test_infrastructure`
+- Klasse / Schwere: `coupled_test_build_and_execution` / `medium`
+- Python-Status: `not_applicable`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5bh`
+- Reproduktion: `scripts/test_all.sh wiederholt ausführen; vor dieser Stage wurde jedes Mojo-Testprogramm vor jedem Lauf erneut kompiliert, auch wenn ausschließlich Laufzeitresultate wiederholt werden sollten.`
+- heutiger Vertrag: build-tests.sh kompiliert atomar und schreibt ein Frischemanifest; run-tests.sh führt nur passende vorhandene Binaries aus und lehnt veraltete Zustände ab. test_all.sh bleibt als kompatibler Wrapper. Laufzeitparallelität ist opt-in; jeder Test erhält ein eigenes RETA_TEST_SANDBOX/TMPDIR und der frühere feste Prompt-History-Pfad verwendet dieses Sandboxverzeichnis. Verbleibende serial/exclusive-Barrieren werden respektiert; mehrere eigenständige Mojo-Compilerprozesse bleiben standardmäßig sequenziell.
+- spätere Python-Aktion: Keine Python-Änderung erforderlich; dies ist eine reine Build- und Testinfrastrukturverbesserung.
+- Mojo-Orte: `scripts/build-tests.sh`, `scripts/run-tests.sh`, `scripts/test_all.sh`, `scripts/current_test_source_id.sh`, `tools/run_mojo_test_binaries.py`, `tests/test_split_test_pipeline.py`
+- Belege: `STAGE12C5BH_SPLIT_TEST_PIPELINE_NONPOSITIVE_FRACTION_AXES.md`, `tests/test_split_test_pipeline.py`, `BUILD.md`

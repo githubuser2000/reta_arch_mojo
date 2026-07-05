@@ -1,4 +1,4 @@
-# Build und Tests – Stage 12c5ba
+# Build und Tests – Stage 12c5bh
 
 Der vollständige Produktionsbuild bleibt absichtlich ein Vollbuild:
 
@@ -74,11 +74,20 @@ die compilerunabhängige Argumentweitergabe der Build-Skripte:
 scripts/test_stage12c5ba.sh
 ```
 
-Die vollständige Testsuite erkennt drei systemnahe Linkerklassen automatisch: Persistenztests verwenden `-lsqlite3 -lcrypto`, Paketintegrität verwendet `-lcrypto`, alle übrigen Tests erhalten keine zusätzlichen Linkerflags. Danach kann die Gesamtprüfung unverändert gestartet werden:
+Die vollständige Testsuite erkennt drei systemnahe Linkerklassen automatisch: Persistenztests verwenden `-lsqlite3 -lcrypto`, Paketintegrität verwendet `-lcrypto`, alle übrigen Tests erhalten keine zusätzlichen Linkerflags. Kompilierung und Ausführung sind getrennt wiederverwendbar:
+
+```sh
+scripts/build-tests.sh
+scripts/run-tests.sh
+```
+
+Der bisherige Gesamteinstieg bleibt kompatibel:
 
 ```sh
 scripts/test_all.sh
 ```
+
+`run-tests.sh --jobs N` parallelisiert ausschließlich als sicher klassifizierte Laufzeittests. Tests mit festen temporären Dateien und besonders ressourcenintensive Ziele bilden serielle Barrieren. Mehrere eigenständige Mojo-Compilerprozesse bleiben standardmäßig sequenziell; kontrollierte interne Compilerthreads können über `scripts/build-tests.sh -- -j N` gesetzt werden.
 
 ## Grundsatz
 
@@ -670,21 +679,34 @@ scripts/test_stage12c5ad.sh
 
 `test_stage12c5ad.sh` baut nur kurzlebige Testprogramme unter `target/tests`.
 Die vollständige native Mojo-Testprogrammsuite ist nicht nach jedem kleinen
-Patch nötig, sondern vor Releases oder nach mehreren Stages:
+Patch nötig, sondern vor Releases oder nach mehreren Stages. Kompilierung und
+Ausführung können getrennt wiederverwendet werden:
 
 ```bash
-scripts/test_all.sh
+scripts/build-tests.sh
+scripts/run-tests.sh
 ```
 
 Die beiden besonders schweren Compilerziele werden nur explizit ergänzt:
 
 ```bash
+scripts/build-tests.sh --heavy
+# oder weiterhin als kombinierter Aufruf:
 RETA_TEST_HEAVY=1 scripts/test_all.sh
 ```
 
-`test_all.sh` führt jedes Testbinary über `bin/mojo-runtime-exec` aus und teilt
-damit Runtime-Suche, Source-ID-Frischeprüfung und Ressourcenauflösung mit den
-Stage-Tests.
+Die Ausführung bleibt standardmäßig sequenziell. Kontrollierte Parallelität
+gilt nur für die als sicher klassifizierten Laufzeittests:
+
+```bash
+scripts/run-tests.sh --jobs 2
+RETA_TEST_RUN_JOBS=2 scripts/test_all.sh
+```
+
+`run-tests.sh` führt jedes Testbinary über `bin/mojo-runtime-exec` aus und
+prüft vorher das von `build-tests.sh` erzeugte Inhaltsmanifest. Tests mit
+festen `/tmp`-Namen und bekannte sehr lange oder speicherintensive Ziele
+bilden serielle Barrieren.
 
 ## Architekturprobe
 

@@ -10,7 +10,7 @@ def test_current_stage_extends_12c5bf_and_default_commit_is_current() -> None:
     current = (ROOT / "scripts/test_current_stage.sh").read_text(encoding="utf-8")
     do_sh = (ROOT / "do.sh").read_text(encoding="utf-8")
     assert "test_stage12c5bg.sh" in current
-    assert "COMMIT_MESSAGE=${1:-12c5bg}" in do_sh
+    assert "COMMIT_MESSAGE=${1:-12c5bh}" in do_sh
     next_stage = (ROOT / "scripts/test_stage12c5bg.sh").read_text(encoding="utf-8")
     assert "test_stage12c5bf.sh" in next_stage
 

@@ -50,12 +50,16 @@ def test_setup_and_release_use_the_explicit_full_build_entry_point() -> None:
 
 
 def test_full_mojo_suite_runs_through_portable_runtime_wrapper() -> None:
-    source = (SCRIPTS / "test_all.sh").read_text(encoding="utf-8")
-    assert '"$ROOT/bin/mojo-runtime-exec" "$TARGET/$name"' in source
+    wrapper = (SCRIPTS / "test_all.sh").read_text(encoding="utf-8")
+    run = (SCRIPTS / "run-tests.sh").read_text(encoding="utf-8")
+    runner = (ROOT / "tools/run_mojo_test_binaries.py").read_text(encoding="utf-8")
+    assert 'scripts/run-tests.sh' in wrapper
+    assert 'bin/mojo-runtime-exec' in run
+    assert '[str(runtime_exec), str(entry.binary)]' in runner
     assert not any(
-        line.strip() == '"$TARGET/$name"' for line in source.splitlines()
+        line.strip() == '"$TARGET/$name"' for line in wrapper.splitlines()
     )
-    assert "RETA_TEST_HEAVY" in source
+    assert "RETA_TEST_HEAVY" in wrapper
 
 
 def test_three_production_build_scripts_never_compile_test_sources() -> None:

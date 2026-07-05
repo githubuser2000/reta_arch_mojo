@@ -34,5 +34,5 @@ def test_stage_document_records_user_build_and_both_repairs() -> None:
 def test_default_commit_and_public_entrypoint_are_current() -> None:
     do_script = (ROOT / "do.sh").read_text(encoding="utf-8")
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
-    assert 'COMMIT_MESSAGE=${1:-12c5bg}' in do_script
+    assert 'COMMIT_MESSAGE=${1:-12c5bh}' in do_script
     assert "STAGE12C5BG_DETERMINISTIC_COMMAND_PARITY_INTEGER_FRACTION_AXES.md" in readme

@@ -1,17 +1,17 @@
-# Roadmap – Aktualisierung 12c5ao
+# Roadmap – Aktualisierung 12c5bh
 
-`mojo_bridge.py`, `parameter_runtime.py`, `retaPrompt.py`, `generated_columns.py`, der vollständige I18n-Monolith und sämtliche Architekturproben besitzen jetzt native oder reproduzierbar generierte Eigentümer. Die großen verbleibenden Laufzeitblöcke konzentrieren sich auf `reta.py`, den interaktiven `prompt_execution.py`-Effektblock und die heterogene Laufzeitaggregation der Architektur-Fassade. Der nächste Schwerpunkt ist die weitere Verkleinerung dieses produktiven Kompatibilitätsrands.
+`mojo_bridge.py`, `parameter_runtime.py`, `retaPrompt.py`, `generated_columns.py`, der vollständige I18n-Monolith und sämtliche Architekturproben besitzen jetzt native oder reproduzierbar generierte Eigentümer. Die vollständige Testsuite besitzt getrennte Build-/Run-Phasen mit Frischemanifest und kontrollierter Laufzeitparallelität; kommalokale Null-/Ausschlussachsen neben echten Bruchvielfachen sind ebenfalls nativ. Die großen verbleibenden Laufzeitblöcke konzentrieren sich auf `reta.py`, den interaktiven `prompt_execution.py`-Effektblock und die heterogene Laufzeitaggregation der Architektur-Fassade. Der nächste Schwerpunkt ist die weitere Verkleinerung dieses produktiven Kompatibilitätsrands.
 
 Geplanter Umfang: **12 Release-Stufen**. Eine Stufe zählt erst als abgeschlossen, wenn Quellcode, Referenztests, Compilerziele, Dokumentation und ein source-only Archiv gemeinsam geprüft sind.
 
-## Fortschrittsmaße nach Stage 12c5ao
+## Fortschrittsmaße nach Stage 12c5bh
 
 | Maß | Stand | Aussage |
 |---|---:|---|
 | abgeschlossene Release-Stufen | **9/12 = 75,0 %** | Stufen 1–8 und 11 sind abgeschlossen; Stufe 12 ist mit 12a, 12b, 12c1–12c3 und 12c4a–12c5t zu etwa 74,0 % abgeschlossen, während 9 und 10 noch Restpfade besitzen |
-| vollständig native oder generierte Python-Dateien | **84/92 = 91,3 %** | Datei vollständig ersetzt oder als reproduzierbares Laufzeitasset abgebildet |
-| mindestens angegriffene Python-Dateien | **87/92 = 94,6 %** | Status direkt aus der autoritativen `NATIVE`-Zuordnung |
-| angegriffene Referenzzeilen | **46.674/48.831 = 95,6 %** | maschinenberechnet statt manuell fortgeschrieben |
+| vollständig native oder generierte Python-Dateien | **89/92 = 96,7 %** | Datei vollständig ersetzt oder als reproduzierbares Laufzeitasset abgebildet |
+| mindestens angegriffene Python-Dateien | **92/92 = 100,0 %** | Status direkt aus der autoritativen `NATIVE`-Zuordnung |
+| angegriffene Referenzzeilen | **48.831/48.831 = 100,0 %** | maschinenberechnet statt manuell fortgeschrieben |
 | funktionaler Nutzerumfang | **ca. 96–98 %** | praktisch nutzbarer Reta-Umfang ohne Python-Algorithmus |
 
 Die Stufenquote ist höher als die Quellzeilenquote, weil die letzten Stufen besonders große dynamische Module bündeln: vollständige Ausgabeaufbereitung, Prompt-Sprache, i18n-Matrix, Architekturvalidierung und Parallelisierung.

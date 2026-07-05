@@ -3246,6 +3246,89 @@
         "tests/test_command_parity_asset_environment.py",
         "scripts/test_stage12c5bg.sh"
       ]
+    },
+    {
+      "id": "MOJO-FIXED-060",
+      "title": "Kommalokale Null- und Ausschlussachsen neben echten Bruchvielfachen fielen atomar zurück",
+      "origin": "mojo_port",
+      "classification": "fraction_nonpositive_integer_axis_fallback",
+      "severity": "high",
+      "python_status": "correct_reference",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5bg/12c5bh",
+      "reproducer": "Die nativen Pläne für universum motive v2/3,0, universum motive v2/3,-10 und universum motive v2/3,5,-10 prüfen; trotz stabiler äußerer Python-Achse fiel der gesamte Vektor zurück.",
+      "python_locations": [
+        "python_reference/reta_architecture/prompt_execution.py:1823",
+        "python_reference/reta_architecture/prompt_execution.py:1864"
+      ],
+      "mojo_locations": [
+        "src/reta_mojo/prompt_table_execution.mojo",
+        "tests/test_prompt_table_execution.mojo",
+        "tests/prompt_true_fraction_multiple_probe.mojo",
+        "scripts/check_prompt_true_fraction_multiples.py",
+        "tests/test_prompt_fraction_integer_axes_source.py"
+      ],
+      "current_contract": "Kommalokale 0-, negative Ausschluss- und Bereich/Ausschluss-Komponenten bleiben als gewöhnliche äußere Ganzzahlachse erhalten. Ihre Quellschreibweisen gehen in --vielfachevonzahlen und in die v-präfigierten Zeilenselektoren ein; die korrigierten Bruchprojektionen werden nicht doppelt vervielfacht. Separat geschriebene negative Tokens sowie nichtpositive teiler-Kompositionen bleiben wegen anderer Grammatik atomar.",
+      "post_port_fix": "Keine Änderung am äußeren Python-Vertrag erforderlich. Der bekannte Indexfehler im inneren echten Bruchraster bleibt separat unter PY-OPEN-002 dokumentiert; eine spätere Python-Bereinigung muss diese beiden Ebenen getrennt erhalten.",
+      "evidence": [
+        "STAGE12C5BH_SPLIT_TEST_PIPELINE_NONPOSITIVE_FRACTION_AXES.md",
+        "tests/test_prompt_table_execution.mojo",
+        "scripts/check_prompt_true_fraction_multiples.py",
+        "tests/test_prompt_fraction_integer_axes_source.py"
+      ]
+    },
+    {
+      "id": "TEST-FIXED-048",
+      "title": "Frühere Patchkette ließ zwei alte Kommando-Paritätsassets im Arbeitsbaum zurück",
+      "origin": "test_infrastructure",
+      "classification": "stale_generated_asset_patch_migration",
+      "severity": "high",
+      "python_status": "not_applicable",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5bg/12c5bh",
+      "reproducer": "test_stage12c5aq.sh nach erfolgreichem Vollbuild ausführen; der Generator erzeugt für HTML a8a0d2a1… und für das Manifest 9fdefe9a…, während der lokale Arbeitsbaum noch 17453b00… beziehungsweise 87f6d8c4… enthält.",
+      "python_locations": [],
+      "mojo_locations": [
+        "tools/generate_command_parity_assets.py",
+        "scripts/test_stage12c5aq.sh",
+        "scripts/test_stage12c5bg.sh",
+        "scripts/test_stage12c5bh.sh",
+        "tests/test_stage12c5bh_source.py"
+      ],
+      "current_contract": "Der Generator kann ausschließlich die zwei exakt bekannten historischen SHA-256-Zustände migrieren und prüft danach erneut kanonisch. Unbekannte oder fehlende Assets werden nicht überschrieben, sondern bleiben ein harter Fehler. Damit wird ein alter Patchstand repariert, ohne neue Referenzänderungen automatisch zu akzeptieren.",
+      "post_port_fix": "Keine Python- oder Mojo-Algorithmusänderung erforderlich; betroffen war die Zustandsübernahme generierter Testassets zwischen Stages.",
+      "evidence": [
+        "STAGE12C5BH_SPLIT_TEST_PIPELINE_NONPOSITIVE_FRACTION_AXES.md",
+        "tools/generate_command_parity_assets.py",
+        "tests/test_stage12c5bh_source.py"
+      ]
+    },
+    {
+      "id": "TEST-FIXED-049",
+      "title": "Gesamttests koppelten jede Ausführung unnötig an eine vollständige Neukompilierung",
+      "origin": "test_infrastructure",
+      "classification": "coupled_test_build_and_execution",
+      "severity": "medium",
+      "python_status": "not_applicable",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5bh",
+      "reproducer": "scripts/test_all.sh wiederholt ausführen; vor dieser Stage wurde jedes Mojo-Testprogramm vor jedem Lauf erneut kompiliert, auch wenn ausschließlich Laufzeitresultate wiederholt werden sollten.",
+      "python_locations": [],
+      "mojo_locations": [
+        "scripts/build-tests.sh",
+        "scripts/run-tests.sh",
+        "scripts/test_all.sh",
+        "scripts/current_test_source_id.sh",
+        "tools/run_mojo_test_binaries.py",
+        "tests/test_split_test_pipeline.py"
+      ],
+      "current_contract": "build-tests.sh kompiliert atomar und schreibt ein Frischemanifest; run-tests.sh führt nur passende vorhandene Binaries aus und lehnt veraltete Zustände ab. test_all.sh bleibt als kompatibler Wrapper. Laufzeitparallelität ist opt-in; jeder Test erhält ein eigenes RETA_TEST_SANDBOX/TMPDIR und der frühere feste Prompt-History-Pfad verwendet dieses Sandboxverzeichnis. Verbleibende serial/exclusive-Barrieren werden respektiert; mehrere eigenständige Mojo-Compilerprozesse bleiben standardmäßig sequenziell.",
+      "post_port_fix": "Keine Python-Änderung erforderlich; dies ist eine reine Build- und Testinfrastrukturverbesserung.",
+      "evidence": [
+        "STAGE12C5BH_SPLIT_TEST_PIPELINE_NONPOSITIVE_FRACTION_AXES.md",
+        "tests/test_split_test_pipeline.py",
+        "BUILD.md"
+      ]
     }
   ],
   "audit": {
@@ -3276,6 +3359,6 @@
       "STAGE12C5G_NATIVE_KOMBI_JOIN_UNORDERED_PARITY.md",
       "STAGE12C5Y_NATIVE_TABLE_OUTPUT.md"
     ],
-    "scope_note": "Vollständig bezogen auf alle bis Stage 12c5bf im Projekt bestätigten oder plausibel begründeten verhaltensrelevanten Befunde; unbekannte künftige Fehler können naturgemäß erst nach ihrer Entdeckung aufgenommen werden."
+    "scope_note": "Vollständig bezogen auf alle bis Stage 12c5bh im Projekt bestätigten oder plausibel begründeten verhaltensrelevanten Befunde; unbekannte künftige Fehler können naturgemäß erst nach ihrer Entdeckung aufgenommen werden."
   }
 }

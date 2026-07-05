@@ -855,22 +855,35 @@ def _fraction_multiple_supported(
     return True
 
 
-def _positive_integer_fraction_axis_supported(
+def _integer_fraction_axis_supported(
     row_parts: List[String],
-    row_values: List[Int],
     saw_integer_component_exclusion: Bool,
     saw_ignored_negative_integer: Bool,
+    divisor_mode: Bool,
 ) -> Bool:
-    """Accept only proven positive ordinary axes beside true fractions."""
-    if saw_integer_component_exclusion or saw_ignored_negative_integer:
+    """Accept proven ordinary selectors beside corrected true fractions.
+
+    Comma-local zero and negative components are not CLI parameters in the
+    historical prompt.  They remain literal row-axis spellings and are passed
+    to both ``--vielfachevonzahlen`` and the matching ``v`` selectors.  A
+    separately written negative token is different: the old parser consumes it
+    as a parameter-like token, so that ambiguous form stays atomic.
+
+    The non-positive ``teiler`` composition has another expansion law (zero is
+    dropped, exclusions are subtracted before divisor enumeration).  Keep that
+    smaller remaining boundary explicit rather than applying the ordinary
+    multiple rule to it.
+    """
+    if saw_ignored_negative_integer:
         return False
     if len(row_parts) == 0:
         return True
-    if len(row_values) == 0:
-        return False
-    for index in range(len(row_values)):
-        if row_values[index] <= 0:
+    if divisor_mode:
+        if saw_integer_component_exclusion:
             return False
+        for index in range(len(row_parts)):
+            if row_parts[index] == "0":
+                return False
     return True
 
 
@@ -1495,19 +1508,19 @@ def plan_prompt_table_commands(
     )
     if (
         true_fraction_multiple_mode
-        and not _positive_integer_fraction_axis_supported(
+        and not _integer_fraction_axis_supported(
             row_parts,
-            row_values,
             saw_integer_component_exclusion,
             saw_ignored_negative_integer,
+            divisor_mode,
         )
     ):
         return PromptTablePlan(False, List[PromptTableInvocation]())
     var fraction_domain_count = _fraction_multiple_domain_count(canonical_words)
     if true_fraction_multiple_mode and fraction_domain_count > 1:
         # Domain-specific expansion is fully defined only for a pure set of
-        # physical fraction families.  Positive ordinary integer selectors now
-        # compose through a shared projected-multiple base.  Numeric shortcuts,
+        # physical fraction families.  Proven comma-local ordinary selectors
+        # now compose through a shared projected-multiple base.  Numeric shortcuts,
         # property commands and unrelated table families continue to fall back
         # atomically until they receive their own composition law.
         if (

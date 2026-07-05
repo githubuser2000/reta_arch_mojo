@@ -2263,3 +2263,29 @@ Erstellungsumgebung war kein offizieller Mojo-Compiler installiert.
 - `tools/porting_metrics.py`: **71/92** vollständig, **83/92** mindestens teilweise, **38.174/48.831** angegriffene und **31.790/48.831** vollständig native Referenzzeilen.
 - Installierbare Compilerziele: **23 reguläre + 18 schwere = 41**.
 - Der offizielle Modular-Mojo-Compiler fehlt in der Erstellungsumgebung. Der angekündigte Target-Upload war im aktiven Dateisystem nicht als gefüllter Ordner sichtbar; `scripts/test_stage12c5y.sh` ist daher weiterhin der verbindliche lokale Compiler- und Paritätslauf.
+
+## Benutzerlauf Stage 12c5bg und Stage 12c5bh-Vorbereitung
+
+Der vom Benutzer ausgeführte vollständige Produktionsbuild war erfolgreich.
+Die historische Stage-Kette bestätigte unter anderem:
+
+- Architekturprobe: **3/3** Modultests, **64** Architektur- und **16** Domain-Proben;
+- vollständige i18n-Fassade: **8/8** Modultests und **5/5 Sprachen**, **68.265/68.265** Zeilen;
+- Legacy-`retaPrompt`: **4/4**, Generated-Column-Integration: **3/3**;
+- Parametersemantik: **4/4**, Legacy-Mojo-Bridge: **3/3**, vollständiger Parameterruntime-Vertrag: **3/3**;
+- Legacy-`reta.py`: **3/3**, Setup-Metadaten: **3/3**;
+- Py-Reta-Wahrheitsmatrix: **3/3**, darunter die vollständige Aliasprüfung;
+- portable Stage-Gruppen: **78**, **73**, **81**, **90** und **66** bestanden.
+
+Der erste Abbruch lag in `test_stage12c5aq.sh`. Der deterministische Generator
+lieferte bereits die kanonischen Hashes
+`a8a0d2a1…` (HTML) und `9fdefe9a…` (Manifest), der lokale Arbeitsbaum enthielt
+aber noch `17453b00…` und `87f6d8c4…`. Stage 12c5bh migriert ausschließlich
+diese exakt bekannten Altzustände und prüft danach erneut.
+
+Die neue getrennte Testinfrastruktur wurde compilerfrei mit einem ELF-Mock
+vollständig durchlaufen: **131** normale Testprogramme wurden in ein Manifest
+aufgenommen und mit vier Runnerjobs unter den Serial-/Exclusive-Barrieren
+ausgeführt. Dies ist kein Mojo-Kompilierungsnachweis, sondern ein Test der
+Build-/Run-Orchestrierung. Die tatsächliche Mojo-Kompilierung bleibt der lokale
+Benutzerlauf.
