@@ -2366,3 +2366,16 @@ Benutzerlauf.
   Zugriffe;
 - die echte Mojo-Kompilierung verbleibt beim Benutzerlauf
   `scripts/test_stage12c5bk.sh -- -j 4`.
+
+## Stage 12c5bl – vorbereiteter Prüfstand
+
+- Benutzer-Vollbuild Stage 12c5bk mit `scripts/build-all.sh -- -j 6`: erfolgreich.
+- Die beiden anschließenden Shell-Paritätsabweichungen wurden exakt unter einem
+  180-Spalten-Pseudoterminal reproduziert: stdin blieb trotz stdout/stderr-Pipes
+  ein TTY und änderte die Seitenaufteilung. Mit DEVNULL-stdin und 80×24 bestehen
+  im selben Reproducer 4/4 Fälle.
+- Python-Referenzprobe für die äußere klassische Komposition: 10/10.
+- Breiter portabler Audit in vier Gruppen: 393 bestanden, 1 begründeter
+  compilerabhängiger Skip.
+- Benutzerseitig noch auszuführen: fokussierter Mojo-Probe über
+  `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bl.sh -- -j 4`.

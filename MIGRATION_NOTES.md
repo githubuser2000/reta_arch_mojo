@@ -1279,3 +1279,17 @@ Vier vollständig native Diagnoseoberflächen teilen seit Stage 12c5z eine versi
 - `--rebuild-all` erzwingt weiterhin die vollständige Testkompilierung.
 - `Tables.hoechsteZeile()` verwendet `Dict.get()` statt eines werfenden
   Indexzugriffs in einem nichtwerfenden Kontext.
+
+## 12c5bl
+
+- `mond`, `alles`, `primzahlkreuz`, `richtung` und `thomas` verlassen bei
+  mehreren physischen Bruchdomänen mit expliziter Ganzzahlachse die Python-Grenze.
+- Die gemeinsame klassische Projektion ist die geordnete Vereinigung der
+  domänenspezifisch korrigierten Ganzprojektionen.
+- Thomas bleibt historischer Präfix; Mond, Alles, Primzahlkreuz und Richtung
+  bleiben historische Suffixe.
+- Primzahlkreuz besitzt weiterhin die Sonderachse `--oberesmaximum=1029` ohne
+  projizierten Zeilenselektor.
+- Die native Kommando-Parität trennt nun auch stdin vom aufrufenden TTY und
+  setzt die Referenzgeometrie explizit auf 80×24. Breite Entwicklerterminals
+  können die Seitenaufteilung damit nicht mehr verändern.

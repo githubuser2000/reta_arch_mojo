@@ -640,10 +640,57 @@ def test_true_fraction_multiples_follow_each_csv_rectangle() raises:
     assert_true("--Universum=transzendentalien" in _tokens(classic_single, 0))
     assert_true("--spaltenreihenfolgeundnurdiese=1" in _tokens(classic_single, 0))
 
-    # A real ordinary integer component would activate the classic family.
-    # Its ordering relative to several independently corrected fraction
-    # rectangles remains deliberately atomic until separately proven.
-    assert_false(_plan("mond universum motive v2/3,5").handled)
+    # A real ordinary integer component activates the classic Python branch.
+    # Thomas precedes the corrected physical domains; the remaining classic
+    # families follow them in their frozen independent-if order.
+    var moon_explicit = _plan("mond universum motive v2/3,5")
+    assert_true(moon_explicit.handled)
+    assert_equal(len(moon_explicit.invocations), 27)
+    assert_true("--menschliches=motive" in _tokens(moon_explicit, 0))
+    assert_true("--Universum=transzendentalien" in _tokens(moon_explicit, 13))
+    assert_true("--Bedeutung=gestirn" in _tokens(moon_explicit, 26))
+    assert_true("--vielfachevonzahlen=5" in _tokens(moon_explicit, 26))
+    assert_true(
+        "--vorhervonausschnitt=2,1,4,6,3,5,v5"
+        in _tokens(moon_explicit, 26)
+    )
+
+    var union_moon = _plan("mond emotion universum v2/3,5")
+    assert_true(union_moon.handled)
+    assert_equal(len(union_moon.invocations), 20)
+    assert_true("--Bedeutung=gestirn" in _tokens(union_moon, 19))
+    assert_true(
+        "--vorhervonausschnitt=2,1,4,6,3,5,v5"
+        in _tokens(union_moon, 19)
+    )
+
+    var divider_moon = _plan("mond universum motive v2/3,5 teiler")
+    assert_true(divider_moon.handled)
+    assert_equal(len(divider_moon.invocations), 27)
+    assert_false("--vielfachevonzahlen=" in _tokens(divider_moon, 26))
+    assert_true(
+        "--vorhervonausschnitt=2,1,4,6,3,1,5,v5"
+        in _tokens(divider_moon, 26)
+    )
+
+    var all_classic_explicit = _plan(
+        "mond richtung primzahlkreuz alles thomas universum motive v2/3,5"
+    )
+    assert_true(all_classic_explicit.handled)
+    assert_equal(len(all_classic_explicit.invocations), 31)
+    assert_true("--galaxie=thomas" in _tokens(all_classic_explicit, 0))
+    assert_true("--menschliches=motive" in _tokens(all_classic_explicit, 1))
+    assert_true("--Universum=transzendentalien" in _tokens(all_classic_explicit, 14))
+    assert_true("--Bedeutung=gestirn" in _tokens(all_classic_explicit, 27))
+    assert_true("--alles" in _tokens(all_classic_explicit, 28))
+    assert_true("--Bedeutung=primzahlkreuz" in _tokens(all_classic_explicit, 29))
+    assert_true("--vielfachevonzahlen=5" in _tokens(all_classic_explicit, 29))
+    assert_true("--oberesmaximum=1029" in _tokens(all_classic_explicit, 29))
+    assert_false("--vorhervonausschnitt=" in _tokens(all_classic_explicit, 29))
+    assert_true(
+        "--Primzahlwirkung=Galaxieabsicht"
+        in _tokens(all_classic_explicit, 30)
+    )
 
     # A separately written negative token is consumed by the historical prompt
     # as a parameter-like no-op.  It must not alter the corrected multi-domain
@@ -781,6 +828,12 @@ def test_true_fraction_multiples_follow_each_csv_rectangle() raises:
     _emit_true_fraction_multiple_plan("emotion universum v8/3")
     _emit_true_fraction_multiple_plan("emotion universum v1/2,2/3")
     _emit_true_fraction_multiple_plan("mond universum motive v2/3")
+    _emit_true_fraction_multiple_plan("mond universum motive v2/3,5")
+    _emit_true_fraction_multiple_plan("mond universum motive v2/3,5 teiler")
+    _emit_true_fraction_multiple_plan("mond emotion universum v2/3,5")
+    _emit_true_fraction_multiple_plan(
+        "mond richtung primzahlkreuz alles thomas universum motive v2/3,5"
+    )
     _emit_true_fraction_multiple_plan("universum v2/3,5")
     _emit_true_fraction_multiple_plan("universum v2/3,5 teiler")
     _emit_true_fraction_multiple_plan("universum motive v2/3,5")

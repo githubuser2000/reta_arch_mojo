@@ -817,3 +817,16 @@ Zeitstempelvergleich. Ein vollständiger Neubau bleibt verfügbar:
 scripts/build-tests.sh --rebuild-all --heavy -- -j 4
 scripts/test_all.sh --rebuild-all --heavy --run-jobs 4 -- -j 4
 ```
+
+## Stage 12c5bl prüfen
+
+```sh
+RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bl.sh -- -j 4
+```
+
+Der Stage-Test prüft zuerst die native Kommando-Parität mit vollständig
+abgetrenntem stdin und fester 80×24-Terminalgeometrie. Danach führt er den
+gebündelten Python-Referenzprobe für die äußere klassische
+Präfix-/Suffixordnung aus und kompiliert den vollständigen True-Fraction-Probe.
+Die Python-Referenz wird nicht als Sollwert für ihr bekannt defektes inneres
+Bruchrechteck verwendet.

@@ -428,6 +428,42 @@ def _base_projected_fraction_multiple_tokens(
     return result^
 
 
+def _append_unique_projection_rows(
+    mut target: List[String], source: List[String]
+) -> None:
+    """Union corrected whole-row projections in physical-domain order."""
+    for index in range(len(source)):
+        _append_unique_string(target, source[index])
+
+
+def _base_true_fraction_prime_cross_tokens(
+    language: String,
+    row_parts: List[String],
+    invert: Bool,
+    divisor_mode: Bool,
+) -> List[String]:
+    """Build the special classic prime-cross axis beside true fractions.
+
+    The frozen controller replaces its normal row selector with
+    ``--oberesmaximum=1029`` for this command.  Plain multiple mode keeps only
+    the original ordinary components in ``--vielfachevonzahlen``; divider mode
+    deliberately omits that option.  Corrected n/m projections therefore do
+    not leak into the prime-cross row axis.
+    """
+    var result = List[String]()
+    var normalized = normalize_prompt_language(language)
+    if normalized != "deutsch":
+        result.append("-language=" + normalized)
+    result.append("-zeilen")
+    if not divisor_mode:
+        result.append("--vielfachevonzahlen=" + _join_rows(row_parts))
+    result.append("--oberesmaximum=1029")
+    if invert:
+        result.append("--invertieren")
+    result.append("-spalten")
+    return result^
+
+
 def _base_multiple_divisor_tokens(
     language: String,
     row_parts: List[String],
@@ -827,25 +863,24 @@ def _only_fraction_domains_or_inert_classic_commands(
     canonical_words: List[String],
     has_explicit_integer_axis: Bool,
 ) -> Bool:
-    """Accept physical n/m families plus classic integer-only no-ops.
+    """Accept physical n/m families plus classic integer-table families.
 
-    The frozen controller executes ``mond``, ``richtung``, ``primzahlkreuz``,
-    ``alles`` and ``thomas`` only inside its ordinary-integer branch.  Whole
-    rows projected from a true fraction do not activate that branch.  Such
-    classic words are therefore inert when no explicit integer component was
-    parsed, while their composition with a real integer axis remains an atomic
-    fallback until a separate ordering law is proven.
+    With no ordinary integer component, the classic words remain inert exactly
+    as in the frozen ``bedingungZahl`` guard.  Once an explicit integer axis is
+    present, their order relative to the physical fraction domains is owned by
+    ``_plan_multi_domain_true_fraction_multiples``: Thomas precedes the domain
+    blocks, while moon/all/prime-cross/direction follow them.  The boolean is
+    retained in the signature because it documents which branch is selected,
+    even though both proven branches now remain inside the native planner.
     """
+    _ = has_explicit_integer_axis
     for index in range(len(canonical_words)):
         var canonical = canonical_words[index]
         if not _is_table_command(canonical):
             continue
         if _is_fraction_domain_table_command(canonical):
             continue
-        if (
-            is_classic_integer_prompt_table_family(canonical)
-            and not has_explicit_integer_axis
-        ):
+        if is_classic_integer_prompt_table_family(canonical):
             continue
         return False
     return True
@@ -1205,10 +1240,14 @@ def _plan_multi_domain_true_fraction_multiples(
 ) raises -> PromptTablePlan:
     """Plan each selected physical n/m domain against its own CSV rectangle."""
     var invocations = List[PromptTableInvocation]()
+    var classic_projected_rows = List[String]()
 
     if _emotion_fraction_domain_selected(canonical_words):
         var emotion_projection = _true_fraction_projection(
             fraction_pairs, _emotion_fraction_domain()
+        )
+        _append_unique_projection_rows(
+            classic_projected_rows, emotion_projection.whole_rows
         )
         _append_projected_axis_family(
             invocations,
@@ -1240,6 +1279,9 @@ def _plan_multi_domain_true_fraction_multiples(
     if _size_fraction_domain_selected(canonical_words):
         var size_projection = _true_fraction_projection(
             fraction_pairs, _size_fraction_domain()
+        )
+        _append_unique_projection_rows(
+            classic_projected_rows, size_projection.whole_rows
         )
         _append_projected_axis_family(
             invocations,
@@ -1287,6 +1329,9 @@ def _plan_multi_domain_true_fraction_multiples(
         var motives_projection = _true_fraction_projection(
             fraction_pairs, _motives_fraction_domain()
         )
+        _append_unique_projection_rows(
+            classic_projected_rows, motives_projection.whole_rows
+        )
         _append_projected_axis_family(
             invocations,
             motives_projection,
@@ -1317,6 +1362,9 @@ def _plan_multi_domain_true_fraction_multiples(
     if _universe_fraction_domain_selected(canonical_words):
         var universe_projection = _true_fraction_projection(
             fraction_pairs, _universe_fraction_domain()
+        )
+        _append_unique_projection_rows(
+            classic_projected_rows, universe_projection.whole_rows
         )
         # More than one table domain plus the implicit multiple command always
         # selects the narrow historical Universe column sets.
@@ -1358,7 +1406,75 @@ def _plan_multi_domain_true_fraction_multiples(
 
     # A valid selector can be outside one or even all selected rectangles.  It
     # is still a completely owned no-op rather than a reason to invoke Python.
-    return PromptTablePlan(True, invocations^)
+    if len(row_parts) == 0:
+        return PromptTablePlan(True, invocations^)
+
+    # The classic integer-only families use one shared ordinary axis.  Correct
+    # the defective Python n/m rectangle by taking the ordered union of every
+    # selected physical domain's whole-row projection, then compose the raw
+    # integer source exactly once.  Historical execution order is asymmetric:
+    # Thomas runs before all fraction families, the remaining classic tables
+    # run afterwards in the fixed moon -> all -> prime-cross -> direction order.
+    var classic_base = _base_projected_fraction_multiple_tokens(
+        language,
+        classic_projected_rows,
+        row_parts,
+        counting,
+        invert,
+        divisor_mode,
+    )
+    var ordered = List[PromptTableInvocation]()
+    if _contains(canonical_words, "thomas") or _contains(canonical_words, "t"):
+        _add_invocation(
+            ordered,
+            classic_base,
+            "--galaxie=thomas",
+            "2",
+            suppress_empty,
+            passthrough,
+        )
+    for invocation_index in range(len(invocations)):
+        ordered.append(invocations[invocation_index].copy())
+    if _contains(canonical_words, "mond"):
+        _add_invocation(
+            ordered,
+            classic_base,
+            "--Bedeutung=gestirn",
+            "3-6",
+            suppress_empty,
+            passthrough,
+        )
+    if _contains(canonical_words, "alles"):
+        _add_invocation(
+            ordered,
+            classic_base,
+            "--alles",
+            "",
+            suppress_empty,
+            passthrough,
+        )
+    if _contains(canonical_words, "primzahlkreuz"):
+        var prime_cross_base = _base_true_fraction_prime_cross_tokens(
+            language, row_parts, invert, divisor_mode
+        )
+        _add_invocation(
+            ordered,
+            prime_cross_base,
+            "--Bedeutung=primzahlkreuz",
+            "",
+            suppress_empty,
+            passthrough,
+        )
+    if _contains(canonical_words, "richtung") or _contains(canonical_words, "r"):
+        _add_invocation(
+            ordered,
+            classic_base,
+            "--Primzahlwirkung=Galaxieabsicht",
+            "",
+            suppress_empty,
+            passthrough,
+        )
+    return PromptTablePlan(True, ordered^)
 
 
 def plan_prompt_table_commands(
@@ -1565,11 +1681,13 @@ def plan_prompt_table_commands(
         return PromptTablePlan(False, List[PromptTableInvocation]())
     var fraction_domain_count = _fraction_multiple_domain_count(canonical_words)
     if true_fraction_multiple_mode and fraction_domain_count > 1:
-        # Domain-specific expansion is fully defined only for a pure set of
-        # physical fraction families.  Proven comma-local ordinary selectors
-        # now compose through a shared projected-multiple base.  Numeric shortcuts,
-        # property commands and unrelated table families continue to fall back
-        # atomically until they receive their own composition law.
+        # Domain-specific expansion is fully defined for physical fraction
+        # families plus the classic integer-table group.  Proven comma-local
+        # ordinary selectors compose through one shared ordered-union base;
+        # Thomas precedes the physical blocks and the remaining classic tables
+        # follow them.  Numeric shortcuts, property commands and unrelated table
+        # families continue to fall back atomically until they receive their own
+        # composition law.
         if (
             len(numeric15_values) > 0
             or len(numeric16_values) > 0

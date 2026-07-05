@@ -31,6 +31,8 @@ def test_native_parity_environment_overrides_installed_resource_paths(monkeypatc
     assert env["RETA_REFERENCE_DIR"] == str(ROOT / "python_reference")
     assert env["RETA_DATA_DIR"] == str(ROOT / "python_reference/csv")
     assert env["RETA_ASSET_DIR"] == str(ROOT / "assets")
+    assert env["COLUMNS"] == "80"
+    assert env["LINES"] == "24"
     assert os.environ["RETA_DATA_DIR"] == "/usr/share/reta/csv"
 
 
@@ -38,3 +40,10 @@ def test_first_difference_reports_content_and_length_boundaries() -> None:
     module = _load_module()
     assert "char 2" in module.first_difference("abc", "abx")
     assert "one output ended" in module.first_difference("ab", "abc")
+
+
+def test_native_runner_detaches_stdin_from_terminal_geometry() -> None:
+    source = SCRIPT.read_text(encoding="utf-8")
+    assert "stdin=subprocess.DEVNULL" in source
+    assert 'env["COLUMNS"] = "80"' in source
+    assert 'env["LINES"] = "24"' in source

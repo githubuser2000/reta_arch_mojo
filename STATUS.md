@@ -482,3 +482,15 @@ Siehe [`ROADMAP.md`](ROADMAP.md) für alle zwölf Stufen.
   `Dict.get()`-Zugriffe mit historischen Standardwerten;
 - die hermetische Kommando-Parität und die klassischen Bruchguards sind Teil
   desselben aktuellen Stage-Gates.
+
+- Stage-12c5bl-Fokus: klassische Ganzzahlfamilien mit expliziter Achse neben
+  mehreren korrigierten echten Bruchdomänen. Der neue Plan besitzt die
+  historische Ordnung Thomas → physische Domänen → Mond → Alles →
+  Primzahlkreuz → Richtung. Die klassische Achse vereinigt alle
+  domänenspezifischen Ganzprojektionen in physischer Reihenfolge. Der komplette
+  Motive-/Universum-Fall umfasst 31 native Aufrufe; der frühere atomare
+  Fallback entfällt.
+- Der Benutzer-Vollbuild von Stage 12c5bk mit `-j 6` war erfolgreich. Die
+  anschließende Shell-Parität reproduzierte ausschließlich eine geerbte
+  180-Spalten-stdin-TTY-Geometrie. Stage 12c5bl trennt stdin mit DEVNULL ab und
+  setzt 80×24; derselbe Pseudoterminal-Reproducer besteht danach 4/4.

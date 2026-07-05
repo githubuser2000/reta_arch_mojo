@@ -31,6 +31,9 @@ CASES = [
     "mond universum motive v2/3",
     "mond richtung primzahlkreuz alles thomas universum v2/3",
     "mond universum motive v2/3,5",
+    "mond universum motive v2/3,5 teiler",
+    "mond emotion universum v2/3,5",
+    "mond richtung primzahlkreuz alles thomas universum motive v2/3,5",
     "universum v2/3,5",
     "universum v2/3,1 teiler",
     "universum v2/3,5 teiler",
@@ -692,8 +695,54 @@ def main() -> int:
     ):
         fail("a classic integer-only table escaped its ordinary-number guard")
 
-    if result["mond universum motive v2/3,5"] != "FALLBACK":
-        fail("unproven classic/integer/multi-domain composition escaped atomically")
+    moon_explicit = records(result["mond universum motive v2/3,5"])
+    if len(moon_explicit) != 27:
+        fail("classic moon composition lost the corrected two-domain plan")
+    if "--Bedeutung=gestirn" not in moon_explicit[26]:
+        fail("classic moon did not follow the corrected fraction domains")
+    if "--vielfachevonzahlen=5" not in moon_explicit[26]:
+        fail("classic moon lost the ordinary multiple axis")
+    if row_selector(moon_explicit[26]) != "2,1,4,6,3,5,v5":
+        fail("classic moon changed the ordered union projection")
+
+    union_moon = records(result["mond emotion universum v2/3,5"])
+    if len(union_moon) != 20:
+        fail("classic moon lost the emotion/universe corrected plan")
+    if row_selector(union_moon[19]) != "2,1,4,6,3,5,v5":
+        fail("classic moon did not union domain projections in physical order")
+
+    divider_moon = records(result["mond universum motive v2/3,5 teiler"])
+    if len(divider_moon) != 27:
+        fail("classic divider moon lost the corrected two-domain plan")
+    if any(field.startswith("--vielfachevonzahlen=") for field in divider_moon[26]):
+        fail("classic divider moon incorrectly retained multiples")
+    if row_selector(divider_moon[26]) != "2,1,4,6,3,1,5,v5":
+        fail("classic divider moon changed divisor/projection ordering")
+
+    all_classic_explicit = records(
+        result[
+            "mond richtung primzahlkreuz alles thomas universum motive v2/3,5"
+        ]
+    )
+    if len(all_classic_explicit) != 31:
+        fail("complete classic composition has the wrong invocation count")
+    expected_classic_order = (
+        (0, "--galaxie=thomas"),
+        (27, "--Bedeutung=gestirn"),
+        (28, "--alles"),
+        (29, "--Bedeutung=primzahlkreuz"),
+        (30, "--Primzahlwirkung=Galaxieabsicht"),
+    )
+    for index, marker in expected_classic_order:
+        if marker not in all_classic_explicit[index]:
+            fail(f"classic invocation order drifted at {index}: {marker}")
+    prime_cross = all_classic_explicit[29]
+    if "--vielfachevonzahlen=5" not in prime_cross:
+        fail("classic prime-cross lost the ordinary multiple axis")
+    if "--oberesmaximum=1029" not in prime_cross:
+        fail("classic prime-cross lost its historical upper maximum")
+    if any(field.startswith("--vorhervonausschnitt=") for field in prime_cross):
+        fail("classic prime-cross incorrectly inherited projected rows")
 
     if result["universum motive v2/3 -10"] != result["universum motive v2/3"]:
         fail("standalone negative no-op changed the corrected fraction plan")

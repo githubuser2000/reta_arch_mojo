@@ -1142,3 +1142,14 @@ Für einen bewusst vollständigen Neuaufbau:
 ```sh
 scripts/test_all.sh --rebuild-all --heavy --run-jobs 4 -- -j 4
 ```
+
+## Stage 12c5bl
+
+Klassische Ganzzahltabellen können jetzt mit einer expliziten gewöhnlichen
+Achse neben mehreren korrigierten Bruchdomänen vollständig nativ geplant
+werden. Thomas läuft vor den Domänen; Mond, Alles, Primzahlkreuz und Richtung
+folgen danach. Die klassische Achse verwendet die geordnete Vereinigung der
+domänenspezifischen Ganzprojektionen. Außerdem ist die repräsentative native
+Kommando-Parität nun vollständig TTY-unabhängig: stdin ist abgetrennt und die
+Referenzgeometrie fest 80×24. Details stehen in
+`STAGE12C5BL_CLASSIC_INTEGER_MULTI_DOMAIN_COMPOSITION.md`.

@@ -50,7 +50,8 @@ def test_runtime_contract_owns_pure_classic_fraction_noops_only() -> None:
         assert command in probe
         assert command in checker
     assert "serialize_prompt_table_plan(moon_multi_base)" in test
-    assert 'assert_false(_plan("mond universum motive v2/3,5").handled)' in test
+    assert 'var moon_explicit = _plan("mond universum motive v2/3,5")' in test
+    assert "assert_true(moon_explicit.handled)" in test
     assert "inert moon changed the corrected multi-domain fraction plan" in checker
 
 

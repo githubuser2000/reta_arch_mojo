@@ -41,6 +41,12 @@ def native_parity_environment() -> dict[str, str]:
     env["RETA_REFERENCE_DIR"] = str(ROOT / "python_reference")
     env["RETA_DATA_DIR"] = str(ROOT / "python_reference/csv")
     env["RETA_ASSET_DIR"] = str(ROOT / "assets")
+    # The native terminal geometry deliberately probes stdin after stdout.
+    # A parity runner launched from a wide interactive terminal must therefore
+    # detach stdin as well as capture stdout/stderr; otherwise TIOCGWINSZ on
+    # inherited stdin changes pagination despite an explicit --breite value.
+    env["COLUMNS"] = "80"
+    env["LINES"] = "24"
     return env
 
 
@@ -95,6 +101,7 @@ def main() -> int:
                 [str(binary), *tokens],
                 cwd=ROOT,
                 env=env,
+                stdin=subprocess.DEVNULL,
                 capture_output=True,
                 timeout=300,
             )

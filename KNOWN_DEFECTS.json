@@ -3503,7 +3503,7 @@
       "severity": "high",
       "python_status": "correct_reference",
       "mojo_status": "fixed",
-      "discovered_stage": "12c5bk",
+      "discovered_stage": "12c5bk/12c5bl",
       "reproducer": "mond universum v2/3 und mond universum motive v2/3 über den nativen Promptplaner ausführen; zuvor entstand im Einzeldomänenfall eine falsche Mondinvokation beziehungsweise im Mehrdomänenfall FALLBACK.",
       "python_locations": [
         "python_reference/reta_architecture/prompt_execution.py:561",
@@ -3515,13 +3515,14 @@
         "scripts/prompt_classic_fraction_guard_reference.py",
         "scripts/check_prompt_true_fraction_multiples.py"
       ],
-      "current_contract": "Der Planer trennt explizite gewöhnliche Ganzzahlsyntax von ganzzahligen Zeilen, die erst aus einem echten n/m-Rechteck projiziert werden. Klassische Ganzzahlfamilien werden nur durch die explizite Achse aktiviert. Ohne sie bleiben mond, richtung, primzahlkreuz, alles und thomas inert, während ein- und mehrdomänige Bruchpläne vollständig nativ laufen. Mit einer echten Ganzzahlachse und mehreren Bruchdomänen bleibt die noch unbewiesene Reihenfolge atomarer Fallback.",
+      "current_contract": "Der Planer trennt explizite gewöhnliche Ganzzahlsyntax von ganzzahligen Zeilen, die erst aus einem echten n/m-Rechteck projiziert werden. Ohne explizite Achse bleiben mond, richtung, primzahlkreuz, alles und thomas inert. Mit expliziter Achse werden sie seit Stage 12c5bl in der historisch belegten Präfix-/Suffixfolge um die korrigierten physischen Domänen komponiert.",
       "post_port_fix": "Keine Python-Änderung erforderlich; die eingefrorene Referenz besitzt die richtige bedingungZahl-Grenze, stürzt jedoch zuvor im separaten echten-Bruchvielfachenfehler ab.",
       "evidence": [
         "STAGE12C5BK_HERMETIC_PARITY_CLASSIC_FRACTION_GUARDS.md",
         "tests/test_stage12c5bk_source.py",
         "tests/test_prompt_table_execution.mojo",
-        "scripts/prompt_classic_fraction_guard_reference.py"
+        "scripts/prompt_classic_fraction_guard_reference.py",
+        "STAGE12C5BL_CLASSIC_INTEGER_MULTI_DOMAIN_COMPOSITION.md"
       ]
     },
     {
@@ -3632,6 +3633,63 @@
         "src/reta_mojo/table_runtime.mojo",
         "tests/test_table_runtime_complete_source.py",
         "scripts/test_stage12c5bk.sh"
+      ]
+    },
+    {
+      "id": "MOJO-FIXED-064",
+      "title": "Klassische Ganzzahltabellen mit expliziter Achse und mehreren Bruchdomänen blieben atomarer Fallback",
+      "origin": "mojo_port",
+      "classification": "classic_integer_multi_domain_fraction_composition_gap",
+      "severity": "high",
+      "python_status": "correct_reference",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5bf/12c5bl",
+      "reproducer": "mond universum motive v2/3,5 oder die vollständige Kombination mond richtung primzahlkreuz alles thomas universum motive v2/3,5 über plan_prompt_table_commands ausführen; der native Planer lieferte zuvor FALLBACK, obwohl die äußere Python-Aufrufordnung stabil beobachtbar ist.",
+      "python_locations": [
+        "python_reference/reta_architecture/prompt_execution.py:591",
+        "python_reference/reta_architecture/prompt_execution.py:618",
+        "python_reference/reta_architecture/prompt_execution.py:1528"
+      ],
+      "mojo_locations": [
+        "src/reta_mojo/prompt_table_execution.mojo",
+        "tests/test_prompt_table_execution.mojo",
+        "tests/prompt_true_fraction_multiple_probe.mojo",
+        "scripts/check_prompt_true_fraction_multiples.py",
+        "scripts/check_prompt_classic_fraction_composition.py"
+      ],
+      "current_contract": "Thomas läuft vor den korrigierten physischen Bruchdomänen; danach folgen Mond, Alles, Primzahlkreuz und Richtung. Die gemeinsame klassische Ganzzahlachse verwendet die geordnete Vereinigung aller domänenspezifischen Ganzprojektionen und hängt die originale Ganzzahlsyntax genau einmal an. Primzahlkreuz übernimmt nur die originale Vielfachenachse und --oberesmaximum=1029; im Teilerzweig entfällt --vielfachevonzahlen.",
+      "post_port_fix": "Keine Änderung der eingefrorenen äußeren Python-Steuerung erforderlich. Bei einer späteren Reparatur ihres inneren n/m-Rechtecks muss die belegte Thomas-Präfix-/Vierfach-Suffixordnung erhalten bleiben; die domänenspezifische Projektion soll der nativen korrigierten Vereinigung folgen.",
+      "evidence": [
+        "STAGE12C5BL_CLASSIC_INTEGER_MULTI_DOMAIN_COMPOSITION.md",
+        "scripts/check_prompt_classic_fraction_composition.py",
+        "tests/test_stage12c5bl_source.py",
+        "tests/test_prompt_table_execution.mojo"
+      ]
+    },
+    {
+      "id": "TEST-FIXED-058",
+      "title": "Native Kommando-Parität erbte die Breite des interaktiven stdin-Terminals",
+      "origin": "test_infrastructure",
+      "classification": "ambient_tty_geometry_parity_contamination",
+      "severity": "high",
+      "python_status": "not_applicable",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5bk/12c5bl",
+      "reproducer": "scripts/test_stage12c5bk.sh aus einem breiten Terminal ausführen; capture_output trennte stdout und stderr, stdin blieb jedoch ein TTY. terminal_columns fragte nach stdout auch stdin per TIOCGWINSZ ab und ordnete mehrere 40-Zeichen-Spalten nebeneinander an, sodass die Shell-Fälle 2830 statt 1990 beziehungsweise 3570 statt 2804 Zeichen lieferten.",
+      "python_locations": [],
+      "mojo_locations": [
+        "scripts/check_command_parity_native.py",
+        "scripts/test_stage12c5bl.sh",
+        "tests/test_command_parity_environment.py",
+        "tests/test_stage12c5bl_source.py"
+      ],
+      "current_contract": "Der Paritätsrunner startet das native Binary mit stdin=subprocess.DEVNULL und fester COLUMNS=80/LINES=24-Umgebung. stdout und stderr bleiben Pipes. Damit können weder TIOCGWINSZ auf dem aufrufenden Terminal noch geerbte Spaltenwerte die Seitenaufteilung verändern; ein 180-Spalten-Pseudoterminal reproduziert nun dieselben 4/4 kanonischen Fälle wie ein nichtinteraktiver Lauf.",
+      "post_port_fix": "Keine Python- oder Mojo-Produktionsänderung erforderlich. Dies war eine fehlende Prozess-/TTY-Isolation im Laufzeit-Paritätsprüfer.",
+      "evidence": [
+        "STAGE12C5BL_CLASSIC_INTEGER_MULTI_DOMAIN_COMPOSITION.md",
+        "scripts/check_command_parity_native.py",
+        "tests/test_command_parity_environment.py",
+        "tests/test_stage12c5bl_source.py"
       ]
     }
   ],

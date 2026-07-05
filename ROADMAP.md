@@ -705,3 +705,13 @@ Der historische Assetgate ist jetzt vollständig read-only. Fünf gepinnte SHA-2
 - äußere Zeile 1 im Bruchteilervertrag wiederhergestellt;
 - konservativ inkrementelle Testkompilierung mit transitiven Importhashes;
 - nichtwerfender `hoechsteZeile()`-Zugriff über `Dict.get()`.
+
+## Stage 12c5bl – klassische Ganzzahl-/Mehrdomänen-Bruchkomposition
+
+- [x] Äußere Python-Reihenfolge relativ zum unveränderten Basisplan beweisen.
+- [x] Geordnete Vereinigung domänenspezifischer Ganzprojektionen typisieren.
+- [x] Thomas vor und Mond/Alles/Primzahlkreuz/Richtung nach den Domänen planen.
+- [x] Vielfachen-, Teiler-, Null- und Ausschlussachsen regressionsprüfen.
+- [x] Vollständigen 31-Aufruf-Vertrag für alle klassischen Familien ergänzen.
+- [x] stdin-TTY und Terminalgeometrie des nativen Paritätsrunners isolieren.
+- [ ] Benutzerseitig `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bl.sh -- -j 4` ausführen.

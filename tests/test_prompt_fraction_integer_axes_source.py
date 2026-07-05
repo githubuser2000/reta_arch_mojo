@@ -13,7 +13,7 @@ def test_projected_integer_multiple_and_divider_bases_are_explicit() -> None:
     source = MODULE.read_text(encoding="utf-8")
     assert "def _projected_fraction_divisor_rows(" in source
     assert "def _base_projected_fraction_multiple_tokens(" in source
-    assert source.count("_base_projected_fraction_multiple_tokens(") == 3
+    assert source.count("_base_projected_fraction_multiple_tokens(") == 4
     assert 'result.append("--vielfachevonzahlen=" + _join_rows(row_parts))' in source
     assert 'selected.append("v" + row_parts[index])' in source
     assert "var value_set = range_to_numbers(" in source
@@ -27,7 +27,7 @@ def test_projected_integer_multiple_and_divider_bases_are_explicit() -> None:
     assert "if divisor_mode:" in source
     helper = source[
         source.index("def _base_projected_fraction_multiple_tokens(") :
-        source.index("def _base_multiple_divisor_tokens(")
+        source.index("def _append_unique_projection_rows(")
     ]
     assert "--oberesmaximum=" not in helper
 
@@ -87,4 +87,5 @@ def test_classic_family_requires_an_explicit_integer_axis() -> None:
     assert "_only_fraction_domains_or_inert_classic_commands(" in source
     assert "var has_explicit_integer_axis = len(row_parts) > 0" in source
     assert 'var moon_multi = _plan("mond universum motive v2/3")' in test
-    assert 'assert_false(_plan("mond universum motive v2/3,5").handled)' in test
+    assert 'var moon_explicit = _plan("mond universum motive v2/3,5")' in test
+    assert "assert_true(moon_explicit.handled)" in test

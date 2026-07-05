@@ -50,7 +50,8 @@ def test_classic_integer_only_noops_compose_but_real_axes_stay_atomic() -> None:
     test = MOJO_TEST.read_text(encoding="utf-8")
     assert "_only_fraction_domains_or_inert_classic_commands(" in source
     assert 'var moon_multi = _plan("mond universum motive v2/3")' in test
-    assert 'assert_false(_plan("mond universum motive v2/3,5").handled)' in test
+    assert 'var moon_explicit = _plan("mond universum motive v2/3,5")' in test
+    assert "assert_true(moon_explicit.handled)" in test
     assert 'var standalone_negative = _plan("universum motive v2/3 -10")' in test
     assert 'var zero_divider_axis = _plan("universum v2/3,0 teiler")' in test
     assert 'var excluded_divider_axis = _plan("universum v2/3,5,-10 teiler")' in test
