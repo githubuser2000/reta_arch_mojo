@@ -40,3 +40,13 @@ def test_runtime_contract_covers_universe_emotion_and_divider_variants() -> None
 def test_direct_native_execution_is_required_for_the_new_single_axis_plan() -> None:
     checker = CHECKER.read_text(encoding="utf-8")
     assert 'result["universum v1/4,-2/3"], runner, expected_count=1' in checker
+
+
+def test_native_runtime_checker_uses_canonical_lowercase_emotion_option() -> None:
+    checker = CHECKER.read_text(encoding="utf-8")
+    start = checker.index('positive_emotion = records(result["emotion v1/4,-2/3"])')
+    end = checker.index('positive_divisor = records(', start)
+    runtime_block = checker[start:end]
+    assert '"--grundstrukturen=emotion" not in positive_emotion[0]' in runtime_block
+    assert '"--Grundstrukturen=emotion" not in positive_emotion[0]' not in runtime_block
+    assert "mixed-case argv spelling" in runtime_block

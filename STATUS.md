@@ -1,3 +1,17 @@
+# Status – Stage 12c5bo
+
+- Der vollständige native Benutzerbuild von 12c5bm war erfolgreich.
+- Der anschließende Fehler `emotion positive-first reciprocal axis is missing`
+  lag ausschließlich im Python-Laufzeitprüfer.
+- Die Python-Referenz behält historisch `--Grundstrukturen=emotion`; der native
+  typisierte Plan verwendet kanonisch `--grundstrukturen=emotion`.
+- Der Prüfer trennt beide Verträge nun ausdrücklich. Mojo-Produktionscode wurde
+  nicht geändert.
+- Compilerfrei bestätigt: Referenzproben **5/5** und **14/14**, fokussierte
+  Source-/Ledger-/Archivverträge **64/64**, Defektledger **152/20**.
+- Fokussierter Benutzerlauf:
+  `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bo.sh -- -j 4`.
+
 # Status – Stage 12c5bm
 
 - Mehrdomänen-Bruchpläne besitzen nun äußere EIGN/EIGR- und numerische

@@ -3798,6 +3798,32 @@
         "tests/test_prompt_combined_outer_order_source.py",
         "tests/test_prompt_table_execution.mojo"
       ]
+    },
+    {
+      "id": "TEST-FIXED-061",
+      "title": "Native Emotion-Reziprokprobe verlangte die historische statt der kanonischen Optionsschreibweise",
+      "origin": "test_infrastructure",
+      "classification": "native_probe_option_case_mismatch",
+      "severity": "medium",
+      "python_status": "not_applicable",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5bm/12c5bo",
+      "reproducer": "RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bm.sh -- -j 4 ausführen; nach erfolgreicher Kompilierung brach scripts/check_prompt_true_fraction_multiples.py bei emotion v1/4,-2/3 mit emotion positive-first reciprocal axis is missing ab.",
+      "python_locations": [],
+      "mojo_locations": [
+        "scripts/check_prompt_true_fraction_multiples.py",
+        "scripts/test_stage12c5bo.sh",
+        "tests/test_prompt_positive_first_fraction_multiple_source.py",
+        "tests/test_stage12c5bo_source.py"
+      ],
+      "current_contract": "Die instrumentierte Python-Referenz darf weiterhin das historische argv --Grundstrukturen=emotion liefern. Der typisierte native Tabellenplan verwendet dagegen kanonisch --grundstrukturen=emotion. Der Laufzeitprüfer bindet beide Schreibweisen in getrennten Blöcken und prüft die native Emotionsspaltenachse 4,5 gegen die Kleinbuchstabenoption.",
+      "post_port_fix": "Keine Python- oder Mojo-Produktionsänderung erforderlich. Der Fehler lag ausschließlich in einer case-sensitiven Assertion des Python-Laufzeitprüfers.",
+      "evidence": [
+        "STAGE12C5BO_CANONICAL_EMOTION_OPTION_CHECK.md",
+        "scripts/check_prompt_true_fraction_multiples.py",
+        "tests/test_prompt_positive_first_fraction_multiple_source.py",
+        "tests/test_stage12c5bo_source.py"
+      ]
     }
   ],
   "audit": {

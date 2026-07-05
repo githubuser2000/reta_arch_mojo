@@ -1054,7 +1054,10 @@ def main() -> int:
     positive_emotion = records(result["emotion v1/4,-2/3"])
     if len(positive_emotion) != 1:
         fail("emotion positive-first branch must have one reciprocal invocation")
-    if "--Grundstrukturen=emotion" not in positive_emotion[0]:
+    # Native typed table plans use the canonical lowercase parameter name.
+    # The Python reference collector above intentionally retains the historical
+    # mixed-case argv spelling; these are distinct contracts.
+    if "--grundstrukturen=emotion" not in positive_emotion[0]:
         fail("emotion positive-first reciprocal axis is missing")
     if "--spaltenreihenfolgeundnurdiese=4,5" not in positive_emotion[0]:
         fail("emotion reciprocal columns drifted")

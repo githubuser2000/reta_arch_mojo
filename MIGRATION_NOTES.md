@@ -1321,3 +1321,14 @@ Vier vollständig native Diagnoseoberflächen teilen seit Stage 12c5z eine versi
   Vielfachenachse und `--oberesmaximum=1029`.
 - Der alte `_has_classic_integer_table_command`-Gate entfällt; unrelated
   Tabellenfamilien bleiben weiterhin an der atomaren Grenze.
+
+## Stage 12c5bo
+
+- Keine Produktionssemantik geändert.
+- `scripts/check_prompt_true_fraction_multiples.py` erwartet im nativen
+  positive-First-Emotion-Zweig nun die kanonische Option
+  `--grundstrukturen=emotion`.
+- Die instrumentierte Python-Referenzprüfung bleibt absichtlich bei
+  `--Grundstrukturen=emotion`; ein neuer Sourcevertrag schützt diese Trennung.
+- Der gemeldete Fehler nach dem erfolgreichen Vollbuild ist als
+  `TEST-FIXED-061` dokumentiert.

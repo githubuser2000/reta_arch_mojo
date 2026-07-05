@@ -23,7 +23,7 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 
 ## Übersicht
 
-- Einträge insgesamt: **151**
+- Einträge insgesamt: **152**
 - offene bestätigte Python-Fehler: **6**
 - zu entscheidende Python-Fehlerkandidaten: **13**
 - bereits im Python-Baum behobene Fehler: **7**
@@ -2057,3 +2057,16 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 - Python-Orte: `python_reference/reta_architecture/prompt_execution.py`
 - Mojo-Orte: `src/reta_mojo/prompt_table_execution.mojo`, `tests/test_prompt_table_execution.mojo`, `tests/prompt_true_fraction_multiple_probe.mojo`, `scripts/check_prompt_true_fraction_multiples.py`
 - Belege: `STAGE12C5BN_COMBINED_OUTER_AXES.md`, `scripts/check_prompt_combined_outer_order_reference.py`, `tests/test_prompt_combined_outer_order_source.py`, `tests/test_prompt_table_execution.mojo`
+
+### TEST-FIXED-061 – Native Emotion-Reziprokprobe verlangte die historische statt der kanonischen Optionsschreibweise
+
+- Ursprung: `test_infrastructure`
+- Klasse / Schwere: `native_probe_option_case_mismatch` / `medium`
+- Python-Status: `not_applicable`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5bm/12c5bo`
+- Reproduktion: `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bm.sh -- -j 4 ausführen; nach erfolgreicher Kompilierung brach scripts/check_prompt_true_fraction_multiples.py bei emotion v1/4,-2/3 mit emotion positive-first reciprocal axis is missing ab.`
+- heutiger Vertrag: Die instrumentierte Python-Referenz darf weiterhin das historische argv --Grundstrukturen=emotion liefern. Der typisierte native Tabellenplan verwendet dagegen kanonisch --grundstrukturen=emotion. Der Laufzeitprüfer bindet beide Schreibweisen in getrennten Blöcken und prüft die native Emotionsspaltenachse 4,5 gegen die Kleinbuchstabenoption.
+- spätere Python-Aktion: Keine Python- oder Mojo-Produktionsänderung erforderlich. Der Fehler lag ausschließlich in einer case-sensitiven Assertion des Python-Laufzeitprüfers.
+- Mojo-Orte: `scripts/check_prompt_true_fraction_multiples.py`, `scripts/test_stage12c5bo.sh`, `tests/test_prompt_positive_first_fraction_multiple_source.py`, `tests/test_stage12c5bo_source.py`
+- Belege: `STAGE12C5BO_CANONICAL_EMOTION_OPTION_CHECK.md`, `scripts/check_prompt_true_fraction_multiples.py`, `tests/test_prompt_positive_first_fraction_multiple_source.py`, `tests/test_stage12c5bo_source.py`

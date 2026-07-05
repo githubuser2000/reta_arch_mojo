@@ -740,3 +740,11 @@ Der historische Assetgate ist jetzt vollständig read-only. Fünf gepinnte SHA-2
 - [x] 28-, 29-, 34- und 35-Aufrufpläne regressionsprüfen.
 - [x] Gemeinsame äußere Ganzzahlprojektion und Primzahlkreuz-Sonderachse prüfen.
 - [ ] Benutzerseitig `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bn.sh -- -j 4` ausführen.
+
+## Stage 12c5bo – kanonische Optionsschreibweise im Laufzeitprüfer
+
+- [x] Benutzerfehler nach erfolgreichem Vollbuild auf Probe-Assertion eingrenzen.
+- [x] Historische Python-argv-Schreibweise von nativer kanonischer Schreibweise trennen.
+- [x] Native Emotionsachse auf `--grundstrukturen=emotion` und Spalten 4,5 binden.
+- [x] Prüfstandsdefekt und Sourcevertrag dokumentieren.
+- [ ] Benutzerseitig `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bo.sh -- -j 4` ausführen.

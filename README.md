@@ -1190,3 +1190,19 @@ Der vollständige Motive-/Universum-Fall besitzt 34 Aufrufe, mit zusätzlichem
 EIGR 35. Die Python-Referenz dient nur als Beleg der äußeren Zweigreihenfolge;
 ihre bekannte gemeinsame n/m-Rechteckbildung wird nicht übernommen. Details:
 [`STAGE12C5BN_COMBINED_OUTER_AXES.md`](STAGE12C5BN_COMBINED_OUTER_AXES.md).
+
+## Stage 12c5bo – kanonische Emotion-Option im Probevertrag
+
+Der Benutzerlauf bestätigte den vollständigen nativen Build und fand danach
+einen reinen Prüfstandsfehler: Der native Plan verwendet korrekt
+`--grundstrukturen=emotion`, während der Python-Prüfer noch die historische
+Referenzschreibweise `--Grundstrukturen=emotion` verlangte. Referenz-argv und
+nativer kanonischer Parameter werden nun getrennt geprüft; Produktions-Mojo
+blieb unverändert. Details:
+[`STAGE12C5BO_CANONICAL_EMOTION_OPTION_CHECK.md`](STAGE12C5BO_CANONICAL_EMOTION_OPTION_CHECK.md).
+
+Fokussierter Lauf:
+
+```sh
+RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bo.sh -- -j 4
+```

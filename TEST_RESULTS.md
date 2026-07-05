@@ -2405,3 +2405,17 @@ Benutzerlauf.
 - Stage-12c5bn-Metrik: **89/92** vollständig, **92/92** mindestens teilweise,
   **48.831/48.831** angegriffen; **63.513** Mojo-Zeilen in `src/`, **58.919**
   im Kernpaket; Defektledger **151/20**.
+
+## Stage 12c5bo – vorbereiteter Prüfstand
+
+- Benutzer-Vollbuild von 12c5bm: **erfolgreich**.
+- Erster nachfolgender Probeabbruch: ausschließlich case-sensitive
+  Prüferabweichung bei der nativen Emotion-Reziprokachse.
+- Produktionsplan und vorhandener Mojo-Laufzeitvertrag stimmen bereits auf
+  `--grundstrukturen=emotion` überein.
+- Compilerfreie Referenzproben: **5/5** Mehrdomänen-Erweiterungen und **14/14**
+  kombinierte Außenordnungsbedingungen.
+- Fokussierte Source-/Ledger-/Archivverträge: **64/64** bestanden.
+- Defektledger: **152** Einträge, weiterhin **20** spätere Python-Punkte.
+- Neuer fokussierter Lauf:
+  `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bo.sh -- -j 4`.
