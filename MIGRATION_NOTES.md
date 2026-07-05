@@ -1293,3 +1293,17 @@ Vier vollständig native Diagnoseoberflächen teilen seit Stage 12c5z eine versi
 - Die native Kommando-Parität trennt nun auch stdin vom aufrufenden TTY und
   setzt die Referenzgeometrie explizit auf 80×24. Breite Entwicklerterminals
   können die Seitenaufteilung damit nicht mehr verändern.
+
+## Stage 12c5bm
+
+- `_plan_multi_domain_true_fraction_multiples` besitzt nun gemeinsame,
+  geordnet deduplizierte Ganzzahl- und Reziprokprojektionen für äußere
+  EIGN/EIGR- und 15/16-Achsen.
+- EIGN/EIGR werden nach Motive und vor Universum eingefügt; numerische Familie
+  16 folgt nach dem physischen Plan vor Familie 15.
+- Physische Bruchtabellen behalten ihre vier unabhängigen Rechtecke; die
+  gemeinsame Projektion ersetzt diese Rechtecke nicht.
+- Klassische Ganzzahlfamilien zusammen mit diesen neuen Erweiterungen bleiben
+  zunächst atomar, damit keine unbelegte kombinierte Reihenfolge entsteht.
+- `assert_python_positive_first_reciprocal_only` verwendet den instrumentierten
+  Referenzsammler statt die vollständig gerenderte Ausgabe von `rpb` zu parsen.

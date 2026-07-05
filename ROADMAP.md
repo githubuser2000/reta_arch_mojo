@@ -715,3 +715,17 @@ Der historische Assetgate ist jetzt vollständig read-only. Fünf gepinnte SHA-2
 - [x] Vollständigen 31-Aufruf-Vertrag für alle klassischen Familien ergänzen.
 - [x] stdin-TTY und Terminalgeometrie des nativen Paritätsrunners isolieren.
 - [ ] Benutzerseitig `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bl.sh -- -j 4` ausführen.
+
+## Stage 12c5bm – Mehrdomänen-Eigenschafts-/Katalogkomposition
+
+- [x] EIGN/EIGR zwischen Motive- und Universumblock auf der geordneten
+  Vereinigung korrigierter Projektionen planen.
+- [x] Numerische Familie 16 vor Familie 15 nach allen physischen Bruchblöcken
+  ausführen.
+- [x] Explizite gewöhnliche Vielfachenachsen genau einmal an Eigenschafts- und
+  Katalogaufrufe anhängen.
+- [x] Positive-First-Referenzprüfung vom gerenderten stdout auf gesammelte
+  Executor-argv umstellen.
+- [x] Klassische Ganzzahlfamilien plus neue Eigenschafts-/Katalogachsen bis zu
+  einem separaten Reihenfolgebeleg atomar halten.
+- [ ] Benutzerseitig `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bm.sh -- -j 4` ausführen.

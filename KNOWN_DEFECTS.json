@@ -3691,6 +3691,85 @@
         "tests/test_command_parity_environment.py",
         "tests/test_stage12c5bl_source.py"
       ]
+    },
+    {
+      "id": "TEST-FIXED-059",
+      "title": "Positive-First-Bruchprobe wertete gerenderten Python-stdout statt Executor-argv aus",
+      "origin": "test_infrastructure",
+      "classification": "rendered_reference_stdout_contract_leak",
+      "severity": "medium",
+      "python_status": "not_applicable",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5bl/12c5bm",
+      "reproducer": "RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bl.sh ausführen; die Prüfung brach bei 'universum v1/4,-2/3' mit expected exactly one reta invocation ab, obwohl der native Probeplan und die Referenzsemantik unverändert waren.",
+      "python_locations": [
+        "python_reference/reta_architecture/prompt_execution.py"
+      ],
+      "mojo_locations": [
+        "scripts/check_prompt_true_fraction_multiples.py",
+        "scripts/prompt_mixed_reciprocal_reference.py",
+        "tests/test_prompt_multi_domain_extensions_source.py"
+      ],
+      "current_contract": "Die Referenzprüfung ersetzt retaExecuteNprint und serialisiert die exakten argv-Aufrufe. Sie fordert genau einen gesammelten Reziprokaufruf und prüft dessen Zeilen- und Spaltenoptionen direkt; lokalisierte Ankündigungen, Terminalbreite und gerenderte Tabellen sind nicht mehr Teil dieses Planvertrags.",
+      "post_port_fix": "Keine Produktionsänderung erforderlich. Der Fehler lag ausschließlich in der Beobachtungsschicht des Referenztests.",
+      "evidence": [
+        "STAGE12C5BM_MULTI_DOMAIN_PROPERTY_NUMERIC_AXES.md",
+        "scripts/check_prompt_true_fraction_multiples.py",
+        "tests/test_prompt_multi_domain_extensions_source.py"
+      ]
+    },
+    {
+      "id": "TEST-FIXED-060",
+      "title": "True-Fraction-Laufzeittest erwartete historische Echo-Großschreibung statt kanonischen Parameter",
+      "origin": "test_infrastructure",
+      "classification": "case_sensitive_canonical_option_assertion_mismatch",
+      "severity": "medium",
+      "python_status": "not_applicable",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5bl/12c5bm",
+      "reproducer": "test_prompt_table_execution.mojo ausführen; test_true_fraction_multiples_follow_each_csv_rectangle scheiterte bei emotion v1/4,-2/3 an Zeile 793, weil die Assertion --Grundstrukturen=emotion verlangte, während der kanonische native Plan wie alle übrigen Tabellenpläne --grundstrukturen=emotion verwendet.",
+      "python_locations": [],
+      "mojo_locations": [
+        "tests/test_prompt_table_execution.mojo",
+        "src/reta_mojo/prompt_table_execution.mojo",
+        "tests/test_prompt_multi_domain_extensions_source.py"
+      ],
+      "current_contract": "Laufzeitverträge prüfen die kanonische native Option --grundstrukturen=emotion mit kleinem g. Die historische Großschreibung bleibt ausschließlich in Echo-/Fixture-Verträgen erhalten und wird nicht mit dem typisierten Planargument vermischt.",
+      "post_port_fix": "Keine Produktionsänderung erforderlich. Die fehlerhafte Groß-/Kleinschreibung lag ausschließlich in einer neu ergänzten Assertion.",
+      "evidence": [
+        "STAGE12C5BM_MULTI_DOMAIN_PROPERTY_NUMERIC_AXES.md",
+        "tests/test_prompt_table_execution.mojo",
+        "tests/test_prompt_multi_domain_extensions_source.py"
+      ]
+    },
+    {
+      "id": "MOJO-FIXED-065",
+      "title": "Mehrdomänen-Bruchpläne mit EIGN/EIGR oder numerischen 15/16-Katalogachsen fielen atomar zurück",
+      "origin": "mojo_port",
+      "classification": "multi_domain_fraction_property_numeric_composition_gap",
+      "severity": "high",
+      "python_status": "correct_reference",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5bf/12c5bm",
+      "reproducer": "motive EIGNgut universum v2/3 oder motive universum 15_13 16_2 v2/3,5 über plan_prompt_table_commands ausführen; der native Mehrdomänenzweig lieferte zuvor FALLBACK, obwohl die unabhängige Zweigreihenfolge und die bereits typisierten Eigenschafts-/Katalogaufrufe feststanden.",
+      "python_locations": [
+        "python_reference/reta_architecture/prompt_execution.py"
+      ],
+      "mojo_locations": [
+        "src/reta_mojo/prompt_table_execution.mojo",
+        "src/reta_mojo/prompt_property_execution.mojo",
+        "tests/test_prompt_table_execution.mojo",
+        "tests/prompt_true_fraction_multiple_probe.mojo",
+        "scripts/check_prompt_true_fraction_multiples.py"
+      ],
+      "current_contract": "Jede physische Bruchfamilie behält ihr eigenes korrigiertes CSV-Rechteck. EIGN/EIGR verwenden die geordnete Vereinigung der domänenspezifischen Ganzzahl- und Reziprokprojektionen und stehen zwischen Motive und Universum. Numerische Familie 16 folgt nach allen physischen Blöcken vor Familie 15. Eine explizite gewöhnliche Achse wird genau einmal angehängt und projizierte Ganzzahlen werden nicht erneut vervielfacht.",
+      "post_port_fix": "Bei einer späteren Reparatur des Python-n/m-Rechtecks soll die unabhängige Zweigreihenfolge Motive – Eigenschaften – Universum – 16 – 15 erhalten bleiben. Die kombinierte Reihenfolge mit klassischen Ganzzahlfamilien bleibt bis zu einem eigenen Beleg atomar.",
+      "evidence": [
+        "STAGE12C5BM_MULTI_DOMAIN_PROPERTY_NUMERIC_AXES.md",
+        "tests/test_prompt_multi_domain_extensions_source.py",
+        "tests/test_prompt_table_execution.mojo",
+        "scripts/check_prompt_true_fraction_multiples.py"
+      ]
     }
   ],
   "audit": {

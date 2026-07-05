@@ -1,3 +1,16 @@
+# Status – Stage 12c5bm
+
+- Mehrdomänen-Bruchpläne besitzen nun äußere EIGN/EIGR- und numerische
+  16/15-Achsen auf der geordneten Vereinigung korrigierter Projektionen.
+- Eigenschaften stehen zwischen Motive und Universum; numerische Familie 16
+  folgt nach den physischen Blöcken vor Familie 15.
+- Der positive-First-Referenzvertrag sammelt Executor-argv direkt und parst
+  keine gerenderte Python-Tabelle mehr.
+- Die benutzerseitig gefundene Assertion für die Emotion-Reziprokachse prüft
+  nun die kanonische Kleinbuchstabenoption `--grundstrukturen=emotion`.
+- Klassische Ganzzahlfamilien zusammen mit diesen neuen Erweiterungen bleiben
+  bis zu einem eigenen kombinierten Reihenfolgebeleg atomar.
+
 # Status – Stage 12c5bk
 
 - Der vollständige Benutzerbuild von 12c5bj ist grün; `-j 4` wird bis zu allen nativen Produktionszielen durchgereicht.
@@ -457,7 +470,7 @@
 - EIGR umgeht den defekten Python-`deepcopy(module)`-Wrapper über dessen expliziten, direkt lauffähigen `reta.py`-Argumentvertrag
 ## Weiterhin an der Kompatibilitätsgrenze
 - wenige verbleibende Rich-/Terminalsonderfälle außerhalb der seit 12c4i bytegleichen paginierten Kernpfade
-- mehrere gleichzeitig ausgewählte, verschieden große Bruch-CSV-Domänen und weitere hintere Prompt-Sonderzweige
+- kombinierte klassische Ganzzahlfamilien mit EIGN/EIGR- oder 15/16-Achsen sowie weitere noch unbelegte hintere Prompt-Sonderzweige
 - vollständige i18n-Laufzeit außerhalb des Promptvokabulars
 Siehe [`ROADMAP.md`](ROADMAP.md) für alle zwölf Stufen.
 
@@ -494,3 +507,25 @@ Siehe [`ROADMAP.md`](ROADMAP.md) für alle zwölf Stufen.
   anschließende Shell-Parität reproduzierte ausschließlich eine geerbte
   180-Spalten-stdin-TTY-Geometrie. Stage 12c5bl trennt stdin mit DEVNULL ab und
   setzt 80×24; derselbe Pseudoterminal-Reproducer besteht danach 4/4.
+
+## Stage 12c5bm – Mehrdomänen-Eigenschafts- und Katalogachsen
+
+- Mehrdomänenpläne mit `EIGN…`/`EIGR…` sind nativ: Eigenschaften verwenden die
+  geordnete Vereinigung der korrigierten Ganzzahl-/Reziprokprojektionen und
+  stehen zwischen Motive und Universum.
+- Numerische Katalogachsen sind nativ; ihre historische Reihenfolge bleibt
+  Familie 16 vor Familie 15 am Ende des physischen Plans.
+- `motive EIGNgut universum v2/3` besitzt 27 Aufrufe,
+  `motive EIGNgut EIGRwerte universum v2/3` und
+  `motive universum 15_13 16_2 v2/3,5` jeweils 28.
+- Die Referenzprüfung für `universum v1/4,-2/3` sammelt direkte Executor-argv
+  und ist unabhängig von gerendertem Python-stdout.
+- Noch offen bleibt die gemeinsam unbelegte Mischung dieser Erweiterungen mit
+  klassischen Ganzzahlfamilien.
+
+- Aktuelle Metrik nach Stage 12c5bm: **89/92 = 96,7 %** vollständig
+  nativ/generiert, **92/92 = 100 %** mindestens teilweise und
+  **48.831/48.831** angegriffene Referenzzeilen.
+- Mojo-Umfang: **63.537** Zeilen in `src/`, davon **58.943** in
+  `src/reta_mojo/`; Defektledger: **150** Einträge, weiterhin **20** spätere
+  Python-Aufräumpunkte.

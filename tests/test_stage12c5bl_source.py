@@ -24,11 +24,11 @@ def test_current_stage_extends_bk_and_forwards_compiler_options() -> None:
 
 def test_multi_domain_planner_owns_classic_integer_order() -> None:
     source = MODULE.read_text(encoding="utf-8")
-    assert "var classic_projected_rows = List[String]()" in source
+    assert "var shared_whole_rows = List[String]()" in source
     assert "def _append_unique_projection_rows(" in source
     assert "def _base_true_fraction_prime_cross_tokens(" in source
-    assert "Thomas runs before all fraction families" in source
-    assert "moon -> all -> prime-cross -> direction" in source
+    assert "var ordered = List[PromptTableInvocation]()" in source
+    assert "_base_true_fraction_prime_cross_tokens(" in source
     assert 'result.append("--oberesmaximum=1029")' in source
     assert "return PromptTablePlan(True, ordered^)" in source
 

@@ -60,6 +60,11 @@ CASES = [
     "emotion v1/4,-2/3",
     "universum v1/4,-2/3 teiler",
     "universum v1/4,-1/8,2/3",
+    "motive EIGNgut universum v2/3",
+    "motive EIGNgut EIGRwerte universum v2/3",
+    "motive universum 15_13 16_2 v2/3,5",
+    "motive universum 15_13 16_2 v2/3",
+    "mond motive EIGNgut universum v2/3,5",
 ]
 
 
@@ -350,8 +355,14 @@ def assert_python_negative_multiple_noops() -> None:
 
 
 def assert_python_positive_first_reciprocal_only() -> None:
-    environment = os.environ.copy()
-    environment["PYTHONHASHSEED"] = "0"
+    """Freeze the argv plan without rendering the enormous reference table.
+
+    Parsing the one-shot prompt's human-facing stdout is not hermetic: aliases,
+    terminal policy and localized announcements can change how the printed
+    command line is framed even when the executor argv is identical.  The
+    shared reference probe replaces only ``retaExecuteNprint`` and records the
+    exact call, which is the contract the Mojo planner must reproduce.
+    """
     cases = {
         "universum v1/4,-2/3": (
             "--Universum=transzendentaliereziproke",
@@ -364,38 +375,77 @@ def assert_python_positive_first_reciprocal_only() -> None:
             set(range(4, 1024, 4)),
         ),
     }
+    load_reference_payloads(list(cases))
     for command, (axis, columns, expected_rows) in cases.items():
-        completed = subprocess.run(
-            [sys.executable, "python_reference/rpb", command],
-            cwd=ROOT,
-            env=environment,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-            timeout=120,
-        )
-        if completed.returncode != 0 or completed.stderr:
-            fail(f"positive-first reciprocal reference changed for {command!r}")
-        reta_lines = [
-            line for line in completed.stdout.splitlines() if line.startswith("reta ")
-        ]
-        if len(reta_lines) != 1:
-            fail(f"expected exactly one reta invocation for {command!r}")
-        arguments = reta_lines[0].split()
+        plan = reference_records(command)
+        if len(plan) != 1:
+            fail(
+                "expected exactly one collected reta invocation for "
+                f"{command!r}, got {len(plan)}"
+            )
+        arguments = plan[0]
         if axis not in arguments or columns not in arguments:
             fail(f"wrong reciprocal output axis for {command!r}: {arguments!r}")
         if any("--gebrochen-rational_" in value for value in arguments):
             fail(f"excluded proper fraction leaked into a CSV axis for {command!r}")
-        selectors = [
-            value.removeprefix("--vorhervonausschnitt=")
-            for value in arguments
-            if value.startswith("--vorhervonausschnitt=")
-        ]
-        if len(selectors) != 1:
-            fail(f"reference has no unique reciprocal selector for {command!r}")
-        actual_rows = {int(value) for value in selectors[0].split(",") if value}
+        actual_rows = set(row_values(arguments))
         if actual_rows != expected_rows:
             fail(f"wrong positive-first reciprocal rows for {command!r}")
+
+
+def assert_multi_domain_extension_plans(result: dict[str, str]) -> None:
+    eign = records(result["motive EIGNgut universum v2/3"])
+    if len(eign) != 27:
+        fail(f"wrong multi-domain EIGN invocation count: {len(eign)}")
+    if "--konzept=gut" not in eign[13]:
+        fail("multi-domain EIGN axis is not between Motives and Universe")
+    if "--Universum=transzendentalien" not in eign[14]:
+        fail("Universe block no longer follows multi-domain EIGN")
+
+    properties = records(
+        result["motive EIGNgut EIGRwerte universum v2/3"]
+    )
+    if len(properties) != 28:
+        fail(f"wrong multi-domain property invocation count: {len(properties)}")
+    if "--konzept=gut" not in properties[13]:
+        fail("EIGN order drifted in multi-domain plan")
+    if "--konzept2=werte" not in properties[14]:
+        fail("EIGR order drifted in multi-domain plan")
+    if "--Universum=transzendentalien" not in properties[15]:
+        fail("Universe block no longer follows EIGN/EIGR")
+
+    numeric = records(result["motive universum 15_13 16_2 v2/3,5"])
+    if len(numeric) != 28:
+        fail(f"wrong multi-domain numeric invocation count: {len(numeric)}")
+    if not any(value.startswith("--Multiversum=") for value in numeric[26]):
+        fail("numeric family 16 is not the first tail invocation")
+    if not any(value.startswith("--Grundstrukturen=") for value in numeric[27]):
+        fail("numeric family 15 is not the second tail invocation")
+    if "--vielfachevonzahlen=5" not in numeric[26]:
+        fail("numeric tail lost the explicit ordinary multiple axis")
+
+    projected = records(result["motive universum 15_13 16_2 v2/3"])
+    if len(projected) != 28:
+        fail("projected-only numeric plan has the wrong invocation count")
+    if any(
+        value.startswith("--vielfachevonzahlen=")
+        for value in projected[26]
+    ):
+        fail("projected whole rows were multiplied a second time")
+
+    if result["mond motive EIGNgut universum v2/3,5"] != "FALLBACK":
+        fail("unproved classic/property composition must remain atomic")
+
+    # The frozen Python controller executes numeric 16 before 15 after the
+    # physical domain blocks.  Its n/m grid is known-bad, so only this stable
+    # outer ordering is imported into the corrected native plan.
+    reference = reference_records("motive universum 15_13 16_2 v2/3,5")
+    if not any(value.startswith("--Multiversum=") for value in reference[-2]):
+        fail("Python numeric family-16 tail order changed")
+    if not any(
+        value.startswith("--Grundstrukturen=") for value in reference[-1]
+    ):
+        fail("Python numeric family-15 tail order changed")
 
 
 def assert_domain_plan(
@@ -497,6 +547,9 @@ def main() -> int:
             "universum v2/3,0,-10 teiler",
             "universum v2/3,5-7,-6 teiler",
             "universum motive v2/3 -10",
+            "universum v1/4,-2/3",
+            "emotion v1/4,-2/3",
+            "motive universum 15_13 16_2 v2/3,5",
         ]
     )
     assert_csv_rectangles()
@@ -949,6 +1002,8 @@ def main() -> int:
     if set(row_values(collision[-1])) != {6, 12, 18}:
         fail("reciprocal collision changed the equal-axis projection")
 
+    assert_multi_domain_extension_plans(result)
+
     runner = Path(sys.argv[2]).resolve()
     assert_direct_execution(result["universum v2/3"], runner)
     assert_direct_execution(
@@ -959,12 +1014,28 @@ def main() -> int:
         result["universum v1/4,-2/3"], runner, expected_count=1
     )
     assert_direct_execution(result["universum v1/4,-1/8,2/3"], runner)
+    # Execute the newly composed extension records themselves without
+    # re-rendering all 55 already-covered physical domain invocations.
+    assert_direct_execution(
+        FS.join(records(result["motive EIGNgut universum v2/3"])[13]),
+        runner,
+        expected_count=1,
+    )
+    numeric_records = records(
+        result["motive universum 15_13 16_2 v2/3,5"]
+    )
+    assert_direct_execution(
+        RS.join((FS.join(numeric_records[-2]), FS.join(numeric_records[-1]))),
+        runner,
+        expected_count=2,
+    )
 
     print(
         "true fraction multiples: Python crashes reproduced; "
         "Mojo contract 13/13, mixed bounds, negative no-op branches, "
         "positive-first reciprocal-only and reciprocal-collision branches, "
-        "domain-specific 26/26 and 44-plan grids, and direct invocations valid"
+        "domain-specific 26/26 and 44-plan grids, multi-domain property/numeric "
+        "extensions, and direct invocations valid"
     )
     return 0
 

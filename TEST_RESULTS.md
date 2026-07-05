@@ -2379,3 +2379,18 @@ Benutzerlauf.
   compilerabhängiger Skip.
 - Benutzerseitig noch auszuführen: fokussierter Mojo-Probe über
   `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bl.sh -- -j 4`.
+
+## Stage 12c5bm – portabler Prüfstand
+
+- Instrumentierter positive-First-Referenzsammler: exakt ein Reziprokaufruf,
+  ohne Render-/Terminalabhängigkeit.
+- Eingefrorene Python-Außenordnung für numerische Katalogachsen: Familie 16 vor
+  Familie 15.
+- Neue Mojo-Laufzeitverträge im Benutzer-Stage-Test: 27-/28-Aufrufpläne,
+  EIGN/EIGR-Position, numerischer Tail und atomarer Classic+Property-Rand.
+- Die tatsächliche Mojo-Kompilierung und direkte native Ausführung bleiben der
+  Benutzerlauf `scripts/test_stage12c5bm.sh -- -j 4`.
+
+- Stage-12c5bm-Metrik: 89/92 vollständig, 92/92 mindestens teilweise,
+  48.831/48.831 angegriffen; 63.537 Mojo-Zeilen in `src/`, 58.943 im
+  Kernpaket; Defektledger 150/20.

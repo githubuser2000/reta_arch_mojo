@@ -859,6 +859,15 @@ def _is_fraction_domain_table_command(canonical: String) -> Bool:
     return is_physical_fraction_prompt_table_family(canonical)
 
 
+def _has_classic_integer_table_command(
+    canonical_words: List[String],
+) -> Bool:
+    for index in range(len(canonical_words)):
+        if is_classic_integer_prompt_table_family(canonical_words[index]):
+            return True
+    return False
+
+
 def _only_fraction_domains_or_inert_classic_commands(
     canonical_words: List[String],
     has_explicit_integer_axis: Bool,
@@ -1228,8 +1237,12 @@ def _append_projected_axis_family(
 
 
 def _plan_multi_domain_true_fraction_multiples(
+    words: List[String],
     canonical_words: List[String],
     fraction_pairs: List[_PromptFractionPair],
+    numeric15_values: List[String],
+    numeric16_values: List[String],
+    has_property_command: Bool,
     language: String,
     counting: Bool,
     invert: Bool,
@@ -1238,16 +1251,98 @@ def _plan_multi_domain_true_fraction_multiples(
     suppress_empty: Bool,
     passthrough: List[String],
 ) raises -> PromptTablePlan:
-    """Plan each selected physical n/m domain against its own CSV rectangle."""
+    """Plan selected physical n/m domains and their proven outer axes.
+
+    Every physical family keeps its own CSV rectangle.  Property selectors use
+    the ordered union of all corrected whole/reciprocal projections and remain
+    between Motives and Universe, matching the frozen controller's independent
+    branch order.  Numeric 16/15 catalog selectors follow the complete physical
+    plan in their historical family order.
+    """
     var invocations = List[PromptTableInvocation]()
-    var classic_projected_rows = List[String]()
+    var shared_whole_rows = List[String]()
+    var shared_reciprocal_rows = List[String]()
+
+    # Build the shared outer axes before emitting any family.  These projections
+    # are not a replacement for the domain rectangles: they are used only by
+    # EIGN/EIGR, numeric catalog selectors and classic integer-only families.
+    if _emotion_fraction_domain_selected(canonical_words):
+        var emotion_shared_projection = _true_fraction_projection(
+            fraction_pairs, _emotion_fraction_domain()
+        )
+        _append_unique_projection_rows(
+            shared_whole_rows, emotion_shared_projection.whole_rows
+        )
+        _append_unique_projection_rows(
+            shared_reciprocal_rows,
+            emotion_shared_projection.reciprocal_rows,
+        )
+    if _size_fraction_domain_selected(canonical_words):
+        var size_shared_projection = _true_fraction_projection(
+            fraction_pairs, _size_fraction_domain()
+        )
+        _append_unique_projection_rows(
+            shared_whole_rows, size_shared_projection.whole_rows
+        )
+        _append_unique_projection_rows(
+            shared_reciprocal_rows,
+            size_shared_projection.reciprocal_rows,
+        )
+    if _motives_fraction_domain_selected(canonical_words):
+        var motives_shared_projection = _true_fraction_projection(
+            fraction_pairs, _motives_fraction_domain()
+        )
+        _append_unique_projection_rows(
+            shared_whole_rows, motives_shared_projection.whole_rows
+        )
+        _append_unique_projection_rows(
+            shared_reciprocal_rows,
+            motives_shared_projection.reciprocal_rows,
+        )
+    if _universe_fraction_domain_selected(canonical_words):
+        var universe_shared_projection = _true_fraction_projection(
+            fraction_pairs, _universe_fraction_domain()
+        )
+        _append_unique_projection_rows(
+            shared_whole_rows, universe_shared_projection.whole_rows
+        )
+        _append_unique_projection_rows(
+            shared_reciprocal_rows,
+            universe_shared_projection.reciprocal_rows,
+        )
+
+    var has_shared_integer = len(shared_whole_rows) > 0 or len(row_parts) > 0
+    var shared_integer_base = List[String]()
+    if len(row_parts) > 0:
+        shared_integer_base = _base_projected_fraction_multiple_tokens(
+            language,
+            shared_whole_rows,
+            row_parts,
+            counting,
+            invert,
+            divisor_mode,
+        )
+    elif len(shared_whole_rows) > 0:
+        shared_integer_base = _base_table_tokens(
+            language,
+            _join_rows(shared_whole_rows),
+            1024,
+            counting,
+            invert,
+        )
+    var has_shared_reciprocal = len(shared_reciprocal_rows) > 0
+    var shared_reciprocal_base = List[String]()
+    if has_shared_reciprocal:
+        shared_reciprocal_base = _base_table_tokens_without_maximum(
+            language,
+            _join_rows(shared_reciprocal_rows),
+            counting,
+            invert,
+        )
 
     if _emotion_fraction_domain_selected(canonical_words):
         var emotion_projection = _true_fraction_projection(
             fraction_pairs, _emotion_fraction_domain()
-        )
-        _append_unique_projection_rows(
-            classic_projected_rows, emotion_projection.whole_rows
         )
         _append_projected_axis_family(
             invocations,
@@ -1279,9 +1374,6 @@ def _plan_multi_domain_true_fraction_multiples(
     if _size_fraction_domain_selected(canonical_words):
         var size_projection = _true_fraction_projection(
             fraction_pairs, _size_fraction_domain()
-        )
-        _append_unique_projection_rows(
-            classic_projected_rows, size_projection.whole_rows
         )
         _append_projected_axis_family(
             invocations,
@@ -1329,9 +1421,6 @@ def _plan_multi_domain_true_fraction_multiples(
         var motives_projection = _true_fraction_projection(
             fraction_pairs, _motives_fraction_domain()
         )
-        _append_unique_projection_rows(
-            classic_projected_rows, motives_projection.whole_rows
-        )
         _append_projected_axis_family(
             invocations,
             motives_projection,
@@ -1359,12 +1448,33 @@ def _plan_multi_domain_true_fraction_multiples(
             passthrough,
         )
 
+    if has_property_command:
+        var property_plan = plan_prompt_property_commands(
+            words,
+            language,
+            has_shared_integer,
+            shared_integer_base,
+            has_shared_reciprocal,
+            shared_reciprocal_base,
+            counting,
+            invert,
+            suppress_empty,
+            passthrough,
+        )
+        for property_index in range(len(property_plan.invocations)):
+            var property_invocation = property_plan.invocations[
+                property_index
+            ].copy()
+            invocations.append(
+                PromptTableInvocation(
+                    _copy_strings(property_invocation.tokens),
+                    False,
+                )
+            )
+
     if _universe_fraction_domain_selected(canonical_words):
         var universe_projection = _true_fraction_projection(
             fraction_pairs, _universe_fraction_domain()
-        )
-        _append_unique_projection_rows(
-            classic_projected_rows, universe_projection.whole_rows
         )
         # More than one table domain plus the implicit multiple command always
         # selects the narrow historical Universe column sets.
@@ -1404,30 +1514,13 @@ def _plan_multi_domain_true_fraction_multiples(
             passthrough,
         )
 
-    # A valid selector can be outside one or even all selected rectangles.  It
-    # is still a completely owned no-op rather than a reason to invoke Python.
-    if len(row_parts) == 0:
-        return PromptTablePlan(True, invocations^)
-
-    # The classic integer-only families use one shared ordinary axis.  Correct
-    # the defective Python n/m rectangle by taking the ordered union of every
-    # selected physical domain's whole-row projection, then compose the raw
-    # integer source exactly once.  Historical execution order is asymmetric:
-    # Thomas runs before all fraction families, the remaining classic tables
-    # run afterwards in the fixed moon -> all -> prime-cross -> direction order.
-    var classic_base = _base_projected_fraction_multiple_tokens(
-        language,
-        classic_projected_rows,
-        row_parts,
-        counting,
-        invert,
-        divisor_mode,
-    )
     var ordered = List[PromptTableInvocation]()
-    if _contains(canonical_words, "thomas") or _contains(canonical_words, "t"):
+    if len(row_parts) > 0 and (
+        _contains(canonical_words, "thomas") or _contains(canonical_words, "t")
+    ):
         _add_invocation(
             ordered,
-            classic_base,
+            shared_integer_base,
             "--galaxie=thomas",
             "2",
             suppress_empty,
@@ -1435,25 +1528,25 @@ def _plan_multi_domain_true_fraction_multiples(
         )
     for invocation_index in range(len(invocations)):
         ordered.append(invocations[invocation_index].copy())
-    if _contains(canonical_words, "mond"):
+    if len(row_parts) > 0 and _contains(canonical_words, "mond"):
         _add_invocation(
             ordered,
-            classic_base,
+            shared_integer_base,
             "--Bedeutung=gestirn",
             "3-6",
             suppress_empty,
             passthrough,
         )
-    if _contains(canonical_words, "alles"):
+    if len(row_parts) > 0 and _contains(canonical_words, "alles"):
         _add_invocation(
             ordered,
-            classic_base,
+            shared_integer_base,
             "--alles",
             "",
             suppress_empty,
             passthrough,
         )
-    if _contains(canonical_words, "primzahlkreuz"):
+    if len(row_parts) > 0 and _contains(canonical_words, "primzahlkreuz"):
         var prime_cross_base = _base_true_fraction_prime_cross_tokens(
             language, row_parts, invert, divisor_mode
         )
@@ -1465,15 +1558,49 @@ def _plan_multi_domain_true_fraction_multiples(
             suppress_empty,
             passthrough,
         )
-    if _contains(canonical_words, "richtung") or _contains(canonical_words, "r"):
+    if len(row_parts) > 0 and (
+        _contains(canonical_words, "richtung") or _contains(canonical_words, "r")
+    ):
         _add_invocation(
             ordered,
-            classic_base,
+            shared_integer_base,
             "--Primzahlwirkung=Galaxieabsicht",
             "",
             suppress_empty,
             passthrough,
         )
+
+    # The legacy numeric catalog order is Multiversum (16) before
+    # Grundstrukturen (15), independent of source-token order.
+    if len(numeric16_values) > 0 and has_shared_integer:
+        _add_invocation(
+            ordered,
+            shared_integer_base,
+            "--"
+            + _numeric_parameter_name(language, "16")
+            + "="
+            + _join_rows(numeric16_values),
+            "",
+            suppress_empty,
+            passthrough,
+            True,
+        )
+    if len(numeric15_values) > 0 and has_shared_integer:
+        _add_invocation(
+            ordered,
+            shared_integer_base,
+            "--"
+            + _numeric_parameter_name(language, "15")
+            + "="
+            + _join_rows(numeric15_values),
+            "",
+            suppress_empty,
+            passthrough,
+            True,
+        )
+
+    # A valid selector can be outside every selected rectangle.  It is still a
+    # completely owned no-op rather than a reason to invoke Python.
     return PromptTablePlan(True, ordered^)
 
 
@@ -1688,12 +1815,21 @@ def plan_prompt_table_commands(
         # follow them.  Numeric shortcuts, property commands and unrelated table
         # families continue to fall back atomically until they receive their own
         # composition law.
-        if (
+        var has_multi_domain_extension = (
             len(numeric15_values) > 0
             or len(numeric16_values) > 0
             or has_property_command
-            or not _only_fraction_domains_or_inert_classic_commands(
+        )
+        # The physical/property/numeric composition is owned below.  Mixing
+        # those new extension axes with classic integer-only tables remains
+        # atomic until their combined outer order is independently frozen.
+        if (
+            not _only_fraction_domains_or_inert_classic_commands(
                 canonical_words, len(row_parts) > 0
+            )
+            or (
+                has_multi_domain_extension
+                and _has_classic_integer_table_command(canonical_words)
             )
         ):
             return PromptTablePlan(False, List[PromptTableInvocation]())
@@ -1706,8 +1842,12 @@ def plan_prompt_table_commands(
             "keineEinZeichenZeilenPlusKeineAusgabeWelcherBefehlEsWar",
         )
         return _plan_multi_domain_true_fraction_multiples(
+            words,
             canonical_words,
             fraction_pairs,
+            numeric15_values,
+            numeric16_values,
+            has_property_command,
             language,
             multi_counting,
             multi_invert,

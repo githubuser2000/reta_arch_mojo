@@ -23,7 +23,7 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 
 ## Übersicht
 
-- Einträge insgesamt: **147**
+- Einträge insgesamt: **150**
 - offene bestätigte Python-Fehler: **6**
 - zu entscheidende Python-Fehlerkandidaten: **13**
 - bereits im Python-Baum behobene Fehler: **7**
@@ -2002,3 +2002,44 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 - spätere Python-Aktion: Keine Python- oder Mojo-Produktionsänderung erforderlich. Dies war eine fehlende Prozess-/TTY-Isolation im Laufzeit-Paritätsprüfer.
 - Mojo-Orte: `scripts/check_command_parity_native.py`, `scripts/test_stage12c5bl.sh`, `tests/test_command_parity_environment.py`, `tests/test_stage12c5bl_source.py`
 - Belege: `STAGE12C5BL_CLASSIC_INTEGER_MULTI_DOMAIN_COMPOSITION.md`, `scripts/check_command_parity_native.py`, `tests/test_command_parity_environment.py`, `tests/test_stage12c5bl_source.py`
+
+### TEST-FIXED-059 – Positive-First-Bruchprobe wertete gerenderten Python-stdout statt Executor-argv aus
+
+- Ursprung: `test_infrastructure`
+- Klasse / Schwere: `rendered_reference_stdout_contract_leak` / `medium`
+- Python-Status: `not_applicable`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5bl/12c5bm`
+- Reproduktion: `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bl.sh ausführen; die Prüfung brach bei 'universum v1/4,-2/3' mit expected exactly one reta invocation ab, obwohl der native Probeplan und die Referenzsemantik unverändert waren.`
+- heutiger Vertrag: Die Referenzprüfung ersetzt retaExecuteNprint und serialisiert die exakten argv-Aufrufe. Sie fordert genau einen gesammelten Reziprokaufruf und prüft dessen Zeilen- und Spaltenoptionen direkt; lokalisierte Ankündigungen, Terminalbreite und gerenderte Tabellen sind nicht mehr Teil dieses Planvertrags.
+- spätere Python-Aktion: Keine Produktionsänderung erforderlich. Der Fehler lag ausschließlich in der Beobachtungsschicht des Referenztests.
+- Python-Orte: `python_reference/reta_architecture/prompt_execution.py`
+- Mojo-Orte: `scripts/check_prompt_true_fraction_multiples.py`, `scripts/prompt_mixed_reciprocal_reference.py`, `tests/test_prompt_multi_domain_extensions_source.py`
+- Belege: `STAGE12C5BM_MULTI_DOMAIN_PROPERTY_NUMERIC_AXES.md`, `scripts/check_prompt_true_fraction_multiples.py`, `tests/test_prompt_multi_domain_extensions_source.py`
+
+### TEST-FIXED-060 – True-Fraction-Laufzeittest erwartete historische Echo-Großschreibung statt kanonischen Parameter
+
+- Ursprung: `test_infrastructure`
+- Klasse / Schwere: `case_sensitive_canonical_option_assertion_mismatch` / `medium`
+- Python-Status: `not_applicable`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5bl/12c5bm`
+- Reproduktion: `test_prompt_table_execution.mojo ausführen; test_true_fraction_multiples_follow_each_csv_rectangle scheiterte bei emotion v1/4,-2/3 an Zeile 793, weil die Assertion --Grundstrukturen=emotion verlangte, während der kanonische native Plan wie alle übrigen Tabellenpläne --grundstrukturen=emotion verwendet.`
+- heutiger Vertrag: Laufzeitverträge prüfen die kanonische native Option --grundstrukturen=emotion mit kleinem g. Die historische Großschreibung bleibt ausschließlich in Echo-/Fixture-Verträgen erhalten und wird nicht mit dem typisierten Planargument vermischt.
+- spätere Python-Aktion: Keine Produktionsänderung erforderlich. Die fehlerhafte Groß-/Kleinschreibung lag ausschließlich in einer neu ergänzten Assertion.
+- Mojo-Orte: `tests/test_prompt_table_execution.mojo`, `src/reta_mojo/prompt_table_execution.mojo`, `tests/test_prompt_multi_domain_extensions_source.py`
+- Belege: `STAGE12C5BM_MULTI_DOMAIN_PROPERTY_NUMERIC_AXES.md`, `tests/test_prompt_table_execution.mojo`, `tests/test_prompt_multi_domain_extensions_source.py`
+
+### MOJO-FIXED-065 – Mehrdomänen-Bruchpläne mit EIGN/EIGR oder numerischen 15/16-Katalogachsen fielen atomar zurück
+
+- Ursprung: `mojo_port`
+- Klasse / Schwere: `multi_domain_fraction_property_numeric_composition_gap` / `high`
+- Python-Status: `correct_reference`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5bf/12c5bm`
+- Reproduktion: `motive EIGNgut universum v2/3 oder motive universum 15_13 16_2 v2/3,5 über plan_prompt_table_commands ausführen; der native Mehrdomänenzweig lieferte zuvor FALLBACK, obwohl die unabhängige Zweigreihenfolge und die bereits typisierten Eigenschafts-/Katalogaufrufe feststanden.`
+- heutiger Vertrag: Jede physische Bruchfamilie behält ihr eigenes korrigiertes CSV-Rechteck. EIGN/EIGR verwenden die geordnete Vereinigung der domänenspezifischen Ganzzahl- und Reziprokprojektionen und stehen zwischen Motive und Universum. Numerische Familie 16 folgt nach allen physischen Blöcken vor Familie 15. Eine explizite gewöhnliche Achse wird genau einmal angehängt und projizierte Ganzzahlen werden nicht erneut vervielfacht.
+- spätere Python-Aktion: Bei einer späteren Reparatur des Python-n/m-Rechtecks soll die unabhängige Zweigreihenfolge Motive – Eigenschaften – Universum – 16 – 15 erhalten bleiben. Die kombinierte Reihenfolge mit klassischen Ganzzahlfamilien bleibt bis zu einem eigenen Beleg atomar.
+- Python-Orte: `python_reference/reta_architecture/prompt_execution.py`
+- Mojo-Orte: `src/reta_mojo/prompt_table_execution.mojo`, `src/reta_mojo/prompt_property_execution.mojo`, `tests/test_prompt_table_execution.mojo`, `tests/prompt_true_fraction_multiple_probe.mojo`, `scripts/check_prompt_true_fraction_multiples.py`
+- Belege: `STAGE12C5BM_MULTI_DOMAIN_PROPERTY_NUMERIC_AXES.md`, `tests/test_prompt_multi_domain_extensions_source.py`, `tests/test_prompt_table_execution.mojo`, `scripts/check_prompt_true_fraction_multiples.py`

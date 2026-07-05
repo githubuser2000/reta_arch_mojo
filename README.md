@@ -1153,3 +1153,26 @@ domänenspezifischen Ganzprojektionen. Außerdem ist die repräsentative native
 Kommando-Parität nun vollständig TTY-unabhängig: stdin ist abgetrennt und die
 Referenzgeometrie fest 80×24. Details stehen in
 `STAGE12C5BL_CLASSIC_INTEGER_MULTI_DOMAIN_COMPOSITION.md`.
+
+## Stage 12c5bm – Mehrdomänen-Eigenschafts- und Katalogachsen
+
+Korrigierte echte Bruchvielfache über mehrere physische CSV-Domänen können nun
+mit `EIGN…`-/`EIGR…`-Eigenschaftsselektionen und numerischen 16-/15-Katalogkürzeln
+komponiert werden. Jede physische Familie behält ihr eigenes Rechteck; nur die
+äußeren Ganzzahl- und Reziprokprojektionen werden in Domänenreihenfolge vereinigt.
+
+Die feste Ausführungsordnung lautet: Emotion/Größe/Motive, EIGN/EIGR, Universum,
+anschließend numerische Familie 16 vor 15. Eine explizite gewöhnliche
+Ganzzahlachse wird genau einmal angehängt. Die noch nicht separat bewiesene
+Mischung derselben Erweiterungen mit klassischen Ganzzahltabellen bleibt
+atomarer Fallback.
+
+Der positive Ausschlussfall `universum v1/4,-2/3` wird in der Referenzprüfung
+nun direkt an der ersetzten `retaExecuteNprint`-Grenze beobachtet; gerenderte
+Python-Tabellen und lokalisierte Ankündigungen sind kein Planvertrag mehr.
+
+Fokussierter Lauf:
+
+```bash
+RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bm.sh -- -j 4
+```

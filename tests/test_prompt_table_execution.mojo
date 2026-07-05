@@ -790,7 +790,7 @@ def test_true_fraction_multiples_follow_each_csv_rectangle() raises:
     var positive_first_emotion = _plan("emotion v1/4,-2/3")
     assert_true(positive_first_emotion.handled)
     assert_equal(len(positive_first_emotion.invocations), 1)
-    assert_true("--Grundstrukturen=emotion" in _tokens(positive_first_emotion))
+    assert_true("--grundstrukturen=emotion" in _tokens(positive_first_emotion))
     assert_true("--spaltenreihenfolgeundnurdiese=4,5" in _tokens(positive_first_emotion))
 
     var positive_first_divisor = _plan("universum v1/4,-2/3 teiler")
@@ -1143,6 +1143,42 @@ def test_every_addressable_numeric_catalog_entry_has_a_native_plan() raises:
         )
         assert_true("--" + expected_name + "=" in _tokens(plan))
     assert_equal(addressable, 365)
+
+
+def test_multi_domain_property_and_numeric_extensions_are_native() raises:
+    var eign = _plan("motive EIGNgut universum v2/3")
+    assert_true(eign.handled)
+    assert_equal(len(eign.invocations), 27)
+    assert_true("--gebrochen-rational_Galaxie_n/m=" in _tokens(eign, 2))
+    assert_true("--konzept=gut" in _tokens(eign, 13))
+    assert_true("--Universum=transzendentalien" in _tokens(eign, 14))
+
+    var properties = _plan("motive EIGNgut EIGRwerte universum v2/3")
+    assert_true(properties.handled)
+    assert_equal(len(properties.invocations), 28)
+    assert_true("--konzept=gut" in _tokens(properties, 13))
+    assert_true("--konzept2=werte" in _tokens(properties, 14))
+    assert_true("-zeilen" in _tokens(properties, 14))
+    assert_true("--Universum=transzendentalien" in _tokens(properties, 15))
+
+    var numeric = _plan("motive universum 15_13 16_2 v2/3,5")
+    assert_true(numeric.handled)
+    assert_equal(len(numeric.invocations), 28)
+    assert_true("--Multiversum=" in _tokens(numeric, 26))
+    assert_true("--Grundstrukturen=" in _tokens(numeric, 27))
+    assert_true("--vielfachevonzahlen=5" in _tokens(numeric, 26))
+    assert_true("--vielfachevonzahlen=5" in _tokens(numeric, 27))
+
+    var projected_numeric = _plan("motive universum 15_13 16_2 v2/3")
+    assert_true(projected_numeric.handled)
+    assert_equal(len(projected_numeric.invocations), 28)
+    assert_false("--vielfachevonzahlen=" in _tokens(projected_numeric, 26))
+
+    # The combined order of classic integer tables with property/numeric
+    # extensions has not yet been frozen independently.
+    assert_false(
+        _plan("mond motive EIGNgut universum v2/3,5").handled
+    )
 
 
 def test_no_table_command_stays_at_boundary() raises:
