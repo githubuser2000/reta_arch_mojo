@@ -14,8 +14,6 @@ fi
 
 printf '\n== deterministic generated command parity assets ==\n'
 PYTHONHASHSEED=0 PYTHONDONTWRITEBYTECODE=1 \
-    "$TEST_PYTHON" tools/generate_command_parity_assets.py --migrate-legacy
-PYTHONHASHSEED=0 PYTHONDONTWRITEBYTECODE=1 \
     "$TEST_PYTHON" tools/generate_command_parity_assets.py --check
 
 if [ ! -x "$ROOT/target/bin/reta-native" ]; then

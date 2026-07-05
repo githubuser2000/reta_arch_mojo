@@ -1,3 +1,22 @@
+# Testergebnisse – Stage 12c5bj
+
+## Vom Benutzer bestätigter Compilerbefund
+
+- `scripts/build-all.sh -- -j 5` reichte die Compileroption erfolgreich durch den vollständigen Build.
+- Der Build erreichte `src/prompt_main.mojo` und stoppte ausschließlich an der neuen Teilerprojektion: `range_to_numbers(...)` liefert `Set[Int]`, `python_divisor_set_order(...)` verlangt `List[Int]`.
+- Stage 12c5bj materialisiert die Menge explizit in eine Liste und kompiliert den True-Fraction-Probe auch bei `RETA_STAGE_SKIP_PREVIOUS=1`.
+
+## Portable Abschlussprüfung
+
+- Exakte Stage-12c5bj-Sourcegruppe: **72 bestanden**.
+- Zusätzliche fokussierte Prompt-, Testpipeline- und Defektverträge: **40 bestanden**.
+- Portierungs-/Ownership-Verträge: **33 bestanden**.
+- Archivvertrag nach Manifestregeneration: **3 bestanden**.
+- Gepinnte Kommando-Paritätsassets: **4 Fälle**, read-only und ohne Rendererstart verifiziert.
+- Defektledger: **140 Einträge**, **20** spätere Python-Aufräumpunkte.
+- Quellmanifest: **1.659 Dateien, 114 Symlinks**.
+- Mojo-/Native-Kompilierung der Korrektur wurde absichtlich nicht in der Erstellungsumgebung ausgeführt.
+
 # Testergebnisse – Stage 12c5bi
 
 ## Vom Benutzer bestätigter Ausgangsstand
@@ -2316,3 +2335,15 @@ aufgenommen und mit vier Runnerjobs unter den Serial-/Exclusive-Barrieren
 ausgeführt. Dies ist kein Mojo-Kompilierungsnachweis, sondern ein Test der
 Build-/Run-Orchestrierung. Die tatsächliche Mojo-Kompilierung bleibt der lokale
 Benutzerlauf.
+
+## Stage 12c5bj – portable Prüfung
+
+- Bereits kanonische Assetmigration: idempotent ohne Python-Referenzausführung.
+- Gepinnter `--check`-Pfad: unabhängig von `expected_files()` und damit von CPython 3.13/3.14.
+- Historische Stages 12c5aq/12c5bg/12c5bh: keine `--migrate-legacy`-Aufrufe mehr.
+- Unbekannte Hashabweichungen und nicht reproduzierbare echte Alt-Migrationen bleiben Fail-fast.
+
+- Nutzerbuild 12c5bi: `scripts/build-all.sh -- -j 5` fand die Typgrenze
+  `Set[Int]` gegen `List[Int]` in `_projected_fraction_divisor_rows`. Stage
+  12c5bj materialisiert die Liste explizit und kompiliert den Fraction-Probe im
+  aktuellen Stage-Gate.

@@ -16,6 +16,10 @@ def test_projected_integer_multiple_and_divider_bases_are_explicit() -> None:
     assert source.count("_base_projected_fraction_multiple_tokens(") == 3
     assert 'result.append("--vielfachevonzahlen=" + _join_rows(row_parts))' in source
     assert 'selected.append("v" + row_parts[index])' in source
+    assert "var value_set = range_to_numbers(" in source
+    assert "var values = List[Int]()" in source
+    assert "for value in value_set:" in source
+    assert "values.append(value)" in source
     assert "python_divisor_set_order(values)" in source
     assert "if _join_rows(row_parts).byte_length() > 1:" in source
     assert "if divisor_mode:" in source

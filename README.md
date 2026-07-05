@@ -1115,3 +1115,11 @@ Bruchrechteck, Originalausdruck und `v`-Ausdruck bleiben getrennte Achsen;
 Null- und Ausschlussformen bleiben bis zu einem eigenen Vertrag atomar.
 Details:
 [`STAGE12C5BG_DETERMINISTIC_COMMAND_PARITY_INTEGER_FRACTION_AXES.md`](STAGE12C5BG_DETERMINISTIC_COMMAND_PARITY_INTEGER_FRACTION_AXES.md).
+
+## Stage 12c5bj – interpreterunabhängige Kommando-Paritätsprüfung
+
+Die vier nativen Kommando-Referenzausgaben und ihr TSV-Manifest sind nun als fünf feste SHA-256-Verträge gepinnt. `tools/generate_command_parity_assets.py --check` ist read-only und führt weder CPython noch den Python-Renderer aus. Für eine bewusste Diagnose der aktuellen Python-Referenz gibt es getrennt `--check-reference`. Dadurch blockieren Unterschiede zwischen CPython 3.13 und 3.14 den Stage-Lauf nicht mehr und Tests verändern keine versionierten Assets. Details: [`STAGE12C5BJ_PINNED_COMMAND_PARITY_ASSETS.md`](STAGE12C5BJ_PINNED_COMMAND_PARITY_ASSETS.md).
+
+Stage 12c5bj prüft den Bruchteilerpfad zusätzlich mit einem echten Mojo-Probe;
+die von `range_to_numbers` gelieferte Menge wird vor dem List-basierten
+Divisorreihenfolgehelfer explizit materialisiert.

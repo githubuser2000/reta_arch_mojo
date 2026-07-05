@@ -680,3 +680,10 @@ Maschinenstand: **80/92 vollständig**, **86/92 mindestens teilweise**, **46.561
 - [x] Null-, Ausschluss- und separat negative Komponenten bis zu einem eigenen Vertrag atomar halten.
 - [ ] Benutzerseitig `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bg.sh` ausführen.
 - [ ] Danach `RETA_TEST_HEAVY=1 scripts/test_all.sh` vollständig fortsetzen.
+
+## Stage 12c5bj – stabile Kommando-Paritätsassets
+
+Der historische Assetgate ist jetzt vollständig read-only. Fünf gepinnte SHA-256-Verträge ersetzen die erneute Referenzausführung im normalen Stage-Lauf. Die Python-Referenz bleibt mit `--check-reference` explizit prüfbar, ist aber von der reproduzierbaren nativen Snapshotfreigabe getrennt. Damit ist die durch CPython 3.14 ausgelöste falsche Migrationsverweigerung geschlossen.
+
+- [x] `Set[Int]`/`List[Int]`-Compilergrenze im echten Bruchteilerpfad schließen
+  und durch den aktuellen fokussierten Mojo-Probe absichern (12c5bj).

@@ -62,3 +62,63 @@ def test_legacy_migration_accepts_only_exact_whitelisted_hashes(tmp_path, monkey
     assert not ok
     assert unknown and "asset.out:" in unknown[0]
     assert path.read_bytes() == b"unexpected"
+
+
+def test_pinned_check_does_not_execute_the_reference_renderer(tmp_path, monkeypatch, capsys) -> None:
+    import importlib.util
+    import hashlib
+    import sys
+
+    spec = importlib.util.spec_from_file_location("command_assets_pinned", GENERATOR)
+    assert spec and spec.loader
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+
+    payload = b"pinned"
+    path = tmp_path / "asset.out"
+    path.write_bytes(payload)
+    monkeypatch.setattr(module, "ROOT", tmp_path)
+    monkeypatch.setattr(
+        module,
+        "CANONICAL_ASSET_HASHES",
+        {"asset.out": hashlib.sha256(payload).hexdigest()},
+    )
+    monkeypatch.setattr(
+        module,
+        "expected_files",
+        lambda: (_ for _ in ()).throw(AssertionError("reference executed")),
+    )
+    monkeypatch.setattr(sys, "argv", ["generator", "--check"])
+    assert module.main() == 0
+    assert "pinned cases" in capsys.readouterr().out
+
+
+def test_already_canonical_migration_is_idempotent_across_python_versions(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    import importlib.util
+    import hashlib
+    import sys
+
+    spec = importlib.util.spec_from_file_location("command_assets_idempotent", GENERATOR)
+    assert spec and spec.loader
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+
+    payload = b"canonical"
+    path = tmp_path / "asset.out"
+    path.write_bytes(payload)
+    monkeypatch.setattr(module, "ROOT", tmp_path)
+    monkeypatch.setattr(
+        module,
+        "CANONICAL_ASSET_HASHES",
+        {"asset.out": hashlib.sha256(payload).hexdigest()},
+    )
+    monkeypatch.setattr(
+        module,
+        "expected_files",
+        lambda: (_ for _ in ()).throw(AssertionError("reference executed")),
+    )
+    monkeypatch.setattr(sys, "argv", ["generator", "--migrate-legacy"])
+    assert module.main() == 0
+    assert "already canonical" in capsys.readouterr().out

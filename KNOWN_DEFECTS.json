@@ -3439,6 +3439,61 @@
         "tests/test_stage12c5bi_source.py",
         "BUILD.md"
       ]
+    },
+    {
+      "id": "TEST-FIXED-053",
+      "title": "Kanonische Kommando-Paritätsassets wurden unter CPython 3.14 erneut als unbekannte Migration behandelt",
+      "origin": "test_infrastructure",
+      "classification": "ambient_interpreter_asset_regeneration_gate",
+      "severity": "high",
+      "python_status": "not_applicable",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5bh/12c5bj",
+      "reproducer": "scripts/test_stage12c5bh.sh unter der Python-3.14-.venv ausführen, während html-religion-basic.out bereits a8a0d2a1… und command_parity.tsv bereits 9fdefe9a… besitzen; --migrate-legacy verweigerte diese kanonischen Hashes als unbekannt.",
+      "python_locations": [],
+      "mojo_locations": [
+        "tools/generate_command_parity_assets.py",
+        "scripts/test_stage12c5aq.sh",
+        "scripts/test_stage12c5bg.sh",
+        "scripts/test_stage12c5bh.sh",
+        "scripts/test_stage12c5bj.sh",
+        "tests/test_command_parity_asset_environment.py",
+        "tests/test_stage12c5bj_source.py"
+      ],
+      "current_contract": "Stage- und Releaseprüfungen vergleichen die vier Kommandoausgaben und das TSV-Manifest ausschließlich mit fest versionierten SHA-256-Werten. Der read-only --check-Pfad startet keinen Python-Renderer. --check-reference ist eine ausdrückliche Entwicklerdiagnose für interpreterabhängige Referenzausgaben; Teststages migrieren oder schreiben keine Quellassets mehr. Bereits kanonische Migrationen sind ohne Referenzausführung idempotent.",
+      "post_port_fix": "Keine Änderung am eingefrorenen Python-Algorithmus erforderlich. Eine spätere bewusste Referenzaktualisierung muss die gepinnten Assets und ihre Hashliste in einem überprüften Commit gemeinsam ändern.",
+      "evidence": [
+        "STAGE12C5BJ_PINNED_COMMAND_PARITY_ASSETS.md",
+        "tools/generate_command_parity_assets.py",
+        "tests/test_command_parity_asset_environment.py",
+        "tests/test_stage12c5bj_source.py"
+      ]
+    },
+    {
+      "id": "TEST-FIXED-054",
+      "title": "Bruchteilerpfad übergab Set[Int] an den List[Int]-Divisorreihenfolgehelfer",
+      "origin": "mojo_port",
+      "classification": "set_to_list_compile_boundary",
+      "severity": "high",
+      "python_status": "not_applicable",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5bi/12c5bj",
+      "reproducer": "scripts/build-all.sh -- -j 5 ausführen; src/prompt_main.mojo brach in _projected_fraction_divisor_rows ab, weil range_to_numbers Set[Int] liefert und python_divisor_set_order List[Int] verlangt.",
+      "python_locations": [],
+      "mojo_locations": [
+        "src/reta_mojo/prompt_table_execution.mojo",
+        "tests/test_prompt_fraction_integer_axes_source.py",
+        "tests/test_stage12c5bj_source.py",
+        "scripts/test_stage12c5bj.sh"
+      ],
+      "current_contract": "Der von range_to_numbers gelieferte Set[Int] wird explizit in eine besitzende List[Int] materialisiert. Erst diese Liste wird an python_divisor_set_order übergeben. Der fokussierte Stage-Test kompiliert und startet den True-Fraction-Probe auch bei übersprungener Vorgängerkette.",
+      "post_port_fix": "Keine Python-Änderung erforderlich; dies war ausschließlich eine Mojo-Typgrenze im neuen nativen Teilerpfad.",
+      "evidence": [
+        "STAGE12C5BJ_PINNED_COMMAND_PARITY_ASSETS.md",
+        "src/reta_mojo/prompt_table_execution.mojo",
+        "tests/test_stage12c5bj_source.py",
+        "scripts/test_stage12c5bj.sh"
+      ]
     }
   ],
   "audit": {

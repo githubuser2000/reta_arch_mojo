@@ -28,6 +28,25 @@ REFERENCE_RUNTIME_STUBS = ROOT / "tools/reference_runtime_stubs"
 # developer tree through the historical patch chain.  Only these exact stale
 # states may be migrated automatically; every unknown mismatch remains a hard
 # failure so a real reference change cannot silently rewrite fixtures.
+
+# Byte-identical command-parity fixtures are a versioned native contract.
+# Stage tests validate these hashes without executing the frozen Python renderer,
+# because CPython minor versions may alter incidental HTML serialization even
+# after third-party Rich imports have been isolated.  Reference regeneration is
+# still available explicitly through --check-reference or the default write mode.
+CANONICAL_ASSET_HASHES: dict[str, str] = {
+    "assets/command_parity/html-religion-basic.out":
+        "a8a0d2a1bdc526900647d5ab9bb0f7963adcb941160624dcff19f2bc18a55d5e",
+    "assets/command_parity/markdown-religion-basic.out":
+        "0a2f6b9c8c02edf13933cfe4e06912628cbf78f8b43934caf9d005eb6c784f8e",
+    "assets/command_parity/shell-fractional-csv-gluing.out":
+        "9a37c341d65e55ea40a17bdec9a3e07c0b50aa09561512791722a654264dc35f",
+    "assets/command_parity/shell-religion-basic.out":
+        "8b3a3ebd821ad9399b4978b2c7f6c5e3500ed0762055b51da7e38839bab2826a",
+    "assets/command_parity.tsv":
+        "9fdefe9a6a5301099483a0354fd25285b05f546c5895ce48040ca2843addb556",
+}
+
 LEGACY_ASSET_HASHES: dict[str, set[str]] = {
     "assets/command_parity/html-religion-basic.out": {
         "17453b000830c6e0e70189ab4475204b29aa808763693e094cda854d223c3820",
@@ -146,6 +165,37 @@ def expected_files() -> dict[Path, bytes]:
 
 
 
+
+def canonical_asset_mismatches() -> list[tuple[str, str, str]]:
+    """Return relative path, actual hash and pinned hash for noncanonical files."""
+    mismatches: list[tuple[str, str, str]] = []
+    for relative, expected_hash in CANONICAL_ASSET_HASHES.items():
+        path = ROOT / relative
+        actual_hash = (
+            hashlib.sha256(path.read_bytes()).hexdigest()
+            if path.exists()
+            else "missing"
+        )
+        if actual_hash != expected_hash:
+            mismatches.append((relative, actual_hash, expected_hash))
+    return mismatches
+
+
+def generated_payload_hash_mismatches(
+    files: dict[Path, bytes],
+) -> list[tuple[str, str, str]]:
+    """Compare freshly generated reference payloads with the pinned contract."""
+    mismatches: list[tuple[str, str, str]] = []
+    for relative, expected_hash in CANONICAL_ASSET_HASHES.items():
+        path = ROOT / relative
+        payload = files.get(path)
+        actual_hash = (
+            hashlib.sha256(payload).hexdigest() if payload is not None else "missing"
+        )
+        if actual_hash != expected_hash:
+            mismatches.append((relative, actual_hash, expected_hash))
+    return mismatches
+
 def migrate_legacy_assets(files: dict[Path, bytes], mismatches: list[str]) -> tuple[bool, list[str]]:
     """Replace only exact historical asset states; return success and errors."""
     unknown: list[str] = []
@@ -166,46 +216,96 @@ def migrate_legacy_assets(files: dict[Path, bytes], mismatches: list[str]) -> tu
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--check", action="store_true")
+    parser.add_argument("--check-reference", action="store_true")
     parser.add_argument("--migrate-legacy", action="store_true")
     args = parser.parse_args()
 
-    if args.check and args.migrate_legacy:
-        parser.error("--check and --migrate-legacy are mutually exclusive")
+    selected = sum(
+        int(value)
+        for value in (args.check, args.check_reference, args.migrate_legacy)
+    )
+    if selected > 1:
+        parser.error(
+            "--check, --check-reference and --migrate-legacy are mutually exclusive"
+        )
+
+    if args.check:
+        mismatches = canonical_asset_mismatches()
+        if mismatches:
+            print("command parity assets differ from the pinned canonical contract:")
+            for relative, actual_hash, expected_hash in mismatches:
+                print(
+                    f"  {relative}: actual={actual_hash} expected={expected_hash}"
+                )
+            return 1
+        print(
+            "command parity assets verified: "
+            f"{len(CANONICAL_ASSET_HASHES) - 1} pinned cases"
+        )
+        return 0
+
+    if args.migrate_legacy:
+        mismatches = canonical_asset_mismatches()
+        if not mismatches:
+            print("command parity assets already canonical")
+            return 0
+
+        unknown: list[str] = []
+        for relative, actual_hash, _ in mismatches:
+            if actual_hash not in LEGACY_ASSET_HASHES.get(relative, set()):
+                unknown.append(f"{relative}: {actual_hash}")
+        if unknown:
+            print("refusing to migrate unknown command parity assets:")
+            for item in unknown:
+                print(f"  {item}")
+            return 1
+
+        files = expected_files()
+        generated_mismatches = generated_payload_hash_mismatches(files)
+        if generated_mismatches:
+            print(
+                "refusing to migrate: this Python interpreter does not "
+                "reproduce the pinned command parity contract:"
+            )
+            for relative, actual_hash, expected_hash in generated_mismatches:
+                print(
+                    f"  {relative}: generated={actual_hash} pinned={expected_hash}"
+                )
+            return 1
+
+        relative_paths = [relative for relative, _, _ in mismatches]
+        migrated, unknown = migrate_legacy_assets(files, relative_paths)
+        if not migrated:
+            print("refusing to migrate unknown command parity assets:")
+            for item in unknown:
+                print(f"  {item}")
+            return 1
+        print(f"migrated legacy command parity assets: {len(relative_paths)}")
+        return 0
 
     files = expected_files()
     mismatches: list[str] = []
     for path, payload in files.items():
-        if args.check or args.migrate_legacy:
+        if args.check_reference:
             if not path.exists() or path.read_bytes() != payload:
                 mismatches.append(path.relative_to(ROOT).as_posix())
         else:
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_bytes(payload)
 
-    if args.migrate_legacy and mismatches:
-        migrated, unknown = migrate_legacy_assets(files, mismatches)
-        if not migrated:
-            print("refusing to migrate unknown command parity assets:")
-            for item in unknown:
-                print(f"  {item}")
-            return 1
-        print(f"migrated legacy command parity assets: {len(mismatches)}")
-        return 0
-    if args.migrate_legacy:
-        print("command parity assets already canonical")
-        return 0
-
     if mismatches:
-        print("command parity assets differ:")
+        print("command parity reference output differs from pinned assets:")
         for relative in mismatches:
             path = ROOT / relative
             expected = files[path]
             actual = path.read_bytes() if path.exists() else b""
             expected_hash = hashlib.sha256(expected).hexdigest()
-            actual_hash = hashlib.sha256(actual).hexdigest() if path.exists() else "missing"
-            print(f"  {relative}: actual={actual_hash} expected={expected_hash}")
+            actual_hash = (
+                hashlib.sha256(actual).hexdigest() if path.exists() else "missing"
+            )
+            print(f"  {relative}: actual={actual_hash} generated={expected_hash}")
         return 1
-    action = "verified" if args.check else "generated"
+    action = "reference-verified" if args.check_reference else "generated"
     print(f"command parity assets {action}: {len(files) - 1} cases")
     return 0
 

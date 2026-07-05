@@ -17,9 +17,7 @@ if [ "${RETA_STAGE_SKIP_PREVIOUS:-0}" != 1 ]; then
     "$ROOT/scripts/test_stage12c5bg.sh"
 fi
 
-printf '\n== migrate/check deterministic command parity assets ==\n'
-PYTHONHASHSEED=0 PYTHONDONTWRITEBYTECODE=1 \
-    "$TEST_PYTHON" tools/generate_command_parity_assets.py --migrate-legacy
+printf '\n== check pinned deterministic command parity assets ==\n'
 PYTHONHASHSEED=0 PYTHONDONTWRITEBYTECODE=1 \
     "$TEST_PYTHON" tools/generate_command_parity_assets.py --check
 

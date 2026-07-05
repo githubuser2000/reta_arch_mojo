@@ -361,7 +361,10 @@ def _projected_fraction_divisor_rows(
     if len(row_parts) == 0:
         return result^
     try:
-        var values = range_to_numbers(_join_rows(row_parts), False, 0)
+        var value_set = range_to_numbers(_join_rows(row_parts), False, 0)
+        var values = List[Int]()
+        for value in value_set:
+            values.append(value)
         var divisors = python_divisor_set_order(values)
         for index in range(len(divisors)):
             result.append(String(divisors[index]))

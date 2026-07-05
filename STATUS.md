@@ -1,3 +1,11 @@
+# Status – Stage 12c5bj
+
+- Kommando-Paritätsassets werden im Stage-Gate ausschließlich gegen gepinnte SHA-256-Werte geprüft; der lokale CPython-Renderer wird nicht gestartet.
+- Der reale Benutzerbuild fand die `Set[Int]`/`List[Int]`-Grenze im True-Fraction-Teilerpfad. Die Menge wird nun ausdrücklich in eine Liste materialisiert.
+- Der aktuelle Stage-Test kompiliert den True-Fraction-Probe auch bei übersprungener Vorgängerkette.
+- `scripts/build-all.sh -- -j 5` bestätigt die funktionierende Durchreichung von Compilerthreadoptionen bis zum gefundenen Quellfehler.
+- Portable Stagegruppe: 72 Tests; Defektledger 140/20; Manifest 1.659 Dateien und 114 Symlinks.
+
 # Status – Stage 12c5bi
 
 - Der Benutzerlauf `scripts/build-tests.sh -- -j 4` bestätigte die sequenzielle Weitergabe interner Compilerthreads und erreichte `test_native_prompt_input.mojo`; dort wurde eine echte StringSlice-/String-Typinferenzlücke im Test gefunden und behoben.
@@ -444,3 +452,15 @@
 - mehrere gleichzeitig ausgewählte, verschieden große Bruch-CSV-Domänen und weitere hintere Prompt-Sonderzweige
 - vollständige i18n-Laufzeit außerhalb des Promptvokabulars
 Siehe [`ROADMAP.md`](ROADMAP.md) für alle zwölf Stufen.
+
+## Stage 12c5bj
+
+- Der Benutzerlauf von Stage 12c5bh erreichte die Kommando-Paritätsprüfung mit bereits kanonischen Hashes `a8a0d2a1…` und `9fdefe9a…`, wurde aber durch eine erneute CPython-3.14-Referenzberechnung fälschlich als unbekannte Migration abgelehnt.
+- `--check` validiert nun vier Ausgaben plus TSV-Manifest ausschließlich gegen gepinnte SHA-256-Werte und führt keinen Renderer aus.
+- `--check-reference` trennt den optionalen interpreterabhängigen Pythonvergleich vom reproduzierbaren nativen Releasegate.
+- Die Stages 12c5aq, 12c5bg und 12c5bh sind für diese Assets read-only.
+- `TEST-FIXED-053` dokumentiert die behobene Infrastrukturregression.
+
+- Stage 12c5bj: realen `Set[Int]`→`List[Int]`-Compilerfehler im
+  True-Fraction-Teilerpfad behoben; fokussierter Probe ist Teil des aktuellen
+  Stage-Gates.

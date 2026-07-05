@@ -763,3 +763,27 @@ wird insbesondere der früher beim `CsvTable`-Kopieren abgebrochene
 Generated-Columns-Test erneut mit dem Modular-Compiler gebaut. Anschließend
 werden `test_legacy_reta_program.mojo` und `test_setup_metadata.mojo` gebaut.
 Die neuen Fassaden erzeugen keine zusätzlichen installierbaren Executables.
+
+## Stage 12c5bj: gepinnter, read-only Kommando-Paritätsgate
+
+Der reguläre Stage-Lauf prüft ausschließlich die versionierten Assethashes:
+
+```sh
+RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bj.sh -- -j 4
+```
+
+Der aktuelle Python-Renderer kann separat untersucht werden, ohne Assets zu verändern:
+
+```sh
+TEST_PYTHON=$(scripts/find_test_python.sh)
+"$TEST_PYTHON" tools/generate_command_parity_assets.py --check-reference
+```
+
+`--check-reference` ist bewusst kein Releasegate, da beiläufige CPython-Minorversionsunterschiede die HTML-Serialisierung beeinflussen können. Eine echte Assetaktualisierung muss als eigener überprüfter Commit erfolgen.
+
+### Stage 12c5bj: typisierte Teilerprojektion
+
+Der True-Fraction-Teilerpfad materialisiert `Set[Int]` vor dem Aufruf des
+`List[Int]`-Divisorreihenfolgehelfers. Der aktuelle Stage-Test kompiliert den
+zugehörigen Probe auch mit `RETA_STAGE_SKIP_PREVIOUS=1`; Compileroptionen werden
+weiter hinter `--` durchgereicht.

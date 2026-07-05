@@ -1,3 +1,11 @@
+## Stage 12c5bj – read-only gepinnte Kommando-Paritätsassets
+
+- `generate_command_parity_assets.py --check` prüft jetzt fünf fest versionierte SHA-256-Verträge und startet den Python-Renderer nicht.
+- `--check-reference` ist der ausdrückliche, interpreterabhängige Entwicklervergleich.
+- Die Stages 12c5aq, 12c5bg und 12c5bh migrieren keine Quelldateien mehr.
+- Bereits kanonische `--migrate-legacy`-Aufrufe sind ohne Referenzausführung idempotent; unbekannte oder mit dem aktiven Interpreter nicht reproduzierbare Zustände bleiben harte Fehler.
+- Der auf Python 3.14 gemeldete Abbruch bei den bereits kanonischen Hashes `a8a0d2a1…` und `9fdefe9a…` ist damit geschlossen.
+
 ## Stage 12c5bi – Compileroptionen und verbleibende Bruch-Teilergrammatik
 
 - Testbuildoptionen werden hinter `--` bis zum einzelnen `mojo build` bewahrt; Laufzeitjobs bleiben ein unabhängiger Runnerparameter.
@@ -1253,3 +1261,6 @@ Vier vollständig native Diagnoseoberflächen teilen seit Stage 12c5z eine versi
 - `RETA_TEST_SANDBOX`/`TMPDIR` isoliert temporäre Testdateien. Der native Prompt-History-Test verwendet nicht länger globale feste Dateien als einzige Laufzeitadresse.
 - Zwei exakt bekannte alte Kommandoasset-Hashes können kontrolliert migriert werden. Unbekannte Abweichungen bleiben Fehler und werden nicht automatisch neu eingefroren.
 - Die äußere Ganzzahlachse kommalokaler `0`-/Ausschlusskomponenten neben echten Bruchvielfachen ist nativ. Separat geschriebene negative Tokens und nichtpositive `teiler`-Algebra bleiben eigene atomare Grenzen.
+
+- Stage 12c5bj korrigiert die reale Mojo-Typgrenze `Set[Int] -> List[Int]` im
+  Bruchteilerpfad und bindet den fokussierten Probe an den aktuellen Stage-Test.

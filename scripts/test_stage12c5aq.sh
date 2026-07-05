@@ -14,9 +14,7 @@ mkdir -p "$TARGET"
 printf '\n== verify original/refactored Python command matrix ==\n'
 "$ROOT/scripts/run_pytest.sh" -q python_reference/tests/test_command_parity.py
 
-printf '\n== migrate/check native command parity assets ==\n'
-PYTHONHASHSEED=0 PYTHONDONTWRITEBYTECODE=1 \
-    "$TEST_PYTHON" tools/generate_command_parity_assets.py --migrate-legacy
+printf '\n== check pinned native command parity assets ==\n'
 PYTHONHASHSEED=0 PYTHONDONTWRITEBYTECODE=1 \
     "$TEST_PYTHON" tools/generate_command_parity_assets.py --check
 

@@ -23,7 +23,7 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 
 ## Übersicht
 
-- Einträge insgesamt: **138**
+- Einträge insgesamt: **140**
 - offene bestätigte Python-Fehler: **6**
 - zu entscheidende Python-Fehlerkandidaten: **13**
 - bereits im Python-Baum behobene Fehler: **7**
@@ -1882,3 +1882,29 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 - spätere Python-Aktion: Keine Python-Änderung erforderlich; dies ist eine reine Build- und Testinfrastrukturverbesserung.
 - Mojo-Orte: `scripts/test_all.sh`, `scripts/build-tests.sh`, `scripts/test_stage12c5bh.sh`, `scripts/test_stage12c5bi.sh`, `scripts/check_prompt_true_fraction_multiples.sh`, `scripts/mojo_build_options.sh`, `tests/test_split_test_pipeline.py`, `tests/test_stage12c5bi_source.py`
 - Belege: `STAGE12C5BI_COMPILER_OPTIONS_PROMPT_STRING_DIVIDER_AXES.md`, `tests/test_split_test_pipeline.py`, `tests/test_stage12c5bi_source.py`, `BUILD.md`
+
+### TEST-FIXED-053 – Kanonische Kommando-Paritätsassets wurden unter CPython 3.14 erneut als unbekannte Migration behandelt
+
+- Ursprung: `test_infrastructure`
+- Klasse / Schwere: `ambient_interpreter_asset_regeneration_gate` / `high`
+- Python-Status: `not_applicable`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5bh/12c5bj`
+- Reproduktion: `scripts/test_stage12c5bh.sh unter der Python-3.14-.venv ausführen, während html-religion-basic.out bereits a8a0d2a1… und command_parity.tsv bereits 9fdefe9a… besitzen; --migrate-legacy verweigerte diese kanonischen Hashes als unbekannt.`
+- heutiger Vertrag: Stage- und Releaseprüfungen vergleichen die vier Kommandoausgaben und das TSV-Manifest ausschließlich mit fest versionierten SHA-256-Werten. Der read-only --check-Pfad startet keinen Python-Renderer. --check-reference ist eine ausdrückliche Entwicklerdiagnose für interpreterabhängige Referenzausgaben; Teststages migrieren oder schreiben keine Quellassets mehr. Bereits kanonische Migrationen sind ohne Referenzausführung idempotent.
+- spätere Python-Aktion: Keine Änderung am eingefrorenen Python-Algorithmus erforderlich. Eine spätere bewusste Referenzaktualisierung muss die gepinnten Assets und ihre Hashliste in einem überprüften Commit gemeinsam ändern.
+- Mojo-Orte: `tools/generate_command_parity_assets.py`, `scripts/test_stage12c5aq.sh`, `scripts/test_stage12c5bg.sh`, `scripts/test_stage12c5bh.sh`, `scripts/test_stage12c5bj.sh`, `tests/test_command_parity_asset_environment.py`, `tests/test_stage12c5bj_source.py`
+- Belege: `STAGE12C5BJ_PINNED_COMMAND_PARITY_ASSETS.md`, `tools/generate_command_parity_assets.py`, `tests/test_command_parity_asset_environment.py`, `tests/test_stage12c5bj_source.py`
+
+### TEST-FIXED-054 – Bruchteilerpfad übergab Set[Int] an den List[Int]-Divisorreihenfolgehelfer
+
+- Ursprung: `mojo_port`
+- Klasse / Schwere: `set_to_list_compile_boundary` / `high`
+- Python-Status: `not_applicable`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5bi/12c5bj`
+- Reproduktion: `scripts/build-all.sh -- -j 5 ausführen; src/prompt_main.mojo brach in _projected_fraction_divisor_rows ab, weil range_to_numbers Set[Int] liefert und python_divisor_set_order List[Int] verlangt.`
+- heutiger Vertrag: Der von range_to_numbers gelieferte Set[Int] wird explizit in eine besitzende List[Int] materialisiert. Erst diese Liste wird an python_divisor_set_order übergeben. Der fokussierte Stage-Test kompiliert und startet den True-Fraction-Probe auch bei übersprungener Vorgängerkette.
+- spätere Python-Aktion: Keine Python-Änderung erforderlich; dies war ausschließlich eine Mojo-Typgrenze im neuen nativen Teilerpfad.
+- Mojo-Orte: `src/reta_mojo/prompt_table_execution.mojo`, `tests/test_prompt_fraction_integer_axes_source.py`, `tests/test_stage12c5bj_source.py`, `scripts/test_stage12c5bj.sh`
+- Belege: `STAGE12C5BJ_PINNED_COMMAND_PARITY_ASSETS.md`, `src/reta_mojo/prompt_table_execution.mojo`, `tests/test_stage12c5bj_source.py`, `scripts/test_stage12c5bj.sh`
