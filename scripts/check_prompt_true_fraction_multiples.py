@@ -1126,8 +1126,11 @@ def main() -> int:
     if len(local_reciprocal) != 1 or len(local_fraction) != 1:
         fail("component-local compact v lost its reciprocal or literal fraction axis")
     expected_local_rows = set(range(4, 1024, 4)) - {8}
-    if set(row_values(local_reciprocal[0])) != expected_local_rows:
+    local_row_order = row_values(local_reciprocal[0])
+    if set(local_row_order) != expected_local_rows:
         fail("component-local compact v expanded or subtracted the wrong reciprocal rows")
+    if local_row_order[:6] != [512, 4, 516, 520, 12, 524]:
+        fail("component-local compact v CPython-set row order drifted")
     if set(row_values(local_fraction[0])) != {3}:
         fail("unprefixed 2/3 was incorrectly expanded by an earlier compact v")
 

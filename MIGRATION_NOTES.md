@@ -1354,3 +1354,29 @@ Vier vollständig native Diagnoseoberflächen teilen seit Stage 12c5z eine versi
   direkt und schützt die Sprachregel unabhängig vom Mojo-Prüfer.
 
 - Der breite Python-Audit korrigiert zusätzlich zwei reine historische Testpfade: Projekt-Gitmarker über `REPO_ROOT.parent` und den realen Workflow-Schritt `load_religion_table`.
+
+## Stage 12c5br
+
+- `historical_prompt_output_parameters()` veröffentlicht die vollständige
+  13-Namen-Ausgabeoberfläche als einen gemeinsamen Eigentumsvertrag.
+- `historical_prompt_parameter_supported()` löst lokalisierte Namen weiter
+  über den generierten Katalog auf, vergleicht anschließend aber gegen die
+  vollständige native Oberfläche statt gegen eine manuelle Siebenerliste.
+- `_ordered_prompt_parameters()` ordnet nicht die Parameterteilmenge isoliert,
+  sondern filtert sie aus `python_string_set_order(words)`. Das entspricht der
+  Python-Reihenfolge `Txt.liste = list(Txt.menge)` vor
+  `returnOnlyParasAsList(Txt.listeE)`.
+- Bereits native Rendereroptionen verlassen damit die explizite
+  Kompatibilitätsgrenze, ohne die atomare Behandlung unbekannter Parameter oder
+  unbesessener Prozesseffekte aufzuweichen.
+
+
+- Der reale 12c5bq-Gesamtlauf zeigte zwei veraltete Erwartungen in
+  `test_prompt_table_execution`: vollständiger Optionspräfix statt
+  kommaabhängigem Teilstring und die neue lokale Reziprok-Setreihenfolge.
+  Produktionscode und 13/13-Prüfer waren bereits konsistent.
+- `create_source_archive.sh` löst für Brotli nun einen Interpreter auf, der das
+  Modul tatsächlich importieren kann (`RETA_BROTLI_PYTHON`, Projekt-`.venv`,
+  danach geprüfte Systemkandidaten).
+- `generate_architecture_probe_assets.py` entfernt Laufzeitcaches mit
+  `ENOTEMPTY`-/`EBUSY`-Retries und wiederholten Sweeps.

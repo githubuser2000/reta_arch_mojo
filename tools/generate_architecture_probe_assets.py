@@ -9,12 +9,14 @@ native runtime reads those assets through ``resource_paths.asset_resource``.
 from __future__ import annotations
 
 import argparse
+import errno
 import hashlib
 import json
 import os
 import shutil
 import sys
 import tempfile
+import time
 from contextlib import contextmanager
 from unittest.mock import patch
 from pathlib import Path
@@ -31,16 +33,52 @@ REFERENCE_TOKEN = "@@RETA_REFERENCE_ROOT@@"
 HOME_TOKEN = "@@RETA_HOME@@"
 
 
-def _remove_runtime_artifacts(reference_root: Path) -> None:
-    """Keep validation counts independent of prior Python imports/tests."""
+def _remove_tree_with_retries(path: Path) -> None:
+    """Remove a cache tree even if another process briefly recreates entries."""
+    for attempt in range(12):
+        try:
+            shutil.rmtree(path)
+        except FileNotFoundError:
+            return
+        except OSError as exc:
+            if exc.errno not in (errno.ENOTEMPTY, errno.EBUSY):
+                raise
+            if attempt == 11:
+                raise
+            time.sleep(0.01 * (attempt + 1))
+        else:
+            if not path.exists():
+                return
+    raise RuntimeError(f"runtime cache tree survived cleanup: {path}")
+
+
+def _runtime_artifact_paths(reference_root: Path) -> list[Path]:
+    result: list[Path] = []
     for directory_name in ("__pycache__", ".pytest_cache", ".mypy_cache"):
-        for path in reference_root.rglob(directory_name):
-            if path.is_dir():
-                shutil.rmtree(path)
+        result.extend(path for path in reference_root.rglob(directory_name) if path.is_dir())
     for suffix in ("*.pyc", "*.pyo"):
-        for path in reference_root.rglob(suffix):
-            if path.is_file():
-                path.unlink()
+        result.extend(path for path in reference_root.rglob(suffix) if path.is_file())
+    return result
+
+
+def _remove_runtime_artifacts(reference_root: Path) -> None:
+    """Keep snapshots independent of caches, including concurrent recreation."""
+    for sweep in range(8):
+        for path in _runtime_artifact_paths(reference_root):
+            try:
+                if path.is_dir():
+                    _remove_tree_with_retries(path)
+                else:
+                    path.unlink(missing_ok=True)
+            except FileNotFoundError:
+                pass
+        remaining = _runtime_artifact_paths(reference_root)
+        if not remaining:
+            return
+        if sweep < 7:
+            time.sleep(0.02 * (sweep + 1))
+    rendered = ", ".join(str(path) for path in remaining[:8])
+    raise RuntimeError(f"runtime artifacts survived cleanup: {rendered}")
 
 
 def _manifest_regular_files() -> list[tuple[str, str]]:

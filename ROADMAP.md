@@ -765,3 +765,14 @@ Der historische Assetgate ist jetzt vollständig read-only. Fünf gepinnte SHA-2
 - [x] Lokale 2-/4-Aufruf- und globale 13-/19-Aufrufverträge trennen.
 - [x] Defekt `MOJO-FIXED-067` auf den tatsächlichen Scope-Overreach korrigieren.
 - [ ] Benutzerseitig `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bq.sh -- -j 4` ausführen.
+
+## Stage 12c5br – vollständige Prompt-Ausgabeparameter
+
+- [x] Alle 13 kanonischen Ausgabeparameter im historischen Eigentumsbeweis freigeben.
+- [x] 65 fünfsprachige Katalogaliasnamen an denselben typisierten Besitzer binden.
+- [x] `justtext`, `onetable`, `endlessscreen`, `endless`, `dontwrap` und `breiten` aus dem atomaren Fallback entfernen.
+- [x] Parameter aus der CPython-kompatiblen Gesamtmengenordnung aller Prompttokens filtern.
+- [x] Duplikatentfernung und exakte Executor-argv-Reihenfolge mit 7 Referenzfällen binden.
+- [x] Zwei veraltete lokale-v-Assertions aus dem vollständigen Benutzerlauf korrigieren.
+- [x] Brotli-Interpreterauflösung und Cachelöschung portabel stabilisieren.
+- [ ] Benutzerseitig `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5br.sh -- -j 8` ausführen.

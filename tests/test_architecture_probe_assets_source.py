@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import errno
 import hashlib
+import importlib.util
 import os
 import subprocess
 import sys
@@ -30,6 +32,35 @@ def test_generator_removes_runtime_cache_state_before_snapshot() -> None:
         cwd=ROOT,
         check=True,
     )
+    assert not cache.exists()
+
+
+def test_runtime_cache_cleanup_retries_directory_not_empty(
+    tmp_path: Path, monkeypatch
+) -> None:
+    script = ROOT / "tools" / "generate_architecture_probe_assets.py"
+    spec = importlib.util.spec_from_file_location("architecture_probe_generator_test", script)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+
+    reference_root = tmp_path / "python_reference"
+    cache = reference_root / "reta_architecture" / "__pycache__"
+    cache.mkdir(parents=True)
+    (cache / "artificial.pyc").write_bytes(b"cache")
+    real_rmtree = module.shutil.rmtree
+    attempts = 0
+
+    def flaky_rmtree(path: Path) -> None:
+        nonlocal attempts
+        attempts += 1
+        if attempts == 1:
+            raise OSError(errno.ENOTEMPTY, "simulated concurrent cache recreation")
+        real_rmtree(path)
+
+    monkeypatch.setattr(module.shutil, "rmtree", flaky_rmtree)
+    module._remove_runtime_artifacts(reference_root)
+    assert attempts >= 2
     assert not cache.exists()
 
 

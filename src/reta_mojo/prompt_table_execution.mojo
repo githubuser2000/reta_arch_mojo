@@ -225,6 +225,30 @@ def _append_unique_int(mut values: List[Int], value: Int) -> None:
         values.append(value)
 
 
+def _ordered_prompt_parameters(
+    words: List[String],
+    candidates: List[String],
+    tokens_are_prepared: Bool,
+) -> List[String]:
+    """Filter parameters from the historical whole-token set order.
+
+    Python normalizes the complete prompt token list through ``list(set(...))``
+    before ``returnOnlyParasAsList`` selects CLI parameters.  Ordering only the
+    parameter subset would miss hash-table interactions with command and data
+    words, while preserving source order would also retain duplicates that the
+    reference removes.
+    """
+    var result = List[String]()
+    var ordered_words = (
+        words.copy() if tokens_are_prepared else python_string_set_order(words)
+    )
+    for index in range(len(ordered_words)):
+        var token = ordered_words[index]
+        if _contains(candidates, token):
+            result.append(token)
+    return result^
+
+
 def _sort_ints(mut values: List[Int]) -> None:
     for index in range(1, len(values)):
         var key = values[index]
@@ -1082,7 +1106,8 @@ def _merge_expanded_reciprocal_multiple_rows(
 
     # CPython iterates the positive set after subtraction.  Integer hashes are
     # identities, so reproducing its slot order and then filtering exclusions
-    # preserves cases such as v1/4,-1/8 (4,516,12,524,...).
+    # preserves component-local cases such as v1/4,-1/8
+    # (512,4,516,520,12,524,...; only the literal row 8 is excluded).
     var ordered = python_int_set_order(attempts)
     var result = List[String]()
     for index in range(len(ordered)):
@@ -1646,6 +1671,7 @@ def plan_prompt_table_commands(
     words: List[String],
     language: String,
     catalog: PromptLanguageCatalog,
+    tokens_are_prepared: Bool = False,
 ) raises -> PromptTablePlan:
     """Translate supported prompt table commands into native reta argv.
 
@@ -1781,6 +1807,15 @@ def plan_prompt_table_commands(
             pass
         if token.startswith("-"):
             passthrough.append(token)
+
+    # The Python prompt stores the complete prepared token vector in a set
+    # before selecting output parameters.  Reproduce that full-set order and
+    # its duplicate removal, not merely the source order of the parameter
+    # subset.  Negative standalone numeric tokens were not added to
+    # ``passthrough`` above and therefore remain excluded here.
+    passthrough = _ordered_prompt_parameters(
+        words, passthrough, tokens_are_prepared
+    )
 
     # The Python prompt stores raw range components in a set.  Reproduce its
     # deterministic seed-zero order globally across all numeric tokens.

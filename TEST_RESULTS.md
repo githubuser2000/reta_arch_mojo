@@ -2445,3 +2445,28 @@ Benutzerlauf.
 - Defektledger **155/18**, Portierung **89/92** vollständig und **92/92** mindestens teilweise.
 - Die tatsächliche Mojo-Kompilierung bleibt der Benutzerlauf
   `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bq.sh -- -j 4`.
+
+## Stage 12c5br – vorbereiteter Prüfstand
+
+- Der Benutzer-Volltest von 12c5bq bestand alle vor
+  `test_prompt_table_execution` liegenden Mojo-Ziele. Dort bestanden **28/30**;
+  die zwei Fehlschläge waren veraltete Assertions zur lokalen `v`-Semantik und
+  wurden ohne Produktionsänderung korrigiert.
+- Der 12c5bp-Archivfehler wurde als Pythonraumabweichung isoliert: der Test
+  importierte `brotli` aus `.venv`, das Shellskript startete jedoch fest
+  `python3`. Der Workflow prüft und verwendet nun einen einzigen geeigneten
+  Interpreter.
+- Der 12c5bq-Assetfehler war ein `shutil.rmtree`-Race mit gleichzeitig neu
+  entstehendem `__pycache__`; Retry und Mehrfach-Sweep sind durch einen
+  simulierten `ENOTEMPTY`-Test gebunden.
+- Python-Executor-Referenz für sechs zuvor abgewiesene Ausgabeoptionen und einen
+  vollständigen 13-Parameter-Vektor: **7/7** Fälle.
+- Alle 87 Source-Testdateien in drei Batches: **369 bestanden**, **1 Skip**
+  (`concat_csv_probe` erfordert ein kompiliertes Mojo-Binary).
+- Architektur-Referenzaudit: **70/70**, zusätzlich **7 Subtests**.
+- Fokussierte Ledger-/Stage-/Portierungsprüfung: **50/50**.
+- Archiv-/Cacheprüfung: **14/14**; manueller Brotli-Roundtrip erfolgreich.
+- Defektledger **159/18**; Portierung **89/92** vollständig, **92/92** mindestens
+  teilweise; Mojo-Zeilen **63.640/59.030**.
+- Die tatsächliche Mojo-Kompilierung bleibt der Benutzerlauf
+  `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5br.sh -- -j 8`.

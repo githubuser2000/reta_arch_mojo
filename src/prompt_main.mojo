@@ -155,8 +155,8 @@ def _print_prompt_help() -> None:
     print("Vielfachen-, Teiler- und Einzelauswahl werden nativ geplant.")
     print("Null-, Negativ- und kollidierende Zahlenbedingungen werden samt")
     print("historischer All-Zeilen-Algebra nativ geplant. Auch wiederholte")
-    print("Katalogauswahlen sind nativ; echte v-n/m-Vielfache mit Zähler")
-    print("> 1 und seltene hintere Sonderzweige bleiben am Fallback.")
+    print("Katalogauswahlen, echte v-n/m-Vielfache und alle 13")
+    print("Ausgabeparameter sind nativ; nur unbewiesene Sonderzweige fallen zurück.")
     print("Explizite native Einmalbefehle laufen ohne Python-Kindprozess.")
 
 
@@ -515,12 +515,17 @@ def _run_command(
         profile.force_e_command,
     )
     var numeric_default = _is_pure_numeric_prompt(raw_tokens)
-    var planning_tokens = (
-        prepared.tokens.copy() if historical_echo
+    var planning_tokens_are_prepared = (
+        historical_echo
         or numeric_default
         or _contains_numeric_shortcut(
             raw_tokens, profile.language, catalog
-        ) else normalized_tokens.copy()
+        )
+    )
+    var planning_tokens = (
+        prepared.tokens.copy()
+        if planning_tokens_are_prepared
+        else normalized_tokens.copy()
     )
     var quiet_echo = _quiet_prompt_echo(
         planning_tokens, profile.language, catalog
@@ -531,7 +536,10 @@ def _run_command(
     # single-command dispatch so localized aliases and mixed command lines can
     # remain native as one or more invocations.
     var table_plan = plan_prompt_table_commands(
-        planning_tokens, profile.language, catalog
+        planning_tokens,
+        profile.language,
+        catalog,
+        planning_tokens_are_prepared,
     )
     var owns_mulpri = (
         _has_mulpri(planning_tokens, profile.language, catalog)
@@ -677,18 +685,26 @@ def _run_native_one_shot(
         profile.force_e_command,
     )
     var numeric_default = _is_pure_numeric_prompt(raw_tokens)
-    var planning_tokens = (
-        prepared.tokens.copy() if historical_echo
+    var planning_tokens_are_prepared = (
+        historical_echo
         or numeric_default
         or _contains_numeric_shortcut(
             raw_tokens, profile.language, catalog
-        ) else normalized_tokens.copy()
+        )
+    )
+    var planning_tokens = (
+        prepared.tokens.copy()
+        if planning_tokens_are_prepared
+        else normalized_tokens.copy()
     )
     var quiet_echo = _quiet_prompt_echo(
         planning_tokens, profile.language, catalog
     )
     var table_plan = plan_prompt_table_commands(
-        planning_tokens, profile.language, catalog
+        planning_tokens,
+        profile.language,
+        catalog,
+        planning_tokens_are_prepared,
     )
     var owns_mulpri = (
         _has_mulpri(planning_tokens, profile.language, catalog)

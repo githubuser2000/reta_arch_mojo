@@ -51,6 +51,27 @@ def test_moon_plan_preserves_output_parameters() raises:
     )
 
 
+def test_complete_output_parameter_tail_matches_python_whole_set_order() raises:
+    var plan = _plan(
+        "richtung 2 --nocolor --justtext --art=csv --onetable "
+        "--spaltenreihenfolgeundnurdiese=0,1 --endlessscreen --endless "
+        "--dontwrap --breite=40 --breiten=5,7 --keineleereninhalte "
+        "--keinenummerierung --keineueberschriften"
+    )
+    assert_true(plan.handled)
+    assert_equal(len(plan.invocations), 1)
+    assert_equal(
+        _tokens(plan),
+        "-zeilen|--vorhervonausschnitt=2|--oberesmaximum=1025|-spalten|"
+        "--Primzahlwirkung=Galaxieabsicht|--breite=0|-ausgabe|"
+        "--spaltenreihenfolgeundnurdiese=3-6|--nocolor|"
+        "--keineleereninhalte|--endlessscreen|--keinenummerierung|"
+        "--breite=40|--dontwrap|--art=csv|--endless|--justtext|"
+        "--onetable|--keineueberschriften|"
+        "--spaltenreihenfolgeundnurdiese=0,1|--breiten=5,7",
+    )
+
+
 def test_prime_cross_uses_historical_minimum() raises:
     var plan = _plan("primzahlkreuz 1-2")
     assert_true(plan.handled)
@@ -548,7 +569,7 @@ def test_true_fraction_multiples_follow_each_csv_rectangle() raises:
     assert_true(mixed_integer_axis.handled)
     assert_equal(len(mixed_integer_axis.invocations), 6)
     assert_true("--vielfachevonzahlen=5" in _tokens(mixed_integer_axis, 0))
-    assert_true(",5,v5" in _tokens(mixed_integer_axis, 0))
+    assert_true("--vorhervonausschnitt=5,v5" in _tokens(mixed_integer_axis, 0))
     assert_true("--vielfachevonzahlen=5" in _tokens(mixed_integer_axis, 3))
     assert_true(
         "--Universum=transzendentaliereziproke"
@@ -821,7 +842,7 @@ def test_true_fraction_multiples_follow_each_csv_rectangle() raises:
         "--Universum=transzendentaliereziproke"
         in _tokens(local_reciprocal_collision, 0)
     )
-    assert_true("--vorhervonausschnitt=4,516,12,524" in _tokens(local_reciprocal_collision, 0))
+    assert_true("--vorhervonausschnitt=512,4,516,520,12,524" in _tokens(local_reciprocal_collision, 0))
     assert_false(",8," in _tokens(local_reciprocal_collision, 0))
     assert_true(
         "--gebrochen-rational_Universum_n/m=2"
@@ -988,7 +1009,7 @@ def test_fraction_exclusions_and_prefixed_reciprocals_are_native() raises:
     var prefixed = _plan("universum v1/4,-1/8")
     assert_true(prefixed.handled)
     assert_equal(len(prefixed.invocations), 1)
-    assert_true("--vorhervonausschnitt=4,516,12,524" in _tokens(prefixed))
+    assert_true("--vorhervonausschnitt=512,4,516,520,12,524" in _tokens(prefixed))
     assert_true(",500,1012,508" in _tokens(prefixed))
 
 

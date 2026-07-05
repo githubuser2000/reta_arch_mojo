@@ -1234,3 +1234,27 @@ Fokussierter Lauf nach dem Produktionsbuild:
 ```sh
 RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bq.sh -- -j 4
 ```
+
+## Stage 12c5br – vollständige Prompt-Ausgabeparameter
+
+Der Tabellenplaner und der native Renderer besaßen bereits die komplette
+Ausgabeoberfläche, während der atomare Eigentumsbeweis nur sieben Namen
+freigab. Nun sind alle 13 kanonischen Optionen einschließlich `--justtext`,
+`--onetable`, `--endlessscreen`, `--endless`, `--dontwrap` und `--breiten`
+nativ; alle fünf Sprachkataloge ergeben zusammen 65 gebundene Aliasnamen.
+
+Python filtert diese Parameter erst nach `list(set(...))` über den gesamten
+vorbereiteten Promptvektor. Der native Plan reproduziert deshalb die
+CPython-kompatible Gesamtmengenordnung und entfernt Duplikate, statt bloß die
+Quellreihenfolge der Parameter zu übernehmen. Details:
+[`STAGE12C5BR_COMPLETE_PROMPT_OUTPUT_PARAMETERS.md`](STAGE12C5BR_COMPLETE_PROMPT_OUTPUT_PARAMETERS.md).
+
+Der aktuelle Stage-Test bindet außerdem die aus dem realen 12c5bq-Gesamtlauf
+gefundenen veralteten Bruchassertions, die modulgeprüfte Brotli-Pythonwahl und
+die race-sichere Cachebereinigung.
+
+Fokussierter Lauf nach dem Produktionsbuild:
+
+```sh
+RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5br.sh -- -j 8
+```

@@ -23,7 +23,7 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 
 ## Übersicht
 
-- Einträge insgesamt: **155**
+- Einträge insgesamt: **159**
 - offene bestätigte Python-Fehler: **4**
 - zu entscheidende Python-Fehlerkandidaten: **13**
 - bereits im Python-Baum behobene Fehler: **9**
@@ -2110,3 +2110,56 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 - spätere Python-Aktion: Keine Produktionsänderung erforderlich. Die Abweichung war ein einzelner Tippfehler in der historischen Testassertion.
 - Mojo-Orte: `python_reference/tests/test_architecture_refactor.py`, `tests/test_stage12c5bq_source.py`
 - Belege: `STAGE12C5BQ_POSITION_INDEPENDENT_MULTIPLE_SCOPE.md`, `python_reference/tests/test_architecture_refactor.py`, `tests/test_stage12c5bq_source.py`
+
+### MOJO-FIXED-068 – Vollständig native Prompt-Ausgabeparameter wurden vom Eigentumsbeweis abgewiesen
+
+- Ursprung: `mojo_port`
+- Klasse / Schwere: `prompt_output_parameter_ownership_gap` / `high`
+- Python-Status: `correct_reference`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5bq/12c5br`
+- Reproduktion: `richtung 2 mit --justtext, --onetable, --endlessscreen, --endless, --dontwrap oder --breiten=5,7 über den nativen Prompt ausführen. Der Tabellenplaner und der Renderer verstanden die Optionen bereits, historical_prompt_parameter_supported akzeptierte jedoch nur sieben kanonische Ausgabeparameter und erzwang deshalb den atomaren Python-Fallback.`
+- heutiger Vertrag: Alle 13 kanonischen Ausgabeparameter und ihre 65 fünfsprachigen Katalognamen gehören dem nativen historischen Promptpfad. Der Plan filtert Parameter aus der CPython-kompatiblen list(set(...))-Ordnung des vollständigen vorbereiteten Tokenvektors, entfernt dadurch Duplikate wie Python und bewahrt die exakte Executor-argv-Reihenfolge. Negative alleinstehende Zeilenselektoren bleiben von dieser Parameterfilterung ausgeschlossen.
+- spätere Python-Aktion: Keine Python-Korrektur erforderlich. Die vollständige Ausgabeparameterliste und die Gesamtmengenordnung sind Referenzsemantik; spätere Python-Bereinigungen dürfen die Filterreihenfolge returnOnlyParasAsList(Txt.listeE) nicht unbeabsichtigt verändern.
+- Python-Orte: `python_reference/reta_architecture/prompt_preparation.py`, `python_reference/reta_architecture/prompt_execution.py`
+- Mojo-Orte: `src/reta_mojo/prompt_historical_ownership.mojo`, `src/reta_mojo/prompt_table_execution.mojo`, `tests/test_prompt_historical_ownership.mojo`, `tests/test_prompt_table_execution.mojo`, `tests/prompt_output_parameter_probe.mojo`, `scripts/check_prompt_output_parameters.py`
+- Belege: `STAGE12C5BR_COMPLETE_PROMPT_OUTPUT_PARAMETERS.md`, `tests/test_prompt_output_parameter_ownership_source.py`, `tests/test_prompt_historical_ownership.mojo`, `tests/test_prompt_table_execution.mojo`, `scripts/check_prompt_output_parameters.py`
+
+### TEST-FIXED-064 – Bruchvielfachentests hielten nach der lokalen v-Korrektur alte Teilstrings und Set-Reihenfolgen fest
+
+- Ursprung: `test_infrastructure`
+- Klasse / Schwere: `stale_fraction_scope_assertions` / `medium`
+- Python-Status: `not_applicable`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5bq/12c5br`
+- Reproduktion: `scripts/test_all.sh auf Stage 12c5bq ausführen; tests/test_prompt_table_execution.mojo scheiterte bei test_true_fraction_multiples_follow_each_csv_rectangle und test_fraction_exclusions_and_prefixed_reciprocals_are_native, obwohl der separate 13/13-Laufzeitprüfer den nativen Plan bereits bestätigte.`
+- heutiger Vertrag: Die gemischte Ganzzahlachse bindet den vollständigen Parameter --vorhervonausschnitt=5,v5 auch dann, wenn kein vorausgehendes Komma existiert. Für komponentenlokales v1/4,-1/8 beginnt die CPython-Set-Reihenfolge mit 512,4,516,520,12,524; nur die literale Zeile 8 wird ausgeschlossen. Mojo-Test und instrumentierter Laufzeitprüfer prüfen denselben Vertrag.
+- spätere Python-Aktion: Keine Produktionsänderung erforderlich. Die Abweichungen lagen ausschließlich in zwei nach Stage 12c5bq nicht aktualisierten Mojo-Testassertions und einem veralteten Quellkommentar.
+- Mojo-Orte: `tests/test_prompt_table_execution.mojo`, `scripts/check_prompt_true_fraction_multiples.py`, `src/reta_mojo/prompt_table_execution.mojo`
+- Belege: `STAGE12C5BR_COMPLETE_PROMPT_OUTPUT_PARAMETERS.md`, `tests/test_prompt_table_execution.mojo`, `scripts/check_prompt_true_fraction_multiples.py`
+
+### TEST-FIXED-065 – Brotli-Sourcearchiv verwendete ein anderes Python als der erfolgreiche Pytest-Lauf
+
+- Ursprung: `test_infrastructure`
+- Klasse / Schwere: `brotli_interpreter_mismatch` / `medium`
+- Python-Status: `not_applicable`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5bp/12c5br`
+- Reproduktion: `scripts/test_stage12c5bp.sh ausführen; test_source_archive_supports_brotli_and_roundtrips importierte brotli erfolgreich in der Mojo-.venv, während scripts/create_source_archive.sh tools/brotli_file.py fest mit python3 startete und bei einem System-Python ohne brotli mit Exitstatus 1 abbrach.`
+- heutiger Vertrag: RETA_BROTLI_PYTHON kann den Interpreter explizit festlegen. Ohne Vorgabe bevorzugt der Archivworkflow .venv/bin/python3 und fällt nur auf python3 beziehungsweise pypy3 zurück, wenn der Kandidat das brotli-Modul tatsächlich importieren kann. Kompression und Dekompression verwenden denselben geprüften Interpreter.
+- spätere Python-Aktion: Keine Python-Produktionsänderung erforderlich. Der Fehler betraf ausschließlich die Interpreterauflösung des Sourcearchiv-Werkzeugs.
+- Mojo-Orte: `scripts/create_source_archive.sh`, `tools/brotli_file.py`, `tests/test_source_archive_contract.py`
+- Belege: `STAGE12C5BR_COMPLETE_PROMPT_OUTPUT_PARAMETERS.md`, `scripts/create_source_archive.sh`, `tests/test_source_archive_contract.py`
+
+### TEST-FIXED-066 – Architekturasset-Generator löschte gleichzeitig neu entstehende Python-Caches nicht race-sicher
+
+- Ursprung: `test_infrastructure`
+- Klasse / Schwere: `runtime_cache_cleanup_race` / `medium`
+- Python-Status: `not_applicable`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5bq/12c5br`
+- Reproduktion: `scripts/test_stage12c5bq.sh ausführen; test_generator_removes_runtime_cache_state_before_snapshot konnte in shutil.rmtree mit OSError ENOTEMPTY abbrechen, wenn __pycache__ während des Löschens erneut einen Eintrag erhielt.`
+- heutiger Vertrag: Die Cachebereinigung wiederholt rmtree bei ENOTEMPTY und EBUSY, ignoriert bereits verschwundene Pfade und führt mehrere vollständige Sweeps über __pycache__, .pytest_cache, .mypy_cache, .pyc und .pyo aus. Der Generator beginnt erst, wenn keine Laufzeitartefakte mehr vorhanden sind.
+- spätere Python-Aktion: Keine Architektur- oder Mojo-Produktionsänderung erforderlich. Der Fix stabilisiert nur die deterministische Asseterzeugung unter gleichzeitigem Cachezugriff.
+- Mojo-Orte: `tools/generate_architecture_probe_assets.py`, `tests/test_architecture_probe_assets_source.py`
+- Belege: `STAGE12C5BR_COMPLETE_PROMPT_OUTPUT_PARAMETERS.md`, `tools/generate_architecture_probe_assets.py`, `tests/test_architecture_probe_assets_source.py`

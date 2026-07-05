@@ -100,6 +100,52 @@ def test_localized_families_and_output_parameters_are_owned() raises:
     assert_true(_supported(compound^))
 
 
+def test_complete_output_parameter_surface_is_owned_in_every_language() raises:
+    var catalog = load_prompt_language_catalog("assets")
+    var supported = historical_prompt_output_parameters()
+    assert_equal(len(supported), 13)
+    var seen = 0
+    for index in range(len(catalog.vocabulary)):
+        var entry = catalog.vocabulary[index].copy()
+        if entry.domain != "output":
+            continue
+        assert_true(entry.canonical in supported)
+        assert_true(
+            historical_prompt_parameter_supported(
+                "--" + entry.translated + "=probe", entry.language, catalog
+            )
+        )
+        seen += 1
+    assert_equal(seen, 65)
+    assert_true(historical_prompt_parameter_supported("-ausgabe", "deutsch", catalog))
+    assert_true(historical_prompt_parameter_supported("-output", "english", catalog))
+
+
+def test_extended_output_parameters_no_longer_force_atomic_fallback() raises:
+    var german: List[String] = [
+        "richtung",
+        "2",
+        "--justtext",
+        "--onetable",
+        "--endlessscreen",
+        "--endless",
+        "--dontwrap",
+        "--breiten=5,7",
+    ]
+    assert_true(_supported(german^))
+    var english: List[String] = [
+        "direction",
+        "2",
+        "--justtext",
+        "--onetable",
+        "--endlessscreen",
+        "--endless",
+        "--dontwrap",
+        "--widths=5,7",
+    ]
+    assert_true(_supported(english^, "english"))
+
+
 def test_atomic_rejection_keeps_unowned_effects_out_of_partial_execution() raises:
     var shell: List[String] = ["richtung", "shell", "echo", "2"]
     assert_false(_supported(shell^))

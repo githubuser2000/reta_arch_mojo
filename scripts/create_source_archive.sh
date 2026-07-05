@@ -21,6 +21,32 @@ case "$OUT" in
 esac
 mkdir -p "$(dirname -- "$OUT")"
 
+find_brotli_python() {
+    if [ -n "${RETA_BROTLI_PYTHON-}" ]; then
+        if [ ! -x "$RETA_BROTLI_PYTHON" ] || ! "$RETA_BROTLI_PYTHON" -c 'import brotli' >/dev/null 2>&1; then
+            printf '%s\n' 'RETA_BROTLI_PYTHON verweist nicht auf ein Python mit installiertem brotli-Modul.' >&2
+            return 1
+        fi
+        printf '%s\n' "$RETA_BROTLI_PYTHON"
+        return 0
+    fi
+    if [ -x "$ROOT/.venv/bin/python3" ] && "$ROOT/.venv/bin/python3" -c 'import brotli' >/dev/null 2>&1; then
+        printf '%s\n' "$ROOT/.venv/bin/python3"
+        return 0
+    fi
+    for candidate in python3 pypy3; do
+        python_path=$(command -v "$candidate" 2>/dev/null || true)
+        if [ -n "$python_path" ] && "$python_path" -c 'import brotli' >/dev/null 2>&1; then
+            printf '%s\n' "$python_path"
+            return 0
+        fi
+    done
+    printf '%s\n' \
+        'Kein Python mit installiertem brotli-Modul gefunden.' \
+        'Installiere brotli in .venv oder setze RETA_BROTLI_PYTHON.' >&2
+    return 1
+}
+
 "$ROOT/scripts/update_source_manifest.sh"
 TMP_BASE="$OUT.tmp.$$"
 TMP_TAR="$TMP_BASE.tar"
@@ -53,8 +79,9 @@ case "$FORMAT" in
         ;;
     br)
         BROTLI_QUALITY=${RETA_BROTLI_QUALITY:-9}
-        python3 "$ROOT/tools/brotli_file.py" compress "$TMP_TAR" "$TMP_ARCHIVE" --quality "$BROTLI_QUALITY"
-        python3 "$ROOT/tools/brotli_file.py" decompress "$TMP_ARCHIVE" "$TMP_VERIFY"
+        BROTLI_PYTHON=$(find_brotli_python)
+        "$BROTLI_PYTHON" "$ROOT/tools/brotli_file.py" compress "$TMP_TAR" "$TMP_ARCHIVE" --quality "$BROTLI_QUALITY"
+        "$BROTLI_PYTHON" "$ROOT/tools/brotli_file.py" decompress "$TMP_ARCHIVE" "$TMP_VERIFY"
         cmp "$TMP_TAR" "$TMP_VERIFY"
         LIST_TAR="$TMP_VERIFY"
         ;;

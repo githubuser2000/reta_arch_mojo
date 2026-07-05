@@ -166,6 +166,31 @@ def historical_prompt_control_supported(canonical: String) -> Bool:
     )
 
 
+def historical_prompt_output_parameters() -> List[String]:
+    """Return the complete native output-option surface used by prompt tables.
+
+    The table planner forwards these parameters in the historical prepared-set
+    order and the native renderer owns every canonical option.  Keeping the same
+    complete list here prevents the ownership proof from becoming a stricter,
+    accidental fallback boundary than the executor it guards.
+    """
+    return [
+        "nocolor",
+        "justtext",
+        "art",
+        "onetable",
+        "spaltenreihenfolgeundnurdiese",
+        "endlessscreen",
+        "endless",
+        "dontwrap",
+        "breite",
+        "breiten",
+        "keineleereninhalte",
+        "keinenummerierung",
+        "keineueberschriften",
+    ]
+
+
 def historical_prompt_parameter_supported(
     token: String, language: String, catalog: PromptLanguageCatalog
 ) -> Bool:
@@ -177,6 +202,7 @@ def historical_prompt_parameter_supported(
     if "=" in name:
         name = String(name.split("=")[0])
     var normalized = normalize_prompt_language(language)
+    var supported = historical_prompt_output_parameters()
     for index in range(len(catalog.vocabulary)):
         var entry = catalog.vocabulary[index].copy()
         if (
@@ -184,15 +210,7 @@ def historical_prompt_parameter_supported(
             and entry.domain == "output"
             and entry.translated == name
         ):
-            return (
-                entry.canonical == "keineueberschriften"
-                or entry.canonical == "keineleereninhalte"
-                or entry.canonical == "keinenummerierung"
-                or entry.canonical == "nocolor"
-                or entry.canonical == "breite"
-                or entry.canonical == "art"
-                or entry.canonical == "spaltenreihenfolgeundnurdiese"
-            )
+            return _contains_string(supported, entry.canonical)
     return False
 
 

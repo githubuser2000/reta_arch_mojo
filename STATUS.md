@@ -1,3 +1,32 @@
+# Status – Stage 12c5br
+
+- Der historische Prompt-Eigentumsbeweis akzeptiert jetzt alle **13/13**
+  kanonischen Ausgabeparameter statt nur sieben.
+- Der fünfsprachige generierte Katalog bindet damit **65/65** lokalisierte
+  Ausgabeparameternamen an den nativen Tabellenpfad.
+- `--justtext`, `--onetable`, `--endlessscreen`, `--endless`, `--dontwrap` und
+  `--breiten=...` erzwingen keinen atomaren Python-Fallback mehr.
+- Die Parameterreihenfolge folgt der CPython-kompatiblen Gesamtmengenordnung
+  des vollständigen vorbereiteten Promptvektors; Duplikate verschwinden wie
+  bei `list(set(...))`.
+- Eine instrumentierte Referenz ersetzt ausschließlich `reta.Program` und
+  bindet sechs Einzeloptionen plus einen vollständigen 13-Parameter-Vektor als
+  **7/7** exakte Executor-argv-Verträge.
+- Der reale vollständige Benutzerlauf von 12c5bq erreichte
+  `test_prompt_table_execution` nach allen vorherigen grünen Mojo-Zielen. Zwei
+  dortige Fehlschläge waren veraltete Testassertions und sind korrigiert; der
+  Produktionsplan blieb dabei unverändert.
+- Der Brotli-Archivtest verwendet jetzt denselben modulgeprüften Pythonraum wie
+  die Tests; die Architekturasset-Bereinigung ist gegen gleichzeitig neu
+  entstehende Cacheeinträge abgesichert.
+- Compilerfreier Audit: **369** Source-Tests bestanden, **1** Probe mangels
+  kompiliertem Binary übersprungen; Architektur-Referenz **70/70 + 7 Subtests**.
+- Defektledger **159/18**, Portierung **89/92** vollständig und **92/92**
+  mindestens teilweise; Mojo-Umfang **63.640** Zeilen in `src/`, davon
+  **59.030** im Kernpaket.
+- Mojo-Kompilierung und direkter Lauf verbleiben beim Benutzerkommando
+  `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5br.sh -- -j 8`.
+
 # Status – Stage 12c5bq
 
 - Die Benutzerfrage zur Stellung von `v` deckte eine falsche 12c5bp-Annahme

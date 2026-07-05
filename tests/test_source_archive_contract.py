@@ -5,6 +5,7 @@ import subprocess
 import tarfile
 import lzma
 import os
+import sys
 import brotli
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -53,13 +54,20 @@ def test_git_index_contains_no_archive_excluded_temporary_files() -> None:
 
 
 def test_source_archive_supports_brotli_and_roundtrips(tmp_path: Path) -> None:
+    text = SCRIPT.read_text(encoding="utf-8")
+    assert "RETA_BROTLI_PYTHON" in text
+    assert '"$ROOT/.venv/bin/python3"' in text
     output = tmp_path / "reta_arch_mojo_test.tar.br"
     subprocess.run(
         [str(SCRIPT), str(output)],
         cwd=ROOT,
         check=True,
         capture_output=True,
-        env={**__import__("os").environ, "RETA_BROTLI_QUALITY": "1"},
+        env={
+            **os.environ,
+            "RETA_BROTLI_QUALITY": "1",
+            "RETA_BROTLI_PYTHON": sys.executable,
+        },
     )
     raw_tar = tmp_path / "reta_arch_mojo_test.tar"
     raw_tar.write_bytes(brotli.decompress(output.read_bytes()))
