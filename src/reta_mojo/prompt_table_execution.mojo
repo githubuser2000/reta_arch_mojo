@@ -656,21 +656,19 @@ def _parse_legacy_fraction_expression(
 def _parse_fraction_token(
     token: String,
     mut pairs: List[_PromptFractionPair],
-    inherited_multiple: Bool = False,
 ) raises -> Bool:
-    """Parse one fraction component with its enclosing compact v-scope.
+    """Parse compact fraction components with component-local ``v`` prefixes.
 
-    In the historical compact syntax, a leading ``v`` before the first item of
-    a comma expression applies to every fraction item in that expression.  The
-    outer parser splits mixed fraction/integer tokens first, so that scope must
-    be passed explicitly instead of being inferred from each already-split
-    component.
+    The Python prompt tests the first character of every comma component
+    independently.  Thus ``v1/4,-1/8,2/3`` marks only ``1/4`` as a multiple,
+    while ``1/4,v-1/8,v2/3`` marks the second and third components.  Global,
+    position-independent ``v``/``vielfache`` commands are normalized later.
     """
     var comma_parts = token.split(",")
     for part_index in range(len(comma_parts)):
         var part = String(comma_parts[part_index])
         var excluded = False
-        var multiple = inherited_multiple
+        var multiple = False
         if part.startswith("v"):
             multiple = True
             part = String(part[byte=1:])
@@ -691,11 +689,12 @@ def _parse_fraction_token(
 def _fraction_pairs_with_multiple_scope(
     pairs: List[_PromptFractionPair],
 ) -> List[_PromptFractionPair]:
-    """Apply a standalone vielfache/v modifier to every parsed fraction.
+    """Apply a standalone, position-independent v command globally.
 
-    The long-form modifier is a sibling token rather than a prefix on the
-    fraction text.  Normalizing the typed pairs here makes it semantically
-    identical to the inherited scope of a compact ``v...,...`` expression.
+    Python checks membership of ``v``/``vielfache`` in the complete token list,
+    so the standalone command may occur before, between or after the other
+    words.  This global form is deliberately distinct from component-local
+    compact prefixes such as ``1/4,v-1/8``.
     """
     var result = List[_PromptFractionPair]()
     for index in range(len(pairs)):
@@ -772,11 +771,14 @@ def _positive_first_reciprocal_collision_with_true_fraction(
     """Recognize one proven positive-first reciprocal subtraction class.
 
     ``v1/a,-1/b,c/d`` (with c > 1) is decomposed into an independently
-    bounded reciprocal axis and one proper-fraction CSV rectangle.  The frozen
+    bounded reciprocal axis and one proper-fraction CSV rectangle.  Each compact
+    prefix remains component-local: the first reciprocal expands, ``-1/b``
+    removes one row unless written ``v-1/b``, and ``c/d`` stays literal unless
+    written ``vc/d`` or covered by a standalone global command.  The frozen
     Python reference crashes while indexing this combination, but both native
-    projections are already deterministic.  Excluded proper fractions, a
-    non-reciprocal first component, or more than one positive reciprocal remain
-    outside this deliberately narrow correction contract.
+    projections are deterministic.  Excluded proper fractions, a non-reciprocal
+    first component, or more than one positive reciprocal remain outside this
+    deliberately narrow correction contract.
     """
     if len(pairs) < 3:
         return False
@@ -788,8 +790,6 @@ def _positive_first_reciprocal_collision_with_true_fraction(
     var positive_true_fractions = 0
     for index in range(len(pairs)):
         var pair = pairs[index].copy()
-        if not pair.multiple:
-            return False
         if pair.numerator == 1:
             if pair.excluded:
                 excluded_reciprocals += 1
@@ -1013,10 +1013,19 @@ def _copy_fraction_pairs(
 def _expand_true_fraction_multiples(
     pairs: List[_PromptFractionPair], domain: _FractionMultipleDomain
 ) -> List[_PromptFractionPair]:
-    """Expand both axes independently and clip to the physical CSV rectangle."""
+    """Expand only components carrying local or global multiple semantics."""
     var result = List[_PromptFractionPair]()
     for index in range(len(pairs)):
         var pair = pairs[index].copy()
+        if not pair.multiple:
+            _append_unique_fraction_pair(
+                result,
+                pair.numerator,
+                pair.denominator,
+                pair.excluded,
+                False,
+            )
+            continue
         var numerator = pair.numerator
         while numerator <= domain.maximum_numerator:
             var denominator = pair.denominator
@@ -1058,6 +1067,12 @@ def _merge_expanded_reciprocal_multiple_rows(
         if pair.numerator != 1 or pair.denominator <= 0:
             continue
         var value = pair.denominator
+        if not pair.multiple:
+            if pair.excluded:
+                _append_unique_int(exclusions, value)
+            else:
+                attempts.append(value)
+            continue
         while value < upper_exclusive:
             if pair.excluded:
                 _append_unique_int(exclusions, value)
@@ -1676,10 +1691,9 @@ def plan_prompt_table_commands(
             continue
         if _is_fraction_expression(token):
             has_fraction = True
-            # ``v1/4,-1/8,2/3`` is one compact multiple expression.  Splitting
-            # it into top-level components must not narrow the leading v to the
-            # first reciprocal only.
-            var comma_fraction_multiple = token.startswith("v")
+            # Compact ``v`` is component-local in the Python parser.  Each
+            # top-level comma component therefore retains its own prefix; only
+            # a standalone ``v``/``vielfache`` command becomes global later.
             var mixed_integer_parts = List[String]()
             var mixed_parts = split_top_level_commas(token)
             for mixed_index in range(len(mixed_parts)):
@@ -1691,7 +1705,6 @@ def plan_prompt_table_commands(
                     if not _parse_fraction_token(
                         mixed_part,
                         fraction_pairs,
-                        comma_fraction_multiple,
                     ):
                         unsupported = True
                 else:

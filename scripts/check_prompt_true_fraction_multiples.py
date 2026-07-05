@@ -27,6 +27,7 @@ CASES = [
     "emotion groesse motive universum v2/3",
     "emotion universum v8/3",
     "emotion universum v1/2,2/3",
+    "emotion universum v 1/2,2/3",
     "mond universum v2/3",
     "mond universum motive v2/3",
     "mond richtung primzahlkreuz alles thomas universum v2/3",
@@ -40,6 +41,7 @@ CASES = [
     "universum motive v2/3,5",
     "emotion universum v8/3,5",
     "emotion universum v1/2,2/3,5",
+    "emotion universum v 1/2,2/3,5",
     "universum motive v2/3,5-7",
     "universum motive v2/3,0",
     "universum motive v2/3,5,-10",
@@ -51,6 +53,7 @@ CASES = [
     "universum v2/3,5,-10 teiler",
     "universum motive v2/3,0 teiler",
     "universum v1/2,2/3",
+    "universum v 1/2,2/3",
     "universum vielfache 1/2,2/3",
     "universum v-1/4,2/3",
     "universum v-2/3",
@@ -60,8 +63,12 @@ CASES = [
     "emotion v1/4,-2/3",
     "universum v1/4,-2/3 teiler",
     "universum v1/4,-1/8,2/3",
+    "universum v 1/4,-1/8,2/3",
+    "v universum 1/4,-1/8,2/3",
+    "universum 1/4,-1/8,2/3 v",
     "universum vielfache 1/4,-1/8,2/3",
     "emotion universum v1/4,-1/8,2/3",
+    "emotion universum v 1/4,-1/8,2/3",
     "motive EIGNgut universum v2/3",
     "motive EIGNgut EIGRwerte universum v2/3",
     "motive universum 15_13 16_2 v2/3,5",
@@ -316,9 +323,14 @@ def assert_python_bug_is_still_reproducible() -> None:
         "universum v2/3",
         "universum motive v2/3",
         "universum v1/2,2/3",
+        "universum v 1/2,2/3",
         "universum v1/4,-1/8,2/3",
+        "universum v 1/4,-1/8,2/3",
+        "v universum 1/4,-1/8,2/3",
+        "universum 1/4,-1/8,2/3 v",
         "universum vielfache 1/4,-1/8,2/3",
         "emotion universum v1/4,-1/8,2/3",
+        "emotion universum v 1/4,-1/8,2/3",
     ):
         completed = subprocess.run(
             [sys.executable, "python_reference/rpb", command],
@@ -785,8 +797,8 @@ def main() -> int:
     )
 
     multi_mixed = records(result["emotion universum v1/2,2/3"])
-    if len(multi_mixed) != 19:
-        fail(f"wrong mixed two-domain invocation count: {len(multi_mixed)}")
+    if len(multi_mixed) != 4:
+        fail(f"wrong component-local mixed two-domain count: {len(multi_mixed)}")
     emotion_reciprocal = records_with(
         multi_mixed, "--grundstrukturen=emotion", "--spaltenreihenfolgeundnurdiese=4,5"
     )
@@ -796,11 +808,22 @@ def main() -> int:
         "--spaltenreihenfolgeundnurdiese=1",
     )
     if len(emotion_reciprocal) != 1 or len(universe_reciprocal) != 1:
-        fail("multi-domain reciprocal projections are not uniquely owned")
-    if set(row_values(emotion_reciprocal[0])) != set(range(2, 1024, 2)) | {1, 3}:
-        fail("Emotion reciprocal domain mixed the wrong true-fraction projection")
-    if set(row_values(universe_reciprocal[0])) != set(range(2, 1024, 2)) | {1, 3, 9}:
-        fail("Universe reciprocal domain mixed the wrong true-fraction projection")
+        fail("component-local multi-domain reciprocal projections are not unique")
+    if set(row_values(emotion_reciprocal[0])) != set(range(2, 1024, 2)):
+        fail("Emotion local reciprocal axis incorrectly inherited literal 2/3")
+    if set(row_values(universe_reciprocal[0])) != set(range(2, 1024, 2)):
+        fail("Universe local reciprocal axis incorrectly inherited literal 2/3")
+    for prefix in (
+        "--gebrochen-rational_Gefuehle_n/m=2",
+        "--gebrochen-rational_Universum_n/m=2",
+    ):
+        literal = records_with(multi_mixed, prefix)
+        if len(literal) != 1 or set(row_values(literal[0])) != {3}:
+            fail(f"component-local 2/3 literal axis drifted for {prefix}")
+
+    global_multi_mixed = records(result["emotion universum v 1/2,2/3"])
+    if len(global_multi_mixed) != 19:
+        fail(f"wrong global mixed two-domain invocation count: {len(global_multi_mixed)}")
 
     if result["mond universum motive v2/3"] != result["universum motive v2/3"]:
         fail("inert moon changed the corrected multi-domain fraction plan")
@@ -991,18 +1014,22 @@ def main() -> int:
         fail("Universe empty whole projection did not retain ordinary multiples")
 
     mixed_integer = records(result["emotion universum v1/2,2/3,5"])
-    if len(mixed_integer) != 19:
-        fail(f"wrong mixed reciprocal/integer/fraction count: {len(mixed_integer)}")
-    if "--vielfachevonzahlen=5" not in mixed_integer[0] or "--vielfachevonzahlen=5" not in mixed_integer[6]:
-        fail("ordinary multiple option did not reach both mixed fraction domains")
-    if "--Universum=transzendentaliereziproke" not in mixed_integer[7]:
-        fail("mixed fraction invocation 7 is no longer the Universe reciprocal axis")
-    if any(field.startswith("--vielfachevonzahlen=") for field in mixed_integer[7]):
+    if len(mixed_integer) != 6:
+        fail(f"wrong component-local reciprocal/integer/fraction count: {len(mixed_integer)}")
+    if "--vielfachevonzahlen=5" not in mixed_integer[0] or "--vielfachevonzahlen=5" not in mixed_integer[3]:
+        fail("ordinary multiple option did not reach both local fraction domains")
+    if "--Universum=transzendentaliereziproke" not in mixed_integer[4]:
+        fail("local mixed fraction invocation 4 is no longer the Universe reciprocal axis")
+    if any(field.startswith("--vielfachevonzahlen=") for field in mixed_integer[4]):
         fail("Universe reciprocal axis incorrectly inherited ordinary multiples")
-    if not row_selector(mixed_integer[0]).endswith(",5,v5"):
-        fail("Emotion mixed integer axis lost the original/vN suffix")
-    if not row_selector(mixed_integer[6]).endswith(",5,v5"):
-        fail("Universe mixed integer axis lost the original/vN suffix")
+    if not row_selector(mixed_integer[0]).endswith("5,v5"):
+        fail("Emotion local mixed integer axis lost the original/vN suffix")
+    if not row_selector(mixed_integer[3]).endswith("5,v5"):
+        fail("Universe local mixed integer axis lost the original/vN suffix")
+
+    global_mixed_integer = records(result["emotion universum v 1/2,2/3,5"])
+    if len(global_mixed_integer) != 19:
+        fail(f"wrong global reciprocal/integer/fraction count: {len(global_mixed_integer)}")
 
     ranged_integer = records(result["universum motive v2/3,5-7"])
     if len(ranged_integer) != 26:
@@ -1012,22 +1039,34 @@ def main() -> int:
     if not row_selector(ranged_integer[0]).endswith(",5-7,v5-7"):
         fail("positive range lost its original/vN selector suffix")
 
-    mixed = assert_domain_plan(
-        result["universum v1/2,2/3"],
+    mixed = records(result["universum v1/2,2/3"])
+    if len(mixed) != 2:
+        fail(f"wrong component-local mixed reciprocal/fraction count: {len(mixed)}")
+    local_reciprocals = records_with(
+        mixed,
+        "--Universum=transzendentaliereziproke",
+        "--spaltenreihenfolgeundnurdiese=1",
+    )
+    local_literal = records_with(mixed, "--gebrochen-rational_Universum_n/m=2")
+    if len(local_reciprocals) != 1 or set(row_values(local_reciprocals[0])) != set(range(2, 1024, 2)):
+        fail("component-local reciprocal axis did not remain independent")
+    if len(local_literal) != 1 or set(row_values(local_literal[0])) != {3}:
+        fail("component-local 2/3 literal fraction drifted")
+
+    global_mixed = assert_domain_plan(
+        result["universum v 1/2,2/3"],
         "--gebrochen-rational_Universum_n/m=",
         list(range(2, 21, 2)),
         set(range(3, 22, 3)),
         13,
     )
-    if set(row_values(mixed[0])) != {1, 2, 3, 4, 6}:
-        fail("wrong whole-number projection for mixed reciprocal/true fraction")
     expected_reciprocals = set(range(2, 1024, 2)) | {1, 3, 9}
-    if set(row_values(mixed[1])) != expected_reciprocals:
-        fail("mixed reciprocal axis did not preserve both independent bounds")
-    if set(row_values(mixed[-1])) != {6, 12, 18}:
-        fail("mixed equal-axis projection drifted")
-    if result["universum vielfache 1/2,2/3"] != result["universum v1/2,2/3"]:
-        fail("compact and spelled mixed-axis plans differ")
+    if set(row_values(global_mixed[1])) != expected_reciprocals:
+        fail("global mixed reciprocal axis did not preserve both bounds")
+    if result["universum vielfache 1/2,2/3"] != result["universum v 1/2,2/3"]:
+        fail("standalone v and spelled mixed-axis plans differ")
+    if result["universum v1/2,2/3"] == result["universum v 1/2,2/3"]:
+        fail("component-local compact v was incorrectly promoted to global scope")
 
     # These negative-first historical branches print only the compact transformation
     # announcement.  An empty string is a handled zero-invocation plan;
@@ -1072,57 +1111,102 @@ def main() -> int:
     if "--spaltenreihenfolgeundnurdiese=1" not in positive_divisor[0]:
         fail("divider command did not narrow the Universe reciprocal columns")
 
-    collision_payload = result["universum v1/4,-1/8,2/3"]
-    collision = assert_domain_plan(
-        collision_payload,
+    local_collision = records(result["universum v1/4,-1/8,2/3"])
+    if len(local_collision) != 2:
+        fail(f"wrong component-local reciprocal collision count: {len(local_collision)}")
+    local_reciprocal = records_with(
+        local_collision,
+        "--Universum=transzendentaliereziproke",
+        "--spaltenreihenfolgeundnurdiese=1",
+    )
+    local_fraction = records_with(
+        local_collision,
+        "--gebrochen-rational_Universum_n/m=2",
+    )
+    if len(local_reciprocal) != 1 or len(local_fraction) != 1:
+        fail("component-local compact v lost its reciprocal or literal fraction axis")
+    expected_local_rows = set(range(4, 1024, 4)) - {8}
+    if set(row_values(local_reciprocal[0])) != expected_local_rows:
+        fail("component-local compact v expanded or subtracted the wrong reciprocal rows")
+    if set(row_values(local_fraction[0])) != {3}:
+        fail("unprefixed 2/3 was incorrectly expanded by an earlier compact v")
+
+    global_payload = result["universum v 1/4,-1/8,2/3"]
+    global_collision = assert_domain_plan(
+        global_payload,
         "--gebrochen-rational_Universum_n/m=",
         list(range(2, 21, 2)),
         set(range(3, 22, 3)),
         13,
     )
-    expected_collision_rows = {1, 2, 3, 6, 9} | {
+    expected_global_rows = {1, 2, 3, 6, 9} | {
         value for value in range(4, 1024, 4) if value % 8 != 0
     }
-    if set(row_values(collision[1])) != expected_collision_rows:
-        fail("reciprocal subtraction collision lost its independent row axis")
-    if set(row_values(collision[0])) != {1, 2, 3, 4, 6}:
-        fail("reciprocal collision changed the whole-number projection")
-    if set(row_values(collision[-1])) != {6, 12, 18}:
-        fail("reciprocal collision changed the equal-axis projection")
+    if set(row_values(global_collision[1])) != expected_global_rows:
+        fail("standalone v lost the global reciprocal subtraction scope")
+    if set(row_values(global_collision[0])) != {1, 2, 3, 4, 6}:
+        fail("standalone v changed the global whole-number projection")
+    if set(row_values(global_collision[-1])) != {6, 12, 18}:
+        fail("standalone v changed the global equal-axis projection")
 
-    if result["universum vielfache 1/4,-1/8,2/3"] != collision_payload:
-        fail("long-form vielfache did not inherit the complete fraction scope")
+    for positioned in (
+        "v universum 1/4,-1/8,2/3",
+        "universum 1/4,-1/8,2/3 v",
+        "universum vielfache 1/4,-1/8,2/3",
+    ):
+        if result[positioned] != global_payload:
+            fail(f"position-independent global multiple command drifted: {positioned}")
 
-    multi_collision = records(result["emotion universum v1/4,-1/8,2/3"])
-    if len(multi_collision) != 19:
-        fail(f"wrong two-domain reciprocal collision count: {len(multi_collision)}")
-    emotion_collision = records_with(
-        multi_collision,
+    local_multi = records(result["emotion universum v1/4,-1/8,2/3"])
+    if len(local_multi) != 4:
+        fail(f"wrong component-local two-domain collision count: {len(local_multi)}")
+    local_emotion_reciprocal = records_with(
+        local_multi,
         "--grundstrukturen=emotion",
         "--spaltenreihenfolgeundnurdiese=4,5",
     )
-    universe_collision = records_with(
-        multi_collision,
+    local_universe_reciprocal = records_with(
+        local_multi,
         "--Universum=transzendentaliereziproke",
         "--spaltenreihenfolgeundnurdiese=1",
     )
-    if len(emotion_collision) != 1 or len(universe_collision) != 1:
-        fail("two-domain collision lost a unique reciprocal projection")
-    expected_emotion_collision = {1, 3} | {
+    if len(local_emotion_reciprocal) != 1 or len(local_universe_reciprocal) != 1:
+        fail("component-local two-domain collision lost a reciprocal projection")
+    if set(row_values(local_emotion_reciprocal[0])) != expected_local_rows:
+        fail("Emotion component-local reciprocal rows drifted")
+    if set(row_values(local_universe_reciprocal[0])) != expected_local_rows:
+        fail("Universe component-local reciprocal rows drifted")
+
+    global_multi = records(result["emotion universum v 1/4,-1/8,2/3"])
+    if len(global_multi) != 19:
+        fail(f"wrong global two-domain reciprocal collision count: {len(global_multi)}")
+    global_emotion_reciprocal = records_with(
+        global_multi,
+        "--grundstrukturen=emotion",
+        "--spaltenreihenfolgeundnurdiese=4,5",
+    )
+    global_universe_reciprocal = records_with(
+        global_multi,
+        "--Universum=transzendentaliereziproke",
+        "--spaltenreihenfolgeundnurdiese=1",
+    )
+    if len(global_emotion_reciprocal) != 1 or len(global_universe_reciprocal) != 1:
+        fail("global two-domain collision lost a reciprocal projection")
+    expected_global_emotion = {1, 3} | {
         value for value in range(4, 1024, 4) if value % 8 != 0
     }
-    if set(row_values(emotion_collision[0])) != expected_emotion_collision:
-        fail("Emotion collision did not preserve compact-v subtraction scope")
-    if set(row_values(universe_collision[0])) != expected_collision_rows:
-        fail("Universe collision changed inside the two-domain plan")
+    if set(row_values(global_emotion_reciprocal[0])) != expected_global_emotion:
+        fail("Emotion global reciprocal subtraction scope drifted")
+    if set(row_values(global_universe_reciprocal[0])) != expected_global_rows:
+        fail("Universe global reciprocal subtraction scope drifted")
     assert_fraction_rectangle(
-        multi_collision,
+        global_multi,
         "--gebrochen-rational_Gefuehle_n/m=",
         list(range(2, 9, 2)),
         {3, 6},
     )
     assert_fraction_rectangle(
-        multi_collision,
+        global_multi,
         "--gebrochen-rational_Universum_n/m=",
         list(range(2, 21, 2)),
         set(range(3, 22, 3)),
@@ -1135,13 +1219,20 @@ def main() -> int:
     assert_direct_execution(
         result["universum motive v2/3"], runner, expected_count=26
     )
-    assert_direct_execution(result["universum v1/2,2/3"], runner)
+    assert_direct_execution(result["universum v1/2,2/3"], runner, expected_count=2)
+    assert_direct_execution(result["universum v 1/2,2/3"], runner)
     assert_direct_execution(
         result["universum v1/4,-2/3"], runner, expected_count=1
     )
     assert_direct_execution(result["universum v1/4,-1/8,2/3"], runner)
+    assert_direct_execution(result["universum v 1/4,-1/8,2/3"], runner)
     assert_direct_execution(
         result["emotion universum v1/4,-1/8,2/3"],
+        runner,
+        expected_count=4,
+    )
+    assert_direct_execution(
+        result["emotion universum v 1/4,-1/8,2/3"],
         runner,
         expected_count=19,
     )
@@ -1165,7 +1256,7 @@ def main() -> int:
         "true fraction multiples: Python crashes reproduced; "
         "Mojo contract 13/13, mixed bounds, negative no-op branches, "
         "positive-first reciprocal-only and reciprocal-collision branches with "
-        "full compact-v scope, domain-specific 26/26 and 44-plan grids, "
+        "component-local compact-v and position-independent global-v scope, "
         "multi-domain property/numeric "
         "extensions, combined classic/property/catalog outer order, and direct "
         "invocations valid"

@@ -749,13 +749,19 @@ Der historische Assetgate ist jetzt vollständig read-only. Fünf gepinnte SHA-2
 - [x] Prüfstandsdefekt und Sourcevertrag dokumentieren.
 - [ ] Benutzerseitig `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bo.sh -- -j 4` ausführen.
 
-## Stage 12c5bp – vollständiger Geltungsbereich kommagetrennter Bruchvielfacher
+## Stage 12c5bp – korrigierter Zwischenstand
 
-- [x] Den verlorenen Geltungsbereich des führenden `v` nach dem äußeren
-  Komma-Split lokalisieren.
-- [x] Den Vielfachenmodus an alle Bruchkomponenten desselben Tokens vererben.
-- [x] `vielfache 1/4,-1/8,2/3` und `v1/4,-1/8,2/3` auf denselben Plan
-  normalisieren.
-- [x] 13-Aufruf-Einzeldomänen- und 19-Aufruf-Mehrdomänenvertrag binden.
-- [x] Den Python-Absturz weiterhin über `PY-OPEN-002` statt als Duplikat führen.
-- [ ] Benutzerseitig `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bp.sh -- -j 4` ausführen.
+- [x] Die fehlende Trennung lokaler und globaler Vielfachenschreibweisen
+  lokalisieren.
+- [x] Den zunächst zu weit gefassten Kompakt-v-Vertrag als durch 12c5bq
+  korrigiert kennzeichnen.
+
+## Stage 12c5bq – kommalokales Präfix und globales positionsfreies v
+
+- [x] Python-Referenz für `v` an erster, mittlerer und letzter Wortposition
+  ausführbar binden.
+- [x] Kompakte Präfixe pro Kommakomponente statt pro Gesamttoken auswerten.
+- [x] Eigenständiges `v` und `vielfache` global auf alle Bruchpaare anwenden.
+- [x] Lokale 2-/4-Aufruf- und globale 13-/19-Aufrufverträge trennen.
+- [x] Defekt `MOJO-FIXED-067` auf den tatsächlichen Scope-Overreach korrigieren.
+- [ ] Benutzerseitig `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bq.sh -- -j 4` ausführen.

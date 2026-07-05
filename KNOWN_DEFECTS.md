@@ -23,10 +23,10 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 
 ## Übersicht
 
-- Einträge insgesamt: **153**
-- offene bestätigte Python-Fehler: **6**
+- Einträge insgesamt: **155**
+- offene bestätigte Python-Fehler: **4**
 - zu entscheidende Python-Fehlerkandidaten: **13**
-- bereits im Python-Baum behobene Fehler: **7**
+- bereits im Python-Baum behobene Fehler: **9**
 
 ## Einträge
 
@@ -277,27 +277,27 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 
 - Ursprung: `python_reference_tests`
 - Klasse / Schwere: `test_bug` / `low`
-- Python-Status: `open`
+- Python-Status: `fixed`
 - Mojo-Status: `not_applicable`
 - entdeckt in: `upload-baseline`
 - Reproduktion: `python3 -m pytest -q python_reference/tests/test_architecture_refactor.py::ArchitectureRefactorTests::test_program_workflow_layer_is_explicit`
-- heutiger Vertrag: Der aktuelle Snapshot enthält load_religion_table; der Test sucht noch den älteren Namen load_/religion_table.
-- spätere Python-Aktion: Den fachlich gültigen Orchestrierungsnamen bestätigen und die Testassertion auf den aktuellen stabilen Namen aktualisieren.
+- heutiger Vertrag: Der Workflow-Snapshottest erwartet den tatsächlich veröffentlichten Orchestrierungsschritt load_religion_table; der historische Tippfehler load_/religion_table ist entfernt.
+- spätere Python-Aktion: Erledigt in Stage 12c5bq; der Test bindet nun den realen stabilen Schrittnamen.
 - Python-Orte: `python_reference/tests/test_architecture_refactor.py:732-740`
-- Belege: `MIGRATION_NOTES.md`, `TEST_RESULTS.md`, `STAGE12C4S_DEFECT_BACKFILL_NATIVE_CONTROL_MAINS.md`, `scripts/check_documented_python_baseline.py`
+- Belege: `STAGE12C5BQ_POSITION_INDEPENDENT_MULTIPLE_SCOPE.md`, `python_reference/tests/test_architecture_refactor.py`, `tests/test_stage12c5bq_source.py`
 
 ### PY-OPEN-006 – Python-Progress-Test sucht Git-Metadaten im eingefrorenen Unterbaum
 
 - Ursprung: `python_reference_tests`
 - Klasse / Schwere: `test_bug` / `low`
-- Python-Status: `open`
+- Python-Status: `fixed`
 - Mojo-Status: `not_applicable`
 - entdeckt in: `12c5at`
 - Reproduktion: `python3 -m pytest -q python_reference/tests/test_architecture_refactor.py::ArchitectureRefactorRegressionTest::test_architecture_progress_layer_is_explicit`
-- heutiger Vertrag: REPO_ROOT zeigt innerhalb des eingefrorenen Referenzbaums auf python_reference. Die Git-Metadaten liegen jedoch im Projektwurzelverzeichnis. Der Snapshot meldet deshalb korrekt outstanding_work=0 und status=passed, während der Test fälschlich den Zweig ohne Repositorymetadaten nimmt und mindestens einen offenen Punkt verlangt.
-- spätere Python-Aktion: Die Umgebungsentscheidung vom fachlichen Snapshotvertrag trennen oder die tatsächliche Projektwurzel robust bestimmen; anschließend bei status=passed unabhängig vom Ablageort exakt null offene Punkte erwarten.
+- heutiger Vertrag: REPO_ROOT bezeichnet python_reference; der Test prüft Git-Metadaten deshalb im tatsächlichen Projektwurzelverzeichnis REPO_ROOT.parent und erwartet bei vollständig vorhandenem Referenzbestand exakt null offene Punkte.
+- spätere Python-Aktion: Erledigt in Stage 12c5bq durch robuste Bestimmung der Projektwurzel.
 - Python-Orte: `python_reference/tests/test_architecture_refactor.py:1773-1780`
-- Belege: `STAGE12C5AT_NATIVE_PROMPT_EXECUTION.md`, `tests/test_documented_python_defects.py`
+- Belege: `STAGE12C5BQ_POSITION_INDEPENDENT_MULTIPLE_SCOPE.md`, `python_reference/tests/test_architecture_refactor.py`, `tests/test_stage12c5bq_source.py`
 
 ### PY-CAND-005 – Kanonischer Parameteralias hängt bei set-Einträgen von Python-Hashreihenfolge ab
 
@@ -2071,16 +2071,42 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 - Mojo-Orte: `scripts/check_prompt_true_fraction_multiples.py`, `scripts/test_stage12c5bo.sh`, `tests/test_prompt_positive_first_fraction_multiple_source.py`, `tests/test_stage12c5bo_source.py`
 - Belege: `STAGE12C5BO_CANONICAL_EMOTION_OPTION_CHECK.md`, `scripts/check_prompt_true_fraction_multiples.py`, `tests/test_prompt_positive_first_fraction_multiple_source.py`, `tests/test_stage12c5bo_source.py`
 
-### MOJO-FIXED-067 – Führendes v verlor beim Komma-Split seinen vollständigen Bruchgeltungsbereich
+### MOJO-FIXED-067 – Kompaktes v wurde fälschlich auf die gesamte Bruch-Kommaliste ausgeweitet
 
 - Ursprung: `mojo_port`
-- Klasse / Schwere: `compact_v_fraction_scope_loss` / `high`
+- Klasse / Schwere: `compact_v_fraction_scope_overreach` / `high`
+- Python-Status: `correct_reference`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5bp/12c5bq`
+- Reproduktion: `Die Pläne für universum v1/4,-1/8,2/3 und universum v 1/4,-1/8,2/3 vergleichen. Python wertet ein an eine Komponente angeheftetes v nur für diese Komponente aus; ein eigenständiges v oder vielfache ist dagegen in der gesamten Wortliste positionsunabhängig global.`
+- heutiger Vertrag: Kompakte Präfixe sind kommalokal: v1/4,-1/8,2/3 markiert nur 1/4 als Vielfaches, während 1/4,v-1/8,v2/3 die jeweiligen späteren Komponenten markiert. Ein eigenständiges v beziehungsweise vielfache gilt global und darf vor, zwischen oder nach den übrigen Wörtern stehen. Der lokale Universums-Kollisionsplan besitzt 2 Aufrufe, der globale 13; Emotion plus Universum besitzt lokal 4 und global 19 Aufrufe.
+- spätere Python-Aktion: Keine Python-Korrektur erforderlich. Diese Unterscheidung ist Referenzsemantik und muss bei späteren Änderungen an PY-OPEN-002 erhalten bleiben.
+- Python-Orte: `python_reference/reta_architecture/prompt_execution.py`
+- Mojo-Orte: `src/reta_mojo/prompt_table_execution.mojo`, `tests/test_prompt_table_execution.mojo`, `tests/prompt_true_fraction_multiple_probe.mojo`, `scripts/check_prompt_true_fraction_multiples.py`, `tests/test_python_fraction_multiple_scope_reference.py`, `tests/test_prompt_fraction_multiple_scope_source.py`
+- Belege: `STAGE12C5BQ_POSITION_INDEPENDENT_MULTIPLE_SCOPE.md`, `tests/test_python_fraction_multiple_scope_reference.py`, `tests/test_prompt_fraction_multiple_scope_source.py`, `tests/test_prompt_table_execution.mojo`, `scripts/check_prompt_true_fraction_multiples.py`
+
+### TEST-FIXED-062 – Architekturfortschrittstest suchte den Git-Marker eine Verzeichnisebene zu tief
+
+- Ursprung: `test_infrastructure`
+- Klasse / Schwere: `repository_root_git_marker_mismatch` / `low`
 - Python-Status: `not_applicable`
 - Mojo-Status: `fixed`
-- entdeckt in: `12c5bd/12c5bp`
-- Reproduktion: `universum v1/4,-1/8,2/3 oder emotion universum v1/4,-1/8,2/3 über plan_prompt_table_commands ausführen; der äußere Parser teilte den Kommaausdruck vor der Bruchanalyse und markierte nur 1/4 als Vielfaches, sodass der vorhandene positive-first-Kollisionszweig unerreichbar blieb und FALLBACK lieferte.`
-- heutiger Vertrag: Ein führendes kompaktes v gilt für sämtliche Bruchkomponenten desselben kommagetrennten Ausdrucks. Die ausgeschriebene Form vielfache 1/4,-1/8,2/3 normalisiert auf denselben typisierten Plan. Dadurch sind der 13-Aufruf-Universumsplan und der 19-Aufruf-Emotion/Universum-Plan erreichbar; jede Domäne behält ihr eigenes physisches Bruchrechteck und ihre eigene reziproke Differenzachse.
-- spätere Python-Aktion: Keine zusätzliche Python-Aufgabe anlegen: Der Python-Absturz dieser Formen ist bereits zentral als PY-OPEN-002 erfasst. Bei dessen späterer Reparatur muss das führende v ebenfalls über die vollständige Kommaliste gelten und mit der ausgeschriebenen vielfache-Form übereinstimmen.
-- Python-Orte: `python_reference/reta_architecture/prompt_execution.py`
-- Mojo-Orte: `src/reta_mojo/prompt_table_execution.mojo`, `tests/test_prompt_table_execution.mojo`, `tests/prompt_true_fraction_multiple_probe.mojo`, `scripts/check_prompt_true_fraction_multiples.py`, `tests/test_prompt_fraction_multiple_scope_source.py`
-- Belege: `STAGE12C5BP_FRACTION_MULTIPLE_SCOPE.md`, `tests/test_prompt_fraction_multiple_scope_source.py`, `tests/test_prompt_table_execution.mojo`, `scripts/check_prompt_true_fraction_multiples.py`
+- entdeckt in: `12c5bq`
+- Reproduktion: `scripts/run_pytest.sh -q -x im Projektwurzelverzeichnis ausführen; python_reference/tests/test_architecture_refactor.py prüfte python_reference/.git statt .git im tatsächlichen Projektwurzelverzeichnis und erwartete dadurch fälschlich ausstehende Restaurierungsarbeit.`
+- heutiger Vertrag: REPO_ROOT bezeichnet innerhalb des Referenztests python_reference. Der Git-Marker des Gesamtprojekts wird deshalb ausdrücklich über REPO_ROOT.parent geprüft; ein Checkout mit vollständigem Referenzbestand erwartet weiterhin null ausstehende Architekturarbeiten.
+- spätere Python-Aktion: Keine Produktionsänderung erforderlich. Dies war ausschließlich eine falsche Testpfadauflösung.
+- Mojo-Orte: `python_reference/tests/test_architecture_refactor.py`, `tests/test_stage12c5bq_source.py`
+- Belege: `STAGE12C5BQ_POSITION_INDEPENDENT_MULTIPLE_SCOPE.md`, `python_reference/tests/test_architecture_refactor.py`, `tests/test_stage12c5bq_source.py`
+
+### TEST-FIXED-063 – Architektur-Workflowtest erwartete einen nicht existierenden Schritt mit eingeschobenem Schrägstrich
+
+- Ursprung: `test_infrastructure`
+- Klasse / Schwere: `workflow_snapshot_step_name_typo` / `low`
+- Python-Status: `not_applicable`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5bq`
+- Reproduktion: `scripts/run_pytest.sh -q -x ausführen; test_program_workflow_layer_is_explicit erwartete load_/religion_table, während ProgramWorkflowBundle seit seiner Einführung den realen Schritt load_religion_table ausgibt.`
+- heutiger Vertrag: Der Architektur-Regressionstest bindet den tatsächlich im ProgramWorkflowBundle veröffentlichten Orchestrierungsschritt load_religion_table und weiterhin join_kombi_tables.
+- spätere Python-Aktion: Keine Produktionsänderung erforderlich. Die Abweichung war ein einzelner Tippfehler in der historischen Testassertion.
+- Mojo-Orte: `python_reference/tests/test_architecture_refactor.py`, `tests/test_stage12c5bq_source.py`
+- Belege: `STAGE12C5BQ_POSITION_INDEPENDENT_MULTIPLE_SCOPE.md`, `python_reference/tests/test_architecture_refactor.py`, `tests/test_stage12c5bq_source.py`

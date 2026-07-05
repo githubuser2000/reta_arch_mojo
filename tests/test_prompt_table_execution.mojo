@@ -469,16 +469,22 @@ def test_true_fraction_multiples_follow_each_csv_rectangle() raises:
     assert_true("_Universum_n/m=8" in _tokens(clipped_domains, 1))
     assert_true("_Universum_n/m=16" in _tokens(clipped_domains, 2))
 
-    # Mixed reciprocal and true fraction multiples split their bounds: 1/n
-    # uses rows below 1024, while every n/m domain stays inside its own physical
-    # rectangle.
+    # Compact v is component-local: only 1/2 expands, while 2/3 remains one
+    # literal fraction in each selected domain.
     var multi_mixed = _plan("emotion universum v1/2,2/3")
     assert_true(multi_mixed.handled)
-    assert_equal(len(multi_mixed.invocations), 19)
-    assert_true("--grundstrukturen=emotion" in _tokens(multi_mixed, 1))
-    assert_true(",1018,1020,1022" in _tokens(multi_mixed, 1))
-    assert_true("--Universum=transzendentaliereziproke" in _tokens(multi_mixed, 7))
-    assert_true(",1018,1020,1022" in _tokens(multi_mixed, 7))
+    assert_equal(len(multi_mixed.invocations), 4)
+    assert_true("--grundstrukturen=emotion" in _tokens(multi_mixed, 0))
+    assert_true(",1018,1020,1022" in _tokens(multi_mixed, 0))
+    assert_true("--gebrochen-rational_Gefuehle_n/m=2" in _tokens(multi_mixed, 1))
+    assert_true("--vorhervonausschnitt=3" in _tokens(multi_mixed, 1))
+    assert_true("--Universum=transzendentaliereziproke" in _tokens(multi_mixed, 2))
+    assert_true(",1018,1020,1022" in _tokens(multi_mixed, 2))
+    assert_true("--gebrochen-rational_Universum_n/m=2" in _tokens(multi_mixed, 3))
+
+    var global_multi_mixed = _plan("emotion universum v 1/2,2/3")
+    assert_true(global_multi_mixed.handled)
+    assert_equal(len(global_multi_mixed.invocations), 19)
 
     # Positive ordinary integer axes preserve their multiple semantics beside
     # corrected proper-fraction projections.  The projected whole rows stay
@@ -540,15 +546,19 @@ def test_true_fraction_multiples_follow_each_csv_rectangle() raises:
 
     var mixed_integer_axis = _plan("emotion universum v1/2,2/3,5")
     assert_true(mixed_integer_axis.handled)
-    assert_equal(len(mixed_integer_axis.invocations), 19)
+    assert_equal(len(mixed_integer_axis.invocations), 6)
     assert_true("--vielfachevonzahlen=5" in _tokens(mixed_integer_axis, 0))
     assert_true(",5,v5" in _tokens(mixed_integer_axis, 0))
-    assert_true("--vielfachevonzahlen=5" in _tokens(mixed_integer_axis, 6))
+    assert_true("--vielfachevonzahlen=5" in _tokens(mixed_integer_axis, 3))
     assert_true(
         "--Universum=transzendentaliereziproke"
-        in _tokens(mixed_integer_axis, 7)
+        in _tokens(mixed_integer_axis, 4)
     )
-    assert_false("--vielfachevonzahlen=" in _tokens(mixed_integer_axis, 7))
+    assert_false("--vielfachevonzahlen=" in _tokens(mixed_integer_axis, 4))
+
+    var global_mixed_integer_axis = _plan("emotion universum v 1/2,2/3,5")
+    assert_true(global_mixed_integer_axis.handled)
+    assert_equal(len(global_mixed_integer_axis.invocations), 19)
 
     # Comma-local zero and exclusion components have a stable outer integer
     # axis even though Python's inner n/m rectangle is defective.  Preserve
@@ -740,23 +750,27 @@ def test_true_fraction_multiples_follow_each_csv_rectangle() raises:
 
     var mixed_axes = _plan("universum v1/2,2/3")
     assert_true(mixed_axes.handled)
-    assert_equal(len(mixed_axes.invocations), 13)
+    assert_equal(len(mixed_axes.invocations), 2)
     assert_true(
-        "--vorhervonausschnitt=2,1,4,6,3" in _tokens(mixed_axes, 0)
+        "--Universum=transzendentaliereziproke" in _tokens(mixed_axes, 0)
     )
+    assert_true(",1018,1020,1022" in _tokens(mixed_axes, 0))
     assert_true(
-        "--vorhervonausschnitt=1,2,3,4,6,8,9,10"
-        in _tokens(mixed_axes, 1)
+        "--gebrochen-rational_Universum_n/m=2" in _tokens(mixed_axes, 1)
     )
-    assert_true(",1018,1020,1022" in _tokens(mixed_axes, 1))
-    assert_true(
-        "--gebrochen-rational_Universum_n/m=20"
-        in _tokens(mixed_axes, 11)
-    )
+    assert_true("--vorhervonausschnitt=3" in _tokens(mixed_axes, 1))
+
+    var mixed_global = _plan("universum v 1/2,2/3")
+    assert_true(mixed_global.handled)
+    assert_equal(len(mixed_global.invocations), 13)
     var mixed_spelled = _plan("universum vielfache 1/2,2/3")
     assert_equal(
         serialize_prompt_table_plan(mixed_spelled),
-        serialize_prompt_table_plan(mixed_axes),
+        serialize_prompt_table_plan(mixed_global),
+    )
+    assert_false(
+        serialize_prompt_table_plan(mixed_axes)
+        == serialize_prompt_table_plan(mixed_global)
     )
     var mixed_english = _plan("universe multiple 1/2,2/3", "english")
     assert_true(mixed_english.handled)
@@ -798,42 +812,68 @@ def test_true_fraction_multiples_follow_each_csv_rectangle() raises:
     assert_equal(len(positive_first_divisor.invocations), 1)
     assert_true("--spaltenreihenfolgeundnurdiese=1" in _tokens(positive_first_divisor))
 
-    # The frozen Python reference crashes here.  Mojo owns the independently
-    # bounded reciprocal subtraction and proper-fraction rectangle instead.
-    var reciprocal_collision = _plan("universum v1/4,-1/8,2/3")
-    assert_true(reciprocal_collision.handled)
-    assert_equal(len(reciprocal_collision.invocations), 13)
-    assert_true("--Universum=transzendentalien" in _tokens(reciprocal_collision, 0))
-    assert_true("--Universum=transzendentaliereziproke" in _tokens(reciprocal_collision, 1))
-    assert_true(
-        "--vorhervonausschnitt=1,2,3,4,516,6,9,12,524"
-        in _tokens(reciprocal_collision, 1)
-    )
-    assert_true(",1004,500,1012,508" in _tokens(reciprocal_collision, 1))
-    assert_false(",8," in _tokens(reciprocal_collision, 1))
-    assert_true("--gebrochen-rational_Universum_n/m=20" in _tokens(reciprocal_collision, 11))
-
-    var long_reciprocal_collision = _plan(
-        "universum vielfache 1/4,-1/8,2/3"
-    )
-    assert_true(long_reciprocal_collision.handled)
-    assert_equal(
-        serialize_prompt_table_plan(long_reciprocal_collision),
-        serialize_prompt_table_plan(reciprocal_collision),
-    )
-
-    var multi_reciprocal_collision = _plan(
-        "emotion universum v1/4,-1/8,2/3"
-    )
-    assert_true(multi_reciprocal_collision.handled)
-    assert_equal(len(multi_reciprocal_collision.invocations), 19)
-    assert_true("--grundstrukturen=emotion" in _tokens(multi_reciprocal_collision, 1))
+    # Compact v belongs only to its own comma component.  The first reciprocal
+    # expands, -1/8 removes one row, and the unprefixed 2/3 stays literal.
+    var local_reciprocal_collision = _plan("universum v1/4,-1/8,2/3")
+    assert_true(local_reciprocal_collision.handled)
+    assert_equal(len(local_reciprocal_collision.invocations), 2)
     assert_true(
         "--Universum=transzendentaliereziproke"
-        in _tokens(multi_reciprocal_collision, 7)
+        in _tokens(local_reciprocal_collision, 0)
     )
-    assert_false(",8," in _tokens(multi_reciprocal_collision, 1))
-    assert_false(",8," in _tokens(multi_reciprocal_collision, 7))
+    assert_true("--vorhervonausschnitt=4,516,12,524" in _tokens(local_reciprocal_collision, 0))
+    assert_false(",8," in _tokens(local_reciprocal_collision, 0))
+    assert_true(
+        "--gebrochen-rational_Universum_n/m=2"
+        in _tokens(local_reciprocal_collision, 1)
+    )
+    assert_true("--vorhervonausschnitt=3" in _tokens(local_reciprocal_collision, 1))
+
+    # Standalone v/vielfache is global and position-independent in the Python
+    # command list.  It expands every fraction component.
+    var global_reciprocal_collision = _plan("universum v 1/4,-1/8,2/3")
+    assert_true(global_reciprocal_collision.handled)
+    assert_equal(len(global_reciprocal_collision.invocations), 13)
+    assert_true("--Universum=transzendentalien" in _tokens(global_reciprocal_collision, 0))
+    assert_true("--Universum=transzendentaliereziproke" in _tokens(global_reciprocal_collision, 1))
+    assert_true(
+        "--vorhervonausschnitt=1,2,3,4,516,6,9,12,524"
+        in _tokens(global_reciprocal_collision, 1)
+    )
+    assert_true(",1004,500,1012,508" in _tokens(global_reciprocal_collision, 1))
+    assert_false(",8," in _tokens(global_reciprocal_collision, 1))
+    assert_true("--gebrochen-rational_Universum_n/m=20" in _tokens(global_reciprocal_collision, 11))
+
+    for positioned in [
+        "v universum 1/4,-1/8,2/3",
+        "universum 1/4,-1/8,2/3 v",
+        "universum vielfache 1/4,-1/8,2/3",
+    ]:
+        var positioned_plan = _plan(positioned)
+        assert_true(positioned_plan.handled)
+        assert_equal(
+            serialize_prompt_table_plan(positioned_plan),
+            serialize_prompt_table_plan(global_reciprocal_collision),
+        )
+
+    var local_multi_collision = _plan(
+        "emotion universum v1/4,-1/8,2/3"
+    )
+    assert_true(local_multi_collision.handled)
+    assert_equal(len(local_multi_collision.invocations), 4)
+
+    var global_multi_collision = _plan(
+        "emotion universum v 1/4,-1/8,2/3"
+    )
+    assert_true(global_multi_collision.handled)
+    assert_equal(len(global_multi_collision.invocations), 19)
+    assert_true("--grundstrukturen=emotion" in _tokens(global_multi_collision, 1))
+    assert_true(
+        "--Universum=transzendentaliereziproke"
+        in _tokens(global_multi_collision, 7)
+    )
+    assert_false(",8," in _tokens(global_multi_collision, 1))
+    assert_false(",8," in _tokens(global_multi_collision, 7))
 
     _emit_true_fraction_multiple_plan("universum v2/3")
     _emit_true_fraction_multiple_plan("universum vielfache 2/3")

@@ -1333,16 +1333,24 @@ Vier vollständig native Diagnoseoberflächen teilen seit Stage 12c5z eine versi
 - Der gemeldete Fehler nach dem erfolgreichen Vollbuild ist als
   `TEST-FIXED-061` dokumentiert.
 
-## Stage 12c5bp
+## Stage 12c5bp – korrigierter Zwischenstand
 
-- Das Präfix `v` eines kommagetrennten Bruchausdrucks besitzt nun einen
-  expliziten typisierten Geltungsbereich und wird beim äußeren Split nicht mehr
-  auf die erste Komponente verengt.
-- Ein eigenständiges `vielfache`/`v` normalisiert sämtliche bereits geparsten
-  Bruchpaare auf denselben Modus; Kompakt- und Langform sind planidentisch.
-- Der positive-First-Kollisionswächter ist dadurch tatsächlich erreichbar.
-  Universum materialisiert 13, Emotion plus Universum 19 geordnete Aufrufe.
-- Gewöhnliche Ganzzahlkomponenten eines gemischten Ausdrucks erben den
-  Bruchmodus nicht und bleiben eine separate äußere Achse.
-- Der entsprechende Python-Absturz ist schon `PY-OPEN-002`;
-  `MOJO-FIXED-067` dokumentiert ausschließlich die Mojo-Parserlücke.
+- Der Stage-Lauf deckte die fehlende Unterscheidung zwischen kompaktem Präfix
+  und eigenständigem Vielfachenwort auf.
+- Die erste Reparatur vererbte ein führendes kompaktes `v` zu weit auf die
+  gesamte Kommaliste; Stage 12c5bq ersetzt diese Annahme.
+
+## Stage 12c5bq
+
+- `_parse_fraction_token` setzt den Vielfachenmodus für jede Kommakomponente
+  neu. Präfixe wie `v1/4` oder `v-1/8` bleiben lokal.
+- `_fraction_pairs_with_multiple_scope` verarbeitet ausschließlich das
+  eigenständige, positionsunabhängige `v` beziehungsweise `vielfache`.
+- Nicht markierte echte Brüche werden einmal als Literalachse projektiert; nur
+  markierte Komponenten werden im physischen Rechteck expandiert.
+- Reziproke Ausschlüsse sind lokal einzelne Zeilen und global Vielfachenmengen.
+- Gebundene Größen: lokal 2/4, global 13/19 Aufrufe für Einzel-/Mehrdomäne.
+- `tests/test_python_fraction_multiple_scope_reference.py` prüft den Python-Code
+  direkt und schützt die Sprachregel unabhängig vom Mojo-Prüfer.
+
+- Der breite Python-Audit korrigiert zusätzlich zwei reine historische Testpfade: Projekt-Gitmarker über `REPO_ROOT.parent` und den realen Workflow-Schritt `load_religion_table`.

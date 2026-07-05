@@ -29,13 +29,15 @@ def test_mixed_universe_contract_is_no_longer_a_fallback() -> None:
     command = "universum v1/2,2/3"
     assert f'var mixed_axes = _plan("{command}")' in test_source
     assert "assert_true(mixed_axes.handled)" in test_source
-    assert "assert_equal(len(mixed_axes.invocations), 13)" in test_source
+    assert "assert_equal(len(mixed_axes.invocations), 2)" in test_source
     assert f'_emit("{command}")' in probe
     assert '_emit("universum vielfache 1/2,2/3")' in probe
     assert f'result["{command}"] != "FALLBACK"' not in checker
-    assert "expected_reciprocals = set(range(2, 1024, 2)) | {1, 3, 9}" in checker
-    assert "assert_direct_execution(result[\"universum v1/2,2/3\"], runner)" in checker
-    assert 'result["universum vielfache 1/2,2/3"] != result["universum v1/2,2/3"]' in checker
+    assert "component-local reciprocal axis did not remain independent" in checker
+    assert 'result["universum v 1/2,2/3"]' in checker
+    assert "assert_direct_execution(result[\"universum v1/2,2/3\"], runner, expected_count=2)" in checker
+    assert 'result["universum vielfache 1/2,2/3"] != result["universum v 1/2,2/3"]' in checker
+    assert 'result["universum v1/2,2/3"] == result["universum v 1/2,2/3"]' in checker
     assert 'var excluded_reciprocal = _plan("universum v-1/4,2/3")' in test_source
     assert 'assert_true(excluded_reciprocal.handled)' in test_source
     assert 'var negative_true_fraction = _plan("universum v-2/3")' in test_source
@@ -48,8 +50,10 @@ def test_mixed_universe_contract_is_no_longer_a_fallback() -> None:
     assert 'var positive_first_half = _plan("universum v1/2,-2/3")' in test_source
     assert 'var positive_first_emotion = _plan("emotion v1/4,-2/3")' in test_source
     assert 'var positive_first_divisor = _plan("universum v1/4,-2/3 teiler")' in test_source
-    assert 'var reciprocal_collision = _plan("universum v1/4,-1/8,2/3")' in test_source
-    assert 'assert_equal(len(reciprocal_collision.invocations), 13)' in test_source
+    assert 'var local_reciprocal_collision = _plan("universum v1/4,-1/8,2/3")' in test_source
+    assert 'assert_equal(len(local_reciprocal_collision.invocations), 2)' in test_source
+    assert 'var global_reciprocal_collision = _plan("universum v 1/4,-1/8,2/3")' in test_source
+    assert 'assert_equal(len(global_reciprocal_collision.invocations), 13)' in test_source
     assert '"universum v-2/3,1/4",' in checker
     assert 'positive_first = records(result["universum v1/4,-2/3"])' in checker
     assert 'set(range(4, 1024, 4))' in checker

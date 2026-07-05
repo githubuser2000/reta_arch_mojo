@@ -33,8 +33,10 @@ def test_runtime_contract_covers_universe_emotion_and_divider_variants() -> None
         assert f'"{command}"' in checker
     assert "positive-first reciprocal-only and reciprocal-collision branches" in checker
     assert "--gebrochen-rational_" in checker
-    assert 'var reciprocal_collision = _plan("universum v1/4,-1/8,2/3")' in mojo
-    assert 'assert_equal(len(reciprocal_collision.invocations), 13)' in mojo
+    assert 'var local_reciprocal_collision = _plan("universum v1/4,-1/8,2/3")' in mojo
+    assert 'assert_equal(len(local_reciprocal_collision.invocations), 2)' in mojo
+    assert 'var global_reciprocal_collision = _plan("universum v 1/4,-1/8,2/3")' in mojo
+    assert 'assert_equal(len(global_reciprocal_collision.invocations), 13)' in mojo
 
 
 def test_direct_native_execution_is_required_for_the_new_single_axis_plan() -> None:

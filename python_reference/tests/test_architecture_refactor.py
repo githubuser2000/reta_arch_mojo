@@ -734,7 +734,7 @@ class ArchitectureRefactorRegressionTest(unittest.TestCase):
         snapshot = program_workflow.snapshot()
         self.assertIsInstance(program_workflow, ProgramWorkflowBundle)
         self.assertEqual(snapshot["class"], "ProgramWorkflowBundle")
-        self.assertIn("load_/religion_table", snapshot["orchestration_steps"])
+        self.assertIn("load_religion_table", snapshot["orchestration_steps"])
         self.assertIn("join_kombi_tables", snapshot["orchestration_steps"])
         self.assertEqual(len(snapshot["kombi_csvs"]), 2)
         self.assertTrue(hasattr(self.architecture, "program_workflow"))
@@ -1772,7 +1772,7 @@ class ArchitectureRefactorRegressionTest(unittest.TestCase):
             self.assertIn(wave_id, wave_ids)
         remaining_titles = {item["title"] for item in snapshot["outstanding_work"]}
         self.assertNotIn("Extract remaining tag/data owner from lib4tables_Enum", remaining_titles)
-        if (REPO_ROOT / ".git").exists() or Path("/mnt/data/reta.todel.zip").exists():
+        if (REPO_ROOT.parent / ".git").exists() or Path("/mnt/data/reta.todel.zip").exists():
             self.assertEqual(snapshot["counts"]["outstanding_work"], 0)
             self.assertEqual(snapshot["validation"]["status"], "passed")
             self.assertEqual(remaining_titles, set())

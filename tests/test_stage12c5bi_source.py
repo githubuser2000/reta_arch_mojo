@@ -30,9 +30,9 @@ def test_reported_true_fraction_failure_uses_the_real_domain_boundary() -> None:
     test = (ROOT / "tests/test_prompt_table_execution.mojo").read_text(
         encoding="utf-8"
     )
-    assert '"--vielfachevonzahlen=5" in _tokens(mixed_integer_axis, 6)' in test
+    assert '"--vielfachevonzahlen=5" in _tokens(mixed_integer_axis, 3)' in test
     assert '"--Universum=transzendentaliereziproke"' in test
-    assert 'assert_false("--vielfachevonzahlen=" in _tokens(mixed_integer_axis, 7))' in test
+    assert 'assert_false("--vielfachevonzahlen=" in _tokens(mixed_integer_axis, 4))' in test
 
 
 def test_full_test_wrapper_separates_compile_and_runtime_parallelism() -> None:

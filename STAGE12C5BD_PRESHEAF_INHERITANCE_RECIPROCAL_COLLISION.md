@@ -25,7 +25,7 @@ Der neue exakte Vertrag lautet:
 Der korrigierte Mojo-Pfad besitzt nun auch:
 
 ```text
-universum v1/4,-1/8,2/3
+universum v 1/4,-1/8,2/3
 ```
 
 Die eingefrorene Python-Referenz stürzt weiterhin in
@@ -59,3 +59,5 @@ ausgeführt.
 - Manifest-/Defektprüfung: 15 bestanden,
 - Quellarchiv-Roundtrip: 3 bestanden.
 
+
+> Präzisierung aus Stage 12c5bq: Ohne Leerzeichen ist das Präfix `v` nur für seine unmittelbare Kommakomponente gültig. Der hier dokumentierte 13-Aufruf-Vertrag ist die globale Form mit eigenständigem `v`.

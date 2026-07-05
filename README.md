@@ -1079,7 +1079,7 @@ Stage 12c4t portiert die allgemeine Wortvervollständigung aus `reta_architectur
 
 Eine Sprachrestriktion ist in der Prägarbe eine Verfeinerung, kein Dateinamensfilter. `language=cn` übernimmt deshalb sowohl 16 explizite `cn-*`-CSV-Sektionen als auch 16 sprachneutrale CSV-Sektionen; alle 32 Resultate tragen anschließend `cn` im Kontext.
 
-Der historische Python-Absturzfall `universum v1/4,-1/8,2/3` wird nativ in zwei unabhängige Achsen zerlegt: Vielfache von vier unterhalb 1024 abzüglich der Vielfachen von acht sowie das reale Universum-Bruchrechteck für `2/3`. Der Plan besitzt 13 Aufrufe und benötigt keinen Python-Kindprozess. Details: [`STAGE12C5BD_PRESHEAF_INHERITANCE_RECIPROCAL_COLLISION.md`](STAGE12C5BD_PRESHEAF_INHERITANCE_RECIPROCAL_COLLISION.md).
+Der historische Python-Absturzfall mit globalem Vielfachenwort, `universum v 1/4,-1/8,2/3`, wird nativ in zwei unabhängige Achsen zerlegt: Vielfache von vier unterhalb 1024 abzüglich der Vielfachen von acht sowie das reale Universum-Bruchrechteck für `2/3`. Der globale Plan besitzt 13 Aufrufe und benötigt keinen Python-Kindprozess. Die spätere Stage 12c5bq trennt diese Form ausdrücklich vom kommalokalen Präfix in `v1/4,-1/8,2/3`. Details: [`STAGE12C5BD_PRESHEAF_INHERITANCE_RECIPROCAL_COLLISION.md`](STAGE12C5BD_PRESHEAF_INHERITANCE_RECIPROCAL_COLLISION.md).
 
 ## Stage 12c5be – Workflow-Ressourcenbesitz und Rich-Output-Gluing
 
@@ -1207,22 +1207,30 @@ Fokussierter Lauf:
 RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bo.sh -- -j 4
 ```
 
-## Stage 12c5bp – vollständiger Bruchvielfachen-Geltungsbereich
+## Stage 12c5bp – korrigierter historischer Zwischenstand
 
-Der positive-First-Kollisionszweig war trotz vorhandener Planlogik noch nicht
-erreichbar: Beim äußeren Komma-Split von `v1/4,-1/8,2/3` blieb das führende
-`v` nur an `1/4` hängen. Der Parser vererbt diesen Modus nun an sämtliche
-Bruchkomponenten desselben Ausdrucks. Auch
-`vielfache 1/4,-1/8,2/3` wird auf exakt denselben typisierten Plan normalisiert.
+12c5bp machte die fehlende Trennung lokaler und globaler Vielfachenschreibweisen
+sichtbar, verallgemeinerte das kompakte Präfix zunächst jedoch zu weit. Dieser
+Zwischenstand ist in
+[`STAGE12C5BP_FRACTION_MULTIPLE_SCOPE.md`](STAGE12C5BP_FRACTION_MULTIPLE_SCOPE.md)
+als durch 12c5bq korrigiert markiert.
 
-Damit entstehen der korrigierte 13-Aufruf-Universumsplan und der 19-Aufruf-
-Emotion/Universum-Plan tatsächlich nativ. Gemischte Ganzzahlteile bleiben
-separate äußere Achsen; jede physische Bruchdomäne behält ihr eigenes
-Zähler×Nenner-Rechteck. Details:
-[`STAGE12C5BP_FRACTION_MULTIPLE_SCOPE.md`](STAGE12C5BP_FRACTION_MULTIPLE_SCOPE.md).
+## Stage 12c5bq – kommalokales Präfix und positionsunabhängiges globales v
+
+Der Python-Code behandelt `v` in zwei klar getrennten Rollen. Ein direkt an
+eine Kommakomponente angeheftetes Präfix ist lokal: `v1/4,-1/8,2/3` markiert
+nur `1/4`. Ein eigenständiges Wort `v` oder `vielfache` gilt dagegen global
+und darf vor, zwischen oder nach den übrigen Befehlswörtern stehen.
+
+Der native Parser bildet diese Grammatik jetzt direkt ab. Der lokale
+Universums-Kollisionsplan besitzt 2 Aufrufe, der globale 13; Emotion plus
+Universum besitzt lokal 4 und global 19 Aufrufe. Eine ausführbare
+Python-Referenzprobe bindet sowohl Kommalokalität als auch Positionsfreiheit.
+Details:
+[`STAGE12C5BQ_POSITION_INDEPENDENT_MULTIPLE_SCOPE.md`](STAGE12C5BQ_POSITION_INDEPENDENT_MULTIPLE_SCOPE.md).
 
 Fokussierter Lauf nach dem Produktionsbuild:
 
 ```sh
-RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bp.sh -- -j 4
+RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bq.sh -- -j 4
 ```

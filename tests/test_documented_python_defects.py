@@ -35,9 +35,10 @@ def test_fixed_semantics_counts_and_remaining_red_baseline_are_documented() -> N
     ).read_text(encoding="utf-8")
     assert source.count("554") == 0
     assert source.count("556") >= 3
-    assert 'self.assertIn("load_/religion_table"' in source
+    assert 'self.assertIn("load_religion_table"' in source
+    assert 'load_/religion_table' not in source
     ids = _defect_ids()
-    assert {"PY-OPEN-004", "PY-OPEN-005", "TEST-FIXED-014"} <= ids
+    assert {"PY-OPEN-004", "PY-OPEN-005", "TEST-FIXED-014", "TEST-FIXED-063"} <= ids
 
 
 def test_float_moon_number_candidate_is_not_silently_forgotten() -> None:
@@ -96,10 +97,10 @@ def test_meta_fraction_star_div_rounding_candidate_is_backlogged() -> None:
     assert "PY-CAND-013" in _defect_ids()
 
 
-def test_architecture_progress_repository_probe_bug_is_backlogged() -> None:
+def test_architecture_progress_repository_probe_bug_is_fixed() -> None:
     source = (
         ROOT / "python_reference" / "tests" / "test_architecture_refactor.py"
     ).read_text(encoding="utf-8")
-    assert 'if (REPO_ROOT / ".git").exists()' in source
-    assert 'self.assertGreaterEqual(snapshot["counts"]["outstanding_work"], 1)' in source
-    assert "PY-OPEN-006" in _defect_ids()
+    assert 'if (REPO_ROOT.parent / ".git").exists()' in source
+    assert 'if (REPO_ROOT / ".git").exists()' not in source
+    assert {"PY-OPEN-006", "TEST-FIXED-062"} <= _defect_ids()

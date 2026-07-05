@@ -87,7 +87,7 @@ scripts/run-tests.sh --jobs 4
 # Testergebnisse – Stage 12c5bd
 
 - Prägarbenvertrag: 16 explizite `cn`- plus 16 geerbte sprachneutrale CSV-Sektionen.
-- Bruchkollision: `universum v1/4,-1/8,2/3` ergibt 13 native Tabellenaufrufe; Reziprokzeilen sind Vielfache von vier ohne Vielfache von acht, vereinigt mit `{1,2,3,6,9}`.
+- Bruchkollision in der globalen Form `universum v 1/4,-1/8,2/3` ergibt 13 native Tabellenaufrufe; Reziprokzeilen sind Vielfache von vier ohne Vielfache von acht, vereinigt mit `{1,2,3,6,9}`.
 - Python-Absturz `IndexError: string index out of range` bleibt als `PY-OPEN-002` reproduzierbar.
 - Vollständige portable Source-Suite: **284 bestanden, 1 übersprungen**.
 - Zusätzliche fokussierte Gruppen: **57** Defekt-/Metrik-/Ownership-Tests, **15** Manifest-/Defektprüfungen und **3** Archiv-Roundtrips bestanden.
@@ -2420,20 +2420,28 @@ Benutzerlauf.
 - Neuer fokussierter Lauf:
   `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bo.sh -- -j 4`.
 
-## Stage 12c5bp – vorbereiteter Prüfstand
+## Stage 12c5bp – korrigierter Zwischenstand
 
-- Statische Parserverträge bestätigen die geerbte `multiple`-Eigenschaft über
-  sämtliche kommagetrennten Bruchkomponenten.
-- Kompaktform und ausgeschriebene `vielfache`-Form sind im Mojo-Laufzeitvertrag
-  serialisiert identisch.
-- Vorbereitete native Laufzeitverträge: **13 Aufrufe** für Universum und
-  **19 Aufrufe** für Emotion plus Universum.
-- Die Python-Referenz reproduziert für Kompakt-, Lang- und Mehrdomänenform
-  weiterhin `PY-OPEN-002` mit `IndexError` in `prompt_execution.py`.
-- Fokussierte compilerfreie Source-/Ledger-/Metrikprüfung: **74/74**.
-- Zusätzliche Archiv-/Stage-/Defektprüfung: **53/53**.
-- Referenzverträge: **5/5** Mehrdomänen-Erweiterungen, **14/14** kombinierte
-  Außenordnung und **10/10** klassische Bruchkomposition.
-- Defektledger: **153** Einträge, weiterhin **20** spätere Python-Punkte.
+- Die fachliche 13/13-Probe bestand, der Archivvertrag meldete in einem
+  überlagerten Benutzerarbeitsbaum noch eine getrackte `.tmp`-Datei.
+- Der veröffentlichte 12c5bp-Commit selbst ist git-sauber; frische Archive
+  enthalten den alten Indexeintrag nicht.
+- Die zunächst angenommene globale Bedeutung von `v1/4,-1/8,2/3` wurde durch
+  die direkte Python-Codeprüfung widerlegt.
+
+## Stage 12c5bq – vorbereiteter Prüfstand
+
+- Direkte Python-Referenztests: kommalokale Präfixe und positionsunabhängiges
+  globales `v`/`vielfache`.
+- Vorbereitete native Laufzeitverträge: lokal **2/4**, global **13/19** Aufrufe.
+- Globale Varianten vor, zwischen und nach den übrigen Wörtern müssen denselben
+  serialisierten Plan erzeugen.
+- Der Stage-Test baut den fokussierten Mojo-Probe neu und führt danach Source-,
+  Ledger-, Portierungs- und Archivverträge aus.
+- Fokussierte lokale Prüfung: **186/186** angrenzende Verträge bestanden.
+- `python_reference/tests/test_architecture_refactor.py`: **70/70** plus 7 Subtests bestanden; dabei wurden `TEST-FIXED-062` und `TEST-FIXED-063` geschlossen.
+- Architekturasset-/Manifest-Nachprüfung: **23/23** bestanden.
+- Der unsegmentierte gesamte Source-Batch enthält bekannte langlaufende Referenzgeneratoren und erreichte in dieser Umgebung das Gesamtzeitlimit; die betroffenen neuen und angrenzenden Verträge wurden separat vollständig ausgeführt.
+- Defektledger **155/18**, Portierung **89/92** vollständig und **92/92** mindestens teilweise.
 - Die tatsächliche Mojo-Kompilierung bleibt der Benutzerlauf
-  `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bp.sh -- -j 4`.
+  `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bq.sh -- -j 4`.

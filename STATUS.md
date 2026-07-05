@@ -1,22 +1,27 @@
-# Status – Stage 12c5bp
+# Status – Stage 12c5bq
 
-- Der nach der 12c5bo-Prüferkorrektur erreichbare nächste Kollisionsfall legte
-  eine echte Parserlücke offen: In `v1/4,-1/8,2/3` galt das führende `v` nur
-  für den ersten bereits kommagetrennten Bruchteil.
-- Der Bruchparser übernimmt den Vielfachenmodus nun in sämtliche Komponenten
-  desselben Kommaausdrucks. Die ausgeschriebene Form
-  `vielfache 1/4,-1/8,2/3` normalisiert auf denselben typisierten Plan.
-- Der korrigierte Universumsplan besitzt 13 Aufrufe; Emotion plus Universum
-  besitzt 19 Aufrufe mit getrennten physischen Rechtecken und getrennten
-  Reziprokdifferenzen.
-- Die drei Python-Formen reproduzieren weiterhin den bereits erfassten
-  `PY-OPEN-002`; es entsteht kein doppelter Python-Aufräumpunkt.
-- Compilerfrei bestätigt: **74/74** fokussierte Source-/Ledger-/Metrikverträge,
-  **53/53** Archiv-/Stage-Verträge sowie Referenzproben **5/5**, **14/14** und
-  **10/10**.
-- Defektledger: **153** Einträge, weiterhin **20** spätere Python-Punkte.
+- Die Benutzerfrage zur Stellung von `v` deckte eine falsche 12c5bp-Annahme
+  auf: Ein kompaktes Präfix gehört nur zu seiner Kommakomponente.
+- Ein eigenständiges `v` beziehungsweise `vielfache` ist global und in der
+  vollständigen Wortliste positionsunabhängig.
+- Native Laufzeitverträge unterscheiden nun lokal **2/4** von global
+  **13/19** Aufrufen für Universum beziehungsweise Emotion plus Universum.
+- Eine ausführbare Python-Referenzprobe bindet Präfixlokalität und vier
+  positionsverschiedene globale Varianten.
+- Der genaue 12c5bp-Archivstand ist git-sauber; ein gemeldeter getrackter
+  `.tmp`-Eintrag stammt aus einem überlagerten älteren Arbeitsbaum.
+- Fokussierter Audit: **186/186** angrenzende Source-/Stage-/Ledger-/Archivverträge; historische Architekturtests **70/70** plus 7 Subtests; Asset-/Manifest-Nachprüfung **23/23**.
+- Defektledger: **155** Einträge, **18** spätere Python-Punkte.
+- Portierung: **89/92** vollständig, **92/92** mindestens teilweise; **63.571** Mojo-Zeilen in `src/`, davon **58.977** im Kernpaket.
 - Fokussierter Benutzerlauf:
-  `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bp.sh -- -j 4`.
+  `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bq.sh -- -j 4`.
+
+# Status – Stage 12c5bp (durch 12c5bq korrigierter Zwischenstand)
+
+- 12c5bp machte den bis dahin verdeckten Parserbereich sichtbar, interpretierte
+  ein kompaktes führendes `v` aber fälschlich als global für die Kommaliste.
+- Der endgültige Vertrag steht in Stage 12c5bq; der historische Stage-Test
+  verwendet inzwischen ebenfalls den korrigierten gemeinsamen Prüfer.
 
 # Status – Stage 12c5bo
 
@@ -124,7 +129,7 @@
 
 - Der gemeldete Prägarbentest war zu positionsabhängig: eine `cn`-Restriktion übernimmt korrekt 16 explizit chinesische und 16 sprachneutrale CSV-Sektionen.
 - Alle 32 Resultate tragen nach der Verfeinerung `cn` im Kontext und bewahren Quelle sowie Payload.
-- `universum v1/4,-1/8,2/3` ist nun ein nativer 13-Aufruf-Plan: positive Reziprokvielfache, ausgeschlossene Reziprokvielfache und die echte `2/3`-Bruchachse werden unabhängig berechnet.
+- `universum v 1/4,-1/8,2/3` ist als globale Form ein nativer 13-Aufruf-Plan: positive Reziprokvielfache, ausgeschlossene Reziprokvielfache und die echte `2/3`-Bruchachse werden unabhängig berechnet.
 - Die eingefrorene Python-Referenz reproduziert für denselben Befehl weiterhin `PY-OPEN-002`; Mojo besitzt die korrigierte Semantik ohne Kindprozess.
 - Portable Prüfung: **284 Source-Tests bestanden, 1 übersprungen**; zusätzlich fokussierte Defekt-, Metrik-, Manifest- und Archivverträge grün.
 - Defektledger: **126** Einträge, davon **20** Python-Aufräumpunkte.

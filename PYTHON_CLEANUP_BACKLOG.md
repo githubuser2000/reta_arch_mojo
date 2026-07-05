@@ -11,7 +11,7 @@ Arbeitsliste für die Phase nach dem vollständigen Mojo-Port.
 4. Python und Mojo gegen denselben korrigierten Sollvertrag prüfen.
 5. Den Eintrag in `KNOWN_DEFECTS.json` auf `fixed` setzen.
 
-Offene oder zu entscheidende Einträge: **20**
+Offene oder zu entscheidende Einträge: **18**
 
 ## 1. PY-OPEN-001 – Beliebige Codeausführung durch eval in Ganzzahlmengen-Ausdrücken
 
@@ -123,29 +123,7 @@ Offene oder zu entscheidende Einträge: **20**
 - Python-Orte: `python_reference/tests/test_architecture_refactor.py:163`, `python_reference/tests/test_architecture_refactor.py:982`, `python_reference/tests/test_architecture_refactor.py:986`
 - Belege: `MIGRATION_NOTES.md`, `TEST_RESULTS.md`, `STAGE12C4S_DEFECT_BACKFILL_NATIVE_CONTROL_MAINS.md`, `scripts/check_documented_python_baseline.py`
 
-## 11. PY-OPEN-005 – Python-Workflowtest erwartet veralteten Orchestrierungsnamen load_/religion_table
-
-- Priorität: `low`
-- Python-Status: `open`
-- Mojo-Status: `not_applicable`
-- Reproduktion: `python3 -m pytest -q python_reference/tests/test_architecture_refactor.py::ArchitectureRefactorTests::test_program_workflow_layer_is_explicit`
-- heutiger Vertrag: Der aktuelle Snapshot enthält load_religion_table; der Test sucht noch den älteren Namen load_/religion_table.
-- Python-Arbeitsauftrag: Den fachlich gültigen Orchestrierungsnamen bestätigen und die Testassertion auf den aktuellen stabilen Namen aktualisieren.
-- Python-Orte: `python_reference/tests/test_architecture_refactor.py:732-740`
-- Belege: `MIGRATION_NOTES.md`, `TEST_RESULTS.md`, `STAGE12C4S_DEFECT_BACKFILL_NATIVE_CONTROL_MAINS.md`, `scripts/check_documented_python_baseline.py`
-
-## 12. PY-OPEN-006 – Python-Progress-Test sucht Git-Metadaten im eingefrorenen Unterbaum
-
-- Priorität: `low`
-- Python-Status: `open`
-- Mojo-Status: `not_applicable`
-- Reproduktion: `python3 -m pytest -q python_reference/tests/test_architecture_refactor.py::ArchitectureRefactorRegressionTest::test_architecture_progress_layer_is_explicit`
-- heutiger Vertrag: REPO_ROOT zeigt innerhalb des eingefrorenen Referenzbaums auf python_reference. Die Git-Metadaten liegen jedoch im Projektwurzelverzeichnis. Der Snapshot meldet deshalb korrekt outstanding_work=0 und status=passed, während der Test fälschlich den Zweig ohne Repositorymetadaten nimmt und mindestens einen offenen Punkt verlangt.
-- Python-Arbeitsauftrag: Die Umgebungsentscheidung vom fachlichen Snapshotvertrag trennen oder die tatsächliche Projektwurzel robust bestimmen; anschließend bei status=passed unabhängig vom Ablageort exakt null offene Punkte erwarten.
-- Python-Orte: `python_reference/tests/test_architecture_refactor.py:1773-1780`
-- Belege: `STAGE12C5AT_NATIVE_PROMPT_EXECUTION.md`, `tests/test_documented_python_defects.py`
-
-## 13. PY-CAND-005 – Kanonischer Parameteralias hängt bei set-Einträgen von Python-Hashreihenfolge ab
+## 11. PY-CAND-005 – Kanonischer Parameteralias hängt bei set-Einträgen von Python-Hashreihenfolge ab
 
 - Priorität: `medium`
 - Python-Status: `candidate`
@@ -156,7 +134,7 @@ Offene oder zu entscheidende Einträge: **20**
 - Python-Orte: `python_reference/i18n/words_runtime.py`, `python_reference/reta_architecture/semantics_builder.py`
 - Belege: `MIGRATION_NOTES.md`, `STAGE12C4S_DEFECT_BACKFILL_NATIVE_CONTROL_MAINS.md`
 
-## 14. PY-CAND-006 – Legacy-Primwiederholungsfunktion mischt Zahlen und Zeichenketten im selben Rückgabewert
+## 12. PY-CAND-006 – Legacy-Primwiederholungsfunktion mischt Zahlen und Zeichenketten im selben Rückgabewert
 
 - Priorität: `low`
 - Python-Status: `candidate`
@@ -167,7 +145,7 @@ Offene oder zu entscheidende Einträge: **20**
 - Python-Orte: `python_reference/reta_architecture/arithmetic.py:65-94`
 - Belege: `MIGRATION_NOTES.md`, `STAGE12C4S_DEFECT_BACKFILL_NATIVE_CONTROL_MAINS.md`
 
-## 15. PY-CAND-008 – Sprachfehlertext verwendet den falschen Parameter -languages= und wiederholt erlaubte Sprachcodes
+## 13. PY-CAND-008 – Sprachfehlertext verwendet den falschen Parameter -languages= und wiederholt erlaubte Sprachcodes
 
 - Priorität: `low`
 - Python-Status: `candidate`
@@ -178,7 +156,7 @@ Offene oder zu entscheidende Einträge: **20**
 - Python-Orte: `python_reference/i18n/words_runtime.py:540-543`, `python_reference/reta_architecture/parameter_runtime.py:212`
 - Belege: `STAGE12C4X_NATIVE_I18N_WORDS.md`, `tests/test_i18n_words_source.py`, `assets/i18n_words/manifest.json`
 
-## 16. PY-CAND-009 – Obergrenzenhelfer materialisiert hunderte doppelte 1024-Werte und exponiert Mengenreihenfolge
+## 14. PY-CAND-009 – Obergrenzenhelfer materialisiert hunderte doppelte 1024-Werte und exponiert Mengenreihenfolge
 
 - Priorität: `low`
 - Python-Status: `candidate`
@@ -189,7 +167,7 @@ Offene oder zu entscheidende Einträge: **20**
 - Python-Orte: `python_reference/reta_architecture/parameter_runtime.py:851-872`, `python_reference/reta_architecture/runtime_compat.py:96-107`
 - Belege: `STAGE12C4Y_NATIVE_PARAMETER_RUNTIME.md`, `scripts/check_parameter_runtime_parity.sh`, `tests/test_parameter_runtime.mojo`
 
-## 17. PY-CAND-010 – Vollständige --alles-Ausgabe ist ohne festen PYTHONHASHSEED nicht reproduzierbar
+## 15. PY-CAND-010 – Vollständige --alles-Ausgabe ist ohne festen PYTHONHASHSEED nicht reproduzierbar
 
 - Priorität: `medium`
 - Python-Status: `candidate`
@@ -200,7 +178,7 @@ Offene oder zu entscheidende Einträge: **20**
 - Python-Orte: `python_reference/reta_architecture/generated_columns.py:1356-1465`, `python_reference/reta_architecture/column_selection.py`, `python_reference/reta_architecture/table_runtime.py`
 - Belege: `STAGE12C4Z_PROFESSIONAL_GENERATE_HTML.md`, `tests/test_full_all_reference_workflow.py`, `FULL_ALL_REFERENCE_WORKFLOW.md`
 
-## 18. PY-CAND-011 – Manifestnormalisierung entfernt führende Punkte und kann Dotfile-Pfade kollidieren lassen
+## 16. PY-CAND-011 – Manifestnormalisierung entfernt führende Punkte und kann Dotfile-Pfade kollidieren lassen
 
 - Priorität: `medium`
 - Python-Status: `candidate`
@@ -211,7 +189,7 @@ Offene oder zu entscheidende Einträge: **20**
 - Python-Orte: `python_reference/reta_architecture/package_integrity.py:91-92`, `python_reference/reta_architecture/package_integrity.py:122-132`
 - Belege: `STAGE12C5C_NATIVE_PACKAGE_INTEGRITY_SPLIT_I18N.md`, `scripts/check_package_integrity_parity.py`, `tests/test_package_integrity.mojo`
 
-## 19. PY-CAND-012 – generate4readme ändert vier Bruchparameterlisten mit PYTHONHASHSEED
+## 17. PY-CAND-012 – generate4readme ändert vier Bruchparameterlisten mit PYTHONHASHSEED
 
 - Priorität: `medium`
 - Python-Status: `candidate`
@@ -222,7 +200,7 @@ Offene oder zu entscheidende Einträge: **20**
 - Python-Orte: `python_reference/libs/generate4readme.py`, `python_reference/i18n/words_matrix.py`
 - Belege: `tests/test_readme_generator_source.py`, `tools/generate_readme_assets.py`, `assets/generated_readme_manifest.tsv`
 
-## 20. PY-CAND-013 – Meta-Bruchkombination stern/div vergisst die Rückskalierung nach dem Runden
+## 18. PY-CAND-013 – Meta-Bruchkombination stern/div vergisst die Rückskalierung nach dem Runden
 
 - Priorität: `medium`
 - Python-Status: `candidate`
