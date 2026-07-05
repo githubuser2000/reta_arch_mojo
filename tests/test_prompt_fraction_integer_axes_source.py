@@ -21,6 +21,8 @@ def test_projected_integer_multiple_and_divider_bases_are_explicit() -> None:
     assert "for value in value_set:" in source
     assert "values.append(value)" in source
     assert "python_divisor_set_order(values)" in source
+    assert 'result.append("1")' in source
+    assert "if divisors[index] != 1:" in source
     assert "if _join_rows(row_parts).byte_length() > 1:" in source
     assert "if divisor_mode:" in source
     helper = source[
@@ -49,6 +51,7 @@ def test_single_and_multi_domain_runtime_contracts_are_bound() -> None:
     checker = CHECKER.read_text(encoding="utf-8")
     for command in (
         "universum v2/3,5",
+        "universum v2/3,1 teiler",
         "universum v2/3,5 teiler",
         "universum motive v2/3,5",
         "emotion universum v8/3,5",
@@ -68,6 +71,7 @@ def test_single_and_multi_domain_runtime_contracts_are_bound() -> None:
         assert command in probe
         assert command in checker
     assert '"--vorhervonausschnitt=2,1,4,6,3,5,v5"' in test
+    assert '"--vorhervonausschnitt=2,1,4,6,3,1,v1"' in test
     assert '"--vorhervonausschnitt=2,1,4,6,3,1,5,v5"' in test
     assert '"--vorhervonausschnitt=2,1,4,6,3,v0"' in test
     assert '"--vorhervonausschnitt=2,1,4,6,3,1,5,5,-10,v5,v-10"' in test
@@ -77,8 +81,10 @@ def test_single_and_multi_domain_runtime_contracts_are_bound() -> None:
     assert "wrong multi-domain integer/fraction invocation count" in checker
 
 
-def test_unrelated_table_family_remains_atomic() -> None:
+def test_classic_family_requires_an_explicit_integer_axis() -> None:
     source = MODULE.read_text(encoding="utf-8")
     test = MOJO_TEST.read_text(encoding="utf-8")
-    assert "not _only_fraction_domain_table_commands(canonical_words)" in source
-    assert 'assert_false(_plan("mond universum motive v2/3").handled)' in test
+    assert "_only_fraction_domains_or_inert_classic_commands(" in source
+    assert "var has_explicit_integer_axis = len(row_parts) > 0" in source
+    assert 'var moon_multi = _plan("mond universum motive v2/3")' in test
+    assert 'assert_false(_plan("mond universum motive v2/3,5").handled)' in test

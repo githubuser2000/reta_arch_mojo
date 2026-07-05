@@ -8,7 +8,7 @@ ROOT = Path(__file__).resolve().parents[1]
 def test_current_stage_extends_bh_and_forwards_compiler_options() -> None:
     current = (ROOT / "scripts/test_current_stage.sh").read_text(encoding="utf-8")
     stage = (ROOT / "scripts/test_stage12c5bi.sh").read_text(encoding="utf-8")
-    assert "test_stage12c5bi.sh" in current
+    assert "test_stage12c5bk.sh" in current
     assert 'test_stage12c5bh.sh" -- "$@"' in stage
     assert "mojo_build_options.sh" in stage
     assert 'mojo_validate_build_options "$@"' in stage

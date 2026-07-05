@@ -6,7 +6,7 @@ cd "$ROOT"
 
 usage() {
     cat <<'USAGE'
-Verwendung: scripts/test_all.sh [--heavy] [--run-jobs N] [--] [MOJO_BUILD_OPTION ...]
+Verwendung: scripts/test_all.sh [--heavy] [--rebuild-all] [--run-jobs N] [--] [MOJO_BUILD_OPTION ...]
 
 Kompiliert zuerst die ausgewählte Testsuite und führt anschließend das fertige
 Manifest aus. Optionen hinter `--` werden unverändert an jeden einzelnen
@@ -14,16 +14,19 @@ Manifest aus. Optionen hinter `--` werden unverändert an jeden einzelnen
 
 Optionen:
   --heavy          auch die zwei besonders großen Compilerziele bauen
+  --rebuild-all    alle Testprogramme ungeachtet des Fingerabdrucks neu bauen
   --run-jobs N     bis zu N isolierte Laufzeittests parallel ausführen
   --               Beginn der Mojo-Compileroptionen, z. B. -- -j 4
 
 Umgebungsvariablen:
   RETA_TEST_HEAVY=1
   RETA_TEST_RUN_JOBS=N
+  RETA_TEST_REBUILD_ALL=1
 USAGE
 }
 
 HEAVY=${RETA_TEST_HEAVY:-0}
+REBUILD_ALL=${RETA_TEST_REBUILD_ALL:-0}
 RUN_JOBS=${RETA_TEST_RUN_JOBS:-1}
 while [ "$#" -gt 0 ]; do
     case $1 in
@@ -33,6 +36,10 @@ while [ "$#" -gt 0 ]; do
             ;;
         --heavy)
             HEAVY=1
+            shift
+            ;;
+        --rebuild-all)
+            REBUILD_ALL=1
             shift
             ;;
         --run-jobs)
@@ -56,6 +63,7 @@ while [ "$#" -gt 0 ]; do
     esac
 done
 case $HEAVY in 0|1) ;; *) echo 'RETA_TEST_HEAVY muss 0 oder 1 sein.' >&2; exit 2;; esac
+case $REBUILD_ALL in 0|1) ;; *) echo 'RETA_TEST_REBUILD_ALL muss 0 oder 1 sein.' >&2; exit 2;; esac
 case $RUN_JOBS in ''|*[!0-9]*|0) echo '--run-jobs muss eine positive Ganzzahl sein.' >&2; exit 2;; esac
 
 report_status() {
@@ -72,9 +80,21 @@ report_status() {
 }
 trap report_status 0
 
+BUILD_ARGS=
+if [ "$REBUILD_ALL" = 1 ]; then
+    BUILD_ARGS=--rebuild-all
+fi
 if [ "$HEAVY" = 1 ]; then
-    "$ROOT/scripts/build-tests.sh" --heavy -- "$@"
+    if [ -n "$BUILD_ARGS" ]; then
+        "$ROOT/scripts/build-tests.sh" --heavy "$BUILD_ARGS" -- "$@"
+    else
+        "$ROOT/scripts/build-tests.sh" --heavy -- "$@"
+    fi
 else
-    "$ROOT/scripts/build-tests.sh" -- "$@"
+    if [ -n "$BUILD_ARGS" ]; then
+        "$ROOT/scripts/build-tests.sh" "$BUILD_ARGS" -- "$@"
+    else
+        "$ROOT/scripts/build-tests.sh" -- "$@"
+    fi
 fi
 "$ROOT/scripts/run-tests.sh" --jobs "$RUN_JOBS"

@@ -14,7 +14,7 @@ def test_current_stage_extends_12c5bf_and_has_focused_mode() -> None:
     assert 'check_command_parity_native.py' in stage
     assert 'test_prompt_table_execution_12c5bg' in stage
     assert 'check_prompt_true_fraction_multiples.sh' in stage
-    assert 'test_stage12c5bi.sh' in current
+    assert 'test_stage12c5bk.sh' in current
 
 
 def test_stage_document_records_user_build_and_both_repairs() -> None:
@@ -34,5 +34,5 @@ def test_stage_document_records_user_build_and_both_repairs() -> None:
 def test_default_commit_and_public_entrypoint_are_current() -> None:
     do_script = (ROOT / "do.sh").read_text(encoding="utf-8")
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
-    assert 'COMMIT_MESSAGE=${1:-12c5bi}' in do_script
+    assert 'COMMIT_MESSAGE=${1:-12c5bk}' in do_script
     assert "STAGE12C5BG_DETERMINISTIC_COMMAND_PARITY_INTEGER_FRACTION_AXES.md" in readme

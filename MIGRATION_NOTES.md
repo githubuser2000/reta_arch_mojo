@@ -1,3 +1,10 @@
+## Stage 12c5bk – hermetische Parität und klassische Bruchgrenzen
+
+- `scripts/check_command_parity_native.py` ignoriert geerbte installierte `RETA_*`-Ressourcenpfade und bindet die vier repräsentativen Fälle zwingend an den aktuellen Source-Tree.
+- Der Bruchteilerpfad stellt die äußere Zeile `1` vor nichttrivialen Divisoren wieder her, ohne den Wert-1-Spezialfall zu duplizieren.
+- Klassische ganzzahlgebundene Tabellenfamilien werden nur durch tatsächlich geschriebene gewöhnliche Ganzzahlsyntax aktiviert, nicht durch aus echten Brüchen projizierte Ganzzeilen.
+- `scripts/test_stage12c5bk.sh` prüft die native Kommando-Parität absichtlich unter verschmutzter Ressourcen-Umgebung und kompiliert anschließend den vollständigen True-Fraction-Probe.
+
 ## Stage 12c5bj – read-only gepinnte Kommando-Paritätsassets
 
 - `generate_command_parity_assets.py --check` prüft jetzt fünf fest versionierte SHA-256-Verträge und startet den Python-Renderer nicht.
@@ -1264,3 +1271,11 @@ Vier vollständig native Diagnoseoberflächen teilen seit Stage 12c5z eine versi
 
 - Stage 12c5bj korrigiert die reale Mojo-Typgrenze `Set[Int] -> List[Int]` im
   Bruchteilerpfad und bindet den fokussierten Probe an den aktuellen Stage-Test.
+
+## Stage 12c5bk – inkrementelle Tests und nichtwerfender Runtimezugriff
+
+- Testbinaries besitzen nun transitive Inhaltsfingerabdrücke und werden bei
+  unverändertem Buildkontext wiederverwendet.
+- `--rebuild-all` erzwingt weiterhin die vollständige Testkompilierung.
+- `Tables.hoechsteZeile()` verwendet `Dict.get()` statt eines werfenden
+  Indexzugriffs in einem nichtwerfenden Kontext.

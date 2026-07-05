@@ -27,6 +27,35 @@ def normalize_html(text: str) -> str:
     return re.sub(r"\s+", " ", text).strip()
 
 
+def native_parity_environment() -> dict[str, str]:
+    """Return a hermetic source-tree resource environment for parity runs.
+
+    Developer shells may retain RETA_DATA_DIR or RETA_SHARE_DIR from an
+    installed tree.  Representative source parity must never inherit those
+    paths, otherwise the same binary is compared against a different CSV or
+    asset generation.
+    """
+    env = dict(os.environ)
+    env.pop("RETA_SHARE_DIR", None)
+    env["RETA_ROOT"] = str(ROOT)
+    env["RETA_REFERENCE_DIR"] = str(ROOT / "python_reference")
+    env["RETA_DATA_DIR"] = str(ROOT / "python_reference/csv")
+    env["RETA_ASSET_DIR"] = str(ROOT / "assets")
+    return env
+
+
+def first_difference(actual: str, expected: str) -> str:
+    limit = min(len(actual), len(expected))
+    for index in range(limit):
+        if actual[index] != expected[index]:
+            return (
+                f"first difference at char {index}: "
+                f"actual={actual[index:index + 80]!r} "
+                f"expected={expected[index:index + 80]!r}"
+            )
+    return f"first difference at char {limit}: one output ended"
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--binary", type=Path, default=ROOT / "target/bin/reta-native")
@@ -35,7 +64,7 @@ def main() -> int:
     if not binary.is_file():
         raise SystemExit(f"native Reta binary missing: {binary}")
 
-    env = dict(os.environ)
+    env = native_parity_environment()
     runtime_proc = subprocess.run(
         [str(ROOT / "scripts/find_mojo_runtime.sh")],
         cwd=ROOT,
@@ -47,11 +76,6 @@ def main() -> int:
     env["LD_LIBRARY_PATH"] = str(runtime) + (
         os.pathsep + env["LD_LIBRARY_PATH"] if env.get("LD_LIBRARY_PATH") else ""
     )
-    env.setdefault("RETA_ROOT", str(ROOT))
-    env.setdefault("RETA_REFERENCE_DIR", str(ROOT / "python_reference"))
-    env.setdefault("RETA_DATA_DIR", str(ROOT / "python_reference/csv"))
-    env.setdefault("RETA_ASSET_DIR", str(ROOT / "assets"))
-
     failures: list[str] = []
     with MANIFEST.open(newline="", encoding="utf-8") as handle:
         rows = csv.reader(handle, delimiter="\t")
@@ -92,7 +116,8 @@ def main() -> int:
                 actual = normalize_html(actual)
             if actual != expected:
                 failures.append(
-                    f"{label}: output mismatch ({len(actual)} != {len(expected)} chars)"
+                    f"{label}: output mismatch ({len(actual)} != {len(expected)} chars); "
+                    + first_difference(actual, expected)
                 )
             count += 1
 

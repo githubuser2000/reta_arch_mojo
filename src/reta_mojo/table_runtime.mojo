@@ -164,9 +164,12 @@ struct Tables(Copyable):
         self.getOut.set_out_type(value)
 
     def hoechsteZeile(self, key: Int = 1024) -> Int:
+        # Dict indexing raises when a key is absent.  The runtime state factory
+        # always installs both historical keys, but this public non-raising
+        # accessor must remain valid even for a manually reconstructed state.
         if key == 114:
-            return self.state.highest_rows[114]
-        return self.state.highest_rows[1024]
+            return self.state.highest_rows.get(114, 163)
+        return self.state.highest_rows.get(1024, 1024)
 
     def set_hoechsteZeile(mut self, value: Int):
         self.state.highest_rows[1024] = value

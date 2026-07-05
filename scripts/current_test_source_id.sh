@@ -15,6 +15,7 @@ trap 'rm -f "$TMP"' EXIT HUP INT TERM
         scripts/configure_mojo_runtime.sh \
         scripts/mojo_build_options.sh \
         tools/run_mojo_test_binaries.py \
+        tools/mojo_test_build_fingerprint.py \
         bin/mojo-real
 } | LC_ALL=C sort -zu | xargs -0 sha256sum > "$TMP"
 

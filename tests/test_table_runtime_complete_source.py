@@ -143,3 +143,12 @@ def test_runtime_test_imports_private_legacy_helpers_explicitly() -> None:
     assert "_concat_class," in source
     assert "_get_text_wrap_things," in source
     assert "from reta_mojo.table_runtime import *" not in source
+
+
+def test_highest_row_accessor_is_non_raising_and_has_historical_defaults() -> None:
+    source = MOJO_SOURCE.read_text(encoding="utf-8")
+    assert "self.state.highest_rows.get(114, 163)" in source
+    assert "self.state.highest_rows.get(1024, 1024)" in source
+    accessor = source[source.index("def hoechsteZeile(") : source.index("def set_hoechsteZeile(")]
+    assert "highest_rows[114]" not in accessor
+    assert "highest_rows[1024]" not in accessor

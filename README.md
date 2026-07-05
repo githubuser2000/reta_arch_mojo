@@ -1123,3 +1123,22 @@ Die vier nativen Kommando-Referenzausgaben und ihr TSV-Manifest sind nun als fü
 Stage 12c5bj prüft den Bruchteilerpfad zusätzlich mit einem echten Mojo-Probe;
 die von `range_to_numbers` gelieferte Menge wird vor dem List-basierten
 Divisorreihenfolgehelfer explizit materialisiert.
+
+## Stage 12c5bk – hermetische Parität und vollständige Bruchachsen-Grenzen
+
+Der native Kommando-Paritätsprüfer bindet seine CSV-, Asset- und Referenzpfade nun zwingend an den Repository-Stand. Installierte `RETA_SHARE_DIR`- oder `RETA_DATA_DIR`-Werte können einen Source-Test daher nicht mehr mit fremden Daten ausführen. Echte Abweichungen zeigen zusätzlich die erste unterschiedliche Zeichenposition.
+
+Im Promptplaner aktiviert ein reines echtes Bruchvielfaches keine klassischen Ganzzahlfamilien mehr über seine projizierten Ganzzeilen. Außerdem bewahrt der `teiler`-Zweig die historische äußere Zeile `1` vor nichttrivialen Divisoren. Details: [`STAGE12C5BK_HERMETIC_PARITY_CLASSIC_FRACTION_GUARDS.md`](STAGE12C5BK_HERMETIC_PARITY_CLASSIC_FRACTION_GUARDS.md).
+
+### Inkrementelle Mojo-Testbuilds
+
+```sh
+scripts/build-tests.sh --heavy -- -j 4   # baut nur veraltete Testbinaries
+scripts/run-tests.sh --jobs 4
+```
+
+Für einen bewusst vollständigen Neuaufbau:
+
+```sh
+scripts/test_all.sh --rebuild-all --heavy --run-jobs 4 -- -j 4
+```

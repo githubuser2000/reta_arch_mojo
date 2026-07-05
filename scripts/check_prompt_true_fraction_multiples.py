@@ -27,8 +27,12 @@ CASES = [
     "emotion groesse motive universum v2/3",
     "emotion universum v8/3",
     "emotion universum v1/2,2/3",
+    "mond universum v2/3",
     "mond universum motive v2/3",
+    "mond richtung primzahlkreuz alles thomas universum v2/3",
+    "mond universum motive v2/3,5",
     "universum v2/3,5",
+    "universum v2/3,1 teiler",
     "universum v2/3,5 teiler",
     "universum motive v2/3,5",
     "emotion universum v8/3,5",
@@ -198,11 +202,15 @@ def assert_python_integer_axis_composition() -> None:
     if not row_selector(ordinary[0]).endswith(",5,v5"):
         fail("Python reference changed projected/integer/vN row ordering")
 
+    one_divider = reference_records("universum v2/3,1 teiler")
+    if row_selector(one_divider[0]).split(",")[-2:] != ["1", "v1"]:
+        fail("Python divider branch changed the value-one outer suffix")
+
     divider = reference_records("universum v2/3,5 teiler")
     if any(field.startswith("--vielfachevonzahlen=") for field in divider[0]):
         fail("Python divider branch unexpectedly retained multiple option")
-    if not row_selector(divider[0]).endswith(",5,v5"):
-        fail("Python divider branch changed integer-axis row ordering")
+    if row_selector(divider[0]).split(",")[-3:] != ["1", "5", "v5"]:
+        fail("Python divider branch changed the row-1/divisor/vN suffix")
 
     multi = reference_records("universum motive v2/3,5")
     motive = records_with(multi, "--Menschliches=motivation")
@@ -432,12 +440,47 @@ def assert_direct_execution(
         )
 
 
+def assert_python_classic_fraction_guard() -> None:
+    completed = subprocess.run(
+        [sys.executable, "scripts/prompt_classic_fraction_guard_reference.py"],
+        cwd=ROOT,
+        env={**os.environ, "PYTHONHASHSEED": "0"},
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        timeout=600,
+        check=True,
+        text=True,
+    )
+    rows: dict[str, tuple[str, int, int]] = {}
+    for line in completed.stdout.splitlines():
+        command, error, call_count, classic_count = line.split("\t")
+        rows[command] = (error, int(call_count), int(classic_count))
+    pure_commands = [
+        "universum motive v2/3",
+        "mond universum motive v2/3",
+        "richtung universum motive v2/3",
+        "primzahlkreuz universum motive v2/3",
+        "alles universum motive v2/3",
+        "thomas universum motive v2/3",
+    ]
+    for command in pure_commands:
+        if rows.get(command) != ("IndexError", 0, 0):
+            fail(
+                f"Python classic fraction guard drifted for {command!r}: "
+                f"{rows.get(command)!r}"
+            )
+    explicit = rows.get("mond universum motive v2/3,5")
+    if explicit is None or explicit[0] != "SystemExit" or explicit[2] != 1:
+        fail(f"Python ordinary integer activation drifted: {explicit!r}")
+
+
 def main() -> int:
     if len(sys.argv) != 3:
         fail("usage: check_prompt_true_fraction_multiples.py PROBE NATIVE_RETA")
     load_reference_payloads(
         [
             "universum v2/3,5",
+            "universum v2/3,1 teiler",
             "universum v2/3,5 teiler",
             "universum motive v2/3,5",
             "universum motive v2/3,0",
@@ -454,6 +497,7 @@ def main() -> int:
         ]
     )
     assert_csv_rectangles()
+    assert_python_classic_fraction_guard()
     assert_python_bug_is_still_reproducible()
     assert_python_negative_multiple_noops()
     assert_python_positive_first_reciprocal_only()
@@ -618,8 +662,38 @@ def main() -> int:
     if set(row_values(universe_reciprocal[0])) != set(range(2, 1024, 2)) | {1, 3, 9}:
         fail("Universe reciprocal domain mixed the wrong true-fraction projection")
 
-    if result["mond universum motive v2/3"] != "FALLBACK":
-        fail("unrelated table family escaped atomically")
+    if result["mond universum motive v2/3"] != result["universum motive v2/3"]:
+        fail("inert moon changed the corrected multi-domain fraction plan")
+
+    moon_single = records(result["mond universum v2/3"])
+    if len(moon_single) != 13:
+        fail("inert moon changed the single-domain invocation count")
+    if records_with(moon_single, "--Bedeutung=gestirn"):
+        fail("projected fraction rows incorrectly activated the moon table")
+    if "--spaltenreihenfolgeundnurdiese=1" not in moon_single[0]:
+        fail("inert classic command did not preserve narrow Universe columns")
+
+    all_classic = records(
+        result["mond richtung primzahlkreuz alles thomas universum v2/3"]
+    )
+    if len(all_classic) != 13:
+        fail("classic integer-only no-ops changed the fraction plan")
+    forbidden = (
+        "--Bedeutung=gestirn",
+        "--Primzahlwirkung=Galaxieabsicht",
+        "--Bedeutung=primzahlkreuz",
+        "--alles",
+        "--galaxie=thomas",
+    )
+    if any(
+        any(marker in field for marker in forbidden)
+        for record in all_classic
+        for field in record
+    ):
+        fail("a classic integer-only table escaped its ordinary-number guard")
+
+    if result["mond universum motive v2/3,5"] != "FALLBACK":
+        fail("unproven classic/integer/multi-domain composition escaped atomically")
 
     if result["universum motive v2/3 -10"] != result["universum motive v2/3"]:
         fail("standalone negative no-op changed the corrected fraction plan")
@@ -698,6 +772,12 @@ def main() -> int:
         fail("single-domain projected integer ordering drifted")
     if any(field.startswith("--oberesmaximum=") for field in single_integer[0]):
         fail("projected ordinary multiple base must not carry a synthetic maximum")
+
+    one_divider = records(result["universum v2/3,1 teiler"])
+    if len(one_divider) != 13:
+        fail("value-one divider composition lost an invocation")
+    if row_selector(one_divider[0]) != "2,1,4,6,3,1,v1":
+        fail("value-one divider duplicated or lost the outer row-1 sentinel")
 
     single_divider = records(result["universum v2/3,5 teiler"])
     if len(single_divider) != 13:

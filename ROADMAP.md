@@ -687,3 +687,21 @@ Der historische Assetgate ist jetzt vollständig read-only. Fünf gepinnte SHA-2
 
 - [x] `Set[Int]`/`List[Int]`-Compilergrenze im echten Bruchteilerpfad schließen
   und durch den aktuellen fokussierten Mojo-Probe absichern (12c5bj).
+
+## Stage 12c5bk – hermetische native Parität und klassische Bruchguards
+
+- [x] Geerbte installierte `RETA_*`-Ressourcenpfade aus dem nativen Kommando-Paritätsgate entfernen.
+- [x] Den Prüfer unter absichtlich ungültigen Fremdpfaden gegen 4/4 gepinnte Fälle ausführen.
+- [x] Die äußere Zeile-1-Sentinel im Bruchteilerpfad wiederherstellen und Wert 1 deduplizieren.
+- [x] Klassische Ganzzahlfamilien bei reinen echten Bruchachsen inert behandeln.
+- [x] Ein- und Mehrdomänenfälle gegen die eingefrorene `bedingungZahl`-Grenze prüfen.
+- [ ] Benutzerseitig `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bk.sh -- -j 4` ausführen.
+- [ ] Danach `scripts/build-tests.sh --heavy -- -j 4 && scripts/run-tests.sh --jobs 4` ausführen.
+
+### Stage 12c5bk
+
+- hermetische native Kommando-Parität;
+- klassische Ganzzahlfamilien bleiben bei reinen Bruchachsen inert;
+- äußere Zeile 1 im Bruchteilervertrag wiederhergestellt;
+- konservativ inkrementelle Testkompilierung mit transitiven Importhashes;
+- nichtwerfender `hoechsteZeile()`-Zugriff über `Dict.get()`.

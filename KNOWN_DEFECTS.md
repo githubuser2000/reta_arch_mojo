@@ -19,11 +19,11 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 
 - letzter vollständiger Rückwärtsaudit: `12c4s`
 - geprüfte Quellen: **24**
-- Reichweite: Vollständig bezogen auf alle bis Stage 12c5bh im Projekt bestätigten oder plausibel begründeten verhaltensrelevanten Befunde; unbekannte künftige Fehler können naturgemäß erst nach ihrer Entdeckung aufgenommen werden.
+- Reichweite: Vollständig bezogen auf alle bis Stage 12c5bk im Projekt bestätigten oder plausibel begründeten verhaltensrelevanten Befunde; unbekannte künftige Fehler können naturgemäß erst nach ihrer Entdeckung aufgenommen werden.
 
 ## Übersicht
 
-- Einträge insgesamt: **140**
+- Einträge insgesamt: **145**
 - offene bestätigte Python-Fehler: **6**
 - zu entscheidende Python-Fehlerkandidaten: **13**
 - bereits im Python-Baum behobene Fehler: **7**
@@ -1908,3 +1908,70 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 - spätere Python-Aktion: Keine Python-Änderung erforderlich; dies war ausschließlich eine Mojo-Typgrenze im neuen nativen Teilerpfad.
 - Mojo-Orte: `src/reta_mojo/prompt_table_execution.mojo`, `tests/test_prompt_fraction_integer_axes_source.py`, `tests/test_stage12c5bj_source.py`, `scripts/test_stage12c5bj.sh`
 - Belege: `STAGE12C5BJ_PINNED_COMMAND_PARITY_ASSETS.md`, `src/reta_mojo/prompt_table_execution.mojo`, `tests/test_stage12c5bj_source.py`, `scripts/test_stage12c5bj.sh`
+
+### MOJO-FIXED-062 – Projizierte Bruch-Ganzzeilen aktivierten klassische Ganzzahlfamilien beziehungsweise erzwangen Mehrdomänen-Fallback
+
+- Ursprung: `mojo_port`
+- Klasse / Schwere: `projected_integer_guard_confusion` / `high`
+- Python-Status: `correct_reference`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5bk`
+- Reproduktion: `mond universum v2/3 und mond universum motive v2/3 über den nativen Promptplaner ausführen; zuvor entstand im Einzeldomänenfall eine falsche Mondinvokation beziehungsweise im Mehrdomänenfall FALLBACK.`
+- heutiger Vertrag: Der Planer trennt explizite gewöhnliche Ganzzahlsyntax von ganzzahligen Zeilen, die erst aus einem echten n/m-Rechteck projiziert werden. Klassische Ganzzahlfamilien werden nur durch die explizite Achse aktiviert. Ohne sie bleiben mond, richtung, primzahlkreuz, alles und thomas inert, während ein- und mehrdomänige Bruchpläne vollständig nativ laufen. Mit einer echten Ganzzahlachse und mehreren Bruchdomänen bleibt die noch unbewiesene Reihenfolge atomarer Fallback.
+- spätere Python-Aktion: Keine Python-Änderung erforderlich; die eingefrorene Referenz besitzt die richtige bedingungZahl-Grenze, stürzt jedoch zuvor im separaten echten-Bruchvielfachenfehler ab.
+- Python-Orte: `python_reference/reta_architecture/prompt_execution.py:561`, `python_reference/reta_architecture/prompt_execution.py:1400`
+- Mojo-Orte: `src/reta_mojo/prompt_table_execution.mojo`, `tests/test_prompt_table_execution.mojo`, `scripts/prompt_classic_fraction_guard_reference.py`, `scripts/check_prompt_true_fraction_multiples.py`
+- Belege: `STAGE12C5BK_HERMETIC_PARITY_CLASSIC_FRACTION_GUARDS.md`, `tests/test_stage12c5bk_source.py`, `tests/test_prompt_table_execution.mojo`, `scripts/prompt_classic_fraction_guard_reference.py`
+
+### TEST-FIXED-055 – Native Kommando-Parität erbte installierte Ressourcenpfade aus der Entwickler-Shell
+
+- Ursprung: `test_infrastructure`
+- Klasse / Schwere: `ambient_resource_path_parity_contamination` / `high`
+- Python-Status: `not_applicable`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5bj/12c5bk`
+- Reproduktion: `scripts/test_stage12c5bj.sh mit gesetztem RETA_SHARE_DIR oder RETA_DATA_DIR auf einen installierten beziehungsweise älteren Datenbestand ausführen; zwei Shell-Paritätsfälle meldeten abweichende Längen, obwohl dasselbe Binary mit den Repository-Ressourcen 4/4 Fälle erfüllt.`
+- heutiger Vertrag: Der native Paritätsprüfer entfernt RETA_SHARE_DIR und setzt RETA_ROOT, RETA_REFERENCE_DIR, RETA_DATA_DIR sowie RETA_ASSET_DIR zwingend auf den aktuellen Source-Tree. Die Stage startet den Prüfer absichtlich mit ungültigen Fremdpfaden. Echte Differenzen melden zusätzlich die erste abweichende Zeichenposition.
+- spätere Python-Aktion: Keine Python- oder Mojo-Produktionsänderung erforderlich; betroffen war ausschließlich die Hermetik des Laufzeit-Paritätsprüfers.
+- Mojo-Orte: `scripts/check_command_parity_native.py`, `scripts/test_stage12c5bk.sh`, `tests/test_command_parity_environment.py`, `tests/test_stage12c5bk_source.py`
+- Belege: `STAGE12C5BK_HERMETIC_PARITY_CLASSIC_FRACTION_GUARDS.md`, `scripts/check_command_parity_native.py`, `scripts/test_stage12c5bk.sh`, `tests/test_command_parity_environment.py`
+
+### MOJO-FIXED-063 – Bruchteilerpfad verlor die äußere Zeile-1-Sentinel vor nichttrivialen Divisoren
+
+- Ursprung: `mojo_port`
+- Klasse / Schwere: `outer_divider_one_sentinel_omission` / `high`
+- Python-Status: `correct_reference`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5bi/12c5bk`
+- Reproduktion: `test_true_fraction_multiples_follow_each_csv_rectangle mit universum v2/3,5 teiler ausführen; der korrigierte Bruchplan enthielt 2,1,4,6,3,5,v5 statt 2,1,4,6,3,1,5,v5.`
+- heutiger Vertrag: Sobald im Bruchteilerzweig mindestens ein positiver gewöhnlicher Wert überlebt, wird Zeile 1 vor der nichttrivialen Divisorreihenfolge wieder eingefügt. Der Spezialfall Wert 1 wird nicht dupliziert. Null- und reine Ausschlussachsen erzeugen keine künstliche 1.
+- spätere Python-Aktion: Keine Änderung der eingefrorenen Python-Grammatik erforderlich. Bei einer späteren Korrektur des inneren Python-Bruchrechtecks muss diese äußere Zeile-1-/Divisor-/Rohwert-/v-Reihenfolge erhalten bleiben.
+- Python-Orte: `python_reference/reta_architecture/prompt_execution.py:1823`, `python_reference/reta_architecture/prompt_execution.py:1864`
+- Mojo-Orte: `src/reta_mojo/prompt_table_execution.mojo`, `tests/test_prompt_table_execution.mojo`, `tests/prompt_true_fraction_multiple_probe.mojo`, `scripts/check_prompt_true_fraction_multiples.py`, `tests/test_prompt_fraction_integer_axes_source.py`
+- Belege: `STAGE12C5BK_HERMETIC_PARITY_CLASSIC_FRACTION_GUARDS.md`, `tests/test_prompt_table_execution.mojo`, `scripts/check_prompt_true_fraction_multiples.py`, `tests/test_stage12c5bk_source.py`
+
+### TEST-FIXED-056 – Gesamter Testbestand wurde trotz unveränderter transitiver Abhängigkeiten immer neu kompiliert
+
+- Ursprung: `test_infrastructure`
+- Klasse / Schwere: `missing_incremental_dependency_fingerprints` / `medium`
+- Python-Status: `not_applicable`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5bh/12c5bk`
+- Reproduktion: `scripts/test_all.sh zweimal unmittelbar nacheinander ausführen; build-tests.sh kompilierte zuvor sämtliche ausgewählten Testprogramme erneut, obwohl Quellen, Compiler, Linkprofil und Buildoptionen unverändert waren.`
+- heutiger Vertrag: Jedes Testbinary besitzt einen konservativen SHA-256-Buildfingerabdruck aus Testquelle, transitiv importierten lokalen Mojo-Modulen, Compileridentität und -version, Zielplattform, Buildoptionen, ausgewählten buildrelevanten Umgebungswerten und Linkprofil. Nur bei identischem Fingerabdruck und gültigem ELF wird wiederverwendet. Ein fehlender oder nicht auflösbarer lokaler Import verändert den Fingerabdruck; --rebuild-all erzwingt den Vollbuild. Das globale Manifest bleibt während eines Builds entfernt und wird erst nach vollständigem Erfolg atomar veröffentlicht.
+- spätere Python-Aktion: Keine Python-Änderung erforderlich; dies ist eine konservative Testbuild-Optimierung außerhalb der Programmlogik.
+- Mojo-Orte: `scripts/build-tests.sh`, `scripts/test_all.sh`, `scripts/current_test_source_id.sh`, `tools/mojo_test_build_fingerprint.py`, `tests/test_incremental_test_build.py`, `tests/test_split_test_pipeline.py`
+- Belege: `STAGE12C5BK_HERMETIC_PARITY_CLASSIC_FRACTION_GUARDS.md`, `tools/mojo_test_build_fingerprint.py`, `tests/test_incremental_test_build.py`, `scripts/build-tests.sh`
+
+### TEST-FIXED-057 – Nichtwerfender Tabellenruntime-Accessor verwendete werfenden Dict-Indexzugriff
+
+- Ursprung: `mojo_port`
+- Klasse / Schwere: `non_raising_dict_lookup_compile_failure` / `high`
+- Python-Status: `not_applicable`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5bj/12c5bk`
+- Reproduktion: `scripts/test_all.sh --heavy --run-jobs 4 -- -j 4 ausführen; tests/test_table_runtime_complete.mojo brach beim Kompilieren ab, weil hoechsteZeile ohne raises self.state.highest_rows[114] beziehungsweise [1024] aufrief.`
+- heutiger Vertrag: Der öffentliche nichtwerfende Accessor verwendet Dict.get mit den historischen Standardwerten 163 für Schlüssel 114 und 1024 für Schlüssel 1024. Die normalen Factorypfade installieren beide Schlüssel weiterhin explizit; auch manuell rekonstruierte Zustände können den Accessor nun ohne DictKeyError-Typgrenze verwenden.
+- spätere Python-Aktion: Keine Python-Änderung erforderlich; betroffen war die Mojo-Fehlerwirkung des Dict-Zugriffs.
+- Mojo-Orte: `src/reta_mojo/table_runtime.mojo`, `tests/test_table_runtime_complete.mojo`, `tests/test_table_runtime_complete_source.py`, `scripts/test_stage12c5bk.sh`
+- Belege: `STAGE12C5BK_HERMETIC_PARITY_CLASSIC_FRACTION_GUARDS.md`, `src/reta_mojo/table_runtime.mojo`, `tests/test_table_runtime_complete_source.py`, `scripts/test_stage12c5bk.sh`

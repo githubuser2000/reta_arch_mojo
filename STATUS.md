@@ -1,3 +1,11 @@
+# Status – Stage 12c5bk
+
+- Der vollständige Benutzerbuild von 12c5bj ist grün; `-j 4` wird bis zu allen nativen Produktionszielen durchgereicht.
+- Der verbleibende Bruchteiler-Laufzeitfehler war die fehlende äußere Zeile-1-Sentinel vor nichttrivialen Divisoren. Sie wird nun nur bei mindestens einem positiven gewöhnlichen Wert ergänzt und beim Spezialfall 1 nicht dupliziert.
+- Reine echte Brüche aktivieren klassische ganzzahlgebundene Familien (`mond`, `richtung`, `primzahlkreuz`, `alles`, `thomas`) nicht mehr über projizierte Ganzzeilen. Ein- und Mehrdomänenpläne laufen ohne erfundene klassische Invokation nativ.
+- Die zwei nativen Kommando-Paritätsabweichungen kamen von geerbten `RETA_*`-Ressourcenpfaden. Der Prüfer setzt Source-Tree-Daten und Assets jetzt hermetisch; ein absichtlich verschmutzter Lauf besteht 4/4 Fälle.
+- Mit einer echten zusätzlichen Ganzzahlachse und mehreren Bruchdomänen bleibt die klassische Tabellenreihenfolge weiterhin atomarer Fallback.
+
 # Status – Stage 12c5bj
 
 - Kommando-Paritätsassets werden im Stage-Gate ausschließlich gegen gepinnte SHA-256-Werte geprüft; der lokale CPython-Renderer wird nicht gestartet.
@@ -464,3 +472,13 @@ Siehe [`ROADMAP.md`](ROADMAP.md) für alle zwölf Stufen.
 - Stage 12c5bj: realen `Set[Int]`→`List[Int]`-Compilerfehler im
   True-Fraction-Teilerpfad behoben; fokussierter Probe ist Teil des aktuellen
   Stage-Gates.
+
+## Stage 12c5bk – inkrementelle Testbuilds und Runtime-Korrektur
+
+- unveränderte Testprogramme werden anhand transitiver SHA-256-Abhängigkeiten
+  wiederverwendet; `--rebuild-all` bleibt der vollständige Sicherheitsweg;
+- der Ready-Manifest-Vertrag bleibt atomar und verhindert Mischstände;
+- `table_runtime.mojo` verwendet in `hoechsteZeile()` nichtwerfende
+  `Dict.get()`-Zugriffe mit historischen Standardwerten;
+- die hermetische Kommando-Parität und die klassischen Bruchguards sind Teil
+  desselben aktuellen Stage-Gates.

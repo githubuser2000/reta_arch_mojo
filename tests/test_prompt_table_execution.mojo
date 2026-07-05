@@ -494,6 +494,14 @@ def test_true_fraction_multiples_follow_each_csv_rectangle() raises:
     )
     assert_false("--oberesmaximum=" in _tokens(integer_axis, 0))
 
+    var one_axis_divisor = _plan("universum v2/3,1 teiler")
+    assert_true(one_axis_divisor.handled)
+    assert_equal(len(one_axis_divisor.invocations), 13)
+    assert_true(
+        "--vorhervonausschnitt=2,1,4,6,3,1,v1"
+        in _tokens(one_axis_divisor, 0)
+    )
+
     var integer_axis_divisor = _plan("universum v2/3,5 teiler")
     assert_true(integer_axis_divisor.handled)
     assert_equal(len(integer_axis_divisor.invocations), 13)
@@ -600,10 +608,46 @@ def test_true_fraction_multiples_follow_each_csv_rectangle() raises:
         in _tokens(ranged_exclusion_axis, 0)
     )
 
+    # Classic integer-only table families live under Python's ordinary-number
+    # guard.  A pure true fraction must not activate them from its projected
+    # whole rows.  They are inert while the physical fraction domains remain
+    # fully native.
+    var moon_multi = _plan("mond universum motive v2/3")
+    var moon_multi_base = _plan("universum motive v2/3")
+    assert_true(moon_multi.handled)
+    assert_equal(
+        serialize_prompt_table_plan(moon_multi),
+        serialize_prompt_table_plan(moon_multi_base),
+    )
+    assert_false("--Bedeutung=gestirn" in serialize_prompt_table_plan(moon_multi))
+
+    var moon_single = _plan("mond universum v2/3")
+    assert_true(moon_single.handled)
+    assert_equal(len(moon_single.invocations), 13)
+    assert_false("--Bedeutung=gestirn" in serialize_prompt_table_plan(moon_single))
+    assert_true("--spaltenreihenfolgeundnurdiese=1" in _tokens(moon_single, 0))
+
+    var classic_single = _plan(
+        "mond richtung primzahlkreuz alles thomas universum v2/3"
+    )
+    assert_true(classic_single.handled)
+    assert_equal(len(classic_single.invocations), 13)
+    assert_false("--Bedeutung=gestirn" in serialize_prompt_table_plan(classic_single))
+    assert_false("--Primzahlwirkung=Galaxieabsicht" in serialize_prompt_table_plan(classic_single))
+    assert_false("--Bedeutung=primzahlkreuz" in serialize_prompt_table_plan(classic_single))
+    assert_false("|-spalten|--alles|" in "|" + serialize_prompt_table_plan(classic_single) + "|")
+    assert_false("--galaxie=thomas" in serialize_prompt_table_plan(classic_single))
+    assert_true("--Universum=transzendentalien" in _tokens(classic_single, 0))
+    assert_true("--spaltenreihenfolgeundnurdiese=1" in _tokens(classic_single, 0))
+
+    # A real ordinary integer component would activate the classic family.
+    # Its ordering relative to several independently corrected fraction
+    # rectangles remains deliberately atomic until separately proven.
+    assert_false(_plan("mond universum motive v2/3,5").handled)
+
     # A separately written negative token is consumed by the historical prompt
     # as a parameter-like no-op.  It must not alter the corrected multi-domain
     # fraction plan.
-    assert_false(_plan("mond universum motive v2/3").handled)
     var standalone_negative = _plan("universum motive v2/3 -10")
     var standalone_negative_base = _plan("universum motive v2/3")
     assert_true(standalone_negative.handled)

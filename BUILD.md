@@ -787,3 +787,33 @@ Der True-Fraction-Teilerpfad materialisiert `Set[Int]` vor dem Aufruf des
 `List[Int]`-Divisorreihenfolgehelfers. Der aktuelle Stage-Test kompiliert den
 zugehörigen Probe auch mit `RETA_STAGE_SKIP_PREVIOUS=1`; Compileroptionen werden
 weiter hinter `--` durchgereicht.
+
+## Stage 12c5bk: hermetische Parität und Bruchguards
+
+Nach dem Vollbuild:
+
+```sh
+RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bk.sh -- -j 4
+```
+
+Der Stage-Test überschreibt für die native Kommando-Parität absichtlich alle `RETA_*`-Ressourcenpfade mit ungültigen Werten. Der Prüfer muss sie intern auf den aktuellen Source-Tree normalisieren und 4/4 Fälle bestehen. Anschließend wird der True-Fraction-Probe mit denselben Compileroptionen gebaut und ausgeführt.
+
+## Inkrementelle Testkompilierung ab Stage 12c5bk
+
+Ein unveränderter Test wird nicht erneut kompiliert, wenn sein konservativer
+Buildfingerabdruck identisch ist:
+
+```sh
+scripts/build-tests.sh --heavy -- -j 4
+scripts/run-tests.sh --jobs 4
+```
+
+Der Fingerabdruck umfasst die Testdatei, transitiv importierte lokale
+Mojo-Module, Compiler/Version, Plattform, Linkprofil, Buildoptionen und
+buildrelevante Umgebungswerte. Das ist absichtlich strenger als ein
+Zeitstempelvergleich. Ein vollständiger Neubau bleibt verfügbar:
+
+```sh
+scripts/build-tests.sh --rebuild-all --heavy -- -j 4
+scripts/test_all.sh --rebuild-all --heavy --run-jobs 4 -- -j 4
+```

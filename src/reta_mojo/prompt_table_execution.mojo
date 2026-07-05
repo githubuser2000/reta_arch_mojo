@@ -365,9 +365,17 @@ def _projected_fraction_divisor_rows(
         var values = List[Int]()
         for value in value_set:
             values.append(value)
+        # The outer legacy ``teiler`` grammar always keeps row 1 whenever
+        # at least one positive ordinary value survives.  The shared
+        # ``python_divisor_set_order`` helper intentionally removes 1 from a
+        # non-trivial divisor set, so restore that outer-prompt sentinel here
+        # without duplicating the special value-1-only case.
+        if len(values) > 0:
+            result.append("1")
         var divisors = python_divisor_set_order(values)
         for index in range(len(divisors)):
-            result.append(String(divisors[index]))
+            if divisors[index] != 1:
+                result.append(String(divisors[index]))
     except:
         pass
     if _join_rows(row_parts).byte_length() > 1:
@@ -815,15 +823,31 @@ def _is_fraction_domain_table_command(canonical: String) -> Bool:
     return is_physical_fraction_prompt_table_family(canonical)
 
 
-def _only_fraction_domain_table_commands(
+def _only_fraction_domains_or_inert_classic_commands(
     canonical_words: List[String],
+    has_explicit_integer_axis: Bool,
 ) -> Bool:
+    """Accept physical n/m families plus classic integer-only no-ops.
+
+    The frozen controller executes ``mond``, ``richtung``, ``primzahlkreuz``,
+    ``alles`` and ``thomas`` only inside its ordinary-integer branch.  Whole
+    rows projected from a true fraction do not activate that branch.  Such
+    classic words are therefore inert when no explicit integer component was
+    parsed, while their composition with a real integer axis remains an atomic
+    fallback until a separate ordering law is proven.
+    """
     for index in range(len(canonical_words)):
         var canonical = canonical_words[index]
-        if _is_table_command(canonical) and not _is_fraction_domain_table_command(
-            canonical
+        if not _is_table_command(canonical):
+            continue
+        if _is_fraction_domain_table_command(canonical):
+            continue
+        if (
+            is_classic_integer_prompt_table_family(canonical)
+            and not has_explicit_integer_axis
         ):
-            return False
+            continue
+        return False
     return True
 
 
@@ -1550,7 +1574,9 @@ def plan_prompt_table_commands(
             len(numeric15_values) > 0
             or len(numeric16_values) > 0
             or has_property_command
-            or not _only_fraction_domain_table_commands(canonical_words)
+            or not _only_fraction_domains_or_inert_classic_commands(
+                canonical_words, len(row_parts) > 0
+            )
         ):
             return PromptTablePlan(False, List[PromptTableInvocation]())
         var multi_counting = _contains(canonical_words, "range") or _contains(
@@ -1710,6 +1736,11 @@ def plan_prompt_table_commands(
         normal_rows = divisor_rows^
 
     var has_integer = len(normal_rows) > 0
+    # ``bedingungZahl`` in the frozen controller reflects only ordinary
+    # integer syntax.  Reduced whole rows projected from n/m fractions may
+    # feed physical fraction families, but must never wake classic integer-only
+    # commands such as ``mond`` or ``thomas``.
+    var has_explicit_integer_axis = len(row_parts) > 0
     var has_reciprocal = len(reciprocal_rows) > 0
     if (
         not has_integer
@@ -1815,7 +1846,7 @@ def plan_prompt_table_commands(
         )
     var invocations = List[PromptTableInvocation]()
 
-    if _contains(canonical_words, "mond") and has_integer:
+    if _contains(canonical_words, "mond") and has_explicit_integer_axis:
         _add_invocation(
             invocations,
             integer_base,
@@ -1827,7 +1858,7 @@ def plan_prompt_table_commands(
     if (
         _contains(canonical_words, "richtung")
         or _contains(canonical_words, "r")
-    ) and has_integer:
+    ) and has_explicit_integer_axis:
         _add_invocation(
             invocations,
             integer_base,
@@ -1836,7 +1867,7 @@ def plan_prompt_table_commands(
             suppress_empty,
             passthrough,
         )
-    if _contains(canonical_words, "primzahlkreuz") and has_integer:
+    if _contains(canonical_words, "primzahlkreuz") and has_explicit_integer_axis:
         _add_invocation(
             invocations,
             integer_base,
@@ -1845,7 +1876,7 @@ def plan_prompt_table_commands(
             suppress_empty,
             passthrough,
         )
-    if _contains(canonical_words, "alles") and has_integer:
+    if _contains(canonical_words, "alles") and has_explicit_integer_axis:
         _add_invocation(
             invocations,
             integer_base,
@@ -1856,7 +1887,7 @@ def plan_prompt_table_commands(
         )
     if (
         _contains(canonical_words, "thomas") or _contains(canonical_words, "t")
-    ) and has_integer:
+    ) and has_explicit_integer_axis:
         _add_invocation(
             invocations,
             integer_base,

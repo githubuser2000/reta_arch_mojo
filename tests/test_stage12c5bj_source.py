@@ -8,11 +8,13 @@ ROOT = Path(__file__).resolve().parents[1]
 def test_current_stage_extends_bi_and_uses_read_only_pinned_assets() -> None:
     current = (ROOT / "scripts/test_current_stage.sh").read_text(encoding="utf-8")
     stage = (ROOT / "scripts/test_stage12c5bj.sh").read_text(encoding="utf-8")
-    assert "test_stage12c5bj.sh" in current
+    assert "test_stage12c5bk.sh" in current
+    next_stage = (ROOT / "scripts/test_stage12c5bk.sh").read_text(encoding="utf-8")
+    assert 'test_stage12c5bj.sh" -- "$@"' in next_stage
     assert 'test_stage12c5bi.sh" -- "$@"' in stage
     assert "generate_command_parity_assets.py --check" in stage
     assert "--migrate-legacy" not in stage
-    assert "--check-reference" in current
+    assert 'parser.add_argument("--check-reference"' in (ROOT / "tools/generate_command_parity_assets.py").read_text(encoding="utf-8")
 
 
 def test_all_historical_stage_gates_are_read_only_for_command_assets() -> None:
@@ -47,6 +49,8 @@ def test_divisor_set_is_materialized_before_list_only_helper() -> None:
     assert "for value in value_set:" in helper
     assert "values.append(value)" in helper
     assert "python_divisor_set_order(values)" in helper
+    assert 'result.append("1")' in helper
+    assert "if divisors[index] != 1:" in helper
     assert "python_divisor_set_order(value_set)" not in helper
 
 

@@ -1,3 +1,11 @@
+# Testergebnisse – Stage 12c5bk
+
+- Benutzerbuild 12c5bj: vollständiger nativer Build erfolgreich.
+- Read-only Kommandoassetgate: 4 gepinnte Fälle bestanden.
+- Der native Lauf `test_prompt_table_execution` lokalisierte den einzigen verbleibenden Fehler in der äußeren Bruchteiler-Zeile-1-Sentinel.
+- Hermetischer Kommando-Paritätsprüfer mit absichtlich ungültigen `RETA_ROOT`/`RETA_SHARE_DIR`/`RETA_DATA_DIR`/`RETA_ASSET_DIR`/`RETA_REFERENCE_DIR`: 4/4 Fälle bestanden.
+- Python-Referenzprobe bestätigt: klassische Ganzzahlfamilien besitzen bei reinem `v n/m` null Aufrufe; eine explizite `,5`-Achse aktiviert den klassischen Zweig.
+
 # Testergebnisse – Stage 12c5bj
 
 ## Vom Benutzer bestätigter Compilerbefund
@@ -2347,3 +2355,14 @@ Benutzerlauf.
   `Set[Int]` gegen `List[Int]` in `_projected_fraction_divisor_rows`. Stage
   12c5bj materialisiert die Liste explizit und kompiliert den Fraction-Probe im
   aktuellen Stage-Gate.
+
+## Stage 12c5bk – portable Zusatzprüfungen
+
+- Abhängigkeitsfingerabdruck: transitive Änderung relevant, unabhängige Änderung
+  wirkungslos, Buildkontext und fehlende lokale Importe wirksam;
+- ELF-Mock: 131 Erstbuilds, unmittelbar danach 131 Wiederverwendungen;
+- Einzeländerungsprobe: genau eine geänderte Testhauptdatei neu gebaut;
+- `hoechsteZeile()`-Sourcevertrag bestätigt zwei nichtwerfende `Dict.get()`-
+  Zugriffe;
+- die echte Mojo-Kompilierung verbleibt beim Benutzerlauf
+  `scripts/test_stage12c5bk.sh -- -j 4`.
