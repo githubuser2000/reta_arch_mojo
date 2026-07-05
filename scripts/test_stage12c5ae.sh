@@ -16,8 +16,7 @@ TEST_PYTHON=$("$ROOT/scripts/find_test_python.sh")
 # small deterministic CSV fixture instead of the full production data set.
 "$MOJO" build -I src tests/test_program_workflow.mojo \
     -o target/tests/test_program_workflow_12c5ae
-RETA_DATA_DIR="$ROOT/tests/fixtures/program_workflow_root/csv" \
-    "$ROOT/bin/mojo-runtime-exec" target/tests/test_program_workflow_12c5ae
+"$ROOT/bin/mojo-runtime-exec" target/tests/test_program_workflow_12c5ae
 
 # Rebuild the diagnostic main so the package export and all new methods are
 # parsed and type-checked by the real Mojo compiler.

@@ -1060,3 +1060,17 @@ Stage 12c4t portiert die allgemeine Wortvervollständigung aus `reta_architectur
 Eine Sprachrestriktion ist in der Prägarbe eine Verfeinerung, kein Dateinamensfilter. `language=cn` übernimmt deshalb sowohl 16 explizite `cn-*`-CSV-Sektionen als auch 16 sprachneutrale CSV-Sektionen; alle 32 Resultate tragen anschließend `cn` im Kontext.
 
 Der historische Python-Absturzfall `universum v1/4,-1/8,2/3` wird nativ in zwei unabhängige Achsen zerlegt: Vielfache von vier unterhalb 1024 abzüglich der Vielfachen von acht sowie das reale Universum-Bruchrechteck für `2/3`. Der Plan besitzt 13 Aufrufe und benötigt keinen Python-Kindprozess. Details: [`STAGE12C5BD_PRESHEAF_INHERITANCE_RECIPROCAL_COLLISION.md`](STAGE12C5BD_PRESHEAF_INHERITANCE_RECIPROCAL_COLLISION.md).
+
+## Stage 12c5be – Workflow-Ressourcenbesitz und Rich-Output-Gluing
+
+Der vollständige Benutzerlauf deckte zwei bislang vom fokussierten Test
+verdeckte Workflow-Lücken auf. `ProgramWorkflowBundle.repo_root` ist nun ein
+echter Besitzerwert: konkrete Roots laden `root/csv/basename`, während `.` und
+leere Roots weiterhin den portablen FHS-/Umgebungsresolver verwenden. Der
+UTF-8-Fixturetest benötigt deshalb kein externes `RETA_DATA_DIR` mehr.
+
+Außerdem teilen Religion-Zelldekodierung, Tabellengenerierung und Renderer jetzt
+einen kanonischen Rich-Modus. Ein direkt erkanntes `--art=html` oder
+`--art=bbcode` kann nicht mehr gleichzeitig mit einem `shell`-Plan weiterlaufen;
+BBCode behält bei beiden Argumenten die historische Priorität. Details:
+[`STAGE12C5BE_WORKFLOW_ROOT_OUTPUT_MODE_FULL_SUITE.md`](STAGE12C5BE_WORKFLOW_ROOT_OUTPUT_MODE_FULL_SUITE.md).

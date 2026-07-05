@@ -76,8 +76,20 @@ def test_program_workflow_kombi_branch_plan() raises:
 
 
 def test_program_workflow_loads_and_pads_religion_table() raises:
-    var loaded = load_program_workflow_religion_table(
-        "religion.csv", "plain", 1024, make_parallel_config("off")
+    var bundle = configure_program_workflow(
+        "tests/fixtures/program_workflow_root",
+        default_program_workflow_i18n(),
+        default_program_workflow_csv_names(),
+        1025,
+    )
+    assert_equal(
+        bundle._csv_path("nested/religion.csv"),
+        "tests/fixtures/program_workflow_root/csv/religion.csv",
+    )
+    var args = List[String]()
+    args.append("reta")
+    var loaded = bundle._load_religion_table(
+        args, 1024, make_parallel_config("off")
     )
     assert_equal(len(loaded.table.rows), 1025)
     assert_true(loaded.rows_len > 0)
@@ -109,6 +121,11 @@ def test_complete_typed_owner_replaces_dynamic_program_graph() raises:
     )
     assert_equal(generation_plan.output_mode, "html")
     assert_equal(generation_plan.displaying_rows, [0, 1, 2])
+    args.append("--art=bbcode")
+    var rich_parameters = bundle._read_positive_and_negative_parameters(
+        args, 32, 16
+    )
+    assert_equal(rich_parameters.runtime.output_mode, "bbcode")
     var first = bundle.combi_table_workflow(
         bundle.csv_names.kombi13, 40, 3, 5
     )

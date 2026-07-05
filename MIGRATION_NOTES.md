@@ -1,3 +1,9 @@
+# Migration Notes – Stage 12c5be
+
+- Ein Konfigurationsfeld ist erst dann Besitz, wenn alle abhängigen I/O-Grenzen es tatsächlich verwenden. `ProgramWorkflowBundle.repo_root` war zuvor nur Snapshotmetadatum; nun fließt es bis Religion- und Motiv-CSV.
+- Test-Fixtures werden als typisierte Abhängigkeiten modelliert, nicht als versteckte Prozessumgebung. Dadurch prüfen fokussierter Test und Release-Gesamtsuite denselben Vertrag.
+- Zwei Parser dürfen unterschiedliche Oberflächen besitzen, aber ein Workflow darf nicht zwei widersprüchliche Ausgabemodi tragen. Die lokalisierte Rich-Text-Erkennung wird deshalb am Workflow-Gluing-Knoten in den allgemeinen Laufzeitplan synchronisiert; CSV/Markdown/Emacs/Shell bleiben beim allgemeinen Parser.
+
 # Migration Notes – Stage 12c5am
 
 - Unveränderliche Architektursnapshots dürfen keine Hardwareinventur enthalten. Reale Parallelität bleibt dynamisch, der katalogisierte Architekturvertrag verwendet dagegen acht kanonische Kerne.

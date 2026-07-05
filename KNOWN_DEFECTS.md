@@ -19,11 +19,11 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 
 - letzter vollständiger Rückwärtsaudit: `12c4s`
 - geprüfte Quellen: **24**
-- Reichweite: Vollständig bezogen auf alle bis Stage 12c5al im Projekt bestätigten oder plausibel begründeten verhaltensrelevanten Befunde; unbekannte künftige Fehler können naturgemäß erst nach ihrer Entdeckung aufgenommen werden.
+- Reichweite: Vollständig bezogen auf alle bis Stage 12c5be im Projekt bestätigten oder plausibel begründeten verhaltensrelevanten Befunde; unbekannte künftige Fehler können naturgemäß erst nach ihrer Entdeckung aufgenommen werden.
 
 ## Übersicht
 
-- Einträge insgesamt: **126**
+- Einträge insgesamt: **129**
 - offene bestätigte Python-Fehler: **6**
 - zu entscheidende Python-Fehlerkandidaten: **13**
 - bereits im Python-Baum behobene Fehler: **7**
@@ -1720,3 +1720,44 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 - Python-Orte: `python_reference/reta_architecture/presheaves.py`, `python_reference/reta_architecture/topology.py`
 - Mojo-Orte: `tests/test_presheaves_complete.mojo`, `src/reta_mojo/presheaves.mojo`, `src/reta_mojo/topology.mojo`, `tests/test_presheaf_inheritance_source.py`
 - Belege: `STAGE12C5BD_PRESHEAF_INHERITANCE_RECIPROCAL_COLLISION.md`, `tests/test_presheaves_complete.mojo`, `tests/test_presheaf_inheritance_source.py`, `scripts/test_stage12c5bd.sh`
+
+### MOJO-FIXED-057 – ProgramWorkflowBundle ignorierte sein explizites repo_root beim CSV-Laden
+
+- Ursprung: `mojo_port`
+- Klasse / Schwere: `ignored_resource_owner_root` / `high`
+- Python-Status: `correct_reference`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5bd/12c5be`
+- Reproduktion: `RETA_TEST_HEAVY=1 scripts/test_all.sh aus Stage 12c5bd ausführen; test_program_workflow_loads_and_pads_religion_table las Jungfrau aus python_reference/csv/religion.csv statt 한글 中文 Việt aus tests/fixtures/program_workflow_root/csv/religion.csv.`
+- heutiger Vertrag: Ein konkretes ProgramWorkflowBundle.repo_root besitzt seine CSV-Wurzel und löst jeden Dateinamen als repo_root/csv/basename auf. Nur ein leeres oder punktförmiges Root delegiert an den portablen FHS-/Umgebungsresolver. Religionstabelle und sprachspezifische Motivspalten verwenden denselben expliziten Besitzerwert.
+- spätere Python-Aktion: Keine Python-Änderung erforderlich; das Python-Original verwendete repo_root bereits korrekt. Betroffen war ausschließlich der unvollständige Mojo-Besitztransfer.
+- Python-Orte: `python_reference/reta_architecture/program_workflow.py:36`, `python_reference/reta_architecture/program_workflow.py:62`
+- Mojo-Orte: `src/reta_mojo/program_workflow.mojo`, `tests/test_program_workflow.mojo`, `tests/test_program_workflow_source.py`, `tests/test_stage12c5be_source.py`
+- Belege: `STAGE12C5BE_WORKFLOW_ROOT_OUTPUT_MODE_FULL_SUITE.md`, `tests/test_program_workflow.mojo`, `tests/test_stage12c5be_source.py`
+
+### MOJO-FIXED-058 – Workflow dekodierte Rich-Text und plante gleichzeitig Shell-Ausgabe
+
+- Ursprung: `mojo_port`
+- Klasse / Schwere: `split_output_mode_ownership` / `high`
+- Python-Status: `correct_reference`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5bd/12c5be`
+- Reproduktion: `tests/test_program_workflow.mojo mit argv=['reta','--art=html'] ausführen; _requested_religion_output_kind lieferte html, build_parameter_runtime_plan mangels -ausgabe-Hauptabschnitt jedoch shell.`
+- heutiger Vertrag: Der Workflow synchronisiert die lokalisiert erkannten kanonischen Rich-Modi html und bbcode in seinen ParameterRuntimePlan, sodass Zellendekodierung, Tabellengenerierung und Renderergrenze denselben Modus besitzen. Andere Ausgabemodi bleiben im allgemeinen Abschnittsparser. Bei gleichzeitigem HTML und BBCode gewinnt weiterhin BBCode unabhängig von der Argumentfolge.
+- spätere Python-Aktion: Keine Python-Änderung erforderlich; der native typisierte Workflow musste lediglich seine zuvor getrennten Dekodier- und Rendererzustände gluen.
+- Python-Orte: `python_reference/reta_architecture/program_workflow.py:49`, `python_reference/reta_architecture/program_workflow.py:142`
+- Mojo-Orte: `src/reta_mojo/program_workflow.mojo`, `src/reta_mojo/parameter_runtime.mojo`, `tests/test_program_workflow.mojo`, `tests/test_stage12c5be_source.py`
+- Belege: `STAGE12C5BE_WORKFLOW_ROOT_OUTPUT_MODE_FULL_SUITE.md`, `tests/test_program_workflow.mojo`, `tests/test_program_workflow_source.py`, `tests/test_stage12c5be_source.py`
+
+### TEST-FIXED-046 – Fokussierter Workflowtest verdeckte eine globale Fixture-Abhängigkeit
+
+- Ursprung: `mojo_tests`
+- Klasse / Schwere: `hidden_environment_fixture_dependency` / `medium`
+- Python-Status: `not_applicable`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5k/12c5be`
+- Reproduktion: `scripts/test_stage12c5k.sh bestand nur mit extern gesetztem RETA_DATA_DIR; scripts/test_all.sh startete dasselbe Testprogramm ohne diese Variable und erhielt deshalb Produktionsdaten statt Fixture-Daten.`
+- heutiger Vertrag: Der Workflowtest konstruiert seinen expliziten Fixture-Root im typisierten ProgramWorkflowBundle. Fokussierter Stage-Test und allgemeine Testsuite führen dasselbe Binärprogramm ohne verstecktes RETA_DATA_DIR aus; die separate CLI-Parität darf weiterhin bewusst den installierbaren Ressourcenresolver per Umgebung testen.
+- spätere Python-Aktion: Keine Python-Änderung erforderlich; betroffen war ausschließlich die Isolierung des nativen Mojo-Tests.
+- Mojo-Orte: `scripts/test_stage12c5k.sh`, `scripts/test_stage12c5be.sh`, `tests/test_program_workflow.mojo`, `tests/test_stage12c5be_source.py`
+- Belege: `STAGE12C5BE_WORKFLOW_ROOT_OUTPUT_MODE_FULL_SUITE.md`, `scripts/test_stage12c5be.sh`, `tests/test_stage12c5be_source.py`

@@ -12,8 +12,7 @@ mkdir -p target/tests
 
 "$MOJO" build -I src tests/test_program_workflow.mojo \
     -o target/tests/test_program_workflow_12c5n
-RETA_DATA_DIR="$ROOT/tests/fixtures/program_workflow_root/csv" \
-    ./target/tests/test_program_workflow_12c5n
+./target/tests/test_program_workflow_12c5n
 
 "$MOJO" build -I src tests/test_html_class_extractor.mojo \
     -o target/tests/test_html_class_extractor_12c5n

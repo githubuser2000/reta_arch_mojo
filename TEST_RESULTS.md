@@ -1,3 +1,12 @@
+# Testergebnisse – Stage 12c5be
+
+- Gemeldeter Gesamtsuitefehler 1 reproduziert: Workflowtest las Produktionsdaten (`Jungfrau`) statt der UTF-8-Fixture (`한글 中文 Việt`), weil `repo_root` im nativen Besitzer nicht an die CSV-Auflösung weitergereicht wurde.
+- Gemeldeter Gesamtsuitefehler 2 reproduziert: Rich-Zelldekodierung erkannte `html`, während der Abschnittsparser mangels `-ausgabe` auf `shell` blieb.
+- Quellreparatur: expliziter Workflow-Root für Religion- und Motivdaten; portabler Resolver nur bei leerem oder `.`-Root.
+- Quellreparatur: HTML/BBCode werden in denselben `ParameterRuntimePlan` übernommen, der anschließend Tabellengenerierung und Renderergrenze speist.
+- Der fokussierte Mojo-Test benötigt kein `RETA_DATA_DIR` mehr. Die separate CLI-Parität behält die bewusste Umgebungsprüfung des installierbaren Ressourcenresolvers.
+- Portable Python-/Source-Verträge und Defektledger sind grün. Die echte Kompilierung erfolgt benutzerseitig mit `scripts/test_stage12c5be.sh`; danach ist die vollständige Suite fortzusetzen.
+
 # Testergebnisse – Stage 12c5bd
 
 - Prägarbenvertrag: 16 explizite `cn`- plus 16 geerbte sprachneutrale CSV-Sektionen.

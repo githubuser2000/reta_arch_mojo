@@ -157,7 +157,7 @@ struct ProgramWorkflowBundle(Copyable):
     var catalog: ProgramWorkflowCatalog
 
     def _csv_path(self, csv_file_name: String) -> String:
-        return program_workflow_csv_path(csv_file_name)
+        return program_workflow_csv_path(csv_file_name, self.repo_root)
 
     def _decode_religion_cell(
         self, cell: String, output_kind: String
@@ -185,6 +185,7 @@ struct ProgramWorkflowBundle(Copyable):
             self._requested_religion_output_kind(argv),
             highest_row,
             config,
+            self.repo_root,
         )
 
     def _apply_language_specific_motive_column(
@@ -192,7 +193,7 @@ struct ProgramWorkflowBundle(Copyable):
     ) raises -> CsvTable:
         var active_language = language if language.byte_length() > 0 else self.i18n.language
         return apply_language_specific_motive_column(
-            table, self.csv_names, active_language
+            table, self.csv_names, active_language, self.repo_root
         )
 
     def _reset_runtime_flags(self, text_width: Int = 21) -> ProgramWorkflowFlags:
@@ -207,6 +208,15 @@ struct ProgramWorkflowBundle(Copyable):
         var runtime = build_parameter_runtime_plan(
             argv, maximum_columns, maximum_rows
         )
+        # The historical workflow determines rich religion-cell decoding from
+        # the localized ``--art=...`` surface independently of the sectioned
+        # parameter parser.  Keep the typed renderer plan on the same canonical
+        # mode so table generation cannot decode HTML while later rendering as
+        # shell (or vice versa).  Non-rich output modes remain owned by the
+        # general parameter runtime.
+        var requested_output_kind = self._requested_religion_output_kind(argv)
+        if requested_output_kind != "plain":
+            runtime.output_mode = requested_output_kind
         return ProgramWorkflowParameterReadResult(
             runtime.copy(),
             runtime.positive_rows.copy(),
@@ -432,8 +442,20 @@ def program_workflow_basename(path: String) -> String:
     return String(pieces[len(pieces) - 1])
 
 
-def program_workflow_csv_path(csv_file_name: String) -> String:
-    return csv_resource(program_workflow_basename(csv_file_name))
+def program_workflow_csv_path(
+    csv_file_name: String, repo_root: String = ""
+) -> String:
+    var basename = program_workflow_basename(csv_file_name)
+    var root = String(repo_root.strip())
+    # Empty and dot roots represent the portable runtime layout.  The shared
+    # resolver then honours RETA_DATA_DIR/RETA_SHARE_DIR/RETA_ROOT and the
+    # source-tree fallback.  A concrete root is an explicit ProgramWorkflow
+    # dependency and mirrors Python's ``repo_root / "csv" / basename``.
+    if root.byte_length() == 0 or root == ".":
+        return csv_resource(basename)
+    if root.endswith("/"):
+        return root + "csv/" + basename
+    return root + "/csv/" + basename
 
 
 def requested_religion_output_kind(
@@ -479,8 +501,11 @@ def load_program_workflow_religion_table(
     output_kind: String,
     highest_row: Int,
     config: ParallelExecutionConfig,
+    repo_root: String = "",
 ) raises -> ProgramWorkflowReligionTable:
-    var raw_table = read_semicolon_csv(program_workflow_csv_path(csv_file_name))
+    var raw_table = read_semicolon_csv(
+        program_workflow_csv_path(csv_file_name, repo_root)
+    )
     var decoded = decode_religion_rows_threaded(
         _indexed_rows(raw_table), output_kind, config
     )
@@ -517,11 +542,14 @@ def apply_language_specific_motive_column(
     table: CsvTable,
     csv_names: ProgramWorkflowCsvNames,
     language: String,
+    repo_root: String = "",
 ) raises -> CsvTable:
     var filename = motive_csv_for_language(csv_names, language)
     if filename.byte_length() == 0 or filename == "de":
         return table.copy()
-    var motives = read_semicolon_csv(program_workflow_csv_path(filename))
+    var motives = read_semicolon_csv(
+        program_workflow_csv_path(filename, repo_root)
+    )
     var result = table.copy()
     var count = min(len(result.rows), len(motives.rows))
     for row_index in range(count):

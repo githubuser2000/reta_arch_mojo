@@ -648,3 +648,13 @@ Maschinenstand: **80/92 vollständig**, **86/92 mindestens teilweise**, **46.561
 - [x] `v1/4,-1/8,2/3` in Reziprokdifferenz und echte Bruch-CSV-Achse zerlegen.
 - [x] 13-Aufruf-Plan, Zeilenmenge und direkte native Ausführung in die bestehende Paritätskette aufnehmen.
 - [ ] Benutzerseitigen Modular-Lauf `scripts/build-all.sh -- -j 8 && scripts/test_stage12c5bd.sh` ausführen.
+
+## Stage 12c5be – Workflow-Root und konsistenter Rich-Output-Modus
+
+- [x] Den `Jungfrau`-gegen-UTF-8-Fixture-Fehler des vollständigen Mojo-Laufs auflösen.
+- [x] `ProgramWorkflowBundle.repo_root` bis zu Religion- und Motiv-CSV durchreichen.
+- [x] Verstecktes `RETA_DATA_DIR` aus dem fokussierten Workflow-Modultest entfernen.
+- [x] Lokalisierte HTML-/BBCode-Erkennung mit dem typisierten Rendererplan synchronisieren.
+- [x] Beide Rich-Modi und ihre historische BBCode-Priorität regressionsprüfen.
+- [ ] Benutzerseitig `scripts/test_stage12c5be.sh` ausführen.
+- [ ] Danach `RETA_TEST_HEAVY=1 scripts/test_all.sh` vollständig fortsetzen.

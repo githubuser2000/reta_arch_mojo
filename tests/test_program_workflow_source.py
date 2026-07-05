@@ -132,6 +132,18 @@ def test_output_kind_priority_and_fast_fixture_are_regression_covered() -> None:
     assert "MOJO-FIXED-032" in (ROOT / "KNOWN_DEFECTS.json").read_text(encoding="utf-8")
 
 
+def test_repo_root_and_rich_output_mode_are_owned_by_workflow() -> None:
+    module = MODULE.read_text(encoding="utf-8")
+    mojo_test = (ROOT / "tests/test_program_workflow.mojo").read_text(encoding="utf-8")
+    stage = (ROOT / "scripts/test_stage12c5k.sh").read_text(encoding="utf-8")
+    assert "program_workflow_csv_path(csv_file_name, self.repo_root)" in module
+    assert "self.repo_root," in module
+    assert 'if requested_output_kind != "plain":' in module
+    assert "runtime.output_mode = requested_output_kind" in module
+    assert '"tests/fixtures/program_workflow_root"' in mojo_test
+    assert "RETA_DATA_DIR=" not in stage
+
+
 def test_complete_typed_workflow_replaces_heterogeneous_program_object() -> None:
     text = MODULE.read_text(encoding="utf-8")
     for token in (

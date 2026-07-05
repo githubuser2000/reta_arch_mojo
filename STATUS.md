@@ -1,3 +1,13 @@
+# Status – Stage 12c5be
+
+- Der vom Benutzer gemeldete vollständige Mojo-Lauf ist bis `test_program_workflow.mojo` ausgewertet; beide dortigen Fehlschläge sind auf getrennte, aber zusammenhängende Workflow-Besitzlücken zurückgeführt.
+- `ProgramWorkflowBundle.repo_root` besitzt nun tatsächlich Religion- und Motiv-CSV-Pfade. Ein konkreter Root löst `root/csv/basename` auf; leerer oder punktförmiger Root verwendet weiterhin den portablen FHS-/Umgebungsresolver.
+- Der Workflowtest verwendet seine UTF-8-Fixture ohne verstecktes `RETA_DATA_DIR`; fokussierter Stage-Test und Gesamtsuite laufen damit unter derselben Prozessumgebung.
+- Lokalisierte `--art=html`-/`--art=bbcode`-Erkennung wird mit dem typisierten Rendererplan gegluet. Dekodierung, Tabellengenerierung und Ausgabe können nicht mehr gleichzeitig `html` und `shell` besitzen; bei beiden Rich-Modi bleibt die historische BBCode-Priorität erhalten.
+- Neue Ledger-Einträge: `MOJO-FIXED-057`, `MOJO-FIXED-058`, `TEST-FIXED-046`; insgesamt **129** Befunde und weiterhin **20** spätere Python-Aufräumpunkte.
+- Portable Quellprüfung der neuen Stage ist vollständig grün; echte Mojo-Kompilierung bleibt beim Benutzer über `scripts/test_stage12c5be.sh`, anschließend `RETA_TEST_HEAVY=1 scripts/test_all.sh`.
+- Fortschritt: **89/92 = 96,7 %** vollständig nativ/generiert, **92/92 = 100,0 %** mindestens teilweise, **48.831/48.831 = 100,0 %** angegriffene Referenzzeilen; **62.760** Mojo-Zeilen in `src/`, davon **58.166** in `src/reta_mojo/`.
+
 # Status – Stage 12c5bd
 
 - Der gemeldete Prägarbentest war zu positionsabhängig: eine `cn`-Restriktion übernimmt korrekt 16 explizit chinesische und 16 sprachneutrale CSV-Sektionen.

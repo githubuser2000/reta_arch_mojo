@@ -3101,6 +3101,88 @@
         "tests/test_presheaf_inheritance_source.py",
         "scripts/test_stage12c5bd.sh"
       ]
+    },
+    {
+      "id": "MOJO-FIXED-057",
+      "title": "ProgramWorkflowBundle ignorierte sein explizites repo_root beim CSV-Laden",
+      "origin": "mojo_port",
+      "classification": "ignored_resource_owner_root",
+      "severity": "high",
+      "python_status": "correct_reference",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5bd/12c5be",
+      "reproducer": "RETA_TEST_HEAVY=1 scripts/test_all.sh aus Stage 12c5bd ausführen; test_program_workflow_loads_and_pads_religion_table las Jungfrau aus python_reference/csv/religion.csv statt 한글 中文 Việt aus tests/fixtures/program_workflow_root/csv/religion.csv.",
+      "python_locations": [
+        "python_reference/reta_architecture/program_workflow.py:36",
+        "python_reference/reta_architecture/program_workflow.py:62"
+      ],
+      "mojo_locations": [
+        "src/reta_mojo/program_workflow.mojo",
+        "tests/test_program_workflow.mojo",
+        "tests/test_program_workflow_source.py",
+        "tests/test_stage12c5be_source.py"
+      ],
+      "current_contract": "Ein konkretes ProgramWorkflowBundle.repo_root besitzt seine CSV-Wurzel und löst jeden Dateinamen als repo_root/csv/basename auf. Nur ein leeres oder punktförmiges Root delegiert an den portablen FHS-/Umgebungsresolver. Religionstabelle und sprachspezifische Motivspalten verwenden denselben expliziten Besitzerwert.",
+      "post_port_fix": "Keine Python-Änderung erforderlich; das Python-Original verwendete repo_root bereits korrekt. Betroffen war ausschließlich der unvollständige Mojo-Besitztransfer.",
+      "evidence": [
+        "STAGE12C5BE_WORKFLOW_ROOT_OUTPUT_MODE_FULL_SUITE.md",
+        "tests/test_program_workflow.mojo",
+        "tests/test_stage12c5be_source.py"
+      ]
+    },
+    {
+      "id": "MOJO-FIXED-058",
+      "title": "Workflow dekodierte Rich-Text und plante gleichzeitig Shell-Ausgabe",
+      "origin": "mojo_port",
+      "classification": "split_output_mode_ownership",
+      "severity": "high",
+      "python_status": "correct_reference",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5bd/12c5be",
+      "reproducer": "tests/test_program_workflow.mojo mit argv=['reta','--art=html'] ausführen; _requested_religion_output_kind lieferte html, build_parameter_runtime_plan mangels -ausgabe-Hauptabschnitt jedoch shell.",
+      "python_locations": [
+        "python_reference/reta_architecture/program_workflow.py:49",
+        "python_reference/reta_architecture/program_workflow.py:142"
+      ],
+      "mojo_locations": [
+        "src/reta_mojo/program_workflow.mojo",
+        "src/reta_mojo/parameter_runtime.mojo",
+        "tests/test_program_workflow.mojo",
+        "tests/test_stage12c5be_source.py"
+      ],
+      "current_contract": "Der Workflow synchronisiert die lokalisiert erkannten kanonischen Rich-Modi html und bbcode in seinen ParameterRuntimePlan, sodass Zellendekodierung, Tabellengenerierung und Renderergrenze denselben Modus besitzen. Andere Ausgabemodi bleiben im allgemeinen Abschnittsparser. Bei gleichzeitigem HTML und BBCode gewinnt weiterhin BBCode unabhängig von der Argumentfolge.",
+      "post_port_fix": "Keine Python-Änderung erforderlich; der native typisierte Workflow musste lediglich seine zuvor getrennten Dekodier- und Rendererzustände gluen.",
+      "evidence": [
+        "STAGE12C5BE_WORKFLOW_ROOT_OUTPUT_MODE_FULL_SUITE.md",
+        "tests/test_program_workflow.mojo",
+        "tests/test_program_workflow_source.py",
+        "tests/test_stage12c5be_source.py"
+      ]
+    },
+    {
+      "id": "TEST-FIXED-046",
+      "title": "Fokussierter Workflowtest verdeckte eine globale Fixture-Abhängigkeit",
+      "origin": "mojo_tests",
+      "classification": "hidden_environment_fixture_dependency",
+      "severity": "medium",
+      "python_status": "not_applicable",
+      "mojo_status": "fixed",
+      "discovered_stage": "12c5k/12c5be",
+      "reproducer": "scripts/test_stage12c5k.sh bestand nur mit extern gesetztem RETA_DATA_DIR; scripts/test_all.sh startete dasselbe Testprogramm ohne diese Variable und erhielt deshalb Produktionsdaten statt Fixture-Daten.",
+      "python_locations": [],
+      "mojo_locations": [
+        "scripts/test_stage12c5k.sh",
+        "scripts/test_stage12c5be.sh",
+        "tests/test_program_workflow.mojo",
+        "tests/test_stage12c5be_source.py"
+      ],
+      "current_contract": "Der Workflowtest konstruiert seinen expliziten Fixture-Root im typisierten ProgramWorkflowBundle. Fokussierter Stage-Test und allgemeine Testsuite führen dasselbe Binärprogramm ohne verstecktes RETA_DATA_DIR aus; die separate CLI-Parität darf weiterhin bewusst den installierbaren Ressourcenresolver per Umgebung testen.",
+      "post_port_fix": "Keine Python-Änderung erforderlich; betroffen war ausschließlich die Isolierung des nativen Mojo-Tests.",
+      "evidence": [
+        "STAGE12C5BE_WORKFLOW_ROOT_OUTPUT_MODE_FULL_SUITE.md",
+        "scripts/test_stage12c5be.sh",
+        "tests/test_stage12c5be_source.py"
+      ]
     }
   ],
   "audit": {
@@ -3131,6 +3213,6 @@
       "STAGE12C5G_NATIVE_KOMBI_JOIN_UNORDERED_PARITY.md",
       "STAGE12C5Y_NATIVE_TABLE_OUTPUT.md"
     ],
-    "scope_note": "Vollständig bezogen auf alle bis Stage 12c5al im Projekt bestätigten oder plausibel begründeten verhaltensrelevanten Befunde; unbekannte künftige Fehler können naturgemäß erst nach ihrer Entdeckung aufgenommen werden."
+    "scope_note": "Vollständig bezogen auf alle bis Stage 12c5be im Projekt bestätigten oder plausibel begründeten verhaltensrelevanten Befunde; unbekannte künftige Fehler können naturgemäß erst nach ihrer Entdeckung aufgenommen werden."
   }
 }
