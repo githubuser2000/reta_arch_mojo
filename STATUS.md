@@ -1,3 +1,14 @@
+# Status – Stage 12c5bf
+
+- Mehrere gleichzeitig ausgewählte echte Bruchdomänen werden nicht mehr pauschal an Python zurückgegeben. `prompt_table_execution.mojo` plant Emotion, Strukturgröße, Motive/Galaxie und Universum jeweils gegen ihr eigenes physisches CSV-Rechteck.
+- Die vier Grenzen sind explizit typisiert: Emotion **8×7**, Strukturgröße **17×16**, Motive/Galaxie **22×21**, Universum **20×21**.
+- `universum motive v2/3` besitzt einen geordneten nativen **26-Aufruf-Plan**; `emotion groesse motive universum v2/3` besitzt **44 Aufrufe** in historischer Familienreihenfolge.
+- Gemischte `1/n`+`n/m`-Vielfache werden pro Domäne projiziert: Reziprokvielfache bleiben unter 1024, echte Brüche werden ausschließlich im jeweiligen Domänenrechteck materialisiert.
+- Zusätzliche klassische Tabellenfamilien, Eigenschaften oder gewöhnliche Ganzzahlachsen ohne bewiesenes Kompositionsgesetz bleiben atomarer Ganzvektor-Fallback; es entsteht keine teilweise native Ausgabe.
+- `PY-OPEN-002` reproduziert nun ausdrücklich auch den Mehrdomänenabsturz der eingefrorenen Python-Referenz. Das Defektledger bleibt bei **129** Befunden und **20** späteren Python-Aufräumpunkten konsistent.
+- Fortschritt: **89/92 = 96,7 %** vollständig nativ/generiert, **92/92 = 100,0 %** mindestens teilweise, **48.831/48.831 = 100,0 %** angegriffene Referenzzeilen; **63.107** Mojo-Zeilen in `src/`, davon **58.513** in `src/reta_mojo/`.
+- Die Erstellungsumgebung kompiliert kein Mojo. Verbindlicher Benutzerlauf: `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bf.sh`, danach `RETA_TEST_HEAVY=1 scripts/test_all.sh`.
+
 # Status – Stage 12c5be
 
 - Der vom Benutzer gemeldete vollständige Mojo-Lauf ist bis `test_program_workflow.mojo` ausgewertet; beide dortigen Fehlschläge sind auf getrennte, aber zusammenhängende Workflow-Besitzlücken zurückgeführt.

@@ -46,7 +46,8 @@ def test_stage_reproduces_full_suite_environment_without_hidden_override() -> No
         text = (ROOT / "scripts" / historical_stage).read_text(encoding="utf-8")
         assert "RETA_DATA_DIR=" not in text
     current = (ROOT / "scripts/test_current_stage.sh").read_text(encoding="utf-8")
-    assert "test_stage12c5be.sh" in current
+    assert "test_stage12c5bf.sh" in current
+    assert "test_stage12c5be.sh" in (ROOT / "scripts/test_stage12c5bf.sh").read_text(encoding="utf-8")
 
 
 def test_reported_failures_and_ledger_entries_are_documented() -> None:

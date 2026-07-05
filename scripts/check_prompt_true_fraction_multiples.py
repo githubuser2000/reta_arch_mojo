@@ -24,6 +24,11 @@ CASES = [
     "motive v22/3",
     "universum v20/3",
     "universum motive v2/3",
+    "emotion groesse motive universum v2/3",
+    "emotion universum v8/3",
+    "emotion universum v1/2,2/3",
+    "mond universum motive v2/3",
+    "universum motive v2/3,5",
     "universum v1/2,2/3",
     "universum vielfache 1/2,2/3",
     "universum v-1/4,2/3",
@@ -79,6 +84,32 @@ def option(records_: list[list[str]], prefix: str) -> list[str]:
     return values
 
 
+def records_with(records_: list[list[str]], *needles: str) -> list[list[str]]:
+    return [
+        record
+        for record in records_
+        if all(any(needle in field for field in record) for needle in needles)
+    ]
+
+
+def assert_fraction_rectangle(
+    plan: list[list[str]],
+    prefix: str,
+    expected_numerators: list[int],
+    expected_denominators: set[int],
+) -> list[list[str]]:
+    numerators = [int(value) for value in option(plan, prefix)]
+    if numerators != expected_numerators:
+        fail(f"wrong numerator rectangle for {prefix}: {numerators}")
+    fraction_records = [
+        record for record in plan if any(field.startswith(prefix) for field in record)
+    ]
+    for record in fraction_records:
+        if set(row_values(record)) != expected_denominators:
+            fail(f"wrong denominator rectangle in {record!r}")
+    return fraction_records
+
+
 def row_values(record: list[str]) -> list[int]:
     candidates = [
         field.removeprefix("--vorhervonausschnitt=")
@@ -111,6 +142,7 @@ def assert_python_bug_is_still_reproducible() -> None:
     environment["PYTHONHASHSEED"] = "0"
     for command in (
         "universum v2/3",
+        "universum motive v2/3",
         "universum v1/2,2/3",
         "universum v1/4,-1/8,2/3",
     ):
@@ -220,13 +252,9 @@ def assert_domain_plan(
     plan = records(payload)
     if len(plan) != expected_count:
         fail(f"wrong invocation count for {prefix}: {len(plan)} != {expected_count}")
-    numerators = [int(value) for value in option(plan, prefix)]
-    if numerators != expected_numerators:
-        fail(f"wrong numerator rectangle for {prefix}: {numerators}")
-    fraction_records = [record for record in plan if any(field.startswith(prefix) for field in record)]
-    for record in fraction_records:
-        if set(row_values(record)) != expected_denominators:
-            fail(f"wrong denominator rectangle in {record!r}")
+    assert_fraction_rectangle(
+        plan, prefix, expected_numerators, expected_denominators
+    )
     return plan
 
 
@@ -339,8 +367,98 @@ def main() -> int:
         set(range(3, 22, 3)),
         1,
     )
-    if result["universum motive v2/3"] != "FALLBACK":
-        fail("different fraction CSV rectangles must remain atomic fallback")
+    multi_domain = records(result["universum motive v2/3"])
+    if len(multi_domain) != 26:
+        fail(f"wrong Universe+motives invocation count: {len(multi_domain)}")
+    assert_fraction_rectangle(
+        multi_domain,
+        "--gebrochen-rational_Galaxie_n/m=",
+        list(range(2, 23, 2)),
+        set(range(3, 22, 3)),
+    )
+    assert_fraction_rectangle(
+        multi_domain,
+        "--gebrochen-rational_Universum_n/m=",
+        list(range(2, 21, 2)),
+        set(range(3, 22, 3)),
+    )
+    if "--menschliches=motive" not in multi_domain[0]:
+        fail("motives domain did not keep first execution ownership")
+    if "--Universum=transzendentalien" not in multi_domain[13]:
+        fail("Universe domain did not start after the complete Galaxy rectangle")
+    if "--universum=verhaeltnisgleicherzahl" not in multi_domain[-1]:
+        fail("Universe multi-domain equality axis is missing")
+    if option(multi_domain, "--gebrochen-rational_Universum_n/m=")[-1] != "20":
+        fail("Universe multi-domain rectangle leaked Galaxy numerator 22")
+
+    all_domains = records(result["emotion groesse motive universum v2/3"])
+    if len(all_domains) != 44:
+        fail(f"wrong four-domain invocation count: {len(all_domains)}")
+    assert_fraction_rectangle(
+        all_domains,
+        "--gebrochen-rational_Gefuehle_n/m=",
+        list(range(2, 9, 2)),
+        {3, 6},
+    )
+    assert_fraction_rectangle(
+        all_domains,
+        "--gebrochen-rational_Strukturgroesse_n/m=",
+        list(range(2, 17, 2)),
+        set(range(3, 17, 3)),
+    )
+    assert_fraction_rectangle(
+        all_domains,
+        "--gebrochen-rational_Galaxie_n/m=",
+        list(range(2, 23, 2)),
+        set(range(3, 22, 3)),
+    )
+    assert_fraction_rectangle(
+        all_domains,
+        "--gebrochen-rational_Universum_n/m=",
+        list(range(2, 21, 2)),
+        set(range(3, 22, 3)),
+    )
+
+    clipped_domains = records(result["emotion universum v8/3"])
+    if len(clipped_domains) != 3:
+        fail(f"wrong independently clipped v8/3 plan: {len(clipped_domains)}")
+    assert_fraction_rectangle(
+        clipped_domains,
+        "--gebrochen-rational_Gefuehle_n/m=",
+        [8],
+        {3, 6},
+    )
+    assert_fraction_rectangle(
+        clipped_domains,
+        "--gebrochen-rational_Universum_n/m=",
+        [8, 16],
+        set(range(3, 22, 3)),
+    )
+
+    multi_mixed = records(result["emotion universum v1/2,2/3"])
+    if len(multi_mixed) != 19:
+        fail(f"wrong mixed two-domain invocation count: {len(multi_mixed)}")
+    emotion_reciprocal = records_with(
+        multi_mixed, "--grundstrukturen=emotion", "--spaltenreihenfolgeundnurdiese=4,5"
+    )
+    universe_reciprocal = records_with(
+        multi_mixed,
+        "--Universum=transzendentaliereziproke",
+        "--spaltenreihenfolgeundnurdiese=1",
+    )
+    if len(emotion_reciprocal) != 1 or len(universe_reciprocal) != 1:
+        fail("multi-domain reciprocal projections are not uniquely owned")
+    if set(row_values(emotion_reciprocal[0])) != set(range(2, 1024, 2)) | {1, 3}:
+        fail("Emotion reciprocal domain mixed the wrong true-fraction projection")
+    if set(row_values(universe_reciprocal[0])) != set(range(2, 1024, 2)) | {1, 3, 9}:
+        fail("Universe reciprocal domain mixed the wrong true-fraction projection")
+
+    for command in (
+        "mond universum motive v2/3",
+        "universum motive v2/3,5",
+    ):
+        if result[command] != "FALLBACK":
+            fail(f"unproved multi-domain composition escaped atomically: {command}")
 
     mixed = assert_domain_plan(
         result["universum v1/2,2/3"],
@@ -418,6 +536,9 @@ def main() -> int:
 
     runner = Path(sys.argv[2]).resolve()
     assert_direct_execution(result["universum v2/3"], runner)
+    assert_direct_execution(
+        result["universum motive v2/3"], runner, expected_count=26
+    )
     assert_direct_execution(result["universum v1/2,2/3"], runner)
     assert_direct_execution(
         result["universum v1/4,-2/3"], runner, expected_count=1
@@ -428,7 +549,7 @@ def main() -> int:
         "true fraction multiples: Python crashes reproduced; "
         "Mojo contract 13/13, mixed bounds, negative no-op branches, "
         "positive-first reciprocal-only and reciprocal-collision branches, "
-        "and direct invocations valid"
+        "domain-specific 26/26 and 44-plan grids, and direct invocations valid"
     )
     return 0
 

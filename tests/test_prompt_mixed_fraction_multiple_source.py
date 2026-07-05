@@ -58,11 +58,14 @@ def test_mixed_universe_contract_is_no_longer_a_fallback() -> None:
     assert 'if result[command] != ""' in checker
 
 
-def test_cross_domain_fraction_rectangles_remain_atomic() -> None:
+def test_cross_domain_fraction_rectangles_are_now_independent() -> None:
     test_source = MOJO_TEST.read_text(encoding="utf-8")
     checker = CHECKER.read_text(encoding="utf-8")
-    assert 'assert_false(_plan("universum motive v2/3").handled)' in test_source
-    assert 'result["universum motive v2/3"] != "FALLBACK"' in checker
+    assert 'var multi_domain = _plan("universum motive v2/3")' in test_source
+    assert 'assert_true(multi_domain.handled)' in test_source
+    assert 'assert_equal(len(multi_domain.invocations), 26)' in test_source
+    assert 'multi_domain = records(result["universum motive v2/3"])' in checker
+    assert 'wrong Universe+motives invocation count' in checker
 
 
 def test_stage_compiles_runtime_contract_and_runs_direct_parity() -> None:

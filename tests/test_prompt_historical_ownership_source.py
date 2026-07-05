@@ -37,6 +37,7 @@ def test_historical_ownership_is_a_pure_typed_boundary() -> None:
     assert "def is_historical_prompt_table_family(" in source
     assert "def is_classic_integer_prompt_table_family(" in source
     assert "def is_fraction_prompt_table_family(" in source
+    assert "def is_physical_fraction_prompt_table_family(" in source
     assert "PromptLanguageCatalog" in source
     for forbidden in (
         "std.python",

@@ -438,10 +438,53 @@ def test_true_fraction_multiples_follow_each_csv_rectangle() raises:
     assert_true("_Galaxie_n/m=22" in _tokens(_plan("motive v22/3")))
     assert_true("_Universum_n/m=20" in _tokens(_plan("universum v20/3")))
 
-    # Different data rectangles remain atomic.  Mixed reciprocal and true
-    # fraction multiples now split their bounds: 1/n uses rows below 1024,
-    # while n/m remains clipped to the selected physical CSV rectangle.
-    assert_false(_plan("universum motive v2/3").handled)
+    # Multiple physical data rectangles are now planned independently.  The
+    # motive/Galaxy rectangle contributes numerator 22, while Universe stops at
+    # 20 and keeps its own equality projection.
+    var multi_domain = _plan("universum motive v2/3")
+    assert_true(multi_domain.handled)
+    assert_equal(len(multi_domain.invocations), 26)
+    assert_true("--menschliches=motive" in _tokens(multi_domain, 0))
+    assert_true("_Galaxie_n/m=22" in _tokens(multi_domain, 12))
+    assert_true("--Universum=transzendentalien" in _tokens(multi_domain, 13))
+    assert_true("_Universum_n/m=20" in _tokens(multi_domain, 24))
+    assert_true("--universum=verhaeltnisgleicherzahl" in _tokens(multi_domain, 25))
+    assert_false("_Universum_n/m=22" in serialize_prompt_table_plan(multi_domain))
+
+    var all_domains = _plan("emotion groesse motive universum v2/3")
+    assert_true(all_domains.handled)
+    assert_equal(len(all_domains.invocations), 44)
+    assert_true("_Gefuehle_n/m=8" in _tokens(all_domains, 5))
+    assert_true("_Strukturgroesse_n/m=16" in _tokens(all_domains, 17))
+    assert_true("_Galaxie_n/m=22" in _tokens(all_domains, 30))
+    assert_true("_Universum_n/m=20" in _tokens(all_domains, 42))
+    assert_true("--universum=verhaeltnisgleicherzahl" in _tokens(all_domains, 43))
+
+    # A value can fit one rectangle more often than another.  v8/3 produces
+    # one Emotion numerator group and two independent Universe groups.
+    var clipped_domains = _plan("emotion universum v8/3")
+    assert_true(clipped_domains.handled)
+    assert_equal(len(clipped_domains.invocations), 3)
+    assert_true("_Gefuehle_n/m=8" in _tokens(clipped_domains, 0))
+    assert_true("_Universum_n/m=8" in _tokens(clipped_domains, 1))
+    assert_true("_Universum_n/m=16" in _tokens(clipped_domains, 2))
+
+    # Mixed reciprocal and true fraction multiples split their bounds: 1/n
+    # uses rows below 1024, while every n/m domain stays inside its own physical
+    # rectangle.
+    var multi_mixed = _plan("emotion universum v1/2,2/3")
+    assert_true(multi_mixed.handled)
+    assert_equal(len(multi_mixed.invocations), 19)
+    assert_true("--grundstrukturen=emotion" in _tokens(multi_mixed, 1))
+    assert_true(",1018,1020,1022" in _tokens(multi_mixed, 1))
+    assert_true("--Universum=transzendentaliereziproke" in _tokens(multi_mixed, 7))
+    assert_true(",1018,1020,1022" in _tokens(multi_mixed, 7))
+
+    # Compositions without a unique domain law remain atomic rather than
+    # partially executing a misleading subset.
+    assert_false(_plan("mond universum motive v2/3").handled)
+    assert_false(_plan("universum motive v2/3,5").handled)
+
     var mixed_axes = _plan("universum v1/2,2/3")
     assert_true(mixed_axes.handled)
     assert_equal(len(mixed_axes.invocations), 13)
@@ -528,6 +571,11 @@ def test_true_fraction_multiples_follow_each_csv_rectangle() raises:
     _emit_true_fraction_multiple_plan("motive v22/3")
     _emit_true_fraction_multiple_plan("universum v20/3")
     _emit_true_fraction_multiple_plan("universum motive v2/3")
+    _emit_true_fraction_multiple_plan("emotion groesse motive universum v2/3")
+    _emit_true_fraction_multiple_plan("emotion universum v8/3")
+    _emit_true_fraction_multiple_plan("emotion universum v1/2,2/3")
+    _emit_true_fraction_multiple_plan("mond universum motive v2/3")
+    _emit_true_fraction_multiple_plan("universum motive v2/3,5")
     _emit_true_fraction_multiple_plan("universum v1/2,2/3")
     _emit_true_fraction_multiple_plan("universum v-1/4,2/3")
     _emit_true_fraction_multiple_plan("universum v-2/3")

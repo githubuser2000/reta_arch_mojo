@@ -658,3 +658,14 @@ Maschinenstand: **80/92 vollständig**, **86/92 mindestens teilweise**, **46.561
 - [x] Beide Rich-Modi und ihre historische BBCode-Priorität regressionsprüfen.
 - [ ] Benutzerseitig `scripts/test_stage12c5be.sh` ausführen.
 - [ ] Danach `RETA_TEST_HEAVY=1 scripts/test_all.sh` vollständig fortsetzen.
+
+## Stage 12c5bf – domänenspezifische Mehrfachpläne für echte Bruchvielfache
+
+- [x] Die vier physischen Zähler×Nenner-Rechtecke ausdrücklich typisieren.
+- [x] Mehrere ausgewählte Bruchfamilien in unabhängige Projektionen zerlegen.
+- [x] Historische Familienreihenfolge Emotion → Größe → Motive → Universum bewahren.
+- [x] 26-Aufruf-Zweidomänen- und 44-Aufruf-Vierdomänenvertrag ergänzen.
+- [x] Gemischte Reziprokachsen pro Domäne unter der 1024er-Grenze vereinigen.
+- [x] Unbewiesene Mischungen mit klassischen Familien, Eigenschaften oder Ganzzahlen atomar halten.
+- [ ] Benutzerseitig `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bf.sh` ausführen.
+- [ ] Danach `RETA_TEST_HEAVY=1 scripts/test_all.sh` vollständig fortsetzen.

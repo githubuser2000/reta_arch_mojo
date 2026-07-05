@@ -6,8 +6,8 @@ stable exclusion forms, reciprocal multiple expansion and fraction/divisor
 combinations.  The historical Python function mixes parsing, i18n, range algebra
 and table execution; here these concerns are split into typed planning stages.
 True ``v n/m`` expansion deliberately corrects a Python-reference crash: the
-numerator and denominator axes are expanded independently, but only inside the
-real rectangular shape of the selected fraction CSV domain.
+numerator and denominator axes are expanded independently inside every selected
+fraction CSV domain, with one physical rectangle and projection plan per domain.
 """
 
 from std.collections import List
@@ -24,6 +24,7 @@ from .prompt_historical_ownership import (
     is_classic_integer_prompt_table_family,
     is_fraction_prompt_table_family,
     is_historical_prompt_table_family,
+    is_physical_fraction_prompt_table_family,
 )
 from .prompt_language import (
     PromptLanguageCatalog,
@@ -59,6 +60,13 @@ struct _FractionMultipleDomain(Copyable):
     var supported: Bool
     var maximum_numerator: Int
     var maximum_denominator: Int
+
+
+@fieldwise_init
+struct _PromptFractionProjection(Copyable):
+    var pairs: List[_PromptFractionPair]
+    var whole_rows: List[String]
+    var reciprocal_rows: List[String]
 
 
 @fieldwise_init
@@ -692,6 +700,73 @@ def _fraction_multiple_is_reference_empty(
     )
 
 
+def _emotion_fraction_domain_selected(canonical_words: List[String]) -> Bool:
+    return _contains(canonical_words, "emotion") or _contains(
+        canonical_words, "E"
+    )
+
+
+def _size_fraction_domain_selected(canonical_words: List[String]) -> Bool:
+    return _contains(canonical_words, "groesse")
+
+
+def _motives_fraction_domain_selected(canonical_words: List[String]) -> Bool:
+    return _contains_any(
+        canonical_words, ["absicht", "absichten", "motiv", "motive", "a"]
+    )
+
+
+def _universe_fraction_domain_selected(canonical_words: List[String]) -> Bool:
+    return _contains(canonical_words, "universum") or _contains(
+        canonical_words, "u"
+    )
+
+
+def _fraction_multiple_domain_count(canonical_words: List[String]) -> Int:
+    var count = 0
+    if _emotion_fraction_domain_selected(canonical_words):
+        count += 1
+    if _size_fraction_domain_selected(canonical_words):
+        count += 1
+    if _motives_fraction_domain_selected(canonical_words):
+        count += 1
+    if _universe_fraction_domain_selected(canonical_words):
+        count += 1
+    return count
+
+
+def _is_fraction_domain_table_command(canonical: String) -> Bool:
+    return is_physical_fraction_prompt_table_family(canonical)
+
+
+def _only_fraction_domain_table_commands(
+    canonical_words: List[String],
+) -> Bool:
+    for index in range(len(canonical_words)):
+        var canonical = canonical_words[index]
+        if _is_table_command(canonical) and not _is_fraction_domain_table_command(
+            canonical
+        ):
+            return False
+    return True
+
+
+def _emotion_fraction_domain() -> _FractionMultipleDomain:
+    return _FractionMultipleDomain(True, 8, 7)
+
+
+def _size_fraction_domain() -> _FractionMultipleDomain:
+    return _FractionMultipleDomain(True, 17, 16)
+
+
+def _motives_fraction_domain() -> _FractionMultipleDomain:
+    return _FractionMultipleDomain(True, 22, 21)
+
+
+def _universe_fraction_domain() -> _FractionMultipleDomain:
+    return _FractionMultipleDomain(True, 20, 21)
+
+
 def _fraction_multiple_domain(
     canonical_words: List[String],
 ) -> _FractionMultipleDomain:
@@ -699,34 +774,19 @@ def _fraction_multiple_domain(
 
     Fraction CSV columns start at numerator 2.  Consequently seven physical
     emotion columns represent numerators 2..8, while nineteen Universe columns
-    represent 2..20.  Rows are denominator coordinates starting at one.
-    Owning several fraction domains at once would require different expansions
-    for the same prompt pair, so that still falls back atomically.
+    represent 2..20.  Rows are denominator coordinates starting at one.  A
+    multi-domain command is planned by the dedicated domain-specific path and
+    therefore deliberately remains unsupported by this single-domain helper.
     """
-    var count = 0
-    var maximum_numerator = 0
-    var maximum_denominator = 0
-    if _contains(canonical_words, "emotion") or _contains(canonical_words, "E"):
-        count += 1
-        maximum_numerator = 8
-        maximum_denominator = 7
-    if _contains(canonical_words, "groesse"):
-        count += 1
-        maximum_numerator = 17
-        maximum_denominator = 16
-    if _contains_any(
-        canonical_words, ["absicht", "absichten", "motiv", "motive", "a"]
-    ):
-        count += 1
-        maximum_numerator = 22
-        maximum_denominator = 21
-    if _contains(canonical_words, "universum") or _contains(canonical_words, "u"):
-        count += 1
-        maximum_numerator = 20
-        maximum_denominator = 21
-    return _FractionMultipleDomain(
-        count == 1, maximum_numerator, maximum_denominator
-    )
+    if _fraction_multiple_domain_count(canonical_words) != 1:
+        return _FractionMultipleDomain(False, 0, 0)
+    if _emotion_fraction_domain_selected(canonical_words):
+        return _emotion_fraction_domain()
+    if _size_fraction_domain_selected(canonical_words):
+        return _size_fraction_domain()
+    if _motives_fraction_domain_selected(canonical_words):
+        return _motives_fraction_domain()
+    return _universe_fraction_domain()
 
 
 def _fraction_multiple_supported(
@@ -736,8 +796,7 @@ def _fraction_multiple_supported(
 ) -> Bool:
     if not multiple_mode or not _has_true_fraction(pairs):
         return True
-    var domain = _fraction_multiple_domain(canonical_words)
-    if not domain.supported:
+    if _fraction_multiple_domain_count(canonical_words) == 0:
         return False
     if _positive_reciprocal_multiple_with_excluded_true_fractions(pairs):
         return True
@@ -923,6 +982,244 @@ def _append_universe_equal_axis(
     )
 
 
+def _true_fraction_projection(
+    pairs: List[_PromptFractionPair], domain: _FractionMultipleDomain
+) raises -> _PromptFractionProjection:
+    """Build one corrected n/m grid and its integer/reciprocal projections.
+
+    Every physical fraction domain owns a different rectangle.  The projection
+    is therefore intentionally built per domain instead of sharing one global
+    expansion across all selected table families.
+    """
+    var reciprocal_pairs = _fraction_pairs_for_axis(pairs, True)
+    var true_fraction_pairs = _fraction_pairs_for_axis(pairs, False)
+    var effective_pairs = _expand_true_fraction_multiples(
+        true_fraction_pairs, domain
+    )
+    var whole_rows = List[String]()
+    var reciprocal_rows = List[String]()
+    for index in range(len(effective_pairs)):
+        var pair = effective_pairs[index].copy()
+        if pair.excluded:
+            continue
+        var exact_exclusion = _has_matching_exclusion(effective_pairs, pair)
+        if not exact_exclusion and pair.numerator % pair.denominator == 0:
+            _append_unique_string(
+                whole_rows, String(pair.numerator // pair.denominator)
+            )
+        if (
+            not exact_exclusion or pair.numerator == 1
+        ) and pair.denominator % pair.numerator == 0:
+            _append_unique_string(
+                reciprocal_rows, String(pair.denominator // pair.numerator)
+            )
+
+    if len(reciprocal_pairs) > 0:
+        reciprocal_rows = _merge_expanded_reciprocal_multiple_rows(
+            reciprocal_rows, reciprocal_pairs, 1024
+        )
+    return _PromptFractionProjection(
+        effective_pairs^, whole_rows^, reciprocal_rows^
+    )
+
+
+def _append_projected_axis_family(
+    mut invocations: List[PromptTableInvocation],
+    projection: _PromptFractionProjection,
+    language: String,
+    counting: Bool,
+    invert: Bool,
+    integer_option: String,
+    integer_columns: String,
+    reciprocal_option: String,
+    reciprocal_columns: String,
+    suppress_empty: Bool,
+    passthrough: List[String],
+) -> None:
+    var whole_rows = _copy_strings(projection.whole_rows)
+    var reciprocal_rows = _copy_strings(projection.reciprocal_rows)
+    var integer_base = List[String]()
+    var reciprocal_base = List[String]()
+    if len(whole_rows) > 0:
+        integer_base = _base_table_tokens(
+            language, _join_rows(whole_rows), 1024, counting, invert
+        )
+    if len(reciprocal_rows) > 0:
+        reciprocal_base = _base_table_tokens_without_maximum(
+            language, _join_rows(reciprocal_rows), counting, invert
+        )
+    _add_axis_family(
+        invocations,
+        len(whole_rows) > 0,
+        integer_base,
+        integer_option,
+        integer_columns,
+        len(reciprocal_rows) > 0,
+        reciprocal_base,
+        reciprocal_option,
+        reciprocal_columns,
+        suppress_empty,
+        passthrough,
+    )
+
+
+def _plan_multi_domain_true_fraction_multiples(
+    canonical_words: List[String],
+    fraction_pairs: List[_PromptFractionPair],
+    language: String,
+    counting: Bool,
+    invert: Bool,
+    suppress_empty: Bool,
+    passthrough: List[String],
+) raises -> PromptTablePlan:
+    """Plan each selected physical n/m domain against its own CSV rectangle."""
+    var invocations = List[PromptTableInvocation]()
+
+    if _emotion_fraction_domain_selected(canonical_words):
+        var emotion_projection = _true_fraction_projection(
+            fraction_pairs, _emotion_fraction_domain()
+        )
+        _append_projected_axis_family(
+            invocations,
+            emotion_projection,
+            language,
+            counting,
+            invert,
+            "--grundstrukturen=emotion",
+            "2,3",
+            "--grundstrukturen=emotion",
+            "4,5",
+            suppress_empty,
+            passthrough,
+        )
+        _append_fraction_invocations(
+            invocations,
+            emotion_projection.pairs,
+            language,
+            counting,
+            invert,
+            "--gebrochen-rational_Gefuehle_n/m=",
+            "2",
+            suppress_empty,
+            passthrough,
+        )
+
+    if _size_fraction_domain_selected(canonical_words):
+        var size_projection = _true_fraction_projection(
+            fraction_pairs, _size_fraction_domain()
+        )
+        _append_projected_axis_family(
+            invocations,
+            size_projection,
+            language,
+            counting,
+            invert,
+            "--strukturgroesse=organisation",
+            "1-3",
+            "--strukturgroesse=organisation",
+            "99",
+            suppress_empty,
+            passthrough,
+        )
+        _append_projected_axis_family(
+            invocations,
+            size_projection,
+            language,
+            counting,
+            invert,
+            "--strukturgroesse=groesse",
+            "1,2",
+            "--strukturgroesse=groesse",
+            "4",
+            suppress_empty,
+            passthrough,
+        )
+        _append_fraction_invocations(
+            invocations,
+            size_projection.pairs,
+            language,
+            counting,
+            invert,
+            "--gebrochen-rational_Strukturgroesse_n/m=",
+            "2",
+            suppress_empty,
+            passthrough,
+        )
+
+    if _motives_fraction_domain_selected(canonical_words):
+        var motives_projection = _true_fraction_projection(
+            fraction_pairs, _motives_fraction_domain()
+        )
+        _append_projected_axis_family(
+            invocations,
+            motives_projection,
+            language,
+            counting,
+            invert,
+            "--menschliches=motive",
+            "1",
+            "--menschliches=motive",
+            "3",
+            suppress_empty,
+            passthrough,
+        )
+        _append_fraction_invocations(
+            invocations,
+            motives_projection.pairs,
+            language,
+            counting,
+            invert,
+            "--gebrochen-rational_Galaxie_n/m=",
+            "2",
+            suppress_empty,
+            passthrough,
+        )
+
+    if _universe_fraction_domain_selected(canonical_words):
+        var universe_projection = _true_fraction_projection(
+            fraction_pairs, _universe_fraction_domain()
+        )
+        # More than one table domain plus the implicit multiple command always
+        # selects the narrow historical Universe column sets.
+        _append_projected_axis_family(
+            invocations,
+            universe_projection,
+            language,
+            counting,
+            invert,
+            "--Universum=transzendentalien",
+            "1",
+            "--Universum=transzendentaliereziproke",
+            "1",
+            suppress_empty,
+            passthrough,
+        )
+        _append_fraction_invocations(
+            invocations,
+            universe_projection.pairs,
+            language,
+            counting,
+            invert,
+            "--gebrochen-rational_Universum_n/m=",
+            "2",
+            suppress_empty,
+            passthrough,
+        )
+        _append_universe_equal_axis(
+            invocations,
+            universe_projection.pairs,
+            language,
+            counting,
+            invert,
+            suppress_empty,
+            passthrough,
+        )
+
+    # A valid selector can be outside one or even all selected rectangles.  It
+    # is still a completely owned no-op rather than a reason to invoke Python.
+    return PromptTablePlan(True, invocations^)
+
+
 def plan_prompt_table_commands(
     words: List[String],
     language: String,
@@ -1086,7 +1383,7 @@ def plan_prompt_table_commands(
     # Integer inputs have a stable combined legacy contract: divisors are
     # selected first and the original values are then expanded as multiples.
     # Reciprocal ``1/n`` multiples are stable up to row 1023.  True ``v n/m``
-    # instead uses the physical rectangle of exactly one selected fraction CSV.
+    # instead uses the physical rectangle of each selected fraction CSV.
     # Negative-first true-fraction historical branches are observable no-ops
     # rather than fallbacks: prompt_main retains the compact announcement,
     # while the typed plan deliberately contains no reta invocation.
@@ -1115,6 +1412,40 @@ def plan_prompt_table_commands(
     var true_fraction_multiple_mode = (
         has_fraction and multiple_mode and _has_true_fraction(fraction_pairs)
     )
+    var fraction_domain_count = _fraction_multiple_domain_count(canonical_words)
+    if true_fraction_multiple_mode and fraction_domain_count > 1:
+        # Domain-specific expansion is fully defined only for a pure set of
+        # physical fraction families.  Ordinary row selectors, numeric
+        # shortcuts, property commands and unrelated table families continue
+        # to fall back atomically until they receive their own composition law.
+        if (
+            len(row_parts) > 0
+            or len(row_values) > 0
+            or len(numeric15_values) > 0
+            or len(numeric16_values) > 0
+            or has_property_command
+            or saw_ignored_negative_integer
+            or not _only_fraction_domain_table_commands(canonical_words)
+        ):
+            return PromptTablePlan(False, List[PromptTableInvocation]())
+        var multi_counting = _contains(canonical_words, "range") or _contains(
+            canonical_words, "R"
+        )
+        var multi_invert = _contains(canonical_words, "invertieren")
+        var multi_suppress_empty = _contains(
+            canonical_words,
+            "keineEinZeichenZeilenPlusKeineAusgabeWelcherBefehlEsWar",
+        )
+        return _plan_multi_domain_true_fraction_multiples(
+            canonical_words,
+            fraction_pairs,
+            language,
+            multi_counting,
+            multi_invert,
+            multi_suppress_empty,
+            passthrough,
+        )
+
     var reciprocal_multiple_pairs = _fraction_pairs_for_axis(
         fraction_pairs, True
     )

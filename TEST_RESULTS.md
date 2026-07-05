@@ -1,3 +1,12 @@
+# Testergebnisse – Stage 12c5bf
+
+- Neuer Quellvertrag für vier physische Bruchrechtecke und den domänenspezifischen Mehrfachplan.
+- Vorbereitete Mojo-Fälle: Zweidomänenplan mit **26** Aufrufen, Vierdomänenplan mit **44** Aufrufen, unterschiedlich abgeschnittener `v8/3`-Plan und gemischte reziproke `v1/2,2/3`-Projektionen.
+- Der Prüfer bindet jede `--gebrochen-rational_*`-Familie an ihre eigene Zähler-/Nennergrenze und verbietet insbesondere, dass Galaxie-Zähler 22 in den Universumsplan ausläuft.
+- `mond universum motive v2/3` und `universum motive v2/3,5` bleiben ausdrücklich atomare Fallbacks, bis ihre zusätzliche Kompositionssemantik bewiesen ist.
+- Python-`IndexError` bei `universum motive v2/3` wird als Teil von `PY-OPEN-002` reproduziert; die Referenzquelle bleibt unverändert.
+- Portable Quell-, Ledger-, Matrix- und Archivverträge werden ohne Mojo-Kompilierung geprüft. Der echte Lauf erfolgt benutzerseitig mit `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bf.sh`.
+
 # Testergebnisse – Stage 12c5be
 
 - Gemeldeter Gesamtsuitefehler 1 reproduziert: Workflowtest las Produktionsdaten (`Jungfrau`) statt der UTF-8-Fixture (`한글 中文 Việt`), weil `repo_root` im nativen Besitzer nicht an die CSV-Auflösung weitergereicht wurde.

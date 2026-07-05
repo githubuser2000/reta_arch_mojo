@@ -115,6 +115,22 @@ def is_fraction_prompt_table_family(canonical: String) -> Bool:
     )
 
 
+def is_physical_fraction_prompt_table_family(canonical: String) -> Bool:
+    """Return the four prompt families backed by rectangular n/m CSV data."""
+    return (
+        canonical == "emotion"
+        or canonical == "E"
+        or canonical == "groesse"
+        or canonical == "absicht"
+        or canonical == "absichten"
+        or canonical == "motiv"
+        or canonical == "motive"
+        or canonical == "a"
+        or canonical == "universum"
+        or canonical == "u"
+    )
+
+
 def canonical_prompt_command(
     token: String, language: String, catalog: PromptLanguageCatalog
 ) -> String:

@@ -1,3 +1,13 @@
+# Migration Notes – Stage 12c5bf
+
+## Domänenspezifische Bruchvielfachen statt eines globalen Rechtecks
+
+Ein Prompt kann mehrere physische `n/m`-Tabellenfamilien zugleich auswählen. Diese Familien sind nicht formgleich; ein gemeinsames Maximum würde entweder Daten abschneiden oder nicht vorhandene CSV-Koordinaten erzeugen. Der native Plan besitzt deshalb vier getrennte `_FractionMultipleDomain`-Werte und erzeugt pro ausgewählter Familie ein eigenes Raster samt Ganzzahl- und Reziprokprojektion.
+
+Die Ausführungsreihenfolge bleibt die historische unabhängige `if`-Reihenfolge: Emotion, Strukturgröße, Motive/Galaxie, Universum. Nur Universum ergänzt die Gleichheitsachse. Bei mehreren Familien verwendet Universum wie die Referenz die schmalen Spaltenmengen, weil Domänenwahl plus implizites `vielfache` bereits mehr als zwei Promptkommandos bilden.
+
+Die neue Grenze ist bewusst enger als „alles mit mehreren Domänen“: gewöhnliche Ganzzahlen, Eigenschaften und zusätzliche klassische Tabellenfamilien werden nicht opportunistisch teilweise ausgeführt, sondern lassen den gesamten Vektor am Kompatibilitätsrand. Damit bleibt die Transaktionalität des Promptcontrollers erhalten.
+
 # Migration Notes – Stage 12c5be
 
 - Ein Konfigurationsfeld ist erst dann Besitz, wenn alle abhängigen I/O-Grenzen es tatsächlich verwenden. `ProgramWorkflowBundle.repo_root` war zuvor nur Snapshotmetadatum; nun fließt es bis Religion- und Motiv-CSV.
@@ -743,7 +753,7 @@ abschließendes Komma erhalten.
 - Der Python-/PyPy3-Baum bleibt bis zum funktionalen Portabschluss eingefroren. Bewusste Mojo-Korrekturen erhalten einen offenen Python-Eintrag statt den Referenzfehler still zu überschreiben.
 - `PY-OPEN-002` dokumentiert den `IndexError` bei `rpb 'universum v2/3'`. Mojo erweitert Zähler und Nenner unabhängig und schneidet sie an der realen CSV-Form ab.
 - Die physischen Domänen sind Emotion 7×7 (Zähler 2–8), Strukturgröße 16×16 (2–17), Galaxie 21×21 (2–22) und Universum 21×19 (2–20).
-- Ganzzahlige, reziproke und Universum-Gleichheitsprojektionen werden aus dem erzeugten Raster abgeleitet. Mehrdomänen- und gemischte `1/n`+`n/m`-Vielfache bleiben konservativer Ganzvektor-Fallback.
+- Ganzzahlige, reziproke und Universum-Gleichheitsprojektionen werden aus dem erzeugten Raster abgeleitet. Zum damaligen Stand blieben Mehrdomänen- und gemischte `1/n`+`n/m`-Vielfache konservativer Ganzvektor-Fallback; spätere Stages 12c5az und 12c5bf schließen beide Klassen domänenspezifisch.
 
 ## Stage 12c4s – rückwirkender Defektaudit und Kontroll-Hauptparameter
 
