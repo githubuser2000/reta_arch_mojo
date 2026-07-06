@@ -38,6 +38,10 @@ def test_prompt_interaction_has_a_dedicated_native_owner() -> None:
     assert "struct PromptExternalProcessDispatchPlan" in owner
     assert "var payload: String" in owner
     assert "var arguments: List[String]" in owner
+    assert "var run_shell: Bool" in owner
+    assert "var run_python: Bool" in owner
+    assert "var run_math: Bool" in owner
+    assert "var run_reta: Bool" in owner
     assert "def _prompt_command_payload(" in owner
     assert "def _prompt_command_arguments(" in owner
     assert "def plan_external_process_dispatch(" in owner
@@ -108,6 +112,15 @@ def test_production_prompt_activates_the_interaction_owner() -> None:
     assert "run_python_prompt_line_native(external_process.raw)" not in controller
     assert "run_math_prompt_line_native(external_process.raw)" not in controller
     assert "_run_native_reta_prompt_command(external_process.arguments)" in controller
+    assert "external_process.process_kind == EXTERNAL_PROMPT" not in controller
+    assert "EXTERNAL_PROMPT_SHELL," not in controller
+    assert "EXTERNAL_PROMPT_PYTHON," not in controller
+    assert "EXTERNAL_PROMPT_MATH," not in controller
+    assert "EXTERNAL_PROMPT_RETA," not in controller
+    assert "if external_process.run_shell" in controller
+    assert "if external_process.run_python" in controller
+    assert "if external_process.run_math" in controller
+    assert "if external_process.run_reta" in controller
     assert "effective_one_shot_tokens" not in controller
 
 

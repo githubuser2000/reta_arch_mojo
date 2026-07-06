@@ -568,6 +568,10 @@ def test_external_process_dispatch_is_planned_by_interaction_owner() raises:
     assert_equal(shell_plan.raw, "shell echo hi")
     assert_equal(shell_plan.payload, "echo hi")
     assert_equal(len(shell_plan.arguments), 0)
+    assert_true(shell_plan.run_shell)
+    assert_false(shell_plan.run_python)
+    assert_false(shell_plan.run_math)
+    assert_false(shell_plan.run_reta)
 
     var python_command = classify_prompt_command_localized(
         "python print(1)", "deutsch", catalog
@@ -576,6 +580,10 @@ def test_external_process_dispatch_is_planned_by_interaction_owner() raises:
     assert_true(python_plan.handled)
     assert_equal(python_plan.process_kind, EXTERNAL_PROMPT_PYTHON)
     assert_equal(python_plan.payload, "print(1)")
+    assert_false(python_plan.run_shell)
+    assert_true(python_plan.run_python)
+    assert_false(python_plan.run_math)
+    assert_false(python_plan.run_reta)
 
     var math_command = classify_prompt_command_localized(
         "math 1+1", "deutsch", catalog
@@ -584,6 +592,10 @@ def test_external_process_dispatch_is_planned_by_interaction_owner() raises:
     assert_true(math_plan.handled)
     assert_equal(math_plan.process_kind, EXTERNAL_PROMPT_MATH)
     assert_equal(math_plan.payload, "1+1")
+    assert_false(math_plan.run_shell)
+    assert_false(math_plan.run_python)
+    assert_true(math_plan.run_math)
+    assert_false(math_plan.run_reta)
 
     var reta_command = classify_prompt_command_localized(
         "reta -h", "deutsch", catalog
@@ -592,6 +604,10 @@ def test_external_process_dispatch_is_planned_by_interaction_owner() raises:
     assert_true(reta_plan.handled)
     assert_equal(reta_plan.process_kind, EXTERNAL_PROMPT_RETA)
     assert_equal(reta_plan.payload, "")
+    assert_false(reta_plan.run_shell)
+    assert_false(reta_plan.run_python)
+    assert_false(reta_plan.run_math)
+    assert_true(reta_plan.run_reta)
     assert_equal(len(reta_plan.arguments), 1)
     assert_equal(reta_plan.arguments[0], "-h")
 
@@ -602,6 +618,10 @@ def test_external_process_dispatch_is_planned_by_interaction_owner() raises:
     assert_false(normal_plan.handled)
     assert_equal(normal_plan.process_kind, EXTERNAL_PROMPT_NONE)
     assert_equal(normal_plan.payload, "")
+    assert_false(normal_plan.run_shell)
+    assert_false(normal_plan.run_python)
+    assert_false(normal_plan.run_math)
+    assert_false(normal_plan.run_reta)
     assert_equal(len(normal_plan.arguments), 0)
 
 
@@ -757,7 +777,7 @@ def test_inline_storage_output_edges_and_history() raises:
 
 def test_contract_snapshot() raises:
     var snapshot = prompt_interaction_contract_snapshot()
-    assert_equal(len(snapshot), 24)
+    assert_equal(len(snapshot), 25)
     assert_equal(snapshot[0], "class=PromptInteractionBundle")
     assert_equal(
         snapshot[6],
@@ -809,17 +829,21 @@ def test_contract_snapshot() raises:
     )
     assert_equal(
         snapshot[18],
-        "stored_output_dispatch=native-session-output-execution-plan",
+        "external_process_flags=native-prompt-process-effect-flags",
     )
     assert_equal(
         snapshot[19],
-        "stored_delete_dispatch=native-session-delete-plan",
+        "stored_output_dispatch=native-session-output-execution-plan",
     )
     assert_equal(
         snapshot[20],
+        "stored_delete_dispatch=native-session-delete-plan",
+    )
+    assert_equal(
+        snapshot[21],
         "stored_default=native-empty-enter-placeholder-policy",
     )
-    assert_equal(snapshot[23], "execution=delegated-native-dispatch")
+    assert_equal(snapshot[24], "execution=delegated-native-dispatch")
 
 
 def main() raises:

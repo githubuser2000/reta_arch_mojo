@@ -1,3 +1,14 @@
+# Status – Stage 12c5cn
+
+## Stage 12c5cn – External-Process-Effektflags im Interaktionsbesitzer
+
+- `PromptExternalProcessDispatchPlan` besitzt jetzt zusätzlich boolesche Effektflags: `run_shell`, `run_python`, `run_math` und `run_reta`.
+- `plan_external_process_dispatch(...)` trifft damit nicht nur die Prozessart- und Payload-/Argumententscheidung, sondern plant auch direkt, welcher Prozessrand ausgeführt werden soll.
+- `prompt_main.mojo` importiert keine `EXTERNAL_PROMPT_*`-Konstanten mehr und vergleicht nicht mehr gegen `external_process.process_kind`; der Prozesscontroller konsumiert nur noch die geplanten Flags.
+- Der eigentliche Shell-/Python-/Math-/Reta-Prozessaufruf bleibt bewusst am dünnen Prozessrand, aber die Routingentscheidung liegt vollständig im nativen Interaktionsbesitzer.
+- Der Interaktions-Snapshot enthält `external_process_flags=native-prompt-process-effect-flags`.
+- Benutzerseitig sind 12c5ck breit und fokussiert grün; 12c5cm bleibt die direkte Vorgängerstufe dieser Arbeit.
+
 # Status – Stage 12c5cm
 
 ## Stage 12c5cm – External-Process-Payload im Interaktionsbesitzer

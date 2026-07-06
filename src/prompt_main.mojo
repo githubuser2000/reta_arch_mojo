@@ -93,10 +93,6 @@ from reta_mojo.prompt_interaction import (
     plan_informational_dispatch,
     plan_simple_output_dispatch,
     plan_external_process_dispatch,
-    EXTERNAL_PROMPT_SHELL,
-    EXTERNAL_PROMPT_PYTHON,
-    EXTERNAL_PROMPT_MATH,
-    EXTERNAL_PROMPT_RETA,
     plan_inline_stored_output_command,
     plan_stored_output_command,
     plan_stored_delete_command,
@@ -589,16 +585,16 @@ def _run_command(
 
     var external_process = plan_external_process_dispatch(command)
     if external_process.handled:
-        if external_process.process_kind == EXTERNAL_PROMPT_SHELL:
+        if external_process.run_shell:
             _ = run_shell_prompt_payload_native(external_process.payload)
             return True
-        if external_process.process_kind == EXTERNAL_PROMPT_PYTHON:
+        if external_process.run_python:
             _ = run_python_prompt_payload_native(external_process.payload)
             return True
-        if external_process.process_kind == EXTERNAL_PROMPT_MATH:
+        if external_process.run_math:
             _ = run_math_prompt_payload_native(external_process.payload)
             return True
-        if external_process.process_kind == EXTERNAL_PROMPT_RETA:
+        if external_process.run_reta:
             if _run_native_reta_prompt_command(external_process.arguments):
                 return True
             _ = run_reta_line_native(external_process.raw)
@@ -753,7 +749,7 @@ def _run_native_one_shot(
 
     var external_process = plan_external_process_dispatch(command)
     if external_process.handled:
-        if external_process.process_kind == EXTERNAL_PROMPT_RETA:
+        if external_process.run_reta:
             if _run_native_reta_prompt_command(external_process.arguments):
                 return True
         return False

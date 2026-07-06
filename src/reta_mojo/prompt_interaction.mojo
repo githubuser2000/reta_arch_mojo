@@ -167,6 +167,10 @@ struct PromptExternalProcessDispatchPlan(Copyable):
     var raw: String
     var payload: String
     var arguments: List[String]
+    var run_shell: Bool
+    var run_python: Bool
+    var run_math: Bool
+    var run_reta: Bool
 
 
 @fieldwise_init
@@ -567,6 +571,10 @@ def plan_external_process_dispatch(
             command.raw,
             _prompt_command_payload(command),
             List[String](),
+            True,
+            False,
+            False,
+            False,
         )
     if command.kind == KIND_PYTHON:
         return PromptExternalProcessDispatchPlan(
@@ -575,6 +583,10 @@ def plan_external_process_dispatch(
             command.raw,
             _prompt_command_payload(command),
             List[String](),
+            False,
+            True,
+            False,
+            False,
         )
     if command.kind == KIND_MATH:
         return PromptExternalProcessDispatchPlan(
@@ -583,6 +595,10 @@ def plan_external_process_dispatch(
             command.raw,
             _prompt_command_payload(command),
             List[String](),
+            False,
+            False,
+            True,
+            False,
         )
     if command.kind == KIND_RETA:
         return PromptExternalProcessDispatchPlan(
@@ -591,9 +607,21 @@ def plan_external_process_dispatch(
             command.raw,
             "",
             _prompt_command_arguments(command),
+            False,
+            False,
+            False,
+            True,
         )
     return PromptExternalProcessDispatchPlan(
-        False, EXTERNAL_PROMPT_NONE, "", "", List[String]()
+        False,
+        EXTERNAL_PROMPT_NONE,
+        "",
+        "",
+        List[String](),
+        False,
+        False,
+        False,
+        False,
     )
 
 
@@ -846,6 +874,7 @@ def prompt_interaction_contract_snapshot() -> List[String]:
         "external_process_dispatch=native-prompt-process-edge-plan",
         "external_reta_arguments=native-prompt-reta-argv-plan",
         "external_process_payload=native-prompt-process-payload-plan",
+        "external_process_flags=native-prompt-process-effect-flags",
         "stored_output_dispatch=native-session-output-execution-plan",
         "stored_delete_dispatch=native-session-delete-plan",
         "stored_default=native-empty-enter-placeholder-policy",
