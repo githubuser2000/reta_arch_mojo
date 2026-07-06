@@ -12,6 +12,8 @@ def test_current_stage_points_to_dq_or_later() -> None:
         or "test_stage12c5dr.sh" in current
         or "test_stage12c5ds.sh" in current
         or "test_stage12c5dt.sh" in current
+        or "test_stage12c5du.sh" in current
+        or "test_stage12c5dv.sh" in current
     )
 
 
@@ -51,7 +53,10 @@ def test_prompt_execution_owns_shared_routing_front_half() -> None:
 def test_prompt_main_no_longer_imports_prompt_preparation_front_half() -> None:
     controller = (ROOT / "src/prompt_main.mojo").read_text(encoding="utf-8")
     language_import = controller.split("from reta_mojo.prompt_language import (", 1)[1].split(")", 1)[0]
-    historical_import = controller.split("from reta_mojo.prompt_historical_ownership import (", 1)[1].split(")", 1)[0]
+    if "from reta_mojo.prompt_historical_ownership import (" in controller:
+        historical_import = controller.split("from reta_mojo.prompt_historical_ownership import (", 1)[1].split(")", 1)[0]
+    else:
+        historical_import = ""
     for symbol in (
         "expand_compact_prompt_tokens",
         "expand_prompt_replacements",

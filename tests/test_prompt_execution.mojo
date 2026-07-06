@@ -18,6 +18,12 @@ def _has_token(values: List[String], needle: String) -> Bool:
             return True
     return False
 
+def _has_substring(values: List[String], needle: String) -> Bool:
+    for index in range(len(values)):
+        if needle in values[index]:
+            return True
+    return False
+
 
 def test_bundle_maps_large_python_owner_to_native_components() raises:
     var bundle = bootstrap_prompt_execution()
@@ -158,6 +164,60 @@ def test_prompt_execution_compact_announcement_plan_respects_quiet() raises:
     assert_false(hidden.should_print)
     assert_equal(hidden.line, "")
     assert_equal(len(hidden.visible_tokens), 0)
+
+
+
+def test_prompt_execution_historical_effect_plan_owns_companions_and_logging() raises:
+    var catalog = _catalog()
+    var routing = plan_prompt_execution_routing(
+        "mond 2 kurzbefehle befehle h leeren loggen --art=csv",
+        "deutsch",
+        catalog,
+    )
+    var effects = plan_prompt_execution_historical_effects(
+        routing, "deutsch", catalog
+    )
+    assert_true(effects.show_short_commands)
+    assert_true(effects.show_commands)
+    assert_true(effects.show_help)
+    assert_true(effects.clear_before_table)
+    assert_true(effects.enable_logging)
+    assert_false(effects.disable_logging)
+
+
+def test_prompt_execution_historical_effect_plan_keeps_disable_logging() raises:
+    var catalog = _catalog()
+    var routing = plan_prompt_execution_routing(
+        "mond 2 nichtloggen --art=csv", "deutsch", catalog
+    )
+    var effects = plan_prompt_execution_historical_effects(
+        routing, "deutsch", catalog
+    )
+    assert_false(effects.enable_logging)
+    assert_true(effects.disable_logging)
+
+
+
+def test_prompt_execution_mulpri_render_plan_owns_prime_and_multis_lines() raises:
+    var catalog = _catalog()
+    var routing = plan_prompt_execution_routing("15", "deutsch", catalog)
+    var plan = plan_prompt_execution_mulpri_render(
+        routing.planning_tokens, "deutsch", catalog
+    )
+    assert_true(plan.handled)
+    assert_true(len(plan.output_lines) > 0)
+    assert_true(_has_substring(plan.output_lines, "15"))
+    assert_true(_has_substring(plan.output_lines, "Prim"))
+
+
+def test_prompt_execution_mulpri_render_plan_rejects_non_mulpri() raises:
+    var catalog = _catalog()
+    var routing = plan_prompt_execution_routing("mond 2", "deutsch", catalog)
+    var plan = plan_prompt_execution_mulpri_render(
+        routing.planning_tokens, "deutsch", catalog
+    )
+    assert_false(plan.handled)
+    assert_equal(len(plan.output_lines), 0)
 
 def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()

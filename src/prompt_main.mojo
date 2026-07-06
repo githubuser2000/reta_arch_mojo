@@ -38,14 +38,8 @@ from reta_mojo.prompt_execution import (
     plan_prompt_execution_routing,
     plan_prompt_execution_table_ownership,
     plan_prompt_execution_compact_announcement,
-    prompt_execution_has_mulpri,
-    prompt_execution_integer_argument_words,
-)
-from reta_mojo.prompt_historical_ownership import (
-    PROMPT_LOG_DISABLED,
-    PROMPT_LOG_ENABLED,
-    historical_prompt_companion_effects,
-    historical_prompt_logging_update,
+    plan_prompt_execution_historical_effects,
+    plan_prompt_execution_mulpri_render,
 )
 from reta_mojo.native_cli_startup import native_cli_startup
 from reta_mojo.resource_paths import asset_root, csv_resource, reference_root
@@ -54,19 +48,11 @@ from reta_mojo.terminal_geometry import (
     terminal_rows,
 )
 from reta_mojo.prompt_runtime import (
-    KIND_PRIME,
-    KIND_MULTIS,
-    KIND_PRIME_COMPARE,
     PromptProfile,
     PromptCommand,
     PromptStartup,
     classify_prompt_command_localized,
     parse_prompt_startup,
-    join_prompt_tokens,
-    prime_lines,
-    command_numbers,
-    multis_lines,
-    prime_comparison_lines,
 )
 from reta_mojo.prompt_session import (
     NativePromptSession,
@@ -247,74 +233,14 @@ def _run_native_table_plan(
     return True
 
 
-def _prompt_language_is_german(language: String) -> Bool:
-    var normalized = language.lower()
-    return (
-        normalized == ""
-        or normalized == "de"
-        or normalized == "deutsch"
-        or normalized == "german"
-    )
-
-
 def _run_native_mulpri(
     values: List[String], language: String, catalog: PromptLanguageCatalog
 ) raises -> Bool:
-    if not prompt_execution_has_mulpri(values, language, catalog):
+    var plan = plan_prompt_execution_mulpri_render(values, language, catalog)
+    if not plan.handled:
         return False
-    var arguments = prompt_execution_integer_argument_words(values)
-    if len(arguments) == 0:
-        return False
-    var prime_words = List[String]()
-    prime_words.append("prim")
-    for index in range(len(arguments)):
-        prime_words.append(arguments[index])
-    var prime_command = PromptCommand(
-        KIND_PRIME, join_prompt_tokens(prime_words), prime_words^
-    )
-    var numbers = command_numbers(prime_command)
-    if len(numbers) > 1:
-        var compare_words = List[String]()
-        compare_words.append("primfaktorenvergleich")
-        for index in range(len(arguments)):
-            compare_words.append(arguments[index])
-        _print_lines(
-            prime_comparison_lines(
-                PromptCommand(
-                    KIND_PRIME_COMPARE,
-                    join_prompt_tokens(compare_words),
-                    compare_words^,
-                ),
-                language,
-            )
-        )
-    _print_lines(prime_lines(prime_command))
-    var multi_words = List[String]()
-    multi_words.append("multis")
-    for index in range(len(arguments)):
-        multi_words.append(arguments[index])
-    var multi_lines = multis_lines(
-        PromptCommand(
-            KIND_MULTIS, join_prompt_tokens(multi_words), multi_words^
-        )
-    )
-    for index in range(len(multi_lines)):
-        if multi_lines[index].endswith("[]") and index < len(numbers):
-            var prime_word = "Primzahl" if _prompt_language_is_german(
-                language
-            ) else "prime_number"
-            print(
-                String(numbers[index])
-                + ": "
-                + String(numbers[index])
-                + " ("
-                + prime_word
-                + ")"
-            )
-        else:
-            print(multi_lines[index])
+    _print_lines(plan.output_lines)
     return True
-
 
 
 def _print_compact_announcement_if_needed(
@@ -394,16 +320,16 @@ def _run_command(
         _print_compact_announcement_if_needed(
             routing, line, profile.language, catalog
         )
-        var companion_effects = historical_prompt_companion_effects(
-            planning_tokens, profile.language, catalog
+        var historical_effects = plan_prompt_execution_historical_effects(
+            routing, profile.language, catalog
         )
-        if companion_effects.show_short_commands:
+        if historical_effects.show_short_commands:
             _print_commands(catalog, profile.language, True)
-        if companion_effects.show_commands:
+        if historical_effects.show_commands:
             _print_commands(catalog, profile.language, False)
-        if companion_effects.show_help:
+        if historical_effects.show_help:
             _print_prompt_help()
-        if companion_effects.clear_before_table:
+        if historical_effects.clear_before_table:
             _print_compound_clear_lines()
         var handled_table = _run_native_table_plan(
             ownership.table_plan, historical_echo, quiet_echo
@@ -412,12 +338,9 @@ def _run_command(
             planning_tokens, profile.language, catalog
         )
         if handled_table or handled_mulpri:
-            var logging_update = historical_prompt_logging_update(
-                planning_tokens, profile.language, catalog
-            )
-            if logging_update == PROMPT_LOG_ENABLED:
+            if historical_effects.enable_logging:
                 session.logging_enabled = True
-            elif logging_update == PROMPT_LOG_DISABLED:
+            elif historical_effects.disable_logging:
                 session.logging_enabled = False
             return True
 
@@ -502,16 +425,16 @@ def _run_native_one_shot(
         _print_compact_announcement_if_needed(
             routing, line, profile.language, catalog
         )
-        var companion_effects = historical_prompt_companion_effects(
-            planning_tokens, profile.language, catalog
+        var historical_effects = plan_prompt_execution_historical_effects(
+            routing, profile.language, catalog
         )
-        if companion_effects.show_short_commands:
+        if historical_effects.show_short_commands:
             _print_commands(catalog, profile.language, True)
-        if companion_effects.show_commands:
+        if historical_effects.show_commands:
             _print_commands(catalog, profile.language, False)
-        if companion_effects.show_help:
+        if historical_effects.show_help:
             _print_prompt_help()
-        if companion_effects.clear_before_table:
+        if historical_effects.clear_before_table:
             _print_compound_clear_lines()
         var handled_table = _run_native_table_plan(
             ownership.table_plan, historical_echo, quiet_echo

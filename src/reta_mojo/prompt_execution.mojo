@@ -20,13 +20,22 @@ from .prompt_language import (
 )
 from .prompt_runtime import (
     KIND_PRIME,
+    KIND_MULTIS,
+    KIND_PRIME_COMPARE,
     PromptCommand,
     classify_prompt_command_localized,
     command_numbers,
     join_prompt_tokens,
+    multis_lines,
+    prime_comparison_lines,
+    prime_lines,
 )
 from .prompt_historical_ownership import (
+    PROMPT_LOG_DISABLED,
+    PROMPT_LOG_ENABLED,
+    historical_prompt_companion_effects,
     historical_prompt_execution_supported,
+    historical_prompt_logging_update,
     is_prompt_numeric_syntax_token,
 )
 from .prompt_execution_helpers import (
@@ -182,6 +191,38 @@ struct PromptExecutionCompactAnnouncementPlan(Copyable):
     var visible_tokens: List[String]
 
 
+@fieldwise_init
+struct PromptExecutionHistoricalEffectPlan(Copyable):
+    """Pure side-effect ordering plan around table and mulpri execution.
+
+    The controller still performs terminal output and session mutation, but the
+    historical membership rules for companion informational effects and the
+    post-command logging transition belong to prompt execution.  This keeps the
+    interactive and one-shot controllers from duplicating PromptGrosseAusgabe's
+    side-effect algebra.
+    """
+
+    var show_short_commands: Bool
+    var show_commands: Bool
+    var show_help: Bool
+    var clear_before_table: Bool
+    var enable_logging: Bool
+    var disable_logging: Bool
+
+
+@fieldwise_init
+struct PromptExecutionMulpriRenderPlan(Copyable):
+    """Pure render-line plan for the historical mulpri/p prompt branch.
+
+    The prompt controller should not know how `mulpri` expands into prime,
+    multis and prime-factor-comparison presentation.  It only prints the lines
+    planned here.
+    """
+
+    var handled: Bool
+    var output_lines: List[String]
+
+
 def prompt_execution_integer_argument_words(values: List[String]) -> List[String]:
     var result = List[String]()
     for index in range(len(values)):
@@ -207,6 +248,80 @@ def prompt_execution_has_mulpri(
     return prompt_execution_contains_token(
         values, mulpri
     ) or prompt_execution_contains_token(values, short)
+
+
+def prompt_execution_language_is_german(language: String) -> Bool:
+    var normalized = language.lower()
+    return (
+        normalized == ""
+        or normalized == "de"
+        or normalized == "deutsch"
+        or normalized == "german"
+    )
+
+
+def plan_prompt_execution_mulpri_render(
+    values: List[String], language: String, catalog: PromptLanguageCatalog
+) raises -> PromptExecutionMulpriRenderPlan:
+    """Plan the complete native mulpri/p output without terminal effects."""
+
+    if not prompt_execution_has_mulpri(values, language, catalog):
+        return PromptExecutionMulpriRenderPlan(False, List[String]())
+    var arguments = prompt_execution_integer_argument_words(values)
+    if len(arguments) == 0:
+        return PromptExecutionMulpriRenderPlan(False, List[String]())
+    var output = List[String]()
+    var prime_words = List[String]()
+    prime_words.append("prim")
+    for index in range(len(arguments)):
+        prime_words.append(arguments[index])
+    var prime_command = PromptCommand(
+        KIND_PRIME, join_prompt_tokens(prime_words), prime_words^
+    )
+    var numbers = command_numbers(prime_command)
+    if len(numbers) > 1:
+        var compare_words = List[String]()
+        compare_words.append("primfaktorenvergleich")
+        for index in range(len(arguments)):
+            compare_words.append(arguments[index])
+        var compare_lines = prime_comparison_lines(
+            PromptCommand(
+                KIND_PRIME_COMPARE,
+                join_prompt_tokens(compare_words),
+                compare_words^,
+            ),
+            language,
+        )
+        for index in range(len(compare_lines)):
+            output.append(compare_lines[index])
+    var prime_output = prime_lines(prime_command)
+    for index in range(len(prime_output)):
+        output.append(prime_output[index])
+    var multi_words = List[String]()
+    multi_words.append("multis")
+    for index in range(len(arguments)):
+        multi_words.append(arguments[index])
+    var multi_output = multis_lines(
+        PromptCommand(
+            KIND_MULTIS, join_prompt_tokens(multi_words), multi_words^
+        )
+    )
+    for index in range(len(multi_output)):
+        if multi_output[index].endswith("[]") and index < len(numbers):
+            var prime_word = "Primzahl" if prompt_execution_language_is_german(
+                language
+            ) else "prime_number"
+            output.append(
+                String(numbers[index])
+                + ": "
+                + String(numbers[index])
+                + " ("
+                + prime_word
+                + ")"
+            )
+        else:
+            output.append(multi_output[index])
+    return PromptExecutionMulpriRenderPlan(True, output^)
 
 
 
@@ -246,6 +361,29 @@ def plan_prompt_execution_compact_announcement(
         True,
         compact_prompt_announcement_line(visible_tokens, source, language),
         visible_tokens^,
+    )
+
+def plan_prompt_execution_historical_effects(
+    routing: PromptExecutionRoutingPlan,
+    language: String,
+    catalog: PromptLanguageCatalog,
+) -> PromptExecutionHistoricalEffectPlan:
+    """Plan companion informational effects and logging transitions."""
+
+    var planning_tokens = routing.planning_tokens.copy()
+    var companion = historical_prompt_companion_effects(
+        planning_tokens, language, catalog
+    )
+    var logging_update = historical_prompt_logging_update(
+        planning_tokens, language, catalog
+    )
+    return PromptExecutionHistoricalEffectPlan(
+        companion.show_short_commands,
+        companion.show_commands,
+        companion.show_help,
+        companion.clear_before_table,
+        logging_update == PROMPT_LOG_ENABLED,
+        logging_update == PROMPT_LOG_DISABLED,
     )
 
 def plan_prompt_execution_table_ownership(

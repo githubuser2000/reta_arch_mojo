@@ -7,7 +7,11 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_current_stage_points_to_dt() -> None:
     current = (ROOT / "scripts/test_current_stage.sh").read_text(encoding="utf-8")
-    assert "test_stage12c5dt.sh" in current
+    assert (
+        "test_stage12c5dt.sh" in current
+        or "test_stage12c5du.sh" in current
+        or "test_stage12c5dv.sh" in current
+    )
 
 
 def test_stage_script_covers_prompt_execution_compact_announcement_plan() -> None:
@@ -54,7 +58,13 @@ def test_prompt_main_keeps_native_mulpri_runner_after_owner_split() -> None:
     controller = (ROOT / "src/prompt_main.mojo").read_text(encoding="utf-8")
     assert "def _run_native_mulpri(" in controller
     assert "var handled_mulpri = _run_native_mulpri(" in controller
-    assert "prompt_execution_has_mulpri(values, language, catalog)" in controller
-    assert "prompt_execution_integer_argument_words(values)" in controller
+    assert (
+        "prompt_execution_has_mulpri(values, language, catalog)" in controller
+        or "plan_prompt_execution_mulpri_render(values, language, catalog)" in controller
+    )
+    assert (
+        "prompt_execution_integer_argument_words(values)" in controller
+        or "plan_prompt_execution_mulpri_render(values, language, catalog)" in controller
+    )
     assert "def _integer_argument_words(" not in controller
     assert "def _has_mulpri(" not in controller
