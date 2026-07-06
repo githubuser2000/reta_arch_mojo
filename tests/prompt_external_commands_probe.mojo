@@ -3,6 +3,7 @@ from std.collections.string import StringSlice
 from std.sys import argv
 from reta_mojo.prompt_external_commands import (
     run_math_prompt_payload_native,
+    reta_child_arguments_native,
     run_python_prompt_payload_native,
     run_reta_arguments_native,
     run_reta_prompt_fallback_arguments_native,
@@ -25,20 +26,6 @@ def _prompt_line_payload(line: String) -> String:
     return ""
 
 
-def _reta_child_arguments(arguments: List[String]) -> List[String]:
-    var result = List[String]()
-    var start = 0
-    if len(arguments) > 0 and (
-        arguments[0] == "reta"
-        or arguments[0] == "reta.py"
-        or arguments[0].endswith("/reta.py")
-    ):
-        start = 1
-    for index in range(start, len(arguments)):
-        result.append(arguments[index])
-    return result^
-
-
 def _run(mode: String, line: String, reference_root: String) raises -> Int:
     if mode == "shell":
         return run_shell_prompt_payload_native(_prompt_line_payload(line), reference_root)
@@ -48,7 +35,7 @@ def _run(mode: String, line: String, reference_root: String) raises -> Int:
         return run_math_prompt_payload_native(_prompt_line_payload(line), reference_root)
     if mode == "reta":
         return run_reta_arguments_native(
-            _reta_child_arguments(shell_split(line)), reference_root
+            reta_child_arguments_native(shell_split(line)), reference_root
         )
     if mode == "fallback":
         var flags = List[String]()

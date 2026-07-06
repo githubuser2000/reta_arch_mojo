@@ -23,6 +23,7 @@ from .prompt_external_commands import (
     run_python_prompt_payload_native,
     run_reta_arguments_native,
     run_reta_prompt_arguments_native,
+    reta_child_arguments_native,
     run_reta_prompt_fallback_arguments_native,
     run_shell_prompt_payload_native,
     shell_split,
@@ -91,23 +92,9 @@ def _split_encoded(encoded: String, separator: String) -> List[String]:
     return result^
 
 
-def _reta_child_arguments(arguments: List[String]) -> List[String]:
-    var result = List[String]()
-    var start = 0
-    if len(arguments) > 0 and (
-        arguments[0] == "reta"
-        or arguments[0] == "reta.py"
-        or arguments[0].endswith("/reta.py")
-    ):
-        start = 1
-    for index in range(start, len(arguments)):
-        result.append(arguments[index])
-    return result^
-
-
 def run_reta(arguments: List[String]) raises -> Int:
     return run_reta_arguments_native(
-        _reta_child_arguments(arguments), reference_root()
+        reta_child_arguments_native(arguments), reference_root()
     )
 
 
@@ -201,7 +188,7 @@ def run_math_expression(expression: String) raises -> Int:
 
 def run_reta_line(line: String) raises -> Int:
     return run_reta_arguments_native(
-        _reta_child_arguments(shell_split(line)), reference_root()
+        reta_child_arguments_native(shell_split(line)), reference_root()
     )
 
 
@@ -265,4 +252,5 @@ def legacy_mojo_bridge_owner_snapshot() -> List[String]:
         "external_line_wrappers=removed-payload-argv-only",
         "fallback_bridge=native-argv-owner",
         "external_raw_payload_helper=legacy-local",
+        "reta_child_arguments=shared-native-argv-owner",
     ]

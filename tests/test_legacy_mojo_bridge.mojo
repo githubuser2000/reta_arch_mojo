@@ -45,7 +45,7 @@ def test_encoded_argument_and_readline_configuration_are_typed() raises:
 
 def test_owner_snapshot_has_no_embedded_interpreter() raises:
     var owners = legacy_mojo_bridge_owner_snapshot()
-    assert_equal(len(owners), 14)
+    assert_equal(len(owners), 15)
     assert_equal(owners[0], "module=mojo_bridge.py")
     assert_equal(owners[7], "embedded_python=none")
     assert_equal(owners[9], "reta_line_bridge=native-argv-owner")
@@ -53,6 +53,7 @@ def test_owner_snapshot_has_no_embedded_interpreter() raises:
     assert_equal(owners[11], "external_line_wrappers=removed-payload-argv-only")
     assert_equal(owners[12], "fallback_bridge=native-argv-owner")
     assert_equal(owners[13], "external_raw_payload_helper=legacy-local")
+    assert_equal(owners[14], "reta_child_arguments=shared-native-argv-owner")
 
 
 def main() raises:

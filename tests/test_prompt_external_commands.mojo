@@ -1,5 +1,6 @@
 from std.testing import assert_equal, assert_true, TestSuite
 from reta_mojo.prompt_external_commands import (
+    reta_child_arguments_native,
     shell_quote,
     shell_split,
 )
@@ -42,6 +43,21 @@ def test_shell_split_rejects_unclosed_quote() raises:
 def test_shell_quote_handles_apostrophe() raises:
     assert_equal(shell_quote("a'b"), "'a'\"'\"'b'")
     assert_equal(shell_quote(""), "''")
+
+
+def test_reta_child_arguments_drop_historical_entrypoint() raises:
+    assert_equal(
+        _joined(reta_child_arguments_native(["reta", "-zeilen", "1"])),
+        "-zeilen\x1f1",
+    )
+    assert_equal(
+        _joined(reta_child_arguments_native(["/tmp/reta.py", "-spalten"])),
+        "-spalten",
+    )
+    assert_equal(
+        _joined(reta_child_arguments_native(["-zeilen", "2"])),
+        "-zeilen\x1f2",
+    )
 
 
 def main() raises:

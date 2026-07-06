@@ -140,6 +140,23 @@ def shell_quote(value: String) -> String:
     return "'" + value.replace("'", "'\"'\"'") + "'"
 
 
+
+
+def reta_child_arguments_native(arguments: List[String]) -> List[String]:
+    """Drop an optional historical reta executable from an owned argv vector."""
+    var result = List[String]()
+    var start = 0
+    if len(arguments) > 0 and (
+        arguments[0] == "reta"
+        or arguments[0] == "reta.py"
+        or arguments[0].endswith("/reta.py")
+    ):
+        start = 1
+    for index in range(start, len(arguments)):
+        result.append(arguments[index])
+    return result^
+
+
 def _decode_system_status(status: Int) -> Int:
     if status < 0:
         return status
