@@ -19,12 +19,15 @@ from .legacy_mojo_bridge_catalog import (
 from .native_prompt_input import read_native_prompt_line
 from .prompt_external_commands import (
     run_math_prompt_line_native,
+    run_math_prompt_payload_native,
     run_python_prompt_line_native,
+    run_python_prompt_payload_native,
     run_reta_arguments_native,
     run_reta_line_native,
     run_reta_prompt_arguments_native,
     run_reta_prompt_fallback_native,
     run_shell_prompt_line_native,
+    run_shell_prompt_payload_native,
 )
 from .prompt_language import load_prompt_language_catalog
 from .resource_paths import asset_root, reference_root
@@ -172,15 +175,15 @@ def run_reta_prompt_subprocess_encoded(encoded: String) raises -> Int:
 
 
 def run_shell_line(line: String) raises -> Int:
-    return run_shell_prompt_line_native("shell " + line, reference_root())
+    return run_shell_prompt_payload_native(line, reference_root())
 
 
 def run_python_code(code: String) raises -> Int:
-    return run_python_prompt_line_native("python " + code, reference_root())
+    return run_python_prompt_payload_native(code, reference_root())
 
 
 def run_math_expression(expression: String) raises -> Int:
-    return run_math_prompt_line_native("math " + expression, reference_root())
+    return run_math_prompt_payload_native(expression, reference_root())
 
 
 def run_reta_line(line: String) raises -> Int:
