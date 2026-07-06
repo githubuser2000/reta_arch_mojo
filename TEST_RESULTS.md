@@ -2657,3 +2657,10 @@ Benutzerlauf.
   verification passed.
 - Mojo compilation was intentionally not run in this environment; use
   `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5ch.sh -- -j 8` locally.
+
+## Stage 12c5ci – vorbereitete Prüfungen
+
+- Neue native Grenze: leere Eingabe und Exit-Befehle werden als `PromptLoopControlDispatchPlan` im Interaktionsbesitzer geplant.
+- `prompt_main.mojo` enthält keine bare `KIND_EMPTY`-/`KIND_EXIT`-Branches mehr.
+- Der Stage-Lauf baut `test_prompt_interaction.mojo`, `test_legacy_reta_prompt.mojo` und `test_table_adapters.mojo` frisch.
+- Die tatsächliche Mojo-Kompilierung bleibt der Benutzerlauf `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5ci.sh -- -j 8`.

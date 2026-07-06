@@ -86,6 +86,14 @@ struct NativePromptInteraction(Copyable):
 
 
 
+@fieldwise_init
+struct PromptLoopControlDispatchPlan(Copyable):
+    """Executable plan for bare prompt loop control commands."""
+
+    var handled: Bool
+    var continue_loop: Bool
+
+
 
 @fieldwise_init
 struct PromptStoredCommandDispatchPlan(Copyable):
@@ -317,6 +325,23 @@ def _plan_stored_output_payload(
     return PromptStoredOutputExecutionPlan(
         True, command_line^, List[String]()
     )
+
+
+def plan_loop_control_dispatch(
+    command: PromptCommand,
+) -> PromptLoopControlDispatchPlan:
+    """Plan empty-line and exit prompt controls in the interaction owner.
+
+    Empty commands are successful no-ops and keep the interactive loop alive.
+    Exit commands are successful controls too, but the interactive caller must
+    terminate the loop.  One-shot execution can use the same typed plan and
+    only needs the handled flag to avoid falling through to compatibility.
+    """
+    if command.kind == KIND_EMPTY:
+        return PromptLoopControlDispatchPlan(True, True)
+    if command.kind == KIND_EXIT:
+        return PromptLoopControlDispatchPlan(True, False)
+    return PromptLoopControlDispatchPlan(False, True)
 
 
 def plan_stored_command_dispatch(
@@ -692,6 +717,7 @@ def prompt_interaction_contract_snapshot() -> List[String]:
         "history=native-previous-command-policy",
         "inline_storage=native-position-and-history-policy",
         "storage_output=native-position-independent-addition-policy",
+        "loop_control=native-empty-exit-loop-plan",
         "stored_command_dispatch=native-session-store-plan",
         "logging_dispatch=native-session-logging-plan",
         "terminal_clear_dispatch=native-terminal-clear-plan",

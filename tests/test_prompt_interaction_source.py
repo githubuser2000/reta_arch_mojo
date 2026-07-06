@@ -17,6 +17,8 @@ def test_prompt_interaction_has_a_dedicated_native_owner() -> None:
     assert "def prompt_line_updates_previous(" in owner
     assert "def record_prompt_line(" in owner
     assert "struct PromptInlineStoragePlan" in owner
+    assert "struct PromptLoopControlDispatchPlan" in owner
+    assert "def plan_loop_control_dispatch(" in owner
     assert "def plan_inline_storage_command(" in owner
     assert "def apply_inline_storage_command(" in owner
     assert "struct PromptStorageOutputPlan" in owner
@@ -51,6 +53,7 @@ def test_production_prompt_activates_the_interaction_owner() -> None:
     assert "record_prompt_line(" in controller
     assert "record_prompt_command(" not in controller
     assert "apply_inline_storage_command(" in controller
+    assert "plan_loop_control_dispatch(" in controller
     assert "plan_stored_command_dispatch(" in controller
     assert "plan_logging_dispatch(" in controller
     assert "plan_terminal_clear_dispatch(" in controller
@@ -71,6 +74,10 @@ def test_production_prompt_activates_the_interaction_owner() -> None:
     assert "if command.kind == KIND_STORE_NEXT" not in controller
     assert "if command.kind == KIND_STORE_PREVIOUS" not in controller
     assert "if command.kind == KIND_CLEAR" not in controller
+    assert "if command.kind == KIND_EMPTY" not in controller
+    assert "if command.kind == KIND_EXIT" not in controller
+    assert "KIND_EMPTY," not in controller
+    assert "KIND_EXIT," not in controller
     assert "effective_one_shot_tokens" not in controller
 
 

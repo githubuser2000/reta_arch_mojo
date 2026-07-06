@@ -55,8 +55,6 @@ from reta_mojo.terminal_geometry import (
     terminal_rows,
 )
 from reta_mojo.prompt_runtime import (
-    KIND_EMPTY,
-    KIND_EXIT,
     KIND_LOG_ON,
     KIND_LOG_OFF,
     KIND_PRIME,
@@ -95,6 +93,7 @@ from reta_mojo.prompt_interaction import (
     accept_prompt_input,
     record_prompt_line,
     apply_inline_storage_command,
+    plan_loop_control_dispatch,
     plan_stored_command_dispatch,
     plan_logging_dispatch,
     plan_terminal_clear_dispatch,
@@ -457,10 +456,9 @@ def _run_command(
         if inline_output.command_line.byte_length() == 0:
             return True
         return _run_command(profile, inline_output.command_line, session, catalog)
-    if command.kind == KIND_EMPTY:
-        return True
-    if command.kind == KIND_EXIT:
-        return False
+    var loop_control = plan_loop_control_dispatch(command)
+    if loop_control.handled:
+        return loop_control.continue_loop
     var stored_dispatch = plan_stored_command_dispatch(command, session)
     if stored_dispatch.handled:
         _print_lines(stored_dispatch.output_lines)
@@ -645,7 +643,8 @@ def _run_native_one_shot(
         normalized_line, profile.language, catalog
     )
 
-    if command.kind == KIND_EMPTY or command.kind == KIND_EXIT:
+    var loop_control = plan_loop_control_dispatch(command)
+    if loop_control.handled:
         return True
     var historical_echo = _uses_historical_prompt_echo(
         raw_tokens, compact_expansion

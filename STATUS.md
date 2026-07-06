@@ -774,3 +774,9 @@ Siehe [`ROADMAP.md`](ROADMAP.md) für alle zwölf Stufen.
   duplicating output branches.
 - Kept shell/Python/math/reta execution and historical `mulpri` composition at
   their existing owners.
+
+## 12c5ci – Bare loop control dispatch ownership
+
+- Bare empty/exit prompt controls are now planned by `PromptLoopControlDispatchPlan` in `prompt_interaction.mojo`.
+- `prompt_main.mojo` no longer branches directly on `KIND_EMPTY` or `KIND_EXIT`; the interactive loop uses `continue_loop`, while one-shot treats the same plan as handled.
+- The stage adds `test_stage12c5ci.sh` and focused source contracts for the new owner boundary.

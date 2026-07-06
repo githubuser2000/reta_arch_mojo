@@ -864,3 +864,9 @@ The prompt controller now delegates bare deterministic output commands to the
 interaction owner. Remaining controller-owned boundaries are external execution
 (shell/python/math/reta), one-shot-only logging status text and the historical
 `mulpri` composition helper.
+
+### 12c5ci prompt loop-control ownership
+
+Move the remaining bare empty/exit dispatch from `prompt_main.mojo` into the
+prompt interaction owner.  This leaves the process controller responsible only
+for applying the typed loop-control plan.

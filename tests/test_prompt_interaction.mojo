@@ -3,6 +3,8 @@ from reta_mojo.prompt_language import load_prompt_language_catalog
 from reta_mojo.prompt_runtime import (
     parse_prompt_startup,
     classify_prompt_command_localized,
+    KIND_EMPTY,
+    KIND_EXIT,
     KIND_PRIME,
     KIND_STORE_NEXT,
     KIND_STORE_PREVIOUS,
@@ -315,6 +317,24 @@ def test_inline_storage_output_is_position_independent() raises:
     )
     assert_true(english.handled)
     assert_equal(english.payload, "emotions 1")
+
+
+def test_loop_control_dispatch_is_planned_by_interaction_owner() raises:
+    var catalog = load_prompt_language_catalog("assets")
+    var empty = classify_prompt_command_localized("", "deutsch", catalog)
+    assert_equal(empty.kind, KIND_EMPTY)
+    var empty_plan = plan_loop_control_dispatch(empty)
+    assert_true(empty_plan.handled)
+    assert_true(empty_plan.continue_loop)
+
+    var quit_command = classify_prompt_command_localized("q", "deutsch", catalog)
+    assert_equal(quit_command.kind, KIND_EXIT)
+    var quit_plan = plan_loop_control_dispatch(quit_command)
+    assert_true(quit_plan.handled)
+    assert_false(quit_plan.continue_loop)
+
+    var normal = classify_prompt_command_localized("prim 60", "deutsch", catalog)
+    assert_false(plan_loop_control_dispatch(normal).handled)
 
 
 def test_single_storage_dispatch_is_planned_by_interaction_owner() raises:
@@ -656,7 +676,7 @@ def test_inline_storage_output_edges_and_history() raises:
 
 def test_contract_snapshot() raises:
     var snapshot = prompt_interaction_contract_snapshot()
-    assert_equal(len(snapshot), 19)
+    assert_equal(len(snapshot), 20)
     assert_equal(snapshot[0], "class=PromptInteractionBundle")
     assert_equal(
         snapshot[6],
@@ -668,37 +688,41 @@ def test_contract_snapshot() raises:
     )
     assert_equal(
         snapshot[8],
-        "stored_command_dispatch=native-session-store-plan",
+        "loop_control=native-empty-exit-loop-plan",
     )
     assert_equal(
         snapshot[9],
-        "logging_dispatch=native-session-logging-plan",
+        "stored_command_dispatch=native-session-store-plan",
     )
     assert_equal(
         snapshot[10],
-        "terminal_clear_dispatch=native-terminal-clear-plan",
+        "logging_dispatch=native-session-logging-plan",
     )
     assert_equal(
         snapshot[11],
-        "informational_dispatch=native-prompt-information-plan",
+        "terminal_clear_dispatch=native-terminal-clear-plan",
     )
     assert_equal(
         snapshot[12],
-        "simple_output_dispatch=native-deterministic-prompt-output-plan",
+        "informational_dispatch=native-prompt-information-plan",
     )
     assert_equal(
         snapshot[13],
-        "stored_output_dispatch=native-session-output-execution-plan",
+        "simple_output_dispatch=native-deterministic-prompt-output-plan",
     )
     assert_equal(
         snapshot[14],
-        "stored_delete_dispatch=native-session-delete-plan",
+        "stored_output_dispatch=native-session-output-execution-plan",
     )
     assert_equal(
         snapshot[15],
+        "stored_delete_dispatch=native-session-delete-plan",
+    )
+    assert_equal(
+        snapshot[16],
         "stored_default=native-empty-enter-placeholder-policy",
     )
-    assert_equal(snapshot[18], "execution=delegated-native-dispatch")
+    assert_equal(snapshot[19], "execution=delegated-native-dispatch")
 
 
 def main() raises:
