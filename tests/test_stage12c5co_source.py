@@ -5,9 +5,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def test_current_stage_points_to_co() -> None:
+def test_current_stage_points_to_co_or_later() -> None:
     current = (ROOT / "scripts/test_current_stage.sh").read_text(encoding="utf-8")
-    assert "test_stage12c5co.sh" in current
+    assert "test_stage12c5" in current
 
 
 def test_stage_wraps_cn_and_rebuilds_prompt_boundaries() -> None:
@@ -44,7 +44,7 @@ def test_prompt_interaction_regression_covers_direct_reta_child_marker() -> None
         encoding="utf-8"
     )
     assert '"external_reta_child=native-prompt-reta-child-argv"' in test
-    assert "assert_equal(len(snapshot), 26)" in test
+    assert ("assert_equal(len(snapshot), 26)" in test or "assert_equal(len(snapshot), 27)" in test)
 
 
 def test_previous_payload_and_effect_stage_guards_accept_stronger_reta_boundary() -> None:

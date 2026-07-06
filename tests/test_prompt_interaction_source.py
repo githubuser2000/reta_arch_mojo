@@ -36,6 +36,7 @@ def test_prompt_interaction_has_a_dedicated_native_owner() -> None:
     assert "struct PromptSimpleOutputDispatchPlan" in owner
     assert "def plan_simple_output_dispatch(" in owner
     assert "struct PromptExternalProcessDispatchPlan" in owner
+    assert "var raw: String" not in owner
     assert "var payload: String" in owner
     assert "var arguments: List[String]" in owner
     assert "var run_shell: Bool" in owner
@@ -114,6 +115,7 @@ def test_production_prompt_activates_the_interaction_owner() -> None:
     assert "_run_native_reta_prompt_command(external_process.arguments)" in controller
     assert "run_reta_arguments_native(\n                external_process.arguments" in controller
     assert "run_reta_line_native(external_process.raw)" not in controller
+    assert "external_process.raw" not in controller
     assert "external_process.process_kind == EXTERNAL_PROMPT" not in controller
     assert "EXTERNAL_PROMPT_SHELL," not in controller
     assert "EXTERNAL_PROMPT_PYTHON," not in controller

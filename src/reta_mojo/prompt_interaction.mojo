@@ -164,7 +164,6 @@ struct PromptExternalProcessDispatchPlan(Copyable):
 
     var handled: Bool
     var process_kind: Int
-    var raw: String
     var payload: String
     var arguments: List[String]
     var run_shell: Bool
@@ -568,7 +567,6 @@ def plan_external_process_dispatch(
         return PromptExternalProcessDispatchPlan(
             True,
             EXTERNAL_PROMPT_SHELL,
-            command.raw,
             _prompt_command_payload(command),
             List[String](),
             True,
@@ -580,7 +578,6 @@ def plan_external_process_dispatch(
         return PromptExternalProcessDispatchPlan(
             True,
             EXTERNAL_PROMPT_PYTHON,
-            command.raw,
             _prompt_command_payload(command),
             List[String](),
             False,
@@ -592,7 +589,6 @@ def plan_external_process_dispatch(
         return PromptExternalProcessDispatchPlan(
             True,
             EXTERNAL_PROMPT_MATH,
-            command.raw,
             _prompt_command_payload(command),
             List[String](),
             False,
@@ -604,7 +600,6 @@ def plan_external_process_dispatch(
         return PromptExternalProcessDispatchPlan(
             True,
             EXTERNAL_PROMPT_RETA,
-            command.raw,
             "",
             _prompt_command_arguments(command),
             False,
@@ -615,7 +610,6 @@ def plan_external_process_dispatch(
     return PromptExternalProcessDispatchPlan(
         False,
         EXTERNAL_PROMPT_NONE,
-        "",
         "",
         List[String](),
         False,
@@ -876,6 +870,7 @@ def prompt_interaction_contract_snapshot() -> List[String]:
         "external_process_payload=native-prompt-process-payload-plan",
         "external_process_flags=native-prompt-process-effect-flags",
         "external_reta_child=native-prompt-reta-child-argv",
+        "external_raw_line=eliminated-from-external-process-plan",
         "stored_output_dispatch=native-session-output-execution-plan",
         "stored_delete_dispatch=native-session-delete-plan",
         "stored_default=native-empty-enter-placeholder-policy",
