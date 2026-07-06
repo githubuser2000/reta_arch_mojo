@@ -13,14 +13,9 @@ from std.collections.string import ord
 from reta_mojo.prompt_language import (
     PromptExpansionResult,
     PromptLanguageCatalog,
-    balanced_prompt_split,
-    expand_compact_prompt_tokens,
-    expand_prompt_replacements,
     load_prompt_language_catalog,
-    is_prompt_numeric_shortcut,
     prompt_root_commands,
     prompt_vocabulary_alias,
-    prepare_prompt_tokens,
 )
 from reta_mojo.prompt_table_execution import (
     PromptTablePlan,
@@ -40,13 +35,16 @@ from reta_mojo.native_reta_cli import (
     run_native_reta,
 )
 from reta_mojo.prompt_execution_runtime import render_prompt_table_plan
+from reta_mojo.prompt_execution import (
+    plan_prompt_execution_routing,
+    prompt_execution_contains_token,
+)
 from reta_mojo.prompt_historical_ownership import (
     PROMPT_LOG_DISABLED,
     PROMPT_LOG_ENABLED,
     historical_prompt_companion_effects,
     historical_prompt_execution_supported,
     historical_prompt_logging_update,
-    is_prompt_numeric_syntax_token,
 )
 from reta_mojo.native_cli_startup import native_cli_startup
 from reta_mojo.resource_paths import asset_root, csv_resource, reference_root
@@ -248,40 +246,8 @@ def _run_native_table_plan(
     return True
 
 
-def _uses_historical_prompt_echo(
-    raw_tokens: List[String], expansion: PromptExpansionResult
-) -> Bool:
-    if expansion.compact:
-        return True
-    return len(raw_tokens) > 0 and raw_tokens[0].byte_length() == 1
-
-
 def _contains_token(values: List[String], needle: String) -> Bool:
-    for index in range(len(values)):
-        if values[index] == needle:
-            return True
-    return False
-
-
-def _contains_numeric_shortcut(
-    values: List[String], language: String, catalog: PromptLanguageCatalog
-) -> Bool:
-    for index in range(len(values)):
-        if is_prompt_numeric_shortcut(catalog, language, values[index]):
-            return True
-    return False
-
-
-def _quiet_prompt_echo(
-    values: List[String], language: String, catalog: PromptLanguageCatalog
-) -> Bool:
-    var quiet = prompt_vocabulary_alias(
-        catalog,
-        language,
-        "command",
-        "keineEinZeichenZeilenPlusKeineAusgabeWelcherBefehlEsWar",
-    )
-    return _contains_token(values, quiet)
+    return prompt_execution_contains_token(values, needle)
 
 
 def _integer_argument_words(values: List[String]) -> List[String]:
@@ -394,15 +360,6 @@ def _compact_announcement_tokens(
     return result^
 
 
-def _is_pure_numeric_prompt(values: List[String]) -> Bool:
-    if len(values) == 0:
-        return False
-    for index in range(len(values)):
-        if not is_prompt_numeric_syntax_token(values[index]):
-            return False
-    return True
-
-
 def _print_compact_announcement_if_needed(
     expansion: PromptExpansionResult,
     prepared_tokens: List[String],
@@ -431,21 +388,12 @@ def _run_command(
     catalog: PromptLanguageCatalog,
 ) raises -> Bool:
     """Run one command and return false when the loop should terminate."""
-    var raw_tokens = balanced_prompt_split(line)
-    var compact_expansion = expand_compact_prompt_tokens(
-        catalog,
-        profile.language,
-        raw_tokens,
-        False,
-        profile.force_e_command,
+    var routing = plan_prompt_execution_routing(
+        line, profile.language, catalog, profile.force_e_command
     )
-    var normalized_tokens = expand_prompt_replacements(
-        catalog, profile.language, compact_expansion.tokens
-    )
-    var normalized_line = join_prompt_tokens(normalized_tokens)
-    var command = classify_prompt_command_localized(
-        normalized_line, profile.language, catalog
-    )
+    var raw_tokens = routing.raw_tokens.copy()
+    var compact_expansion = routing.compact_expansion.copy()
+    var command = routing.command.copy()
     if apply_inline_storage_command(
         session, raw_tokens, profile.language, catalog
     ):
@@ -480,32 +428,12 @@ def _run_command(
     if stored_delete.handled:
         _print_lines(stored_delete.output_lines)
         return True
-    var historical_echo = _uses_historical_prompt_echo(
-        raw_tokens, compact_expansion
-    )
-    var prepared = prepare_prompt_tokens(
-        catalog,
-        profile.language,
-        raw_tokens,
-        False,
-        profile.force_e_command,
-    )
-    var numeric_default = _is_pure_numeric_prompt(raw_tokens)
-    var planning_tokens_are_prepared = (
-        historical_echo
-        or numeric_default
-        or _contains_numeric_shortcut(
-            raw_tokens, profile.language, catalog
-        )
-    )
-    var planning_tokens = (
-        prepared.tokens.copy()
-        if planning_tokens_are_prepared
-        else normalized_tokens.copy()
-    )
-    var quiet_echo = _quiet_prompt_echo(
-        planning_tokens, profile.language, catalog
-    )
+    var historical_echo = routing.historical_echo
+    var numeric_default = routing.numeric_default
+    var prepared_tokens = routing.prepared_tokens.copy()
+    var planning_tokens_are_prepared = routing.planning_tokens_are_prepared
+    var planning_tokens = routing.planning_tokens.copy()
+    var quiet_echo = routing.quiet_echo
 
     # The historical PromptGrosseAusgabe branch treats domain words as an
     # unordered command set.  Plan these table-backed commands before the
@@ -537,7 +465,7 @@ def _run_command(
     if owns_table or owns_mulpri:
         _print_compact_announcement_if_needed(
             compact_expansion,
-            prepared.tokens,
+            prepared_tokens,
             line,
             profile.language,
             catalog,
@@ -635,51 +563,22 @@ def _run_native_one_shot(
     storage operations, renderer-sensitive compounds and genuinely unported
     branches return ``False`` and enter the compatibility path in ``main``.
     """
-    var raw_tokens = balanced_prompt_split(line)
-    var compact_expansion = expand_compact_prompt_tokens(
-        catalog,
-        profile.language,
-        raw_tokens,
-        False,
-        profile.force_e_command,
+    var routing = plan_prompt_execution_routing(
+        line, profile.language, catalog, profile.force_e_command
     )
-    var normalized_tokens = expand_prompt_replacements(
-        catalog, profile.language, compact_expansion.tokens
-    )
-    var normalized_line = join_prompt_tokens(normalized_tokens)
-    var command = classify_prompt_command_localized(
-        normalized_line, profile.language, catalog
-    )
+    var raw_tokens = routing.raw_tokens.copy()
+    var compact_expansion = routing.compact_expansion.copy()
+    var command = routing.command.copy()
 
     var loop_control = plan_loop_control_dispatch(command)
     if loop_control.handled:
         return True
-    var historical_echo = _uses_historical_prompt_echo(
-        raw_tokens, compact_expansion
-    )
-    var prepared = prepare_prompt_tokens(
-        catalog,
-        profile.language,
-        raw_tokens,
-        False,
-        profile.force_e_command,
-    )
-    var numeric_default = _is_pure_numeric_prompt(raw_tokens)
-    var planning_tokens_are_prepared = (
-        historical_echo
-        or numeric_default
-        or _contains_numeric_shortcut(
-            raw_tokens, profile.language, catalog
-        )
-    )
-    var planning_tokens = (
-        prepared.tokens.copy()
-        if planning_tokens_are_prepared
-        else normalized_tokens.copy()
-    )
-    var quiet_echo = _quiet_prompt_echo(
-        planning_tokens, profile.language, catalog
-    )
+    var historical_echo = routing.historical_echo
+    var numeric_default = routing.numeric_default
+    var prepared_tokens = routing.prepared_tokens.copy()
+    var planning_tokens_are_prepared = routing.planning_tokens_are_prepared
+    var planning_tokens = routing.planning_tokens.copy()
+    var quiet_echo = routing.quiet_echo
     var table_plan = plan_prompt_table_commands(
         planning_tokens,
         profile.language,
@@ -706,7 +605,7 @@ def _run_native_one_shot(
     if owns_table or owns_mulpri:
         _print_compact_announcement_if_needed(
             compact_expansion,
-            prepared.tokens,
+            prepared_tokens,
             line,
             profile.language,
             catalog,

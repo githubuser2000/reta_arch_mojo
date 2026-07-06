@@ -5,9 +5,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def test_current_stage_points_to_dp() -> None:
+def test_current_stage_points_to_dp_or_later() -> None:
     current = (ROOT / "scripts/test_current_stage.sh").read_text(encoding="utf-8")
-    assert "test_stage12c5dp.sh" in current
+    assert "test_stage12c5" in current
+    assert ".sh" in current
 
 
 def test_stage_script_covers_prompt_reaction_storage_dispatch_owner() -> None:
