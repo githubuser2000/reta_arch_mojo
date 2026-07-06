@@ -806,3 +806,11 @@ Der historische Assetgate ist jetzt vollständig read-only. Fünf gepinnte SHA-2
 - [x] Standalone-ANSI-Clear und atomaren Fallback unverändert halten.
 - [x] Nicht-`Writable`-Struct im Mojo-Test über `Equatable` vergleichen.
 - [ ] Benutzerseitig `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bu.sh -- -j 8` ausführen.
+
+## Stage 12c5bv – Inline-Speicherung und deterministische Tabellentests
+
+- [x] Positionsunabhängige zusammengesetzte `S`-/`s`-Speicherung nativ planen.
+- [x] Ambiguitäts-, Duplikat- und `abc`-Grenzen gegen Python einfrieren.
+- [x] Englische Compound-Clear-Probe in den Einmalmodus versetzen.
+- [x] Mond-/Sonnen- und terminalbreitenabhängige Tabellenverträge korrigieren.
+- [ ] Benutzerseitig `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bv.sh -- -j 8` ausführen.

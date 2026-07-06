@@ -58,3 +58,4 @@ def test_native_checker_disconnects_all_ttys_and_uses_lines_environment() -> Non
     assert '("clear", "emotions", "1")' in source
     assert 'standalone != b"\\x1b[2J\\x1b[H"' in source
     assert 'profile="retaPrompt.english"' in source
+    assert 'argv.append("-befehl")' in source

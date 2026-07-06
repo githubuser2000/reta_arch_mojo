@@ -111,6 +111,93 @@ def test_previous_command_policy() raises:
         assert_equal(interaction.session.previous_command, "prim 60")
 
 
+
+def test_inline_storage_is_position_independent() raises:
+    var catalog = load_prompt_language_catalog("assets")
+    var prefix = plan_inline_storage_command(
+        ["S", "emotion", "1"], "deutsch", catalog
+    )
+    var middle = plan_inline_storage_command(
+        ["emotion", "S", "1"], "deutsch", catalog
+    )
+    var suffix = plan_inline_storage_command(
+        ["emotion", "1", "s"], "deutsch", catalog
+    )
+    assert_true(prefix.handled)
+    assert_true(middle.handled)
+    assert_true(suffix.handled)
+    assert_equal(prefix.payload, "emotion 1")
+    assert_equal(middle.payload, "emotion 1")
+    assert_equal(suffix.payload, "emotion 1")
+
+    var english = plan_inline_storage_command(
+        ["emotions", "1", "CommandSaveAfter"],
+        "english",
+        catalog,
+    )
+    assert_true(english.handled)
+    assert_equal(english.payload, "emotions 1")
+
+
+def test_inline_storage_preserves_set_and_remove_once_edges() raises:
+    var catalog = load_prompt_language_catalog("assets")
+    var duplicate = plan_inline_storage_command(
+        ["S", "S", "emotion"], "deutsch", catalog
+    )
+    assert_true(duplicate.handled)
+    assert_equal(duplicate.payload, "S emotion")
+
+    assert_false(
+        plan_inline_storage_command(
+            ["S", "s", "emotion"], "deutsch", catalog
+        ).handled
+    )
+    assert_false(
+        plan_inline_storage_command(
+            ["S", "BefehlSpeichernDanach", "emotion"],
+            "deutsch",
+            catalog,
+        ).handled
+    )
+    assert_false(
+        plan_inline_storage_command(
+            ["S", "abc"], "deutsch", catalog
+        ).handled
+    )
+    assert_false(
+        plan_inline_storage_command(
+            ["S", "S"], "deutsch", catalog
+        ).handled
+    )
+
+
+def test_inline_storage_mutates_session_without_execution() raises:
+    var catalog = load_prompt_language_catalog("assets")
+    var interaction = new_prompt_interaction(
+        parse_prompt_startup("retaPrompt", [])
+    )
+    assert_true(
+        apply_inline_storage_command(
+            interaction.session,
+            ["emotion", "1", "S"],
+            "deutsch",
+            catalog,
+        )
+    )
+    assert_equal(stored_prompt_text(interaction.session), "emotion 1")
+    assert_true(
+        apply_inline_storage_command(
+            interaction.session,
+            ["s", "universum", "2"],
+            "deutsch",
+            catalog,
+        )
+    )
+    assert_equal(
+        stored_prompt_text(interaction.session),
+        "emotion 1 universum 2",
+    )
+
 def test_contract_snapshot() raises:
     var snapshot = prompt_interaction_contract_snapshot()
     assert_equal(len(snapshot), 9)

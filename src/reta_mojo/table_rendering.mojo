@@ -1503,6 +1503,7 @@ def render_shell_table_with_width_reference(
     one_table: Bool = False,
     no_blank_contents: Bool = False,
     widths: List[Int] = List[Int](),
+    terminal_columns_override: Int = 0,
 ) -> String:
     """Render the legacy ANSI terminal table, including paging and wrapping."""
     if len(table.rows) == 0:
@@ -1515,7 +1516,11 @@ def render_shell_table_with_width_reference(
     # ``--breite=0`` means: use the current terminal, reserving the same
     # seven columns as the Python renderer.  A fixed 80/73 pair changed the
     # public behaviour on every wider terminal.
-    var detected_columns = terminal_columns()
+    var detected_columns = (
+        terminal_columns_override
+        if terminal_columns_override > 0
+        else terminal_columns()
+    )
     var automatic_width = automatic_cell_width(detected_columns)
     # In the legacy renderer ``--breite=0 --onetable`` means genuinely no
     # wrapping, not automatic terminal-width wrapping.  Use the longest full

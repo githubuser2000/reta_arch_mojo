@@ -83,7 +83,8 @@ def test_shell_wrap_preserves_internal_space_runs_at_boundary() raises:
     )
     var table = parse_semicolon_csv("; ;H\n1;15;" + value + "\n")
     var rendered = render_shell_table_with_width_reference(
-        table, table, [0, 15], True, 0, False
+        table, table, [0, 15], True, 0, False,
+        terminal_columns_override=80,
     )
     assert_true(
         " 15 gegen 6 |  Darin kann sich die 15 am Besten "
@@ -104,7 +105,8 @@ def test_shell_one_table_disables_horizontal_paging() raises:
         + "1;1;a;b;c;d;e;f;g\n"
     )
     var paged = render_shell_table_with_width_reference(
-        table, table, [0, 1], True, 12, False
+        table, table, [0, 1], True, 12, False,
+        terminal_columns_override=80,
     )
     var single = render_shell_table_with_width_reference(
         table, table, [0, 1], True, 12, False, 0, True
@@ -263,7 +265,7 @@ def test_shell_oversized_zero_width_reproduces_legacy_page_truncation() raises:
     )
     var skipped = render_shell_table_with_width_reference(
         first_zero, first_zero, [0, 1], True, 8, False, 0, False,
-        False, [0, 8]
+        False, [0, 8], 80
     )
     assert_false(long_cell in skipped)
     assert_true("kept" in skipped)
@@ -273,7 +275,7 @@ def test_shell_oversized_zero_width_reproduces_legacy_page_truncation() raises:
     )
     var truncated = render_shell_table_with_width_reference(
         second_zero, second_zero, [0, 1], True, 8, False, 0, False,
-        False, [8, 0, 8]
+        False, [8, 0, 8], 80
     )
     assert_true("kept" in truncated)
     assert_false(long_cell in truncated)

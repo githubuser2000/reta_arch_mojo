@@ -2515,3 +2515,9 @@ Benutzerlauf.
 - Defektledger: **166 Einträge**, **18** spätere Python-Aufgaben
 - Portierung: **89/92 vollständig**, **92/92 mindestens teilweise**
 - Mojo-Zeilen: **63.849** in `src/`, davon **59.180** im Kernpaket
+
+## Stage 12c5bv – vorbereitete Prüfungen
+
+- Python-Referenz der Inline-Speicherung: vier Positions-/Aliasvarianten, remove-once-Duplikat und vier Ausschlussfälle.
+- Sourceverträge für Mond-/Sonnenpartition, optionalen Terminalbreiten-Override und korrigierten englischen Einmalmodus.
+- Der Stage-Lauf baut und führt `test_prompt_interaction`, `test_table_adapters` und `test_table_rendering` aus und wiederholt die native Compound-Clear-Probe.

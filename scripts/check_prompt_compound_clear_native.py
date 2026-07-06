@@ -23,8 +23,12 @@ def run_prompt(*words: str, profile: str = "rpb") -> bytes:
         (tmp / "python_reference/csv").symlink_to(
             ROOT / "python_reference/csv", target_is_directory=True
         )
+        argv = [str(PROMPT), profile]
+        if profile in {"retaPrompt", "retaPrompt.english"}:
+            argv.append("-befehl")
+        argv.extend(words)
         completed = subprocess.run(
-            [str(PROMPT), profile, *words],
+            argv,
             cwd=tmp,
             env={**os.environ, "LINES": "3", "COLUMNS": "80"},
             stdin=subprocess.DEVNULL,

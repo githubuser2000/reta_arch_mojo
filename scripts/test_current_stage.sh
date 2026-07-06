@@ -8,5 +8,5 @@ set -eu
 # test_stage12c5bk.sh -> test_stage12c5bl.sh -> test_stage12c5bm.sh ->
 # test_stage12c5bn.sh -> test_stage12c5bo.sh -> test_stage12c5bp.sh ->
 # test_stage12c5bq.sh -> test_stage12c5br.sh -> test_stage12c5bs.sh ->
-# test_stage12c5bt.sh -> test_stage12c5bu.sh.
-exec scripts/test_stage12c5bu.sh "$@"
+# test_stage12c5bt.sh -> test_stage12c5bv.sh.
+exec scripts/test_stage12c5bv.sh "$@"

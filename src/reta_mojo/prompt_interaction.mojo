@@ -11,7 +11,7 @@ observable I/O requested by these plans.
 """
 
 from std.collections import List
-from .prompt_language import PromptLanguageCatalog
+from .prompt_language import PromptLanguageCatalog, localized_prompt_kind
 from .prompt_runtime import (
     PromptStartup,
     classify_prompt_command_localized,
@@ -24,6 +24,7 @@ from .prompt_runtime import (
     KIND_DELETE_STORED,
     KIND_LOG_ON,
     KIND_LOG_OFF,
+    KIND_ABC,
 )
 from .prompt_session import (
     NativePromptSession,
@@ -56,6 +57,82 @@ struct NativePromptInteraction(Copyable):
     var language: String
     var one_shot: Bool
     var show_intro: Bool
+
+
+
+
+@fieldwise_init
+struct PromptInlineStoragePlan(Copyable):
+    """Position-independent compound ``S``/``s`` storage decision."""
+
+    var handled: Bool
+    var payload: String
+
+
+def plan_inline_storage_command(
+    tokens: List[String],
+    language: String,
+    catalog: PromptLanguageCatalog,
+) -> PromptInlineStoragePlan:
+    """Mirror the historical set-based compound storage branch.
+
+    Exactly one distinct save-after/save-before alias must occur together with
+    at least one non-storage token.  The alias may stand anywhere.  As in the
+    Python ``for token in save_all: storage_text.remove(token)`` loop, only the
+    first occurrence of the selected alias is removed; duplicate occurrences
+    remain part of the stored payload.  Any ``abc``/``abcd`` token disables the
+    storage branch so the exceptional two-word alphabet command keeps priority.
+    """
+    var selected = ""
+    var ambiguous = False
+    var has_non_storage = False
+    var has_abc = False
+
+    for index in range(len(tokens)):
+        var token = tokens[index]
+        var kind = localized_prompt_kind(catalog, language, token)
+        if kind == KIND_ABC:
+            has_abc = True
+        if kind == KIND_STORE_NEXT or kind == KIND_STORE_PREVIOUS:
+            if selected.byte_length() == 0:
+                selected = token
+            elif selected != token:
+                ambiguous = True
+        else:
+            has_non_storage = True
+
+    if (
+        has_abc
+        or ambiguous
+        or selected.byte_length() == 0
+        or not has_non_storage
+    ):
+        return PromptInlineStoragePlan(False, "")
+
+    var payload_tokens = List[String]()
+    var removed = False
+    for index in range(len(tokens)):
+        if not removed and tokens[index] == selected:
+            removed = True
+            continue
+        payload_tokens.append(tokens[index])
+    return PromptInlineStoragePlan(
+        True, join_prompt_tokens(payload_tokens)
+    )
+
+
+def apply_inline_storage_command(
+    mut session: NativePromptSession,
+    tokens: List[String],
+    language: String,
+    catalog: PromptLanguageCatalog,
+) -> Bool:
+    """Store a wholly-owned compound storage command without executing it."""
+    var plan = plan_inline_storage_command(tokens, language, catalog)
+    if not plan.handled:
+        return False
+    store_prompt_text(session, plan.payload)
+    return True
 
 
 def _single_output(value: String) -> List[String]:

@@ -114,6 +114,7 @@ from reta_mojo.prompt_interaction import (
     prompt_interaction_one_shot_line,
     accept_prompt_input,
     record_prompt_command,
+    apply_inline_storage_command,
 )
 
 
@@ -455,23 +456,21 @@ def _run_command(
     var command = classify_prompt_command_localized(
         normalized_line, profile.language, catalog
     )
+    if apply_inline_storage_command(
+        session, raw_tokens, profile.language, catalog
+    ):
+        print("Gespeichert:", stored_prompt_text(session))
+        return True
     if command.kind == KIND_EMPTY:
         return True
     if command.kind == KIND_EXIT:
         return False
-    if command.kind == KIND_STORE_NEXT:
-        var payload = storage_payload(command)
-        if payload.byte_length() == 0:
-            session.store_next = True
-            print("Der nächste Befehl wird gespeichert.")
-        else:
-            store_prompt_text(session, payload)
-            print("Gespeichert:", stored_prompt_text(session))
+    if command.kind == KIND_STORE_NEXT and len(command.words) == 1:
+        session.store_next = True
+        print("Der nächste Befehl wird gespeichert.")
         return True
-    if command.kind == KIND_STORE_PREVIOUS:
-        var payload = storage_payload(command)
-        if payload.byte_length() == 0:
-            payload = session.previous_command
+    if command.kind == KIND_STORE_PREVIOUS and len(command.words) == 1:
+        var payload = session.previous_command
         if payload.byte_length() > 0:
             store_prompt_text(session, payload)
             print("Gespeichert:", stored_prompt_text(session))

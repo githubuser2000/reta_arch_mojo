@@ -1318,3 +1318,11 @@ wird nun über den vorhandenen `Equatable`-Operator statt über das zusätzlich
 ```sh
 RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bu.sh -- -j 8
 ```
+
+## Stage 12c5bv – positionsunabhängige Speicherung
+
+Zusammengesetzte Speicherbefehle wie `emotion S 1` und `emotion 1 s` werden nun vollständig nativ verarbeitet: Der Alias wird entfernt, der übrige Prompt gespeichert und nicht ausgeführt. Mehrere unterschiedliche Speicheraliase, reine Speicherwortfolgen und `abc`/`abcd` verbleiben atomar am Kompatibilitätsrand. Zusätzlich sind die Mond-/Sonnenreferenz und terminalbreitenabhängige Shell-Renderer-Tests deterministisch gebunden.
+
+```sh
+RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bv.sh -- -j 8
+```

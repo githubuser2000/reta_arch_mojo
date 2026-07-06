@@ -651,3 +651,11 @@ Siehe [`ROADMAP.md`](ROADMAP.md) für alle zwölf Stufen.
 
 - Compilerfreie 12c5bu-Prüfung: 70 fokussierte Verträge und 393 breite Sourceverträge grün; ein bekannter Probe-Build ist ohne kompiliertes Binary begründet übersprungen.
 - Aktuelle Metrik: 89/92 vollständig, 92/92 mindestens teilweise; 63.849 Mojo-Zeilen in `src/`, davon 59.180 in `src/reta_mojo/`; Ledger 166/18.
+
+## Stage 12c5bv – Inline-Speicherung und deterministische Tabellenverträge
+
+- Ein einzelner lokalisierter `S`-/`s`-Alias speichert den übrigen Prompt nun unabhängig von seiner Wortposition und verhindert dessen Ausführung.
+- Ambivalente Alias-Kombinationen, reine Speicherwortfolgen und `abc`/`abcd` bleiben atomar am Kompatibilitätsrand.
+- Die englische Compound-Clear-Probe verwendet den erforderlichen Einmalmodus `-befehl`.
+- Mond-/Sonnenpartition und drei terminalbreitenabhängige Shell-Renderer-Verträge sind gegen die Python- beziehungsweise 80-Spalten-Referenz eingefroren.
+- Benutzerprüfung: `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bv.sh -- -j 8`.
