@@ -555,6 +555,47 @@ def test_simple_output_dispatch_is_planned_by_interaction_owner() raises:
     )
 
 
+
+def test_external_process_dispatch_is_planned_by_interaction_owner() raises:
+    var catalog = load_prompt_language_catalog("assets")
+
+    var shell_command = classify_prompt_command_localized(
+        "shell echo hi", "deutsch", catalog
+    )
+    var shell_plan = plan_external_process_dispatch(shell_command)
+    assert_true(shell_plan.handled)
+    assert_equal(shell_plan.process_kind, EXTERNAL_PROMPT_SHELL)
+    assert_equal(shell_plan.raw, "shell echo hi")
+
+    var python_command = classify_prompt_command_localized(
+        "python print(1)", "deutsch", catalog
+    )
+    var python_plan = plan_external_process_dispatch(python_command)
+    assert_true(python_plan.handled)
+    assert_equal(python_plan.process_kind, EXTERNAL_PROMPT_PYTHON)
+
+    var math_command = classify_prompt_command_localized(
+        "math 1+1", "deutsch", catalog
+    )
+    var math_plan = plan_external_process_dispatch(math_command)
+    assert_true(math_plan.handled)
+    assert_equal(math_plan.process_kind, EXTERNAL_PROMPT_MATH)
+
+    var reta_command = classify_prompt_command_localized(
+        "reta -h", "deutsch", catalog
+    )
+    var reta_plan = plan_external_process_dispatch(reta_command)
+    assert_true(reta_plan.handled)
+    assert_equal(reta_plan.process_kind, EXTERNAL_PROMPT_RETA)
+
+    var normal = classify_prompt_command_localized(
+        "prim 60", "deutsch", catalog
+    )
+    var normal_plan = plan_external_process_dispatch(normal)
+    assert_false(normal_plan.handled)
+    assert_equal(normal_plan.process_kind, EXTERNAL_PROMPT_NONE)
+
+
 def test_stored_output_execution_is_planned_by_interaction_owner() raises:
     var catalog = load_prompt_language_catalog("assets")
     var interaction = new_prompt_interaction(
@@ -707,7 +748,7 @@ def test_inline_storage_output_edges_and_history() raises:
 
 def test_contract_snapshot() raises:
     var snapshot = prompt_interaction_contract_snapshot()
-    assert_equal(len(snapshot), 21)
+    assert_equal(len(snapshot), 22)
     assert_equal(snapshot[0], "class=PromptInteractionBundle")
     assert_equal(
         snapshot[6],
@@ -747,17 +788,21 @@ def test_contract_snapshot() raises:
     )
     assert_equal(
         snapshot[15],
-        "stored_output_dispatch=native-session-output-execution-plan",
+        "external_process_dispatch=native-prompt-process-edge-plan",
     )
     assert_equal(
         snapshot[16],
-        "stored_delete_dispatch=native-session-delete-plan",
+        "stored_output_dispatch=native-session-output-execution-plan",
     )
     assert_equal(
         snapshot[17],
+        "stored_delete_dispatch=native-session-delete-plan",
+    )
+    assert_equal(
+        snapshot[18],
         "stored_default=native-empty-enter-placeholder-policy",
     )
-    assert_equal(snapshot[20], "execution=delegated-native-dispatch")
+    assert_equal(snapshot[21], "execution=delegated-native-dispatch")
 
 
 def main() raises:

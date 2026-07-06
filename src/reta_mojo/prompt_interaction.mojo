@@ -43,6 +43,10 @@ from .prompt_runtime import (
     KIND_DISTANCE_PRIME,
     KIND_ABC,
     KIND_PRIME24,
+    KIND_SHELL,
+    KIND_PYTHON,
+    KIND_MATH,
+    KIND_RETA,
     prime_lines,
     multis_lines,
     multis3_lines,
@@ -65,6 +69,12 @@ from .prompt_session import (
 comptime INTERACTION_EXECUTE = 0
 comptime INTERACTION_CONTINUE = 1
 comptime INTERACTION_EXIT = 2
+
+comptime EXTERNAL_PROMPT_NONE = 0
+comptime EXTERNAL_PROMPT_SHELL = 1
+comptime EXTERNAL_PROMPT_PYTHON = 2
+comptime EXTERNAL_PROMPT_MATH = 3
+comptime EXTERNAL_PROMPT_RETA = 4
 
 
 @fieldwise_init
@@ -145,6 +155,15 @@ struct PromptSimpleOutputDispatchPlan(Copyable):
 
     var handled: Bool
     var output_lines: List[String]
+
+
+@fieldwise_init
+struct PromptExternalProcessDispatchPlan(Copyable):
+    """Executable plan for prompt commands that cross a process boundary."""
+
+    var handled: Bool
+    var process_kind: Int
+    var raw: String
 
 
 @fieldwise_init
@@ -508,6 +527,37 @@ def plan_simple_output_dispatch(
     return PromptSimpleOutputDispatchPlan(False, List[String]())
 
 
+def plan_external_process_dispatch(
+    command: PromptCommand,
+) -> PromptExternalProcessDispatchPlan:
+    """Plan prompt commands that intentionally cross a process boundary.
+
+    The process entry point still owns the actual shell/Python/math/reta I/O,
+    but command-kind routing now lives beside the other interaction dispatch
+    decisions.  One-shot execution can use the same plan and accept only the
+    natively supported reta subset before falling back atomically.
+    """
+    if command.kind == KIND_SHELL:
+        return PromptExternalProcessDispatchPlan(
+            True, EXTERNAL_PROMPT_SHELL, command.raw
+        )
+    if command.kind == KIND_PYTHON:
+        return PromptExternalProcessDispatchPlan(
+            True, EXTERNAL_PROMPT_PYTHON, command.raw
+        )
+    if command.kind == KIND_MATH:
+        return PromptExternalProcessDispatchPlan(
+            True, EXTERNAL_PROMPT_MATH, command.raw
+        )
+    if command.kind == KIND_RETA:
+        return PromptExternalProcessDispatchPlan(
+            True, EXTERNAL_PROMPT_RETA, command.raw
+        )
+    return PromptExternalProcessDispatchPlan(
+        False, EXTERNAL_PROMPT_NONE, ""
+    )
+
+
 def plan_stored_output_command(
     command: PromptCommand,
     session: NativePromptSession,
@@ -754,6 +804,7 @@ def prompt_interaction_contract_snapshot() -> List[String]:
         "terminal_clear_dispatch=native-terminal-clear-plan",
         "informational_dispatch=native-prompt-information-plan",
         "simple_output_dispatch=native-deterministic-prompt-output-plan",
+        "external_process_dispatch=native-prompt-process-edge-plan",
         "stored_output_dispatch=native-session-output-execution-plan",
         "stored_delete_dispatch=native-session-delete-plan",
         "stored_default=native-empty-enter-placeholder-policy",

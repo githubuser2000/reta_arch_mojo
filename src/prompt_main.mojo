@@ -58,12 +58,7 @@ from reta_mojo.prompt_runtime import (
     KIND_PRIME,
     KIND_MULTIS,
     KIND_PRIME_COMPARE,
-    KIND_SHELL,
-    KIND_PYTHON,
-    KIND_MATH,
     KIND_RETA,
-    KIND_OUTPUT_STORED,
-    KIND_DELETE_STORED,
     PromptProfile,
     PromptCommand,
     PromptStartup,
@@ -98,6 +93,11 @@ from reta_mojo.prompt_interaction import (
     plan_terminal_clear_dispatch,
     plan_informational_dispatch,
     plan_simple_output_dispatch,
+    plan_external_process_dispatch,
+    EXTERNAL_PROMPT_SHELL,
+    EXTERNAL_PROMPT_PYTHON,
+    EXTERNAL_PROMPT_MATH,
+    EXTERNAL_PROMPT_RETA,
     plan_inline_stored_output_command,
     plan_stored_output_command,
     plan_stored_delete_command,
@@ -592,20 +592,23 @@ def _run_command(
     if simple_output.handled:
         _print_lines(simple_output.output_lines)
         return True
-    if command.kind == KIND_SHELL:
-        _ = run_shell_prompt_line_native(command.raw)
-        return True
-    if command.kind == KIND_PYTHON:
-        _ = run_python_prompt_line_native(command.raw)
-        return True
-    if command.kind == KIND_MATH:
-        _ = run_math_prompt_line_native(command.raw)
-        return True
-    if command.kind == KIND_RETA:
-        if _run_native_reta_prompt_command(command):
+
+    var external_process = plan_external_process_dispatch(command)
+    if external_process.handled:
+        if external_process.process_kind == EXTERNAL_PROMPT_SHELL:
+            _ = run_shell_prompt_line_native(external_process.raw)
             return True
-        _ = run_reta_line_native(command.raw)
-        return True
+        if external_process.process_kind == EXTERNAL_PROMPT_PYTHON:
+            _ = run_python_prompt_line_native(external_process.raw)
+            return True
+        if external_process.process_kind == EXTERNAL_PROMPT_MATH:
+            _ = run_math_prompt_line_native(external_process.raw)
+            return True
+        if external_process.process_kind == EXTERNAL_PROMPT_RETA:
+            if _run_native_reta_prompt_command(command):
+                return True
+            _ = run_reta_line_native(external_process.raw)
+            return True
 
     # Preserve the untouched source spelling at the compatibility boundary.
     # Native parsing already owns routing, but an unported operation must still
@@ -753,8 +756,13 @@ def _run_native_one_shot(
     if simple_output.handled:
         _print_lines(simple_output.output_lines)
         return True
-    if _run_native_reta_prompt_command(command):
-        return True
+
+    var external_process = plan_external_process_dispatch(command)
+    if external_process.handled:
+        if external_process.process_kind == EXTERNAL_PROMPT_RETA:
+            if _run_native_reta_prompt_command(command):
+                return True
+        return False
     return False
 
 

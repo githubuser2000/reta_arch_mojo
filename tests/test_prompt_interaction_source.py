@@ -35,6 +35,8 @@ def test_prompt_interaction_has_a_dedicated_native_owner() -> None:
     assert "def plan_informational_dispatch(" in owner
     assert "struct PromptSimpleOutputDispatchPlan" in owner
     assert "def plan_simple_output_dispatch(" in owner
+    assert "struct PromptExternalProcessDispatchPlan" in owner
+    assert "def plan_external_process_dispatch(" in owner
     assert "struct PromptStoredOutputExecutionPlan" in owner
     assert "def plan_stored_output_command(" in owner
     assert "def plan_inline_stored_output_command(" in owner
@@ -62,6 +64,7 @@ def test_production_prompt_activates_the_interaction_owner() -> None:
     assert "plan_terminal_clear_dispatch(" in controller
     assert "plan_informational_dispatch(" in controller
     assert "plan_simple_output_dispatch(" in controller
+    assert "plan_external_process_dispatch(" in controller
     assert "plan_inline_stored_output_command(" in controller
     assert "plan_stored_output_command(" in controller
     assert "plan_stored_delete_command(" in controller
@@ -85,6 +88,12 @@ def test_production_prompt_activates_the_interaction_owner() -> None:
     assert "KIND_LOG_OFF," not in controller
     assert "if command.kind == KIND_LOG_ON" not in controller
     assert "if command.kind == KIND_LOG_OFF" not in controller
+    assert "if command.kind == KIND_SHELL" not in controller
+    assert "if command.kind == KIND_PYTHON" not in controller
+    assert "if command.kind == KIND_MATH" not in controller
+    assert "KIND_SHELL," not in controller
+    assert "KIND_PYTHON," not in controller
+    assert "KIND_MATH," not in controller
     assert "effective_one_shot_tokens" not in controller
 
 

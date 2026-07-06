@@ -1,3 +1,16 @@
+# Test Results – Stage 12c5ck
+
+## Compilerfreie lokale Prüfung
+
+- `49 passed` für die Stage-/Prompt-Interaktions-Sourcegruppe.
+- `64 passed` für Prompt-Companion-, Historical-Ownership-, Tabellenadapter-, Ledger-, Porting-Matrix- und Archivverträge.
+- Zusammen fokussiert: **113/113** compilerfreie Verträge grün.
+- Defektledger: **169** bekannte Defekte, **19** spätere Python-Aufgaben, konsistent.
+- Portierungsmetrik: **89/92 = 96,7 %** vollständig nativ/generiert, **92/92 = 100,0 %** mindestens teilweise portiert.
+- Mojo-Zeilen in `src/`: **64.440**; in `src/reta_mojo/`: **59.831**.
+- Manifest nach Aktualisierung: **1.767 Dateien**, **114 Symlinks**.
+- Mojo-Kompilierung wurde in dieser Umgebung nicht ausgeführt; der Benutzer kompiliert die nativen Ziele lokal.
+
 # Testergebnisse – Stage 12c5cj
 
 ## Stage 12c5cj – vorbereitete Prüfungen

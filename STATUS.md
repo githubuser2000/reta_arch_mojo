@@ -1,3 +1,13 @@
+# Status – Stage 12c5ck
+
+## Stage 12c5ck – External-Process-Dispatch im Interaktionsbesitzer
+
+- `PromptExternalProcessDispatchPlan` und `plan_external_process_dispatch(...)` besitzen jetzt die Routingentscheidung für die bewusst prozessgebundenen Promptbefehle `shell`, `python`, `math` und `reta`.
+- `prompt_main.mojo` führt weiterhin die tatsächlichen OS-/Prozessaufrufe aus, entscheidet aber nicht mehr über direkte `KIND_SHELL`-/`KIND_PYTHON`-/`KIND_MATH`-Branches.
+- One-shot verwendet denselben Plan und akzeptiert nur den nativ unterstützten `reta`-Teil vor dem atomaren Fallback.
+- Der Interaktions-Snapshot enthält `external_process_dispatch=native-prompt-process-edge-plan`.
+- Benutzerseitig ist 12c5ci breit und fokussiert grün; 12c5cj bleibt eine reine Folgestufe auf dieser grünen Basis.
+
 # Status – Stage 12c5cj
 
 ## Stage 12c5cj – One-shot-Logging-Dispatch im Interaktionsbesitzer
