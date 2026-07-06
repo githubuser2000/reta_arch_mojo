@@ -354,5 +354,13 @@ def test_prompt_execution_residual_compatibility_fallback_owns_last_boundary() r
     assert_true(fallback.should_run)
     assert_equal(fallback.source, "unowned residual command")
 
+
+def test_prompt_execution_residual_compatibility_fallback_is_shared_by_one_shot() raises:
+    var fallback = plan_prompt_execution_residual_compatibility_fallback(
+        "one-shot unowned residual command"
+    )
+    assert_true(fallback.should_run)
+    assert_equal(fallback.source, "one-shot unowned residual command")
+
 def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()

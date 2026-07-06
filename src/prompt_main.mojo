@@ -478,7 +478,17 @@ def _run_native_one_shot(
             if _run_native_reta_prompt_command(external_process.arguments):
                 return True
         return False
-    return False
+
+    # Preserve the untouched one-shot source at the same residual compatibility
+    # boundary as the interactive controller.  The main one-shot caller remains
+    # responsible for entering the compatibility path after this native probe
+    # returns False.
+    var one_shot_residual_fallback = plan_prompt_execution_residual_compatibility_fallback(
+        line
+    )
+    if one_shot_residual_fallback.should_run:
+        return False
+    return True
 
 
 def main() raises:
