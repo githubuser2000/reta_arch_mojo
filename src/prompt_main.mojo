@@ -20,7 +20,6 @@ from reta_mojo.prompt_language import (
 from reta_mojo.prompt_table_execution import (
     PromptTablePlan,
 )
-from reta_mojo.prompt_legacy_echo import compact_prompt_announcement_line
 from reta_mojo.native_prompt_input import read_native_prompt_line
 from reta_mojo.prompt_external_commands import (
     run_math_prompt_arguments_native,
@@ -35,9 +34,10 @@ from reta_mojo.native_reta_cli import (
 )
 from reta_mojo.prompt_execution_runtime import render_prompt_table_plan
 from reta_mojo.prompt_execution import (
+    PromptExecutionRoutingPlan,
     plan_prompt_execution_routing,
     plan_prompt_execution_table_ownership,
-    prompt_execution_compact_announcement_tokens,
+    plan_prompt_execution_compact_announcement,
     prompt_execution_has_mulpri,
     prompt_execution_integer_argument_words,
 )
@@ -247,26 +247,90 @@ def _run_native_table_plan(
     return True
 
 
+def _prompt_language_is_german(language: String) -> Bool:
+    var normalized = language.lower()
+    return (
+        normalized == ""
+        or normalized == "de"
+        or normalized == "deutsch"
+        or normalized == "german"
+    )
+
+
+def _run_native_mulpri(
+    values: List[String], language: String, catalog: PromptLanguageCatalog
+) raises -> Bool:
+    if not prompt_execution_has_mulpri(values, language, catalog):
+        return False
+    var arguments = prompt_execution_integer_argument_words(values)
+    if len(arguments) == 0:
+        return False
+    var prime_words = List[String]()
+    prime_words.append("prim")
+    for index in range(len(arguments)):
+        prime_words.append(arguments[index])
+    var prime_command = PromptCommand(
+        KIND_PRIME, join_prompt_tokens(prime_words), prime_words^
+    )
+    var numbers = command_numbers(prime_command)
+    if len(numbers) > 1:
+        var compare_words = List[String]()
+        compare_words.append("primfaktorenvergleich")
+        for index in range(len(arguments)):
+            compare_words.append(arguments[index])
+        _print_lines(
+            prime_comparison_lines(
+                PromptCommand(
+                    KIND_PRIME_COMPARE,
+                    join_prompt_tokens(compare_words),
+                    compare_words^,
+                ),
+                language,
+            )
+        )
+    _print_lines(prime_lines(prime_command))
+    var multi_words = List[String]()
+    multi_words.append("multis")
+    for index in range(len(arguments)):
+        multi_words.append(arguments[index])
+    var multi_lines = multis_lines(
+        PromptCommand(
+            KIND_MULTIS, join_prompt_tokens(multi_words), multi_words^
+        )
+    )
+    for index in range(len(multi_lines)):
+        if multi_lines[index].endswith("[]") and index < len(numbers):
+            var prime_word = "Primzahl" if _prompt_language_is_german(
+                language
+            ) else "prime_number"
+            print(
+                String(numbers[index])
+                + ": "
+                + String(numbers[index])
+                + " ("
+                + prime_word
+                + ")"
+            )
+        else:
+            print(multi_lines[index])
+    return True
+
+
 
 def _print_compact_announcement_if_needed(
-    expansion: PromptExpansionResult,
-    prepared_tokens: List[String],
+    routing: PromptExecutionRoutingPlan,
     source: String,
     language: String,
     catalog: PromptLanguageCatalog,
-    quiet: Bool,
 ) -> None:
-    if expansion.compact and not quiet:
-        var visible_tokens = prompt_execution_compact_announcement_tokens(
-            prepared_tokens, language, catalog
-        )
+    var announcement = plan_prompt_execution_compact_announcement(
+        routing, source, language, catalog
+    )
+    if announcement.should_print:
         # The Python Rich renderer produces one complete physical line here.
         # Keep that byte-level contract explicit instead of inferring it from
         # Rich's internal ``Console.print(..., end="")`` call.
-        print(
-            compact_prompt_announcement_line(visible_tokens, source, language),
-            end="",
-        )
+        print(announcement.line, end="")
 
 
 def _run_command(
@@ -280,7 +344,6 @@ def _run_command(
         line, profile.language, catalog, profile.force_e_command
     )
     var raw_tokens = routing.raw_tokens.copy()
-    var compact_expansion = routing.compact_expansion.copy()
     var command = routing.command.copy()
     if apply_inline_storage_command(
         session, raw_tokens, profile.language, catalog
@@ -317,7 +380,6 @@ def _run_command(
         _print_lines(stored_delete.output_lines)
         return True
     var historical_echo = routing.historical_echo
-    var prepared_tokens = routing.prepared_tokens.copy()
     var planning_tokens = routing.planning_tokens.copy()
     var quiet_echo = routing.quiet_echo
 
@@ -330,12 +392,7 @@ def _run_command(
     )
     if ownership.owns_table or ownership.owns_mulpri:
         _print_compact_announcement_if_needed(
-            compact_expansion,
-            prepared_tokens,
-            line,
-            profile.language,
-            catalog,
-            quiet_echo,
+            routing, line, profile.language, catalog
         )
         var companion_effects = historical_prompt_companion_effects(
             planning_tokens, profile.language, catalog
@@ -430,14 +487,12 @@ def _run_native_one_shot(
     var routing = plan_prompt_execution_routing(
         line, profile.language, catalog, profile.force_e_command
     )
-    var compact_expansion = routing.compact_expansion.copy()
     var command = routing.command.copy()
 
     var loop_control = plan_loop_control_dispatch(command)
     if loop_control.handled:
         return True
     var historical_echo = routing.historical_echo
-    var prepared_tokens = routing.prepared_tokens.copy()
     var planning_tokens = routing.planning_tokens.copy()
     var quiet_echo = routing.quiet_echo
     var ownership = plan_prompt_execution_table_ownership(
@@ -445,12 +500,7 @@ def _run_native_one_shot(
     )
     if ownership.owns_table or ownership.owns_mulpri:
         _print_compact_announcement_if_needed(
-            compact_expansion,
-            prepared_tokens,
-            line,
-            profile.language,
-            catalog,
-            quiet_echo,
+            routing, line, profile.language, catalog
         )
         var companion_effects = historical_prompt_companion_effects(
             planning_tokens, profile.language, catalog

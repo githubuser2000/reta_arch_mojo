@@ -7,7 +7,11 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_current_stage_points_to_dr_or_later() -> None:
     current = (ROOT / "scripts/test_current_stage.sh").read_text(encoding="utf-8")
-    assert "test_stage12c5dr.sh" in current or "test_stage12c5ds.sh" in current
+    assert (
+        "test_stage12c5dr.sh" in current
+        or "test_stage12c5ds.sh" in current
+        or "test_stage12c5dt.sh" in current
+    )
 
 
 def test_stage_script_covers_prompt_execution_table_ownership_owner() -> None:

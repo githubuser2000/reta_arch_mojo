@@ -37,6 +37,7 @@ from .prompt_table_execution import (
     PromptTablePlan,
     plan_prompt_table_commands,
 )
+from .prompt_legacy_echo import compact_prompt_announcement_line
 
 
 @fieldwise_init
@@ -166,6 +167,21 @@ struct PromptExecutionTableOwnershipPlan(Copyable):
     var integer_arguments: List[String]
 
 
+@fieldwise_init
+struct PromptExecutionCompactAnnouncementPlan(Copyable):
+    """Pure visible compact-command announcement plan.
+
+    The prompt controller owns only terminal I/O.  The decision whether a
+    compact prompt prints the historical Rich-style command echo, the
+    mulpri/p companion-token enrichment and the final byte string all belong
+    to the prompt-execution owner.
+    """
+
+    var should_print: Bool
+    var line: String
+    var visible_tokens: List[String]
+
+
 def prompt_execution_integer_argument_words(values: List[String]) -> List[String]:
     var result = List[String]()
     for index in range(len(values)):
@@ -209,6 +225,28 @@ def prompt_execution_compact_announcement_tokens(
                 result.append(translated)
     return result^
 
+
+
+def plan_prompt_execution_compact_announcement(
+    routing: PromptExecutionRoutingPlan,
+    source: String,
+    language: String,
+    catalog: PromptLanguageCatalog,
+) -> PromptExecutionCompactAnnouncementPlan:
+    """Plan the historical compact-command visible announcement line."""
+
+    if not routing.compact_expansion.compact or routing.quiet_echo:
+        return PromptExecutionCompactAnnouncementPlan(
+            False, "", List[String]()
+        )
+    var visible_tokens = prompt_execution_compact_announcement_tokens(
+        routing.prepared_tokens, language, catalog
+    )
+    return PromptExecutionCompactAnnouncementPlan(
+        True,
+        compact_prompt_announcement_line(visible_tokens, source, language),
+        visible_tokens^,
+    )
 
 def plan_prompt_execution_table_ownership(
     routing: PromptExecutionRoutingPlan,

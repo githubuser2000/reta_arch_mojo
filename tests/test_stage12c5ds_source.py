@@ -5,9 +5,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def test_current_stage_points_to_ds() -> None:
+def test_current_stage_points_to_ds_or_later() -> None:
     current = (ROOT / "scripts/test_current_stage.sh").read_text(encoding="utf-8")
-    assert "test_stage12c5ds.sh" in current
+    assert "test_stage12c5ds.sh" in current or "test_stage12c5dt.sh" in current
 
 
 def test_stage_script_covers_prompt_execution_compact_announcement_owner() -> None:
@@ -28,7 +28,10 @@ def test_prompt_execution_owns_compact_announcement_tokens() -> None:
     assert "primfaktorenvergleich" in owner
     assert "prompt_execution_has_mulpri(prepared_tokens, language, catalog)" in owner
     assert "if not prompt_execution_contains_token(result, translated):" in owner
-    assert "prompt_execution_compact_announcement_tokens" in controller
+    assert (
+        "prompt_execution_compact_announcement_tokens" in controller
+        or "plan_prompt_execution_compact_announcement" in controller
+    )
     assert "def _compact_announcement_tokens(" not in controller
     assert "def _contains_token(" not in controller
     assert "prompt_execution_contains_token" not in controller

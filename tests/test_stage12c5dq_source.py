@@ -11,6 +11,7 @@ def test_current_stage_points_to_dq_or_later() -> None:
         "test_stage12c5dq.sh" in current
         or "test_stage12c5dr.sh" in current
         or "test_stage12c5ds.sh" in current
+        or "test_stage12c5dt.sh" in current
     )
 
 

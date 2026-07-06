@@ -122,5 +122,42 @@ def test_prompt_execution_compact_announcement_tokens_add_mulpri_companions() ra
     assert_true(_has_token(visible, "prim"))
     assert_true(_has_token(visible, "primfaktorenvergleich"))
 
+
+def test_prompt_execution_compact_announcement_plan_owns_line() raises:
+    var catalog = _catalog()
+    var routing = plan_prompt_execution_routing("15", "deutsch", catalog)
+    var announcement = plan_prompt_execution_compact_announcement(
+        routing, "15", "deutsch", catalog
+    )
+    assert_true(announcement.should_print)
+    assert_true(_has_token(announcement.visible_tokens, "multis"))
+    assert_true(_has_token(announcement.visible_tokens, "prim"))
+    assert_true(_has_token(announcement.visible_tokens, "primfaktorenvergleich"))
+    assert_true("ergibt sich aus '15'" in announcement.line)
+    assert_true(announcement.line.endswith("\n"))
+
+
+def test_prompt_execution_compact_announcement_plan_respects_quiet() raises:
+    var catalog = _catalog()
+    var routing = plan_prompt_execution_routing("15", "deutsch", catalog)
+    var quiet = plan_prompt_execution_routing(
+        "15 keineEinZeichenZeilenPlusKeineAusgabeWelcherBefehlEsWar",
+        "deutsch",
+        catalog,
+    )
+    var visible = plan_prompt_execution_compact_announcement(
+        routing, "15", "deutsch", catalog
+    )
+    var hidden = plan_prompt_execution_compact_announcement(
+        quiet,
+        "15 keineEinZeichenZeilenPlusKeineAusgabeWelcherBefehlEsWar",
+        "deutsch",
+        catalog,
+    )
+    assert_true(visible.should_print)
+    assert_false(hidden.should_print)
+    assert_equal(hidden.line, "")
+    assert_equal(len(hidden.visible_tokens), 0)
+
 def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()
