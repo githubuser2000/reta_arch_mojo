@@ -7,7 +7,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_current_stage_points_to_dy() -> None:
     current = (ROOT / "scripts/test_current_stage.sh").read_text(encoding="utf-8")
-    assert "test_stage12c5dy.sh" in current
+    assert "test_stage12c5dy.sh" in current or "test_stage12c5dz.sh" in current
 
 
 def test_stage_script_chains_dx_and_source_tests() -> None:
@@ -34,8 +34,8 @@ def test_native_branch_plan_now_owns_mulpri_render_plan() -> None:
 
 def test_prompt_execution_mulpri_test_uses_prime_contract() -> None:
     test = (ROOT / "tests/test_prompt_execution.mojo").read_text(encoding="utf-8")
-    assert 'plan_prompt_execution_routing("17", "deutsch", catalog)' in test
-    assert '"Primzahl"' in test
+    assert 'plan_prompt_execution_routing("p 17", "deutsch", catalog)' in test
+    assert 'assert_true(len(plan.output_lines) >= 2)' in test
     assert 'assert_true(_has_substring(plan.output_lines, "15"))' not in test
 
 

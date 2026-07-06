@@ -13,7 +13,7 @@ def test_current_stage_points_to_dt() -> None:
         or "test_stage12c5dv.sh" in current
         or "test_stage12c5dx.sh" in current
         or "test_stage12c5dw.sh" in current
-        or "test_stage12c5dy.sh" in current
+        or "test_stage12c5dy.sh" in current or "test_stage12c5dz.sh" in current
     )
 
 

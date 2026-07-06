@@ -244,6 +244,21 @@ struct PromptExecutionNativeBranchPlan(Copyable):
     var quiet_echo: Bool
 
 
+@fieldwise_init
+struct PromptExecutionNativeBranchOutcomePlan(Copyable):
+    """Pure post-I/O outcome for a planned native branch.
+
+    The controller observes whether table/mulpri output actually ran, but the
+    follow-up logging transition and compatibility fallback decision still
+    belong to prompt execution.
+    """
+
+    var handled: Bool
+    var fallback_required: Bool
+    var enable_logging: Bool
+    var disable_logging: Bool
+
+
 def prompt_execution_integer_argument_words(values: List[String]) -> List[String]:
     var result = List[String]()
     for index in range(len(values)):
@@ -328,7 +343,7 @@ def plan_prompt_execution_mulpri_render(
         )
     )
     for index in range(len(multi_output)):
-        if multi_output[index].endswith("[]") and index < len(numbers):
+        if ("[]" in multi_output[index]) and index < len(numbers):
             var prime_word = "Primzahl" if prompt_execution_language_is_german(
                 language
             ) else "prime_number"
@@ -446,6 +461,19 @@ def plan_prompt_execution_native_branch(
         routing.planning_tokens.copy(),
         routing.historical_echo,
         routing.quiet_echo,
+    )
+
+
+def plan_prompt_execution_native_branch_outcome(
+    branch: PromptExecutionNativeBranchPlan, native_handled: Bool
+) -> PromptExecutionNativeBranchOutcomePlan:
+    """Plan post native-branch control flow after the controller has printed."""
+
+    return PromptExecutionNativeBranchOutcomePlan(
+        native_handled,
+        (not native_handled) and branch.fallback_required,
+        native_handled and branch.historical_effects.enable_logging,
+        native_handled and branch.historical_effects.disable_logging,
     )
 
 

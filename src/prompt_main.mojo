@@ -39,6 +39,7 @@ from reta_mojo.prompt_execution import (
     PromptExecutionNativeBranchPlan,
     plan_prompt_execution_routing,
     plan_prompt_execution_native_branch,
+    plan_prompt_execution_native_branch_outcome,
 )
 from reta_mojo.native_cli_startup import native_cli_startup
 from reta_mojo.resource_paths import asset_root, csv_resource, reference_root
@@ -326,11 +327,18 @@ def _run_command(
         routing, line, profile.language, catalog
     )
     if native_branch.should_try_native:
-        if _execute_owned_prompt_branch(native_branch, catalog, profile.language):
-            if native_branch.historical_effects.enable_logging:
+        var outcome = plan_prompt_execution_native_branch_outcome(
+            native_branch,
+            _execute_owned_prompt_branch(native_branch, catalog, profile.language),
+        )
+        if outcome.handled:
+            if outcome.enable_logging:
                 session.logging_enabled = True
-            elif native_branch.historical_effects.disable_logging:
+            elif outcome.disable_logging:
                 session.logging_enabled = False
+            return True
+        if outcome.fallback_required:
+            _run_fallback(profile, line)
             return True
 
     if native_branch.fallback_required:
@@ -408,8 +416,14 @@ def _run_native_one_shot(
         routing, line, profile.language, catalog
     )
     if native_branch.should_try_native:
-        if _execute_owned_prompt_branch(native_branch, catalog, profile.language):
+        var outcome = plan_prompt_execution_native_branch_outcome(
+            native_branch,
+            _execute_owned_prompt_branch(native_branch, catalog, profile.language),
+        )
+        if outcome.handled:
             return True
+        if outcome.fallback_required:
+            return False
 
     if native_branch.fallback_required:
         return False
