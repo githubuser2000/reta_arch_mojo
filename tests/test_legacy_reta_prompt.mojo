@@ -1,6 +1,9 @@
 from std.testing import assert_equal, assert_false, assert_true, TestSuite
 from reta_mojo.legacy_reta_prompt import *
-from reta_mojo.prompt_interaction import INTERACTION_CONTINUE
+from reta_mojo.prompt_interaction import (
+    INTERACTION_CONTINUE,
+    prompt_interaction_contract_snapshot,
+)
 from reta_mojo.prompt_session import (
     PROMPT_MODE_STORED_OUTPUT,
     PROMPT_MODE_STORED_OUTPUT_WITH_ADDITION,
@@ -58,7 +61,15 @@ def test_historical_input_and_start_delegate_to_native_controller() raises:
     assert_equal(start(facade, "english"), "english")
     assert_equal(facade.befehleBeenden[1], "end")
     assert_false(facade.promptInteraction.session.store_next)
-    assert_equal(len(PromptScope(facade)), 9)
+    var scope = PromptScope(facade)
+    var interaction_scope = prompt_interaction_contract_snapshot()
+    assert_equal(len(scope), len(interaction_scope))
+    assert_equal(scope[0], "class=PromptInteractionBundle")
+    assert_equal(
+        scope[7],
+        "storage_output=native-position-independent-addition-policy",
+    )
+    assert_equal(scope[len(scope) - 1], "execution=delegated-native-dispatch")
 
 
 def test_loop_setup_and_new_session_are_typed() raises:

@@ -1,3 +1,29 @@
+# Testergebnisse – Stage 12c5by
+
+## Vom Benutzer bestätigter Ausgangsstand
+
+- Vollständiger nativer Build 12c5bx: erfolgreich.
+- `test_prompt_interaction.mojo`: **13/13** bestanden.
+- Fokussierte 12c5bx-Sourcegruppe: **61/61** bestanden.
+- Defektledger 12c5bx: **169** Einträge, **19** spätere Python-Aufgaben.
+- Der breite Lauf fand eine verbleibende Legacy-Assertion in
+  `test_legacy_reta_prompt.mojo`: `left: 10`, `right: 9`.
+
+## Stage-12c5by-Prüfung in der Erstellungsumgebung
+
+- Mojo-/Native-Kompilierung: nicht ausgeführt; sie bleibt beim Benutzer.
+- Fokussierte compilerfreie Source-/Stage-/Ledger-/Matrix-/Archivverträge:
+  **65/65** bestanden.
+- Defektledger: **169** Einträge, **19** spätere Python-Aufgaben.
+- Portierung: **89/92 vollständig**, **92/92 mindestens teilweise**;
+  **48.831/48.831** Referenzzeilen angegriffen.
+- Mojo-Umfang: **64.054** Zeilen in `src/`, davon **59.368** in
+  `src/reta_mojo/`.
+- Quellmanifest: **1.731 Dateien**, **114 Symlinks**, SHA-256-Prüfung grün.
+- Der ungefilterte Pytest-Gesamtlauf wurde nicht als Erfolg gewertet, weil
+  binaryabhängige Tests ohne Benutzerbuild erwartbar an fehlenden
+  `target/test-bin/...`-Programmen hängen bleiben.
+
 # Testergebnisse – Stage 12c5bk
 
 - Benutzerbuild 12c5bj: vollständiger nativer Build erfolgreich.

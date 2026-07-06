@@ -1,3 +1,21 @@
+# Status – Stage 12c5by
+
+## Stage 12c5by – Legacy-Prompt-Scope folgt Interaktionsbesitzer
+
+- Der vom Benutzer gemeldete breite Build-/Testlauf nach 12c5bx scheiterte nicht
+  an der Promptlaufzeit, sondern an einer alten Legacy-Fassadenassertion:
+  `PromptScope(facade)` lieferte den erweiterten nativen
+  Interaktionssnapshot, der Test erwartete aber noch eine feste alte Anzahl.
+- `test_legacy_reta_prompt.mojo` vergleicht den Legacy-Scope jetzt direkt mit
+  `prompt_interaction_contract_snapshot()` und prüft stabile
+  Bedeutungsanker statt einer veraltenden Zahl.
+- `scripts/test_stage12c5by.sh` baut gezielt `test_legacy_reta_prompt.mojo`
+  und `test_prompt_interaction.mojo`, damit künftige Snapshot-Erweiterungen
+  an dieser Fassade sofort mitgeprüft werden.
+- Benutzerprüfung:
+  `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5by.sh -- -j 8` und
+  anschließend bei Bedarf `scripts/run-tests.sh --jobs 8`.
+
 # Status – Stage 12c5bw
 
 
