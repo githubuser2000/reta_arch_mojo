@@ -37,6 +37,8 @@ def test_prompt_interaction_has_a_dedicated_native_owner() -> None:
     assert "def plan_simple_output_dispatch(" in owner
     assert "struct PromptExternalProcessDispatchPlan" in owner
     assert "var raw: String" not in owner
+    assert "var process_kind: Int" not in owner
+    assert "EXTERNAL_PROMPT_" not in owner
     assert "var payload: String" in owner
     assert "var arguments: List[String]" in owner
     assert "var run_shell: Bool" in owner
@@ -117,6 +119,7 @@ def test_production_prompt_activates_the_interaction_owner() -> None:
     assert "run_reta_line_native(external_process.raw)" not in controller
     assert "external_process.raw" not in controller
     assert "external_process.process_kind == EXTERNAL_PROMPT" not in controller
+    assert "external_process.process_kind" not in controller
     assert "EXTERNAL_PROMPT_SHELL," not in controller
     assert "EXTERNAL_PROMPT_PYTHON," not in controller
     assert "EXTERNAL_PROMPT_MATH," not in controller

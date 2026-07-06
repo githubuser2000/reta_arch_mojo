@@ -1,3 +1,13 @@
+# Status – Stage 12c5cq
+
+## Stage 12c5cq – External-Process-Kind-Eliminierung
+
+- `PromptExternalProcessDispatchPlan` trägt kein numerisches `process_kind`-Enum mehr.
+- Die internen `EXTERNAL_PROMPT_*`-Konstanten sind entfernt; der ausführbare Plan verwendet nur noch `run_shell`, `run_python`, `run_math`, `run_reta` plus `payload`/`arguments`.
+- `prompt_main.mojo` bleibt am dünnen OS-/Kindprozessrand und konsumiert weiterhin ausschließlich Effektflags; keine zweite Routingkodierung kann dort mehr anwachsen.
+- Der Interaktions-Snapshot enthält `external_process_kind=eliminated-from-external-process-plan`.
+- Mojo-Kompilierung bleibt beim Benutzerlauf `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5cq.sh -- -j 4`.
+
 # Status – Stage 12c5cn
 
 ## Stage 12c5cn – External-Process-Effektflags im Interaktionsbesitzer

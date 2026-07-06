@@ -24,10 +24,10 @@ def test_external_process_dispatch_has_dedicated_native_plan() -> None:
     )
     assert "struct PromptExternalProcessDispatchPlan" in owner
     assert "def plan_external_process_dispatch(" in owner
-    assert "EXTERNAL_PROMPT_SHELL" in owner
-    assert "EXTERNAL_PROMPT_PYTHON" in owner
-    assert "EXTERNAL_PROMPT_MATH" in owner
-    assert "EXTERNAL_PROMPT_RETA" in owner
+    assert "var run_shell: Bool" in owner
+    assert "var run_python: Bool" in owner
+    assert "var run_math: Bool" in owner
+    assert "var run_reta: Bool" in owner
     assert "KIND_SHELL" in owner
     assert "KIND_PYTHON" in owner
     assert "KIND_MATH" in owner

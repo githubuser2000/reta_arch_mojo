@@ -71,11 +71,6 @@ comptime INTERACTION_EXECUTE = 0
 comptime INTERACTION_CONTINUE = 1
 comptime INTERACTION_EXIT = 2
 
-comptime EXTERNAL_PROMPT_NONE = 0
-comptime EXTERNAL_PROMPT_SHELL = 1
-comptime EXTERNAL_PROMPT_PYTHON = 2
-comptime EXTERNAL_PROMPT_MATH = 3
-comptime EXTERNAL_PROMPT_RETA = 4
 
 
 @fieldwise_init
@@ -163,7 +158,6 @@ struct PromptExternalProcessDispatchPlan(Copyable):
     """Executable plan for prompt commands that cross a process boundary."""
 
     var handled: Bool
-    var process_kind: Int
     var payload: String
     var arguments: List[String]
     var run_shell: Bool
@@ -566,7 +560,6 @@ def plan_external_process_dispatch(
     if command.kind == KIND_SHELL:
         return PromptExternalProcessDispatchPlan(
             True,
-            EXTERNAL_PROMPT_SHELL,
             _prompt_command_payload(command),
             List[String](),
             True,
@@ -577,7 +570,6 @@ def plan_external_process_dispatch(
     if command.kind == KIND_PYTHON:
         return PromptExternalProcessDispatchPlan(
             True,
-            EXTERNAL_PROMPT_PYTHON,
             _prompt_command_payload(command),
             List[String](),
             False,
@@ -588,7 +580,6 @@ def plan_external_process_dispatch(
     if command.kind == KIND_MATH:
         return PromptExternalProcessDispatchPlan(
             True,
-            EXTERNAL_PROMPT_MATH,
             _prompt_command_payload(command),
             List[String](),
             False,
@@ -599,7 +590,6 @@ def plan_external_process_dispatch(
     if command.kind == KIND_RETA:
         return PromptExternalProcessDispatchPlan(
             True,
-            EXTERNAL_PROMPT_RETA,
             "",
             _prompt_command_arguments(command),
             False,
@@ -609,7 +599,6 @@ def plan_external_process_dispatch(
         )
     return PromptExternalProcessDispatchPlan(
         False,
-        EXTERNAL_PROMPT_NONE,
         "",
         List[String](),
         False,
@@ -869,6 +858,7 @@ def prompt_interaction_contract_snapshot() -> List[String]:
         "external_reta_arguments=native-prompt-reta-argv-plan",
         "external_process_payload=native-prompt-process-payload-plan",
         "external_process_flags=native-prompt-process-effect-flags",
+        "external_process_kind=eliminated-from-external-process-plan",
         "external_reta_child=native-prompt-reta-child-argv",
         "external_raw_line=eliminated-from-external-process-plan",
         "stored_output_dispatch=native-session-output-execution-plan",

@@ -26,7 +26,7 @@ def test_external_process_plan_owns_reta_arguments() -> None:
     assert "var arguments: List[String]" in owner
     assert "def _prompt_command_arguments(" in owner
     assert "return result^" in owner
-    assert "EXTERNAL_PROMPT_RETA" in owner
+    assert "var process_kind: Int" not in owner
     assert "command.raw" in owner
     assert "_prompt_command_arguments(command)" in owner
     assert "external_reta_arguments=native-prompt-reta-argv-plan" in owner
