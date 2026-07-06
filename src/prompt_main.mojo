@@ -62,7 +62,6 @@ from reta_mojo.prompt_runtime import (
     KIND_SHORT_COMMANDS,
     KIND_LOG_ON,
     KIND_LOG_OFF,
-    KIND_CLEAR,
     KIND_PRIME,
     KIND_MULTIS,
     KIND_MULTIS3,
@@ -111,6 +110,7 @@ from reta_mojo.prompt_interaction import (
     apply_inline_storage_command,
     plan_stored_command_dispatch,
     plan_logging_dispatch,
+    plan_terminal_clear_dispatch,
     plan_inline_stored_output_command,
     plan_stored_output_command,
     plan_stored_delete_command,
@@ -595,8 +595,11 @@ def _run_command(
     if command.kind == KIND_SHORT_COMMANDS:
         _print_commands(catalog, profile.language, True)
         return True
-    if command.kind == KIND_CLEAR:
-        _clear_terminal_native()
+    var terminal_clear = plan_terminal_clear_dispatch(command)
+    if terminal_clear.handled:
+        _print_lines(terminal_clear.output_lines)
+        if terminal_clear.clear_terminal:
+            _clear_terminal_native()
         return True
 
     if command.kind == KIND_PRIME:
@@ -772,8 +775,11 @@ def _run_native_one_shot(
     if command.kind == KIND_SHORT_COMMANDS:
         _print_commands(catalog, profile.language, True)
         return True
-    if command.kind == KIND_CLEAR:
-        _clear_terminal_native()
+    var terminal_clear = plan_terminal_clear_dispatch(command)
+    if terminal_clear.handled:
+        _print_lines(terminal_clear.output_lines)
+        if terminal_clear.clear_terminal:
+            _clear_terminal_native()
         return True
 
     if command.kind == KIND_LOG_ON:

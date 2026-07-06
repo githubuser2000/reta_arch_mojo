@@ -29,6 +29,7 @@ from .prompt_runtime import (
     KIND_DELETE_STORED,
     KIND_LOG_ON,
     KIND_LOG_OFF,
+    KIND_CLEAR,
     KIND_ABC,
 )
 from .prompt_session import (
@@ -81,6 +82,15 @@ struct PromptLoggingDispatchPlan(Copyable):
     """Executable plan for single-word prompt logging dispatch."""
 
     var handled: Bool
+    var output_lines: List[String]
+
+
+@fieldwise_init
+struct PromptTerminalClearDispatchPlan(Copyable):
+    """Executable plan for standalone prompt terminal clear dispatch."""
+
+    var handled: Bool
+    var clear_terminal: Bool
     var output_lines: List[String]
 
 
@@ -325,6 +335,22 @@ def plan_logging_dispatch(
     return PromptLoggingDispatchPlan(False, List[String]())
 
 
+def plan_terminal_clear_dispatch(
+    command: PromptCommand,
+) -> PromptTerminalClearDispatchPlan:
+    """Plan standalone ANSI terminal clear in the interaction owner.
+
+    Compound ``leeren``/``clear`` inside historical table commands is already
+    owned by ``prompt_historical_ownership`` because it emits rows+1 blank
+    lines before the table.  Bare clear is a prompt-controller terminal effect;
+    return an explicit effect flag so the process entry point only performs the
+    I/O requested by this typed plan.
+    """
+    if command.kind == KIND_CLEAR:
+        return PromptTerminalClearDispatchPlan(True, True, List[String]())
+    return PromptTerminalClearDispatchPlan(False, False, List[String]())
+
+
 def plan_stored_output_command(
     command: PromptCommand,
     session: NativePromptSession,
@@ -566,6 +592,7 @@ def prompt_interaction_contract_snapshot() -> List[String]:
         "storage_output=native-position-independent-addition-policy",
         "stored_command_dispatch=native-session-store-plan",
         "logging_dispatch=native-session-logging-plan",
+        "terminal_clear_dispatch=native-terminal-clear-plan",
         "stored_output_dispatch=native-session-output-execution-plan",
         "stored_delete_dispatch=native-session-delete-plan",
         "stored_default=native-empty-enter-placeholder-policy",

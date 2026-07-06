@@ -1,3 +1,13 @@
+# Status – Stage 12c5cf
+
+## Stage 12c5cf – Bare Terminal-Clear-Dispatch im Interaktionsbesitzer
+
+- `PromptTerminalClearDispatchPlan` und `plan_terminal_clear_dispatch(...)` besitzen jetzt den alleinstehenden `leeren`-/`clear`-Terminaleffekt.
+- `_run_command` und `_run_native_one_shot` delegieren diese Entscheidung an `prompt_interaction.mojo`; `prompt_main.mojo` enthält keine bare `KIND_CLEAR`-Branches mehr.
+- Zusammengesetztes `leeren`/`clear` bei historischen Tabellen-/mulpri-Plänen bleibt bewusst im historischen Besitzer, weil es vor Tabellen `rows + 1` Leerzeilen statt ANSI-Clear ausgibt.
+- Der Interaktions-Snapshot enthält `terminal_clear_dispatch=native-terminal-clear-plan`.
+- Benutzerseitig sind 12c5cc/12c5cd breit und fokussiert grün; der Tabellenadapter-Zählungsfehler ist geschlossen.
+
 # Status – Stage 12c5ce
 
 ## Stage 12c5ce – Bare Logging-Dispatch im Interaktionsbesitzer

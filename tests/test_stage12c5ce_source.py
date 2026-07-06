@@ -3,9 +3,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def test_current_stage_points_to_ce() -> None:
+def test_current_stage_points_to_a_later_stage_script() -> None:
     current = (ROOT / "scripts/test_current_stage.sh").read_text(encoding="utf-8")
-    assert "test_stage12c5ce.sh" in current
+    assert "test_stage12c5c" in current
 
 
 def test_stage_wraps_cd_and_rebuilds_prompt_boundaries() -> None:
@@ -51,4 +51,4 @@ def test_prompt_interaction_regression_covers_bare_logging_dispatch() -> None:
     assert "plan_logging_dispatch(" in test
     assert '"Logging ist eingeschaltet."' in test
     assert '"Logging ist ausgeschaltet."' in test
-    assert "assert_equal(len(snapshot), 16)" in test
+    assert "logging_dispatch=native-session-logging-plan" in test

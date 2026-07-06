@@ -85,6 +85,15 @@ Stage 12c5ao schließt `setup.py` vollständig als reproduzierbaren nativen Meta
 Stage 12c5an schließt die historische `mojo_bridge.py`-Oberfläche vollständig nativ und hebt `parameter_runtime.py` mit typisierten Planadaptern auf vollständigen Dateibesitz.
 
 
+
+## Stage 12c5cf – Bare Terminal-Clear-Dispatch im Interaktionsbesitzer
+
+- [x] `leeren`/`clear` als alleinstehenden Prompt-Terminaleffekt nativ planen.
+- [x] Bare `KIND_CLEAR`-Branches aus `_run_command` und `_run_native_one_shot` entfernen.
+- [x] Zusammengesetztes `leeren` bei Tabellenplänen weiter in `prompt_historical_ownership.mojo` lassen, weil dort die historische `rows + 1`-Leerzeilenwirkung besitzt.
+- [x] Prompt-Interaktionssnapshot um `terminal_clear_dispatch=native-terminal-clear-plan` erweitern.
+- [ ] Benutzerseitig `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5cf.sh -- -j 8` ausführen.
+
 ## Stage 12c5ce – nächster Prompt-Sitzungsrand
 
 - [x] Bare Logging-Dispatch aus dem Prozesscontroller entfernen.

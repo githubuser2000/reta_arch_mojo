@@ -64,7 +64,7 @@ def test_rejected_compound_falls_back_before_prefix_control_dispatch() -> None:
     )
     fallback = interactive.index("_run_fallback(profile, line)", rejected)
     help_dispatch = interactive.index("if command.kind == KIND_HELP:", fallback)
-    clear = interactive.index("if command.kind == KIND_CLEAR:", help_dispatch)
+    clear = interactive.index("var terminal_clear = plan_terminal_clear_dispatch(command)", help_dispatch)
     assert rejected < fallback < help_dispatch < clear
 
     one_shot = source.split("def _run_native_one_shot(", 1)[1]
