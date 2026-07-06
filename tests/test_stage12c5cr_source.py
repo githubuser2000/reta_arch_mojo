@@ -5,9 +5,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def test_current_stage_points_to_cr() -> None:
+def test_current_stage_points_to_cr_or_later() -> None:
     current = (ROOT / "scripts/test_current_stage.sh").read_text(encoding="utf-8")
-    assert "test_stage12c5cr.sh" in current
+    assert "test_stage12c5c" in current
 
 
 def test_stage_wraps_cq_and_rebuilds_bridge_boundaries() -> None:
@@ -40,6 +40,10 @@ def test_line_based_legacy_prompt_adapters_are_still_present() -> None:
     assert "def run_shell_prompt_line(line: String) raises -> Int:" in bridge
     assert "def run_python_prompt_line(line: String) raises -> Int:" in bridge
     assert "def run_math_prompt_line(line: String) raises -> Int:" in bridge
-    assert "return run_shell_prompt_line_native(line, reference_root())" in bridge
-    assert "return run_python_prompt_line_native(line, reference_root())" in bridge
-    assert "return run_math_prompt_line_native(line, reference_root())" in bridge
+    assert "raw_command_payload(line), reference_root()" in bridge
+    assert "return run_shell_prompt_payload_native(" in bridge
+    assert "return run_python_prompt_payload_native(" in bridge
+    assert "return run_math_prompt_payload_native(" in bridge
+    assert "return run_shell_prompt_line_native(line, reference_root())" not in bridge
+    assert "return run_python_prompt_line_native(line, reference_root())" not in bridge
+    assert "return run_math_prompt_line_native(line, reference_root())" not in bridge

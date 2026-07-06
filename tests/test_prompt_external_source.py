@@ -8,10 +8,14 @@ def test_hintere_commands_do_not_cross_python_bridge() -> None:
     assert "bridge.run_shell_prompt_line" not in source
     assert "bridge.run_python_prompt_line" not in source
     assert "bridge.run_math_prompt_line" not in source
-    assert "run_shell_prompt_line_native(command.raw)" in source
-    assert "run_python_prompt_line_native(command.raw)" in source
-    assert "run_math_prompt_line_native(command.raw)" in source
-    assert "run_reta_line_native(command.raw)" in source
+    assert "run_shell_prompt_payload_native(external_process.payload)" in source
+    assert "run_python_prompt_payload_native(external_process.payload)" in source
+    assert "run_math_prompt_payload_native(external_process.payload)" in source
+    assert (
+        "run_reta_arguments_native(\n                external_process.arguments, reference_root()"
+        in source
+    )
+    assert "run_reta_line_native(command.raw)" not in source
     assert "run_reta_prompt_fallback_native(" in source
 
 
@@ -62,7 +66,8 @@ def test_prompt_controller_has_no_embedded_python_boundary() -> None:
     assert not (root / "src" / "reta_mojo" / "prompt_python_bridge.mojo").exists()
     assert all("from std.python import" not in source for source in prompt_modules)
     assert "run_reta_prompt_fallback_native" in controller
-    assert "run_reta_line_native" in controller
+    assert "run_reta_arguments_native" in controller
+    assert "run_reta_line_native" not in controller
 
 
 def test_native_tty_input_is_the_prompt_controller_boundary() -> None:
