@@ -35,7 +35,10 @@ def test_output_and_session_plans_are_owned_by_prompt_execution() -> None:
     assert "plan_prompt_execution_native_branch_output(" in controller
     assert "if outcome.enable_logging:" not in controller
     assert "elif outcome.disable_logging:" not in controller
-    assert "plan_prompt_execution_session_logging_update(" in controller
+    assert (
+        "plan_prompt_execution_session_logging_update(" in controller
+        or "plan_prompt_execution_native_branch_completion(" in controller
+    )
     assert "test_prompt_execution_native_branch_output_plan_owns_handled_algebra" in test
     assert "test_prompt_execution_session_logging_update_owns_mutation_value" in test
 

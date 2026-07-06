@@ -235,10 +235,10 @@ def test_prompt_execution_native_branch_outcome_owns_logging_transition() raises
 def test_prompt_execution_native_branch_outcome_owns_untried_fallback() raises:
     var catalog = _catalog()
     var routing = plan_prompt_execution_routing(
-        "richtung shell echo 2", "deutsch", catalog
+        "r shell echo 2", "deutsch", catalog
     )
     var branch = plan_prompt_execution_native_branch(
-        routing, "richtung shell echo 2", "deutsch", catalog
+        routing, "r shell echo 2", "deutsch", catalog
     )
     var outcome = plan_prompt_execution_native_branch_outcome(branch, False)
     assert_false(branch.should_try_native)
@@ -279,6 +279,39 @@ def test_prompt_execution_session_logging_update_owns_mutation_value() raises:
     var no_change = plan_prompt_execution_session_logging_update(outcome, True)
     assert_true(no_change.update)
     assert_true(no_change.enabled)
+
+
+def test_prompt_execution_native_branch_completion_owns_controller_flags() raises:
+    var catalog = _catalog()
+    var routing = plan_prompt_execution_routing(
+        "mond 2 loggen --art=csv", "deutsch", catalog
+    )
+    var branch = plan_prompt_execution_native_branch(
+        routing, "mond 2 loggen --art=csv", "deutsch", catalog
+    )
+    var outcome = plan_prompt_execution_native_branch_outcome(branch, True)
+    var completion = plan_prompt_execution_native_branch_completion(outcome, False)
+    assert_true(completion.handled)
+    assert_false(completion.fallback_required)
+    assert_true(completion.session_logging.update)
+    assert_true(completion.session_logging.enabled)
+
+    var fallback_routing = plan_prompt_execution_routing(
+        "r shell echo 2", "deutsch", catalog
+    )
+    var fallback_branch = plan_prompt_execution_native_branch(
+        fallback_routing, "r shell echo 2", "deutsch", catalog
+    )
+    var fallback_outcome = plan_prompt_execution_native_branch_outcome(
+        fallback_branch, False
+    )
+    var fallback_completion = plan_prompt_execution_native_branch_completion(
+        fallback_outcome, True
+    )
+    assert_false(fallback_completion.handled)
+    assert_true(fallback_completion.fallback_required)
+    assert_false(fallback_completion.session_logging.update)
+    assert_true(fallback_completion.session_logging.enabled)
 
 def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()

@@ -41,7 +41,7 @@ from reta_mojo.prompt_execution import (
     plan_prompt_execution_native_branch,
     plan_prompt_execution_native_branch_output,
     plan_prompt_execution_native_branch_outcome,
-    plan_prompt_execution_session_logging_update,
+    plan_prompt_execution_native_branch_completion,
 )
 from reta_mojo.native_cli_startup import native_cli_startup
 from reta_mojo.resource_paths import asset_root, csv_resource, reference_root
@@ -339,14 +339,14 @@ def _run_command(
     var outcome = plan_prompt_execution_native_branch_outcome(
         native_branch, native_handled
     )
-    if outcome.handled:
-        var logging_update = plan_prompt_execution_session_logging_update(
-            outcome, session.logging_enabled
-        )
-        if logging_update.update:
-            session.logging_enabled = logging_update.enabled
+    var completion = plan_prompt_execution_native_branch_completion(
+        outcome, session.logging_enabled
+    )
+    if completion.handled:
+        if completion.session_logging.update:
+            session.logging_enabled = completion.session_logging.enabled
         return True
-    if outcome.fallback_required:
+    if completion.fallback_required:
         _run_fallback(profile, line)
         return True
 
@@ -428,9 +428,12 @@ def _run_native_one_shot(
     var outcome = plan_prompt_execution_native_branch_outcome(
         native_branch, native_handled
     )
-    if outcome.handled:
+    var completion = plan_prompt_execution_native_branch_completion(
+        outcome, False
+    )
+    if completion.handled:
         return True
-    if outcome.fallback_required:
+    if completion.fallback_required:
         return False
 
     var info_dispatch = plan_informational_dispatch(command)

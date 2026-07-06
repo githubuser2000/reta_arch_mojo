@@ -29,7 +29,7 @@ def test_outcome_plan_owns_unattempted_fallbacks() -> None:
     assert controller.count("var native_handled = False") == 2
     assert controller.count("if native_branch.fallback_required:") == 0
     assert "test_prompt_execution_native_branch_outcome_owns_untried_fallback" in test
-    assert 'plan_prompt_execution_routing(\n        "richtung shell echo 2"' in test
+    assert 'plan_prompt_execution_routing(\n        "r shell echo 2"' in test
 
 
 def test_stage_is_documented() -> None:

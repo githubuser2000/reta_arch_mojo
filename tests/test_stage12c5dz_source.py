@@ -32,6 +32,7 @@ def test_native_branch_outcome_plan_owns_post_execution_decisions() -> None:
     assert (
         "if outcome.enable_logging" in controller
         or "plan_prompt_execution_session_logging_update" in controller
+        or "plan_prompt_execution_native_branch_completion" in controller
     )
     assert "if native_branch.historical_effects.enable_logging" not in controller
 

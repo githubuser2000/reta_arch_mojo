@@ -286,6 +286,22 @@ struct PromptExecutionSessionLoggingPlan(Copyable):
     var enabled: Bool
 
 
+@fieldwise_init
+struct PromptExecutionNativeBranchCompletionPlan(Copyable):
+    """Pure completion decision after native branch outcome planning.
+
+    Interactive prompt execution and one-shot ``-befehl`` both need the same
+    handled/fallback answer after table or mulpri rendering.  Interactive mode
+    additionally applies the preplanned session logging mutation.  Keeping this
+    shape in the prompt-execution owner prevents the controllers from peeking
+    back into outcome internals.
+    """
+
+    var handled: Bool
+    var fallback_required: Bool
+    var session_logging: PromptExecutionSessionLoggingPlan
+
+
 def prompt_execution_integer_argument_words(values: List[String]) -> List[String]:
     var result = List[String]()
     for index in range(len(values)):
@@ -519,6 +535,20 @@ def plan_prompt_execution_session_logging_update(
     if outcome.disable_logging:
         return PromptExecutionSessionLoggingPlan(True, False)
     return PromptExecutionSessionLoggingPlan(False, current_enabled)
+
+
+def plan_prompt_execution_native_branch_completion(
+    outcome: PromptExecutionNativeBranchOutcomePlan, current_logging_enabled: Bool
+) -> PromptExecutionNativeBranchCompletionPlan:
+    """Plan controller-visible completion for a native branch outcome."""
+
+    return PromptExecutionNativeBranchCompletionPlan(
+        outcome.handled,
+        outcome.fallback_required,
+        plan_prompt_execution_session_logging_update(
+            outcome, current_logging_enabled
+        ),
+    )
 
 
 def plan_prompt_execution_native_branch_outcome(

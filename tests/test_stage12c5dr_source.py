@@ -57,7 +57,10 @@ def test_table_ownership_plan_preserves_atomic_fallback_shape() -> None:
     assert "var fallback_required = (table_candidate or mulpri_candidate)" in owner
     assert "if table_plan.handled and not owns_table:" in owner
     assert "raw_tokens, planning_tokens, language, catalog" in owner
-    assert "if outcome.fallback_required:" in controller
+    assert (
+        "if outcome.fallback_required:" in controller
+        or "if completion.fallback_required:" in controller
+    )
     assert "ownership.table_plan" in controller
     assert "ownership.owns_table or ownership.owns_mulpri" in controller or "native_branch.should_try_native" in controller
 
