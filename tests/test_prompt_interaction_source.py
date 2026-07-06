@@ -14,9 +14,13 @@ def test_prompt_interaction_has_a_dedicated_native_owner() -> None:
     assert "def new_prompt_interaction(" in owner
     assert "def accept_prompt_input(" in owner
     assert "def record_prompt_command(" in owner
+    assert "def prompt_line_updates_previous(" in owner
+    assert "def record_prompt_line(" in owner
     assert "struct PromptInlineStoragePlan" in owner
     assert "def plan_inline_storage_command(" in owner
     assert "def apply_inline_storage_command(" in owner
+    assert "struct PromptStorageOutputPlan" in owner
+    assert "def plan_inline_storage_output_command(" in owner
     assert "def prompt_interaction_contract_snapshot(" in owner
     assert "from std.python import" not in owner
     assert "PythonObject" not in owner
@@ -27,8 +31,10 @@ def test_production_prompt_activates_the_interaction_owner() -> None:
     assert "from reta_mojo.prompt_interaction import" in controller
     assert "new_prompt_interaction(startup)" in controller
     assert "accept_prompt_input(" in controller
-    assert "record_prompt_command(" in controller
+    assert "record_prompt_line(" in controller
+    assert "record_prompt_command(" not in controller
     assert "apply_inline_storage_command(" in controller
+    assert "plan_inline_storage_output_command(" in controller
     assert "prompt_interaction_one_shot_line(startup)" in controller
 
     # These lifecycle decisions used to be open-coded in the process entry

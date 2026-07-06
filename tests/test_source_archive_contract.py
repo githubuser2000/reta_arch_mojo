@@ -30,13 +30,36 @@ def test_source_archive_excludes_nested_caches_and_build_products(tmp_path: Path
     assert not any(name.endswith("prompt_python_bridge.mojo") for name in names)
 
 
-def test_git_index_contains_no_archive_excluded_temporary_files() -> None:
-    tracked = subprocess.run(
+def _declared_source_paths() -> list[str]:
+    """Read the Git index in a checkout or the manifests in a source archive."""
+    git_files = subprocess.run(
         ["git", "ls-files", "-z"],
         cwd=ROOT,
-        check=True,
+        check=False,
         capture_output=True,
-    ).stdout.decode("utf-8").split("\0")
+    )
+    if git_files.returncode == 0:
+        return git_files.stdout.decode("utf-8").split("\0")
+
+    manifest = ROOT / "SOURCE_MANIFEST.sha256"
+    symlinks = ROOT / "SOURCE_SYMLINKS.txt"
+    assert manifest.is_file(), "source archive has neither Git index nor manifest"
+    paths = [
+        line.split("  ", 1)[1].removeprefix("./")
+        for line in manifest.read_text(encoding="utf-8").splitlines()
+        if "  " in line
+    ]
+    if symlinks.is_file():
+        paths.extend(
+            line.split(" -> ", 1)[0].removeprefix("./")
+            for line in symlinks.read_text(encoding="utf-8").splitlines()
+            if " -> " in line
+        )
+    return paths
+
+
+def test_declared_source_contains_no_archive_excluded_temporary_files() -> None:
+    tracked = _declared_source_paths()
     forbidden_suffixes = (".pyc", ".pyo", ".tmp", ".swp", ".swo", "~")
     offenders = sorted(
         name

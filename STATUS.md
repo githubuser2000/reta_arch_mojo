@@ -1,4 +1,25 @@
-# Status – Stage 12c5bt
+# Status – Stage 12c5bw
+
+
+## Stage 12c5bw – Verlaufseigentum der Inline-Speicherung
+
+- Positionsunabhängige zusammengesetzte Speicherbefehle werden nicht nur nativ
+  konsumiert, sondern nun auch sicher aus dem Previous-Command-Verlauf
+  ausgeschlossen.
+- `prompt_line_updates_previous(...)` prüft die vollständige physische Zeile
+  gegen den reinen Inline-Speicherplan, bevor die bestehende kindbasierte
+  Verlaufspolitik angewandt wird.
+- Präfix, Mittelposition, Suffix und englischer Langalias sind durch
+  Mojo-Regressionen sowie eine ausführbare Python-Referenz gebunden.
+- Defekt `MOJO-FIXED-073` ist geschlossen.
+- Compilerfreier Gesamtaudit: **404/404** Source-Tests bestanden; die eine
+  Binary-Probe ist ohne Benutzerbuild erwartungsgemäß übersprungen. Zusätzlich
+  bestanden **57/57** fokussierte Stage-/Ledger-/Archivverträge.
+- Portierung: **89/92 vollständig**, **92/92 mindestens teilweise**;
+  Mojo-Umfang **63.971** Zeilen in `src/`, davon **59.297** in
+  `src/reta_mojo/`; Defektledger **168/18**.
+- Benutzerprüfung:
+  `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bw.sh -- -j 8`.
 
 
 ## Stage 12c5bt – Informations-Begleiteffekte und fokussierte Tabellenregressionen

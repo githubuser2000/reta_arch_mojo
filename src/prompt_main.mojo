@@ -113,8 +113,9 @@ from reta_mojo.prompt_interaction import (
     new_prompt_interaction,
     prompt_interaction_one_shot_line,
     accept_prompt_input,
-    record_prompt_command,
+    record_prompt_line,
     apply_inline_storage_command,
+    plan_inline_storage_output_command,
 )
 
 
@@ -461,6 +462,17 @@ def _run_command(
     ):
         print("Gespeichert:", stored_prompt_text(session))
         return True
+    var inline_output = plan_inline_storage_output_command(
+        raw_tokens, profile.language, catalog
+    )
+    if inline_output.handled:
+        var stored = stored_prompt_text(session)
+        if stored.byte_length() == 0:
+            print("Kein Befehl gespeichert.")
+            return True
+        if inline_output.payload.byte_length() > 0:
+            stored += " " + inline_output.payload
+        return _run_command(profile, stored, session, catalog)
     if command.kind == KIND_EMPTY:
         return True
     if command.kind == KIND_EXIT:
@@ -894,4 +906,10 @@ def main() raises:
         var executed = classify_prompt_command_localized(
             line, startup.profile.language, prompt_catalog
         )
-        record_prompt_command(interaction, line, executed.kind)
+        record_prompt_line(
+            interaction,
+            line,
+            executed.kind,
+            startup.profile.language,
+            prompt_catalog,
+        )

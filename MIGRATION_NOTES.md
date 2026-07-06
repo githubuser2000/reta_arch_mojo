@@ -958,6 +958,8 @@ Validiert wurden 3/3 Runtime-Tests, 5/5 Zustandsmaschinentests, 12/12 bestehende
   Terminalsentinels, Speicher-/Löschmodi und Previous-Command-Policy.
 - `prompt_main.mojo` konsumiert typisierte Interaktionspläne und behält nur
   beobachtbare I/O sowie Befehlsdispatch.
+- Positionsunabhängige Inline-Speicherzeilen werden vor der Verlaufsaktualisierung
+  erneut rein geplant; sie können den letzten ausführbaren Befehl nicht ersetzen.
 - `reta_architecture/prompt_interaction.py` wechselt auf vollständigen nativen
   Besitz; `retaPrompt.py` und `libs/LibRetaPrompt.py` auf weitgehend nativ.
 - Die erneut vorhandene tote `prompt_python_bridge.mojo` wurde entfernt;

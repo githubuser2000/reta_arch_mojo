@@ -23,8 +23,8 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 
 ## Übersicht
 
-- Einträge insgesamt: **166**
-- offene bestätigte Python-Fehler: **4**
+- Einträge insgesamt: **169**
+- offene bestätigte Python-Fehler: **5**
 - zu entscheidende Python-Fehlerkandidaten: **13**
 - bereits im Python-Baum behobene Fehler: **9**
 
@@ -2258,3 +2258,44 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 - spätere Python-Aktion: Keine Produktions- oder Python-Änderung erforderlich. Der Fehler lag ausschließlich in der Wahl der Mojo-Testassertion.
 - Mojo-Orte: `tests/test_prompt_historical_ownership.mojo`, `src/reta_mojo/prompt_historical_ownership.mojo`
 - Belege: `STAGE12C5BU_NATIVE_COMPOUND_CLEAR.md`, `tests/test_prompt_historical_ownership.mojo`, `tests/test_terminal_geometry_source.py`
+
+### MOJO-FIXED-073 – Positionsfreie Inline-Speicherung konnte den vorherigen Befehl überschreiben
+
+- Ursprung: `mojo_port`
+- Klasse / Schwere: `prompt_inline_storage_history_reclassification` / `medium`
+- Python-Status: `correct_reference`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5bv/12c5bw`
+- Reproduktion: `Im interaktiven nativen Prompt zuerst einen normalen Befehl und danach emotion S 1 oder emotion 1 s eingeben. Die Speicherwirkung wurde korrekt konsumiert; die anschließende first-token-Klassifikation meldete jedoch KIND_FALLBACK und schrieb die vollständige Speicherzeile als previous_command. Ein späteres alleinstehendes s speicherte dadurch den falschen Befehl.`
+- heutiger Vertrag: Die Verlaufspflege prüft vor der kindbasierten Standardregel den reinen positionsunabhängigen Inline-Speicherplan für die vollständige physische Zeile. Präfix-, Mittel-, Suffix- und lokalisierte Langaliasformen, die bereits als Speicherung konsumiert wurden, aktualisieren previous_command nicht. Normale ausführbare Befehle und die bisherigen isolierten Speicher-, Ausgabe-, Lösch- und Loggingkindregeln bleiben unverändert.
+- spätere Python-Aktion: Keine Python-Korrektur erforderlich. Die Referenzschleife setzt nach erfolgreichem _storage_command mit continue fort und führt die Speicherzeile nicht als normalen Befehl aus. Diese Trennung von Speicherwirkung und ausführbarem Befehlsverlauf muss bei einer späteren Python-Bereinigung erhalten bleiben.
+- Python-Orte: `python_reference/reta_architecture/prompt_interaction.py`
+- Mojo-Orte: `src/reta_mojo/prompt_interaction.mojo`, `src/prompt_main.mojo`, `tests/test_prompt_interaction.mojo`, `scripts/check_prompt_inline_storage_history_reference.py`
+- Belege: `STAGE12C5BW_INLINE_STORAGE_HISTORY_OWNERSHIP.md`, `tests/test_prompt_interaction.mojo`, `tests/test_stage12c5bw_source.py`, `scripts/check_prompt_inline_storage_history_reference.py`
+
+### TEST-FIXED-070 – Source-Archivvertrag setzte trotz ausgelieferter .git-freier Archive einen Git-Index voraus
+
+- Ursprung: `test_infrastructure`
+- Klasse / Schwere: `source_archive_git_index_assumption` / `medium`
+- Python-Status: `not_applicable`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5bw`
+- Reproduktion: `Ein mit scripts/create_source_archive.sh erzeugtes Archiv ohne .git entpacken und tests/test_source_archive_contract.py ausführen. test_git_index_contains_no_archive_excluded_temporary_files rief git ls-files mit check=True auf und scheiterte mit Exitstatus 128, obwohl Archivinhalt und 1.724 Manifestprüfungen korrekt waren.`
+- heutiger Vertrag: In einem Git-Arbeitsbaum wird weiterhin der Index mit git ls-files geprüft. Fehlt .git wie im absichtlich bereinigten Quellarchiv, liest derselbe Test die deklarierten Dateien aus SOURCE_MANIFEST.sha256 und SOURCE_SYMLINKS.txt. Dadurch prüft er die gleiche Ausschlussmenge portabel, ohne während des Tests neu entstehende Pytest-Caches fälschlich als Archivinhalt zu behandeln.
+- spätere Python-Aktion: Keine Produktions- oder Python-Referenzänderung erforderlich. Der Fehler lag ausschließlich in der Annahme des Archivtests über seine Laufumgebung.
+- Mojo-Orte: `tests/test_source_archive_contract.py`, `scripts/create_source_archive.sh`
+- Belege: `STAGE12C5BW_INLINE_STORAGE_HISTORY_OWNERSHIP.md`, `tests/test_source_archive_contract.py`, `tests/test_stage12c5bw_source.py`
+
+### PY-OPEN-007 – Gespeicherte Promptausgabe mit Zusatz stürzt durch Listen/String-Konkatenation ab
+
+- Ursprung: `python_reference`
+- Klasse / Schwere: `prompt_storage_output_list_string_type_error` / `medium`
+- Python-Status: `open`
+- Mojo-Status: `fixed`
+- entdeckt in: `12c5bx`
+- Reproduktion: `PYTHONDONTWRITEBYTECODE=1 python3 python_reference/rpb 'o prim 60' ausführen. Der Python-Controller erkennt den gespeicherten Ausgabezusatz, speichert aber text_state.liste als pending_output und konkateniert diese Liste später mit txt_state.platzhalter + ' ', wodurch ein TypeError entsteht.`
+- heutiger Vertrag: Die Python-Referenz bleibt für den defekten Additionpfad eingefroren: alleinstehendes o ist stabil, o plus mehr als ein distinktes Nicht-o-Token führt im Python-Baum zu TypeError. Der native Prompt besitzt denselben Trigger als typisierten Plan, entfernt einen Ausgabealias aus dem Zusatz und führt gespeicherten Text plus Zusatz ohne Listen/String-Mischung aus.
+- spätere Python-Aktion: Nach Abschluss des Mojo-Ports den Python-Zweig auf einen Stringpayload umstellen, den Ausgabealias vor der erneuten Ausführung entfernen und denselben korrigierten Zusatzvertrag gegen Python und Mojo prüfen.
+- Python-Orte: `python_reference/reta_architecture/prompt_interaction.py`, `python_reference/reta_architecture/prompt_session.py`
+- Mojo-Orte: `src/reta_mojo/prompt_interaction.mojo`, `src/prompt_main.mojo`, `tests/test_prompt_interaction.mojo`, `scripts/check_prompt_storage_output_reference.py`
+- Belege: `STAGE12C5BX_NATIVE_STORAGE_OUTPUT_OWNERSHIP.md`, `scripts/check_prompt_storage_output_reference.py`, `tests/test_prompt_interaction.mojo`, `tests/test_stage12c5bx_source.py`

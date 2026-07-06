@@ -11,7 +11,7 @@ Arbeitsliste für die Phase nach dem vollständigen Mojo-Port.
 4. Python und Mojo gegen denselben korrigierten Sollvertrag prüfen.
 5. Den Eintrag in `KNOWN_DEFECTS.json` auf `fixed` setzen.
 
-Offene oder zu entscheidende Einträge: **18**
+Offene oder zu entscheidende Einträge: **19**
 
 ## 1. PY-OPEN-001 – Beliebige Codeausführung durch eval in Ganzzahlmengen-Ausdrücken
 
@@ -210,3 +210,14 @@ Offene oder zu entscheidende Einträge: **18**
 - Python-Arbeitsauftrag: Nach Abschluss der Portierung fachlich entscheiden, ob die rechte Seite wie bei stern/mul durch 1000 geteilt werden muss. Bei Bestätigung die Python-Bedingung korrigieren, neue Paarfixtures erzeugen und Python sowie Mojo gemeinsam auf den neuen Relationsvertrag migrieren.
 - Python-Orte: `python_reference/reta_architecture/meta_columns.py:694-699`
 - Belege: `STAGE12C5O_NATIVE_META_COLUMNS.md`, `tests/test_meta_columns_complete_source.py`, `assets/meta_columns_catalog.tsv`
+
+## 19. PY-OPEN-007 – Gespeicherte Promptausgabe mit Zusatz stürzt durch Listen/String-Konkatenation ab
+
+- Priorität: `medium`
+- Python-Status: `open`
+- Mojo-Status: `fixed`
+- Reproduktion: `PYTHONDONTWRITEBYTECODE=1 python3 python_reference/rpb 'o prim 60' ausführen. Der Python-Controller erkennt den gespeicherten Ausgabezusatz, speichert aber text_state.liste als pending_output und konkateniert diese Liste später mit txt_state.platzhalter + ' ', wodurch ein TypeError entsteht.`
+- heutiger Vertrag: Die Python-Referenz bleibt für den defekten Additionpfad eingefroren: alleinstehendes o ist stabil, o plus mehr als ein distinktes Nicht-o-Token führt im Python-Baum zu TypeError. Der native Prompt besitzt denselben Trigger als typisierten Plan, entfernt einen Ausgabealias aus dem Zusatz und führt gespeicherten Text plus Zusatz ohne Listen/String-Mischung aus.
+- Python-Arbeitsauftrag: Nach Abschluss des Mojo-Ports den Python-Zweig auf einen Stringpayload umstellen, den Ausgabealias vor der erneuten Ausführung entfernen und denselben korrigierten Zusatzvertrag gegen Python und Mojo prüfen.
+- Python-Orte: `python_reference/reta_architecture/prompt_interaction.py`, `python_reference/reta_architecture/prompt_session.py`
+- Belege: `STAGE12C5BX_NATIVE_STORAGE_OUTPUT_OWNERSHIP.md`, `scripts/check_prompt_storage_output_reference.py`, `tests/test_prompt_interaction.mojo`, `tests/test_stage12c5bx_source.py`

@@ -2,6 +2,7 @@ from std.testing import assert_equal, assert_true, assert_false, TestSuite
 from reta_mojo.prompt_language import load_prompt_language_catalog
 from reta_mojo.prompt_runtime import (
     parse_prompt_startup,
+    classify_prompt_command_localized,
     KIND_PRIME,
     KIND_STORE_NEXT,
     KIND_STORE_PREVIOUS,
@@ -111,6 +112,66 @@ def test_previous_command_policy() raises:
         assert_equal(interaction.session.previous_command, "prim 60")
 
 
+def test_inline_storage_does_not_replace_the_previous_command() raises:
+    var catalog = load_prompt_language_catalog("assets")
+    var interaction = new_prompt_interaction(
+        parse_prompt_startup("retaPrompt", [])
+    )
+    interaction.session.previous_command = "prim 60"
+
+    for line in [
+        "S emotion 1",
+        "emotion S 1",
+        "emotion 1 s",
+    ]:
+        var kind = classify_prompt_command_localized(
+            line, "deutsch", catalog
+        ).kind
+        assert_false(
+            prompt_line_updates_previous(
+                line, kind, "deutsch", catalog
+            )
+        )
+        record_prompt_line(
+            interaction, line, kind, "deutsch", catalog
+        )
+        assert_equal(interaction.session.previous_command, "prim 60")
+
+    var english_line = "emotions 1 CommandSaveAfter"
+    var english_kind = classify_prompt_command_localized(
+        english_line, "english", catalog
+    ).kind
+    assert_false(
+        prompt_line_updates_previous(
+            english_line, english_kind, "english", catalog
+        )
+    )
+    record_prompt_line(
+        interaction,
+        english_line,
+        english_kind,
+        "english",
+        catalog,
+    )
+    assert_equal(interaction.session.previous_command, "prim 60")
+
+    var executable_kind = classify_prompt_command_localized(
+        "emotion 1", "deutsch", catalog
+    ).kind
+    assert_true(
+        prompt_line_updates_previous(
+            "emotion 1", executable_kind, "deutsch", catalog
+        )
+    )
+    record_prompt_line(
+        interaction,
+        "emotion 1",
+        executable_kind,
+        "deutsch",
+        catalog,
+    )
+    assert_equal(interaction.session.previous_command, "emotion 1")
+
 
 def test_inline_storage_is_position_independent() raises:
     var catalog = load_prompt_language_catalog("assets")
@@ -198,11 +259,91 @@ def test_inline_storage_mutates_session_without_execution() raises:
         "emotion 1 universum 2",
     )
 
+
+def test_inline_storage_output_is_position_independent() raises:
+    var catalog = load_prompt_language_catalog("assets")
+    var prefix = plan_inline_storage_output_command(
+        ["o", "prim", "60"], "deutsch", catalog
+    )
+    var middle = plan_inline_storage_output_command(
+        ["prim", "o", "60"], "deutsch", catalog
+    )
+    var suffix = plan_inline_storage_output_command(
+        ["prim", "60", "o"], "deutsch", catalog
+    )
+    assert_true(prefix.handled)
+    assert_true(middle.handled)
+    assert_true(suffix.handled)
+    assert_equal(prefix.payload, "prim 60")
+    assert_equal(middle.payload, "prim 60")
+    assert_equal(suffix.payload, "prim 60")
+
+    var english = plan_inline_storage_output_command(
+        ["emotions", "1", "CommandSaveOutput"],
+        "english",
+        catalog,
+    )
+    assert_true(english.handled)
+    assert_equal(english.payload, "emotions 1")
+
+
+def test_inline_storage_output_edges_and_history() raises:
+    var catalog = load_prompt_language_catalog("assets")
+    var interaction = new_prompt_interaction(
+        parse_prompt_startup("retaPrompt", [])
+    )
+    interaction.session.previous_command = "prim 60"
+
+    var alone = plan_inline_storage_output_command(
+        ["o"], "deutsch", catalog
+    )
+    assert_true(alone.handled)
+    assert_equal(alone.payload, "")
+    assert_false(
+        plan_inline_storage_output_command(
+            ["o", "abc"], "deutsch", catalog
+        ).handled
+    )
+    assert_false(
+        plan_inline_storage_output_command(
+            ["o", "BefehlSpeicherungAusgeben", "prim", "60"],
+            "deutsch",
+            catalog,
+        ).handled
+    )
+    assert_false(
+        plan_inline_storage_output_command(
+            ["o", "prim"], "deutsch", catalog
+        ).handled
+    )
+
+    var line = "prim 60 o"
+    var kind = classify_prompt_command_localized(
+        line, "deutsch", catalog
+    ).kind
+    assert_false(
+        prompt_line_updates_previous(
+            line, kind, "deutsch", catalog
+        )
+    )
+    record_prompt_line(
+        interaction, line, kind, "deutsch", catalog
+    )
+    assert_equal(interaction.session.previous_command, "prim 60")
+
 def test_contract_snapshot() raises:
     var snapshot = prompt_interaction_contract_snapshot()
-    assert_equal(len(snapshot), 9)
+    assert_equal(len(snapshot), 11)
     assert_equal(snapshot[0], "class=PromptInteractionBundle")
-    assert_equal(snapshot[8], "execution=delegated-native-dispatch")
+    assert_equal(
+        snapshot[6],
+        "inline_storage=native-position-and-history-policy",
+    )
+    assert_equal(
+        snapshot[7],
+        "storage_output=native-position-independent-addition-policy",
+    )
+    assert_equal(snapshot[10], "execution=delegated-native-dispatch")
 
 
 def main() raises:

@@ -814,3 +814,21 @@ Der historische Assetgate ist jetzt vollständig read-only. Fünf gepinnte SHA-2
 - [x] Englische Compound-Clear-Probe in den Einmalmodus versetzen.
 - [x] Mond-/Sonnen- und terminalbreitenabhängige Tabellenverträge korrigieren.
 - [ ] Benutzerseitig `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bv.sh -- -j 8` ausführen.
+
+## Stage 12c5bw – Verlaufseigentum der Inline-Speicherung
+
+- [x] Bereits konsumierte Inline-Speicherzeilen von der Previous-Command-Policy ausschließen.
+- [x] Präfix-, Mittel-, Suffix- und lokalisierte Langaliasformen gegen Python binden.
+- [x] Verlaufspolitik im typisierten `prompt_interaction.mojo` statt im Prozesseinstieg besitzen.
+- [x] `MOJO-FIXED-073` im zentralen Defektledger dokumentieren.
+- [x] Benutzerseitig `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bw.sh -- -j 8` erfolgreich ausgeführt.
+
+
+## Stage 12c5bx – gespeicherte Ausgabezusätze im Interaktionsbesitz
+
+- [x] Python-Referenzdefekt für `o` plus Zusatz reproduzierbar einfrieren.
+- [x] Positionsunabhängigen `o`-/`BefehlSpeicherungAusgeben`-Plan nativ typisieren.
+- [x] Zusatzpayload als String statt Python-Listenobjekt führen.
+- [x] Bereits konsumierte gespeicherte Ausgabezusätze von der Previous-Command-Policy ausschließen.
+- [x] `PY-OPEN-007` im zentralen Defektledger und Python-Bereinigungsrückstand dokumentieren.
+- [ ] Benutzerseitig `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bx.sh -- -j 8` ausführen.

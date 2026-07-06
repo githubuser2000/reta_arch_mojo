@@ -2521,3 +2521,23 @@ Benutzerlauf.
 - Python-Referenz der Inline-Speicherung: vier Positions-/Aliasvarianten, remove-once-Duplikat und vier Ausschlussfälle.
 - Sourceverträge für Mond-/Sonnenpartition, optionalen Terminalbreiten-Override und korrigierten englischen Einmalmodus.
 - Der Stage-Lauf baut und führt `test_prompt_interaction`, `test_table_adapters` und `test_table_rendering` aus und wiederholt die native Compound-Clear-Probe.
+
+## Stage 12c5bw – vorbereitete Prüfungen
+
+- Ausführbare Python-Referenz: **4/4** Präfix-/Mittel-/Suffix-/Langaliasfälle
+  werden vor `_execute` konsumiert und nicht zum vorherigen Befehl.
+- Gezielte Stage-, Ledger-, Archiv- und Ownership-Verträge: **57/57** bestanden.
+- Alle **97** `*source.py`-Dateien in zehn kleinen Batches: **404 bestanden**,
+  **1 begründeter Skip** (Probe benötigt ein kompiliertes Mojo-Binary).
+- Das entpackte `.git`-freie XZ-Archiv bestand alle **1.724** SHA-256-Prüfungen;
+  der dabei gefundene Git-Index-Zwang des Archivtests ist als `TEST-FIXED-070`
+  portabel auf Manifestfallback umgestellt.
+- `prompt_interaction.mojo` bindet die vollständige physische Zeile an denselben
+  reinen Inline-Speicherplan; `prompt_main.mojo` delegiert die
+  Previous-Command-Entscheidung an `record_prompt_line(...)`.
+- Manifest: **1.724 Dateien**, **114 Symlinks**; Defektledger:
+  **168 Einträge**, **18** spätere Python-Aufgaben.
+- Portierung: **89/92 vollständig**, **92/92 mindestens teilweise**;
+  Mojo-Zeilen: **63.971** in `src/`, davon **59.297** im Kernpaket.
+- Die tatsächliche Mojo-Kompilierung bleibt der Benutzerlauf
+  `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bw.sh -- -j 8`.

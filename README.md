@@ -1326,3 +1326,21 @@ Zusammengesetzte Speicherbefehle wie `emotion S 1` und `emotion 1 s` werden nun 
 ```sh
 RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bv.sh -- -j 8
 ```
+
+## Stage 12c5bw – Verlaufseigentum der Inline-Speicherung
+
+Die in 12c5bv geschlossene positionsunabhängige `S`-/`s`-Speicherung besitzt
+nun auch ihre vollständige Verlaufswirkung. Eine bereits konsumierte
+Speicherzeile wie `emotion S 1` oder `emotion 1 s` darf nicht nachträglich als
+letzter ausführbarer Befehl registriert werden; ein späteres alleinstehendes
+`s` speichert dadurch weiterhin das tatsächlich zuletzt ausgeführte Kommando.
+
+Die Entscheidung liegt in `prompt_interaction.mojo`: Der balanciert zerlegte
+physische Prompt wird gegen denselben reinen Speicherplan geprüft, bevor die
+kindbasierte Previous-Command-Policy greift. Eine Python-Referenzprobe bindet
+vier Aliaspositionen und den `continue`-Übergang vor `_execute`. Details:
+[`STAGE12C5BW_INLINE_STORAGE_HISTORY_OWNERSHIP.md`](STAGE12C5BW_INLINE_STORAGE_HISTORY_OWNERSHIP.md).
+
+```sh
+RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bw.sh -- -j 8
+```

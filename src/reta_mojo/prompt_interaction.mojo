@@ -11,7 +11,11 @@ observable I/O requested by these plans.
 """
 
 from std.collections import List
-from .prompt_language import PromptLanguageCatalog, localized_prompt_kind
+from .prompt_language import (
+    PromptLanguageCatalog,
+    balanced_prompt_split,
+    localized_prompt_kind,
+)
 from .prompt_runtime import (
     PromptStartup,
     classify_prompt_command_localized,
@@ -59,14 +63,27 @@ struct NativePromptInteraction(Copyable):
     var show_intro: Bool
 
 
-
-
 @fieldwise_init
 struct PromptInlineStoragePlan(Copyable):
     """Position-independent compound ``S``/``s`` storage decision."""
 
     var handled: Bool
     var payload: String
+
+
+@fieldwise_init
+struct PromptStorageOutputPlan(Copyable):
+    """Position-independent stored-command output/addition decision."""
+
+    var handled: Bool
+    var payload: String
+
+
+def _token_list_contains(values: List[String], token: String) -> Bool:
+    for index in range(len(values)):
+        if values[index] == token:
+            return True
+    return False
 
 
 def plan_inline_storage_command(
@@ -133,6 +150,59 @@ def apply_inline_storage_command(
         return False
     store_prompt_text(session, plan.payload)
     return True
+
+
+def plan_inline_storage_output_command(
+    tokens: List[String],
+    language: String,
+    catalog: PromptLanguageCatalog,
+) -> PromptStorageOutputPlan:
+    """Plan ``o``/``BefehlSpeicherungAusgeben`` at any word position.
+
+    The Python controller recognizes a single output alias as a prompt mode and
+    also recognizes a mixed command when more than one distinct non-output token
+    accompanies that alias.  The latter Python path currently leaks
+    ``text_state.liste`` as a list into a string concatenation; the native owner
+    keeps the same trigger boundary but carries the addition as typed text.
+    Exactly one selected output alias is removed from the payload, matching the
+    prefix ``storage_payload`` contract already used by ``prompt_main.mojo``.
+    """
+    var selected = ""
+    var ambiguous = False
+    var has_abc = False
+    var distinct_payload_tokens = List[String]()
+
+    for index in range(len(tokens)):
+        var token = tokens[index]
+        var kind = localized_prompt_kind(catalog, language, token)
+        if kind == KIND_ABC:
+            has_abc = True
+        if kind == KIND_OUTPUT_STORED:
+            if selected.byte_length() == 0:
+                selected = token
+            elif selected != token:
+                ambiguous = True
+        else:
+            if not _token_list_contains(distinct_payload_tokens, token):
+                distinct_payload_tokens.append(token)
+
+    if has_abc or ambiguous or selected.byte_length() == 0:
+        return PromptStorageOutputPlan(False, "")
+    if len(tokens) == 1:
+        return PromptStorageOutputPlan(True, "")
+    if len(distinct_payload_tokens) <= 1:
+        return PromptStorageOutputPlan(False, "")
+
+    var payload_tokens = List[String]()
+    var removed = False
+    for index in range(len(tokens)):
+        if not removed and tokens[index] == selected:
+            removed = True
+            continue
+        payload_tokens.append(tokens[index])
+    return PromptStorageOutputPlan(
+        True, join_prompt_tokens(payload_tokens)
+    )
 
 
 def _single_output(value: String) -> List[String]:
@@ -220,12 +290,46 @@ def prompt_command_updates_previous(kind: Int) -> Bool:
     )
 
 
+def prompt_line_updates_previous(
+    line: String,
+    kind: Int,
+    language: String,
+    catalog: PromptLanguageCatalog,
+) raises -> Bool:
+    """Apply previous-command policy to the complete physical prompt line.
+
+    A compound ``S``/``s`` command can place its storage alias after the first
+    word.  In that case the ordinary single-command classifier necessarily
+    reports ``KIND_FALLBACK`` even though the interaction owner has already
+    consumed the line as storage.  Re-plan the pure storage decision here so a
+    handled suffix or middle alias cannot become the next ``s`` payload.
+    """
+    var tokens = balanced_prompt_split(line)
+    if plan_inline_storage_command(tokens, language, catalog).handled:
+        return False
+    if plan_inline_storage_output_command(tokens, language, catalog).handled:
+        return False
+    return prompt_command_updates_previous(kind)
+
+
 def record_prompt_command(
     mut interaction: NativePromptInteraction,
     line: String,
     kind: Int,
 ) -> None:
     if prompt_command_updates_previous(kind):
+        interaction.session.previous_command = line
+
+
+def record_prompt_line(
+    mut interaction: NativePromptInteraction,
+    line: String,
+    kind: Int,
+    language: String,
+    catalog: PromptLanguageCatalog,
+) raises -> None:
+    """Record one executed line after compound interaction ownership checks."""
+    if prompt_line_updates_previous(line, kind, language, catalog):
         interaction.session.previous_command = line
 
 
@@ -239,6 +343,8 @@ def prompt_interaction_contract_snapshot() -> List[String]:
         "store=native-next-and-previous",
         "delete=native-selection-and-cancel",
         "history=native-previous-command-policy",
+        "inline_storage=native-position-and-history-policy",
+        "storage_output=native-position-independent-addition-policy",
         "one_shot=native-token-assembly",
         "terminal=delegated-native-editor",
         "execution=delegated-native-dispatch",
