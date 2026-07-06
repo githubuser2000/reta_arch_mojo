@@ -20,7 +20,7 @@ def test_stage_wraps_dc_and_builds_prompt_tests() -> None:
 
 
 def test_fallback_plan_has_run_flag() -> None:
-    owner = (ROOT / "src/reta_mojo/prompt_interaction.mojo").read_text(encoding="utf-8")
+    owner = (ROOT / "src/reta_mojo/prompt_process_dispatch.mojo").read_text(encoding="utf-8")
     struct = owner.split("struct PromptFallbackProcessDispatchPlan", 1)[1].split("@fieldwise_init", 1)[0]
     assert "var handled: Bool" in struct
     assert "var run_reta_prompt: Bool" in struct
@@ -44,7 +44,7 @@ def test_controller_consumes_run_flag_before_fallback_child() -> None:
 def test_mojo_contract_snapshot_records_run_flag() -> None:
     test = (ROOT / "tests/test_prompt_interaction.mojo").read_text(encoding="utf-8")
     assert "assert_true(plan.run_reta_prompt)" in test
-    assert ("assert_equal(len(snapshot), 31)" in test or "assert_equal(len(snapshot), 32)" in test or "assert_equal(len(snapshot), 33)" in test or "assert_equal(len(snapshot), 34)" in test or "assert_equal(len(snapshot), 35)" in test or "assert_equal(len(snapshot), 36)" in test or "assert_equal(len(snapshot), 37)" in test)
+    assert ("assert_equal(len(snapshot), 31)" in test or "assert_equal(len(snapshot), 32)" in test or "assert_equal(len(snapshot), 33)" in test or "assert_equal(len(snapshot), 34)" in test or "assert_equal(len(snapshot), 35)" in test or "assert_equal(len(snapshot), 36)" in test or "assert_equal(len(snapshot), 37)" in test or "assert_equal(len(snapshot), 38)" in test)
     assert '"fallback_process_flags=native-explicit-fallback-run-flag"' in test
     assert '"execution=delegated-native-dispatch"' in test
 

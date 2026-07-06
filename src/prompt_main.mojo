@@ -91,13 +91,15 @@ from reta_mojo.prompt_interaction import (
     plan_terminal_clear_dispatch,
     plan_informational_dispatch,
     plan_simple_output_dispatch,
-    plan_external_process_dispatch,
-    plan_prompt_fallback_process_dispatch,
     plan_inline_stored_output_command,
     plan_stored_output_command,
     plan_stored_delete_command,
 )
 
+from reta_mojo.prompt_process_dispatch import (
+    plan_external_process_dispatch,
+    plan_prompt_fallback_process_dispatch,
+)
 
 def _print_lines(values: List[String]) -> None:
     for index in range(len(values)):

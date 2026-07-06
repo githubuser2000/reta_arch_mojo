@@ -32,7 +32,7 @@ def test_fallback_argv_builder_lives_in_prompt_runtime_not_process_adapter() -> 
 
 
 def test_prompt_interaction_imports_runtime_fallback_builder() -> None:
-    owner = (ROOT / "src/reta_mojo/prompt_interaction.mojo").read_text(encoding="utf-8")
+    owner = (ROOT / "src/reta_mojo/prompt_process_dispatch.mojo").read_text(encoding="utf-8")
     assert "from .prompt_external_commands import reta_prompt_fallback_arguments_native" not in owner
     assert "reta_prompt_fallback_arguments_native," in owner
     body = owner.split("def plan_prompt_fallback_process_dispatch", 1)[1].split("\ndef plan_stored_output_command", 1)[0]
@@ -54,7 +54,7 @@ def test_legacy_bridge_and_probe_import_runtime_fallback_builder() -> None:
 def test_mojo_snapshot_tracks_runtime_fallback_argv_owner() -> None:
     test = (ROOT / "tests/test_prompt_interaction.mojo").read_text(encoding="utf-8")
     assert '"fallback_runtime_arguments=runtime-owned-argv-builder"' in test
-    assert ("assert_equal(len(snapshot), 33)" in test or "assert_equal(len(snapshot), 34)" in test or "assert_equal(len(snapshot), 35)" in test or "assert_equal(len(snapshot), 36)" in test or "assert_equal(len(snapshot), 37)" in test)
+    assert ("assert_equal(len(snapshot), 33)" in test or "assert_equal(len(snapshot), 34)" in test or "assert_equal(len(snapshot), 35)" in test or "assert_equal(len(snapshot), 36)" in test or "assert_equal(len(snapshot), 37)" in test or "assert_equal(len(snapshot), 38)" in test)
 
 
 def test_stage_document_records_runtime_owner_move() -> None:

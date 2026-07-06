@@ -1,0 +1,151 @@
+"""Native prompt-execution owner for explicit process dispatch plans.
+
+``prompt_interaction`` owns input/session lifecycle.  This module owns the
+execution-facing plan for prompt commands that intentionally cross an external
+process boundary: ``shell``, ``python``, ``math``, ``reta`` and the atomic
+``retaPrompt.py`` fallback.  It builds typed argv plans from runtime prompt
+commands; the OS adapter then only executes already-built argv vectors.
+
+This keeps the future shared-library split explicit:
+
+* prompt-runtime builds command payloads and argv fragments;
+* prompt-execution chooses the external effect and assembles dispatch plans;
+* process adapters perform child-process execution only.
+"""
+
+from std.collections import List
+from .prompt_runtime import (
+    PromptProfile,
+    PromptCommand,
+    fallback_profile_arguments,
+    reta_prompt_fallback_arguments_native,
+    shell_split,
+    command_argument_tail,
+    command_raw_payload_arguments,
+    command_shell_arguments,
+    KIND_SHELL,
+    KIND_PYTHON,
+    KIND_MATH,
+    KIND_RETA,
+)
+
+
+@fieldwise_init
+struct PromptExternalProcessDispatchPlan(Copyable):
+    """Executable plan for prompt commands that cross a process boundary."""
+
+    var handled: Bool
+    var arguments: List[String]
+    var run_shell: Bool
+    var run_python: Bool
+    var run_math: Bool
+    var run_reta: Bool
+
+
+@fieldwise_init
+struct PromptFallbackProcessDispatchPlan(Copyable):
+    """Executable argv plan for the atomic Python prompt fallback child."""
+
+    var handled: Bool
+    var run_reta_prompt: Bool
+    var arguments: List[String]
+
+
+def plan_external_process_dispatch(
+    command: PromptCommand,
+) raises -> PromptExternalProcessDispatchPlan:
+    """Plan prompt commands that intentionally cross a process boundary.
+
+    The prompt-runtime owner builds command-specific argv fragments; this
+    prompt-execution owner chooses which external process effect is requested.
+    The process adapter receives only the already-built argv vector.
+    """
+    if command.kind == KIND_SHELL:
+        return PromptExternalProcessDispatchPlan(
+            True,
+            command_shell_arguments(command),
+            True,
+            False,
+            False,
+            False,
+        )
+    if command.kind == KIND_PYTHON:
+        return PromptExternalProcessDispatchPlan(
+            True,
+            command_raw_payload_arguments(command),
+            False,
+            True,
+            False,
+            False,
+        )
+    if command.kind == KIND_MATH:
+        return PromptExternalProcessDispatchPlan(
+            True,
+            command_raw_payload_arguments(command),
+            False,
+            False,
+            True,
+            False,
+        )
+    if command.kind == KIND_RETA:
+        return PromptExternalProcessDispatchPlan(
+            True,
+            command_argument_tail(command),
+            False,
+            False,
+            False,
+            True,
+        )
+    return PromptExternalProcessDispatchPlan(
+        False,
+        List[String](),
+        False,
+        False,
+        False,
+        False,
+    )
+
+
+def plan_prompt_fallback_process_dispatch(
+    profile: PromptProfile,
+    line: String,
+) raises -> PromptFallbackProcessDispatchPlan:
+    """Plan an unowned prompt command as explicit retaPrompt.py argv.
+
+    The controller still preserves the original line for historical echo and
+    atomic fallback decisions, but the prompt-execution owner now owns
+    conversion to the child-process argument vector.  The process adapter only
+    receives argv.
+    """
+    return PromptFallbackProcessDispatchPlan(
+        True,
+        True,
+        reta_prompt_fallback_arguments_native(
+            fallback_profile_arguments(profile), shell_split(line)
+        ),
+    )
+
+
+def prompt_process_dispatch_contract_snapshot() -> List[String]:
+    """Stable ownership snapshot for process-facing prompt execution."""
+    return [
+        "class=PromptProcessDispatchBundle",
+        "external_dispatch_owner=prompt-execution-process-plan",
+        "external_process_dispatch=native-prompt-process-edge-plan",
+        "external_reta_arguments=native-prompt-reta-argv-plan",
+        "external_process_arguments=native-prompt-process-argv-plan",
+        "external_process_flags=native-prompt-process-effect-flags",
+        "external_process_kind=eliminated-from-external-process-plan",
+        "external_reta_child=native-prompt-reta-child-argv",
+        "external_raw_line=eliminated-from-external-process-plan",
+        "external_shell_arguments=native-prompt-shell-argv-plan",
+        "external_python_math_arguments=native-prompt-python-math-argv-plan",
+        "external_command_arguments=runtime-owned-command-argv-builders",
+        "fallback_process_dispatch=native-interaction-argv-plan",
+        "fallback_process_handled=native-explicit-fallback-effect-flag",
+        "fallback_process_flags=native-explicit-fallback-run-flag",
+        "fallback_process_arguments=native-merged-fallback-argv",
+        "fallback_runtime_arguments=runtime-owned-argv-builder",
+        "fallback_shell_split=runtime-owned-argv-tokenizer",
+        "process_adapter=argv-execution-only",
+    ]

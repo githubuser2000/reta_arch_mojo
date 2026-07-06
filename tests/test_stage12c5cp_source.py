@@ -19,7 +19,7 @@ def test_stage_wraps_co_and_rebuilds_prompt_boundaries() -> None:
 
 
 def test_external_process_plan_no_longer_carries_raw_line() -> None:
-    owner = (ROOT / "src/reta_mojo/prompt_interaction.mojo").read_text(encoding="utf-8")
+    owner = (ROOT / "src/reta_mojo/prompt_process_dispatch.mojo").read_text(encoding="utf-8")
     plan = owner.split("struct PromptExternalProcessDispatchPlan", 1)[1].split("@fieldwise_init", 1)[0]
     assert "var raw: String" not in plan
     assert "var arguments: List[String]" in plan
@@ -40,7 +40,7 @@ def test_prompt_interaction_regression_covers_raw_line_elimination() -> None:
     test = (ROOT / "tests/test_prompt_interaction.mojo").read_text(encoding="utf-8")
     assert "shell_plan.raw" not in test
     assert '"external_raw_line=eliminated-from-external-process-plan"' in test
-    assert ("assert_equal(len(snapshot), 27)" in test or "assert_equal(len(snapshot), 28)" in test or "assert_equal(len(snapshot), 29)" in test or "assert_equal(len(snapshot), 30)" in test)
+    assert ("assert_equal(len(snapshot), 27)" in test or "assert_equal(len(snapshot), 28)" in test or "assert_equal(len(snapshot), 29)" in test or "assert_equal(len(snapshot), 30)" in test or "assert_equal(len(snapshot), 38)" in test or "assert_equal(len(snapshot), 38)" in test)
 
 
 def test_source_guards_track_raw_line_elimination() -> None:

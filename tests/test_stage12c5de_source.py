@@ -20,7 +20,7 @@ def test_stage_wraps_dd_and_builds_prompt_tests() -> None:
 
 
 def test_fallback_plan_owns_merged_argv() -> None:
-    owner = (ROOT / "src/reta_mojo/prompt_interaction.mojo").read_text(encoding="utf-8")
+    owner = (ROOT / "src/reta_mojo/prompt_process_dispatch.mojo").read_text(encoding="utf-8")
     struct = owner.split("struct PromptFallbackProcessDispatchPlan", 1)[1].split("@fieldwise_init", 1)[0]
     assert "var handled: Bool" in struct
     assert "var run_reta_prompt: Bool" in struct
@@ -71,7 +71,7 @@ def test_mojo_test_tracks_merged_fallback_argv() -> None:
     assert 'assert_equal(plan.arguments[3], "shell")' in test
     assert 'assert_equal(plan.arguments[4], "echo hi")' in test
     assert '"fallback_process_arguments=native-merged-fallback-argv"' in test
-    assert ("assert_equal(len(snapshot), 32)" in test or "assert_equal(len(snapshot), 33)" in test or "assert_equal(len(snapshot), 34)" in test or "assert_equal(len(snapshot), 35)" in test or "assert_equal(len(snapshot), 36)" in test or "assert_equal(len(snapshot), 37)" in test)
+    assert ("assert_equal(len(snapshot), 32)" in test or "assert_equal(len(snapshot), 33)" in test or "assert_equal(len(snapshot), 34)" in test or "assert_equal(len(snapshot), 35)" in test or "assert_equal(len(snapshot), 36)" in test or "assert_equal(len(snapshot), 37)" in test or "assert_equal(len(snapshot), 38)" in test)
 
 
 def test_stage_document_records_merged_boundary() -> None:

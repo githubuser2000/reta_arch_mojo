@@ -20,7 +20,7 @@ def test_stage_wraps_da_and_builds_prompt_tests() -> None:
 
 
 def test_fallback_plan_has_explicit_handled_effect_flag() -> None:
-    owner = (ROOT / "src/reta_mojo/prompt_interaction.mojo").read_text(encoding="utf-8")
+    owner = (ROOT / "src/reta_mojo/prompt_process_dispatch.mojo").read_text(encoding="utf-8")
     struct = owner.split("struct PromptFallbackProcessDispatchPlan", 1)[1].split("@fieldwise_init", 1)[0]
     assert "var handled: Bool" in struct
     assert ("var run_reta_prompt: Bool" in struct or "fallback_process_flags=native-explicit-fallback-run-flag" not in owner)
@@ -49,7 +49,7 @@ def test_prompt_interaction_snapshot_and_runtime_test_cover_handled_flag() -> No
     assert 'assert_equal(plan.arguments[0], "-vi")' in test
     assert 'assert_equal(plan.arguments[1], "-e")' in test
     assert 'assert_equal(plan.arguments[2], "-befehl")' in test
-    assert ("assert_equal(len(snapshot), 30)" in test or "assert_equal(len(snapshot), 31)" in test or "assert_equal(len(snapshot), 32)" in test or "assert_equal(len(snapshot), 33)" in test or "assert_equal(len(snapshot), 34)" in test or "assert_equal(len(snapshot), 35)" in test or "assert_equal(len(snapshot), 36)" in test or "assert_equal(len(snapshot), 37)" in test)
+    assert ("assert_equal(len(snapshot), 30)" in test or "assert_equal(len(snapshot), 31)" in test or "assert_equal(len(snapshot), 32)" in test or "assert_equal(len(snapshot), 33)" in test or "assert_equal(len(snapshot), 34)" in test or "assert_equal(len(snapshot), 35)" in test or "assert_equal(len(snapshot), 36)" in test or "assert_equal(len(snapshot), 37)" in test or "assert_equal(len(snapshot), 38)" in test)
     assert '"fallback_process_handled=native-explicit-fallback-effect-flag"' in test
     assert '"execution=delegated-native-dispatch"' in test
 

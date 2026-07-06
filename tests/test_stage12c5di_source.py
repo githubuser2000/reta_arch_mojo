@@ -20,7 +20,7 @@ def test_stage_wraps_dh_and_builds_prompt_boundary_tests() -> None:
 
 
 def test_external_process_plan_has_no_payload_field() -> None:
-    owner = (ROOT / "src/reta_mojo/prompt_interaction.mojo").read_text(encoding="utf-8")
+    owner = (ROOT / "src/reta_mojo/prompt_process_dispatch.mojo").read_text(encoding="utf-8")
     plan = owner.split("struct PromptExternalProcessDispatchPlan", 1)[1].split(
         "@fieldwise_init", 1
     )[0]
@@ -33,7 +33,7 @@ def test_external_process_plan_has_no_payload_field() -> None:
 
 
 def test_python_and_math_prompt_processes_are_planned_as_arguments() -> None:
-    owner = (ROOT / "src/reta_mojo/prompt_interaction.mojo").read_text(encoding="utf-8")
+    owner = (ROOT / "src/reta_mojo/prompt_process_dispatch.mojo").read_text(encoding="utf-8")
     body = owner.split("def plan_external_process_dispatch", 1)[1].split(
         "def plan_prompt_fallback_process_dispatch", 1
     )[0]
@@ -90,7 +90,7 @@ def test_mojo_test_contract_records_argument_only_external_processes() -> None:
     assert "assert_equal(math_plan.arguments[0], \"1+1\")" in test
     assert "python_plan.payload" not in test
     assert "math_plan.payload" not in test
-    assert "assert_equal(len(snapshot), 37)" in test
+    assert ("assert_equal(len(snapshot), 37)" in test or "assert_equal(len(snapshot), 38)" in test)
 
 
 def test_stage_document_records_python_math_argv_plan() -> None:

@@ -3,7 +3,7 @@
 The terminal editor, prompt language, preparation and command execution already
 have dedicated native owners.  This module owns the remaining mutable loop
 boundary: startup-to-session activation, one-shot command assembly, input-mode
-transitions, stored-command deletion, fallback child argv planning and
+transitions, stored-command deletion and
 history/previous-command policy.
 
 It deliberately returns typed plans instead of printing or executing commands.
@@ -19,17 +19,10 @@ from .prompt_language import (
 )
 from .prompt_runtime import (
     PromptStartup,
-    PromptProfile,
     PromptCommand,
     classify_prompt_command_localized,
     effective_one_shot_tokens,
     join_prompt_tokens,
-    fallback_profile_arguments,
-    reta_prompt_fallback_arguments_native,
-    shell_split,
-    command_argument_tail,
-    command_raw_payload_arguments,
-    command_shell_arguments,
     KIND_EMPTY,
     KIND_EXIT,
     KIND_STORE_NEXT,
@@ -51,10 +44,6 @@ from .prompt_runtime import (
     KIND_DISTANCE_PRIME,
     KIND_ABC,
     KIND_PRIME24,
-    KIND_SHELL,
-    KIND_PYTHON,
-    KIND_MATH,
-    KIND_RETA,
     prime_lines,
     multis_lines,
     multis3_lines,
@@ -158,27 +147,6 @@ struct PromptSimpleOutputDispatchPlan(Copyable):
 
     var handled: Bool
     var output_lines: List[String]
-
-
-@fieldwise_init
-struct PromptExternalProcessDispatchPlan(Copyable):
-    """Executable plan for prompt commands that cross a process boundary."""
-
-    var handled: Bool
-    var arguments: List[String]
-    var run_shell: Bool
-    var run_python: Bool
-    var run_math: Bool
-    var run_reta: Bool
-
-
-@fieldwise_init
-struct PromptFallbackProcessDispatchPlan(Copyable):
-    """Executable argv plan for the atomic Python prompt fallback child."""
-
-    var handled: Bool
-    var run_reta_prompt: Bool
-    var arguments: List[String]
 
 
 @fieldwise_init
@@ -542,81 +510,6 @@ def plan_simple_output_dispatch(
     return PromptSimpleOutputDispatchPlan(False, List[String]())
 
 
-def plan_external_process_dispatch(
-    command: PromptCommand,
-) raises -> PromptExternalProcessDispatchPlan:
-    """Plan prompt commands that intentionally cross a process boundary.
-
-    The process entry point still owns the actual shell/Python/math/reta I/O,
-    but command-kind routing now lives beside the other interaction dispatch
-    decisions.  One-shot execution can use the same plan and accept only the
-    natively supported reta subset before falling back atomically.
-    """
-    if command.kind == KIND_SHELL:
-        return PromptExternalProcessDispatchPlan(
-            True,
-            command_shell_arguments(command),
-            True,
-            False,
-            False,
-            False,
-        )
-    if command.kind == KIND_PYTHON:
-        return PromptExternalProcessDispatchPlan(
-            True,
-            command_raw_payload_arguments(command),
-            False,
-            True,
-            False,
-            False,
-        )
-    if command.kind == KIND_MATH:
-        return PromptExternalProcessDispatchPlan(
-            True,
-            command_raw_payload_arguments(command),
-            False,
-            False,
-            True,
-            False,
-        )
-    if command.kind == KIND_RETA:
-        return PromptExternalProcessDispatchPlan(
-            True,
-            command_argument_tail(command),
-            False,
-            False,
-            False,
-            True,
-        )
-    return PromptExternalProcessDispatchPlan(
-        False,
-        List[String](),
-        False,
-        False,
-        False,
-        False,
-    )
-
-
-def plan_prompt_fallback_process_dispatch(
-    profile: PromptProfile,
-    line: String,
-) raises -> PromptFallbackProcessDispatchPlan:
-    """Plan an unowned prompt command as explicit retaPrompt.py argv.
-
-    The controller still preserves the original line for historical echo and
-    atomic fallback decisions, but the interaction owner now owns conversion to
-    the child-process argument vector.  The process adapter only receives argv.
-    """
-    return PromptFallbackProcessDispatchPlan(
-        True,
-        True,
-        reta_prompt_fallback_arguments_native(
-            fallback_profile_arguments(profile), shell_split(line)
-        ),
-    )
-
-
 def plan_stored_output_command(
     command: PromptCommand,
     session: NativePromptSession,
@@ -879,6 +772,7 @@ def prompt_interaction_contract_snapshot() -> List[String]:
         "external_shell_arguments=native-prompt-shell-argv-plan",
         "external_python_math_arguments=native-prompt-python-math-argv-plan",
         "external_command_arguments=runtime-owned-command-argv-builders",
+        "external_dispatch_owner=prompt-execution-process-plan",
         "stored_output_dispatch=native-session-output-execution-plan",
         "stored_delete_dispatch=native-session-delete-plan",
         "stored_default=native-empty-enter-placeholder-policy",

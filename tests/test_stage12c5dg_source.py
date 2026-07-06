@@ -31,7 +31,7 @@ def test_shell_split_lives_in_prompt_runtime_not_process_adapter() -> None:
 
 
 def test_prompt_interaction_imports_runtime_shell_split_directly() -> None:
-    owner = (ROOT / "src/reta_mojo/prompt_interaction.mojo").read_text(encoding="utf-8")
+    owner = (ROOT / "src/reta_mojo/prompt_process_dispatch.mojo").read_text(encoding="utf-8")
     assert "from .prompt_external_commands import shell_split" not in owner
     assert "shell_split," in owner
     body = owner.split("def plan_prompt_fallback_process_dispatch", 1)[1].split("\ndef plan_stored_output_command", 1)[0]
@@ -53,7 +53,7 @@ def test_legacy_bridge_probe_and_shell_tests_import_runtime_tokenizer() -> None:
 def test_mojo_snapshot_tracks_runtime_shell_split_owner() -> None:
     test = (ROOT / "tests/test_prompt_interaction.mojo").read_text(encoding="utf-8")
     assert '"fallback_shell_split=runtime-owned-argv-tokenizer"' in test
-    assert ("assert_equal(len(snapshot), 34)" in test or "assert_equal(len(snapshot), 35)" in test or "assert_equal(len(snapshot), 36)" in test or "assert_equal(len(snapshot), 37)" in test)
+    assert ("assert_equal(len(snapshot), 34)" in test or "assert_equal(len(snapshot), 35)" in test or "assert_equal(len(snapshot), 36)" in test or "assert_equal(len(snapshot), 37)" in test or "assert_equal(len(snapshot), 38)" in test)
 
 
 def test_stage_document_records_shell_split_owner_move() -> None:

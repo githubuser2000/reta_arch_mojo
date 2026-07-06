@@ -21,7 +21,7 @@ def test_stage_wraps_dg_and_builds_prompt_boundary_tests() -> None:
 
 
 def test_shell_prompt_process_plan_owns_argv_not_payload() -> None:
-    owner = (ROOT / "src/reta_mojo/prompt_interaction.mojo").read_text(encoding="utf-8")
+    owner = (ROOT / "src/reta_mojo/prompt_process_dispatch.mojo").read_text(encoding="utf-8")
     body = owner.split("def plan_external_process_dispatch", 1)[1].split(
         "def plan_prompt_fallback_process_dispatch", 1
     )[0]
@@ -66,7 +66,7 @@ def test_mojo_test_contract_records_shell_arguments_owner() -> None:
     test = (ROOT / "tests/test_prompt_interaction.mojo").read_text(encoding="utf-8")
     assert "assert_equal(len(shell_plan.arguments), 2)" in test
     assert '"external_shell_arguments=native-prompt-shell-argv-plan"' in test
-    assert "assert_equal(len(snapshot), 37)" in test
+    assert ("assert_equal(len(snapshot), 37)" in test or "assert_equal(len(snapshot), 38)" in test)
 
 
 def test_stage_document_records_shell_argv_plan() -> None:

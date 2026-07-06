@@ -19,7 +19,7 @@ def test_stage_wraps_cm_and_rebuilds_prompt_boundaries() -> None:
 
 
 def test_external_process_plan_owns_effect_flags() -> None:
-    owner = (ROOT / "src/reta_mojo/prompt_interaction.mojo").read_text(
+    owner = (ROOT / "src/reta_mojo/prompt_process_dispatch.mojo").read_text(
         encoding="utf-8"
     )
     assert "struct PromptExternalProcessDispatchPlan" in owner
@@ -60,4 +60,4 @@ def test_prompt_interaction_regression_covers_effect_flags() -> None:
     assert "assert_true(math_plan.run_math)" in test
     assert "assert_true(reta_plan.run_reta)" in test
     assert '"external_process_flags=native-prompt-process-effect-flags"' in test
-    assert ("assert_equal(len(snapshot), 26)" in test or "assert_equal(len(snapshot), 27)" in test or "assert_equal(len(snapshot), 28)" in test or "assert_equal(len(snapshot), 29)" in test or "assert_equal(len(snapshot), 30)" in test)
+    assert ("assert_equal(len(snapshot), 26)" in test or "assert_equal(len(snapshot), 27)" in test or "assert_equal(len(snapshot), 28)" in test or "assert_equal(len(snapshot), 29)" in test or "assert_equal(len(snapshot), 30)" in test or "assert_equal(len(snapshot), 38)" in test or "assert_equal(len(snapshot), 38)" in test)

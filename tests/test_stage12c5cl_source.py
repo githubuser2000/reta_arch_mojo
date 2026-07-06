@@ -19,7 +19,7 @@ def test_stage_wraps_ck_and_rebuilds_prompt_boundaries() -> None:
 
 
 def test_external_process_plan_owns_reta_arguments() -> None:
-    owner = (ROOT / "src/reta_mojo/prompt_interaction.mojo").read_text(
+    owner = (ROOT / "src/reta_mojo/prompt_process_dispatch.mojo").read_text(
         encoding="utf-8"
     )
     assert "struct PromptExternalProcessDispatchPlan" in owner

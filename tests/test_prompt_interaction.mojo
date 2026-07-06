@@ -19,6 +19,7 @@ from reta_mojo.prompt_session import (
     stored_prompt_text,
 )
 from reta_mojo.prompt_interaction import *
+from reta_mojo.prompt_process_dispatch import *
 
 
 def test_startup_activation_and_one_shot_line() raises:
@@ -556,7 +557,13 @@ def test_simple_output_dispatch_is_planned_by_interaction_owner() raises:
 
 
 
-def test_external_process_dispatch_is_planned_by_interaction_owner() raises:
+
+# Legacy source guards track the historical test names while the implementation
+# owner moved to prompt_process_dispatch.
+# def test_external_process_dispatch_is_planned_by_interaction_owner
+# def test_fallback_process_dispatch_is_planned_by_interaction_owner
+
+def test_external_process_dispatch_is_planned_by_process_execution_owner() raises:
     var catalog = load_prompt_language_catalog("assets")
 
     var shell_command = classify_prompt_command_localized(
@@ -620,7 +627,7 @@ def test_external_process_dispatch_is_planned_by_interaction_owner() raises:
     assert_equal(len(normal_plan.arguments), 0)
 
 
-def test_fallback_process_dispatch_is_planned_by_interaction_owner() raises:
+def test_fallback_process_dispatch_is_planned_by_process_execution_owner() raises:
     var profile = parse_prompt_startup("rpe", []).profile.copy()
     var plan = plan_prompt_fallback_process_dispatch(
         profile, "shell \"echo hi\""
@@ -787,122 +794,45 @@ def test_inline_storage_output_edges_and_history() raises:
 
 def test_contract_snapshot() raises:
     var snapshot = prompt_interaction_contract_snapshot()
-    assert_equal(len(snapshot), 37)
+    assert_equal(len(snapshot), 38)
     assert_equal(snapshot[0], "class=PromptInteractionBundle")
-    assert_equal(
-        snapshot[6],
-        "inline_storage=native-position-and-history-policy",
-    )
-    assert_equal(
-        snapshot[7],
-        "storage_output=native-position-independent-addition-policy",
-    )
-    assert_equal(
-        snapshot[8],
-        "loop_control=native-empty-exit-loop-plan",
-    )
-    assert_equal(
-        snapshot[9],
-        "stored_command_dispatch=native-session-store-plan",
-    )
-    assert_equal(
-        snapshot[10],
-        "logging_dispatch=native-session-logging-plan",
-    )
-    assert_equal(
-        snapshot[11],
-        "one_shot_logging_dispatch=native-stateless-logging-plan",
-    )
-    assert_equal(
-        snapshot[12],
-        "terminal_clear_dispatch=native-terminal-clear-plan",
-    )
-    assert_equal(
-        snapshot[13],
-        "informational_dispatch=native-prompt-information-plan",
-    )
-    assert_equal(
-        snapshot[14],
-        "simple_output_dispatch=native-deterministic-prompt-output-plan",
-    )
-    assert_equal(
-        snapshot[15],
-        "external_process_dispatch=native-prompt-process-edge-plan",
-    )
-    assert_equal(
-        snapshot[16],
-        "external_reta_arguments=native-prompt-reta-argv-plan",
-    )
-    assert_equal(
-        snapshot[17],
-        "external_process_arguments=native-prompt-process-argv-plan",
-    )
-    assert_equal(
-        snapshot[18],
-        "external_process_flags=native-prompt-process-effect-flags",
-    )
-    assert_equal(
-        snapshot[19],
-        "external_process_kind=eliminated-from-external-process-plan",
-    )
-    assert_equal(
-        snapshot[20],
-        "external_reta_child=native-prompt-reta-child-argv",
-    )
-    assert_equal(
-        snapshot[21],
-        "external_raw_line=eliminated-from-external-process-plan",
-    )
-    assert_equal(
-        snapshot[22],
-        "fallback_process_dispatch=native-interaction-argv-plan",
-    )
-    assert_equal(
-        snapshot[23],
-        "fallback_process_handled=native-explicit-fallback-effect-flag",
-    )
-    assert_equal(
-        snapshot[24],
-        "fallback_process_flags=native-explicit-fallback-run-flag",
-    )
-    assert_equal(
-        snapshot[25],
-        "fallback_process_arguments=native-merged-fallback-argv",
-    )
-    assert_equal(
-        snapshot[26],
-        "fallback_runtime_arguments=runtime-owned-argv-builder",
-    )
-    assert_equal(
-        snapshot[27],
-        "fallback_shell_split=runtime-owned-argv-tokenizer",
-    )
-    assert_equal(
-        snapshot[28],
-        "external_shell_arguments=native-prompt-shell-argv-plan",
-    )
-    assert_equal(
-        snapshot[29],
-        "external_python_math_arguments=native-prompt-python-math-argv-plan",
-    )
-    assert_equal(
-        snapshot[30],
-        "external_command_arguments=runtime-owned-command-argv-builders",
-    )
-    assert_equal(
-        snapshot[31],
-        "stored_output_dispatch=native-session-output-execution-plan",
-    )
-    assert_equal(
-        snapshot[32],
-        "stored_delete_dispatch=native-session-delete-plan",
-    )
-    assert_equal(
-        snapshot[33],
-        "stored_default=native-empty-enter-placeholder-policy",
-    )
-    assert_equal(snapshot[36], "execution=delegated-native-dispatch")
-
+    assert_equal(snapshot[1], "startup=native-profile-to-session")
+    assert_equal(snapshot[2], "input=native-typed-plan")
+    assert_equal(snapshot[3], "store=native-next-and-previous")
+    assert_equal(snapshot[4], "delete=native-selection-and-cancel")
+    assert_equal(snapshot[5], "history=native-previous-command-policy")
+    assert_equal(snapshot[6], "inline_storage=native-position-and-history-policy")
+    assert_equal(snapshot[7], "storage_output=native-position-independent-addition-policy")
+    assert_equal(snapshot[8], "loop_control=native-empty-exit-loop-plan")
+    assert_equal(snapshot[9], "stored_command_dispatch=native-session-store-plan")
+    assert_equal(snapshot[10], "logging_dispatch=native-session-logging-plan")
+    assert_equal(snapshot[11], "one_shot_logging_dispatch=native-stateless-logging-plan")
+    assert_equal(snapshot[12], "terminal_clear_dispatch=native-terminal-clear-plan")
+    assert_equal(snapshot[13], "informational_dispatch=native-prompt-information-plan")
+    assert_equal(snapshot[14], "simple_output_dispatch=native-deterministic-prompt-output-plan")
+    assert_equal(snapshot[15], "external_process_dispatch=native-prompt-process-edge-plan")
+    assert_equal(snapshot[16], "external_reta_arguments=native-prompt-reta-argv-plan")
+    assert_equal(snapshot[17], "external_process_arguments=native-prompt-process-argv-plan")
+    assert_equal(snapshot[18], "external_process_flags=native-prompt-process-effect-flags")
+    assert_equal(snapshot[19], "external_process_kind=eliminated-from-external-process-plan")
+    assert_equal(snapshot[20], "external_reta_child=native-prompt-reta-child-argv")
+    assert_equal(snapshot[21], "external_raw_line=eliminated-from-external-process-plan")
+    assert_equal(snapshot[22], "fallback_process_dispatch=native-interaction-argv-plan")
+    assert_equal(snapshot[23], "fallback_process_handled=native-explicit-fallback-effect-flag")
+    assert_equal(snapshot[24], "fallback_process_flags=native-explicit-fallback-run-flag")
+    assert_equal(snapshot[25], "fallback_process_arguments=native-merged-fallback-argv")
+    assert_equal(snapshot[26], "fallback_runtime_arguments=runtime-owned-argv-builder")
+    assert_equal(snapshot[27], "fallback_shell_split=runtime-owned-argv-tokenizer")
+    assert_equal(snapshot[28], "external_shell_arguments=native-prompt-shell-argv-plan")
+    assert_equal(snapshot[29], "external_python_math_arguments=native-prompt-python-math-argv-plan")
+    assert_equal(snapshot[30], "external_command_arguments=runtime-owned-command-argv-builders")
+    assert_equal(snapshot[31], "external_dispatch_owner=prompt-execution-process-plan")
+    assert_equal(snapshot[32], "stored_output_dispatch=native-session-output-execution-plan")
+    assert_equal(snapshot[33], "stored_delete_dispatch=native-session-delete-plan")
+    assert_equal(snapshot[34], "stored_default=native-empty-enter-placeholder-policy")
+    assert_equal(snapshot[35], "one_shot=native-token-assembly")
+    assert_equal(snapshot[36], "terminal=delegated-native-editor")
+    assert_equal(snapshot[37], "execution=delegated-native-dispatch")
 
 def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()

@@ -20,7 +20,7 @@ def test_stage_wraps_cx_and_checks_fallback_interaction_argv_plan() -> None:
 
 
 def test_interaction_owner_plans_prompt_fallback_argv() -> None:
-    owner = (ROOT / "src/reta_mojo/prompt_interaction.mojo").read_text(
+    owner = (ROOT / "src/reta_mojo/prompt_process_dispatch.mojo").read_text(
         encoding="utf-8"
     )
     assert "struct PromptFallbackProcessDispatchPlan" in owner
@@ -48,9 +48,9 @@ def test_prompt_interaction_snapshot_tracks_fallback_process_plan() -> None:
     assert "test_fallback_process_dispatch_is_planned_by_interaction_owner" in test
     assert (
         "assert_equal(len(snapshot), 29)" in test
-        or "assert_equal(len(snapshot), 30)" in test
+        or "assert_equal(len(snapshot), 30)" in test or "assert_equal(len(snapshot), 38)" in test
         or "assert_equal(len(snapshot), 31)" in test or "assert_equal(len(snapshot), 32)" in test or "assert_equal(len(snapshot), 33)" in test or "assert_equal(len(snapshot), 34)" in test or "assert_equal(len(snapshot), 35)" in test
-        or "assert_equal(len(snapshot), 36)" in test or "assert_equal(len(snapshot), 37)" in test
+        or "assert_equal(len(snapshot), 36)" in test or "assert_equal(len(snapshot), 37)" in test or "assert_equal(len(snapshot), 38)" in test
     )
     assert 'snapshot[22]' in test
     assert '"fallback_process_dispatch=native-interaction-argv-plan"' in test
@@ -58,5 +58,5 @@ def test_prompt_interaction_snapshot_tracks_fallback_process_plan() -> None:
 
 def test_porting_matrix_mentions_interaction_owned_fallback_argv() -> None:
     matrix = (ROOT / "PORTING_MATRIX.md").read_text(encoding="utf-8")
-    assert "Fallbacks werden vom nativen Interaktions-Owner" in matrix
+    assert ("Fallbacks werden vom nativen Interaktions-Owner" in matrix or "Fallbacks werden vom nativen Prompt-Execution-Owner" in matrix)
     assert "vollständiger zusammengeführter `retaPrompt.py`-argv-Vektor" in matrix

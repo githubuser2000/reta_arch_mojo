@@ -1,3 +1,4 @@
 #!/usr/bin/env sh
-ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
-exec "$ROOT/scripts/test_stage12c5dj.sh" "$@"
+set -eu
+SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+exec "$SCRIPT_DIR/test_stage12c5dk.sh" "$@"

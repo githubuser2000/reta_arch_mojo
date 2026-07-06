@@ -35,19 +35,19 @@ def test_prompt_interaction_has_a_dedicated_native_owner() -> None:
     assert "def plan_informational_dispatch(" in owner
     assert "struct PromptSimpleOutputDispatchPlan" in owner
     assert "def plan_simple_output_dispatch(" in owner
-    assert "struct PromptExternalProcessDispatchPlan" in owner
-    assert "struct PromptFallbackProcessDispatchPlan" in owner
-    assert "var handled: Bool" in owner
-    assert "var run_reta_prompt: Bool" in owner
+    process_owner = (ROOT / "src/reta_mojo/prompt_process_dispatch.mojo").read_text(encoding="utf-8")
+    assert "struct PromptExternalProcessDispatchPlan" in process_owner
+    assert "struct PromptFallbackProcessDispatchPlan" in process_owner
+    assert "var handled: Bool" in process_owner
+    assert "var run_reta_prompt: Bool" in process_owner
     assert "var raw: String" not in owner
     assert "var process_kind: Int" not in owner
     assert "EXTERNAL_PROMPT_" not in owner
-    assert "var arguments: List[String]" in owner
-    assert "var arguments: List[String]" in owner
-    assert "var run_shell: Bool" in owner
-    assert "var run_python: Bool" in owner
-    assert "var run_math: Bool" in owner
-    assert "var run_reta: Bool" in owner
+    assert "var arguments: List[String]" in process_owner
+    assert "var run_shell: Bool" in process_owner
+    assert "var run_python: Bool" in process_owner
+    assert "var run_math: Bool" in process_owner
+    assert "var run_reta: Bool" in process_owner
     runtime = (ROOT / "src/reta_mojo/prompt_runtime.mojo").read_text(encoding="utf-8")
     assert "def command_raw_payload(" in runtime
     assert "def command_argument_tail(" in runtime
@@ -55,9 +55,11 @@ def test_prompt_interaction_has_a_dedicated_native_owner() -> None:
     assert "def command_shell_arguments(" in runtime
     assert "def _prompt_command_payload(" not in owner
     assert "def _prompt_command_arguments(" not in owner
-    assert "def plan_external_process_dispatch(" in owner
-    assert "def plan_prompt_fallback_process_dispatch(" in owner
-    assert "reta_prompt_fallback_arguments_native(" in owner
+    assert "def plan_external_process_dispatch(" in process_owner
+    assert "def plan_prompt_fallback_process_dispatch(" in process_owner
+    assert "reta_prompt_fallback_arguments_native(" in process_owner
+    assert "def plan_external_process_dispatch(" not in owner
+    assert "def plan_prompt_fallback_process_dispatch(" not in owner
     assert "struct PromptStoredOutputExecutionPlan" in owner
     assert "def plan_stored_output_command(" in owner
     assert "def plan_inline_stored_output_command(" in owner
@@ -85,6 +87,7 @@ def test_production_prompt_activates_the_interaction_owner() -> None:
     assert "plan_terminal_clear_dispatch(" in controller
     assert "plan_informational_dispatch(" in controller
     assert "plan_simple_output_dispatch(" in controller
+    assert "from reta_mojo.prompt_process_dispatch import" in controller
     assert "plan_external_process_dispatch(" in controller
     assert "plan_prompt_fallback_process_dispatch(" in controller
     assert "plan_inline_stored_output_command(" in controller
