@@ -85,3 +85,18 @@ def test_native_tty_input_is_the_prompt_controller_boundary() -> None:
     assert "tcgetattr" in terminal_input
     assert "cfmakeraw" in terminal_input
     assert "tcsetattr" in terminal_input
+
+
+def test_external_adapter_exposes_payload_and_argument_children_only() -> None:
+    root = Path(__file__).resolve().parents[1]
+    adapter = (root / "src" / "reta_mojo" / "prompt_external_commands.mojo").read_text(
+        encoding="utf-8"
+    )
+    assert "def run_shell_prompt_payload_native(" in adapter
+    assert "def run_python_prompt_payload_native(" in adapter
+    assert "def run_math_prompt_payload_native(" in adapter
+    assert "def run_reta_arguments_native(" in adapter
+    assert "def run_shell_prompt_line_native(" not in adapter
+    assert "def run_python_prompt_line_native(" not in adapter
+    assert "def run_math_prompt_line_native(" not in adapter
+    assert "def run_reta_line_native(" not in adapter

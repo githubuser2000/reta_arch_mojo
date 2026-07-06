@@ -2,7 +2,9 @@
 
 The historical prompt exposes explicit commands whose purpose is to start
 another program: ``shell``, ``python`` and ``math`` plus still-unported
-``reta`` and atomic prompt-fallback paths.  The general ``reta`` compatibility
+``reta`` and atomic prompt-fallback paths.  Callers pass already separated
+payloads or argv vectors; raw prompt-line compatibility is owned by the
+legacy bridge facade.  The general ``reta`` compatibility
 launcher uses the same boundary.  Their dispatch belongs to Mojo; importing
 CPython merely to ask it to spawn a second interpreter is both slower and a
 needless runtime dependency.
@@ -199,14 +201,6 @@ def run_shell_prompt_payload_native(
     return _run_spawned_child(command)
 
 
-def run_shell_prompt_line_native(
-    line: String,
-    reference_root: String = "python_reference",
-) raises -> Int:
-    return run_shell_prompt_payload_native(
-        raw_command_payload(line), reference_root
-    )
-
 
 def run_python_prompt_payload_native(
     payload: String,
@@ -221,14 +215,6 @@ def run_python_prompt_payload_native(
     )
     return _run_spawned_child(command)
 
-
-def run_python_prompt_line_native(
-    line: String,
-    reference_root: String = "python_reference",
-) raises -> Int:
-    return run_python_prompt_payload_native(
-        raw_command_payload(line), reference_root
-    )
 
 
 def run_math_prompt_payload_native(
@@ -245,14 +231,6 @@ def run_math_prompt_payload_native(
     )
     return _run_spawned_child(command)
 
-
-def run_math_prompt_line_native(
-    line: String,
-    reference_root: String = "python_reference",
-) raises -> Int:
-    return run_math_prompt_payload_native(
-        raw_command_payload(line), reference_root
-    )
 
 
 def _run_reference_python_script(
@@ -284,20 +262,6 @@ def run_reta_arguments_native(
     """
     return _run_reference_python_script("reta.py", arguments, reference_root)
 
-
-def run_reta_line_native(
-    line: String,
-    reference_root: String = "python_reference",
-) raises -> Int:
-    """Execute one unsupported raw ``reta`` line as the historical child CLI."""
-    var parsed = shell_split(line)
-    var arguments = List[String]()
-    var start = 0
-    if len(parsed) > 0 and parsed[0] == "reta":
-        start = 1
-    for index in range(start, len(parsed)):
-        arguments.append(parsed[index])
-    return _run_reference_python_script("reta.py", arguments, reference_root)
 
 
 def run_reta_prompt_arguments_native(

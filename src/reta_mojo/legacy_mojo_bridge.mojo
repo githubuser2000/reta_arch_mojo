@@ -247,4 +247,5 @@ def legacy_mojo_bridge_owner_snapshot() -> List[String]:
         "compatibility_child=reta.py+retaPrompt.py-only",
         "reta_line_bridge=native-argv-owner",
         "prompt_line_bridge=payload-owner",
+        "external_line_wrappers=removed-payload-argv-only",
     ]

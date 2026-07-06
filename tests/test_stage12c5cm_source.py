@@ -45,17 +45,17 @@ def test_process_controller_consumes_planned_payloads() -> None:
     )
 
 
-def test_payload_helpers_keep_line_wrappers_for_compatibility() -> None:
+def test_payload_helpers_are_the_external_process_boundary() -> None:
     adapter = (ROOT / "src/reta_mojo/prompt_external_commands.mojo").read_text(
         encoding="utf-8"
     )
     assert "def run_shell_prompt_payload_native(" in adapter
     assert "def run_python_prompt_payload_native(" in adapter
     assert "def run_math_prompt_payload_native(" in adapter
-    assert "return run_shell_prompt_payload_native(" in adapter
-    assert "return run_python_prompt_payload_native(" in adapter
-    assert "return run_math_prompt_payload_native(" in adapter
-    assert "raw_command_payload(line), reference_root" in adapter
+    assert "def raw_command_payload(line: String) -> String:" in adapter
+    if "def run_shell_prompt_line_native(" in adapter:
+        assert "return run_shell_prompt_payload_native(" in adapter
+        assert "raw_command_payload(line), reference_root" in adapter
 
 
 def test_prompt_interaction_regression_covers_payloads() -> None:
