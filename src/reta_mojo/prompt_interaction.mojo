@@ -22,6 +22,7 @@ from .prompt_runtime import (
     classify_prompt_command_localized,
     effective_one_shot_tokens,
     join_prompt_tokens,
+    KIND_EMPTY,
     KIND_EXIT,
     KIND_STORE_NEXT,
     KIND_STORE_PREVIOUS,
@@ -106,6 +107,14 @@ struct PromptStoredCommandDispatchPlan(Copyable):
 @fieldwise_init
 struct PromptLoggingDispatchPlan(Copyable):
     """Executable plan for single-word prompt logging dispatch."""
+
+    var handled: Bool
+    var output_lines: List[String]
+
+
+@fieldwise_init
+struct PromptOneShotLoggingDispatchPlan(Copyable):
+    """Stateless one-shot plan for logging commands."""
 
     var handled: Bool
     var output_lines: List[String]
@@ -372,6 +381,14 @@ def plan_stored_command_dispatch(
     return PromptStoredCommandDispatchPlan(False, List[String]())
 
 
+def _logging_output_lines(command: PromptCommand) -> List[String]:
+    if command.kind == KIND_LOG_ON and len(command.words) == 1:
+        return _single_output("Logging ist eingeschaltet.")
+    if command.kind == KIND_LOG_OFF and len(command.words) == 1:
+        return _single_output("Logging ist ausgeschaltet.")
+    return List[String]()
+
+
 def plan_logging_dispatch(
     command: PromptCommand,
     mut session: NativePromptSession,
@@ -383,17 +400,30 @@ def plan_logging_dispatch(
     prompt-session mutation, so keep it beside the other interactive lifecycle
     state instead of open-coding it in the process controller.
     """
-    if command.kind == KIND_LOG_ON and len(command.words) == 1:
+    var output_lines = _logging_output_lines(command)
+    if len(output_lines) == 0:
+        return PromptLoggingDispatchPlan(False, List[String]())
+    if command.kind == KIND_LOG_ON:
         session.logging_enabled = True
-        return PromptLoggingDispatchPlan(
-            True, _single_output("Logging ist eingeschaltet.")
-        )
-    if command.kind == KIND_LOG_OFF and len(command.words) == 1:
+    elif command.kind == KIND_LOG_OFF:
         session.logging_enabled = False
-        return PromptLoggingDispatchPlan(
-            True, _single_output("Logging ist ausgeschaltet.")
-        )
-    return PromptLoggingDispatchPlan(False, List[String]())
+    return PromptLoggingDispatchPlan(True, output_lines^)
+
+
+def plan_one_shot_logging_dispatch(
+    command: PromptCommand,
+) -> PromptOneShotLoggingDispatchPlan:
+    """Plan one-shot logging commands without process-controller branches.
+
+    A one-shot prompt has no durable interactive session to mutate, but the
+    historical observable result is still the localized logging message.  Keep
+    that classification beside the session logging owner so ``prompt_main.mojo``
+    only prints the returned lines.
+    """
+    var output_lines = _logging_output_lines(command)
+    if len(output_lines) == 0:
+        return PromptOneShotLoggingDispatchPlan(False, List[String]())
+    return PromptOneShotLoggingDispatchPlan(True, output_lines^)
 
 
 def plan_terminal_clear_dispatch(
@@ -720,6 +750,7 @@ def prompt_interaction_contract_snapshot() -> List[String]:
         "loop_control=native-empty-exit-loop-plan",
         "stored_command_dispatch=native-session-store-plan",
         "logging_dispatch=native-session-logging-plan",
+        "one_shot_logging_dispatch=native-stateless-logging-plan",
         "terminal_clear_dispatch=native-terminal-clear-plan",
         "informational_dispatch=native-prompt-information-plan",
         "simple_output_dispatch=native-deterministic-prompt-output-plan",

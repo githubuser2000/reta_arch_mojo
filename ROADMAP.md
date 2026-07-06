@@ -1,5 +1,12 @@
 # Roadmap – Aktualisierung 12c5bh
 
+## Aktueller Transpilierungsrand 12c5cj
+
+- One-shot-Logging (`loggen`/`nichtloggen`) wird stateless im Prompt-Interaktionsbesitzer geplant.
+- Der Prozesscontroller bleibt auf Drucken/Ausführen typisierter Pläne reduziert; `KIND_LOG_ON`/`KIND_LOG_OFF` sind dort nicht mehr importiert.
+- Der Loop-Control-Import `KIND_EMPTY` ist compile-sichtbar abgesichert.
+
+
 `mojo_bridge.py`, `parameter_runtime.py`, `retaPrompt.py`, `generated_columns.py`, der vollständige I18n-Monolith und sämtliche Architekturproben besitzen jetzt native oder reproduzierbar generierte Eigentümer. Die vollständige Testsuite besitzt getrennte Build-/Run-Phasen mit Frischemanifest und kontrollierter Laufzeitparallelität; kommalokale Null-/Ausschlussachsen neben echten Bruchvielfachen sind ebenfalls nativ. Die großen verbleibenden Laufzeitblöcke konzentrieren sich auf `reta.py`, den interaktiven `prompt_execution.py`-Effektblock und die heterogene Laufzeitaggregation der Architektur-Fassade. Der nächste Schwerpunkt ist die weitere Verkleinerung dieses produktiven Kompatibilitätsrands.
 
 Geplanter Umfang: **12 Release-Stufen**. Eine Stufe zählt erst als abgeschlossen, wenn Quellcode, Referenztests, Compilerziele, Dokumentation und ein source-only Archiv gemeinsam geprüft sind.

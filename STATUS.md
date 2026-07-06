@@ -1,3 +1,13 @@
+# Status – Stage 12c5cj
+
+## Stage 12c5cj – One-shot-Logging-Dispatch im Interaktionsbesitzer
+
+- `PromptOneShotLoggingDispatchPlan` und `plan_one_shot_logging_dispatch(...)` besitzen jetzt die stateless One-shot-Ausgabe für `loggen`/`nichtloggen`.
+- `_run_native_one_shot` delegiert diese Entscheidung an `prompt_interaction.mojo`; `prompt_main.mojo` importiert keine `KIND_LOG_ON`-/`KIND_LOG_OFF`-Konstanten mehr und enthält keine direkten Branches darauf.
+- Die interaktive Sessionmutation bleibt in `plan_logging_dispatch(...)`; die One-shot-Variante teilt nur den beobachtbaren Nachrichtentext.
+- 12c5cj ergänzt außerdem den compile-sichtbaren `KIND_EMPTY`-Import für den in 12c5ci eingeführten Loop-Control-Plan.
+- Der Interaktions-Snapshot enthält `one_shot_logging_dispatch=native-stateless-logging-plan`.
+
 # Status – Stage 12c5cf
 
 ## Stage 12c5cf – Bare Terminal-Clear-Dispatch im Interaktionsbesitzer

@@ -5,9 +5,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def test_current_stage_points_to_ci() -> None:
+def test_current_stage_points_to_a_later_stage_script() -> None:
     current = (ROOT / "scripts/test_current_stage.sh").read_text(encoding="utf-8")
-    assert "test_stage12c5ci.sh" in current
+    assert "test_stage12c5c" in current
 
 
 def test_stage_wraps_ch_and_rebuilds_prompt_boundaries() -> None:
@@ -25,6 +25,7 @@ def test_loop_control_dispatch_has_dedicated_native_plan() -> None:
     assert "struct PromptLoopControlDispatchPlan" in owner
     assert "def plan_loop_control_dispatch(" in owner
     assert "KIND_EMPTY" in owner
+    assert "KIND_EMPTY," in owner
     assert "KIND_EXIT" in owner
     assert "continue_loop: Bool" in owner
     assert "loop_control=native-empty-exit-loop-plan" in owner
@@ -66,4 +67,4 @@ def test_prompt_interaction_regression_covers_loop_control() -> None:
     assert "def test_loop_control_dispatch_is_planned_by_interaction_owner" in test
     assert "plan_loop_control_dispatch(" in test
     assert '"loop_control=native-empty-exit-loop-plan"' in test
-    assert "assert_equal(len(snapshot), 20)" in test
+    assert "assert_equal(len(snapshot)," in test

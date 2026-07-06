@@ -55,8 +55,6 @@ from reta_mojo.terminal_geometry import (
     terminal_rows,
 )
 from reta_mojo.prompt_runtime import (
-    KIND_LOG_ON,
-    KIND_LOG_OFF,
     KIND_PRIME,
     KIND_MULTIS,
     KIND_PRIME_COMPARE,
@@ -96,6 +94,7 @@ from reta_mojo.prompt_interaction import (
     plan_loop_control_dispatch,
     plan_stored_command_dispatch,
     plan_logging_dispatch,
+    plan_one_shot_logging_dispatch,
     plan_terminal_clear_dispatch,
     plan_informational_dispatch,
     plan_simple_output_dispatch,
@@ -745,11 +744,9 @@ def _run_native_one_shot(
             _clear_terminal_native()
         return True
 
-    if command.kind == KIND_LOG_ON:
-        print("Logging ist eingeschaltet.")
-        return True
-    if command.kind == KIND_LOG_OFF:
-        print("Logging ist ausgeschaltet.")
+    var one_shot_logging = plan_one_shot_logging_dispatch(command)
+    if one_shot_logging.handled:
+        _print_lines(one_shot_logging.output_lines)
         return True
 
     var simple_output = plan_simple_output_dispatch(command, profile.language)

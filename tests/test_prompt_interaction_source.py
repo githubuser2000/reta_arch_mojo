@@ -27,6 +27,8 @@ def test_prompt_interaction_has_a_dedicated_native_owner() -> None:
     assert "def plan_stored_command_dispatch(" in owner
     assert "struct PromptLoggingDispatchPlan" in owner
     assert "def plan_logging_dispatch(" in owner
+    assert "struct PromptOneShotLoggingDispatchPlan" in owner
+    assert "def plan_one_shot_logging_dispatch(" in owner
     assert "struct PromptTerminalClearDispatchPlan" in owner
     assert "def plan_terminal_clear_dispatch(" in owner
     assert "struct PromptInformationalDispatchPlan" in owner
@@ -56,6 +58,7 @@ def test_production_prompt_activates_the_interaction_owner() -> None:
     assert "plan_loop_control_dispatch(" in controller
     assert "plan_stored_command_dispatch(" in controller
     assert "plan_logging_dispatch(" in controller
+    assert "plan_one_shot_logging_dispatch(" in controller
     assert "plan_terminal_clear_dispatch(" in controller
     assert "plan_informational_dispatch(" in controller
     assert "plan_simple_output_dispatch(" in controller
@@ -78,6 +81,10 @@ def test_production_prompt_activates_the_interaction_owner() -> None:
     assert "if command.kind == KIND_EXIT" not in controller
     assert "KIND_EMPTY," not in controller
     assert "KIND_EXIT," not in controller
+    assert "KIND_LOG_ON," not in controller
+    assert "KIND_LOG_OFF," not in controller
+    assert "if command.kind == KIND_LOG_ON" not in controller
+    assert "if command.kind == KIND_LOG_OFF" not in controller
     assert "effective_one_shot_tokens" not in controller
 
 

@@ -1,3 +1,12 @@
+# Testergebnisse – Stage 12c5cj
+
+## Stage 12c5cj – vorbereitete Prüfungen
+
+- Benutzerlogs zu 12c5ch: breite Mojo-Auswahl erfolgreich abgeschlossen; fokussierter 12c5ch-Stage-Lauf mit 22/22 Prompt-Interaktion und grünen Legacy-/Table-Adapter-Zielen.
+- Neuer compilerfreier Gate deckt `tests/test_stage12c5cj_source.py`, die vorherigen 12c5c*-Stageverträge, den Prompt-Interaktionsbesitzer, historische Begleiteffekte, Tabellenadapter-Parität, Ledger, Metrik und Archivvertrag ab: 108/108 fokussierte Source-Verträge grün.
+- Defektledger: 169 Einträge, 19 spätere Python-Aufgaben; Portierung: 89/92 vollständig, 92/92 mindestens teilweise; `src/`: 64.381 Mojo-Zeilen, davon 59.780 in `src/reta_mojo/`; Manifest: 1.764 Dateien, 114 Symlinks.
+- Die tatsächliche Mojo-Kompilierung bleibt der Benutzerlauf `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5cj.sh -- -j 8`.
+
 # Testergebnisse – Stage 12c5cf
 
 ## Stage 12c5cf – vorbereitete Prüfungen
