@@ -178,6 +178,7 @@ def test_production_prompt_activates_the_interaction_owner() -> None:
     assert (
         "run_reta_arguments_native(\n                external_process.arguments" in controller
         or "run_reta_arguments_native(\n                external_execution.arguments" in controller
+        or "run_reta_arguments_native(\n                reference_reta_execution.arguments" in controller
     )
     assert "run_reta_line_native(external_process.raw)" not in controller
     assert "external_process.raw" not in controller

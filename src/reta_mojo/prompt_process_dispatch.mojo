@@ -112,6 +112,22 @@ struct PromptInteractiveExternalCompletionPlan(Copyable):
     var reta_native_handled: Bool
 
 
+
+
+@fieldwise_init
+struct PromptInteractiveReferenceRetaExecutionPlan(Copyable):
+    """Controller-facing execution gate for the reference reta child.
+
+    Interactive direct ``reta`` commands first try the native reta child.  If
+    the native child declines, the completion plan requests the historical
+    reference child.  This plan owns that final argv projection so the
+    controller no longer reads the completion flag and the external argv
+    directly at the child-process boundary.
+    """
+
+    var should_run_reference_reta: Bool
+    var arguments: List[String]
+
 @fieldwise_init
 struct PromptOneShotExternalBoundaryPlan(Copyable):
     """Pure one-shot result after an explicit external-process command.
@@ -244,6 +260,24 @@ def plan_interactive_external_process_completion(
     return PromptInteractiveExternalCompletionPlan(True, False, False)
 
 
+
+def plan_interactive_reference_reta_process_execution(
+    completion: PromptInteractiveExternalCompletionPlan,
+    execution: PromptInteractiveExternalExecutionPlan,
+) -> PromptInteractiveReferenceRetaExecutionPlan:
+    """Plan the reference reta child after interactive direct reta dispatch.
+
+    The controller already performed the native child attempt.  This pure
+    owner now decides whether the historical reference child still has to run
+    and exposes a copied argv vector for the process adapter.
+    """
+
+    if completion.run_reference_reta:
+        return PromptInteractiveReferenceRetaExecutionPlan(
+            True, execution.arguments.copy()
+        )
+    return PromptInteractiveReferenceRetaExecutionPlan(False, List[String]())
+
 def plan_one_shot_external_process_boundary(
     dispatch: PromptExternalProcessDispatchPlan, reta_native_handled: Bool
 ) -> PromptOneShotExternalBoundaryPlan:
@@ -309,6 +343,7 @@ def prompt_process_dispatch_contract_snapshot() -> List[String]:
         "external_process_kind=eliminated-from-external-process-plan",
         "interactive_external_execution=native-prompt-process-execution-boundary",
         "interactive_external_completion=native-prompt-process-completion-boundary",
+        "interactive_reference_reta_execution=native-prompt-process-reference-reta-boundary",
         "one_shot_external_execution=native-prompt-process-one-shot-execution-boundary",
         "one_shot_external_boundary=native-prompt-process-probe-boundary",
         "external_reta_child=native-prompt-reta-child-argv",

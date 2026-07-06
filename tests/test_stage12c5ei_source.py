@@ -31,7 +31,7 @@ def test_interactive_external_completion_is_process_dispatch_owned() -> None:
     assert "def plan_interactive_external_process_completion(" in owner
     assert "interactive_external_completion=native-prompt-process-completion-boundary" in owner
     assert "plan_interactive_external_process_completion" in controller
-    assert "external_completion.run_reference_reta" in controller
+    assert ("external_completion.run_reference_reta" in controller or "reference_reta_execution.should_run_reference_reta" in controller)
     assert "return external_completion.handled" in controller
     assert "test_interactive_external_completion_is_planned_by_process_execution_owner" in mojo_test
 

@@ -96,6 +96,7 @@ from reta_mojo.prompt_process_dispatch import (
     plan_external_process_dispatch,
     plan_interactive_external_process_execution,
     plan_interactive_external_process_completion,
+    plan_interactive_reference_reta_process_execution,
     plan_one_shot_external_process_execution,
     plan_one_shot_external_process_boundary,
     plan_prompt_fallback_process_dispatch,
@@ -402,9 +403,12 @@ def _run_command(
         var external_completion = plan_interactive_external_process_completion(
             external_process, reta_native_handled
         )
-        if external_completion.run_reference_reta:
+        var reference_reta_execution = plan_interactive_reference_reta_process_execution(
+            external_completion, external_execution
+        )
+        if reference_reta_execution.should_run_reference_reta:
             _ = run_reta_arguments_native(
-                external_execution.arguments, reference_root()
+                reference_reta_execution.arguments, reference_root()
             )
         return external_completion.handled
 

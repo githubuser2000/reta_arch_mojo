@@ -55,6 +55,7 @@ def test_prompt_tests_cover_split_contracts() -> None:
         or "assert_equal(len(process_snapshot), 22)" in test
         or "assert_equal(len(process_snapshot), 23)" in test
         or "assert_equal(len(process_snapshot), 24)" in test
+        or "assert_equal(len(process_snapshot), 25)" in test
     )
     assert (
         'assert_equal(process_snapshot[18], "process_adapter=argv-execution-only")' in test
@@ -62,6 +63,7 @@ def test_prompt_tests_cover_split_contracts() -> None:
         or 'assert_equal(process_snapshot[21], "process_adapter=argv-execution-only")' in test
         or 'assert_equal(process_snapshot[22], "process_adapter=argv-execution-only")' in test
         or 'assert_equal(process_snapshot[23], "process_adapter=argv-execution-only")' in test
+        or 'assert_equal(process_snapshot[24], "process_adapter=argv-execution-only")' in test
     )
     assert ('assert_equal(snapshot[20], "execution=delegated-native-dispatch")' in test or 'assert_equal(snapshot[6], "execution=delegated-native-dispatch")' in test)
 
@@ -82,12 +84,14 @@ def test_legacy_prompt_scope_composes_reaction_and_process_contracts() -> None:
         "assert_equal(len(scope), 38)" in test
         or "assert_equal(len(scope), 41)" in test
         or "assert_equal(len(scope), 42)" in test
+        or "assert_equal(len(scope), 43)" in test
     )
     assert 'assert_equal(scope[15], "external_process_dispatch=native-prompt-process-edge-plan")' in test
     assert (
         'assert_equal(scope[31], "external_dispatch_owner=prompt-execution-process-plan")' in test
         or 'assert_equal(scope[35], "external_dispatch_owner=prompt-execution-process-plan")' in test
         or 'assert_equal(scope[36], "external_dispatch_owner=prompt-execution-process-plan")' in test
+        or 'assert_equal(scope[37], "external_dispatch_owner=prompt-execution-process-plan")' in test
     )
 
 

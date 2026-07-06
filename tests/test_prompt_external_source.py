@@ -14,6 +14,7 @@ def test_hintere_commands_do_not_cross_python_bridge() -> None:
     assert (
         "run_reta_arguments_native(\n                external_process.arguments, reference_root()" in source
         or "run_reta_arguments_native(\n                external_execution.arguments, reference_root()" in source
+        or "run_reta_arguments_native(\n                reference_reta_execution.arguments, reference_root()" in source
     )
     assert "run_reta_line_native(command.raw)" not in source
     assert "run_reta_prompt_arguments_native" in source
