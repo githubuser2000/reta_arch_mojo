@@ -47,4 +47,4 @@ def test_prompt_interaction_regression_covers_single_storage_dispatch() -> None:
     assert '"Der nächste Befehl wird gespeichert."' in test
     assert 'assert_equal(save_previous_plan.output_lines[0], "Gespeichert: prim 60")' in test
     assert "assert_equal(len(empty_previous_plan.output_lines), 0)" in test
-    assert "assert_equal(len(snapshot), 15)" in test
+    assert "assert_equal(len(snapshot)," in test

@@ -110,6 +110,7 @@ from reta_mojo.prompt_interaction import (
     record_prompt_line,
     apply_inline_storage_command,
     plan_stored_command_dispatch,
+    plan_logging_dispatch,
     plan_inline_stored_output_command,
     plan_stored_output_command,
     plan_stored_delete_command,
@@ -475,6 +476,10 @@ def _run_command(
     if stored_dispatch.handled:
         _print_lines(stored_dispatch.output_lines)
         return True
+    var logging_dispatch = plan_logging_dispatch(command, session)
+    if logging_dispatch.handled:
+        _print_lines(logging_dispatch.output_lines)
+        return True
     var stored_output = plan_stored_output_command(command, session)
     if stored_output.handled:
         _print_lines(stored_output.output_lines)
@@ -594,14 +599,6 @@ def _run_command(
         _clear_terminal_native()
         return True
 
-    if command.kind == KIND_LOG_ON:
-        session.logging_enabled = True
-        print("Logging ist eingeschaltet.")
-        return True
-    if command.kind == KIND_LOG_OFF:
-        session.logging_enabled = False
-        print("Logging ist ausgeschaltet.")
-        return True
     if command.kind == KIND_PRIME:
         _print_lines(prime_lines(command))
         return True

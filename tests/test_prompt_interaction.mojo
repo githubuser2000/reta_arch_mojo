@@ -366,6 +366,44 @@ def test_single_storage_dispatch_is_planned_by_interaction_owner() raises:
     )
 
 
+def test_logging_dispatch_is_planned_by_interaction_owner() raises:
+    var catalog = load_prompt_language_catalog("assets")
+    var interaction = new_prompt_interaction(
+        parse_prompt_startup("retaPrompt", [])
+    )
+
+    var enable = classify_prompt_command_localized(
+        "loggen", "deutsch", catalog
+    )
+    var enable_plan = plan_logging_dispatch(enable, interaction.session)
+    assert_true(enable_plan.handled)
+    assert_equal(len(enable_plan.output_lines), 1)
+    assert_equal(
+        enable_plan.output_lines[0],
+        "Logging ist eingeschaltet.",
+    )
+    assert_true(interaction.session.logging_enabled)
+
+    var disable = classify_prompt_command_localized(
+        "nichtloggen", "deutsch", catalog
+    )
+    var disable_plan = plan_logging_dispatch(disable, interaction.session)
+    assert_true(disable_plan.handled)
+    assert_equal(len(disable_plan.output_lines), 1)
+    assert_equal(
+        disable_plan.output_lines[0],
+        "Logging ist ausgeschaltet.",
+    )
+    assert_false(interaction.session.logging_enabled)
+
+    var normal = classify_prompt_command_localized(
+        "prim 60", "deutsch", catalog
+    )
+    assert_false(
+        plan_logging_dispatch(normal, interaction.session).handled
+    )
+
+
 def test_stored_output_execution_is_planned_by_interaction_owner() raises:
     var catalog = load_prompt_language_catalog("assets")
     var interaction = new_prompt_interaction(
@@ -518,7 +556,7 @@ def test_inline_storage_output_edges_and_history() raises:
 
 def test_contract_snapshot() raises:
     var snapshot = prompt_interaction_contract_snapshot()
-    assert_equal(len(snapshot), 15)
+    assert_equal(len(snapshot), 16)
     assert_equal(snapshot[0], "class=PromptInteractionBundle")
     assert_equal(
         snapshot[6],
@@ -534,17 +572,21 @@ def test_contract_snapshot() raises:
     )
     assert_equal(
         snapshot[9],
-        "stored_output_dispatch=native-session-output-execution-plan",
+        "logging_dispatch=native-session-logging-plan",
     )
     assert_equal(
         snapshot[10],
-        "stored_delete_dispatch=native-session-delete-plan",
+        "stored_output_dispatch=native-session-output-execution-plan",
     )
     assert_equal(
         snapshot[11],
+        "stored_delete_dispatch=native-session-delete-plan",
+    )
+    assert_equal(
+        snapshot[12],
         "stored_default=native-empty-enter-placeholder-policy",
     )
-    assert_equal(snapshot[14], "execution=delegated-native-dispatch")
+    assert_equal(snapshot[15], "execution=delegated-native-dispatch")
 
 
 def main() raises:

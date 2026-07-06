@@ -63,9 +63,9 @@ def test_rejected_compound_falls_back_before_prefix_control_dispatch() -> None:
         "if (table_candidate or mulpri_candidate) and not ("
     )
     fallback = interactive.index("_run_fallback(profile, line)", rejected)
-    clear = interactive.index("if command.kind == KIND_CLEAR:", fallback)
-    logging = interactive.index("if command.kind == KIND_LOG_ON:", clear)
-    assert rejected < fallback < clear < logging
+    help_dispatch = interactive.index("if command.kind == KIND_HELP:", fallback)
+    clear = interactive.index("if command.kind == KIND_CLEAR:", help_dispatch)
+    assert rejected < fallback < help_dispatch < clear
 
     one_shot = source.split("def _run_native_one_shot(", 1)[1]
     rejected_one_shot = one_shot.index(

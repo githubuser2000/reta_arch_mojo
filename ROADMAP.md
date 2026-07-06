@@ -84,6 +84,14 @@ Stage 12c5ao schließt `setup.py` vollständig als reproduzierbaren nativen Meta
 
 Stage 12c5an schließt die historische `mojo_bridge.py`-Oberfläche vollständig nativ und hebt `parameter_runtime.py` mit typisierten Planadaptern auf vollständigen Dateibesitz.
 
+
+## Stage 12c5ce – nächster Prompt-Sitzungsrand
+
+- [x] Bare Logging-Dispatch aus dem Prozesscontroller entfernen.
+- [x] `PromptLoggingDispatchPlan` im Interaktionsbesitzer ergänzen.
+- [x] Prompt-/Legacy-/Tabellenadapterziele im Stage-Lauf frisch bauen.
+- [ ] Nächste Restkante: weitere alleinstehende Prompt-Kontrollbefehle oder verbleibende hintere Prompt-Sonderzweige.
+
 ## Stage 12c5am – native retaPrompt- und Generated-Columns-Besitzergrenzen
 
 - `retaPrompt.py`: exakter 55-Namen-Katalog und explizites `LegacyRetaPromptBundle`; Terminal-/Prozess-I/O bleibt bei `prompt_main.mojo`.

@@ -572,7 +572,15 @@ Neben den Ganzzahlpfaden werden ganzzahlige `vielfache`/`teiler`/`einzeln`, posi
 
 `--nocolor` ist im Shellrenderer jetzt wirksam. Außerdem kann eine explizite, nicht vorhandene Ergebnisposition nicht mehr auf die vollständige Spaltenmenge zurückfallen. Ein explizites `--oberesmaximum` hebt nun wie in Python beide historischen Zeilengrenzen an; ohne Angabe bleibt die Kurzgrenze korrekt bei 163.
 
-### Stage 10e: native Einmalbefehle ohne Python-Prozess
+#
+## Stage 12c5ce – Bare logging dispatch ownership
+
+- `loggen`/`nichtloggen` als alleinstehende Promptbefehle werden jetzt durch `PromptLoggingDispatchPlan` in `prompt_interaction.mojo` geplant.
+- `prompt_main.mojo` enthält im interaktiven `_run_command` keine bare `KIND_LOG_ON`-/`KIND_LOG_OFF`-Sessionmutation mehr.
+- Zusammengesetzte historische Logging-Effekte bleiben beim Tabellenbesitzer, weil sie erst nach erfolgreicher Tabellen-/mulpri-Planung wirken.
+- Benutzerprüfung: `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5ce.sh -- -j 8`.
+
+## Stage 10e: native Einmalbefehle ohne Python-Prozess
 
 Vollständig besessene One-shot-Befehle werden nun vor dem Import von `mojo_bridge.py` ausgeführt. Arithmetik, `abc`, `leeren`, die nativen Tabellenfamilien und streng validierte rohe `reta`-Aufrufe rufen den Tabellenkern direkt im selben Mojo-Prozess auf. Unbekannte Optionen bleiben atomar an der Bridge; positive Shell-/HTML-/BBCode-Breiten gehören nun zum nativen Promptvertrag. Details stehen in [`STAGE10E_NATIVE_PROMPT_ONESHOT.md`](STAGE10E_NATIVE_PROMPT_ONESHOT.md).
 

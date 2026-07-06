@@ -1,3 +1,13 @@
+# Status – Stage 12c5ce
+
+## Stage 12c5ce – Bare Logging-Dispatch im Interaktionsbesitzer
+
+- `PromptLoggingDispatchPlan` und `plan_logging_dispatch(...)` besitzen jetzt die alleinstehenden `loggen`-/`nichtloggen`-Sessionmutationen.
+- `_run_command` delegiert diese interaktive Entscheidung an `prompt_interaction.mojo`; die alten bare `KIND_LOG_ON`-/`KIND_LOG_OFF`-Branches sind dort entfernt.
+- Zusammengesetztes Logging bei historischen Tabellen-/mulpri-Plänen bleibt bewusst im historischen Besitzer, weil es nach erfolgreicher Ausführung angewendet wird.
+- Der Interaktions-Snapshot enthält `logging_dispatch=native-session-logging-plan`.
+- Benutzerseitig ist 12c5cc breit grün; der frühere Tabellenadapter-Fehler ist damit geschlossen.
+
 - Stage 12c5cd: Single-word prompt storage dispatch (`S`/`s`) is now planned by `prompt_interaction.mojo` via `PromptStoredCommandDispatchPlan`; `prompt_main.mojo` no longer owns the bare `KIND_STORE_NEXT`/`KIND_STORE_PREVIOUS` state mutation. Stage 12c5cc table-adapter counting parity remains in the chain for the uploaded `left: 1/right: 0` broad-suite failure.
 # Status – Stage 12c5cc
 

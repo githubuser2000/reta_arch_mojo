@@ -77,6 +77,14 @@ struct PromptStoredCommandDispatchPlan(Copyable):
 
 
 @fieldwise_init
+struct PromptLoggingDispatchPlan(Copyable):
+    """Executable plan for single-word prompt logging dispatch."""
+
+    var handled: Bool
+    var output_lines: List[String]
+
+
+@fieldwise_init
 struct PromptStoredDefaultPlan(Copyable):
     """Empty-line execution of the stored prompt placeholder."""
 
@@ -291,6 +299,30 @@ def plan_stored_command_dispatch(
             )
         return PromptStoredCommandDispatchPlan(True, List[String]())
     return PromptStoredCommandDispatchPlan(False, List[String]())
+
+
+def plan_logging_dispatch(
+    command: PromptCommand,
+    mut session: NativePromptSession,
+) -> PromptLoggingDispatchPlan:
+    """Plan single-word prompt logging commands in the interaction owner.
+
+    Historical table companion logging remains in ``prompt_historical_ownership``
+    because it composes with table plans.  Bare ``loggen``/``nichtloggen`` is a
+    prompt-session mutation, so keep it beside the other interactive lifecycle
+    state instead of open-coding it in the process controller.
+    """
+    if command.kind == KIND_LOG_ON and len(command.words) == 1:
+        session.logging_enabled = True
+        return PromptLoggingDispatchPlan(
+            True, _single_output("Logging ist eingeschaltet.")
+        )
+    if command.kind == KIND_LOG_OFF and len(command.words) == 1:
+        session.logging_enabled = False
+        return PromptLoggingDispatchPlan(
+            True, _single_output("Logging ist ausgeschaltet.")
+        )
+    return PromptLoggingDispatchPlan(False, List[String]())
 
 
 def plan_stored_output_command(
@@ -533,6 +565,7 @@ def prompt_interaction_contract_snapshot() -> List[String]:
         "inline_storage=native-position-and-history-policy",
         "storage_output=native-position-independent-addition-policy",
         "stored_command_dispatch=native-session-store-plan",
+        "logging_dispatch=native-session-logging-plan",
         "stored_output_dispatch=native-session-output-execution-plan",
         "stored_delete_dispatch=native-session-delete-plan",
         "stored_default=native-empty-enter-placeholder-policy",

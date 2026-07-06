@@ -23,6 +23,8 @@ def test_prompt_interaction_has_a_dedicated_native_owner() -> None:
     assert "def plan_inline_storage_output_command(" in owner
     assert "struct PromptStoredCommandDispatchPlan" in owner
     assert "def plan_stored_command_dispatch(" in owner
+    assert "struct PromptLoggingDispatchPlan" in owner
+    assert "def plan_logging_dispatch(" in owner
     assert "struct PromptStoredOutputExecutionPlan" in owner
     assert "def plan_stored_output_command(" in owner
     assert "def plan_inline_stored_output_command(" in owner
@@ -44,6 +46,7 @@ def test_production_prompt_activates_the_interaction_owner() -> None:
     assert "record_prompt_command(" not in controller
     assert "apply_inline_storage_command(" in controller
     assert "plan_stored_command_dispatch(" in controller
+    assert "plan_logging_dispatch(" in controller
     assert "plan_inline_stored_output_command(" in controller
     assert "plan_stored_output_command(" in controller
     assert "plan_stored_delete_command(" in controller

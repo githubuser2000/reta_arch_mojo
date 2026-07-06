@@ -1,3 +1,12 @@
+# Testergebnisse – Stage 12c5ce
+
+## Stage 12c5ce – vorbereitete Prüfungen
+
+- Benutzerlog zu 12c5cc: breite Mojo-Auswahl inklusive `test_table_adapters` erfolgreich abgeschlossen.
+- Neuer compilerfreier Gate deckt `tests/test_stage12c5ce_source.py`, den Prompt-Interaktionsbesitzer, historische Begleiteffekte, Tabellenadapter-Parität, Ledger, Metrik und Archivvertrag ab: 82/82 fokussierte Source-Verträge grün.
+- Defektledger: 169 Einträge, 19 spätere Python-Aufgaben; Portierung: 89/92 vollständig, 92/92 mindestens teilweise; `src/`: 64.251 Mojo-Zeilen, davon 59.592 in `src/reta_mojo/`.
+- Die tatsächliche Mojo-Kompilierung bleibt der Benutzerlauf `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5ce.sh -- -j 8`.
+
 - Stage 12c5cd source gate: prompt interaction owner, stage 12c5cc table-adapter parity, ledger, metrics and source archive contracts are covered compiler-free; Mojo build/run remains delegated to the local machine.
 # Testergebnisse – Stage 12c5cc
 
