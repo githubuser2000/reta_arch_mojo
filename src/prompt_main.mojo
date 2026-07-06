@@ -19,7 +19,6 @@ from reta_mojo.prompt_language import (
 )
 from reta_mojo.prompt_table_execution import (
     PromptTablePlan,
-    plan_prompt_table_commands,
 )
 from reta_mojo.prompt_legacy_echo import compact_prompt_announcement_line
 from reta_mojo.native_prompt_input import read_native_prompt_line
@@ -37,13 +36,15 @@ from reta_mojo.native_reta_cli import (
 from reta_mojo.prompt_execution_runtime import render_prompt_table_plan
 from reta_mojo.prompt_execution import (
     plan_prompt_execution_routing,
-    prompt_execution_contains_token,
+    plan_prompt_execution_table_ownership,
+    prompt_execution_compact_announcement_tokens,
+    prompt_execution_has_mulpri,
+    prompt_execution_integer_argument_words,
 )
 from reta_mojo.prompt_historical_ownership import (
     PROMPT_LOG_DISABLED,
     PROMPT_LOG_ENABLED,
     historical_prompt_companion_effects,
-    historical_prompt_execution_supported,
     historical_prompt_logging_update,
 )
 from reta_mojo.native_cli_startup import native_cli_startup
@@ -246,119 +247,6 @@ def _run_native_table_plan(
     return True
 
 
-def _contains_token(values: List[String], needle: String) -> Bool:
-    return prompt_execution_contains_token(values, needle)
-
-
-def _integer_argument_words(values: List[String]) -> List[String]:
-    var result = List[String]()
-    for index in range(len(values)):
-        var token = values[index]
-        if "/" in token or token.startswith("-"):
-            continue
-        try:
-            var numbers = command_numbers(
-                PromptCommand(KIND_PRIME, "prim " + token, ["prim", token])
-            )
-            if len(numbers) > 0:
-                result.append(token)
-        except:
-            pass
-    return result^
-
-
-def _has_mulpri(
-    values: List[String], language: String, catalog: PromptLanguageCatalog
-) -> Bool:
-    var mulpri = prompt_vocabulary_alias(catalog, language, "command", "mulpri")
-    var short = prompt_vocabulary_alias(catalog, language, "command", "p")
-    return _contains_token(values, mulpri) or _contains_token(values, short)
-
-
-def profile_language_is_german(language: String) -> Bool:
-    var normalized = language.lower()
-    return (
-        normalized == ""
-        or normalized == "de"
-        or normalized == "deutsch"
-        or normalized == "german"
-    )
-
-
-def _run_native_mulpri(
-    values: List[String], language: String, catalog: PromptLanguageCatalog
-) raises -> Bool:
-    if not _has_mulpri(values, language, catalog):
-        return False
-    var arguments = _integer_argument_words(values)
-    if len(arguments) == 0:
-        return False
-    var prime_words = List[String]()
-    prime_words.append("prim")
-    for index in range(len(arguments)):
-        prime_words.append(arguments[index])
-    var prime_command = PromptCommand(
-        KIND_PRIME, join_prompt_tokens(prime_words), prime_words^
-    )
-    var numbers = command_numbers(prime_command)
-    if len(numbers) > 1:
-        var compare_words = List[String]()
-        compare_words.append("primfaktorenvergleich")
-        for index in range(len(arguments)):
-            compare_words.append(arguments[index])
-        _print_lines(
-            prime_comparison_lines(
-                PromptCommand(
-                    KIND_PRIME_COMPARE,
-                    join_prompt_tokens(compare_words),
-                    compare_words^,
-                ),
-                language,
-            )
-        )
-    _print_lines(prime_lines(prime_command))
-    var multi_words = List[String]()
-    multi_words.append("multis")
-    for index in range(len(arguments)):
-        multi_words.append(arguments[index])
-    var multi_lines = multis_lines(
-        PromptCommand(
-            KIND_MULTIS, join_prompt_tokens(multi_words), multi_words^
-        )
-    )
-    for index in range(len(multi_lines)):
-        if multi_lines[index].endswith("[]") and index < len(numbers):
-            var prime_word = "Primzahl" if profile_language_is_german(
-                language
-            ) else "prime_number"
-            print(
-                String(numbers[index])
-                + ": "
-                + String(numbers[index])
-                + " ("
-                + prime_word
-                + ")"
-            )
-        else:
-            print(multi_lines[index])
-    return True
-
-
-def _compact_announcement_tokens(
-    prepared_tokens: List[String],
-    language: String,
-    catalog: PromptLanguageCatalog,
-) -> List[String]:
-    var result = prepared_tokens.copy()
-    if _has_mulpri(prepared_tokens, language, catalog):
-        for canonical in ["multis", "prim", "primfaktorenvergleich"]:
-            var translated = prompt_vocabulary_alias(
-                catalog, language, "command", canonical
-            )
-            if not _contains_token(result, translated):
-                result.append(translated)
-    return result^
-
 
 def _print_compact_announcement_if_needed(
     expansion: PromptExpansionResult,
@@ -369,7 +257,7 @@ def _print_compact_announcement_if_needed(
     quiet: Bool,
 ) -> None:
     if expansion.compact and not quiet:
-        var visible_tokens = _compact_announcement_tokens(
+        var visible_tokens = prompt_execution_compact_announcement_tokens(
             prepared_tokens, language, catalog
         )
         # The Python Rich renderer produces one complete physical line here.
@@ -429,9 +317,7 @@ def _run_command(
         _print_lines(stored_delete.output_lines)
         return True
     var historical_echo = routing.historical_echo
-    var numeric_default = routing.numeric_default
     var prepared_tokens = routing.prepared_tokens.copy()
-    var planning_tokens_are_prepared = routing.planning_tokens_are_prepared
     var planning_tokens = routing.planning_tokens.copy()
     var quiet_echo = routing.quiet_echo
 
@@ -439,30 +325,10 @@ def _run_command(
     # unordered command set.  Plan these table-backed commands before the
     # single-command dispatch so localized aliases and mixed command lines can
     # remain native as one or more invocations.
-    var table_plan = plan_prompt_table_commands(
-        planning_tokens,
-        profile.language,
-        catalog,
-        planning_tokens_are_prepared,
+    var ownership = plan_prompt_execution_table_ownership(
+        routing, profile.language, catalog
     )
-    var mulpri_candidate = (
-        _has_mulpri(planning_tokens, profile.language, catalog)
-        and len(_integer_argument_words(planning_tokens)) > 0
-    )
-    var table_candidate = table_plan.handled
-    var owns_mulpri = mulpri_candidate
-    var owns_table = table_candidate
-    if (historical_echo or numeric_default) and (owns_table or owns_mulpri):
-        if not historical_prompt_execution_supported(
-            raw_tokens, planning_tokens, profile.language, catalog
-        ):
-            owns_table = False
-            owns_mulpri = False
-    # Never execute one branch of a compound historical command while another
-    # branch still belongs to the compatibility boundary.
-    if table_plan.handled and not owns_table:
-        owns_mulpri = False
-    if owns_table or owns_mulpri:
+    if ownership.owns_table or ownership.owns_mulpri:
         _print_compact_announcement_if_needed(
             compact_expansion,
             prepared_tokens,
@@ -483,7 +349,7 @@ def _run_command(
         if companion_effects.clear_before_table:
             _print_compound_clear_lines()
         var handled_table = _run_native_table_plan(
-            table_plan, historical_echo, quiet_echo
+            ownership.table_plan, historical_echo, quiet_echo
         )
         var handled_mulpri = _run_native_mulpri(
             planning_tokens, profile.language, catalog
@@ -498,9 +364,7 @@ def _run_command(
                 session.logging_enabled = False
             return True
 
-    if (table_candidate or mulpri_candidate) and not (
-        owns_table or owns_mulpri
-    ):
+    if ownership.fallback_required:
         _run_fallback(profile, line)
         return True
 
@@ -566,7 +430,6 @@ def _run_native_one_shot(
     var routing = plan_prompt_execution_routing(
         line, profile.language, catalog, profile.force_e_command
     )
-    var raw_tokens = routing.raw_tokens.copy()
     var compact_expansion = routing.compact_expansion.copy()
     var command = routing.command.copy()
 
@@ -574,35 +437,13 @@ def _run_native_one_shot(
     if loop_control.handled:
         return True
     var historical_echo = routing.historical_echo
-    var numeric_default = routing.numeric_default
     var prepared_tokens = routing.prepared_tokens.copy()
-    var planning_tokens_are_prepared = routing.planning_tokens_are_prepared
     var planning_tokens = routing.planning_tokens.copy()
     var quiet_echo = routing.quiet_echo
-    var table_plan = plan_prompt_table_commands(
-        planning_tokens,
-        profile.language,
-        catalog,
-        planning_tokens_are_prepared,
+    var ownership = plan_prompt_execution_table_ownership(
+        routing, profile.language, catalog
     )
-    var mulpri_candidate = (
-        _has_mulpri(planning_tokens, profile.language, catalog)
-        and len(_integer_argument_words(planning_tokens)) > 0
-    )
-    var table_candidate = table_plan.handled
-    var owns_mulpri = mulpri_candidate
-    var owns_table = table_candidate
-    if (historical_echo or numeric_default) and (owns_table or owns_mulpri):
-        if not historical_prompt_execution_supported(
-            raw_tokens, planning_tokens, profile.language, catalog
-        ):
-            owns_table = False
-            owns_mulpri = False
-    # Never execute one branch of a compound historical command while another
-    # branch still belongs to the compatibility boundary.
-    if table_plan.handled and not owns_table:
-        owns_mulpri = False
-    if owns_table or owns_mulpri:
+    if ownership.owns_table or ownership.owns_mulpri:
         _print_compact_announcement_if_needed(
             compact_expansion,
             prepared_tokens,
@@ -623,7 +464,7 @@ def _run_native_one_shot(
         if companion_effects.clear_before_table:
             _print_compound_clear_lines()
         var handled_table = _run_native_table_plan(
-            table_plan, historical_echo, quiet_echo
+            ownership.table_plan, historical_echo, quiet_echo
         )
         var handled_mulpri = _run_native_mulpri(
             planning_tokens, profile.language, catalog
@@ -631,9 +472,7 @@ def _run_native_one_shot(
         if handled_table or handled_mulpri:
             return True
 
-    if (table_candidate or mulpri_candidate) and not (
-        owns_table or owns_mulpri
-    ):
+    if ownership.fallback_required:
         return False
 
     var info_dispatch = plan_informational_dispatch(command)

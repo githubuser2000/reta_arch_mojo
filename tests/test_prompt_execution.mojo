@@ -85,5 +85,42 @@ def test_prompt_execution_routing_plan_classifies_short_help() raises:
     assert_equal(plan.command.kind, KIND_HELP)
 
 
+
+def test_prompt_execution_table_ownership_plans_table_branch() raises:
+    var catalog = _catalog()
+    var routing = plan_prompt_execution_routing(
+        "r mond 2 --art=csv --nocolor", "deutsch", catalog
+    )
+    var ownership = plan_prompt_execution_table_ownership(
+        routing, "deutsch", catalog
+    )
+    assert_true(ownership.table_candidate)
+    assert_true(ownership.owns_table)
+    assert_false(ownership.fallback_required)
+    assert_true(ownership.table_plan.handled)
+
+
+def test_prompt_execution_table_ownership_plans_numeric_mulpri() raises:
+    var catalog = _catalog()
+    var routing = plan_prompt_execution_routing("15", "deutsch", catalog)
+    var ownership = plan_prompt_execution_table_ownership(
+        routing, "deutsch", catalog
+    )
+    assert_true(ownership.mulpri_candidate)
+    assert_true(ownership.owns_mulpri)
+    assert_false(ownership.fallback_required)
+    assert_true(len(ownership.integer_arguments) >= 1)
+
+
+def test_prompt_execution_compact_announcement_tokens_add_mulpri_companions() raises:
+    var catalog = _catalog()
+    var routing = plan_prompt_execution_routing("15", "deutsch", catalog)
+    var visible = prompt_execution_compact_announcement_tokens(
+        routing.prepared_tokens, "deutsch", catalog
+    )
+    assert_true(_has_token(visible, "multis"))
+    assert_true(_has_token(visible, "prim"))
+    assert_true(_has_token(visible, "primfaktorenvergleich"))
+
 def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()

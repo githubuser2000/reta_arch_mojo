@@ -19,16 +19,23 @@ from .prompt_language import (
     is_prompt_numeric_shortcut,
 )
 from .prompt_runtime import (
+    KIND_PRIME,
     PromptCommand,
     classify_prompt_command_localized,
+    command_numbers,
     join_prompt_tokens,
 )
 from .prompt_historical_ownership import (
+    historical_prompt_execution_supported,
     is_prompt_numeric_syntax_token,
 )
 from .prompt_execution_helpers import (
     PromptExecutionHelpersBundle,
     bootstrap_prompt_execution_helpers,
+)
+from .prompt_table_execution import (
+    PromptTablePlan,
+    plan_prompt_table_commands,
 )
 
 
@@ -135,6 +142,121 @@ def prompt_execution_quiet_echo(
         "keineEinZeichenZeilenPlusKeineAusgabeWelcherBefehlEsWar",
     )
     return prompt_execution_contains_token(values, quiet)
+
+
+
+
+@fieldwise_init
+struct PromptExecutionTableOwnershipPlan(Copyable):
+    """Atomic native ownership decision for table and mulpri prompt branches.
+
+    Both interactive and one-shot prompt execution must answer the same question
+    before any output is emitted: does the normalized command line belong fully
+    to native table/mulpri execution, or must the untouched source spelling cross
+    the explicit compatibility boundary?  Keeping this pure decision here avoids
+    duplicated controller-side ownership algebra.
+    """
+
+    var table_plan: PromptTablePlan
+    var mulpri_candidate: Bool
+    var table_candidate: Bool
+    var owns_mulpri: Bool
+    var owns_table: Bool
+    var fallback_required: Bool
+    var integer_arguments: List[String]
+
+
+def prompt_execution_integer_argument_words(values: List[String]) -> List[String]:
+    var result = List[String]()
+    for index in range(len(values)):
+        var token = values[index]
+        if "/" in token or token.startswith("-"):
+            continue
+        try:
+            var numbers = command_numbers(
+                PromptCommand(KIND_PRIME, "prim " + token, ["prim", token])
+            )
+            if len(numbers) > 0:
+                result.append(token)
+        except:
+            pass
+    return result^
+
+
+def prompt_execution_has_mulpri(
+    values: List[String], language: String, catalog: PromptLanguageCatalog
+) -> Bool:
+    var mulpri = prompt_vocabulary_alias(catalog, language, "command", "mulpri")
+    var short = prompt_vocabulary_alias(catalog, language, "command", "p")
+    return prompt_execution_contains_token(
+        values, mulpri
+    ) or prompt_execution_contains_token(values, short)
+
+
+
+def prompt_execution_compact_announcement_tokens(
+    prepared_tokens: List[String],
+    language: String,
+    catalog: PromptLanguageCatalog,
+) -> List[String]:
+    var result = prepared_tokens.copy()
+    if prompt_execution_has_mulpri(prepared_tokens, language, catalog):
+        for canonical in ["multis", "prim", "primfaktorenvergleich"]:
+            var translated = prompt_vocabulary_alias(
+                catalog, language, "command", canonical
+            )
+            if not prompt_execution_contains_token(result, translated):
+                result.append(translated)
+    return result^
+
+
+def plan_prompt_execution_table_ownership(
+    routing: PromptExecutionRoutingPlan,
+    language: String,
+    catalog: PromptLanguageCatalog,
+) raises -> PromptExecutionTableOwnershipPlan:
+    """Plan whether table/mulpri execution may run natively as one atom."""
+
+    var planning_tokens = routing.planning_tokens.copy()
+    var table_plan = plan_prompt_table_commands(
+        planning_tokens,
+        language,
+        catalog,
+        routing.planning_tokens_are_prepared,
+    )
+    var integer_arguments = prompt_execution_integer_argument_words(planning_tokens)
+    var mulpri_candidate = (
+        prompt_execution_has_mulpri(planning_tokens, language, catalog)
+        and len(integer_arguments) > 0
+    )
+    var table_candidate = table_plan.handled
+    var owns_mulpri = mulpri_candidate
+    var owns_table = table_candidate
+    var raw_tokens = routing.raw_tokens.copy()
+    if (routing.historical_echo or routing.numeric_default) and (
+        owns_table or owns_mulpri
+    ):
+        if not historical_prompt_execution_supported(
+            raw_tokens, planning_tokens, language, catalog
+        ):
+            owns_table = False
+            owns_mulpri = False
+    # Never execute one branch of a compound historical command while another
+    # branch still belongs to the compatibility boundary.
+    if table_plan.handled and not owns_table:
+        owns_mulpri = False
+    var fallback_required = (table_candidate or mulpri_candidate) and not (
+        owns_table or owns_mulpri
+    )
+    return PromptExecutionTableOwnershipPlan(
+        table_plan^,
+        mulpri_candidate,
+        table_candidate,
+        owns_mulpri,
+        owns_table,
+        fallback_required,
+        integer_arguments^,
+    )
 
 
 def plan_prompt_execution_routing(
