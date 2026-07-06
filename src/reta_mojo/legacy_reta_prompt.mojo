@@ -19,12 +19,16 @@ from .legacy_reta_prompt_catalog import (
 from .prompt_runtime import PromptStartup, parse_prompt_startup
 from .prompt_interaction import (
     NativePromptInteraction,
-    PromptInteractionInputPlan,
-    accept_prompt_input,
     new_prompt_interaction,
     prompt_interaction_contract_snapshot,
 )
+from .prompt_reaction_input import (
+    PromptInteractionInputPlan,
+    accept_prompt_reaction_input,
+    prompt_reaction_input_contract_snapshot,
+)
 from .prompt_process_dispatch import prompt_process_dispatch_contract_snapshot
+from .prompt_reaction_dispatch import prompt_reaction_dispatch_contract_snapshot
 from .prompt_session import (
     NativePromptSession,
     PromptDeleteResult,
@@ -186,8 +190,9 @@ def promptInput(
     mut facade: LegacyRetaPromptBundle,
     line: String,
 ) raises -> PromptInteractionInputPlan:
-    var result = accept_prompt_input(
-        facade.promptInteraction,
+    var result = accept_prompt_reaction_input(
+        facade.promptInteraction.session,
+        facade.promptInteraction.language,
         line,
         facade.libretaPrompt.promptLanguage,
     )
@@ -196,25 +201,41 @@ def promptInput(
 
 
 def _legacy_prompt_scope_snapshot() -> List[String]:
-    """Historical retaPrompt.py scope with reaction and process contracts.
+    """Historical retaPrompt.py scope with split reaction/process contracts.
 
-    The native prompt-reaction owner no longer carries process-dispatch
-    details.  Keep the compatibility facade's old observable PromptScope shape
-    by composing the reaction contract with the prompt-execution process
-    contract in the historical order.
+    The native owners are now split into interaction lifecycle, physical input,
+    local reaction dispatch and prompt-execution process dispatch.  The legacy
+    facade keeps the historical PromptScope ordering by reconstructing the old
+    interaction snapshot from the split owners before inserting process markers.
     """
     var interaction = prompt_interaction_contract_snapshot()
+    var reaction_input = prompt_reaction_input_contract_snapshot()
+    var reaction_dispatch = prompt_reaction_dispatch_contract_snapshot()
     var process = prompt_process_dispatch_contract_snapshot()
+
+    var legacy_interaction = List[String]()
+    legacy_interaction.append(interaction[0].copy())
+    legacy_interaction.append(interaction[1].copy())
+    legacy_interaction.append(reaction_input[2].copy())
+    legacy_interaction.append(reaction_input[3].copy())
+    legacy_interaction.append(reaction_input[4].copy())
+    legacy_interaction.append(reaction_input[6].copy())
+    for index in range(2, len(reaction_dispatch)):
+        legacy_interaction.append(reaction_dispatch[index].copy())
+    legacy_interaction.append(interaction[2].copy())
+    legacy_interaction.append(interaction[5].copy())
+    legacy_interaction.append(interaction[6].copy())
+
     var result = List[String]()
     for index in range(15):
-        result.append(interaction[index].copy())
+        result.append(legacy_interaction[index].copy())
     # Detailed external/fallback process markers, excluding the process bundle
     # class marker, the owner marker and the adapter implementation marker.
     for index in range(2, len(process) - 1):
         result.append(process[index].copy())
     result.append(process[1].copy())
-    for index in range(15, len(interaction)):
-        result.append(interaction[index].copy())
+    for index in range(15, len(legacy_interaction)):
+        result.append(legacy_interaction[index].copy())
     return result^
 
 

@@ -57,7 +57,7 @@ def test_prompt_interaction_test_imports_process_dispatch_owner() -> None:
     assert "plan_external_process_dispatch(shell_command)" in test
     assert "plan_prompt_fallback_process_dispatch(" in test
     assert "external_dispatch_owner=prompt-execution-process-plan" in test
-    assert ("assert_equal(len(snapshot), 38)" in test or "assert_equal(len(snapshot), 21)" in test)
+    assert ("assert_equal(len(snapshot), 38)" in test or "assert_equal(len(snapshot), 21)" in test or "assert_equal(len(snapshot), 7)" in test)
 
 
 def test_stage_document_records_future_library_boundary() -> None:

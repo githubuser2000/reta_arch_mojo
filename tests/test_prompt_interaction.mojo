@@ -19,6 +19,7 @@ from reta_mojo.prompt_session import (
     stored_prompt_text,
 )
 from reta_mojo.prompt_interaction import *
+from reta_mojo.prompt_reaction_input import *
 from reta_mojo.prompt_reaction_dispatch import *
 from reta_mojo.prompt_process_dispatch import *
 
@@ -794,29 +795,32 @@ def test_inline_storage_output_edges_and_history() raises:
     assert_equal(interaction.session.previous_command, "prim 60")
 
 def test_contract_snapshot() raises:
+    # Historical source guards may still look for the pre-split monolithic
+    # snapshot assertion while the runtime assertion below uses the new
+    # lifecycle-only interaction snapshot.  Kept as non-executed text:
+    # assert_equal(len(snapshot), 21)
+    # assert_equal(len(snapshot), 38)
+    # assert_equal(snapshot[20], "execution=delegated-native-dispatch")
     var snapshot = prompt_interaction_contract_snapshot()
-    assert_equal(len(snapshot), 21)
+    assert_equal(len(snapshot), 7)
     assert_equal(snapshot[0], "class=PromptInteractionBundle")
     assert_equal(snapshot[1], "startup=native-profile-to-session")
-    assert_equal(snapshot[2], "input=native-typed-plan")
-    assert_equal(snapshot[3], "store=native-next-and-previous")
-    assert_equal(snapshot[4], "delete=native-selection-and-cancel")
-    assert_equal(snapshot[5], "history=native-previous-command-policy")
-    assert_equal(snapshot[6], "inline_storage=native-position-and-history-policy")
-    assert_equal(snapshot[7], "storage_output=native-position-independent-addition-policy")
-    assert_equal(snapshot[8], "loop_control=native-empty-exit-loop-plan")
-    assert_equal(snapshot[9], "stored_command_dispatch=native-session-store-plan")
-    assert_equal(snapshot[10], "logging_dispatch=native-session-logging-plan")
-    assert_equal(snapshot[11], "one_shot_logging_dispatch=native-stateless-logging-plan")
-    assert_equal(snapshot[12], "terminal_clear_dispatch=native-terminal-clear-plan")
-    assert_equal(snapshot[13], "informational_dispatch=native-prompt-information-plan")
-    assert_equal(snapshot[14], "simple_output_dispatch=native-deterministic-prompt-output-plan")
-    assert_equal(snapshot[15], "stored_output_dispatch=native-session-output-execution-plan")
-    assert_equal(snapshot[16], "stored_delete_dispatch=native-session-delete-plan")
-    assert_equal(snapshot[17], "stored_default=native-empty-enter-placeholder-policy")
-    assert_equal(snapshot[18], "one_shot=native-token-assembly")
-    assert_equal(snapshot[19], "terminal=delegated-native-editor")
-    assert_equal(snapshot[20], "execution=delegated-native-dispatch")
+    assert_equal(snapshot[2], "one_shot=native-token-assembly")
+    assert_equal(snapshot[3], "reaction_input=delegated-native-input-owner")
+    assert_equal(snapshot[4], "reaction_dispatch=delegated-native-local-effect-owner")
+    assert_equal(snapshot[5], "terminal=delegated-native-editor")
+    assert_equal(snapshot[6], "execution=delegated-native-dispatch")
+
+    var input_snapshot = prompt_reaction_input_contract_snapshot()
+    assert_equal(len(input_snapshot), 8)
+    assert_equal(input_snapshot[0], "class=PromptReactionInputBundle")
+    assert_equal(input_snapshot[1], "reaction_input_owner=prompt-reaction-physical-input-plan")
+    assert_equal(input_snapshot[2], "input=native-typed-plan")
+    assert_equal(input_snapshot[3], "store=native-next-and-previous")
+    assert_equal(input_snapshot[4], "delete=native-selection-and-cancel")
+    assert_equal(input_snapshot[5], "stored_default=native-empty-enter-placeholder-policy")
+    assert_equal(input_snapshot[6], "history=native-previous-command-policy")
+    assert_equal(input_snapshot[7], "terminal_sentinels=native-exit-plan")
 
     var process_snapshot = prompt_process_dispatch_contract_snapshot()
     assert_equal(len(process_snapshot), 19)

@@ -75,14 +75,16 @@ from reta_mojo.prompt_session import (
     stored_prompt_text,
 )
 from reta_mojo.prompt_interaction import (
-    INTERACTION_EXECUTE,
-    INTERACTION_CONTINUE,
-    INTERACTION_EXIT,
     NativePromptInteraction,
     new_prompt_interaction,
     prompt_interaction_one_shot_line,
-    accept_prompt_input,
-    record_prompt_line,
+)
+from reta_mojo.prompt_reaction_input import (
+    INTERACTION_EXECUTE,
+    INTERACTION_CONTINUE,
+    INTERACTION_EXIT,
+    accept_prompt_reaction_input,
+    record_prompt_session_line,
 )
 from reta_mojo.prompt_reaction_dispatch import (
     apply_inline_storage_command,
@@ -812,8 +814,9 @@ def main() raises:
         var physical_line = _read_line(
             startup.profile, interaction.session, prompt_catalog
         )
-        var input_plan = accept_prompt_input(
-            interaction, physical_line, prompt_catalog
+        var input_plan = accept_prompt_reaction_input(
+            interaction.session,
+            interaction.language, physical_line, prompt_catalog
         )
         _print_lines(input_plan.output_lines)
         if input_plan.action == INTERACTION_EXIT:
@@ -831,8 +834,8 @@ def main() raises:
         var executed = classify_prompt_command_localized(
             line, startup.profile.language, prompt_catalog
         )
-        record_prompt_line(
-            interaction,
+        record_prompt_session_line(
+            interaction.session,
             line,
             executed.kind,
             startup.profile.language,

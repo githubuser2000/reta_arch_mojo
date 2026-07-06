@@ -12,12 +12,17 @@ def test_prompt_interaction_has_a_dedicated_native_owner() -> None:
     reaction_owner = (ROOT / "src/reta_mojo/prompt_reaction_dispatch.mojo").read_text(
         encoding="utf-8"
     )
+    input_owner = (ROOT / "src/reta_mojo/prompt_reaction_input.mojo").read_text(
+        encoding="utf-8"
+    )
     assert "struct NativePromptInteraction" in owner
-    assert "struct PromptInteractionInputPlan" in owner
+    assert "struct PromptInteractionInputPlan" in input_owner
     assert "def new_prompt_interaction(" in owner
     assert "def accept_prompt_input(" in owner
+    assert "accept_prompt_reaction_input(" in owner
+    assert "def accept_prompt_reaction_input(" in input_owner
     assert "def record_prompt_command(" in owner
-    assert "def prompt_line_updates_previous(" in owner
+    assert "def prompt_line_updates_previous(" in input_owner
     assert "def record_prompt_line(" in owner
     assert "struct PromptInlineStoragePlan" in reaction_owner
     assert "struct PromptLoopControlDispatchPlan" in reaction_owner
@@ -45,10 +50,13 @@ def test_prompt_interaction_has_a_dedicated_native_owner() -> None:
     assert "var run_reta_prompt: Bool" in process_owner
     assert "var raw: String" not in owner
     assert "var raw: String" not in reaction_owner
+    assert "var raw: String" not in input_owner
     assert "var process_kind: Int" not in owner
     assert "var process_kind: Int" not in reaction_owner
+    assert "var process_kind: Int" not in input_owner
     assert "EXTERNAL_PROMPT_" not in owner
     assert "EXTERNAL_PROMPT_" not in reaction_owner
+    assert "EXTERNAL_PROMPT_" not in input_owner
     assert "var arguments: List[String]" in process_owner
     assert "var run_shell: Bool" in process_owner
     assert "var run_python: Bool" in process_owner
@@ -61,8 +69,10 @@ def test_prompt_interaction_has_a_dedicated_native_owner() -> None:
     assert "def command_shell_arguments(" in runtime
     assert "def _prompt_command_payload(" not in owner
     assert "def _prompt_command_payload(" not in reaction_owner
+    assert "def _prompt_command_payload(" not in input_owner
     assert "def _prompt_command_arguments(" not in owner
     assert "def _prompt_command_arguments(" not in reaction_owner
+    assert "def _prompt_command_arguments(" not in input_owner
     assert "def plan_external_process_dispatch(" in process_owner
     assert "def plan_prompt_fallback_process_dispatch(" in process_owner
     assert "reta_prompt_fallback_arguments_native(" in process_owner
@@ -79,22 +89,31 @@ def test_prompt_interaction_has_a_dedicated_native_owner() -> None:
 
     interaction_contract = owner.split("def prompt_interaction_contract_snapshot", 1)[1]
     interaction_contract = interaction_contract.split("return [", 1)[1].split("    ]", 1)[0]
+    assert "input=native-typed-plan" not in interaction_contract
+    assert "store=native-next-and-previous" not in interaction_contract
+    assert "history=native-previous-command-policy" not in interaction_contract
+    assert "reaction_input=delegated-native-input-owner" in interaction_contract
     assert "external_process_dispatch=native-prompt-process-edge-plan" not in interaction_contract
     assert "fallback_process_dispatch=native-interaction-argv-plan" not in interaction_contract
     assert "external_dispatch_owner=prompt-execution-process-plan" not in interaction_contract
     assert "from std.python import" not in owner
     assert "from std.python import" not in reaction_owner
+    assert "from std.python import" not in input_owner
     assert "PythonObject" not in owner
     assert "PythonObject" not in reaction_owner
+    assert "PythonObject" not in input_owner
 
 
 def test_production_prompt_activates_the_interaction_owner() -> None:
     controller = (ROOT / "src/prompt_main.mojo").read_text(encoding="utf-8")
     assert "from reta_mojo.prompt_interaction import" in controller
+    assert "from reta_mojo.prompt_reaction_input import" in controller
     assert "from reta_mojo.prompt_reaction_dispatch import" in controller
     assert "new_prompt_interaction(startup)" in controller
-    assert "accept_prompt_input(" in controller
-    assert "record_prompt_line(" in controller
+    assert "accept_prompt_reaction_input(" in controller
+    assert "record_prompt_session_line(" in controller
+    assert "accept_prompt_input(" not in controller
+    assert "record_prompt_line(" not in controller
     assert "record_prompt_command(" not in controller
     assert "apply_inline_storage_command(" in controller
     assert "plan_loop_control_dispatch(" in controller

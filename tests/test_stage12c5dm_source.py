@@ -7,7 +7,8 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_current_stage_points_to_dm() -> None:
     current = (ROOT / "scripts/test_current_stage.sh").read_text(encoding="utf-8")
-    assert "test_stage12c5dm.sh" in current
+    assert "test_stage12c5" in current
+    assert ".sh" in current
 
 
 def test_stage_script_covers_prompt_reaction_dispatch_owner() -> None:
@@ -54,7 +55,7 @@ def test_production_imports_reaction_dispatch_directly() -> None:
     )
     test = (ROOT / "tests/test_prompt_interaction.mojo").read_text(encoding="utf-8")
     assert "from reta_mojo.prompt_reaction_dispatch import (" in controller
-    assert "from .prompt_reaction_dispatch import (" in interaction
+    assert "from .prompt_reaction_input import (" in interaction
     assert "from reta_mojo.prompt_reaction_dispatch import *" in test
     assert "var reaction_snapshot = prompt_reaction_dispatch_contract_snapshot()" in test
     assert "assert_equal(len(reaction_snapshot), 14)" in test

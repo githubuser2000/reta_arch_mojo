@@ -1,9 +1,8 @@
 from std.testing import assert_equal, assert_false, assert_true, TestSuite
 from reta_mojo.legacy_reta_prompt import *
-from reta_mojo.prompt_interaction import (
-    INTERACTION_CONTINUE,
-    prompt_interaction_contract_snapshot,
-)
+from reta_mojo.prompt_reaction_input import INTERACTION_CONTINUE
+from reta_mojo.prompt_interaction import prompt_interaction_contract_snapshot
+from reta_mojo.prompt_reaction_input import prompt_reaction_input_contract_snapshot
 from reta_mojo.prompt_session import (
     PROMPT_MODE_STORED_OUTPUT,
     PROMPT_MODE_STORED_OUTPUT_WITH_ADDITION,
@@ -63,7 +62,9 @@ def test_historical_input_and_start_delegate_to_native_controller() raises:
     assert_false(facade.promptInteraction.session.store_next)
     var scope = PromptScope(facade)
     var interaction_scope = prompt_interaction_contract_snapshot()
-    assert_equal(len(interaction_scope), 21)
+    var input_scope = prompt_reaction_input_contract_snapshot()
+    assert_equal(len(interaction_scope), 7)
+    assert_equal(len(input_scope), 8)
     assert_equal(len(scope), 38)
     assert_equal(scope[0], "class=PromptInteractionBundle")
     assert_equal(
