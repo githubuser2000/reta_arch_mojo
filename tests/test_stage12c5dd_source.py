@@ -44,9 +44,9 @@ def test_controller_consumes_run_flag_before_fallback_child() -> None:
 def test_mojo_contract_snapshot_records_run_flag() -> None:
     test = (ROOT / "tests/test_prompt_interaction.mojo").read_text(encoding="utf-8")
     assert "assert_true(plan.run_reta_prompt)" in test
-    assert ("assert_equal(len(snapshot), 31)" in test or "assert_equal(len(snapshot), 32)" in test)
+    assert ("assert_equal(len(snapshot), 31)" in test or "assert_equal(len(snapshot), 32)" in test or "assert_equal(len(snapshot), 33)" in test)
     assert '"fallback_process_flags=native-explicit-fallback-run-flag"' in test
-    assert ('assert_equal(snapshot[30], "execution=delegated-native-dispatch")' in test or 'assert_equal(snapshot[31], "execution=delegated-native-dispatch")' in test)
+    assert ('assert_equal(snapshot[30], "execution=delegated-native-dispatch")' in test or 'assert_equal(snapshot[31], "execution=delegated-native-dispatch")' in test or 'assert_equal(snapshot[32], "execution=delegated-native-dispatch")' in test)
 
 
 def test_stage_document_records_run_flag() -> None:

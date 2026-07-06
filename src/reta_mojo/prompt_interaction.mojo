@@ -14,7 +14,6 @@ observable I/O requested by these plans.
 from std.collections import List
 from std.collections.string import StringSlice
 from .prompt_external_commands import shell_split
-from .prompt_external_commands import reta_prompt_fallback_arguments_native
 from .prompt_language import (
     PromptLanguageCatalog,
     balanced_prompt_split,
@@ -28,6 +27,7 @@ from .prompt_runtime import (
     effective_one_shot_tokens,
     join_prompt_tokens,
     fallback_profile_arguments,
+    reta_prompt_fallback_arguments_native,
     KIND_EMPTY,
     KIND_EXIT,
     KIND_STORE_NEXT,
@@ -898,6 +898,7 @@ def prompt_interaction_contract_snapshot() -> List[String]:
         "fallback_process_handled=native-explicit-fallback-effect-flag",
         "fallback_process_flags=native-explicit-fallback-run-flag",
         "fallback_process_arguments=native-merged-fallback-argv",
+        "fallback_runtime_arguments=runtime-owned-argv-builder",
         "stored_output_dispatch=native-session-output-execution-plan",
         "stored_delete_dispatch=native-session-delete-plan",
         "stored_default=native-empty-enter-placeholder-policy",

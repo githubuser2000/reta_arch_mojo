@@ -29,7 +29,9 @@ def test_external_process_adapter_exposes_payload_and_argument_boundaries_only()
     assert "def run_math_prompt_payload_native(" in adapter
     assert "def run_reta_arguments_native(" in adapter
     assert "def run_reta_prompt_arguments_native(" in adapter
-    assert "def reta_prompt_fallback_arguments_native(" in adapter
+    runtime = (ROOT / "src/reta_mojo/prompt_runtime.mojo").read_text(encoding="utf-8")
+    assert "def reta_prompt_fallback_arguments_native(" not in adapter
+    assert "def reta_prompt_fallback_arguments_native(" in runtime
     assert "def run_shell_prompt_line_native(" not in adapter
     assert "def run_python_prompt_line_native(" not in adapter
     assert "def run_math_prompt_line_native(" not in adapter

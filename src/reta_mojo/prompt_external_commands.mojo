@@ -280,22 +280,3 @@ def run_reta_prompt_arguments_native(
     return _run_reference_python_script(
         "retaPrompt.py", arguments, reference_root
     )
-
-
-def reta_prompt_fallback_arguments_native(
-    profile_arguments: List[String],
-    command_arguments: List[String],
-) -> List[String]:
-    """Merge typed profile flags and tokenized fallback command argv.
-
-    The historical fallback still starts ``retaPrompt.py`` when a prompt line
-    is not owned natively.  This helper only constructs that child argv vector;
-    execution is the regular ``run_reta_prompt_arguments_native`` boundary.
-    """
-    var arguments = List[String]()
-    for index in range(len(profile_arguments)):
-        if profile_arguments[index].byte_length() > 0:
-            arguments.append(profile_arguments[index])
-    for index in range(len(command_arguments)):
-        arguments.append(command_arguments[index])
-    return arguments^

@@ -6,12 +6,11 @@ from reta_mojo.prompt_external_commands import (
     reta_child_arguments_native,
     run_python_prompt_payload_native,
     run_reta_arguments_native,
-    reta_prompt_fallback_arguments_native,
     run_reta_prompt_arguments_native,
     run_shell_prompt_payload_native,
     shell_split,
 )
-
+from reta_mojo.prompt_runtime import reta_prompt_fallback_arguments_native
 
 
 

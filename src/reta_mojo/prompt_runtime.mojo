@@ -850,6 +850,25 @@ def fallback_profile_arguments(profile: PromptProfile) -> List[String]:
     return result^
 
 
+def reta_prompt_fallback_arguments_native(
+    profile_arguments: List[String],
+    command_arguments: List[String],
+) -> List[String]:
+    """Merge typed prompt-profile flags and tokenized fallback command argv.
+
+    This is prompt runtime semantics, not process-adapter semantics: callers
+    choose the fallback profile and command arguments here, then pass the final
+    argv vector to the regular ``retaPrompt.py`` process boundary.
+    """
+    var arguments = List[String]()
+    for index in range(len(profile_arguments)):
+        if profile_arguments[index].byte_length() > 0:
+            arguments.append(profile_arguments[index])
+    for index in range(len(command_arguments)):
+        arguments.append(command_arguments[index])
+    return arguments^
+
+
 def emacs_wrapped_command(profile: PromptProfile, line: String) -> String:
     """Apply the historical rpe output additions without mutating argv globally."""
     if not profile.emacs_output:

@@ -18,20 +18,22 @@ def test_stage_wraps_cu_and_checks_fallback_argument_ownership() -> None:
     assert "tests/test_stage12c5cv_source.py" in source
 
 
-def test_external_adapter_accepts_fallback_arguments_not_raw_lines() -> None:
+def test_runtime_accepts_fallback_arguments_not_raw_lines() -> None:
     adapter = (ROOT / "src/reta_mojo/prompt_external_commands.mojo").read_text(
         encoding="utf-8"
     )
-    assert "def reta_prompt_fallback_arguments_native(" in adapter
-    assert "command_arguments: List[String]" in adapter
-    assert "for index in range(len(command_arguments)):" in adapter
-    assert "arguments.append(command_arguments[index])" in adapter
+    runtime = (ROOT / "src/reta_mojo/prompt_runtime.mojo").read_text(encoding="utf-8")
+    assert "def reta_prompt_fallback_arguments_native(" not in adapter
+    assert "def reta_prompt_fallback_arguments_native(" in runtime
+    assert "command_arguments: List[String]" in runtime
+    assert "for index in range(len(command_arguments)):" in runtime
+    assert "arguments.append(command_arguments[index])" in runtime
     assert "def run_reta_prompt_fallback_native(" not in adapter
-    fallback_body = adapter.split(
+    fallback_body = runtime.split(
         "def reta_prompt_fallback_arguments_native(", 1
     )[1]
     assert "shell_split(line)" not in fallback_body
-    assert "line: String" not in fallback_body.split(") raises -> Int:", 1)[0]
+    assert "line: String" not in fallback_body.split(") -> List[String]:", 1)[0]
 
 
 def test_prompt_controller_uses_fallback_argument_owner_before_process_adapter() -> None:

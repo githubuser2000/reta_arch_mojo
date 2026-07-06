@@ -104,8 +104,10 @@ def test_prompt_external_adapter_exposes_tokenized_prompt_child() -> None:
     source = (ROOT / "src/reta_mojo/prompt_external_commands.mojo").read_text(
         encoding="utf-8"
     )
+    runtime = (ROOT / "src/reta_mojo/prompt_runtime.mojo").read_text(encoding="utf-8")
     assert "def run_reta_prompt_arguments_native(" in source
-    assert "def reta_prompt_fallback_arguments_native(" in source
+    assert "def reta_prompt_fallback_arguments_native(" not in source
+    assert "def reta_prompt_fallback_arguments_native(" in runtime
     assert '"retaPrompt.py", arguments, reference_root' in source
 
 
