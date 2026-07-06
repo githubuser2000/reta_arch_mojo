@@ -3,7 +3,8 @@
 The terminal editor, prompt language, preparation and command execution already
 have dedicated native owners.  This module owns the remaining mutable loop
 boundary: startup-to-session activation, one-shot command assembly, input-mode
-transitions, stored-command deletion and history/previous-command policy.
+transitions, stored-command deletion, fallback child argv planning and
+history/previous-command policy.
 
 It deliberately returns typed plans instead of printing or executing commands.
 ``prompt_main.mojo`` remains the thin process entry point and performs the
@@ -12,6 +13,7 @@ observable I/O requested by these plans.
 
 from std.collections import List
 from std.collections.string import StringSlice
+from .prompt_external_commands import shell_split
 from .prompt_language import (
     PromptLanguageCatalog,
     balanced_prompt_split,
@@ -19,10 +21,12 @@ from .prompt_language import (
 )
 from .prompt_runtime import (
     PromptStartup,
+    PromptProfile,
     PromptCommand,
     classify_prompt_command_localized,
     effective_one_shot_tokens,
     join_prompt_tokens,
+    fallback_profile_arguments,
     KIND_EMPTY,
     KIND_EXIT,
     KIND_STORE_NEXT,
@@ -164,6 +168,14 @@ struct PromptExternalProcessDispatchPlan(Copyable):
     var run_python: Bool
     var run_math: Bool
     var run_reta: Bool
+
+
+@fieldwise_init
+struct PromptFallbackProcessDispatchPlan(Copyable):
+    """Executable argv plan for the atomic Python prompt fallback child."""
+
+    var profile_arguments: List[String]
+    var command_arguments: List[String]
 
 
 @fieldwise_init
@@ -608,6 +620,21 @@ def plan_external_process_dispatch(
     )
 
 
+def plan_prompt_fallback_process_dispatch(
+    profile: PromptProfile,
+    line: String,
+) raises -> PromptFallbackProcessDispatchPlan:
+    """Plan an unowned prompt command as explicit retaPrompt.py argv.
+
+    The controller still preserves the original line for historical echo and
+    atomic fallback decisions, but the interaction owner now owns conversion to
+    the child-process argument vector.  The process adapter only receives argv.
+    """
+    return PromptFallbackProcessDispatchPlan(
+        fallback_profile_arguments(profile), shell_split(line)
+    )
+
+
 def plan_stored_output_command(
     command: PromptCommand,
     session: NativePromptSession,
@@ -861,6 +888,7 @@ def prompt_interaction_contract_snapshot() -> List[String]:
         "external_process_kind=eliminated-from-external-process-plan",
         "external_reta_child=native-prompt-reta-child-argv",
         "external_raw_line=eliminated-from-external-process-plan",
+        "fallback_process_dispatch=native-interaction-argv-plan",
         "stored_output_dispatch=native-session-output-execution-plan",
         "stored_delete_dispatch=native-session-delete-plan",
         "stored_default=native-empty-enter-placeholder-policy",

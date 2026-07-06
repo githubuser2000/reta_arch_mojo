@@ -34,12 +34,14 @@ def test_external_adapter_accepts_fallback_arguments_not_raw_lines() -> None:
     assert "line: String" not in fallback_body.split(") raises -> Int:", 1)[0]
 
 
-def test_prompt_controller_tokenizes_fallback_before_process_adapter() -> None:
+def test_prompt_controller_uses_fallback_argument_owner_before_process_adapter() -> None:
     controller = (ROOT / "src/prompt_main.mojo").read_text(encoding="utf-8")
     assert "run_reta_prompt_fallback_arguments_native," in controller
-    assert "shell_split," in controller
+    assert "plan_prompt_fallback_process_dispatch," in controller
     assert "run_reta_prompt_fallback_native" not in controller
-    assert "fallback_profile_arguments(profile), shell_split(line), reference_root()" in controller
+    assert "fallback_profile_arguments(profile), shell_split(line), reference_root()" not in controller
+    assert "fallback_process.profile_arguments" in controller
+    assert "fallback_process.command_arguments" in controller
 
 
 def test_legacy_bridge_fallback_uses_same_argv_owner() -> None:

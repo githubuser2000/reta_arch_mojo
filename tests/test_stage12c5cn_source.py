@@ -60,4 +60,4 @@ def test_prompt_interaction_regression_covers_effect_flags() -> None:
     assert "assert_true(math_plan.run_math)" in test
     assert "assert_true(reta_plan.run_reta)" in test
     assert '"external_process_flags=native-prompt-process-effect-flags"' in test
-    assert ("assert_equal(len(snapshot), 26)" in test or "assert_equal(len(snapshot), 27)" in test or "assert_equal(len(snapshot), 28)" in test)
+    assert ("assert_equal(len(snapshot), 26)" in test or "assert_equal(len(snapshot), 27)" in test or "assert_equal(len(snapshot), 28)" in test or "assert_equal(len(snapshot), 29)" in test)

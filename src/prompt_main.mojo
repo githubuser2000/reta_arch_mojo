@@ -34,7 +34,6 @@ from reta_mojo.prompt_external_commands import (
     run_reta_arguments_native,
     run_reta_prompt_fallback_arguments_native,
     run_shell_prompt_payload_native,
-    shell_split,
 )
 from reta_mojo.native_reta_cli import (
     native_reta_tokens_supported,
@@ -64,7 +63,6 @@ from reta_mojo.prompt_runtime import (
     PromptStartup,
     classify_prompt_command_localized,
     parse_prompt_startup,
-    fallback_profile_arguments,
     join_prompt_tokens,
     prime_lines,
     command_numbers,
@@ -94,6 +92,7 @@ from reta_mojo.prompt_interaction import (
     plan_informational_dispatch,
     plan_simple_output_dispatch,
     plan_external_process_dispatch,
+    plan_prompt_fallback_process_dispatch,
     plan_inline_stored_output_command,
     plan_stored_output_command,
     plan_stored_delete_command,
@@ -195,8 +194,11 @@ def _run_fallback(
     profile: PromptProfile,
     line: String,
 ) raises -> None:
+    var fallback_process = plan_prompt_fallback_process_dispatch(profile, line)
     _ = run_reta_prompt_fallback_arguments_native(
-        fallback_profile_arguments(profile), shell_split(line), reference_root()
+        fallback_process.profile_arguments,
+        fallback_process.command_arguments,
+        reference_root(),
     )
 
 

@@ -619,6 +619,19 @@ def test_external_process_dispatch_is_planned_by_interaction_owner() raises:
     assert_equal(len(normal_plan.arguments), 0)
 
 
+def test_fallback_process_dispatch_is_planned_by_interaction_owner() raises:
+    var profile = parse_prompt_startup("rpe", []).profile
+    var plan = plan_prompt_fallback_process_dispatch(
+        profile, "shell \"echo hi\""
+    )
+    assert_equal(len(plan.profile_arguments), 2)
+    assert_equal(plan.profile_arguments[0], "-befehl")
+    assert_equal(plan.profile_arguments[1], "-e")
+    assert_equal(len(plan.command_arguments), 2)
+    assert_equal(plan.command_arguments[0], "shell")
+    assert_equal(plan.command_arguments[1], "echo hi")
+
+
 def test_stored_output_execution_is_planned_by_interaction_owner() raises:
     var catalog = load_prompt_language_catalog("assets")
     var interaction = new_prompt_interaction(
@@ -771,7 +784,7 @@ def test_inline_storage_output_edges_and_history() raises:
 
 def test_contract_snapshot() raises:
     var snapshot = prompt_interaction_contract_snapshot()
-    assert_equal(len(snapshot), 28)
+    assert_equal(len(snapshot), 29)
     assert_equal(snapshot[0], "class=PromptInteractionBundle")
     assert_equal(
         snapshot[6],
@@ -839,17 +852,21 @@ def test_contract_snapshot() raises:
     )
     assert_equal(
         snapshot[22],
-        "stored_output_dispatch=native-session-output-execution-plan",
+        "fallback_process_dispatch=native-interaction-argv-plan",
     )
     assert_equal(
         snapshot[23],
-        "stored_delete_dispatch=native-session-delete-plan",
+        "stored_output_dispatch=native-session-output-execution-plan",
     )
     assert_equal(
         snapshot[24],
+        "stored_delete_dispatch=native-session-delete-plan",
+    )
+    assert_equal(
+        snapshot[25],
         "stored_default=native-empty-enter-placeholder-policy",
     )
-    assert_equal(snapshot[27], "execution=delegated-native-dispatch")
+    assert_equal(snapshot[28], "execution=delegated-native-dispatch")
 
 
 def main() raises:

@@ -1,0 +1,56 @@
+from __future__ import annotations
+
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def test_current_stage_points_to_cy() -> None:
+    current = (ROOT / "scripts/test_current_stage.sh").read_text(encoding="utf-8")
+    assert "test_stage12c5cy.sh" in current
+
+
+def test_stage_wraps_cx_and_checks_fallback_interaction_argv_plan() -> None:
+    source = (ROOT / "scripts/test_stage12c5cy.sh").read_text(encoding="utf-8")
+    assert "test_stage12c5cx.sh" in source
+    assert "fallback interaction argv plan" in source
+    assert "test_${test_name}_12c5cy" in source
+    assert "tests/test_stage12c5cy_source.py" in source
+
+
+def test_interaction_owner_plans_prompt_fallback_argv() -> None:
+    owner = (ROOT / "src/reta_mojo/prompt_interaction.mojo").read_text(
+        encoding="utf-8"
+    )
+    assert "struct PromptFallbackProcessDispatchPlan" in owner
+    assert "var profile_arguments: List[String]" in owner
+    assert "var command_arguments: List[String]" in owner
+    assert "def plan_prompt_fallback_process_dispatch(" in owner
+    assert "fallback_profile_arguments(profile), shell_split(line)" in owner
+    assert "fallback_process_dispatch=native-interaction-argv-plan" in owner
+
+
+def test_controller_consumes_planned_fallback_argv_only() -> None:
+    controller = (ROOT / "src/prompt_main.mojo").read_text(encoding="utf-8")
+    assert "plan_prompt_fallback_process_dispatch," in controller
+    assert "var fallback_process = plan_prompt_fallback_process_dispatch(profile, line)" in controller
+    assert "fallback_process.profile_arguments" in controller
+    assert "fallback_process.command_arguments" in controller
+    assert "fallback_profile_arguments(profile), shell_split(line), reference_root()" not in controller
+    assert "shell_split," not in controller
+
+
+def test_prompt_interaction_snapshot_tracks_fallback_process_plan() -> None:
+    test = (ROOT / "tests/test_prompt_interaction.mojo").read_text(
+        encoding="utf-8"
+    )
+    assert "test_fallback_process_dispatch_is_planned_by_interaction_owner" in test
+    assert "assert_equal(len(snapshot), 29)" in test
+    assert 'snapshot[22]' in test
+    assert '"fallback_process_dispatch=native-interaction-argv-plan"' in test
+
+
+def test_porting_matrix_mentions_interaction_owned_fallback_argv() -> None:
+    matrix = (ROOT / "PORTING_MATRIX.md").read_text(encoding="utf-8")
+    assert "Fallbacks werden vom nativen Interaktions-Owner" in matrix
+    assert "Profil-argv plus Kommando-argv" in matrix
