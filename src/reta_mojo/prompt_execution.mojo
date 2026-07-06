@@ -314,6 +314,20 @@ struct PromptExecutionCompatibilityFallbackPlan(Copyable):
     var source: String
 
 
+@fieldwise_init
+struct PromptExecutionOneShotCompatibilityBoundaryPlan(Copyable):
+    """Pure result for a one-shot native probe at compatibility boundaries.
+
+    ``-befehl`` does not execute the Python fallback directly.  It only reports
+    whether the native probe must stop so the main controller can enter the
+    compatibility path with the untouched source spelling.
+    """
+
+    var stop_native_probe: Bool
+    var handled_without_fallback: Bool
+    var source: String
+
+
 def prompt_execution_integer_argument_words(values: List[String]) -> List[String]:
     var result = List[String]()
     for index in range(len(values)):
@@ -572,7 +586,22 @@ def plan_prompt_execution_compatibility_fallback(
         completion.fallback_required, source
     )
 
+def plan_prompt_execution_one_shot_compatibility_boundary(
+    fallback: PromptExecutionCompatibilityFallbackPlan, handled_when_no_fallback: Bool
+) -> PromptExecutionOneShotCompatibilityBoundaryPlan:
+    """Plan how ``-befehl`` leaves or continues the native probe.
 
+    Interactive prompt execution can immediately run the compatibility command.
+    The one-shot probe has to return a boolean to its caller instead.  Keeping
+    that stop/continue answer here prevents the one-shot controller from
+    reinterpreting the generic compatibility fallback shape by itself.
+    """
+
+    return PromptExecutionOneShotCompatibilityBoundaryPlan(
+        fallback.should_run,
+        (not fallback.should_run) and handled_when_no_fallback,
+        fallback.source,
+    )
 
 
 def plan_prompt_execution_residual_compatibility_fallback(

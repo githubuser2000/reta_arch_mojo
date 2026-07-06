@@ -362,5 +362,24 @@ def test_prompt_execution_residual_compatibility_fallback_is_shared_by_one_shot(
     assert_true(fallback.should_run)
     assert_equal(fallback.source, "one-shot unowned residual command")
 
+
+def test_prompt_execution_one_shot_compatibility_boundary_owns_probe_exit() raises:
+    var direct = PromptExecutionCompatibilityFallbackPlan(True, "r unportedtail 2")
+    var direct_boundary = plan_prompt_execution_one_shot_compatibility_boundary(
+        direct, False
+    )
+    assert_true(direct_boundary.stop_native_probe)
+    assert_false(direct_boundary.handled_without_fallback)
+    assert_equal(direct_boundary.source, "r unportedtail 2")
+
+    var continued = PromptExecutionCompatibilityFallbackPlan(False, "p 17")
+    var continued_boundary = plan_prompt_execution_one_shot_compatibility_boundary(
+        continued, True
+    )
+    assert_false(continued_boundary.stop_native_probe)
+    assert_true(continued_boundary.handled_without_fallback)
+    assert_equal(continued_boundary.source, "p 17")
+
+
 def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()

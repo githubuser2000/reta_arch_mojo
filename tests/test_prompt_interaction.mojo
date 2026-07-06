@@ -630,6 +630,38 @@ def test_external_process_dispatch_is_planned_by_process_execution_owner() raise
     assert_equal(len(normal_plan.arguments), 0)
 
 
+
+def test_one_shot_external_boundary_is_planned_by_process_execution_owner() raises:
+    var catalog = load_prompt_language_catalog("assets")
+    var shell_command = classify_prompt_command_localized(
+        "shell echo hi", "deutsch", catalog
+    )
+    var shell_plan = plan_external_process_dispatch(shell_command)
+    var shell_boundary = plan_one_shot_external_process_boundary(
+        shell_plan, False
+    )
+    assert_true(shell_boundary.stop_native_probe)
+    assert_false(shell_boundary.handled_without_boundary)
+    assert_false(shell_boundary.reta_native_handled)
+
+    var reta_command = classify_prompt_command_localized(
+        "reta -h", "deutsch", catalog
+    )
+    var reta_plan = plan_external_process_dispatch(reta_command)
+    var native_reta_boundary = plan_one_shot_external_process_boundary(
+        reta_plan, True
+    )
+    assert_false(native_reta_boundary.stop_native_probe)
+    assert_true(native_reta_boundary.handled_without_boundary)
+    assert_true(native_reta_boundary.reta_native_handled)
+
+    var fallback_reta_boundary = plan_one_shot_external_process_boundary(
+        reta_plan, False
+    )
+    assert_true(fallback_reta_boundary.stop_native_probe)
+    assert_false(fallback_reta_boundary.handled_without_boundary)
+
+
 def test_fallback_process_dispatch_is_planned_by_process_execution_owner() raises:
     var profile = parse_prompt_startup("rpe", []).profile.copy()
     var plan = plan_prompt_fallback_process_dispatch(

@@ -51,6 +51,21 @@ struct PromptFallbackProcessDispatchPlan(Copyable):
     var arguments: List[String]
 
 
+@fieldwise_init
+struct PromptOneShotExternalBoundaryPlan(Copyable):
+    """Pure one-shot result after an explicit external-process command.
+
+    Interactive prompt execution may directly run shell/python/math/reta child
+    processes.  ``-befehl`` deliberately keeps shell/python/math and unowned
+    reta invocations at the compatibility boundary; only a proven native reta
+    child can finish the native probe.
+    """
+
+    var stop_native_probe: Bool
+    var handled_without_boundary: Bool
+    var reta_native_handled: Bool
+
+
 def plan_external_process_dispatch(
     command: PromptCommand,
 ) raises -> PromptExternalProcessDispatchPlan:
@@ -106,6 +121,23 @@ def plan_external_process_dispatch(
     )
 
 
+def plan_one_shot_external_process_boundary(
+    dispatch: PromptExternalProcessDispatchPlan, reta_native_handled: Bool
+) -> PromptOneShotExternalBoundaryPlan:
+    """Plan how ``-befehl`` exits after explicit process dispatch.
+
+    Shell, Python and math commands intentionally cross the historical prompt
+    compatibility path in one-shot mode.  Direct ``reta`` commands may complete
+    natively only when the native reta child accepted the argv vector.
+    """
+
+    if not dispatch.handled:
+        return PromptOneShotExternalBoundaryPlan(False, False, False)
+    if dispatch.run_reta and reta_native_handled:
+        return PromptOneShotExternalBoundaryPlan(False, True, True)
+    return PromptOneShotExternalBoundaryPlan(True, False, reta_native_handled)
+
+
 def plan_prompt_fallback_process_dispatch(
     profile: PromptProfile,
     line: String,
@@ -136,6 +168,7 @@ def prompt_process_dispatch_contract_snapshot() -> List[String]:
         "external_process_arguments=native-prompt-process-argv-plan",
         "external_process_flags=native-prompt-process-effect-flags",
         "external_process_kind=eliminated-from-external-process-plan",
+        "one_shot_external_boundary=native-prompt-process-probe-boundary",
         "external_reta_child=native-prompt-reta-child-argv",
         "external_raw_line=eliminated-from-external-process-plan",
         "external_shell_arguments=native-prompt-shell-argv-plan",

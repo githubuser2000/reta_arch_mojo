@@ -43,6 +43,7 @@ from reta_mojo.prompt_execution import (
     plan_prompt_execution_native_branch_outcome,
     plan_prompt_execution_native_branch_completion,
     plan_prompt_execution_compatibility_fallback,
+    plan_prompt_execution_one_shot_compatibility_boundary,
     plan_prompt_execution_residual_compatibility_fallback,
 )
 from reta_mojo.native_cli_startup import native_cli_startup
@@ -93,6 +94,7 @@ from reta_mojo.prompt_reaction_storage import (
 
 from reta_mojo.prompt_process_dispatch import (
     plan_external_process_dispatch,
+    plan_one_shot_external_process_boundary,
     plan_prompt_fallback_process_dispatch,
 )
 
@@ -443,7 +445,10 @@ def _run_native_one_shot(
     var compatibility_fallback = plan_prompt_execution_compatibility_fallback(
         completion, line
     )
-    if compatibility_fallback.should_run:
+    var compatibility_boundary = plan_prompt_execution_one_shot_compatibility_boundary(
+        compatibility_fallback, False
+    )
+    if compatibility_boundary.stop_native_probe:
         return False
 
     var info_dispatch = plan_informational_dispatch(command)
@@ -474,10 +479,17 @@ def _run_native_one_shot(
 
     var external_process = plan_external_process_dispatch(command)
     if external_process.handled:
+        var reta_native_handled = False
         if external_process.run_reta:
-            if _run_native_reta_prompt_command(external_process.arguments):
-                return True
-        return False
+            reta_native_handled = _run_native_reta_prompt_command(
+                external_process.arguments
+            )
+        var external_boundary = plan_one_shot_external_process_boundary(
+            external_process, reta_native_handled
+        )
+        if external_boundary.stop_native_probe:
+            return False
+        return external_boundary.handled_without_boundary
 
     # Preserve the untouched one-shot source at the same residual compatibility
     # boundary as the interactive controller.  The main one-shot caller remains
@@ -486,9 +498,12 @@ def _run_native_one_shot(
     var one_shot_residual_fallback = plan_prompt_execution_residual_compatibility_fallback(
         line
     )
-    if one_shot_residual_fallback.should_run:
+    var one_shot_residual_boundary = plan_prompt_execution_one_shot_compatibility_boundary(
+        one_shot_residual_fallback, True
+    )
+    if one_shot_residual_boundary.stop_native_probe:
         return False
-    return True
+    return one_shot_residual_boundary.handled_without_fallback
 
 
 def main() raises:

@@ -24,7 +24,10 @@ def test_one_shot_residual_fallback_uses_prompt_execution_owner() -> None:
     controller = (ROOT / "src/prompt_main.mojo").read_text(encoding="utf-8")
     test = (ROOT / "tests/test_prompt_execution.mojo").read_text(encoding="utf-8")
     assert "one_shot_residual_fallback = plan_prompt_execution_residual_compatibility_fallback" in controller
-    assert "one_shot_residual_fallback.should_run" in controller
+    assert (
+        "one_shot_residual_fallback.should_run" in controller
+        or "one_shot_residual_boundary.stop_native_probe" in controller
+    )
     assert "return False" in controller
     assert "test_prompt_execution_residual_compatibility_fallback_is_shared_by_one_shot" in test
 
