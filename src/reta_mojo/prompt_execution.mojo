@@ -467,11 +467,16 @@ def plan_prompt_execution_native_branch(
 def plan_prompt_execution_native_branch_outcome(
     branch: PromptExecutionNativeBranchPlan, native_handled: Bool
 ) -> PromptExecutionNativeBranchOutcomePlan:
-    """Plan post native-branch control flow after the controller has printed."""
+    """Plan post branch control flow after optional native output.
+
+    A rejected compound candidate must cross the compatibility boundary even
+    when the controller never attempted native rendering.  A successfully
+    printed owned branch may still apply the historical logging transition.
+    """
 
     return PromptExecutionNativeBranchOutcomePlan(
         native_handled,
-        (not native_handled) and branch.fallback_required,
+        branch.fallback_required,
         native_handled and branch.historical_effects.enable_logging,
         native_handled and branch.historical_effects.disable_logging,
     )

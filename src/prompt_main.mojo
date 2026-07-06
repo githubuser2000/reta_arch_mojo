@@ -326,22 +326,21 @@ def _run_command(
     var native_branch = plan_prompt_execution_native_branch(
         routing, line, profile.language, catalog
     )
+    var native_handled = False
     if native_branch.should_try_native:
-        var outcome = plan_prompt_execution_native_branch_outcome(
-            native_branch,
-            _execute_owned_prompt_branch(native_branch, catalog, profile.language),
+        native_handled = _execute_owned_prompt_branch(
+            native_branch, catalog, profile.language
         )
-        if outcome.handled:
-            if outcome.enable_logging:
-                session.logging_enabled = True
-            elif outcome.disable_logging:
-                session.logging_enabled = False
-            return True
-        if outcome.fallback_required:
-            _run_fallback(profile, line)
-            return True
-
-    if native_branch.fallback_required:
+    var outcome = plan_prompt_execution_native_branch_outcome(
+        native_branch, native_handled
+    )
+    if outcome.handled:
+        if outcome.enable_logging:
+            session.logging_enabled = True
+        elif outcome.disable_logging:
+            session.logging_enabled = False
+        return True
+    if outcome.fallback_required:
         _run_fallback(profile, line)
         return True
 
@@ -415,17 +414,17 @@ def _run_native_one_shot(
     var native_branch = plan_prompt_execution_native_branch(
         routing, line, profile.language, catalog
     )
+    var native_handled = False
     if native_branch.should_try_native:
-        var outcome = plan_prompt_execution_native_branch_outcome(
-            native_branch,
-            _execute_owned_prompt_branch(native_branch, catalog, profile.language),
+        native_handled = _execute_owned_prompt_branch(
+            native_branch, catalog, profile.language
         )
-        if outcome.handled:
-            return True
-        if outcome.fallback_required:
-            return False
-
-    if native_branch.fallback_required:
+    var outcome = plan_prompt_execution_native_branch_outcome(
+        native_branch, native_handled
+    )
+    if outcome.handled:
+        return True
+    if outcome.fallback_required:
         return False
 
     var info_dispatch = plan_informational_dispatch(command)

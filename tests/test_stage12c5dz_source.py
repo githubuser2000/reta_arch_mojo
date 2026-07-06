@@ -7,7 +7,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_current_stage_points_to_dz() -> None:
     current = (ROOT / "scripts/test_current_stage.sh").read_text(encoding="utf-8")
-    assert "test_stage12c5dz.sh" in current
+    assert "test_stage12c5dz.sh" in current or "test_stage12c5ea.sh" in current
 
 
 def test_stage_script_chains_dy_and_source_tests() -> None:
@@ -26,7 +26,8 @@ def test_native_branch_outcome_plan_owns_post_execution_decisions() -> None:
     assert "def plan_prompt_execution_native_branch_outcome" in owner
     assert "native_handled and branch.historical_effects.enable_logging" in owner
     assert "native_handled and branch.historical_effects.disable_logging" in owner
-    assert "(not native_handled) and branch.fallback_required" in owner
+    assert "branch.fallback_required" in owner
+    assert "(not native_handled) and branch.fallback_required" not in owner
     assert "plan_prompt_execution_native_branch_outcome" in controller
     assert "if outcome.enable_logging" in controller
     assert "if native_branch.historical_effects.enable_logging" not in controller

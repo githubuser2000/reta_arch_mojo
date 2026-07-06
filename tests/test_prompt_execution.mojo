@@ -230,5 +230,22 @@ def test_prompt_execution_native_branch_outcome_owns_logging_transition() raises
     assert_false(outcome.disable_logging)
     assert_false(outcome.fallback_required)
 
+
+
+def test_prompt_execution_native_branch_outcome_owns_untried_fallback() raises:
+    var catalog = _catalog()
+    var routing = plan_prompt_execution_routing(
+        "richtung shell echo 2", "deutsch", catalog
+    )
+    var branch = plan_prompt_execution_native_branch(
+        routing, "richtung shell echo 2", "deutsch", catalog
+    )
+    var outcome = plan_prompt_execution_native_branch_outcome(branch, False)
+    assert_false(branch.should_try_native)
+    assert_true(outcome.fallback_required)
+    assert_false(outcome.handled)
+    assert_false(outcome.enable_logging)
+    assert_false(outcome.disable_logging)
+
 def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()

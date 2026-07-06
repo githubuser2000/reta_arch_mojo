@@ -8,13 +8,13 @@ ROOT = Path(__file__).resolve().parents[1]
 def test_current_stage_points_to_dr_or_later() -> None:
     current = (ROOT / "scripts/test_current_stage.sh").read_text(encoding="utf-8")
     assert (
-        "test_stage12c5dr.sh" in current
-        or "test_stage12c5ds.sh" in current
-        or "test_stage12c5dt.sh" in current
-        or "test_stage12c5du.sh" in current
-        or "test_stage12c5dv.sh" in current
-        or "test_stage12c5dx.sh" in current
-        or "test_stage12c5dy.sh" in current or "test_stage12c5dz.sh" in current
+        "test_stage12c5dr.sh" in current or "test_stage12c5ea.sh" in current
+        or "test_stage12c5ds.sh" in current or "test_stage12c5ea.sh" in current
+        or "test_stage12c5dt.sh" in current or "test_stage12c5ea.sh" in current
+        or "test_stage12c5du.sh" in current or "test_stage12c5ea.sh" in current
+        or "test_stage12c5dv.sh" in current or "test_stage12c5ea.sh" in current
+        or "test_stage12c5dx.sh" in current or "test_stage12c5ea.sh" in current
+        or "test_stage12c5dy.sh" in current or "test_stage12c5ea.sh" in current or "test_stage12c5dz.sh" in current or "test_stage12c5ea.sh" in current
     )
 
 
@@ -57,7 +57,7 @@ def test_table_ownership_plan_preserves_atomic_fallback_shape() -> None:
     assert "var fallback_required = (table_candidate or mulpri_candidate)" in owner
     assert "if table_plan.handled and not owns_table:" in owner
     assert "raw_tokens, planning_tokens, language, catalog" in owner
-    assert "if ownership.fallback_required:" in controller or "if native_branch.fallback_required:" in controller
+    assert "if outcome.fallback_required:" in controller
     assert "ownership.table_plan" in controller
     assert "ownership.owns_table or ownership.owns_mulpri" in controller or "native_branch.should_try_native" in controller
 
