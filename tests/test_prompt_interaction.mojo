@@ -1,4 +1,5 @@
 from std.testing import assert_equal, assert_true, assert_false, TestSuite
+from std.collections import List
 from reta_mojo.prompt_language import load_prompt_language_catalog
 from reta_mojo.prompt_runtime import (
     parse_prompt_startup,
@@ -711,6 +712,24 @@ def test_fallback_process_dispatch_is_planned_by_process_execution_owner() raise
     assert_equal(plan.arguments[4], "echo hi")
 
 
+def test_fallback_process_execution_is_planned_by_process_execution_owner() raises:
+    var profile = parse_prompt_startup("rpe", []).profile.copy()
+    var dispatch = plan_prompt_fallback_process_dispatch(
+        profile, "shell \"echo hi\""
+    )
+    var execution = plan_prompt_fallback_process_execution(dispatch)
+    assert_true(execution.should_execute)
+    assert_equal(len(execution.arguments), 5)
+    assert_equal(execution.arguments[0], "-vi")
+    assert_equal(execution.arguments[2], "-befehl")
+    assert_equal(execution.arguments[4], "echo hi")
+
+    var rejected = plan_prompt_fallback_process_execution(
+        PromptFallbackProcessDispatchPlan(False, True, List[String]())
+    )
+    assert_false(rejected.should_execute)
+
+
 def test_stored_output_execution_is_planned_by_interaction_owner() raises:
     var catalog = load_prompt_language_catalog("assets")
     var interaction = new_prompt_interaction(
@@ -890,7 +909,7 @@ def test_contract_snapshot() raises:
     assert_equal(input_snapshot[7], "terminal_sentinels=native-exit-plan")
 
     var process_snapshot = prompt_process_dispatch_contract_snapshot()
-    assert_equal(len(process_snapshot), 21)
+    assert_equal(len(process_snapshot), 22)
     assert_equal(process_snapshot[0], "class=PromptProcessDispatchBundle")
     assert_equal(process_snapshot[1], "external_dispatch_owner=prompt-execution-process-plan")
     assert_equal(process_snapshot[2], "external_process_dispatch=native-prompt-process-edge-plan")
@@ -906,12 +925,13 @@ def test_contract_snapshot() raises:
     assert_equal(process_snapshot[12], "external_python_math_arguments=native-prompt-python-math-argv-plan")
     assert_equal(process_snapshot[13], "external_command_arguments=runtime-owned-command-argv-builders")
     assert_equal(process_snapshot[14], "fallback_process_dispatch=native-interaction-argv-plan")
-    assert_equal(process_snapshot[15], "fallback_process_handled=native-explicit-fallback-effect-flag")
-    assert_equal(process_snapshot[16], "fallback_process_flags=native-explicit-fallback-run-flag")
-    assert_equal(process_snapshot[17], "fallback_process_arguments=native-merged-fallback-argv")
-    assert_equal(process_snapshot[18], "fallback_runtime_arguments=runtime-owned-argv-builder")
-    assert_equal(process_snapshot[19], "fallback_shell_split=runtime-owned-argv-tokenizer")
-    assert_equal(process_snapshot[20], "process_adapter=argv-execution-only")
+    assert_equal(process_snapshot[15], "fallback_process_execution=native-prompt-fallback-execution-boundary")
+    assert_equal(process_snapshot[16], "fallback_process_handled=native-explicit-fallback-effect-flag")
+    assert_equal(process_snapshot[17], "fallback_process_flags=native-explicit-fallback-run-flag")
+    assert_equal(process_snapshot[18], "fallback_process_arguments=native-merged-fallback-argv")
+    assert_equal(process_snapshot[19], "fallback_runtime_arguments=runtime-owned-argv-builder")
+    assert_equal(process_snapshot[20], "fallback_shell_split=runtime-owned-argv-tokenizer")
+    assert_equal(process_snapshot[21], "process_adapter=argv-execution-only")
 
     var storage_snapshot = prompt_reaction_storage_contract_snapshot()
     assert_equal(len(storage_snapshot), 8)

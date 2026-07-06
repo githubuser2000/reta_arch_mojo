@@ -39,9 +39,14 @@ def test_controller_consumes_the_handled_flag_before_process_execution() -> None
     controller = (ROOT / "src/prompt_main.mojo").read_text(encoding="utf-8")
     body = controller.split("def _run_fallback(", 1)[1].split("\ndef _run_native_reta_prompt_command", 1)[0]
     assert "var fallback_process = plan_prompt_fallback_process_dispatch(profile, line)" in body
-    assert "if not fallback_process.handled:" in body
+    if "fallback_execution.should_execute" in body:
+        assert "if not fallback_execution.should_execute:" in body
+        assert "if not fallback_process.handled:" not in body
+        assert body.index("if not fallback_execution.should_execute:") < body.index("run_reta_prompt_arguments_native(")
+    else:
+        assert "if not fallback_process.handled:" in body
+        assert body.index("if not fallback_process.handled:") < body.index("run_reta_prompt_arguments_native(")
     assert "run_reta_prompt_arguments_native(" in body
-    assert body.index("if not fallback_process.handled:") < body.index("run_reta_prompt_arguments_native(")
 
 
 def test_prompt_interaction_snapshot_and_runtime_test_cover_handled_flag() -> None:

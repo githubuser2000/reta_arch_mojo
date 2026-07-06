@@ -44,8 +44,8 @@ def test_prompt_controller_uses_fallback_argument_owner_before_process_adapter()
     assert "plan_prompt_fallback_process_dispatch," in controller
     assert "run_reta_prompt_fallback_native" not in controller
     assert "reta_prompt_fallback_arguments_native(, reference_root()" not in controller
-    assert "fallback_process.arguments" in controller
-    assert "fallback_process.arguments" in controller
+    assert "fallback_execution.arguments" in controller or "fallback_process.arguments" in controller
+    assert "fallback_execution.arguments" in controller or "fallback_process.arguments" in controller
 
 
 def test_legacy_bridge_fallback_uses_same_argv_owner() -> None:

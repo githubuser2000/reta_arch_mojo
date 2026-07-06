@@ -52,6 +52,20 @@ struct PromptFallbackProcessDispatchPlan(Copyable):
 
 
 @fieldwise_init
+struct PromptFallbackProcessExecutionPlan(Copyable):
+    """Controller-facing execution boundary for the prompt fallback child.
+
+    The fallback argv builder already lives in this owner.  This small plan also
+    owns the last boolean gate that decides whether the controller should invoke
+    the ``retaPrompt.py`` compatibility child.  The controller then only checks a
+    single execution flag and passes through the owned argv vector.
+    """
+
+    var should_execute: Bool
+    var arguments: List[String]
+
+
+@fieldwise_init
 struct PromptInteractiveExternalCompletionPlan(Copyable):
     """Pure completion plan after interactive external-process dispatch.
 
@@ -193,6 +207,22 @@ def plan_prompt_fallback_process_dispatch(
     )
 
 
+def plan_prompt_fallback_process_execution(
+    dispatch: PromptFallbackProcessDispatchPlan,
+) -> PromptFallbackProcessExecutionPlan:
+    """Plan the actual fallback child-process execution gate.
+
+    The compatibility child may only run when the fallback dispatch itself is
+    handled and explicitly targets ``retaPrompt.py``.  Keeping this conjunction
+    in the process-dispatch owner removes the remaining fallback boolean algebra
+    from ``prompt_main.mojo``.
+    """
+    return PromptFallbackProcessExecutionPlan(
+        dispatch.handled and dispatch.run_reta_prompt,
+        dispatch.arguments,
+    )
+
+
 def prompt_process_dispatch_contract_snapshot() -> List[String]:
     """Stable ownership snapshot for process-facing prompt execution."""
     return [
@@ -211,6 +241,7 @@ def prompt_process_dispatch_contract_snapshot() -> List[String]:
         "external_python_math_arguments=native-prompt-python-math-argv-plan",
         "external_command_arguments=runtime-owned-command-argv-builders",
         "fallback_process_dispatch=native-interaction-argv-plan",
+        "fallback_process_execution=native-prompt-fallback-execution-boundary",
         "fallback_process_handled=native-explicit-fallback-effect-flag",
         "fallback_process_flags=native-explicit-fallback-run-flag",
         "fallback_process_arguments=native-merged-fallback-argv",

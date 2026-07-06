@@ -37,10 +37,16 @@ def test_fallback_plan_has_run_flag() -> None:
 def test_controller_consumes_run_flag_before_fallback_child() -> None:
     controller = (ROOT / "src/prompt_main.mojo").read_text(encoding="utf-8")
     body = controller.split("def _run_fallback(", 1)[1].split("\ndef _run_native_reta_prompt_command", 1)[0]
-    assert "if not fallback_process.handled:" in body
-    assert "if not fallback_process.run_reta_prompt:" in body
-    assert body.index("if not fallback_process.handled:") < body.index("if not fallback_process.run_reta_prompt:")
-    assert body.index("if not fallback_process.run_reta_prompt:") < body.index("run_reta_prompt_arguments_native(")
+    if "fallback_execution.should_execute" in body:
+        assert "if not fallback_execution.should_execute:" in body
+        assert "if not fallback_process.handled:" not in body
+        assert "if not fallback_process.run_reta_prompt:" not in body
+        assert body.index("if not fallback_execution.should_execute:") < body.index("run_reta_prompt_arguments_native(")
+    else:
+        assert "if not fallback_process.handled:" in body
+        assert "if not fallback_process.run_reta_prompt:" in body
+        assert body.index("if not fallback_process.handled:") < body.index("if not fallback_process.run_reta_prompt:")
+        assert body.index("if not fallback_process.run_reta_prompt:") < body.index("run_reta_prompt_arguments_native(")
 
 
 def test_mojo_contract_snapshot_records_run_flag() -> None:

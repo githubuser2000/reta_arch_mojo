@@ -39,7 +39,7 @@ def test_fallback_plan_owns_merged_argv() -> None:
 def test_controller_uses_regular_reta_prompt_argv_boundary() -> None:
     controller = (ROOT / "src/prompt_main.mojo").read_text(encoding="utf-8")
     body = controller.split("def _run_fallback(", 1)[1].split("\ndef _run_native_reta_prompt_command", 1)[0]
-    assert "fallback_process.arguments" in body
+    assert "fallback_execution.arguments" in body or "fallback_process.arguments" in body
     assert "fallback_process.profile_arguments" not in body
     assert "fallback_process.command_arguments" not in body
     assert "run_reta_prompt_arguments_native(" in body

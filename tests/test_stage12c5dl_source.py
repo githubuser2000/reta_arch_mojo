@@ -52,10 +52,12 @@ def test_prompt_tests_cover_split_contracts() -> None:
     assert (
         "assert_equal(len(process_snapshot), 19)" in test
         or "assert_equal(len(process_snapshot), 21)" in test
+        or "assert_equal(len(process_snapshot), 22)" in test
     )
     assert (
         'assert_equal(process_snapshot[18], "process_adapter=argv-execution-only")' in test
         or 'assert_equal(process_snapshot[20], "process_adapter=argv-execution-only")' in test
+        or 'assert_equal(process_snapshot[21], "process_adapter=argv-execution-only")' in test
     )
     assert ('assert_equal(snapshot[20], "execution=delegated-native-dispatch")' in test or 'assert_equal(snapshot[6], "execution=delegated-native-dispatch")' in test)
 

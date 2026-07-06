@@ -179,11 +179,12 @@ def test_production_prompt_activates_the_interaction_owner() -> None:
     assert "run_reta_line_native(external_process.raw)" not in controller
     assert "external_process.raw" not in controller
     assert "fallback_profile_arguments(profile), shell_split(line), reference_root()" not in controller
-    assert "fallback_process.arguments" in controller
+    assert "fallback_execution.arguments" in controller or "fallback_process.arguments" in controller
     assert "fallback_process.profile_arguments" not in controller
     assert "fallback_process.command_arguments" not in controller
-    assert "if not fallback_process.handled:" in controller
-    assert "if not fallback_process.run_reta_prompt:" in controller
+    assert "if not fallback_process.handled:" not in controller
+    assert "if not fallback_process.run_reta_prompt:" not in controller
+    assert "if not fallback_execution.should_execute:" in controller
     assert "external_process.process_kind == EXTERNAL_PROMPT" not in controller
     assert "external_process.process_kind" not in controller
     assert "EXTERNAL_PROMPT_SHELL," not in controller

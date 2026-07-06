@@ -97,6 +97,7 @@ from reta_mojo.prompt_process_dispatch import (
     plan_interactive_external_process_completion,
     plan_one_shot_external_process_boundary,
     plan_prompt_fallback_process_dispatch,
+    plan_prompt_fallback_process_execution,
 )
 
 def _print_lines(values: List[String]) -> None:
@@ -195,12 +196,13 @@ def _run_fallback(
     line: String,
 ) raises -> None:
     var fallback_process = plan_prompt_fallback_process_dispatch(profile, line)
-    if not fallback_process.handled:
-        return
-    if not fallback_process.run_reta_prompt:
+    var fallback_execution = plan_prompt_fallback_process_execution(
+        fallback_process
+    )
+    if not fallback_execution.should_execute:
         return
     _ = run_reta_prompt_arguments_native(
-        fallback_process.arguments,
+        fallback_execution.arguments,
         reference_root(),
     )
 

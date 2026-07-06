@@ -37,8 +37,8 @@ def test_controller_consumes_planned_fallback_argv_only() -> None:
     controller = (ROOT / "src/prompt_main.mojo").read_text(encoding="utf-8")
     assert "plan_prompt_fallback_process_dispatch," in controller
     assert "var fallback_process = plan_prompt_fallback_process_dispatch(profile, line)" in controller
-    assert "fallback_process.arguments" in controller
-    assert "fallback_process.arguments" in controller
+    assert "fallback_execution.arguments" in controller or "fallback_process.arguments" in controller
+    assert "fallback_execution.arguments" in controller or "fallback_process.arguments" in controller
     assert "reta_prompt_fallback_arguments_native(, reference_root()" not in controller
     assert "shell_split," not in controller
 
