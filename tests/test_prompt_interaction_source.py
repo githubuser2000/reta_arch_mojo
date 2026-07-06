@@ -114,7 +114,7 @@ def test_production_prompt_activates_the_interaction_owner() -> None:
     assert "KIND_RETA," not in controller
     assert "if command.kind != KIND_RETA" not in controller
     assert "if command.kind == KIND_RETA" not in controller
-    assert "run_shell_prompt_payload_native(external_process.payload)" in controller
+    assert "run_shell_prompt_arguments_native(external_process.arguments)" in controller
     assert "run_python_prompt_payload_native(external_process.payload)" in controller
     assert "run_math_prompt_payload_native(external_process.payload)" in controller
     assert "run_shell_prompt_line_native(external_process.raw)" not in controller

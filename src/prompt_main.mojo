@@ -33,7 +33,7 @@ from reta_mojo.prompt_external_commands import (
     run_python_prompt_payload_native,
     run_reta_arguments_native,
     run_reta_prompt_arguments_native,
-    run_shell_prompt_payload_native,
+    run_shell_prompt_arguments_native,
 )
 from reta_mojo.native_reta_cli import (
     native_reta_tokens_supported,
@@ -592,7 +592,7 @@ def _run_command(
     var external_process = plan_external_process_dispatch(command)
     if external_process.handled:
         if external_process.run_shell:
-            _ = run_shell_prompt_payload_native(external_process.payload)
+            _ = run_shell_prompt_arguments_native(external_process.arguments)
             return True
         if external_process.run_python:
             _ = run_python_prompt_payload_native(external_process.payload)

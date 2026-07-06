@@ -8,7 +8,7 @@ def test_hintere_commands_do_not_cross_python_bridge() -> None:
     assert "bridge.run_shell_prompt_line" not in source
     assert "bridge.run_python_prompt_line" not in source
     assert "bridge.run_math_prompt_line" not in source
-    assert "run_shell_prompt_payload_native(external_process.payload)" in source
+    assert "run_shell_prompt_arguments_native(external_process.arguments)" in source
     assert "run_python_prompt_payload_native(external_process.payload)" in source
     assert "run_math_prompt_payload_native(external_process.payload)" in source
     assert (
@@ -92,6 +92,7 @@ def test_external_adapter_exposes_payload_and_argument_children_only() -> None:
     adapter = (root / "src" / "reta_mojo" / "prompt_external_commands.mojo").read_text(
         encoding="utf-8"
     )
+    assert "def run_shell_prompt_arguments_native(" in adapter
     assert "def run_shell_prompt_payload_native(" in adapter
     assert "def run_python_prompt_payload_native(" in adapter
     assert "def run_math_prompt_payload_native(" in adapter

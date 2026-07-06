@@ -25,7 +25,7 @@ def test_prompt_controller_uses_planned_reta_child_arguments() -> None:
     assert "run_reta_line_native(external_process.raw)" not in controller
     assert "run_reta_line_native," not in controller
     assert "_run_native_reta_prompt_command(external_process.arguments)" in controller
-    assert "run_shell_prompt_payload_native(external_process.payload)" in controller
+    assert ("run_shell_prompt_payload_native(external_process.payload)" in controller or "run_shell_prompt_arguments_native(external_process.arguments)" in controller)
     assert "run_python_prompt_payload_native(external_process.payload)" in controller
     assert "run_math_prompt_payload_native(external_process.payload)" in controller
 

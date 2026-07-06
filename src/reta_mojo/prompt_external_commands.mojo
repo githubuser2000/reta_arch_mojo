@@ -80,12 +80,11 @@ def prompt_python_executable() -> String:
     return configured if configured.byte_length() > 0 else "python3"
 
 
-def run_shell_prompt_payload_native(
-    payload: String,
+def run_shell_prompt_arguments_native(
+    arguments: List[String],
     reference_root: String = "python_reference",
 ) raises -> Int:
-    """Run an explicit shell payload already separated by the prompt owner."""
-    var arguments = shell_split(payload)
+    """Run an explicit shell argv vector without adapter-side tokenization."""
     if len(arguments) == 0:
         return 0
     var command = _working_command_prefix(reference_root)
@@ -94,6 +93,16 @@ def run_shell_prompt_payload_native(
             command += " "
         command += shell_quote(arguments[index])
     return _run_spawned_child(command)
+
+
+def run_shell_prompt_payload_native(
+    payload: String,
+    reference_root: String = "python_reference",
+) raises -> Int:
+    """Run a legacy shell payload by tokenizing it at the compatibility edge."""
+    return run_shell_prompt_arguments_native(
+        shell_split(payload), reference_root
+    )
 
 
 

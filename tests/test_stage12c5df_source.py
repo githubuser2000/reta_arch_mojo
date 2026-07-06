@@ -54,7 +54,7 @@ def test_legacy_bridge_and_probe_import_runtime_fallback_builder() -> None:
 def test_mojo_snapshot_tracks_runtime_fallback_argv_owner() -> None:
     test = (ROOT / "tests/test_prompt_interaction.mojo").read_text(encoding="utf-8")
     assert '"fallback_runtime_arguments=runtime-owned-argv-builder"' in test
-    assert ("assert_equal(len(snapshot), 33)" in test or "assert_equal(len(snapshot), 34)" in test)
+    assert ("assert_equal(len(snapshot), 33)" in test or "assert_equal(len(snapshot), 34)" in test or "assert_equal(len(snapshot), 35)" in test)
 
 
 def test_stage_document_records_runtime_owner_move() -> None:

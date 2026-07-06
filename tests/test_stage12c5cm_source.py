@@ -33,7 +33,7 @@ def test_external_process_plan_owns_payload_boundary() -> None:
 
 def test_process_controller_consumes_planned_payloads() -> None:
     controller = (ROOT / "src/prompt_main.mojo").read_text(encoding="utf-8")
-    assert "run_shell_prompt_payload_native(external_process.payload)" in controller
+    assert ("run_shell_prompt_payload_native(external_process.payload)" in controller or "run_shell_prompt_arguments_native(external_process.arguments)" in controller)
     assert "run_python_prompt_payload_native(external_process.payload)" in controller
     assert "run_math_prompt_payload_native(external_process.payload)" in controller
     assert "run_shell_prompt_line_native(external_process.raw)" not in controller

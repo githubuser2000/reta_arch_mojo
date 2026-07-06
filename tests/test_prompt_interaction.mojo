@@ -564,8 +564,10 @@ def test_external_process_dispatch_is_planned_by_interaction_owner() raises:
     )
     var shell_plan = plan_external_process_dispatch(shell_command)
     assert_true(shell_plan.handled)
-    assert_equal(shell_plan.payload, "echo hi")
-    assert_equal(len(shell_plan.arguments), 0)
+    assert_equal(shell_plan.payload, "")
+    assert_equal(len(shell_plan.arguments), 2)
+    assert_equal(shell_plan.arguments[0], "echo")
+    assert_equal(shell_plan.arguments[1], "hi")
     assert_true(shell_plan.run_shell)
     assert_false(shell_plan.run_python)
     assert_false(shell_plan.run_math)
@@ -786,7 +788,7 @@ def test_inline_storage_output_edges_and_history() raises:
 
 def test_contract_snapshot() raises:
     var snapshot = prompt_interaction_contract_snapshot()
-    assert_equal(len(snapshot), 34)
+    assert_equal(len(snapshot), 35)
     assert_equal(snapshot[0], "class=PromptInteractionBundle")
     assert_equal(
         snapshot[6],
@@ -878,17 +880,21 @@ def test_contract_snapshot() raises:
     )
     assert_equal(
         snapshot[28],
-        "stored_output_dispatch=native-session-output-execution-plan",
+        "external_shell_arguments=native-prompt-shell-argv-plan",
     )
     assert_equal(
         snapshot[29],
-        "stored_delete_dispatch=native-session-delete-plan",
+        "stored_output_dispatch=native-session-output-execution-plan",
     )
     assert_equal(
         snapshot[30],
+        "stored_delete_dispatch=native-session-delete-plan",
+    )
+    assert_equal(
+        snapshot[31],
         "stored_default=native-empty-enter-placeholder-policy",
     )
-    assert_equal(snapshot[33], "execution=delegated-native-dispatch")
+    assert_equal(snapshot[34], "execution=delegated-native-dispatch")
 
 
 def main() raises:

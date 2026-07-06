@@ -563,7 +563,7 @@ def _prompt_command_payload(command: PromptCommand) -> String:
 
 def plan_external_process_dispatch(
     command: PromptCommand,
-) -> PromptExternalProcessDispatchPlan:
+) raises -> PromptExternalProcessDispatchPlan:
     """Plan prompt commands that intentionally cross a process boundary.
 
     The process entry point still owns the actual shell/Python/math/reta I/O,
@@ -574,8 +574,8 @@ def plan_external_process_dispatch(
     if command.kind == KIND_SHELL:
         return PromptExternalProcessDispatchPlan(
             True,
-            _prompt_command_payload(command),
-            List[String](),
+            "",
+            shell_split(_prompt_command_payload(command)),
             True,
             False,
             False,
@@ -900,6 +900,7 @@ def prompt_interaction_contract_snapshot() -> List[String]:
         "fallback_process_arguments=native-merged-fallback-argv",
         "fallback_runtime_arguments=runtime-owned-argv-builder",
         "fallback_shell_split=runtime-owned-argv-tokenizer",
+        "external_shell_arguments=native-prompt-shell-argv-plan",
         "stored_output_dispatch=native-session-output-execution-plan",
         "stored_delete_dispatch=native-session-delete-plan",
         "stored_default=native-empty-enter-placeholder-policy",

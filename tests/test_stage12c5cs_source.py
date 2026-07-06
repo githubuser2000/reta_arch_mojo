@@ -48,7 +48,7 @@ def test_prompt_external_source_guards_accept_payload_and_argument_ownership() -
         encoding="utf-8"
     )
     controller = (ROOT / "src/prompt_main.mojo").read_text(encoding="utf-8")
-    assert "run_shell_prompt_payload_native(external_process.payload)" in source
+    assert ("run_shell_prompt_payload_native(external_process.payload)" in source or "run_shell_prompt_arguments_native(external_process.arguments)" in source)
     assert "run_python_prompt_payload_native(external_process.payload)" in source
     assert "run_math_prompt_payload_native(external_process.payload)" in source
     assert "run_reta_arguments_native" in source

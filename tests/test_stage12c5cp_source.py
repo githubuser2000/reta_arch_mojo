@@ -30,7 +30,7 @@ def test_external_process_plan_no_longer_carries_raw_line() -> None:
 def test_process_controller_consumes_only_payloads_and_arguments() -> None:
     controller = (ROOT / "src/prompt_main.mojo").read_text(encoding="utf-8")
     assert "external_process.raw" not in controller
-    assert "run_shell_prompt_payload_native(external_process.payload)" in controller
+    assert ("run_shell_prompt_payload_native(external_process.payload)" in controller or "run_shell_prompt_arguments_native(external_process.arguments)" in controller)
     assert "run_python_prompt_payload_native(external_process.payload)" in controller
     assert "run_math_prompt_payload_native(external_process.payload)" in controller
     assert "run_reta_arguments_native(\n                external_process.arguments, reference_root()" in controller
