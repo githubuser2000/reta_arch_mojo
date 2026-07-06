@@ -1439,3 +1439,8 @@ Vier vollständig native Diagnoseoberflächen teilen seit Stage 12c5z eine versi
 - `PromptExternalProcessDispatchPlan` trägt keine `raw`-Befehlszeile mehr.
 - Shell, Python und Math verwenden ausschließlich den nativen Payload-Plan; direkte `reta`-Kindprozesse verwenden ausschließlich den argv-Plan.
 - Der neue Snapshotmarker `external_raw_line=eliminated-from-external-process-plan` dokumentiert, dass die rohe Zeile nur noch im klassifizierten PromptCommand für Payloadableitung/Fallback-Konservierung existiert, nicht mehr im ausführbaren externen Prozessplan.
+
+## Stage 12c5dc
+
+- Korrigiert die Runtime-Erwartung des Fallback-argv-Plans für das historische `rpe`-Profil: `fallback_profile_arguments(profile)` liefert korrekt `-vi`, `-e`, `-befehl`.
+- Der native Plan und die Prozessgrenze bleiben unverändert; nur der Mojo-Test erwartete fälschlich zwei statt drei Profilargumente.

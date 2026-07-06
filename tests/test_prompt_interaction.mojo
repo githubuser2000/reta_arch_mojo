@@ -625,9 +625,10 @@ def test_fallback_process_dispatch_is_planned_by_interaction_owner() raises:
         profile, "shell \"echo hi\""
     )
     assert_true(plan.handled)
-    assert_equal(len(plan.profile_arguments), 2)
-    assert_equal(plan.profile_arguments[0], "-befehl")
+    assert_equal(len(plan.profile_arguments), 3)
+    assert_equal(plan.profile_arguments[0], "-vi")
     assert_equal(plan.profile_arguments[1], "-e")
+    assert_equal(plan.profile_arguments[2], "-befehl")
     assert_equal(len(plan.command_arguments), 2)
     assert_equal(plan.command_arguments[0], "shell")
     assert_equal(plan.command_arguments[1], "echo hi")

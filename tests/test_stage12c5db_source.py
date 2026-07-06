@@ -5,9 +5,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def test_current_stage_points_to_db() -> None:
+def test_current_stage_points_to_db_or_later() -> None:
     current = (ROOT / "scripts/test_current_stage.sh").read_text(encoding="utf-8")
-    assert "test_stage12c5db.sh" in current
+    assert "test_stage12c5" in current
+    assert ".sh" in current
 
 
 def test_stage_wraps_da_and_builds_prompt_tests() -> None:
@@ -42,6 +43,10 @@ def test_controller_consumes_the_handled_flag_before_process_execution() -> None
 def test_prompt_interaction_snapshot_and_runtime_test_cover_handled_flag() -> None:
     test = (ROOT / "tests/test_prompt_interaction.mojo").read_text(encoding="utf-8")
     assert "assert_true(plan.handled)" in test
+    assert "assert_equal(len(plan.profile_arguments), 3)" in test
+    assert 'assert_equal(plan.profile_arguments[0], "-vi")' in test
+    assert 'assert_equal(plan.profile_arguments[1], "-e")' in test
+    assert 'assert_equal(plan.profile_arguments[2], "-befehl")' in test
     assert "assert_equal(len(snapshot), 30)" in test
     assert '"fallback_process_handled=native-explicit-fallback-effect-flag"' in test
     assert 'assert_equal(snapshot[29], "execution=delegated-native-dispatch")' in test
