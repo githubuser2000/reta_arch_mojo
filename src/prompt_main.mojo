@@ -96,6 +96,7 @@ from reta_mojo.prompt_process_dispatch import (
     plan_external_process_dispatch,
     plan_interactive_external_process_execution,
     plan_interactive_external_process_completion,
+    plan_one_shot_external_process_execution,
     plan_one_shot_external_process_boundary,
     plan_prompt_fallback_process_dispatch,
     plan_prompt_fallback_process_execution,
@@ -489,10 +490,13 @@ def _run_native_one_shot(
 
     var external_process = plan_external_process_dispatch(command)
     if external_process.handled:
+        var one_shot_external_execution = plan_one_shot_external_process_execution(
+            external_process
+        )
         var reta_native_handled = False
-        if external_process.run_reta:
+        if one_shot_external_execution.should_try_reta_native:
             reta_native_handled = _run_native_reta_prompt_command(
-                external_process.arguments
+                one_shot_external_execution.arguments
             )
         var external_boundary = plan_one_shot_external_process_boundary(
             external_process, reta_native_handled

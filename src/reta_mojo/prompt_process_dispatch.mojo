@@ -83,6 +83,21 @@ struct PromptInteractiveExternalExecutionPlan(Copyable):
 
 
 @fieldwise_init
+struct PromptOneShotExternalExecutionPlan(Copyable):
+    """Controller-facing one-shot native child probe for direct reta.
+
+    One-shot prompt execution must not run shell/python/math children in the
+    native probe.  The only external command that may finish natively is direct
+    ``reta`` when the native child accepts the argv vector.  This plan owns that
+    pure projection so ``prompt_main.mojo`` no longer reads ``run_reta`` or the
+    dispatch argv directly.
+    """
+
+    var should_try_reta_native: Bool
+    var arguments: List[String]
+
+
+@fieldwise_init
 struct PromptInteractiveExternalCompletionPlan(Copyable):
     """Pure completion plan after interactive external-process dispatch.
 
@@ -191,6 +206,24 @@ def plan_interactive_external_process_execution(
     )
 
 
+def plan_one_shot_external_process_execution(
+    dispatch: PromptExternalProcessDispatchPlan,
+) -> PromptOneShotExternalExecutionPlan:
+    """Plan the only external native attempt allowed in one-shot mode.
+
+    Shell, Python and math intentionally stay at the historical compatibility
+    boundary for ``-befehl``.  Direct ``reta`` may try the native child once; the
+    later one-shot boundary plan decides whether that accepted argv completes the
+    native probe or returns to compatibility.
+    """
+
+    if dispatch.handled and dispatch.run_reta:
+        return PromptOneShotExternalExecutionPlan(
+            True, dispatch.arguments.copy()
+        )
+    return PromptOneShotExternalExecutionPlan(False, List[String]())
+
+
 def plan_interactive_external_process_completion(
     dispatch: PromptExternalProcessDispatchPlan, reta_native_handled: Bool
 ) -> PromptInteractiveExternalCompletionPlan:
@@ -276,6 +309,7 @@ def prompt_process_dispatch_contract_snapshot() -> List[String]:
         "external_process_kind=eliminated-from-external-process-plan",
         "interactive_external_execution=native-prompt-process-execution-boundary",
         "interactive_external_completion=native-prompt-process-completion-boundary",
+        "one_shot_external_execution=native-prompt-process-one-shot-execution-boundary",
         "one_shot_external_boundary=native-prompt-process-probe-boundary",
         "external_reta_child=native-prompt-reta-child-argv",
         "external_raw_line=eliminated-from-external-process-plan",

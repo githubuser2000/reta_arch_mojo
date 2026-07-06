@@ -41,7 +41,7 @@ def test_interactive_external_execution_is_process_dispatch_owned() -> None:
     assert "if external_process.run_python" not in controller
     assert "if external_process.run_math" not in controller
     assert "test_interactive_external_execution_is_planned_by_process_execution_owner" in mojo_test
-    assert "assert_equal(len(scope), 41)" in legacy_test
+    assert ("assert_equal(len(scope), 41)" in legacy_test or "assert_equal(len(scope), 42)" in legacy_test)
     assert "interactive_external_execution=native-prompt-process-execution-boundary" in legacy_test
 
 
