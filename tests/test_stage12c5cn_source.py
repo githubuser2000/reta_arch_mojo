@@ -5,9 +5,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def test_current_stage_points_to_cn() -> None:
+def test_current_stage_points_to_a_later_stage_script() -> None:
     current = (ROOT / "scripts/test_current_stage.sh").read_text(encoding="utf-8")
-    assert "test_stage12c5cn.sh" in current
+    assert "test_stage12c5" in current
 
 
 def test_stage_wraps_cm_and_rebuilds_prompt_boundaries() -> None:
@@ -60,4 +60,4 @@ def test_prompt_interaction_regression_covers_effect_flags() -> None:
     assert "assert_true(math_plan.run_math)" in test
     assert "assert_true(reta_plan.run_reta)" in test
     assert '"external_process_flags=native-prompt-process-effect-flags"' in test
-    assert "assert_equal(len(snapshot), 25)" in test
+    assert "assert_equal(len(snapshot), 26)" in test

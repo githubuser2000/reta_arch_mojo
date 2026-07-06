@@ -39,7 +39,10 @@ def test_process_controller_consumes_planned_payloads() -> None:
     assert "run_shell_prompt_line_native(external_process.raw)" not in controller
     assert "run_python_prompt_line_native(external_process.raw)" not in controller
     assert "run_math_prompt_line_native(external_process.raw)" not in controller
-    assert "run_reta_line_native(external_process.raw)" in controller
+    assert (
+        "run_reta_line_native(external_process.raw)" in controller
+        or "run_reta_arguments_native(\n                external_process.arguments" in controller
+    )
 
 
 def test_payload_helpers_keep_line_wrappers_for_compatibility() -> None:

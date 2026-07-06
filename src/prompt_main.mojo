@@ -31,7 +31,7 @@ from reta_mojo.native_prompt_input import read_native_prompt_line
 from reta_mojo.prompt_external_commands import (
     run_math_prompt_payload_native,
     run_python_prompt_payload_native,
-    run_reta_line_native,
+    run_reta_arguments_native,
     run_reta_prompt_fallback_native,
     run_shell_prompt_payload_native,
 )
@@ -597,7 +597,9 @@ def _run_command(
         if external_process.run_reta:
             if _run_native_reta_prompt_command(external_process.arguments):
                 return True
-            _ = run_reta_line_native(external_process.raw)
+            _ = run_reta_arguments_native(
+                external_process.arguments, reference_root()
+            )
             return True
 
     # Preserve the untouched source spelling at the compatibility boundary.

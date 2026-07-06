@@ -875,6 +875,7 @@ def prompt_interaction_contract_snapshot() -> List[String]:
         "external_reta_arguments=native-prompt-reta-argv-plan",
         "external_process_payload=native-prompt-process-payload-plan",
         "external_process_flags=native-prompt-process-effect-flags",
+        "external_reta_child=native-prompt-reta-child-argv",
         "stored_output_dispatch=native-session-output-execution-plan",
         "stored_delete_dispatch=native-session-delete-plan",
         "stored_default=native-empty-enter-placeholder-policy",

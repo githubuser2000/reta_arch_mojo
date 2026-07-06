@@ -112,6 +112,8 @@ def test_production_prompt_activates_the_interaction_owner() -> None:
     assert "run_python_prompt_line_native(external_process.raw)" not in controller
     assert "run_math_prompt_line_native(external_process.raw)" not in controller
     assert "_run_native_reta_prompt_command(external_process.arguments)" in controller
+    assert "run_reta_arguments_native(\n                external_process.arguments" in controller
+    assert "run_reta_line_native(external_process.raw)" not in controller
     assert "external_process.process_kind == EXTERNAL_PROMPT" not in controller
     assert "EXTERNAL_PROMPT_SHELL," not in controller
     assert "EXTERNAL_PROMPT_PYTHON," not in controller

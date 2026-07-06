@@ -1419,3 +1419,16 @@ Vier vollständig native Diagnoseoberflächen teilen seit Stage 12c5z eine versi
 - Ergänzt native Terminalhöhe und die reine Regel `rows + 1`.
 - Bewahrt den getrennten ANSI-Vertrag für das alleinstehende Clear-Kommando.
 - Korrigiert den 12c5bt-Testbuild: `assert_equal` wurde auf einer nicht `Writable`-Struktur verwendet.
+
+## Stage 12c5co
+
+- Der interaktive externe `reta`-Promptpfad reparst nicht mehr die rohe Zeile
+  über `run_reta_line_native(external_process.raw)`.
+- `prompt_interaction.mojo` erzeugt bereits den exakten argv-Vektor; der
+  Controller übergibt diesen nun auch für den direkten `reta.py`-Kindprozess an
+  `run_reta_arguments_native(external_process.arguments, reference_root())`.
+- Shell-, Python- und Math-Befehle bleiben payloadbasiert; der `reta`-Fallback
+  ist jetzt ebenfalls argumentbasiert und damit frei von einer zweiten
+  Prompt-Split-Grenze.
+- Der neue Snapshotmarker `external_reta_child=native-prompt-reta-child-argv`
+  schützt diese Eigentumsgrenze.
