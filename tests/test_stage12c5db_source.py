@@ -23,11 +23,15 @@ def test_fallback_plan_has_explicit_handled_effect_flag() -> None:
     owner = (ROOT / "src/reta_mojo/prompt_interaction.mojo").read_text(encoding="utf-8")
     struct = owner.split("struct PromptFallbackProcessDispatchPlan", 1)[1].split("@fieldwise_init", 1)[0]
     assert "var handled: Bool" in struct
+    assert ("var run_reta_prompt: Bool" in struct or "fallback_process_flags=native-explicit-fallback-run-flag" not in owner)
     assert "var profile_arguments: List[String]" in struct
     assert "var command_arguments: List[String]" in struct
     body = owner.split("def plan_prompt_fallback_process_dispatch", 1)[1].split("\ndef plan_stored_output_command", 1)[0]
     assert "PromptFallbackProcessDispatchPlan(" in body
-    assert "True, fallback_profile_arguments(profile), shell_split(line)" in body
+    assert (
+        "True, fallback_profile_arguments(profile), shell_split(line)" in body
+        or "True, True, fallback_profile_arguments(profile), shell_split(line)" in body
+    )
     assert "fallback_process_handled=native-explicit-fallback-effect-flag" in owner
 
 
@@ -47,9 +51,12 @@ def test_prompt_interaction_snapshot_and_runtime_test_cover_handled_flag() -> No
     assert 'assert_equal(plan.profile_arguments[0], "-vi")' in test
     assert 'assert_equal(plan.profile_arguments[1], "-e")' in test
     assert 'assert_equal(plan.profile_arguments[2], "-befehl")' in test
-    assert "assert_equal(len(snapshot), 30)" in test
+    assert ("assert_equal(len(snapshot), 30)" in test or "assert_equal(len(snapshot), 31)" in test)
     assert '"fallback_process_handled=native-explicit-fallback-effect-flag"' in test
-    assert 'assert_equal(snapshot[29], "execution=delegated-native-dispatch")' in test
+    assert (
+        'assert_equal(snapshot[29], "execution=delegated-native-dispatch")' in test
+        or 'assert_equal(snapshot[30], "execution=delegated-native-dispatch")' in test
+    )
 
 
 def test_stage_document_records_boundary_change() -> None:

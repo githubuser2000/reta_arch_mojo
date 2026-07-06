@@ -175,6 +175,7 @@ struct PromptFallbackProcessDispatchPlan(Copyable):
     """Executable argv plan for the atomic Python prompt fallback child."""
 
     var handled: Bool
+    var run_reta_prompt: Bool
     var profile_arguments: List[String]
     var command_arguments: List[String]
 
@@ -632,7 +633,7 @@ def plan_prompt_fallback_process_dispatch(
     the child-process argument vector.  The process adapter only receives argv.
     """
     return PromptFallbackProcessDispatchPlan(
-        True, fallback_profile_arguments(profile), shell_split(line)
+        True, True, fallback_profile_arguments(profile), shell_split(line)
     )
 
 
@@ -891,6 +892,7 @@ def prompt_interaction_contract_snapshot() -> List[String]:
         "external_raw_line=eliminated-from-external-process-plan",
         "fallback_process_dispatch=native-interaction-argv-plan",
         "fallback_process_handled=native-explicit-fallback-effect-flag",
+        "fallback_process_flags=native-explicit-fallback-run-flag",
         "stored_output_dispatch=native-session-output-execution-plan",
         "stored_delete_dispatch=native-session-delete-plan",
         "stored_default=native-empty-enter-placeholder-policy",

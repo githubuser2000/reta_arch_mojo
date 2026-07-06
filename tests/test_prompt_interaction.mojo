@@ -625,6 +625,7 @@ def test_fallback_process_dispatch_is_planned_by_interaction_owner() raises:
         profile, "shell \"echo hi\""
     )
     assert_true(plan.handled)
+    assert_true(plan.run_reta_prompt)
     assert_equal(len(plan.profile_arguments), 3)
     assert_equal(plan.profile_arguments[0], "-vi")
     assert_equal(plan.profile_arguments[1], "-e")
@@ -786,7 +787,7 @@ def test_inline_storage_output_edges_and_history() raises:
 
 def test_contract_snapshot() raises:
     var snapshot = prompt_interaction_contract_snapshot()
-    assert_equal(len(snapshot), 30)
+    assert_equal(len(snapshot), 31)
     assert_equal(snapshot[0], "class=PromptInteractionBundle")
     assert_equal(
         snapshot[6],
@@ -862,17 +863,21 @@ def test_contract_snapshot() raises:
     )
     assert_equal(
         snapshot[24],
-        "stored_output_dispatch=native-session-output-execution-plan",
+        "fallback_process_flags=native-explicit-fallback-run-flag",
     )
     assert_equal(
         snapshot[25],
-        "stored_delete_dispatch=native-session-delete-plan",
+        "stored_output_dispatch=native-session-output-execution-plan",
     )
     assert_equal(
         snapshot[26],
+        "stored_delete_dispatch=native-session-delete-plan",
+    )
+    assert_equal(
+        snapshot[27],
         "stored_default=native-empty-enter-placeholder-policy",
     )
-    assert_equal(snapshot[29], "execution=delegated-native-dispatch")
+    assert_equal(snapshot[30], "execution=delegated-native-dispatch")
 
 
 def main() raises:

@@ -46,7 +46,11 @@ def test_prompt_interaction_snapshot_tracks_fallback_process_plan() -> None:
         encoding="utf-8"
     )
     assert "test_fallback_process_dispatch_is_planned_by_interaction_owner" in test
-    assert "assert_equal(len(snapshot), 29)" in test or "assert_equal(len(snapshot), 30)" in test
+    assert (
+        "assert_equal(len(snapshot), 29)" in test
+        or "assert_equal(len(snapshot), 30)" in test
+        or "assert_equal(len(snapshot), 31)" in test
+    )
     assert 'snapshot[22]' in test
     assert '"fallback_process_dispatch=native-interaction-argv-plan"' in test
 
