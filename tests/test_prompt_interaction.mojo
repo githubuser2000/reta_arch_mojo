@@ -620,7 +620,7 @@ def test_external_process_dispatch_is_planned_by_interaction_owner() raises:
 
 
 def test_fallback_process_dispatch_is_planned_by_interaction_owner() raises:
-    var profile = parse_prompt_startup("rpe", []).profile
+    var profile = parse_prompt_startup("rpe", []).profile.copy()
     var plan = plan_prompt_fallback_process_dispatch(
         profile, "shell \"echo hi\""
     )
