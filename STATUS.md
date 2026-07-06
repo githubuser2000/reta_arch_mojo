@@ -1,3 +1,13 @@
+# Status – Stage 12c5cc
+
+## Stage 12c5cc – Tabellenadapter-Zählungsparität
+
+- Der breite Benutzerlauf nach 12c5cb bestätigte fast die gesamte native Suite, fand aber in `test_table_adapters.mojo` eine alte Falscherwartung: `zeileWhichZaehlung(state, 1)` lieferte `1`, der Test erwartete noch `0`.
+- Die Python-Referenz weist Zeilen 1-4 der ersten Zählungsgruppe und Zeile 5 der zweiten Gruppe zu; der native Adapter war korrekt, der Fassadenvertrag war veraltet.
+- `tests/test_table_adapters.mojo` prüft jetzt `1 -> 1`, `4 -> 1`, `5 -> 2`; `tests/test_table_adapters_source.py` bestätigt dieselben Werte direkt gegen `python_reference/reta_architecture/row_filtering.py`.
+- Neuer Stage-Lauf: `scripts/test_stage12c5cc.sh`; er baut `test_table_adapters.mojo` frisch und hält Prompt-/Legacy-Ränder zur Regression mit im Lauf.
+- Benutzerprüfung: `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5cc.sh -- -j 8`, danach `scripts/build-tests.sh -- -j 8 && scripts/run-tests.sh --jobs 8`.
+
 # Status – Stage 12c5cb
 
 ## Stage 12c5cb – Stored-delete dispatch im Interaktionsbesitzer

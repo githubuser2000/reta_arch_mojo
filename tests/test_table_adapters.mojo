@@ -74,7 +74,12 @@ def test_prepare_row_helpers_delegate_to_native_owners() raises:
     assert_true(3 not in clean[1])
     setZaehlungen(state)
     assert_true(state.counted)
-    assert_equal(zeileWhichZaehlung(state, 1), 0)
+    # Python reference assigns rows 1-4 to the first counting group;
+    # the earlier facade contract accidentally expected the uninitialized
+    # sentinel row-0 group here.
+    assert_equal(zeileWhichZaehlung(state, 1), 1)
+    assert_equal(zeileWhichZaehlung(state, 4), 1)
+    assert_equal(zeileWhichZaehlung(state, 5), 2)
 
 
 def main() raises:

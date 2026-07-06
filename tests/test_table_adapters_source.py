@@ -127,3 +127,29 @@ def test_porting_matrix_claims_the_new_owner() -> None:
     )
     assert "| nativ |" in row
     assert "table_adapters.mojo" in row
+
+
+def test_counting_group_contract_matches_python_reference() -> None:
+    import sys
+
+    sys.path.insert(0, str(ROOT / "python_reference"))
+    from reta_architecture.row_filtering import set_zaehlungen, zeile_which_zaehlung
+
+    class Prepare:
+        originalLinesRange = range(0, 24)
+        gezaehlt = False
+        zaehlungen = [0, {}, {}, {}, {}]
+
+    prepare = Prepare()
+    set_zaehlungen(prepare, 0)
+    assert zeile_which_zaehlung(prepare, 1) == 1
+    assert zeile_which_zaehlung(prepare, 4) == 1
+    assert zeile_which_zaehlung(prepare, 5) == 2
+
+    text = MOJO.read_text(encoding="utf-8")
+    test = (ROOT / "tests/test_table_adapters.mojo").read_text(encoding="utf-8")
+    assert "return state.counting_group_by_row[row]" in text
+    assert "assert_equal(zeileWhichZaehlung(state, 1), 1)" in test
+    assert "assert_equal(zeileWhichZaehlung(state, 4), 1)" in test
+    assert "assert_equal(zeileWhichZaehlung(state, 5), 2)" in test
+    assert "assert_equal(zeileWhichZaehlung(state, 1), 0)" not in test

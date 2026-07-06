@@ -1,3 +1,14 @@
+# Testergebnisse – Stage 12c5cc
+
+## Stage 12c5cc – vorbereitete Prüfungen
+
+- Breiter Benutzerlauf nach 12c5cb: einziger gemeldeter Fehler war `test_table_adapters.mojo` mit `left: 1`, `right: 0` bei `zeileWhichZaehlung(state, 1)`.
+- Python-Referenzprüfung: Zeilen 1-4 gehören zur ersten Zählungsgruppe, Zeile 5 zur zweiten; die alte Erwartung `0` war der row-0-Sentinel und kein Sollwert für Zeile 1.
+- Compilerfreie fokussierte Prüfung mit deaktivierter externer Pytest-Plugin-Autoload: **72/72** Source-, Stage-, Ledger-, Portierungs- und Archivverträge bestanden.
+- Einzelprüfung: `tools/check_known_defects.py` grün, `tools/porting_metrics.py` grün, `tests/test_source_archive_contract.py` **4/4**.
+- Manifest nach Aktualisierung: **1.743 Dateien**, **114 Symlinks**.
+- Die tatsächliche Mojo-Kompilierung bleibt der Benutzerlauf `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5cc.sh -- -j 8`.
+
 # Testergebnisse – Stage 12c5cb
 
 ## Vom Benutzer bestätigter Ausgangsstand
