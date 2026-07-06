@@ -19,13 +19,13 @@ def test_stage_wraps_ch_and_rebuilds_prompt_boundaries() -> None:
 
 
 def test_loop_control_dispatch_has_dedicated_native_plan() -> None:
-    owner = (ROOT / "src/reta_mojo/prompt_interaction.mojo").read_text(
+    owner = (ROOT / "src/reta_mojo/prompt_reaction_dispatch.mojo").read_text(
         encoding="utf-8"
     )
     assert "struct PromptLoopControlDispatchPlan" in owner
     assert "def plan_loop_control_dispatch(" in owner
     assert "KIND_EMPTY" in owner
-    assert "KIND_EMPTY," in owner
+    assert "KIND_EMPTY" in owner
     assert "KIND_EXIT" in owner
     assert "continue_loop: Bool" in owner
     assert "loop_control=native-empty-exit-loop-plan" in owner

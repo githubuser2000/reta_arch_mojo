@@ -18,7 +18,7 @@ def test_stage_wraps_cc_and_rebuilds_relevant_mojo_targets() -> None:
 
 
 def test_single_storage_dispatch_has_dedicated_native_plan() -> None:
-    owner = (ROOT / "src/reta_mojo/prompt_interaction.mojo").read_text(
+    owner = (ROOT / "src/reta_mojo/prompt_reaction_storage.mojo").read_text(
         encoding="utf-8"
     )
     assert "struct PromptStoredCommandDispatchPlan" in owner

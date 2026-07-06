@@ -31,11 +31,11 @@ def test_prompt_interaction_has_a_dedicated_native_owner() -> None:
     assert "struct PromptLoopControlDispatchPlan" in reaction_owner
     assert "def plan_loop_control_dispatch(" in reaction_owner
     assert "def plan_inline_storage_command(" in storage_owner
-    assert "def apply_inline_storage_command(" in reaction_owner
+    assert "def apply_inline_storage_command(" in storage_owner
     assert "struct PromptStorageOutputPlan" in storage_owner
     assert "def plan_inline_storage_output_command(" in storage_owner
-    assert "struct PromptStoredCommandDispatchPlan" in reaction_owner
-    assert "def plan_stored_command_dispatch(" in reaction_owner
+    assert "struct PromptStoredCommandDispatchPlan" in storage_owner
+    assert "def plan_stored_command_dispatch(" in storage_owner
     assert "struct PromptLoggingDispatchPlan" in reaction_owner
     assert "def plan_logging_dispatch(" in reaction_owner
     assert "struct PromptOneShotLoggingDispatchPlan" in reaction_owner
@@ -81,11 +81,11 @@ def test_prompt_interaction_has_a_dedicated_native_owner() -> None:
     assert "reta_prompt_fallback_arguments_native(" in process_owner
     assert "def plan_external_process_dispatch(" not in owner
     assert "def plan_prompt_fallback_process_dispatch(" not in owner
-    assert "struct PromptStoredOutputExecutionPlan" in reaction_owner
-    assert "def plan_stored_output_command(" in reaction_owner
-    assert "def plan_inline_stored_output_command(" in reaction_owner
-    assert "struct PromptStoredDeletePlan" in reaction_owner
-    assert "def plan_stored_delete_command(" in reaction_owner
+    assert "struct PromptStoredOutputExecutionPlan" in storage_owner
+    assert "def plan_stored_output_command(" in storage_owner
+    assert "def plan_inline_stored_output_command(" in storage_owner
+    assert "struct PromptStoredDeletePlan" in storage_owner
+    assert "def plan_stored_delete_command(" in storage_owner
     assert "struct PromptStoredDefaultPlan" in storage_owner
     assert "def plan_stored_default_command(" in storage_owner
     assert "def prompt_interaction_contract_snapshot(" in owner
@@ -114,7 +114,7 @@ def test_production_prompt_activates_the_interaction_owner() -> None:
     assert "from reta_mojo.prompt_interaction import" in controller
     assert "from reta_mojo.prompt_reaction_input import" in controller
     assert "from reta_mojo.prompt_reaction_dispatch import" in controller
-    assert "from reta_mojo.prompt_reaction_storage import" not in controller
+    assert "from reta_mojo.prompt_reaction_storage import" in controller
     assert "new_prompt_interaction(startup)" in controller
     assert "accept_prompt_reaction_input(" in controller
     assert "record_prompt_session_line(" in controller

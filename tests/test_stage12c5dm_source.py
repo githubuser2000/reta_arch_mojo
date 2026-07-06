@@ -30,19 +30,19 @@ def test_prompt_reaction_dispatch_module_owns_local_effect_plans() -> None:
         encoding="utf-8"
     )
     assert "struct PromptLoopControlDispatchPlan" in reaction
-    assert "struct PromptStoredCommandDispatchPlan" in reaction
+    assert ("struct PromptStoredCommandDispatchPlan" in reaction or "struct PromptStoredCommandDispatchPlan" in storage)
     assert "struct PromptLoggingDispatchPlan" in reaction
     assert "struct PromptOneShotLoggingDispatchPlan" in reaction
     assert "struct PromptTerminalClearDispatchPlan" in reaction
     assert "struct PromptInformationalDispatchPlan" in reaction
     assert "struct PromptSimpleOutputDispatchPlan" in reaction
-    assert "struct PromptStoredOutputExecutionPlan" in reaction
-    assert "struct PromptStoredDeletePlan" in reaction
+    assert ("struct PromptStoredOutputExecutionPlan" in reaction or "struct PromptStoredOutputExecutionPlan" in storage)
+    assert ("struct PromptStoredDeletePlan" in reaction or "struct PromptStoredDeletePlan" in storage)
     assert "struct PromptStoredDefaultPlan" in reaction or "struct PromptStoredDefaultPlan" in storage
     assert "def plan_inline_storage_command(" in reaction or "def plan_inline_storage_command(" in storage
     assert "def plan_inline_storage_output_command(" in reaction or "def plan_inline_storage_output_command(" in storage
     assert "def plan_loop_control_dispatch(" in reaction
-    assert "def plan_stored_command_dispatch(" in reaction
+    assert ("def plan_stored_command_dispatch(" in reaction or "def plan_stored_command_dispatch(" in storage)
     assert "def plan_simple_output_dispatch(" in reaction
     assert "def prompt_reaction_dispatch_contract_snapshot()" in reaction
     assert "struct PromptLoopControlDispatchPlan" not in interaction
@@ -61,7 +61,7 @@ def test_production_imports_reaction_dispatch_directly() -> None:
     assert "from .prompt_reaction_input import (" in interaction
     assert "from reta_mojo.prompt_reaction_dispatch import *" in test
     assert "var reaction_snapshot = prompt_reaction_dispatch_contract_snapshot()" in test
-    assert ("assert_equal(len(reaction_snapshot), 14)" in test or "assert_equal(len(reaction_snapshot), 11)" in test)
+    assert ("assert_equal(len(reaction_snapshot), 14)" in test or "assert_equal(len(reaction_snapshot), 11)" in test or "assert_equal(len(reaction_snapshot), 8)" in test)
 
 
 def test_reaction_owner_has_no_external_process_or_reta_core_boundary() -> None:

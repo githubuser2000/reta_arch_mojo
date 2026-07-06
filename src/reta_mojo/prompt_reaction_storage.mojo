@@ -14,15 +14,21 @@ from .prompt_language import (
     localized_prompt_kind,
 )
 from .prompt_runtime import (
+    PromptCommand,
     join_prompt_tokens,
     KIND_ABC,
     KIND_STORE_NEXT,
     KIND_STORE_PREVIOUS,
     KIND_OUTPUT_STORED,
+    KIND_DELETE_STORED,
 )
 from .prompt_session import (
     NativePromptSession,
+    storage_payload,
+    store_prompt_text,
     stored_prompt_text,
+    stored_prompt_numbered,
+    delete_stored_selection,
 )
 
 
@@ -48,6 +54,31 @@ struct PromptStorageOutputPlan(Copyable):
 
     var handled: Bool
     var payload: String
+
+
+@fieldwise_init
+struct PromptStoredCommandDispatchPlan(Copyable):
+    """Executable plan for single-word ``S``/``s`` storage dispatch."""
+
+    var handled: Bool
+    var output_lines: List[String]
+
+
+@fieldwise_init
+struct PromptStoredOutputExecutionPlan(Copyable):
+    """Executable plan for ``o``/stored-command output dispatch."""
+
+    var handled: Bool
+    var command_line: String
+    var output_lines: List[String]
+
+
+@fieldwise_init
+struct PromptStoredDeletePlan(Copyable):
+    """Executable plan for ``l``/stored-command deletion dispatch."""
+
+    var handled: Bool
+    var output_lines: List[String]
 
 
 def _token_list_contains(values: List[String], token: String) -> Bool:
@@ -139,7 +170,6 @@ def plan_inline_storage_output_command(
                 selected = token
             elif selected != token:
                 ambiguous = True
-                ambiguous = True
         else:
             if not _token_list_contains(distinct_payload_tokens, token):
                 distinct_payload_tokens.append(token)
@@ -183,6 +213,125 @@ def plan_stored_default_command(
     return PromptStoredDefaultPlan(True, stored^)
 
 
+def _single_output(value: String) -> List[String]:
+    var result = List[String]()
+    result.append(value)
+    return result^
+
+
+def apply_inline_storage_command(
+    mut session: NativePromptSession,
+    tokens: List[String],
+    language: String,
+    catalog: PromptLanguageCatalog,
+) -> Bool:
+    """Store a wholly-owned compound storage command without executing it."""
+    var plan = plan_inline_storage_command(tokens, language, catalog)
+    if not plan.handled:
+        return False
+    store_prompt_text(session, plan.payload)
+    return True
+
+
+def plan_stored_command_dispatch(
+    command: PromptCommand,
+    mut session: NativePromptSession,
+) -> PromptStoredCommandDispatchPlan:
+    """Plan single-word store-next/store-previous storage dispatch.
+
+    This is storage lifecycle semantics, not generic local prompt dispatch: the
+    plan mutates only prompt storage state and returns exact observable lines for
+    the process entry point to print.
+    """
+    if command.kind == KIND_STORE_NEXT and len(command.words) == 1:
+        session.store_next = True
+        return PromptStoredCommandDispatchPlan(
+            True, _single_output("Der nächste Befehl wird gespeichert.")
+        )
+    if command.kind == KIND_STORE_PREVIOUS and len(command.words) == 1:
+        var payload = session.previous_command
+        if payload.byte_length() > 0:
+            store_prompt_text(session, payload)
+            return PromptStoredCommandDispatchPlan(
+                True, _single_output("Gespeichert: " + stored_prompt_text(session))
+            )
+        return PromptStoredCommandDispatchPlan(True, List[String]())
+    return PromptStoredCommandDispatchPlan(False, List[String]())
+
+
+def _plan_stored_output_payload(
+    stored: String,
+    addition: String,
+) -> PromptStoredOutputExecutionPlan:
+    if stored.byte_length() == 0:
+        return PromptStoredOutputExecutionPlan(
+            True, "", _single_output("Kein Befehl gespeichert.")
+        )
+    var command_line = stored
+    if addition.byte_length() > 0:
+        command_line += " " + addition
+    return PromptStoredOutputExecutionPlan(
+        True, command_line^, List[String]()
+    )
+
+
+def plan_stored_output_command(
+    command: PromptCommand,
+    session: NativePromptSession,
+) -> PromptStoredOutputExecutionPlan:
+    """Plan classified ``o`` execution as storage lifecycle semantics."""
+    if command.kind != KIND_OUTPUT_STORED:
+        return PromptStoredOutputExecutionPlan(
+            False, "", List[String]()
+        )
+    return _plan_stored_output_payload(
+        stored_prompt_text(session),
+        storage_payload(command),
+    )
+
+
+def plan_inline_stored_output_command(
+    tokens: List[String],
+    session: NativePromptSession,
+    language: String,
+    catalog: PromptLanguageCatalog,
+) -> PromptStoredOutputExecutionPlan:
+    """Plan position-independent stored-output execution."""
+    var inline_output = plan_inline_storage_output_command(
+        tokens, language, catalog
+    )
+    if not inline_output.handled:
+        return PromptStoredOutputExecutionPlan(
+            False, "", List[String]()
+        )
+    return _plan_stored_output_payload(
+        stored_prompt_text(session),
+        inline_output.payload,
+    )
+
+
+def plan_stored_delete_command(
+    command: PromptCommand,
+    mut session: NativePromptSession,
+) raises -> PromptStoredDeletePlan:
+    """Plan classified ``l`` deletion as storage lifecycle semantics."""
+    if command.kind != KIND_DELETE_STORED:
+        return PromptStoredDeletePlan(False, List[String]())
+    var selection = storage_payload(command)
+    if selection.byte_length() > 0:
+        delete_stored_selection(session, selection)
+        return PromptStoredDeletePlan(
+            True, _single_output("Gespeichert: " + stored_prompt_text(session))
+        )
+    var numbered = stored_prompt_numbered(session)
+    if len(numbered) == 0:
+        return PromptStoredDeletePlan(
+            True, _single_output("Kein Befehl gespeichert.")
+        )
+    session.delete_next = True
+    return PromptStoredDeletePlan(True, numbered^)
+
+
 def prompt_reaction_storage_contract_snapshot() -> List[String]:
     """Stable ownership snapshot for shared prompt storage decisions."""
     return [
@@ -191,4 +340,7 @@ def prompt_reaction_storage_contract_snapshot() -> List[String]:
         "inline_storage=native-position-and-history-policy",
         "storage_output=native-position-independent-addition-policy",
         "stored_default=native-empty-enter-placeholder-policy",
+        "stored_command_dispatch=native-session-store-plan",
+        "stored_output_dispatch=native-session-output-execution-plan",
+        "stored_delete_dispatch=native-session-delete-plan",
     ]

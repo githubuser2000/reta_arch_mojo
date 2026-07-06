@@ -87,14 +87,16 @@ from reta_mojo.prompt_reaction_input import (
     record_prompt_session_line,
 )
 from reta_mojo.prompt_reaction_dispatch import (
-    apply_inline_storage_command,
     plan_loop_control_dispatch,
-    plan_stored_command_dispatch,
     plan_logging_dispatch,
     plan_one_shot_logging_dispatch,
     plan_terminal_clear_dispatch,
     plan_informational_dispatch,
     plan_simple_output_dispatch,
+)
+from reta_mojo.prompt_reaction_storage import (
+    apply_inline_storage_command,
+    plan_stored_command_dispatch,
     plan_inline_stored_output_command,
     plan_stored_output_command,
     plan_stored_delete_command,
