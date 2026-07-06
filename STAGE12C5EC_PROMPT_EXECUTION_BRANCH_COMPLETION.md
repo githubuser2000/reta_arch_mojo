@@ -6,9 +6,7 @@ branch outcome plan.
 ## Regression fix
 
 The unattempted-fallback test now uses the actual historical shortcut form
-`r shell echo 2`.  The previous source used `richtung shell echo 2`, which is
-not a compact/historical one-letter invocation and therefore does not exercise
-the atomic rejection path.
+`r unportedtail 2`.  The previous source used `r shell echo 2`, but `shell` is a real prompt command alias and not a stable unowned tail.  `r unportedtail 2` keeps the one-letter historical prefix while making the foreign tail explicit, so the atomic rejection path is exercised.
 
 ## Native ownership moved
 

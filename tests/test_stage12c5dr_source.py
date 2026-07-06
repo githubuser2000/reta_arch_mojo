@@ -7,6 +7,8 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_current_stage_points_to_dr_or_later() -> None:
     current = (ROOT / "scripts/test_current_stage.sh").read_text(encoding="utf-8")
+    if "test_stage12c5ed.sh" in current:
+        return
     assert (
         "test_stage12c5dr.sh" in current or "test_stage12c5ea.sh" in current
         or "test_stage12c5ds.sh" in current or "test_stage12c5ea.sh" in current
@@ -60,6 +62,7 @@ def test_table_ownership_plan_preserves_atomic_fallback_shape() -> None:
     assert (
         "if outcome.fallback_required:" in controller
         or "if completion.fallback_required:" in controller
+        or "compatibility_fallback.should_run" in controller
     )
     assert "ownership.table_plan" in controller
     assert "ownership.owns_table or ownership.owns_mulpri" in controller or "native_branch.should_try_native" in controller

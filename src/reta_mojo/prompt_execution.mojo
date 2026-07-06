@@ -302,6 +302,18 @@ struct PromptExecutionNativeBranchCompletionPlan(Copyable):
     var session_logging: PromptExecutionSessionLoggingPlan
 
 
+@fieldwise_init
+struct PromptExecutionCompatibilityFallbackPlan(Copyable):
+    """Pure compatibility-boundary dispatch plan for prompt branch completion.
+
+    The controller owns the actual Python-reference call.  Prompt execution owns
+    the decision that the untouched source spelling must cross that boundary.
+    """
+
+    var should_run: Bool
+    var source: String
+
+
 def prompt_execution_integer_argument_words(values: List[String]) -> List[String]:
     var result = List[String]()
     for index in range(len(values)):
@@ -548,6 +560,16 @@ def plan_prompt_execution_native_branch_completion(
         plan_prompt_execution_session_logging_update(
             outcome, current_logging_enabled
         ),
+    )
+
+
+def plan_prompt_execution_compatibility_fallback(
+    completion: PromptExecutionNativeBranchCompletionPlan, source: String
+) -> PromptExecutionCompatibilityFallbackPlan:
+    """Plan whether the prompt line must cross the compatibility boundary."""
+
+    return PromptExecutionCompatibilityFallbackPlan(
+        completion.fallback_required, source
     )
 
 

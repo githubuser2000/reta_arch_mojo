@@ -235,10 +235,10 @@ def test_prompt_execution_native_branch_outcome_owns_logging_transition() raises
 def test_prompt_execution_native_branch_outcome_owns_untried_fallback() raises:
     var catalog = _catalog()
     var routing = plan_prompt_execution_routing(
-        "r shell echo 2", "deutsch", catalog
+        "r unportedtail 2", "deutsch", catalog
     )
     var branch = plan_prompt_execution_native_branch(
-        routing, "r shell echo 2", "deutsch", catalog
+        routing, "r unportedtail 2", "deutsch", catalog
     )
     var outcome = plan_prompt_execution_native_branch_outcome(branch, False)
     assert_false(branch.should_try_native)
@@ -297,10 +297,10 @@ def test_prompt_execution_native_branch_completion_owns_controller_flags() raise
     assert_true(completion.session_logging.enabled)
 
     var fallback_routing = plan_prompt_execution_routing(
-        "r shell echo 2", "deutsch", catalog
+        "r unportedtail 2", "deutsch", catalog
     )
     var fallback_branch = plan_prompt_execution_native_branch(
-        fallback_routing, "r shell echo 2", "deutsch", catalog
+        fallback_routing, "r unportedtail 2", "deutsch", catalog
     )
     var fallback_outcome = plan_prompt_execution_native_branch_outcome(
         fallback_branch, False
@@ -312,6 +312,38 @@ def test_prompt_execution_native_branch_completion_owns_controller_flags() raise
     assert_true(fallback_completion.fallback_required)
     assert_false(fallback_completion.session_logging.update)
     assert_true(fallback_completion.session_logging.enabled)
+
+def test_prompt_execution_compatibility_fallback_plan_owns_source_boundary() raises:
+    var catalog = _catalog()
+    var routing = plan_prompt_execution_routing(
+        "r unportedtail 2", "deutsch", catalog
+    )
+    var branch = plan_prompt_execution_native_branch(
+        routing, "r unportedtail 2", "deutsch", catalog
+    )
+    var outcome = plan_prompt_execution_native_branch_outcome(branch, False)
+    var completion = plan_prompt_execution_native_branch_completion(outcome, False)
+    var fallback = plan_prompt_execution_compatibility_fallback(
+        completion, "r unportedtail 2"
+    )
+    assert_true(fallback.should_run)
+    assert_equal(fallback.source, "r unportedtail 2")
+
+    var owned_routing = plan_prompt_execution_routing("p 17", "deutsch", catalog)
+    var owned_branch = plan_prompt_execution_native_branch(
+        owned_routing, "p 17", "deutsch", catalog
+    )
+    var owned_outcome = plan_prompt_execution_native_branch_outcome(
+        owned_branch, True
+    )
+    var owned_completion = plan_prompt_execution_native_branch_completion(
+        owned_outcome, False
+    )
+    var no_fallback = plan_prompt_execution_compatibility_fallback(
+        owned_completion, "p 17"
+    )
+    assert_false(no_fallback.should_run)
+    assert_equal(no_fallback.source, "p 17")
 
 def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()

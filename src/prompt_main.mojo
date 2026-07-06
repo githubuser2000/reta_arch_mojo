@@ -42,6 +42,7 @@ from reta_mojo.prompt_execution import (
     plan_prompt_execution_native_branch_output,
     plan_prompt_execution_native_branch_outcome,
     plan_prompt_execution_native_branch_completion,
+    plan_prompt_execution_compatibility_fallback,
 )
 from reta_mojo.native_cli_startup import native_cli_startup
 from reta_mojo.resource_paths import asset_root, csv_resource, reference_root
@@ -346,8 +347,11 @@ def _run_command(
         if completion.session_logging.update:
             session.logging_enabled = completion.session_logging.enabled
         return True
-    if completion.fallback_required:
-        _run_fallback(profile, line)
+    var compatibility_fallback = plan_prompt_execution_compatibility_fallback(
+        completion, line
+    )
+    if compatibility_fallback.should_run:
+        _run_fallback(profile, compatibility_fallback.source)
         return True
 
     var info_dispatch = plan_informational_dispatch(command)
@@ -433,7 +437,10 @@ def _run_native_one_shot(
     )
     if completion.handled:
         return True
-    if completion.fallback_required:
+    var compatibility_fallback = plan_prompt_execution_compatibility_fallback(
+        completion, line
+    )
+    if compatibility_fallback.should_run:
         return False
 
     var info_dispatch = plan_informational_dispatch(command)
