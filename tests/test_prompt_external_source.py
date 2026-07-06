@@ -16,7 +16,7 @@ def test_hintere_commands_do_not_cross_python_bridge() -> None:
         in source
     )
     assert "run_reta_line_native(command.raw)" not in source
-    assert "run_reta_prompt_fallback_arguments_native(" in source
+    assert "run_reta_prompt_arguments_native" in source
 
 
 def test_raw_commands_bypass_compact_parser_before_payload_scan() -> None:
@@ -65,7 +65,7 @@ def test_prompt_controller_has_no_embedded_python_boundary() -> None:
     assert "prompt_python_bridge" not in controller
     assert not (root / "src" / "reta_mojo" / "prompt_python_bridge.mojo").exists()
     assert all("from std.python import" not in source for source in prompt_modules)
-    assert "run_reta_prompt_fallback_arguments_native" in controller
+    assert "run_reta_prompt_arguments_native" in controller
     assert "run_reta_arguments_native" in controller
     assert "run_reta_line_native" not in controller
 

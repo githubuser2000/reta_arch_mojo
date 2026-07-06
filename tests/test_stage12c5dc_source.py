@@ -22,11 +22,11 @@ def test_stage_wraps_db_and_builds_prompt_tests() -> None:
 def test_fallback_profile_arguments_match_rpe_profile() -> None:
     test = (ROOT / "tests/test_prompt_interaction.mojo").read_text(encoding="utf-8")
     assert 'var profile = parse_prompt_startup("rpe", []).profile.copy()' in test
-    assert "assert_equal(len(plan.profile_arguments), 3)" in test
-    assert 'assert_equal(plan.profile_arguments[0], "-vi")' in test
-    assert 'assert_equal(plan.profile_arguments[1], "-e")' in test
-    assert 'assert_equal(plan.profile_arguments[2], "-befehl")' in test
-    assert "assert_equal(len(plan.profile_arguments), 2)" not in test
+    assert "assert_equal(len(plan.arguments), 5)" in test
+    assert 'assert_equal(plan.arguments[0], "-vi")' in test
+    assert 'assert_equal(plan.arguments[1], "-e")' in test
+    assert 'assert_equal(plan.arguments[2], "-befehl")' in test
+    assert "assert_equal(len(plan.arguments), 2)" not in test
 
 
 def test_runtime_profile_owner_explains_the_three_arguments() -> None:

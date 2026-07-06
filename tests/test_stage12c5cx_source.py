@@ -29,7 +29,7 @@ def test_external_process_adapter_no_longer_exports_raw_line_payload_helper() ->
     assert "def run_math_prompt_payload_native(" in adapter
     assert "def run_reta_arguments_native(" in adapter
     assert "def run_reta_prompt_arguments_native(" in adapter
-    assert "def run_reta_prompt_fallback_arguments_native(" in adapter
+    assert "def reta_prompt_fallback_arguments_native(" in adapter
     assert "def run_shell_prompt_line_native(" not in adapter
     assert "def run_reta_line_native(" not in adapter
 

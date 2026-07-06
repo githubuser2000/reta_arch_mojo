@@ -1444,3 +1444,9 @@ Vier vollständig native Diagnoseoberflächen teilen seit Stage 12c5z eine versi
 
 - Korrigiert die Runtime-Erwartung des Fallback-argv-Plans für das historische `rpe`-Profil: `fallback_profile_arguments(profile)` liefert korrekt `-vi`, `-e`, `-befehl`.
 - Der native Plan und die Prozessgrenze bleiben unverändert; nur der Mojo-Test erwartete fälschlich zwei statt drei Profilargumente.
+
+## Stage 12c5de
+
+- Fallbacks besitzen jetzt einen zusammengeführten nativen `retaPrompt.py`-argv-Vektor im Interaktionsplan.
+- `prompt_main.mojo` startet unbewiesene Promptfallbacks über den regulären `run_reta_prompt_arguments_native(...)`-Adapter statt über einen separaten Fallback-Ausführungspfad.
+- Der externe Prozessadapter enthält keinen `run_reta_prompt_fallback_arguments_native(...)`-Runner mehr; die Fallback-Semantik ist Plan-/argv-Besitz, nicht Prozessadapter-Spezialwissen.

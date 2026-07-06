@@ -282,17 +282,15 @@ def run_reta_prompt_arguments_native(
     )
 
 
-def run_reta_prompt_fallback_arguments_native(
+def reta_prompt_fallback_arguments_native(
     profile_arguments: List[String],
     command_arguments: List[String],
-    reference_root: String = "python_reference",
-) raises -> Int:
-    """Execute one unported prompt command with owned argv fragments.
+) -> List[String]:
+    """Merge typed profile flags and tokenized fallback command argv.
 
-    Profile arguments are already typed by the native controller, and the
-    unported command line has already been tokenized by the prompt/legacy
-    facade that still owns raw compatibility text.  The process adapter now
-    only receives argv vectors and starts the explicit reference child.
+    The historical fallback still starts ``retaPrompt.py`` when a prompt line
+    is not owned natively.  This helper only constructs that child argv vector;
+    execution is the regular ``run_reta_prompt_arguments_native`` boundary.
     """
     var arguments = List[String]()
     for index in range(len(profile_arguments)):
@@ -300,6 +298,4 @@ def run_reta_prompt_fallback_arguments_native(
             arguments.append(profile_arguments[index])
     for index in range(len(command_arguments)):
         arguments.append(command_arguments[index])
-    return _run_reference_python_script(
-        "retaPrompt.py", arguments, reference_root
-    )
+    return arguments^

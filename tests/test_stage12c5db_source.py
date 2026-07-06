@@ -24,14 +24,12 @@ def test_fallback_plan_has_explicit_handled_effect_flag() -> None:
     struct = owner.split("struct PromptFallbackProcessDispatchPlan", 1)[1].split("@fieldwise_init", 1)[0]
     assert "var handled: Bool" in struct
     assert ("var run_reta_prompt: Bool" in struct or "fallback_process_flags=native-explicit-fallback-run-flag" not in owner)
-    assert "var profile_arguments: List[String]" in struct
-    assert "var command_arguments: List[String]" in struct
+    assert "var arguments: List[String]" in struct
+    assert "var arguments: List[String]" in struct
     body = owner.split("def plan_prompt_fallback_process_dispatch", 1)[1].split("\ndef plan_stored_output_command", 1)[0]
     assert "PromptFallbackProcessDispatchPlan(" in body
-    assert (
-        "True, fallback_profile_arguments(profile), shell_split(line)" in body
-        or "True, True, fallback_profile_arguments(profile), shell_split(line)" in body
-    )
+    assert "reta_prompt_fallback_arguments_native(" in body
+    assert "True," in body
     assert "fallback_process_handled=native-explicit-fallback-effect-flag" in owner
 
 
@@ -40,22 +38,22 @@ def test_controller_consumes_the_handled_flag_before_process_execution() -> None
     body = controller.split("def _run_fallback(", 1)[1].split("\ndef _run_native_reta_prompt_command", 1)[0]
     assert "var fallback_process = plan_prompt_fallback_process_dispatch(profile, line)" in body
     assert "if not fallback_process.handled:" in body
-    assert "run_reta_prompt_fallback_arguments_native(" in body
-    assert body.index("if not fallback_process.handled:") < body.index("run_reta_prompt_fallback_arguments_native(")
+    assert "run_reta_prompt_arguments_native(" in body
+    assert body.index("if not fallback_process.handled:") < body.index("run_reta_prompt_arguments_native(")
 
 
 def test_prompt_interaction_snapshot_and_runtime_test_cover_handled_flag() -> None:
     test = (ROOT / "tests/test_prompt_interaction.mojo").read_text(encoding="utf-8")
     assert "assert_true(plan.handled)" in test
-    assert "assert_equal(len(plan.profile_arguments), 3)" in test
-    assert 'assert_equal(plan.profile_arguments[0], "-vi")' in test
-    assert 'assert_equal(plan.profile_arguments[1], "-e")' in test
-    assert 'assert_equal(plan.profile_arguments[2], "-befehl")' in test
-    assert ("assert_equal(len(snapshot), 30)" in test or "assert_equal(len(snapshot), 31)" in test)
+    assert "assert_equal(len(plan.arguments), 5)" in test
+    assert 'assert_equal(plan.arguments[0], "-vi")' in test
+    assert 'assert_equal(plan.arguments[1], "-e")' in test
+    assert 'assert_equal(plan.arguments[2], "-befehl")' in test
+    assert ("assert_equal(len(snapshot), 30)" in test or "assert_equal(len(snapshot), 31)" in test or "assert_equal(len(snapshot), 32)" in test)
     assert '"fallback_process_handled=native-explicit-fallback-effect-flag"' in test
     assert (
         'assert_equal(snapshot[29], "execution=delegated-native-dispatch")' in test
-        or 'assert_equal(snapshot[30], "execution=delegated-native-dispatch")' in test
+        or 'assert_equal(snapshot[30], "execution=delegated-native-dispatch")' in test or 'assert_equal(snapshot[31], "execution=delegated-native-dispatch")' in test
     )
 
 

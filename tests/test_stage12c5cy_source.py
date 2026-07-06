@@ -24,10 +24,10 @@ def test_interaction_owner_plans_prompt_fallback_argv() -> None:
         encoding="utf-8"
     )
     assert "struct PromptFallbackProcessDispatchPlan" in owner
-    assert "var profile_arguments: List[String]" in owner
-    assert "var command_arguments: List[String]" in owner
+    assert "var arguments: List[String]" in owner
+    assert "var arguments: List[String]" in owner
     assert "def plan_prompt_fallback_process_dispatch(" in owner
-    assert "fallback_profile_arguments(profile), shell_split(line)" in owner
+    assert "reta_prompt_fallback_arguments_native(" in owner
     assert "fallback_process_dispatch=native-interaction-argv-plan" in owner
 
 
@@ -35,9 +35,9 @@ def test_controller_consumes_planned_fallback_argv_only() -> None:
     controller = (ROOT / "src/prompt_main.mojo").read_text(encoding="utf-8")
     assert "plan_prompt_fallback_process_dispatch," in controller
     assert "var fallback_process = plan_prompt_fallback_process_dispatch(profile, line)" in controller
-    assert "fallback_process.profile_arguments" in controller
-    assert "fallback_process.command_arguments" in controller
-    assert "fallback_profile_arguments(profile), shell_split(line), reference_root()" not in controller
+    assert "fallback_process.arguments" in controller
+    assert "fallback_process.arguments" in controller
+    assert "reta_prompt_fallback_arguments_native(, reference_root()" not in controller
     assert "shell_split," not in controller
 
 
@@ -49,7 +49,7 @@ def test_prompt_interaction_snapshot_tracks_fallback_process_plan() -> None:
     assert (
         "assert_equal(len(snapshot), 29)" in test
         or "assert_equal(len(snapshot), 30)" in test
-        or "assert_equal(len(snapshot), 31)" in test
+        or "assert_equal(len(snapshot), 31)" in test or "assert_equal(len(snapshot), 32)" in test
     )
     assert 'snapshot[22]' in test
     assert '"fallback_process_dispatch=native-interaction-argv-plan"' in test
@@ -58,4 +58,4 @@ def test_prompt_interaction_snapshot_tracks_fallback_process_plan() -> None:
 def test_porting_matrix_mentions_interaction_owned_fallback_argv() -> None:
     matrix = (ROOT / "PORTING_MATRIX.md").read_text(encoding="utf-8")
     assert "Fallbacks werden vom nativen Interaktions-Owner" in matrix
-    assert "Profil-argv plus Kommando-argv" in matrix
+    assert "vollständiger zusammengeführter `retaPrompt.py`-argv-Vektor" in matrix

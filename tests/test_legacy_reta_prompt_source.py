@@ -94,7 +94,7 @@ def test_process_entry_point_remains_the_only_observable_io_owner() -> None:
     assert "prompt_main.mojo" in source
     controller = (ROOT / "src" / "prompt_main.mojo").read_text(encoding="utf-8")
     assert "new_prompt_interaction(startup)" in controller
-    assert "run_reta_prompt_fallback_arguments_native" in controller
+    assert "run_reta_prompt_arguments_native" in controller
     assert "plan_prompt_fallback_process_dispatch(" in controller
 
 

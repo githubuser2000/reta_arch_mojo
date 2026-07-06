@@ -52,7 +52,7 @@ def test_prompt_interaction_has_a_dedicated_native_owner() -> None:
     assert "def _prompt_command_arguments(" in owner
     assert "def plan_external_process_dispatch(" in owner
     assert "def plan_prompt_fallback_process_dispatch(" in owner
-    assert "True, True, fallback_profile_arguments(profile), shell_split(line)" in owner
+    assert "reta_prompt_fallback_arguments_native(" in owner
     assert "struct PromptStoredOutputExecutionPlan" in owner
     assert "def plan_stored_output_command(" in owner
     assert "def plan_inline_stored_output_command(" in owner
@@ -125,8 +125,9 @@ def test_production_prompt_activates_the_interaction_owner() -> None:
     assert "run_reta_line_native(external_process.raw)" not in controller
     assert "external_process.raw" not in controller
     assert "fallback_profile_arguments(profile), shell_split(line), reference_root()" not in controller
-    assert "fallback_process.profile_arguments" in controller
-    assert "fallback_process.command_arguments" in controller
+    assert "fallback_process.arguments" in controller
+    assert "fallback_process.profile_arguments" not in controller
+    assert "fallback_process.command_arguments" not in controller
     assert "if not fallback_process.handled:" in controller
     assert "if not fallback_process.run_reta_prompt:" in controller
     assert "external_process.process_kind == EXTERNAL_PROMPT" not in controller
