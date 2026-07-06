@@ -247,5 +247,38 @@ def test_prompt_execution_native_branch_outcome_owns_untried_fallback() raises:
     assert_false(outcome.enable_logging)
     assert_false(outcome.disable_logging)
 
+
+def test_prompt_execution_native_branch_output_plan_owns_handled_algebra() raises:
+    var catalog = _catalog()
+    var routing = plan_prompt_execution_routing("p 17", "deutsch", catalog)
+    var branch = plan_prompt_execution_native_branch(
+        routing, "p 17", "deutsch", catalog
+    )
+    var mulpri_only = plan_prompt_execution_native_branch_output(branch, False)
+    assert_true(mulpri_only.handled)
+    assert_false(mulpri_only.table_handled)
+    assert_true(mulpri_only.mulpri_handled)
+    var table_plus_mulpri = plan_prompt_execution_native_branch_output(branch, True)
+    assert_true(table_plus_mulpri.handled)
+    assert_true(table_plus_mulpri.table_handled)
+    assert_true(table_plus_mulpri.mulpri_handled)
+
+
+def test_prompt_execution_session_logging_update_owns_mutation_value() raises:
+    var catalog = _catalog()
+    var routing = plan_prompt_execution_routing(
+        "mond 2 loggen --art=csv", "deutsch", catalog
+    )
+    var branch = plan_prompt_execution_native_branch(
+        routing, "mond 2 loggen --art=csv", "deutsch", catalog
+    )
+    var outcome = plan_prompt_execution_native_branch_outcome(branch, True)
+    var enabled = plan_prompt_execution_session_logging_update(outcome, False)
+    assert_true(enabled.update)
+    assert_true(enabled.enabled)
+    var no_change = plan_prompt_execution_session_logging_update(outcome, True)
+    assert_true(no_change.update)
+    assert_true(no_change.enabled)
+
 def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()

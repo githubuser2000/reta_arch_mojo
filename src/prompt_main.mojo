@@ -39,7 +39,9 @@ from reta_mojo.prompt_execution import (
     PromptExecutionNativeBranchPlan,
     plan_prompt_execution_routing,
     plan_prompt_execution_native_branch,
+    plan_prompt_execution_native_branch_output,
     plan_prompt_execution_native_branch_outcome,
+    plan_prompt_execution_session_logging_update,
 )
 from reta_mojo.native_cli_startup import native_cli_startup
 from reta_mojo.resource_paths import asset_root, csv_resource, reference_root
@@ -270,7 +272,10 @@ def _execute_owned_prompt_branch(
     )
     if branch.mulpri_render.handled:
         _print_lines(branch.mulpri_render.output_lines)
-    return handled_table or branch.mulpri_render.handled
+    var output = plan_prompt_execution_native_branch_output(
+        branch, handled_table
+    )
+    return output.handled
 
 
 def _run_command(
@@ -335,10 +340,11 @@ def _run_command(
         native_branch, native_handled
     )
     if outcome.handled:
-        if outcome.enable_logging:
-            session.logging_enabled = True
-        elif outcome.disable_logging:
-            session.logging_enabled = False
+        var logging_update = plan_prompt_execution_session_logging_update(
+            outcome, session.logging_enabled
+        )
+        if logging_update.update:
+            session.logging_enabled = logging_update.enabled
         return True
     if outcome.fallback_required:
         _run_fallback(profile, line)

@@ -29,7 +29,10 @@ def test_native_branch_outcome_plan_owns_post_execution_decisions() -> None:
     assert "branch.fallback_required" in owner
     assert "(not native_handled) and branch.fallback_required" not in owner
     assert "plan_prompt_execution_native_branch_outcome" in controller
-    assert "if outcome.enable_logging" in controller
+    assert (
+        "if outcome.enable_logging" in controller
+        or "plan_prompt_execution_session_logging_update" in controller
+    )
     assert "if native_branch.historical_effects.enable_logging" not in controller
 
 

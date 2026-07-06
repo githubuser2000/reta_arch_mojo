@@ -259,6 +259,33 @@ struct PromptExecutionNativeBranchOutcomePlan(Copyable):
     var disable_logging: Bool
 
 
+@fieldwise_init
+struct PromptExecutionNativeBranchOutputPlan(Copyable):
+    """Pure output-completion result for a planned native branch.
+
+    The controller still performs table rendering and prints preplanned mulpri
+    lines, but the final handled algebra belongs to prompt execution rather
+    than being recomputed by both prompt entry points.
+    """
+
+    var handled: Bool
+    var table_handled: Bool
+    var mulpri_handled: Bool
+
+
+@fieldwise_init
+struct PromptExecutionSessionLoggingPlan(Copyable):
+    """Pure session logging mutation value after native branch output.
+
+    The prompt session remains controller state.  The decision whether the
+    session must change and which boolean value it should receive is owned by
+    prompt execution.
+    """
+
+    var update: Bool
+    var enabled: Bool
+
+
 def prompt_execution_integer_argument_words(values: List[String]) -> List[String]:
     var result = List[String]()
     for index in range(len(values)):
@@ -462,6 +489,36 @@ def plan_prompt_execution_native_branch(
         routing.historical_echo,
         routing.quiet_echo,
     )
+
+
+def plan_prompt_execution_native_branch_output(
+    branch: PromptExecutionNativeBranchPlan, table_handled: Bool
+) -> PromptExecutionNativeBranchOutputPlan:
+    """Plan the final handled result after branch render effects.
+
+    Table rendering reports its own success after I/O.  Mulpri rendering was
+    already planned in the branch; the owner merges both signals into one
+    explicit result for the controller.
+    """
+
+    var mulpri_handled = branch.mulpri_render.handled
+    return PromptExecutionNativeBranchOutputPlan(
+        table_handled or mulpri_handled,
+        table_handled,
+        mulpri_handled,
+    )
+
+
+def plan_prompt_execution_session_logging_update(
+    outcome: PromptExecutionNativeBranchOutcomePlan, current_enabled: Bool
+) -> PromptExecutionSessionLoggingPlan:
+    """Plan a prompt-session logging mutation from a native branch outcome."""
+
+    if outcome.enable_logging:
+        return PromptExecutionSessionLoggingPlan(True, True)
+    if outcome.disable_logging:
+        return PromptExecutionSessionLoggingPlan(True, False)
+    return PromptExecutionSessionLoggingPlan(False, current_enabled)
 
 
 def plan_prompt_execution_native_branch_outcome(
