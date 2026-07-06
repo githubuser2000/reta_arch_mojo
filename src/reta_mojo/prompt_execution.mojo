@@ -238,6 +238,7 @@ struct PromptExecutionNativeBranchPlan(Copyable):
     var ownership: PromptExecutionTableOwnershipPlan
     var announcement: PromptExecutionCompactAnnouncementPlan
     var historical_effects: PromptExecutionHistoricalEffectPlan
+    var mulpri_render: PromptExecutionMulpriRenderPlan
     var planning_tokens: List[String]
     var historical_echo: Bool
     var quiet_echo: Bool
@@ -424,6 +425,7 @@ def plan_prompt_execution_native_branch(
     var effects = PromptExecutionHistoricalEffectPlan(
         False, False, False, False, False, False
     )
+    var mulpri_render = PromptExecutionMulpriRenderPlan(False, List[String]())
     if should_try_native:
         announcement = plan_prompt_execution_compact_announcement(
             routing, source, language, catalog
@@ -431,12 +433,16 @@ def plan_prompt_execution_native_branch(
         effects = plan_prompt_execution_historical_effects(
             routing, language, catalog
         )
+        mulpri_render = plan_prompt_execution_mulpri_render(
+            routing.planning_tokens, language, catalog
+        )
     return PromptExecutionNativeBranchPlan(
         should_try_native,
         ownership.fallback_required,
         ownership^,
         announcement^,
         effects^,
+        mulpri_render^,
         routing.planning_tokens.copy(),
         routing.historical_echo,
         routing.quiet_echo,

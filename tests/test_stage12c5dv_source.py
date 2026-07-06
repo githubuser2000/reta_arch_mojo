@@ -7,7 +7,12 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_current_stage_points_to_dv() -> None:
     current = (ROOT / "scripts/test_current_stage.sh").read_text(encoding="utf-8")
-    assert "test_stage12c5dv.sh" in current or "test_stage12c5dx.sh" in current or "test_stage12c5dw.sh" in current
+    assert (
+        "test_stage12c5dv.sh" in current
+        or "test_stage12c5dx.sh" in current
+        or "test_stage12c5dw.sh" in current
+        or "test_stage12c5dy.sh" in current
+    )
 
 
 def test_stage_script_covers_prompt_execution_mulpri_render_plan() -> None:
@@ -31,7 +36,10 @@ def test_prompt_execution_owns_mulpri_render_plan() -> None:
         "prompt_execution_language_is_german(",
     ):
         assert symbol in owner
-    assert "plan_prompt_execution_mulpri_render(values, language, catalog)" in controller
+    assert (
+        "plan_prompt_execution_mulpri_render(values, language, catalog)" in controller
+        or "branch.mulpri_render.handled" in controller
+    )
     assert "prompt_execution_has_mulpri(values, language, catalog)" not in controller
     assert "prompt_execution_integer_argument_words(values)" not in controller
     assert "prime_comparison_lines(" not in controller

@@ -193,14 +193,18 @@ def test_prompt_execution_historical_effect_plan_keeps_disable_logging() raises:
 
 def test_prompt_execution_mulpri_render_plan_owns_prime_and_multis_lines() raises:
     var catalog = _catalog()
-    var routing = plan_prompt_execution_routing("15", "deutsch", catalog)
+    # A prime number exercises both native prime factor output and the
+    # historical ``multis`` empty-list replacement with the localized
+    # Primzahl marker.  Composite 15 only prints factor pairs and never
+    # promised a visible Primzahl line.
+    var routing = plan_prompt_execution_routing("17", "deutsch", catalog)
     var plan = plan_prompt_execution_mulpri_render(
         routing.planning_tokens, "deutsch", catalog
     )
     assert_true(plan.handled)
     assert_true(len(plan.output_lines) > 0)
-    assert_true(_has_substring(plan.output_lines, "15"))
-    assert_true(_has_substring(plan.output_lines, "Prim"))
+    assert_true(_has_substring(plan.output_lines, "17"))
+    assert_true(_has_substring(plan.output_lines, "Primzahl"))
 
 
 def test_prompt_execution_mulpri_render_plan_rejects_non_mulpri() raises:

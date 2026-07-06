@@ -7,7 +7,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_current_stage_points_to_dx() -> None:
     current = (ROOT / "scripts/test_current_stage.sh").read_text(encoding="utf-8")
-    assert "test_stage12c5dx.sh" in current
+    assert "test_stage12c5dx.sh" in current or "test_stage12c5dy.sh" in current
 
 
 def test_native_branch_plan_lives_in_prompt_execution_owner() -> None:
@@ -18,6 +18,7 @@ def test_native_branch_plan_lives_in_prompt_execution_owner() -> None:
     assert "var announcement = PromptExecutionCompactAnnouncementPlan(" in owner
     assert "var effects = PromptExecutionHistoricalEffectPlan(" in owner
     assert "routing.planning_tokens.copy()" in owner
+    assert "var mulpri_render: PromptExecutionMulpriRenderPlan" in owner
 
 
 def test_prompt_main_uses_native_branch_plan_in_both_entry_points() -> None:

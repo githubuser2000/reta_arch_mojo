@@ -13,6 +13,7 @@ def test_current_stage_points_to_dt() -> None:
         or "test_stage12c5dv.sh" in current
         or "test_stage12c5dx.sh" in current
         or "test_stage12c5dw.sh" in current
+        or "test_stage12c5dy.sh" in current
     )
 
 
@@ -58,15 +59,23 @@ def test_compact_announcement_plan_is_documented_and_pure() -> None:
 
 def test_prompt_main_keeps_native_mulpri_runner_after_owner_split() -> None:
     controller = (ROOT / "src/prompt_main.mojo").read_text(encoding="utf-8")
-    assert "def _run_native_mulpri(" in controller
-    assert "var handled_mulpri = _run_native_mulpri(" in controller
+    assert (
+        "def _run_native_mulpri(" in controller
+        or "branch.mulpri_render.handled" in controller
+    )
+    assert (
+        "var handled_mulpri = _run_native_mulpri(" in controller
+        or "branch.mulpri_render.output_lines" in controller
+    )
     assert (
         "prompt_execution_has_mulpri(values, language, catalog)" in controller
         or "plan_prompt_execution_mulpri_render(values, language, catalog)" in controller
+        or "branch.mulpri_render.handled" in controller
     )
     assert (
         "prompt_execution_integer_argument_words(values)" in controller
         or "plan_prompt_execution_mulpri_render(values, language, catalog)" in controller
+        or "branch.mulpri_render.output_lines" in controller
     )
     assert "def _integer_argument_words(" not in controller
     assert "def _has_mulpri(" not in controller

@@ -7,7 +7,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_current_stage_points_to_dw() -> None:
     current = (ROOT / "scripts/test_current_stage.sh").read_text(encoding="utf-8")
-    assert "test_stage12c5dw.sh" in current or "test_stage12c5dx.sh" in current
+    assert "test_stage12c5dw.sh" in current or "test_stage12c5dx.sh" in current or "test_stage12c5dy.sh" in current
 
 
 def test_stage_script_covers_compact_announcement_regression() -> None:

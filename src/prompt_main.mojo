@@ -39,7 +39,6 @@ from reta_mojo.prompt_execution import (
     PromptExecutionNativeBranchPlan,
     plan_prompt_execution_routing,
     plan_prompt_execution_native_branch,
-    plan_prompt_execution_mulpri_render,
 )
 from reta_mojo.native_cli_startup import native_cli_startup
 from reta_mojo.resource_paths import asset_root, csv_resource, reference_root
@@ -233,16 +232,6 @@ def _run_native_table_plan(
     return True
 
 
-def _run_native_mulpri(
-    values: List[String], language: String, catalog: PromptLanguageCatalog
-) raises -> Bool:
-    var plan = plan_prompt_execution_mulpri_render(values, language, catalog)
-    if not plan.handled:
-        return False
-    _print_lines(plan.output_lines)
-    return True
-
-
 def _print_compact_announcement(
     announcement: PromptExecutionCompactAnnouncementPlan
 ) -> None:
@@ -278,10 +267,9 @@ def _execute_owned_prompt_branch(
     var handled_table = _run_native_table_plan(
         branch.ownership.table_plan, branch.historical_echo, branch.quiet_echo
     )
-    var handled_mulpri = _run_native_mulpri(
-        branch.planning_tokens, language, catalog
-    )
-    return handled_table or handled_mulpri
+    if branch.mulpri_render.handled:
+        _print_lines(branch.mulpri_render.output_lines)
+    return handled_table or branch.mulpri_render.handled
 
 
 def _run_command(
