@@ -9,6 +9,9 @@ def test_prompt_interaction_has_a_dedicated_native_owner() -> None:
     owner = (ROOT / "src/reta_mojo/prompt_interaction.mojo").read_text(
         encoding="utf-8"
     )
+    reaction_owner = (ROOT / "src/reta_mojo/prompt_reaction_dispatch.mojo").read_text(
+        encoding="utf-8"
+    )
     assert "struct NativePromptInteraction" in owner
     assert "struct PromptInteractionInputPlan" in owner
     assert "def new_prompt_interaction(" in owner
@@ -16,33 +19,36 @@ def test_prompt_interaction_has_a_dedicated_native_owner() -> None:
     assert "def record_prompt_command(" in owner
     assert "def prompt_line_updates_previous(" in owner
     assert "def record_prompt_line(" in owner
-    assert "struct PromptInlineStoragePlan" in owner
-    assert "struct PromptLoopControlDispatchPlan" in owner
-    assert "def plan_loop_control_dispatch(" in owner
-    assert "def plan_inline_storage_command(" in owner
-    assert "def apply_inline_storage_command(" in owner
-    assert "struct PromptStorageOutputPlan" in owner
-    assert "def plan_inline_storage_output_command(" in owner
-    assert "struct PromptStoredCommandDispatchPlan" in owner
-    assert "def plan_stored_command_dispatch(" in owner
-    assert "struct PromptLoggingDispatchPlan" in owner
-    assert "def plan_logging_dispatch(" in owner
-    assert "struct PromptOneShotLoggingDispatchPlan" in owner
-    assert "def plan_one_shot_logging_dispatch(" in owner
-    assert "struct PromptTerminalClearDispatchPlan" in owner
-    assert "def plan_terminal_clear_dispatch(" in owner
-    assert "struct PromptInformationalDispatchPlan" in owner
-    assert "def plan_informational_dispatch(" in owner
-    assert "struct PromptSimpleOutputDispatchPlan" in owner
-    assert "def plan_simple_output_dispatch(" in owner
+    assert "struct PromptInlineStoragePlan" in reaction_owner
+    assert "struct PromptLoopControlDispatchPlan" in reaction_owner
+    assert "def plan_loop_control_dispatch(" in reaction_owner
+    assert "def plan_inline_storage_command(" in reaction_owner
+    assert "def apply_inline_storage_command(" in reaction_owner
+    assert "struct PromptStorageOutputPlan" in reaction_owner
+    assert "def plan_inline_storage_output_command(" in reaction_owner
+    assert "struct PromptStoredCommandDispatchPlan" in reaction_owner
+    assert "def plan_stored_command_dispatch(" in reaction_owner
+    assert "struct PromptLoggingDispatchPlan" in reaction_owner
+    assert "def plan_logging_dispatch(" in reaction_owner
+    assert "struct PromptOneShotLoggingDispatchPlan" in reaction_owner
+    assert "def plan_one_shot_logging_dispatch(" in reaction_owner
+    assert "struct PromptTerminalClearDispatchPlan" in reaction_owner
+    assert "def plan_terminal_clear_dispatch(" in reaction_owner
+    assert "struct PromptInformationalDispatchPlan" in reaction_owner
+    assert "def plan_informational_dispatch(" in reaction_owner
+    assert "struct PromptSimpleOutputDispatchPlan" in reaction_owner
+    assert "def plan_simple_output_dispatch(" in reaction_owner
     process_owner = (ROOT / "src/reta_mojo/prompt_process_dispatch.mojo").read_text(encoding="utf-8")
     assert "struct PromptExternalProcessDispatchPlan" in process_owner
     assert "struct PromptFallbackProcessDispatchPlan" in process_owner
     assert "var handled: Bool" in process_owner
     assert "var run_reta_prompt: Bool" in process_owner
     assert "var raw: String" not in owner
+    assert "var raw: String" not in reaction_owner
     assert "var process_kind: Int" not in owner
+    assert "var process_kind: Int" not in reaction_owner
     assert "EXTERNAL_PROMPT_" not in owner
+    assert "EXTERNAL_PROMPT_" not in reaction_owner
     assert "var arguments: List[String]" in process_owner
     assert "var run_shell: Bool" in process_owner
     assert "var run_python: Bool" in process_owner
@@ -54,19 +60,21 @@ def test_prompt_interaction_has_a_dedicated_native_owner() -> None:
     assert "def command_raw_payload_arguments(" in runtime
     assert "def command_shell_arguments(" in runtime
     assert "def _prompt_command_payload(" not in owner
+    assert "def _prompt_command_payload(" not in reaction_owner
     assert "def _prompt_command_arguments(" not in owner
+    assert "def _prompt_command_arguments(" not in reaction_owner
     assert "def plan_external_process_dispatch(" in process_owner
     assert "def plan_prompt_fallback_process_dispatch(" in process_owner
     assert "reta_prompt_fallback_arguments_native(" in process_owner
     assert "def plan_external_process_dispatch(" not in owner
     assert "def plan_prompt_fallback_process_dispatch(" not in owner
-    assert "struct PromptStoredOutputExecutionPlan" in owner
-    assert "def plan_stored_output_command(" in owner
-    assert "def plan_inline_stored_output_command(" in owner
-    assert "struct PromptStoredDeletePlan" in owner
-    assert "def plan_stored_delete_command(" in owner
-    assert "struct PromptStoredDefaultPlan" in owner
-    assert "def plan_stored_default_command(" in owner
+    assert "struct PromptStoredOutputExecutionPlan" in reaction_owner
+    assert "def plan_stored_output_command(" in reaction_owner
+    assert "def plan_inline_stored_output_command(" in reaction_owner
+    assert "struct PromptStoredDeletePlan" in reaction_owner
+    assert "def plan_stored_delete_command(" in reaction_owner
+    assert "struct PromptStoredDefaultPlan" in reaction_owner
+    assert "def plan_stored_default_command(" in reaction_owner
     assert "def prompt_interaction_contract_snapshot(" in owner
 
     interaction_contract = owner.split("def prompt_interaction_contract_snapshot", 1)[1]
@@ -75,12 +83,15 @@ def test_prompt_interaction_has_a_dedicated_native_owner() -> None:
     assert "fallback_process_dispatch=native-interaction-argv-plan" not in interaction_contract
     assert "external_dispatch_owner=prompt-execution-process-plan" not in interaction_contract
     assert "from std.python import" not in owner
+    assert "from std.python import" not in reaction_owner
     assert "PythonObject" not in owner
+    assert "PythonObject" not in reaction_owner
 
 
 def test_production_prompt_activates_the_interaction_owner() -> None:
     controller = (ROOT / "src/prompt_main.mojo").read_text(encoding="utf-8")
     assert "from reta_mojo.prompt_interaction import" in controller
+    assert "from reta_mojo.prompt_reaction_dispatch import" in controller
     assert "new_prompt_interaction(startup)" in controller
     assert "accept_prompt_input(" in controller
     assert "record_prompt_line(" in controller

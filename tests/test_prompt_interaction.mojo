@@ -19,6 +19,7 @@ from reta_mojo.prompt_session import (
     stored_prompt_text,
 )
 from reta_mojo.prompt_interaction import *
+from reta_mojo.prompt_reaction_dispatch import *
 from reta_mojo.prompt_process_dispatch import *
 
 
@@ -838,6 +839,12 @@ def test_contract_snapshot() raises:
     assert_equal(process_snapshot[16], "fallback_runtime_arguments=runtime-owned-argv-builder")
     assert_equal(process_snapshot[17], "fallback_shell_split=runtime-owned-argv-tokenizer")
     assert_equal(process_snapshot[18], "process_adapter=argv-execution-only")
+
+    var reaction_snapshot = prompt_reaction_dispatch_contract_snapshot()
+    assert_equal(len(reaction_snapshot), 14)
+    assert_equal(reaction_snapshot[0], "class=PromptReactionDispatchBundle")
+    assert_equal(reaction_snapshot[1], "reaction_dispatch_owner=prompt-reaction-local-plan")
+    assert_equal(reaction_snapshot[13], "stored_default=native-empty-enter-placeholder-policy")
 
 def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()

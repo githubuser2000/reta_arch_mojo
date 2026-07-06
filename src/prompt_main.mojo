@@ -83,6 +83,8 @@ from reta_mojo.prompt_interaction import (
     prompt_interaction_one_shot_line,
     accept_prompt_input,
     record_prompt_line,
+)
+from reta_mojo.prompt_reaction_dispatch import (
     apply_inline_storage_command,
     plan_loop_control_dispatch,
     plan_stored_command_dispatch,
