@@ -62,11 +62,11 @@ def test_process_controller_delegates_external_process_routing() -> None:
     )
     assert (
         "run_python_prompt_line_native(external_process.raw)" in interactive
-        or "run_python_prompt_payload_native(external_process.payload)" in interactive
+        or "run_python_prompt_arguments_native(external_process.arguments)" in interactive
     )
     assert (
         "run_math_prompt_line_native(external_process.raw)" in interactive
-        or "run_math_prompt_payload_native(external_process.payload)" in interactive
+        or "run_math_prompt_arguments_native(external_process.arguments)" in interactive
     )
     assert (
         "run_reta_line_native(external_process.raw)" in interactive

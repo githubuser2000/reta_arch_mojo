@@ -9,8 +9,8 @@ def test_hintere_commands_do_not_cross_python_bridge() -> None:
     assert "bridge.run_python_prompt_line" not in source
     assert "bridge.run_math_prompt_line" not in source
     assert "run_shell_prompt_arguments_native(external_process.arguments)" in source
-    assert "run_python_prompt_payload_native(external_process.payload)" in source
-    assert "run_math_prompt_payload_native(external_process.payload)" in source
+    assert "run_python_prompt_arguments_native(external_process.arguments)" in source
+    assert "run_math_prompt_arguments_native(external_process.arguments)" in source
     assert (
         "run_reta_arguments_native(\n                external_process.arguments, reference_root()"
         in source

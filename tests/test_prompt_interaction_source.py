@@ -42,7 +42,7 @@ def test_prompt_interaction_has_a_dedicated_native_owner() -> None:
     assert "var raw: String" not in owner
     assert "var process_kind: Int" not in owner
     assert "EXTERNAL_PROMPT_" not in owner
-    assert "var payload: String" in owner
+    assert "var arguments: List[String]" in owner
     assert "var arguments: List[String]" in owner
     assert "var run_shell: Bool" in owner
     assert "var run_python: Bool" in owner
@@ -115,8 +115,8 @@ def test_production_prompt_activates_the_interaction_owner() -> None:
     assert "if command.kind != KIND_RETA" not in controller
     assert "if command.kind == KIND_RETA" not in controller
     assert "run_shell_prompt_arguments_native(external_process.arguments)" in controller
-    assert "run_python_prompt_payload_native(external_process.payload)" in controller
-    assert "run_math_prompt_payload_native(external_process.payload)" in controller
+    assert "run_python_prompt_arguments_native(external_process.arguments)" in controller
+    assert "run_math_prompt_arguments_native(external_process.arguments)" in controller
     assert "run_shell_prompt_line_native(external_process.raw)" not in controller
     assert "run_python_prompt_line_native(external_process.raw)" not in controller
     assert "run_math_prompt_line_native(external_process.raw)" not in controller

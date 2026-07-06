@@ -46,8 +46,8 @@ def test_process_controller_consumes_planned_effect_flags() -> None:
     assert "if external_process.run_math" in controller
     assert "if external_process.run_reta" in controller
     assert ("run_shell_prompt_payload_native(external_process.payload)" in controller or "run_shell_prompt_arguments_native(external_process.arguments)" in controller)
-    assert "run_python_prompt_payload_native(external_process.payload)" in controller
-    assert "run_math_prompt_payload_native(external_process.payload)" in controller
+    assert "run_python_prompt_arguments_native(external_process.arguments)" in controller
+    assert "run_math_prompt_arguments_native(external_process.arguments)" in controller
     assert "_run_native_reta_prompt_command(external_process.arguments)" in controller
 
 

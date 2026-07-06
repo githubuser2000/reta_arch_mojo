@@ -29,8 +29,8 @@ from reta_mojo.prompt_table_execution import (
 from reta_mojo.prompt_legacy_echo import compact_prompt_announcement_line
 from reta_mojo.native_prompt_input import read_native_prompt_line
 from reta_mojo.prompt_external_commands import (
-    run_math_prompt_payload_native,
-    run_python_prompt_payload_native,
+    run_math_prompt_arguments_native,
+    run_python_prompt_arguments_native,
     run_reta_arguments_native,
     run_reta_prompt_arguments_native,
     run_shell_prompt_arguments_native,
@@ -595,10 +595,10 @@ def _run_command(
             _ = run_shell_prompt_arguments_native(external_process.arguments)
             return True
         if external_process.run_python:
-            _ = run_python_prompt_payload_native(external_process.payload)
+            _ = run_python_prompt_arguments_native(external_process.arguments)
             return True
         if external_process.run_math:
-            _ = run_math_prompt_payload_native(external_process.payload)
+            _ = run_math_prompt_arguments_native(external_process.arguments)
             return True
         if external_process.run_reta:
             if _run_native_reta_prompt_command(external_process.arguments):

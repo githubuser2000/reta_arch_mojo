@@ -163,7 +163,6 @@ struct PromptExternalProcessDispatchPlan(Copyable):
     """Executable plan for prompt commands that cross a process boundary."""
 
     var handled: Bool
-    var payload: String
     var arguments: List[String]
     var run_shell: Bool
     var run_python: Bool
@@ -561,6 +560,12 @@ def _prompt_command_payload(command: PromptCommand) -> String:
     return ""
 
 
+def _prompt_command_payload_arguments(command: PromptCommand) -> List[String]:
+    var result = List[String]()
+    result.append(_prompt_command_payload(command))
+    return result^
+
+
 def plan_external_process_dispatch(
     command: PromptCommand,
 ) raises -> PromptExternalProcessDispatchPlan:
@@ -574,7 +579,6 @@ def plan_external_process_dispatch(
     if command.kind == KIND_SHELL:
         return PromptExternalProcessDispatchPlan(
             True,
-            "",
             shell_split(_prompt_command_payload(command)),
             True,
             False,
@@ -584,8 +588,7 @@ def plan_external_process_dispatch(
     if command.kind == KIND_PYTHON:
         return PromptExternalProcessDispatchPlan(
             True,
-            _prompt_command_payload(command),
-            List[String](),
+            _prompt_command_payload_arguments(command),
             False,
             True,
             False,
@@ -594,8 +597,7 @@ def plan_external_process_dispatch(
     if command.kind == KIND_MATH:
         return PromptExternalProcessDispatchPlan(
             True,
-            _prompt_command_payload(command),
-            List[String](),
+            _prompt_command_payload_arguments(command),
             False,
             False,
             True,
@@ -604,7 +606,6 @@ def plan_external_process_dispatch(
     if command.kind == KIND_RETA:
         return PromptExternalProcessDispatchPlan(
             True,
-            "",
             _prompt_command_arguments(command),
             False,
             False,
@@ -613,7 +614,6 @@ def plan_external_process_dispatch(
         )
     return PromptExternalProcessDispatchPlan(
         False,
-        "",
         List[String](),
         False,
         False,
@@ -889,7 +889,7 @@ def prompt_interaction_contract_snapshot() -> List[String]:
         "simple_output_dispatch=native-deterministic-prompt-output-plan",
         "external_process_dispatch=native-prompt-process-edge-plan",
         "external_reta_arguments=native-prompt-reta-argv-plan",
-        "external_process_payload=native-prompt-process-payload-plan",
+        "external_process_arguments=native-prompt-process-argv-plan",
         "external_process_flags=native-prompt-process-effect-flags",
         "external_process_kind=eliminated-from-external-process-plan",
         "external_reta_child=native-prompt-reta-child-argv",
@@ -901,6 +901,7 @@ def prompt_interaction_contract_snapshot() -> List[String]:
         "fallback_runtime_arguments=runtime-owned-argv-builder",
         "fallback_shell_split=runtime-owned-argv-tokenizer",
         "external_shell_arguments=native-prompt-shell-argv-plan",
+        "external_python_math_arguments=native-prompt-python-math-argv-plan",
         "stored_output_dispatch=native-session-output-execution-plan",
         "stored_delete_dispatch=native-session-delete-plan",
         "stored_default=native-empty-enter-placeholder-policy",

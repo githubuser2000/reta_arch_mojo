@@ -71,7 +71,7 @@ def test_mojo_test_tracks_merged_fallback_argv() -> None:
     assert 'assert_equal(plan.arguments[3], "shell")' in test
     assert 'assert_equal(plan.arguments[4], "echo hi")' in test
     assert '"fallback_process_arguments=native-merged-fallback-argv"' in test
-    assert ("assert_equal(len(snapshot), 32)" in test or "assert_equal(len(snapshot), 33)" in test or "assert_equal(len(snapshot), 34)" in test or "assert_equal(len(snapshot), 35)" in test)
+    assert ("assert_equal(len(snapshot), 32)" in test or "assert_equal(len(snapshot), 33)" in test or "assert_equal(len(snapshot), 34)" in test or "assert_equal(len(snapshot), 35)" in test or "assert_equal(len(snapshot), 36)" in test)
 
 
 def test_stage_document_records_merged_boundary() -> None:

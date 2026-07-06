@@ -5,9 +5,8 @@ another program: ``shell``, ``python`` and ``math`` plus still-unported
 ``reta`` and atomic prompt-fallback paths.  Callers pass already separated
 payloads or argv vectors; raw prompt-line compatibility is owned by callers
 that still expose historical line-based facades.  Shell-style tokenization is
-provided by the prompt runtime owner and imported here only for explicit shell
-payload execution.  The general ``reta``
-compatibility launcher uses the same boundary.  Their dispatch belongs to Mojo; importing
+provided by the prompt runtime owner and imported here only for legacy payload
+wrappers.  The general ``reta`` compatibility launcher uses the same boundary.  Their dispatch belongs to Mojo; importing
 CPython merely to ask it to spawn a second interpreter is both slower and a
 needless runtime dependency.
 
@@ -106,11 +105,18 @@ def run_shell_prompt_payload_native(
 
 
 
-def run_python_prompt_payload_native(
-    payload: String,
+def _first_payload_argument(arguments: List[String]) -> String:
+    if len(arguments) == 0:
+        return ""
+    return String(arguments[0])
+
+
+def run_python_prompt_arguments_native(
+    arguments: List[String],
     reference_root: String = "python_reference",
 ) raises -> Int:
-    """Run an explicit Python payload already separated by the prompt owner."""
+    """Run explicit Python code from an argv-owned prompt plan."""
+    var payload = _first_payload_argument(arguments)
     var command = (
         _working_command_prefix(reference_root)
         + shell_quote(prompt_python_executable())
@@ -120,12 +126,22 @@ def run_python_prompt_payload_native(
     return _run_spawned_child(command)
 
 
-
-def run_math_prompt_payload_native(
+def run_python_prompt_payload_native(
     payload: String,
     reference_root: String = "python_reference",
 ) raises -> Int:
-    """Run an explicit math expression already separated by the prompt owner."""
+    """Run a legacy Python payload by wrapping it at the compatibility edge."""
+    var arguments = List[String]()
+    arguments.append(payload)
+    return run_python_prompt_arguments_native(arguments, reference_root)
+
+
+def run_math_prompt_arguments_native(
+    arguments: List[String],
+    reference_root: String = "python_reference",
+) raises -> Int:
+    """Run explicit math code from an argv-owned prompt plan."""
+    var payload = _first_payload_argument(arguments)
     var program = "print(" + payload + ")"
     var command = (
         _working_command_prefix(reference_root)
@@ -134,6 +150,16 @@ def run_math_prompt_payload_native(
         + shell_quote(program)
     )
     return _run_spawned_child(command)
+
+
+def run_math_prompt_payload_native(
+    payload: String,
+    reference_root: String = "python_reference",
+) raises -> Int:
+    """Run a legacy math payload by wrapping it at the compatibility edge."""
+    var arguments = List[String]()
+    arguments.append(payload)
+    return run_math_prompt_arguments_native(arguments, reference_root)
 
 
 

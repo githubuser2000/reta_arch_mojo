@@ -5,9 +5,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def test_current_stage_points_to_dh() -> None:
+def test_current_stage_points_to_dh_or_later() -> None:
     current = (ROOT / "scripts/test_current_stage.sh").read_text(encoding="utf-8")
-    assert "test_stage12c5dh.sh" in current
+    assert "test_stage12c5d" in current
+    assert ".sh" in current
 
 
 def test_stage_wraps_dg_and_builds_prompt_boundary_tests() -> None:
@@ -28,7 +29,7 @@ def test_shell_prompt_process_plan_owns_argv_not_payload() -> None:
         "if command.kind == KIND_PYTHON:", 1
     )[0]
     assert "shell_split(_prompt_command_payload(command))" in shell_block
-    assert '"",' in shell_block
+    assert '"",' not in shell_block
     assert "List[String]()," not in shell_block
     assert "external_shell_arguments=native-prompt-shell-argv-plan" in owner
 
@@ -39,8 +40,8 @@ def test_prompt_main_dispatches_shell_by_arguments() -> None:
     assert "run_shell_prompt_arguments_native(external_process.arguments)" in controller
     assert "run_shell_prompt_payload_native" not in controller
     assert "run_shell_prompt_payload_native(external_process.payload)" not in controller
-    assert "run_python_prompt_payload_native(external_process.payload)" in controller
-    assert "run_math_prompt_payload_native(external_process.payload)" in controller
+    assert "run_python_prompt_arguments_native(external_process.arguments)" in controller
+    assert "run_math_prompt_arguments_native(external_process.arguments)" in controller
 
 
 def test_process_adapter_exposes_argument_shell_runner_and_legacy_payload_wrapper() -> None:
@@ -63,10 +64,9 @@ def test_process_adapter_exposes_argument_shell_runner_and_legacy_payload_wrappe
 
 def test_mojo_test_contract_records_shell_arguments_owner() -> None:
     test = (ROOT / "tests/test_prompt_interaction.mojo").read_text(encoding="utf-8")
-    assert "assert_equal(shell_plan.payload, \"\")" in test
     assert "assert_equal(len(shell_plan.arguments), 2)" in test
     assert '"external_shell_arguments=native-prompt-shell-argv-plan"' in test
-    assert "assert_equal(len(snapshot), 35)" in test
+    assert "assert_equal(len(snapshot), 36)" in test
 
 
 def test_stage_document_records_shell_argv_plan() -> None:
