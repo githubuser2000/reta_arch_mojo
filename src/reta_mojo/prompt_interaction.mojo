@@ -37,6 +37,7 @@ from .prompt_session import (
     store_prompt_text,
     stored_prompt_text,
     storage_payload,
+    stored_prompt_numbered,
     delete_stored_selection,
 )
 
@@ -97,6 +98,14 @@ struct PromptStoredOutputExecutionPlan(Copyable):
 
     var handled: Bool
     var command_line: String
+    var output_lines: List[String]
+
+
+@fieldwise_init
+struct PromptStoredDeletePlan(Copyable):
+    """Executable plan for ``l``/stored-command deletion dispatch."""
+
+    var handled: Bool
     var output_lines: List[String]
 
 
@@ -293,6 +302,38 @@ def plan_inline_stored_output_command(
     )
 
 
+
+
+def plan_stored_delete_command(
+    command: PromptCommand,
+    mut session: NativePromptSession,
+) raises -> PromptStoredDeletePlan:
+    """Plan classified ``l`` deletion without process-controller state logic.
+
+    A command with a payload deletes immediately and reports the remaining
+    stored command text.  A bare delete command either prints the empty-storage
+    diagnostic or shows the numbered prompt store and switches the session into
+    selection mode.  ``accept_prompt_input`` already owns that subsequent
+    selection lifecycle; this function moves the initial dispatch decision into
+    the same interaction owner.
+    """
+    if command.kind != KIND_DELETE_STORED:
+        return PromptStoredDeletePlan(False, List[String]())
+    var selection = storage_payload(command)
+    if selection.byte_length() > 0:
+        delete_stored_selection(session, selection)
+        return PromptStoredDeletePlan(
+            True, _single_output("Gespeichert: " + stored_prompt_text(session))
+        )
+    var numbered = stored_prompt_numbered(session)
+    if len(numbered) == 0:
+        return PromptStoredDeletePlan(
+            True, _single_output("Kein Befehl gespeichert.")
+        )
+    session.delete_next = True
+    return PromptStoredDeletePlan(True, numbered^)
+
+
 def plan_stored_default_command(
     line: String,
     session: NativePromptSession,
@@ -456,6 +497,7 @@ def prompt_interaction_contract_snapshot() -> List[String]:
         "inline_storage=native-position-and-history-policy",
         "storage_output=native-position-independent-addition-policy",
         "stored_output_dispatch=native-session-output-execution-plan",
+        "stored_delete_dispatch=native-session-delete-plan",
         "stored_default=native-empty-enter-placeholder-policy",
         "one_shot=native-token-assembly",
         "terminal=delegated-native-editor",

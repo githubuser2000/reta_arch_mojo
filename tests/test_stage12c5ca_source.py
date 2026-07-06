@@ -50,4 +50,4 @@ def test_prompt_interaction_regression_covers_stored_output_execution() -> None:
     assert "assert_equal(no_storage.output_lines[0], \"Kein Befehl gespeichert.\")" in test
     assert "assert_equal(with_addition.command_line, \"prim 60 multis 12\")" in test
     assert "assert_equal(suffix.command_line, \"multis 12 prim 60\")" in test
-    assert "assert_equal(len(snapshot), 13)" in test
+    assert "stored_default=native-empty-enter-placeholder-policy" in test

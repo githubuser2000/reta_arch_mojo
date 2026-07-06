@@ -377,6 +377,52 @@ def test_inline_stored_output_execution_is_planned_by_interaction_owner() raises
     assert_false(unhandled.handled)
 
 
+
+def test_stored_delete_execution_is_planned_by_interaction_owner() raises:
+    var catalog = load_prompt_language_catalog("assets")
+    var interaction = new_prompt_interaction(
+        parse_prompt_startup("retaPrompt", [])
+    )
+    var empty_command = classify_prompt_command_localized(
+        "l", "deutsch", catalog
+    )
+    var no_storage = plan_stored_delete_command(
+        empty_command, interaction.session
+    )
+    assert_true(no_storage.handled)
+    assert_equal(len(no_storage.output_lines), 1)
+    assert_equal(no_storage.output_lines[0], "Kein Befehl gespeichert.")
+    assert_false(interaction.session.delete_next)
+
+    store_prompt_text(interaction.session, "prim 60 multis 12")
+    var listing = plan_stored_delete_command(
+        empty_command, interaction.session
+    )
+    assert_true(listing.handled)
+    assert_equal(len(listing.output_lines), 4)
+    assert_equal(listing.output_lines[0], "1: prim")
+    assert_equal(listing.output_lines[3], "4: 12")
+    assert_true(interaction.session.delete_next)
+
+    var delete_command = classify_prompt_command_localized(
+        "l 2", "deutsch", catalog
+    )
+    var deleted = plan_stored_delete_command(
+        delete_command, interaction.session
+    )
+    assert_true(deleted.handled)
+    assert_equal(deleted.output_lines[0], "Gespeichert: prim multis 12")
+    assert_equal(stored_prompt_text(interaction.session), "prim multis 12")
+    assert_false(interaction.session.delete_next)
+
+    var normal = classify_prompt_command_localized(
+        "prim 60", "deutsch", catalog
+    )
+    assert_false(
+        plan_stored_delete_command(normal, interaction.session).handled
+    )
+
+
 def test_inline_storage_output_edges_and_history() raises:
     var catalog = load_prompt_language_catalog("assets")
     var interaction = new_prompt_interaction(
@@ -423,7 +469,7 @@ def test_inline_storage_output_edges_and_history() raises:
 
 def test_contract_snapshot() raises:
     var snapshot = prompt_interaction_contract_snapshot()
-    assert_equal(len(snapshot), 13)
+    assert_equal(len(snapshot), 14)
     assert_equal(snapshot[0], "class=PromptInteractionBundle")
     assert_equal(
         snapshot[6],
@@ -439,9 +485,13 @@ def test_contract_snapshot() raises:
     )
     assert_equal(
         snapshot[9],
+        "stored_delete_dispatch=native-session-delete-plan",
+    )
+    assert_equal(
+        snapshot[10],
         "stored_default=native-empty-enter-placeholder-policy",
     )
-    assert_equal(snapshot[12], "execution=delegated-native-dispatch")
+    assert_equal(snapshot[13], "execution=delegated-native-dispatch")
 
 
 def main() raises:

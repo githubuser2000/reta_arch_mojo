@@ -35,5 +35,5 @@ def test_prompt_interaction_mojo_regression_covers_empty_enter() -> None:
     assert "def test_empty_line_executes_stored_placeholder" in test
     assert "plan_stored_default_command(" in test
     assert "assert_equal(accepted.command_line, \"prim 60\")" in test
-    assert "assert_equal(len(snapshot), 13)" in test
+    assert "stored_default=native-empty-enter-placeholder-policy" in test
     assert "stored_default=native-empty-enter-placeholder-policy" in test

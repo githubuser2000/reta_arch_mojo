@@ -102,8 +102,6 @@ from reta_mojo.prompt_session import (
     store_prompt_text,
     stored_prompt_text,
     storage_payload,
-    stored_prompt_numbered,
-    delete_stored_selection,
 )
 from reta_mojo.prompt_interaction import (
     INTERACTION_EXECUTE,
@@ -117,6 +115,7 @@ from reta_mojo.prompt_interaction import (
     apply_inline_storage_command,
     plan_inline_stored_output_command,
     plan_stored_output_command,
+    plan_stored_delete_command,
 )
 
 
@@ -491,18 +490,9 @@ def _run_command(
         if stored_output.command_line.byte_length() == 0:
             return True
         return _run_command(profile, stored_output.command_line, session, catalog)
-    if command.kind == KIND_DELETE_STORED:
-        var selection = storage_payload(command)
-        if selection.byte_length() > 0:
-            delete_stored_selection(session, selection)
-            print("Gespeichert:", stored_prompt_text(session))
-        else:
-            var numbered = stored_prompt_numbered(session)
-            if len(numbered) == 0:
-                print("Kein Befehl gespeichert.")
-            else:
-                _print_lines(numbered)
-                session.delete_next = True
+    var stored_delete = plan_stored_delete_command(command, session)
+    if stored_delete.handled:
+        _print_lines(stored_delete.output_lines)
         return True
     var historical_echo = _uses_historical_prompt_echo(
         raw_tokens, compact_expansion

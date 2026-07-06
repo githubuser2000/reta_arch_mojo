@@ -24,6 +24,8 @@ def test_prompt_interaction_has_a_dedicated_native_owner() -> None:
     assert "struct PromptStoredOutputExecutionPlan" in owner
     assert "def plan_stored_output_command(" in owner
     assert "def plan_inline_stored_output_command(" in owner
+    assert "struct PromptStoredDeletePlan" in owner
+    assert "def plan_stored_delete_command(" in owner
     assert "struct PromptStoredDefaultPlan" in owner
     assert "def plan_stored_default_command(" in owner
     assert "def prompt_interaction_contract_snapshot(" in owner
@@ -41,6 +43,7 @@ def test_production_prompt_activates_the_interaction_owner() -> None:
     assert "apply_inline_storage_command(" in controller
     assert "plan_inline_stored_output_command(" in controller
     assert "plan_stored_output_command(" in controller
+    assert "plan_stored_delete_command(" in controller
     assert "plan_inline_storage_output_command(" not in controller
     assert "prompt_interaction_one_shot_line(startup)" in controller
     assert "plan_stored_default_command(" not in controller

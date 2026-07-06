@@ -1,25 +1,26 @@
-# Testergebnisse – Stage 12c5ca
+# Testergebnisse – Stage 12c5cb
 
 ## Vom Benutzer bestätigter Ausgangsstand
 
-- Vollständiger nativer Build 12c5bz: erfolgreich.
-- `test_prompt_interaction.mojo`: **14/14** bestanden.
+- Vollständiger nativer Build 12c5ca: erfolgreich.
+- `test_prompt_interaction.mojo`: **16/16** bestanden.
 - `test_legacy_reta_prompt.mojo`: **4/4** bestanden.
-- Fokussierte 12c5bz-Sourcegruppe: **65/65** bestanden.
+- Fokussierte 12c5ca-Sourcegruppe: **70/70** bestanden.
 
 ## Compilerfreie Prüfung in der Erstellungsumgebung
 
-- Fokussierte Stage-/Source-/Ledger-/Matrix-/Archivgruppe: **66/66** bestanden.
+- Fokussierte Stage-/Source-/Ledger-/Matrix-/Archivgruppe: **75/75** bestanden.
 - Defektledger: **169** Einträge, **19** spätere Python-Aufgaben.
 - Portierung: **89/92** vollständig, **92/92** mindestens teilweise.
-- Mojo-Zeilen in `src/`: **64.161**, davon **59.480** in `src/reta_mojo/`.
+- Mojo-Zeilen in `src/`: **64.193**, davon **59.522** in `src/reta_mojo/`.
+- Quellmanifest und frisch entpacktes Archiv werden vor Auslieferung erneut geprüft.
 - Mojo-Kompilierung bleibt benutzerseitig.
 
 ## Verbindlicher Lauf
 
 ```sh
 scripts/build-all.sh -- -j 8
-RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5ca.sh -- -j 8
+RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5cb.sh -- -j 8
 scripts/run-tests.sh --jobs 8
 ```
 
@@ -2602,3 +2603,11 @@ Benutzerlauf.
   Legacy-Fassade, Ledger, Portierungsmatrix und Archivvertrag.
 - Die tatsächliche Mojo-Kompilierung bleibt der Benutzerlauf
   `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bz.sh -- -j 8`.
+
+
+## Stage 12c5cb – vorbereitete Prüfungen
+
+- Benutzerlauf 12c5ca: `test_prompt_interaction.mojo` **16/16**, `test_legacy_reta_prompt.mojo` **4/4**, Sourcegruppe **70/70**.
+- Neue native Grenze: `l`/`BefehlSpeicherungLöschen` wird als `PromptStoredDeletePlan` im Interaktionsbesitzer geplant.
+- Der Stage-Lauf baut jetzt zusätzlich `test_table_adapters.mojo`, damit ein separater `scripts/run-tests.sh`-Fehler nicht mit einem stale `target/tests-all`-Binary verwechselt wird.
+- Die tatsächliche Mojo-Kompilierung bleibt der Benutzerlauf `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5cb.sh -- -j 8`.

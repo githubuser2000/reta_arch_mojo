@@ -1,13 +1,13 @@
-# Status – Stage 12c5ca
+# Status – Stage 12c5cb
 
-## Stage 12c5ca – Stored-output dispatch im Interaktionsbesitzer
+## Stage 12c5cb – Stored-delete dispatch im Interaktionsbesitzer
 
-- Der vom Benutzer lokal bestätigte 12c5bz-Stand ist grün: `test_prompt_interaction.mojo` **14/14**, `test_legacy_reta_prompt.mojo` **4/4** und die fokussierte Sourcegruppe **65/65**.
-- Die verbleibende `o`-/`BefehlSpeicherungAusgeben`-Ausführungsentscheidung liegt jetzt als `PromptStoredOutputExecutionPlan` im nativen `prompt_interaction.mojo`.
-- Der Prozesscontroller entscheidet nicht mehr selbst, ob kein gespeicherter Befehl existiert oder ob der gespeicherte Befehl mit Zusatz erneut dispatcht werden muss; er druckt nur noch Plan-Ausgaben und führt den geplanten Befehl aus.
-- `plan_stored_output_command(...)` bindet die klassifizierte Präfixform; `plan_inline_stored_output_command(...)` bindet die bereits positionsunabhängige Inline-Form.
-- Der Snapshot enthält `stored_output_dispatch=native-session-output-execution-plan`.
-- Benutzerprüfung: `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5ca.sh -- -j 8`.
+- Der vom Benutzer lokal bestätigte 12c5ca-Stand ist grün: vollständiger nativer Build erfolgreich, `test_prompt_interaction.mojo` **16/16**, `test_legacy_reta_prompt.mojo` **4/4** und die fokussierte Sourcegruppe **70/70**.
+- Die verbleibende `l`-/`BefehlSpeicherungLöschen`-Ausführungsentscheidung liegt jetzt als `PromptStoredDeletePlan` im nativen `prompt_interaction.mojo`.
+- Der Prozesscontroller entscheidet nicht mehr selbst zwischen leerem Speicher, nummerierter Speicheranzeige, Delete-Selection-Modus und sofortiger Auswahl-Löschung; er druckt nur noch die vom Interaktionsbesitzer geplanten Zeilen.
+- `plan_stored_delete_command(...)` bindet die klassifizierte Präfixform und mutiert die native Prompt-Session typisiert.
+- Der Snapshot enthält `stored_delete_dispatch=native-session-delete-plan`; `tests/test_stage12c5cb_source.py` verbietet das erneute Nachwachsen der offenen Delete-Branch in `prompt_main.mojo`.
+- Benutzerprüfung: `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5cb.sh -- -j 8`.
 
 # Status – Stage 12c5by
 
@@ -722,3 +722,5 @@ Siehe [`ROADMAP.md`](ROADMAP.md) für alle zwölf Stufen.
   `stored_default=native-empty-enter-placeholder-policy`.
 - Benutzerseitig ist 12c5by fokussiert grün; der ältere breite Scope-Fehler war
   damit kein aktueller Runtime-Rückfall.
+
+- Stage 12c5cb vorbereitet: gespeicherte Löschbefehle werden im nativen Prompt-Interaktionsbesitzer geplant; der Stage-Lauf rebuildet zusätzlich `test_table_adapters.mojo`, um stale `target/tests-all`-Fehler zu isolieren.
