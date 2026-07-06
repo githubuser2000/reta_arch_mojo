@@ -698,3 +698,16 @@ Siehe [`ROADMAP.md`](ROADMAP.md) für alle zwölf Stufen.
 - Die englische Compound-Clear-Probe verwendet den erforderlichen Einmalmodus `-befehl`.
 - Mond-/Sonnenpartition und drei terminalbreitenabhängige Shell-Renderer-Verträge sind gegen die Python- beziehungsweise 80-Spalten-Referenz eingefroren.
 - Benutzerprüfung: `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bv.sh -- -j 8`.
+
+## Stage 12c5bz – leerer Enter führt gespeicherten Prompt aus
+
+- `prompt_interaction.mojo` besitzt jetzt `PromptStoredDefaultPlan` und plant
+  den dokumentierten Shortcut: leere Eingabe plus vorhandener Speicher wird als
+  gespeicherte Befehlszeile an den nativen Dispatcher übergeben.
+- Der Prozesscontroller bleibt dünn: Store-/Delete-Modus, Inline-Speicherung,
+  gespeicherte Ausgabe, leerer gespeicherter Default und History-Politik liegen
+  im Interaktionsbesitzer.
+- Der Interaktions-Snapshot enthält
+  `stored_default=native-empty-enter-placeholder-policy`.
+- Benutzerseitig ist 12c5by fokussiert grün; der ältere breite Scope-Fehler war
+  damit kein aktueller Runtime-Rückfall.

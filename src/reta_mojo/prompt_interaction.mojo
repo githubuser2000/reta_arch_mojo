@@ -63,6 +63,16 @@ struct NativePromptInteraction(Copyable):
     var show_intro: Bool
 
 
+
+
+@fieldwise_init
+struct PromptStoredDefaultPlan(Copyable):
+    """Empty-line execution of the stored prompt placeholder."""
+
+    var handled: Bool
+    var command_line: String
+
+
 @fieldwise_init
 struct PromptInlineStoragePlan(Copyable):
     """Position-independent compound ``S``/``s`` storage decision."""
@@ -211,6 +221,28 @@ def _single_output(value: String) -> List[String]:
     return result^
 
 
+
+
+def plan_stored_default_command(
+    line: String,
+    session: NativePromptSession,
+) -> PromptStoredDefaultPlan:
+    """Plan the documented empty-enter shortcut for stored commands.
+
+    The historical prompt displays the stored command as the line-editor
+    placeholder; pressing Enter with an empty physical line executes that stored
+    placeholder.  Keep this lifecycle decision in the interaction owner so the
+    process controller receives an executable command line instead of treating
+    the blank as a no-op.
+    """
+    if String(line.strip()).byte_length() != 0:
+        return PromptStoredDefaultPlan(False, "")
+    var stored = stored_prompt_text(session)
+    if stored.byte_length() == 0:
+        return PromptStoredDefaultPlan(False, "")
+    return PromptStoredDefaultPlan(True, stored^)
+
+
 def new_prompt_interaction(startup: PromptStartup) -> NativePromptInteraction:
     return NativePromptInteraction(
         new_prompt_session_for_language(
@@ -270,6 +302,14 @@ def accept_prompt_input(
             INTERACTION_CONTINUE,
             "",
             _single_output("Gespeichert: " + stored_prompt_text(interaction.session)),
+        )
+
+    var stored_default = plan_stored_default_command(
+        line, interaction.session
+    )
+    if stored_default.handled:
+        return PromptInteractionInputPlan(
+            INTERACTION_EXECUTE, stored_default.command_line, List[String]()
         )
 
     return PromptInteractionInputPlan(
@@ -345,6 +385,7 @@ def prompt_interaction_contract_snapshot() -> List[String]:
         "history=native-previous-command-policy",
         "inline_storage=native-position-and-history-policy",
         "storage_output=native-position-independent-addition-policy",
+        "stored_default=native-empty-enter-placeholder-policy",
         "one_shot=native-token-assembly",
         "terminal=delegated-native-editor",
         "execution=delegated-native-dispatch",

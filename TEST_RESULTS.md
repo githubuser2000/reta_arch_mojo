@@ -2567,3 +2567,13 @@ Benutzerlauf.
   Mojo-Zeilen: **63.971** in `src/`, davon **59.297** im Kernpaket.
 - Die tatsächliche Mojo-Kompilierung bleibt der Benutzerlauf
   `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bw.sh -- -j 8`.
+
+## Stage 12c5bz – vorbereitete Prüfungen
+
+- Neuer Mojo-Regressionsfall: leere Eingabe ohne Speicher bleibt unhandled,
+  leere Eingabe mit `prim 60` liefert `INTERACTION_EXECUTE` und `prim 60`.
+- Der Stage-Lauf baut `test_prompt_interaction` und `test_legacy_reta_prompt`.
+- Fokussierte Source-Verträge umfassen 12c5bz, 12c5by, Prompt-Interaktion,
+  Legacy-Fassade, Ledger, Portierungsmatrix und Archivvertrag.
+- Die tatsächliche Mojo-Kompilierung bleibt der Benutzerlauf
+  `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bz.sh -- -j 8`.

@@ -92,6 +92,36 @@ def test_terminal_sentinels_and_normal_input() raises:
     assert_equal(eof.action, INTERACTION_EXIT)
 
 
+
+
+def test_empty_line_executes_stored_placeholder() raises:
+    var catalog = load_prompt_language_catalog("assets")
+    var interaction = new_prompt_interaction(
+        parse_prompt_startup("retaPrompt", [])
+    )
+    var empty_without_storage = plan_stored_default_command(
+        "", interaction.session
+    )
+    assert_false(empty_without_storage.handled)
+
+    store_prompt_text(interaction.session, "prim 60")
+    var default_plan = plan_stored_default_command(
+        "   ", interaction.session
+    )
+    assert_true(default_plan.handled)
+    assert_equal(default_plan.command_line, "prim 60")
+
+    var accepted = accept_prompt_input(interaction, "", catalog)
+    assert_equal(accepted.action, INTERACTION_EXECUTE)
+    assert_equal(accepted.command_line, "prim 60")
+    assert_equal(len(accepted.output_lines), 0)
+
+    var nonempty = plan_stored_default_command(
+        "multis 12", interaction.session
+    )
+    assert_false(nonempty.handled)
+
+
 def test_previous_command_policy() raises:
     var interaction = new_prompt_interaction(
         parse_prompt_startup("retaPrompt", [])
@@ -333,7 +363,7 @@ def test_inline_storage_output_edges_and_history() raises:
 
 def test_contract_snapshot() raises:
     var snapshot = prompt_interaction_contract_snapshot()
-    assert_equal(len(snapshot), 11)
+    assert_equal(len(snapshot), 12)
     assert_equal(snapshot[0], "class=PromptInteractionBundle")
     assert_equal(
         snapshot[6],
@@ -343,7 +373,11 @@ def test_contract_snapshot() raises:
         snapshot[7],
         "storage_output=native-position-independent-addition-policy",
     )
-    assert_equal(snapshot[10], "execution=delegated-native-dispatch")
+    assert_equal(
+        snapshot[8],
+        "stored_default=native-empty-enter-placeholder-policy",
+    )
+    assert_equal(snapshot[11], "execution=delegated-native-dispatch")
 
 
 def main() raises:
