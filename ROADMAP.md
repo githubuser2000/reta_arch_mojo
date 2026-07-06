@@ -857,3 +857,10 @@ Der historische Assetgate ist jetzt vollständig read-only. Fünf gepinnte SHA-2
 - `prompt_main.mojo` rendert nur noch die geplanten Hilfe-/Befehlsausgaben und enthält keine bare `KIND_HELP`-/`KIND_COMMANDS`-/`KIND_SHORT_COMMANDS`-Branches mehr.
 - Zusammengesetzte Informations-Begleiteffekte bei Tabellen- und `mulpri`-Plänen bleiben im historischen Tabellenbesitzer, weil dort die Reihenfolge vor der Tabelle maßgeblich ist.
 - Benutzerprüfung: `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5cg.sh -- -j 8`.
+
+## 12c5ch follow-up
+
+The prompt controller now delegates bare deterministic output commands to the
+interaction owner. Remaining controller-owned boundaries are external execution
+(shell/python/math/reta), one-shot-only logging status text and the historical
+`mulpri` composition helper.

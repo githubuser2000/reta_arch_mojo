@@ -61,17 +61,11 @@ from reta_mojo.prompt_runtime import (
     KIND_LOG_OFF,
     KIND_PRIME,
     KIND_MULTIS,
-    KIND_MULTIS3,
     KIND_PRIME_COMPARE,
-    KIND_DISTANCE,
-    KIND_DISTANCE_PRIME,
-    KIND_MODULO,
-    KIND_ABC,
     KIND_SHELL,
     KIND_PYTHON,
     KIND_MATH,
     KIND_RETA,
-    KIND_PRIME24,
     KIND_OUTPUT_STORED,
     KIND_DELETE_STORED,
     PromptProfile,
@@ -84,11 +78,7 @@ from reta_mojo.prompt_runtime import (
     prime_lines,
     command_numbers,
     multis_lines,
-    multis3_lines,
-    modulo_lines,
     prime_comparison_lines,
-    distance_lines,
-    abc_line,
 )
 from reta_mojo.prompt_session import (
     NativePromptSession,
@@ -109,6 +99,7 @@ from reta_mojo.prompt_interaction import (
     plan_logging_dispatch,
     plan_terminal_clear_dispatch,
     plan_informational_dispatch,
+    plan_simple_output_dispatch,
     plan_inline_stored_output_command,
     plan_stored_output_command,
     plan_stored_delete_command,
@@ -600,34 +591,9 @@ def _run_command(
             _clear_terminal_native()
         return True
 
-    if command.kind == KIND_PRIME:
-        _print_lines(prime_lines(command))
-        return True
-    if command.kind == KIND_PRIME24:
-        _print_lines(prime_lines(command, True))
-        return True
-    if command.kind == KIND_MULTIS:
-        _print_lines(multis_lines(command))
-        return True
-    if command.kind == KIND_MULTIS3:
-        _print_lines(multis3_lines(command))
-        return True
-    if command.kind == KIND_MODULO:
-        _print_lines(modulo_lines(command))
-        return True
-    if command.kind == KIND_PRIME_COMPARE:
-        _print_lines(prime_comparison_lines(command, profile.language))
-        return True
-    if command.kind == KIND_DISTANCE:
-        _print_lines(distance_lines(command, False, profile.language))
-        return True
-    if command.kind == KIND_DISTANCE_PRIME:
-        _print_lines(distance_lines(command, True, profile.language))
-        return True
-    if command.kind == KIND_ABC:
-        var line_out = abc_line(command)
-        if line_out.byte_length() > 0:
-            print(line_out)
+    var simple_output = plan_simple_output_dispatch(command, profile.language)
+    if simple_output.handled:
+        _print_lines(simple_output.output_lines)
         return True
     if command.kind == KIND_SHELL:
         _ = run_shell_prompt_line_native(command.raw)
@@ -786,34 +752,10 @@ def _run_native_one_shot(
     if command.kind == KIND_LOG_OFF:
         print("Logging ist ausgeschaltet.")
         return True
-    if command.kind == KIND_PRIME:
-        _print_lines(prime_lines(command))
-        return True
-    if command.kind == KIND_PRIME24:
-        _print_lines(prime_lines(command, True))
-        return True
-    if command.kind == KIND_MULTIS:
-        _print_lines(multis_lines(command))
-        return True
-    if command.kind == KIND_MULTIS3:
-        _print_lines(multis3_lines(command))
-        return True
-    if command.kind == KIND_MODULO:
-        _print_lines(modulo_lines(command))
-        return True
-    if command.kind == KIND_PRIME_COMPARE:
-        _print_lines(prime_comparison_lines(command, profile.language))
-        return True
-    if command.kind == KIND_DISTANCE:
-        _print_lines(distance_lines(command, False, profile.language))
-        return True
-    if command.kind == KIND_DISTANCE_PRIME:
-        _print_lines(distance_lines(command, True, profile.language))
-        return True
-    if command.kind == KIND_ABC:
-        var line_out = abc_line(command)
-        if line_out.byte_length() > 0:
-            print(line_out)
+
+    var simple_output = plan_simple_output_dispatch(command, profile.language)
+    if simple_output.handled:
+        _print_lines(simple_output.output_lines)
         return True
     if _run_native_reta_prompt_command(command):
         return True

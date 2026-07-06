@@ -2649,3 +2649,11 @@ Benutzerlauf.
 - `prompt_main.mojo` rendert nur noch die geplanten Hilfe-/Befehlsausgaben und enthält keine bare `KIND_HELP`-/`KIND_COMMANDS`-/`KIND_SHORT_COMMANDS`-Branches mehr.
 - Zusammengesetzte Informations-Begleiteffekte bei Tabellen- und `mulpri`-Plänen bleiben im historischen Tabellenbesitzer, weil dort die Reihenfolge vor der Tabelle maßgeblich ist.
 - Benutzerprüfung: `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5cg.sh -- -j 8`.
+
+## 12c5ch – compiler-free verification
+
+- Focused source/stage/ledger/matrix/archive contracts passed locally.
+- `tools/check_known_defects.py`, `tools/porting_metrics.py` and source manifest
+  verification passed.
+- Mojo compilation was intentionally not run in this environment; use
+  `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5ch.sh -- -j 8` locally.

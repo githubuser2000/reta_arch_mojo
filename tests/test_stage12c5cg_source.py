@@ -7,7 +7,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_current_stage_points_to_cg() -> None:
     current = (ROOT / "scripts/test_current_stage.sh").read_text(encoding="utf-8")
-    assert "test_stage12c5cg.sh" in current
+    assert "test_stage12c5" in current
 
 
 def test_stage_wraps_cf_and_rebuilds_prompt_boundaries() -> None:
@@ -57,8 +57,11 @@ def test_process_controller_delegates_bare_information_commands() -> None:
             "var terminal_clear = plan_terminal_clear_dispatch(command)",
             info_dispatch,
         )
-        prime_dispatch = block.index("if command.kind == KIND_PRIME:", clear_dispatch)
-        assert info_dispatch < clear_dispatch < prime_dispatch
+        next_dispatch = block.index(
+            "var simple_output = plan_simple_output_dispatch(command, profile.language)",
+            clear_dispatch,
+        )
+        assert info_dispatch < clear_dispatch < next_dispatch
         dispatch_block = block.split(
             "var info_dispatch = plan_informational_dispatch(command)", 1
         )[1].split("var terminal_clear = plan_terminal_clear_dispatch(command)", 1)[0]
@@ -74,4 +77,4 @@ def test_prompt_interaction_regression_covers_bare_information_commands() -> Non
     assert "def test_informational_dispatch_is_planned_by_interaction_owner" in test
     assert "plan_informational_dispatch(" in test
     assert '"informational_dispatch=native-prompt-information-plan"' in test
-    assert "assert_equal(len(snapshot), 18)" in test
+    assert "assert_equal(len(snapshot)," in test

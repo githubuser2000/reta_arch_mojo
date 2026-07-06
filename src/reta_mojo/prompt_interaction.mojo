@@ -33,7 +33,22 @@ from .prompt_runtime import (
     KIND_LOG_ON,
     KIND_LOG_OFF,
     KIND_CLEAR,
+    KIND_PRIME,
+    KIND_MULTIS,
+    KIND_MULTIS3,
+    KIND_MODULO,
+    KIND_PRIME_COMPARE,
+    KIND_DISTANCE,
+    KIND_DISTANCE_PRIME,
     KIND_ABC,
+    KIND_PRIME24,
+    prime_lines,
+    multis_lines,
+    multis3_lines,
+    modulo_lines,
+    prime_comparison_lines,
+    distance_lines,
+    abc_line,
 )
 from .prompt_session import (
     NativePromptSession,
@@ -105,6 +120,14 @@ struct PromptInformationalDispatchPlan(Copyable):
     var show_help: Bool
     var show_commands: Bool
     var show_short_commands: Bool
+
+
+@fieldwise_init
+struct PromptSimpleOutputDispatchPlan(Copyable):
+    """Executable plan for deterministic prompt output commands."""
+
+    var handled: Bool
+    var output_lines: List[String]
 
 
 @fieldwise_init
@@ -384,6 +407,52 @@ def plan_informational_dispatch(
     return PromptInformationalDispatchPlan(False, False, False, False)
 
 
+def _maybe_single_output(value: String) -> List[String]:
+    if value.byte_length() == 0:
+        return List[String]()
+    return _single_output(value)
+
+
+def plan_simple_output_dispatch(
+    command: PromptCommand, language: String
+) raises -> PromptSimpleOutputDispatchPlan:
+    """Plan deterministic bare prompt output commands in the interaction owner.
+
+    These branches used to be repeated in both the interactive loop and the
+    one-shot path.  They do not need process-controller state: the runtime
+    owner computes exact output lines, and the process entry point only prints
+    the typed plan.  Shell/Python/math/reta execution stays outside because it
+    is an operating-system or full CLI boundary.
+    """
+    if command.kind == KIND_PRIME:
+        return PromptSimpleOutputDispatchPlan(True, prime_lines(command))
+    if command.kind == KIND_PRIME24:
+        return PromptSimpleOutputDispatchPlan(True, prime_lines(command, True))
+    if command.kind == KIND_MULTIS:
+        return PromptSimpleOutputDispatchPlan(True, multis_lines(command))
+    if command.kind == KIND_MULTIS3:
+        return PromptSimpleOutputDispatchPlan(True, multis3_lines(command))
+    if command.kind == KIND_MODULO:
+        return PromptSimpleOutputDispatchPlan(True, modulo_lines(command))
+    if command.kind == KIND_PRIME_COMPARE:
+        return PromptSimpleOutputDispatchPlan(
+            True, prime_comparison_lines(command, language)
+        )
+    if command.kind == KIND_DISTANCE:
+        return PromptSimpleOutputDispatchPlan(
+            True, distance_lines(command, False, language)
+        )
+    if command.kind == KIND_DISTANCE_PRIME:
+        return PromptSimpleOutputDispatchPlan(
+            True, distance_lines(command, True, language)
+        )
+    if command.kind == KIND_ABC:
+        return PromptSimpleOutputDispatchPlan(
+            True, _maybe_single_output(abc_line(command))
+        )
+    return PromptSimpleOutputDispatchPlan(False, List[String]())
+
+
 def plan_stored_output_command(
     command: PromptCommand,
     session: NativePromptSession,
@@ -627,6 +696,7 @@ def prompt_interaction_contract_snapshot() -> List[String]:
         "logging_dispatch=native-session-logging-plan",
         "terminal_clear_dispatch=native-terminal-clear-plan",
         "informational_dispatch=native-prompt-information-plan",
+        "simple_output_dispatch=native-deterministic-prompt-output-plan",
         "stored_output_dispatch=native-session-output-execution-plan",
         "stored_delete_dispatch=native-session-delete-plan",
         "stored_default=native-empty-enter-placeholder-policy",

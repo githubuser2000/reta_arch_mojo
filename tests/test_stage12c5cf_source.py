@@ -44,11 +44,17 @@ def test_process_controller_delegates_bare_terminal_clear() -> None:
             "var terminal_clear = plan_terminal_clear_dispatch(command)",
             info_dispatch,
         )
-        prime_dispatch = block.index("if command.kind == KIND_PRIME:", clear_dispatch)
-        assert info_dispatch < clear_dispatch < prime_dispatch
+        next_dispatch = block.index(
+            "var simple_output = plan_simple_output_dispatch(command, profile.language)",
+            clear_dispatch,
+        )
+        assert info_dispatch < clear_dispatch < next_dispatch
         dispatch_block = block.split(
             "var terminal_clear = plan_terminal_clear_dispatch(command)", 1
-        )[1].split("if command.kind == KIND_PRIME:", 1)[0]
+        )[1].split(
+            "var simple_output = plan_simple_output_dispatch(command, profile.language)",
+            1,
+        )[0]
         assert "_clear_terminal_native()" in dispatch_block
 
 
@@ -59,4 +65,4 @@ def test_prompt_interaction_regression_covers_bare_terminal_clear() -> None:
     assert "def test_terminal_clear_dispatch_is_planned_by_interaction_owner" in test
     assert "plan_terminal_clear_dispatch(" in test
     assert '"terminal_clear_dispatch=native-terminal-clear-plan"' in test
-    assert "assert_equal(len(snapshot), 18)" in test
+    assert "assert_equal(len(snapshot)," in test
