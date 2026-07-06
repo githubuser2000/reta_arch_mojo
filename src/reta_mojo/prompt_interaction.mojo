@@ -18,6 +18,7 @@ from .prompt_language import (
 )
 from .prompt_runtime import (
     PromptStartup,
+    PromptCommand,
     classify_prompt_command_localized,
     effective_one_shot_tokens,
     join_prompt_tokens,
@@ -35,6 +36,7 @@ from .prompt_session import (
     new_prompt_session_for_language,
     store_prompt_text,
     stored_prompt_text,
+    storage_payload,
     delete_stored_selection,
 )
 
@@ -87,6 +89,15 @@ struct PromptStorageOutputPlan(Copyable):
 
     var handled: Bool
     var payload: String
+
+
+@fieldwise_init
+struct PromptStoredOutputExecutionPlan(Copyable):
+    """Executable plan for ``o``/stored-command output dispatch."""
+
+    var handled: Bool
+    var command_line: String
+    var output_lines: List[String]
 
 
 def _token_list_contains(values: List[String], token: String) -> Bool:
@@ -221,6 +232,65 @@ def _single_output(value: String) -> List[String]:
     return result^
 
 
+def _plan_stored_output_payload(
+    stored: String,
+    addition: String,
+) -> PromptStoredOutputExecutionPlan:
+    if stored.byte_length() == 0:
+        return PromptStoredOutputExecutionPlan(
+            True, "", _single_output("Kein Befehl gespeichert.")
+        )
+    var command_line = stored
+    if addition.byte_length() > 0:
+        command_line += " " + addition
+    return PromptStoredOutputExecutionPlan(
+        True, command_line^, List[String]()
+    )
+
+
+def plan_stored_output_command(
+    command: PromptCommand,
+    session: NativePromptSession,
+) -> PromptStoredOutputExecutionPlan:
+    """Plan classified ``o`` execution without process-controller state logic.
+
+    The process entry point still prints and dispatches, but the interaction
+    owner now decides whether a stored command exists and which exact command
+    line must be executed when an addition follows the output alias.
+    """
+    if command.kind != KIND_OUTPUT_STORED:
+        return PromptStoredOutputExecutionPlan(
+            False, "", List[String]()
+        )
+    return _plan_stored_output_payload(
+        stored_prompt_text(session),
+        storage_payload(command),
+    )
+
+
+def plan_inline_stored_output_command(
+    tokens: List[String],
+    session: NativePromptSession,
+    language: String,
+    catalog: PromptLanguageCatalog,
+) -> PromptStoredOutputExecutionPlan:
+    """Plan position-independent stored-output execution.
+
+    This consumes the already-owned inline ``o`` boundary and returns either a
+    printable no-storage line or the exact command line that should be executed
+    with the stored prompt as prefix.
+    """
+    var inline_output = plan_inline_storage_output_command(
+        tokens, language, catalog
+    )
+    if not inline_output.handled:
+        return PromptStoredOutputExecutionPlan(
+            False, "", List[String]()
+        )
+    return _plan_stored_output_payload(
+        stored_prompt_text(session),
+        inline_output.payload,
+    )
 
 
 def plan_stored_default_command(
@@ -385,6 +455,7 @@ def prompt_interaction_contract_snapshot() -> List[String]:
         "history=native-previous-command-policy",
         "inline_storage=native-position-and-history-policy",
         "storage_output=native-position-independent-addition-policy",
+        "stored_output_dispatch=native-session-output-execution-plan",
         "stored_default=native-empty-enter-placeholder-policy",
         "one_shot=native-token-assembly",
         "terminal=delegated-native-editor",

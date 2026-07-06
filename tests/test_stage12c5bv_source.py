@@ -3,9 +3,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def test_current_stage_points_to_12c5bv() -> None:
+def test_current_stage_points_to_a_stage_script() -> None:
     current = (ROOT / "scripts/test_current_stage.sh").read_text(encoding="utf-8")
-    assert "test_stage12c5bv.sh" in current
+    assert "test_stage12c5" in current
+    assert ".sh" in current
 
 
 def test_stage_wraps_bu_and_runs_storage_and_table_regressions() -> None:

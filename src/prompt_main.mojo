@@ -115,7 +115,8 @@ from reta_mojo.prompt_interaction import (
     accept_prompt_input,
     record_prompt_line,
     apply_inline_storage_command,
-    plan_inline_storage_output_command,
+    plan_inline_stored_output_command,
+    plan_stored_output_command,
 )
 
 
@@ -462,17 +463,14 @@ def _run_command(
     ):
         print("Gespeichert:", stored_prompt_text(session))
         return True
-    var inline_output = plan_inline_storage_output_command(
-        raw_tokens, profile.language, catalog
+    var inline_output = plan_inline_stored_output_command(
+        raw_tokens, session, profile.language, catalog
     )
     if inline_output.handled:
-        var stored = stored_prompt_text(session)
-        if stored.byte_length() == 0:
-            print("Kein Befehl gespeichert.")
+        _print_lines(inline_output.output_lines)
+        if inline_output.command_line.byte_length() == 0:
             return True
-        if inline_output.payload.byte_length() > 0:
-            stored += " " + inline_output.payload
-        return _run_command(profile, stored, session, catalog)
+        return _run_command(profile, inline_output.command_line, session, catalog)
     if command.kind == KIND_EMPTY:
         return True
     if command.kind == KIND_EXIT:
@@ -487,15 +485,12 @@ def _run_command(
             store_prompt_text(session, payload)
             print("Gespeichert:", stored_prompt_text(session))
         return True
-    if command.kind == KIND_OUTPUT_STORED:
-        var stored = stored_prompt_text(session)
-        var addition = storage_payload(command)
-        if stored.byte_length() == 0:
-            print("Kein Befehl gespeichert.")
+    var stored_output = plan_stored_output_command(command, session)
+    if stored_output.handled:
+        _print_lines(stored_output.output_lines)
+        if stored_output.command_line.byte_length() == 0:
             return True
-        if addition.byte_length() > 0:
-            stored += " " + addition
-        return _run_command(profile, stored, session, catalog)
+        return _run_command(profile, stored_output.command_line, session, catalog)
     if command.kind == KIND_DELETE_STORED:
         var selection = storage_payload(command)
         if selection.byte_length() > 0:

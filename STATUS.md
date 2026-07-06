@@ -1,3 +1,14 @@
+# Status – Stage 12c5ca
+
+## Stage 12c5ca – Stored-output dispatch im Interaktionsbesitzer
+
+- Der vom Benutzer lokal bestätigte 12c5bz-Stand ist grün: `test_prompt_interaction.mojo` **14/14**, `test_legacy_reta_prompt.mojo` **4/4** und die fokussierte Sourcegruppe **65/65**.
+- Die verbleibende `o`-/`BefehlSpeicherungAusgeben`-Ausführungsentscheidung liegt jetzt als `PromptStoredOutputExecutionPlan` im nativen `prompt_interaction.mojo`.
+- Der Prozesscontroller entscheidet nicht mehr selbst, ob kein gespeicherter Befehl existiert oder ob der gespeicherte Befehl mit Zusatz erneut dispatcht werden muss; er druckt nur noch Plan-Ausgaben und führt den geplanten Befehl aus.
+- `plan_stored_output_command(...)` bindet die klassifizierte Präfixform; `plan_inline_stored_output_command(...)` bindet die bereits positionsunabhängige Inline-Form.
+- Der Snapshot enthält `stored_output_dispatch=native-session-output-execution-plan`.
+- Benutzerprüfung: `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5ca.sh -- -j 8`.
+
 # Status – Stage 12c5by
 
 ## Stage 12c5by – Legacy-Prompt-Scope folgt Interaktionsbesitzer

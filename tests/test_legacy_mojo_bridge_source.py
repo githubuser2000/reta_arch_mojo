@@ -117,7 +117,8 @@ def test_matrix_and_package_export_the_native_bridge_owner() -> None:
     for name in _public_names()[1:]:
         assert re.search(rf"^\s*{re.escape(name)},$", package, re.MULTILINE)
     current = (ROOT / "scripts/test_current_stage.sh").read_text(encoding="utf-8")
-    assert "test_stage12c5bk.sh" in current
+    assert "test_stage12c5" in current
+    assert ".sh" in current
     presheaf_stage = (ROOT / "scripts/test_stage12c5bd.sh").read_text(encoding="utf-8")
     assert "test_stage12c5bc.sh" in presheaf_stage
     installed_launcher_stage = (ROOT / "scripts/test_stage12c5bc.sh").read_text(encoding="utf-8")

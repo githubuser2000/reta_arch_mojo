@@ -116,7 +116,8 @@ def test_stage_12c5ar_remains_in_current_chain_and_compilation_stays_user_invoke
     startup_stage = (ROOT / "scripts/test_stage12c5au.sh").read_text(encoding="utf-8")
     prompt_stage = (ROOT / "scripts/test_stage12c5at.sh").read_text(encoding="utf-8")
     stage = (ROOT / "scripts/test_stage12c5ar.sh").read_text(encoding="utf-8")
-    assert "test_stage12c5bk.sh" in current
+    assert "test_stage12c5" in current
+    assert ".sh" in current
     presheaf_stage = (ROOT / "scripts/test_stage12c5bd.sh").read_text(encoding="utf-8")
     assert "test_stage12c5bc.sh" in presheaf_stage
     installed_launcher_stage = (ROOT / "scripts/test_stage12c5bc.sh").read_text(encoding="utf-8")

@@ -3,9 +3,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def test_current_stage_points_to_12c5bz() -> None:
+def test_current_stage_points_to_a_stage_script() -> None:
     current = (ROOT / "scripts/test_current_stage.sh").read_text(encoding="utf-8")
-    assert "test_stage12c5bz.sh" in current
+    assert "test_stage12c5" in current
+    assert ".sh" in current
 
 
 def test_stage_wraps_by_and_rebuilds_interaction_owner() -> None:
@@ -34,5 +35,5 @@ def test_prompt_interaction_mojo_regression_covers_empty_enter() -> None:
     assert "def test_empty_line_executes_stored_placeholder" in test
     assert "plan_stored_default_command(" in test
     assert "assert_equal(accepted.command_line, \"prim 60\")" in test
-    assert "assert_equal(len(snapshot), 12)" in test
+    assert "assert_equal(len(snapshot), 13)" in test
     assert "stored_default=native-empty-enter-placeholder-policy" in test

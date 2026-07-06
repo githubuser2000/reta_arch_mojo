@@ -317,6 +317,66 @@ def test_inline_storage_output_is_position_independent() raises:
     assert_equal(english.payload, "emotions 1")
 
 
+def test_stored_output_execution_is_planned_by_interaction_owner() raises:
+    var catalog = load_prompt_language_catalog("assets")
+    var interaction = new_prompt_interaction(
+        parse_prompt_startup("retaPrompt", [])
+    )
+    var empty_command = classify_prompt_command_localized(
+        "o", "deutsch", catalog
+    )
+    var no_storage = plan_stored_output_command(
+        empty_command, interaction.session
+    )
+    assert_true(no_storage.handled)
+    assert_equal(no_storage.command_line, "")
+    assert_equal(len(no_storage.output_lines), 1)
+    assert_equal(no_storage.output_lines[0], "Kein Befehl gespeichert.")
+
+    store_prompt_text(interaction.session, "prim 60")
+    var stored_only = plan_stored_output_command(
+        empty_command, interaction.session
+    )
+    assert_true(stored_only.handled)
+    assert_equal(stored_only.command_line, "prim 60")
+    assert_equal(len(stored_only.output_lines), 0)
+
+    var addition_command = classify_prompt_command_localized(
+        "o multis 12", "deutsch", catalog
+    )
+    var with_addition = plan_stored_output_command(
+        addition_command, interaction.session
+    )
+    assert_true(with_addition.handled)
+    assert_equal(with_addition.command_line, "prim 60 multis 12")
+
+
+def test_inline_stored_output_execution_is_planned_by_interaction_owner() raises:
+    var catalog = load_prompt_language_catalog("assets")
+    var interaction = new_prompt_interaction(
+        parse_prompt_startup("retaPrompt", [])
+    )
+    var no_storage = plan_inline_stored_output_command(
+        ["prim", "60", "o"], interaction.session, "deutsch", catalog
+    )
+    assert_true(no_storage.handled)
+    assert_equal(no_storage.command_line, "")
+    assert_equal(no_storage.output_lines[0], "Kein Befehl gespeichert.")
+
+    store_prompt_text(interaction.session, "multis 12")
+    var suffix = plan_inline_stored_output_command(
+        ["prim", "60", "o"], interaction.session, "deutsch", catalog
+    )
+    assert_true(suffix.handled)
+    assert_equal(suffix.command_line, "multis 12 prim 60")
+    assert_equal(len(suffix.output_lines), 0)
+
+    var unhandled = plan_inline_stored_output_command(
+        ["o", "prim"], interaction.session, "deutsch", catalog
+    )
+    assert_false(unhandled.handled)
+
+
 def test_inline_storage_output_edges_and_history() raises:
     var catalog = load_prompt_language_catalog("assets")
     var interaction = new_prompt_interaction(
@@ -363,7 +423,7 @@ def test_inline_storage_output_edges_and_history() raises:
 
 def test_contract_snapshot() raises:
     var snapshot = prompt_interaction_contract_snapshot()
-    assert_equal(len(snapshot), 12)
+    assert_equal(len(snapshot), 13)
     assert_equal(snapshot[0], "class=PromptInteractionBundle")
     assert_equal(
         snapshot[6],
@@ -375,9 +435,13 @@ def test_contract_snapshot() raises:
     )
     assert_equal(
         snapshot[8],
+        "stored_output_dispatch=native-session-output-execution-plan",
+    )
+    assert_equal(
+        snapshot[9],
         "stored_default=native-empty-enter-placeholder-policy",
     )
-    assert_equal(snapshot[11], "execution=delegated-native-dispatch")
+    assert_equal(snapshot[12], "execution=delegated-native-dispatch")
 
 
 def main() raises:
