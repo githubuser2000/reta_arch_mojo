@@ -52,6 +52,21 @@ struct PromptFallbackProcessDispatchPlan(Copyable):
 
 
 @fieldwise_init
+struct PromptInteractiveExternalCompletionPlan(Copyable):
+    """Pure completion plan after interactive external-process dispatch.
+
+    The controller still performs the shell/python/math/reta child-process I/O.
+    This owner decides the post-dispatch completion algebra: all handled
+    external commands finish the prompt command, while direct ``reta`` commands
+    only need the reference child when the native reta child declined the argv.
+    """
+
+    var handled: Bool
+    var run_reference_reta: Bool
+    var reta_native_handled: Bool
+
+
+@fieldwise_init
 struct PromptOneShotExternalBoundaryPlan(Copyable):
     """Pure one-shot result after an explicit external-process command.
 
@@ -121,6 +136,26 @@ def plan_external_process_dispatch(
     )
 
 
+def plan_interactive_external_process_completion(
+    dispatch: PromptExternalProcessDispatchPlan, reta_native_handled: Bool
+) -> PromptInteractiveExternalCompletionPlan:
+    """Plan post-I/O completion for interactive external process commands.
+
+    Shell, Python and math are complete once their child process has been
+    launched.  Direct ``reta`` first tries the native child; if that declined the
+    argv, the controller must run the reference reta child and still finish the
+    prompt command.
+    """
+
+    if not dispatch.handled:
+        return PromptInteractiveExternalCompletionPlan(False, False, False)
+    if dispatch.run_reta:
+        return PromptInteractiveExternalCompletionPlan(
+            True, not reta_native_handled, reta_native_handled
+        )
+    return PromptInteractiveExternalCompletionPlan(True, False, False)
+
+
 def plan_one_shot_external_process_boundary(
     dispatch: PromptExternalProcessDispatchPlan, reta_native_handled: Bool
 ) -> PromptOneShotExternalBoundaryPlan:
@@ -168,6 +203,7 @@ def prompt_process_dispatch_contract_snapshot() -> List[String]:
         "external_process_arguments=native-prompt-process-argv-plan",
         "external_process_flags=native-prompt-process-effect-flags",
         "external_process_kind=eliminated-from-external-process-plan",
+        "interactive_external_completion=native-prompt-process-completion-boundary",
         "one_shot_external_boundary=native-prompt-process-probe-boundary",
         "external_reta_child=native-prompt-reta-child-argv",
         "external_raw_line=eliminated-from-external-process-plan",

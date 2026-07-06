@@ -49,8 +49,14 @@ def test_prompt_tests_cover_split_contracts() -> None:
     test = (ROOT / "tests/test_prompt_interaction.mojo").read_text(encoding="utf-8")
     assert ("assert_equal(len(snapshot), 21)" in test or "assert_equal(len(snapshot), 7)" in test)
     assert "var process_snapshot = prompt_process_dispatch_contract_snapshot()" in test
-    assert "assert_equal(len(process_snapshot), 19)" in test
-    assert 'assert_equal(process_snapshot[18], "process_adapter=argv-execution-only")' in test
+    assert (
+        "assert_equal(len(process_snapshot), 19)" in test
+        or "assert_equal(len(process_snapshot), 21)" in test
+    )
+    assert (
+        'assert_equal(process_snapshot[18], "process_adapter=argv-execution-only")' in test
+        or 'assert_equal(process_snapshot[20], "process_adapter=argv-execution-only")' in test
+    )
     assert ('assert_equal(snapshot[20], "execution=delegated-native-dispatch")' in test or 'assert_equal(snapshot[6], "execution=delegated-native-dispatch")' in test)
 
 

@@ -94,6 +94,7 @@ from reta_mojo.prompt_reaction_storage import (
 
 from reta_mojo.prompt_process_dispatch import (
     plan_external_process_dispatch,
+    plan_interactive_external_process_completion,
     plan_one_shot_external_process_boundary,
     plan_prompt_fallback_process_dispatch,
 )
@@ -380,22 +381,25 @@ def _run_command(
 
     var external_process = plan_external_process_dispatch(command)
     if external_process.handled:
+        var reta_native_handled = False
         if external_process.run_shell:
             _ = run_shell_prompt_arguments_native(external_process.arguments)
-            return True
         if external_process.run_python:
             _ = run_python_prompt_arguments_native(external_process.arguments)
-            return True
         if external_process.run_math:
             _ = run_math_prompt_arguments_native(external_process.arguments)
-            return True
         if external_process.run_reta:
-            if _run_native_reta_prompt_command(external_process.arguments):
-                return True
+            reta_native_handled = _run_native_reta_prompt_command(
+                external_process.arguments
+            )
+        var external_completion = plan_interactive_external_process_completion(
+            external_process, reta_native_handled
+        )
+        if external_completion.run_reference_reta:
             _ = run_reta_arguments_native(
                 external_process.arguments, reference_root()
             )
-            return True
+        return external_completion.handled
 
     # Preserve the untouched source spelling at the compatibility boundary.
     # Native parsing already owns routing, but an unported operation must still
