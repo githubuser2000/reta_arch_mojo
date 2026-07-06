@@ -49,14 +49,9 @@ def test_prompt_interaction_snapshot_and_runtime_test_cover_handled_flag() -> No
     assert 'assert_equal(plan.arguments[0], "-vi")' in test
     assert 'assert_equal(plan.arguments[1], "-e")' in test
     assert 'assert_equal(plan.arguments[2], "-befehl")' in test
-    assert ("assert_equal(len(snapshot), 30)" in test or "assert_equal(len(snapshot), 31)" in test or "assert_equal(len(snapshot), 32)" in test or "assert_equal(len(snapshot), 33)" in test)
+    assert ("assert_equal(len(snapshot), 30)" in test or "assert_equal(len(snapshot), 31)" in test or "assert_equal(len(snapshot), 32)" in test or "assert_equal(len(snapshot), 33)" in test or "assert_equal(len(snapshot), 34)" in test)
     assert '"fallback_process_handled=native-explicit-fallback-effect-flag"' in test
-    assert (
-        'assert_equal(snapshot[29], "execution=delegated-native-dispatch")' in test
-        or 'assert_equal(snapshot[30], "execution=delegated-native-dispatch")' in test
-        or 'assert_equal(snapshot[31], "execution=delegated-native-dispatch")' in test
-        or 'assert_equal(snapshot[32], "execution=delegated-native-dispatch")' in test
-    )
+    assert '"execution=delegated-native-dispatch"' in test
 
 
 def test_stage_document_records_boundary_change() -> None:

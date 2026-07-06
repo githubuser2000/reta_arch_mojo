@@ -2,8 +2,8 @@ from std.testing import assert_equal, assert_true, TestSuite
 from reta_mojo.prompt_external_commands import (
     reta_child_arguments_native,
     shell_quote,
-    shell_split,
 )
+from reta_mojo.prompt_runtime import shell_split
 
 
 def _joined(values: List[String]) -> String:

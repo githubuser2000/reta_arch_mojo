@@ -25,10 +25,9 @@ from .prompt_external_commands import (
     run_reta_prompt_arguments_native,
     reta_child_arguments_native,
     run_shell_prompt_payload_native,
-    shell_split,
 )
 from .prompt_language import load_prompt_language_catalog
-from .prompt_runtime import reta_prompt_fallback_arguments_native
+from .prompt_runtime import reta_prompt_fallback_arguments_native, shell_split
 from .resource_paths import asset_root, reference_root
 
 

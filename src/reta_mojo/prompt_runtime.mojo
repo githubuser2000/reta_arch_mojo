@@ -1,12 +1,12 @@
 """Native runtime model for retaPrompt and its historical launcher profiles.
 
 The terminal line editor and child-process creation remain operating-system
-boundaries. Prompt state, profile selection, command classification, history
-policy, and the native arithmetic commands are owned by Mojo.
+boundaries. Prompt state, profile selection, command classification, shell-style argv
+tokenization, history policy, and the native arithmetic commands are owned by Mojo.
 """
 
 from std.collections import List
-from std.collections.string import atol, ord
+from std.collections.string import StringSlice, atol, ord
 from .number_theory import prime_factors
 from .arithmetic import factor_pairs, factor_triples, modulo_table_lines, prime_repeat_labels
 from .row_ranges import range_to_numbers, is_row_range
@@ -18,6 +18,122 @@ from .prompt_language import (
     normalize_prompt_language,
     python_string_set_order,
 )
+
+
+comptime _STATE_NORMAL = 0
+comptime _STATE_SINGLE_QUOTE = 1
+comptime _STATE_DOUBLE_QUOTE = 2
+
+
+def _slice(text: String, start: Int, end: Int) -> String:
+    return String(StringSlice(text)[byte=start:end])
+
+
+def _next_codepoint_end(text: String, start: Int) -> Int:
+    """Return the byte offset after the UTF-8 codepoint at ``start``."""
+    var bytes = text.as_bytes()
+    if start >= len(bytes):
+        return start
+    var end = start + 1
+    while end < len(bytes) and (Int(bytes[end]) & 0xC0) == 0x80:
+        end += 1
+    return end
+
+
+def shell_split(text: String) raises -> List[String]:
+    """Small POSIX-shlex parser used by the historical ``shell`` command.
+
+    It preserves Unicode, empty quoted arguments, single/double quotes and
+    backslash escaping while deliberately performing no variable expansion,
+    globbing or shell interpretation, matching ``shlex.split`` + ``Popen(argv)``.
+    """
+    var result = List[String]()
+    var current = String()
+    var token_started = False
+    var state = _STATE_NORMAL
+    var index = 0
+    var bytes = text.as_bytes()
+
+    while index < len(bytes):
+        var code = Int(bytes[index])
+        var end = _next_codepoint_end(text, index)
+        var value = _slice(text, index, end)
+
+        if state == _STATE_NORMAL:
+            if code == 32 or code == 9 or code == 10 or code == 13:
+                if token_started:
+                    result.append(current)
+                    current = String()
+                    token_started = False
+                index = end
+                continue
+            if code == 39:  # '
+                state = _STATE_SINGLE_QUOTE
+                token_started = True
+                index = end
+                continue
+            if code == 34:  # "
+                state = _STATE_DOUBLE_QUOTE
+                token_started = True
+                index = end
+                continue
+            if code == 92:  # backslash
+                if end >= len(bytes):
+                    raise Error("No escaped character")
+                var escaped_end = _next_codepoint_end(text, end)
+                current += _slice(text, end, escaped_end)
+                token_started = True
+                index = escaped_end
+                continue
+            current += value
+            token_started = True
+            index = end
+            continue
+
+        if state == _STATE_SINGLE_QUOTE:
+            if code == 39:
+                state = _STATE_NORMAL
+            else:
+                current += value
+            index = end
+            continue
+
+        # POSIX shlex inside double quotes: backslash only quotes backslash,
+        # double quote, dollar, backtick and newline.  Before other characters
+        # it remains a literal backslash.
+        if code == 34:
+            state = _STATE_NORMAL
+            index = end
+            continue
+        if code == 92:
+            if end >= len(bytes):
+                raise Error("No escaped character")
+            var escaped_end = _next_codepoint_end(text, end)
+            var escaped_code = Int(bytes[end])
+            if escaped_code == 10:
+                pass
+            elif (
+                escaped_code == 34
+                or escaped_code == 36
+                or escaped_code == 92
+                or escaped_code == 96
+            ):
+                current += _slice(text, end, escaped_end)
+            else:
+                current += "\\" + _slice(text, end, escaped_end)
+            token_started = True
+            index = escaped_end
+            continue
+        current += value
+        token_started = True
+        index = end
+
+    if state != _STATE_NORMAL:
+        raise Error("No closing quotation")
+    if token_started:
+        result.append(current)
+    return result^
+
 
 
 comptime KIND_EMPTY = 0
