@@ -164,18 +164,21 @@ def test_production_prompt_activates_the_interaction_owner() -> None:
     assert "KIND_RETA," not in controller
     assert "if command.kind != KIND_RETA" not in controller
     assert "if command.kind == KIND_RETA" not in controller
-    assert "run_shell_prompt_arguments_native(external_process.arguments)" in controller
-    assert "run_python_prompt_arguments_native(external_process.arguments)" in controller
-    assert "run_math_prompt_arguments_native(external_process.arguments)" in controller
+    assert ("run_shell_prompt_arguments_native(external_process.arguments)" in controller or "run_shell_prompt_arguments_native(external_execution.arguments)" in controller)
+    assert ("run_python_prompt_arguments_native(external_process.arguments)" in controller or "run_python_prompt_arguments_native(external_execution.arguments)" in controller)
+    assert ("run_math_prompt_arguments_native(external_process.arguments)" in controller or "run_math_prompt_arguments_native(external_execution.arguments)" in controller)
     assert "run_shell_prompt_line_native(external_process.raw)" not in controller
     assert "run_python_prompt_line_native(external_process.raw)" not in controller
     assert "run_math_prompt_line_native(external_process.raw)" not in controller
     assert (
-        "_run_native_reta_prompt_command(\n                external_process.arguments\n            )"
-        in controller
+        "_run_native_reta_prompt_command(\n                external_process.arguments\n            )" in controller
         or "_run_native_reta_prompt_command(external_process.arguments)" in controller
+        or "_run_native_reta_prompt_command(\n                external_execution.arguments\n            )" in controller
     )
-    assert "run_reta_arguments_native(\n                external_process.arguments" in controller
+    assert (
+        "run_reta_arguments_native(\n                external_process.arguments" in controller
+        or "run_reta_arguments_native(\n                external_execution.arguments" in controller
+    )
     assert "run_reta_line_native(external_process.raw)" not in controller
     assert "external_process.raw" not in controller
     assert "fallback_profile_arguments(profile), shell_split(line), reference_root()" not in controller
@@ -191,10 +194,10 @@ def test_production_prompt_activates_the_interaction_owner() -> None:
     assert "EXTERNAL_PROMPT_PYTHON," not in controller
     assert "EXTERNAL_PROMPT_MATH," not in controller
     assert "EXTERNAL_PROMPT_RETA," not in controller
-    assert "if external_process.run_shell" in controller
-    assert "if external_process.run_python" in controller
-    assert "if external_process.run_math" in controller
-    assert "if external_process.run_reta" in controller
+    assert ("if external_process.run_shell" in controller or "if external_execution.should_run_shell" in controller)
+    assert ("if external_process.run_python" in controller or "if external_execution.should_run_python" in controller)
+    assert ("if external_process.run_math" in controller or "if external_execution.should_run_math" in controller)
+    assert ("if external_process.run_reta" in controller or "if external_execution.should_run_reta" in controller)
     assert "effective_one_shot_tokens" not in controller
 
 

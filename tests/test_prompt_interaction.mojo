@@ -633,6 +633,44 @@ def test_external_process_dispatch_is_planned_by_process_execution_owner() raise
 
 
 
+def test_interactive_external_execution_is_planned_by_process_execution_owner() raises:
+    var catalog = load_prompt_language_catalog("assets")
+    var shell_command = classify_prompt_command_localized(
+        "shell echo hi", "deutsch", catalog
+    )
+    var shell_plan = plan_external_process_dispatch(shell_command)
+    var shell_execution = plan_interactive_external_process_execution(shell_plan)
+    assert_true(shell_execution.should_run_shell)
+    assert_false(shell_execution.should_run_python)
+    assert_false(shell_execution.should_run_math)
+    assert_false(shell_execution.should_run_reta)
+    assert_equal(len(shell_execution.arguments), 2)
+    assert_equal(shell_execution.arguments[0], "echo")
+    assert_equal(shell_execution.arguments[1], "hi")
+
+    var reta_command = classify_prompt_command_localized(
+        "reta -h", "deutsch", catalog
+    )
+    var reta_plan = plan_external_process_dispatch(reta_command)
+    var reta_execution = plan_interactive_external_process_execution(reta_plan)
+    assert_false(reta_execution.should_run_shell)
+    assert_false(reta_execution.should_run_python)
+    assert_false(reta_execution.should_run_math)
+    assert_true(reta_execution.should_run_reta)
+    assert_equal(len(reta_execution.arguments), 1)
+    assert_equal(reta_execution.arguments[0], "-h")
+
+    var rejected = plan_interactive_external_process_execution(
+        PromptExternalProcessDispatchPlan(
+            False, List[String](), False, False, False, False
+        )
+    )
+    assert_false(rejected.should_run_shell)
+    assert_false(rejected.should_run_reta)
+    assert_equal(len(rejected.arguments), 0)
+
+
+
 def test_interactive_external_completion_is_planned_by_process_execution_owner() raises:
     var catalog = load_prompt_language_catalog("assets")
     var shell_command = classify_prompt_command_localized(
@@ -909,7 +947,7 @@ def test_contract_snapshot() raises:
     assert_equal(input_snapshot[7], "terminal_sentinels=native-exit-plan")
 
     var process_snapshot = prompt_process_dispatch_contract_snapshot()
-    assert_equal(len(process_snapshot), 22)
+    assert_equal(len(process_snapshot), 23)
     assert_equal(process_snapshot[0], "class=PromptProcessDispatchBundle")
     assert_equal(process_snapshot[1], "external_dispatch_owner=prompt-execution-process-plan")
     assert_equal(process_snapshot[2], "external_process_dispatch=native-prompt-process-edge-plan")
@@ -917,21 +955,22 @@ def test_contract_snapshot() raises:
     assert_equal(process_snapshot[4], "external_process_arguments=native-prompt-process-argv-plan")
     assert_equal(process_snapshot[5], "external_process_flags=native-prompt-process-effect-flags")
     assert_equal(process_snapshot[6], "external_process_kind=eliminated-from-external-process-plan")
-    assert_equal(process_snapshot[7], "interactive_external_completion=native-prompt-process-completion-boundary")
-    assert_equal(process_snapshot[8], "one_shot_external_boundary=native-prompt-process-probe-boundary")
-    assert_equal(process_snapshot[9], "external_reta_child=native-prompt-reta-child-argv")
-    assert_equal(process_snapshot[10], "external_raw_line=eliminated-from-external-process-plan")
-    assert_equal(process_snapshot[11], "external_shell_arguments=native-prompt-shell-argv-plan")
-    assert_equal(process_snapshot[12], "external_python_math_arguments=native-prompt-python-math-argv-plan")
-    assert_equal(process_snapshot[13], "external_command_arguments=runtime-owned-command-argv-builders")
-    assert_equal(process_snapshot[14], "fallback_process_dispatch=native-interaction-argv-plan")
-    assert_equal(process_snapshot[15], "fallback_process_execution=native-prompt-fallback-execution-boundary")
-    assert_equal(process_snapshot[16], "fallback_process_handled=native-explicit-fallback-effect-flag")
-    assert_equal(process_snapshot[17], "fallback_process_flags=native-explicit-fallback-run-flag")
-    assert_equal(process_snapshot[18], "fallback_process_arguments=native-merged-fallback-argv")
-    assert_equal(process_snapshot[19], "fallback_runtime_arguments=runtime-owned-argv-builder")
-    assert_equal(process_snapshot[20], "fallback_shell_split=runtime-owned-argv-tokenizer")
-    assert_equal(process_snapshot[21], "process_adapter=argv-execution-only")
+    assert_equal(process_snapshot[7], "interactive_external_execution=native-prompt-process-execution-boundary")
+    assert_equal(process_snapshot[8], "interactive_external_completion=native-prompt-process-completion-boundary")
+    assert_equal(process_snapshot[9], "one_shot_external_boundary=native-prompt-process-probe-boundary")
+    assert_equal(process_snapshot[10], "external_reta_child=native-prompt-reta-child-argv")
+    assert_equal(process_snapshot[11], "external_raw_line=eliminated-from-external-process-plan")
+    assert_equal(process_snapshot[12], "external_shell_arguments=native-prompt-shell-argv-plan")
+    assert_equal(process_snapshot[13], "external_python_math_arguments=native-prompt-python-math-argv-plan")
+    assert_equal(process_snapshot[14], "external_command_arguments=runtime-owned-command-argv-builders")
+    assert_equal(process_snapshot[15], "fallback_process_dispatch=native-interaction-argv-plan")
+    assert_equal(process_snapshot[16], "fallback_process_execution=native-prompt-fallback-execution-boundary")
+    assert_equal(process_snapshot[17], "fallback_process_handled=native-explicit-fallback-effect-flag")
+    assert_equal(process_snapshot[18], "fallback_process_flags=native-explicit-fallback-run-flag")
+    assert_equal(process_snapshot[19], "fallback_process_arguments=native-merged-fallback-argv")
+    assert_equal(process_snapshot[20], "fallback_runtime_arguments=runtime-owned-argv-builder")
+    assert_equal(process_snapshot[21], "fallback_shell_split=runtime-owned-argv-tokenizer")
+    assert_equal(process_snapshot[22], "process_adapter=argv-execution-only")
 
     var storage_snapshot = prompt_reaction_storage_contract_snapshot()
     assert_equal(len(storage_snapshot), 8)

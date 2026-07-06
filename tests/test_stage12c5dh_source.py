@@ -39,11 +39,11 @@ def test_shell_prompt_process_plan_owns_argv_not_payload() -> None:
 def test_prompt_main_dispatches_shell_by_arguments() -> None:
     controller = (ROOT / "src/prompt_main.mojo").read_text(encoding="utf-8")
     assert "run_shell_prompt_arguments_native," in controller
-    assert "run_shell_prompt_arguments_native(external_process.arguments)" in controller
+    assert ("run_shell_prompt_arguments_native(external_process.arguments)" in controller or "run_shell_prompt_arguments_native(external_execution.arguments)" in controller)
     assert "run_shell_prompt_payload_native" not in controller
     assert "run_shell_prompt_payload_native(external_process.payload)" not in controller
-    assert "run_python_prompt_arguments_native(external_process.arguments)" in controller
-    assert "run_math_prompt_arguments_native(external_process.arguments)" in controller
+    assert ("run_python_prompt_arguments_native(external_process.arguments)" in controller or "run_python_prompt_arguments_native(external_execution.arguments)" in controller)
+    assert ("run_math_prompt_arguments_native(external_process.arguments)" in controller or "run_math_prompt_arguments_native(external_execution.arguments)" in controller)
 
 
 def test_process_adapter_exposes_argument_shell_runner_and_legacy_payload_wrapper() -> None:

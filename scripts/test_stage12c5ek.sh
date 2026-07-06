@@ -12,19 +12,20 @@ if [ "${1:-}" = "--" ]; then shift; fi
 mojo_validate_build_options "$@"
 
 if [ "${RETA_STAGE_SKIP_PREVIOUS:-0}" != 1 ]; then
-    "$ROOT/scripts/test_stage12c5ei.sh" -- "$@"
+    "$ROOT/scripts/test_stage12c5ej.sh" -- "$@"
 fi
 
-printf '\n== prompt process fallback execution boundary owner ==\n'
+printf '\n== prompt process interactive external execution owner ==\n'
 for test_name in prompt_execution prompt_runtime prompt_interaction prompt_legacy_echo prompt_table_execution legacy_mojo_bridge legacy_reta_prompt; do
     printf '\n== build tests/test_%s.mojo ==\n' "$test_name"
     "$MOJO" build -I src -I tests "tests/test_${test_name}.mojo" "$@" \
-        -o "$TARGET/test_${test_name}_12c5ej"
-    printf '== run test_%s_12c5ej ==\n' "$test_name"
-    "$ROOT/bin/mojo-runtime-exec" "$TARGET/test_${test_name}_12c5ej"
+        -o "$TARGET/test_${test_name}_12c5ek"
+    printf '== run test_%s_12c5ek ==\n' "$test_name"
+    "$ROOT/bin/mojo-runtime-exec" "$TARGET/test_${test_name}_12c5ek"
 done
 
 "$ROOT/scripts/run_pytest.sh" -q \
+    tests/test_stage12c5ek_source.py \
     tests/test_stage12c5ej_source.py \
     tests/test_stage12c5ei_source.py \
     tests/test_stage12c5eh_source.py \
@@ -79,4 +80,4 @@ done
     tests/test_source_archive_contract.py
 "$TEST_PYTHON" tools/check_known_defects.py
 "$TEST_PYTHON" tools/porting_metrics.py
-printf '%s\n' 'stage12c5ej prompt process fallback execution boundary owner complete'
+printf '%s\n' 'stage12c5ek prompt process interactive external execution owner complete'

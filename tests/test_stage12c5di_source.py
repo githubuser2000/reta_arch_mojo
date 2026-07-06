@@ -57,8 +57,8 @@ def test_prompt_main_dispatches_python_and_math_by_arguments() -> None:
     controller = (ROOT / "src/prompt_main.mojo").read_text(encoding="utf-8")
     assert "run_python_prompt_arguments_native," in controller
     assert "run_math_prompt_arguments_native," in controller
-    assert "run_python_prompt_arguments_native(external_process.arguments)" in controller
-    assert "run_math_prompt_arguments_native(external_process.arguments)" in controller
+    assert ("run_python_prompt_arguments_native(external_process.arguments)" in controller or "run_python_prompt_arguments_native(external_execution.arguments)" in controller)
+    assert ("run_math_prompt_arguments_native(external_process.arguments)" in controller or "run_math_prompt_arguments_native(external_execution.arguments)" in controller)
     assert "run_python_prompt_payload_native(external_process.payload)" not in controller
     assert "run_math_prompt_payload_native(external_process.payload)" not in controller
     assert "external_process.payload" not in controller

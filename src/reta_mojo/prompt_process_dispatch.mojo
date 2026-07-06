@@ -66,6 +66,23 @@ struct PromptFallbackProcessExecutionPlan(Copyable):
 
 
 @fieldwise_init
+struct PromptInteractiveExternalExecutionPlan(Copyable):
+    """Controller-facing execution gate for interactive external commands.
+
+    The dispatch owner already decides which process boundary is requested.
+    This execution plan owns the next pure boolean projection so the controller
+    no longer reads the raw dispatch flags directly before invoking the OS
+    adapter.  Real child-process I/O still stays outside this pure owner.
+    """
+
+    var should_run_shell: Bool
+    var should_run_python: Bool
+    var should_run_math: Bool
+    var should_run_reta: Bool
+    var arguments: List[String]
+
+
+@fieldwise_init
 struct PromptInteractiveExternalCompletionPlan(Copyable):
     """Pure completion plan after interactive external-process dispatch.
 
@@ -150,6 +167,30 @@ def plan_external_process_dispatch(
     )
 
 
+def plan_interactive_external_process_execution(
+    dispatch: PromptExternalProcessDispatchPlan,
+) -> PromptInteractiveExternalExecutionPlan:
+    """Plan the interactive child-process adapter call.
+
+    This keeps the effect-selection projection in the process-dispatch owner.
+    The controller may still execute shell/python/math/reta children, but it
+    consumes one execution-boundary value instead of inspecting the dispatch
+    shape itself.
+    """
+
+    if not dispatch.handled:
+        return PromptInteractiveExternalExecutionPlan(
+            False, False, False, False, List[String]()
+        )
+    return PromptInteractiveExternalExecutionPlan(
+        dispatch.run_shell,
+        dispatch.run_python,
+        dispatch.run_math,
+        dispatch.run_reta,
+        dispatch.arguments.copy(),
+    )
+
+
 def plan_interactive_external_process_completion(
     dispatch: PromptExternalProcessDispatchPlan, reta_native_handled: Bool
 ) -> PromptInteractiveExternalCompletionPlan:
@@ -219,7 +260,7 @@ def plan_prompt_fallback_process_execution(
     """
     return PromptFallbackProcessExecutionPlan(
         dispatch.handled and dispatch.run_reta_prompt,
-        dispatch.arguments,
+        dispatch.arguments.copy(),
     )
 
 
@@ -233,6 +274,7 @@ def prompt_process_dispatch_contract_snapshot() -> List[String]:
         "external_process_arguments=native-prompt-process-argv-plan",
         "external_process_flags=native-prompt-process-effect-flags",
         "external_process_kind=eliminated-from-external-process-plan",
+        "interactive_external_execution=native-prompt-process-execution-boundary",
         "interactive_external_completion=native-prompt-process-completion-boundary",
         "one_shot_external_boundary=native-prompt-process-probe-boundary",
         "external_reta_child=native-prompt-reta-child-argv",

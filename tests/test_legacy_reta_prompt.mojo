@@ -65,14 +65,15 @@ def test_historical_input_and_start_delegate_to_native_controller() raises:
     var input_scope = prompt_reaction_input_contract_snapshot()
     assert_equal(len(interaction_scope), 7)
     assert_equal(len(input_scope), 8)
-    assert_equal(len(scope), 38)
+    assert_equal(len(scope), 41)
     assert_equal(scope[0], "class=PromptInteractionBundle")
     assert_equal(
         scope[7],
         "storage_output=native-position-independent-addition-policy",
     )
     assert_equal(scope[15], "external_process_dispatch=native-prompt-process-edge-plan")
-    assert_equal(scope[31], "external_dispatch_owner=prompt-execution-process-plan")
+    assert_equal(scope[20], "interactive_external_execution=native-prompt-process-execution-boundary")
+    assert_equal(scope[35], "external_dispatch_owner=prompt-execution-process-plan")
     assert_equal(scope[len(scope) - 1], "execution=delegated-native-dispatch")
 
 
