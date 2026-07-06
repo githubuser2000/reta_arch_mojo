@@ -11,6 +11,7 @@ def test_current_stage_points_to_dt() -> None:
         "test_stage12c5dt.sh" in current
         or "test_stage12c5du.sh" in current
         or "test_stage12c5dv.sh" in current
+        or "test_stage12c5dx.sh" in current
         or "test_stage12c5dw.sh" in current
     )
 
@@ -35,10 +36,10 @@ def test_prompt_execution_owns_compact_announcement_line_plan() -> None:
         "compact_prompt_announcement_line(visible_tokens, source, language)",
     ):
         assert symbol in owner
-    assert "plan_prompt_execution_compact_announcement" in controller
+    assert "plan_prompt_execution_compact_announcement" in controller or "plan_prompt_execution_native_branch" in controller
     assert "compact_prompt_announcement_line" not in controller
     assert "PromptExpansionResult," in controller
-    assert "def _print_compact_announcement_if_needed(" in controller
+    assert "def _print_compact_announcement_if_needed(" in controller or "def _print_compact_announcement(" in controller
     assert "expansion: PromptExpansionResult" not in controller
     assert "prepared_tokens: List[String]" not in controller
     assert "quiet: Bool" not in controller

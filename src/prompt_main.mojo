@@ -34,11 +34,11 @@ from reta_mojo.native_reta_cli import (
 )
 from reta_mojo.prompt_execution_runtime import render_prompt_table_plan
 from reta_mojo.prompt_execution import (
-    PromptExecutionRoutingPlan,
+    PromptExecutionCompactAnnouncementPlan,
+    PromptExecutionHistoricalEffectPlan,
+    PromptExecutionNativeBranchPlan,
     plan_prompt_execution_routing,
-    plan_prompt_execution_table_ownership,
-    plan_prompt_execution_compact_announcement,
-    plan_prompt_execution_historical_effects,
+    plan_prompt_execution_native_branch,
     plan_prompt_execution_mulpri_render,
 )
 from reta_mojo.native_cli_startup import native_cli_startup
@@ -243,20 +243,45 @@ def _run_native_mulpri(
     return True
 
 
-def _print_compact_announcement_if_needed(
-    routing: PromptExecutionRoutingPlan,
-    source: String,
-    language: String,
-    catalog: PromptLanguageCatalog,
+def _print_compact_announcement(
+    announcement: PromptExecutionCompactAnnouncementPlan
 ) -> None:
-    var announcement = plan_prompt_execution_compact_announcement(
-        routing, source, language, catalog
-    )
     if announcement.should_print:
         # The Python Rich renderer produces one complete physical line here.
         # Keep that byte-level contract explicit instead of inferring it from
         # Rich's internal ``Console.print(..., end="")`` call.
         print(announcement.line, end="")
+
+
+def _print_prompt_execution_effects(
+    effects: PromptExecutionHistoricalEffectPlan,
+    catalog: PromptLanguageCatalog,
+    language: String,
+) -> None:
+    if effects.show_short_commands:
+        _print_commands(catalog, language, True)
+    if effects.show_commands:
+        _print_commands(catalog, language, False)
+    if effects.show_help:
+        _print_prompt_help()
+    if effects.clear_before_table:
+        _print_compound_clear_lines()
+
+
+def _execute_owned_prompt_branch(
+    branch: PromptExecutionNativeBranchPlan,
+    catalog: PromptLanguageCatalog,
+    language: String,
+) raises -> Bool:
+    _print_compact_announcement(branch.announcement)
+    _print_prompt_execution_effects(branch.historical_effects, catalog, language)
+    var handled_table = _run_native_table_plan(
+        branch.ownership.table_plan, branch.historical_echo, branch.quiet_echo
+    )
+    var handled_mulpri = _run_native_mulpri(
+        branch.planning_tokens, language, catalog
+    )
+    return handled_table or handled_mulpri
 
 
 def _run_command(
@@ -305,46 +330,22 @@ def _run_command(
     if stored_delete.handled:
         _print_lines(stored_delete.output_lines)
         return True
-    var historical_echo = routing.historical_echo
-    var planning_tokens = routing.planning_tokens.copy()
-    var quiet_echo = routing.quiet_echo
-
     # The historical PromptGrosseAusgabe branch treats domain words as an
     # unordered command set.  Plan these table-backed commands before the
     # single-command dispatch so localized aliases and mixed command lines can
     # remain native as one or more invocations.
-    var ownership = plan_prompt_execution_table_ownership(
-        routing, profile.language, catalog
+    var native_branch = plan_prompt_execution_native_branch(
+        routing, line, profile.language, catalog
     )
-    if ownership.owns_table or ownership.owns_mulpri:
-        _print_compact_announcement_if_needed(
-            routing, line, profile.language, catalog
-        )
-        var historical_effects = plan_prompt_execution_historical_effects(
-            routing, profile.language, catalog
-        )
-        if historical_effects.show_short_commands:
-            _print_commands(catalog, profile.language, True)
-        if historical_effects.show_commands:
-            _print_commands(catalog, profile.language, False)
-        if historical_effects.show_help:
-            _print_prompt_help()
-        if historical_effects.clear_before_table:
-            _print_compound_clear_lines()
-        var handled_table = _run_native_table_plan(
-            ownership.table_plan, historical_echo, quiet_echo
-        )
-        var handled_mulpri = _run_native_mulpri(
-            planning_tokens, profile.language, catalog
-        )
-        if handled_table or handled_mulpri:
-            if historical_effects.enable_logging:
+    if native_branch.should_try_native:
+        if _execute_owned_prompt_branch(native_branch, catalog, profile.language):
+            if native_branch.historical_effects.enable_logging:
                 session.logging_enabled = True
-            elif historical_effects.disable_logging:
+            elif native_branch.historical_effects.disable_logging:
                 session.logging_enabled = False
             return True
 
-    if ownership.fallback_required:
+    if native_branch.fallback_required:
         _run_fallback(profile, line)
         return True
 
@@ -415,37 +416,14 @@ def _run_native_one_shot(
     var loop_control = plan_loop_control_dispatch(command)
     if loop_control.handled:
         return True
-    var historical_echo = routing.historical_echo
-    var planning_tokens = routing.planning_tokens.copy()
-    var quiet_echo = routing.quiet_echo
-    var ownership = plan_prompt_execution_table_ownership(
-        routing, profile.language, catalog
+    var native_branch = plan_prompt_execution_native_branch(
+        routing, line, profile.language, catalog
     )
-    if ownership.owns_table or ownership.owns_mulpri:
-        _print_compact_announcement_if_needed(
-            routing, line, profile.language, catalog
-        )
-        var historical_effects = plan_prompt_execution_historical_effects(
-            routing, profile.language, catalog
-        )
-        if historical_effects.show_short_commands:
-            _print_commands(catalog, profile.language, True)
-        if historical_effects.show_commands:
-            _print_commands(catalog, profile.language, False)
-        if historical_effects.show_help:
-            _print_prompt_help()
-        if historical_effects.clear_before_table:
-            _print_compound_clear_lines()
-        var handled_table = _run_native_table_plan(
-            ownership.table_plan, historical_echo, quiet_echo
-        )
-        var handled_mulpri = _run_native_mulpri(
-            planning_tokens, profile.language, catalog
-        )
-        if handled_table or handled_mulpri:
+    if native_branch.should_try_native:
+        if _execute_owned_prompt_branch(native_branch, catalog, profile.language):
             return True
 
-    if ownership.fallback_required:
+    if native_branch.fallback_required:
         return False
 
     var info_dispatch = plan_informational_dispatch(command)

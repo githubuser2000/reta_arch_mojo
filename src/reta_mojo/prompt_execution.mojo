@@ -223,6 +223,26 @@ struct PromptExecutionMulpriRenderPlan(Copyable):
     var output_lines: List[String]
 
 
+@fieldwise_init
+struct PromptExecutionNativeBranchPlan(Copyable):
+    """Complete pure plan for the owned table/mulpri prompt branch.
+
+    Interactive prompt execution and one-shot ``-befehl`` share the same
+    ownership, compact-announcement, historical side-effect and table-render
+    flag decisions.  This value keeps those decisions in the prompt-execution
+    owner so the two controllers only perform I/O and session mutation.
+    """
+
+    var should_try_native: Bool
+    var fallback_required: Bool
+    var ownership: PromptExecutionTableOwnershipPlan
+    var announcement: PromptExecutionCompactAnnouncementPlan
+    var historical_effects: PromptExecutionHistoricalEffectPlan
+    var planning_tokens: List[String]
+    var historical_echo: Bool
+    var quiet_echo: Bool
+
+
 def prompt_execution_integer_argument_words(values: List[String]) -> List[String]:
     var result = List[String]()
     for index in range(len(values)):
@@ -385,6 +405,43 @@ def plan_prompt_execution_historical_effects(
         logging_update == PROMPT_LOG_ENABLED,
         logging_update == PROMPT_LOG_DISABLED,
     )
+
+def plan_prompt_execution_native_branch(
+    routing: PromptExecutionRoutingPlan,
+    source: String,
+    language: String,
+    catalog: PromptLanguageCatalog,
+) raises -> PromptExecutionNativeBranchPlan:
+    """Plan the whole owned table/mulpri branch without terminal effects."""
+
+    var ownership = plan_prompt_execution_table_ownership(
+        routing, language, catalog
+    )
+    var should_try_native = ownership.owns_table or ownership.owns_mulpri
+    var announcement = PromptExecutionCompactAnnouncementPlan(
+        False, "", List[String]()
+    )
+    var effects = PromptExecutionHistoricalEffectPlan(
+        False, False, False, False, False, False
+    )
+    if should_try_native:
+        announcement = plan_prompt_execution_compact_announcement(
+            routing, source, language, catalog
+        )
+        effects = plan_prompt_execution_historical_effects(
+            routing, language, catalog
+        )
+    return PromptExecutionNativeBranchPlan(
+        should_try_native,
+        ownership.fallback_required,
+        ownership^,
+        announcement^,
+        effects^,
+        routing.planning_tokens.copy(),
+        routing.historical_echo,
+        routing.quiet_echo,
+    )
+
 
 def plan_prompt_execution_table_ownership(
     routing: PromptExecutionRoutingPlan,

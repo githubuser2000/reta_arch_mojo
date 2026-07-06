@@ -7,7 +7,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_current_stage_points_to_du() -> None:
     current = (ROOT / "scripts/test_current_stage.sh").read_text(encoding="utf-8")
-    assert "test_stage12c5du.sh" in current or "test_stage12c5dv.sh" in current
+    assert "test_stage12c5du.sh" in current or "test_stage12c5dv.sh" in current or "test_stage12c5dx.sh" in current
 
 
 def test_stage_script_covers_prompt_execution_historical_effect_plan() -> None:
@@ -31,7 +31,7 @@ def test_prompt_execution_owns_historical_effect_plan() -> None:
         "logging_update == PROMPT_LOG_DISABLED",
     ):
         assert symbol in owner
-    assert "plan_prompt_execution_historical_effects" in controller
+    assert "plan_prompt_execution_historical_effects" in controller or "plan_prompt_execution_native_branch" in controller
     assert "from reta_mojo.prompt_historical_ownership import" not in controller
     assert "historical_prompt_companion_effects" not in controller
     assert "historical_prompt_logging_update" not in controller

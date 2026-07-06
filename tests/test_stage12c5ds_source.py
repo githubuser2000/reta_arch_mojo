@@ -12,6 +12,7 @@ def test_current_stage_points_to_ds_or_later() -> None:
         or "test_stage12c5dt.sh" in current
         or "test_stage12c5du.sh" in current
         or "test_stage12c5dv.sh" in current
+        or "test_stage12c5dx.sh" in current
     )
 
 
@@ -36,6 +37,7 @@ def test_prompt_execution_owns_compact_announcement_tokens() -> None:
     assert (
         "prompt_execution_compact_announcement_tokens" in controller
         or "plan_prompt_execution_compact_announcement" in controller
+        or "plan_prompt_execution_native_branch" in controller
     )
     assert "def _compact_announcement_tokens(" not in controller
     assert "def _contains_token(" not in controller
