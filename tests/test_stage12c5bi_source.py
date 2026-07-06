@@ -7,7 +7,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_current_stage_extends_bh_and_forwards_compiler_options() -> None:
     current = (ROOT / "scripts/test_current_stage.sh").read_text(encoding="utf-8")
-    if "test_stage12c5ed.sh" in current:
+    if "test_stage12c5ee.sh" in current or "test_stage12c5ed.sh" in current:
         return
     stage = (ROOT / "scripts/test_stage12c5bi.sh").read_text(encoding="utf-8")
     assert "test_stage12c5" in current

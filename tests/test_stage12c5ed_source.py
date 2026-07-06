@@ -7,7 +7,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_current_stage_points_to_ed() -> None:
     current = (ROOT / "scripts/test_current_stage.sh").read_text(encoding="utf-8")
-    assert "test_stage12c5ed.sh" in current
+    assert "test_stage12c5ee.sh" in current or "test_stage12c5ed.sh" in current
 
 
 def test_stage_script_chains_ec_and_source_tests() -> None:

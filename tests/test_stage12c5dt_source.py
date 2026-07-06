@@ -7,7 +7,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_current_stage_points_to_dt() -> None:
     current = (ROOT / "scripts/test_current_stage.sh").read_text(encoding="utf-8")
-    if "test_stage12c5ed.sh" in current:
+    if "test_stage12c5ee.sh" in current or "test_stage12c5ed.sh" in current:
         return
     assert (
         "test_stage12c5dt.sh" in current or "test_stage12c5ea.sh" in current

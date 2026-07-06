@@ -43,6 +43,7 @@ from reta_mojo.prompt_execution import (
     plan_prompt_execution_native_branch_outcome,
     plan_prompt_execution_native_branch_completion,
     plan_prompt_execution_compatibility_fallback,
+    plan_prompt_execution_residual_compatibility_fallback,
 )
 from reta_mojo.native_cli_startup import native_cli_startup
 from reta_mojo.resource_paths import asset_root, csv_resource, reference_root
@@ -398,7 +399,9 @@ def _run_command(
     # Native parsing already owns routing, but an unported operation must still
     # observe the Python reference's exact compact-command announcement and
     # later set normalisation.
-    _run_fallback(profile, line)
+    var residual_fallback = plan_prompt_execution_residual_compatibility_fallback(line)
+    if residual_fallback.should_run:
+        _run_fallback(profile, residual_fallback.source)
     return True
 
 

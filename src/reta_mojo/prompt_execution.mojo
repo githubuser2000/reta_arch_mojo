@@ -573,6 +573,21 @@ def plan_prompt_execution_compatibility_fallback(
     )
 
 
+
+
+def plan_prompt_execution_residual_compatibility_fallback(
+    source: String
+) -> PromptExecutionCompatibilityFallbackPlan:
+    """Plan the final unowned-command compatibility boundary.
+
+    Earlier native dispatchers may accept informational, terminal, simple-output
+    and external-process commands.  If none of them handles the prompt line, the
+    untouched source spelling still belongs to the prompt-execution owner before
+    the controller calls the Python reference boundary.
+    """
+
+    return PromptExecutionCompatibilityFallbackPlan(True, source)
+
 def plan_prompt_execution_native_branch_outcome(
     branch: PromptExecutionNativeBranchPlan, native_handled: Bool
 ) -> PromptExecutionNativeBranchOutcomePlan:

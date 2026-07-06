@@ -10,7 +10,7 @@ CHECKER = ROOT / "scripts/check_prompt_true_fraction_multiples.py"
 
 def test_current_stage_extends_bn_and_forwards_compiler_options() -> None:
     current = (ROOT / "scripts/test_current_stage.sh").read_text(encoding="utf-8")
-    if "test_stage12c5ed.sh" in current:
+    if "test_stage12c5ee.sh" in current or "test_stage12c5ed.sh" in current:
         return
     stage = (ROOT / "scripts/test_stage12c5bo.sh").read_text(encoding="utf-8")
     assert "test_stage12c5" in current

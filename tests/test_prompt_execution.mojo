@@ -345,5 +345,14 @@ def test_prompt_execution_compatibility_fallback_plan_owns_source_boundary() rai
     assert_false(no_fallback.should_run)
     assert_equal(no_fallback.source, "p 17")
 
+
+
+def test_prompt_execution_residual_compatibility_fallback_owns_last_boundary() raises:
+    var fallback = plan_prompt_execution_residual_compatibility_fallback(
+        "unowned residual command"
+    )
+    assert_true(fallback.should_run)
+    assert_equal(fallback.source, "unowned residual command")
+
 def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()
