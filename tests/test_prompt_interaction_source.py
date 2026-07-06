@@ -21,6 +21,8 @@ def test_prompt_interaction_has_a_dedicated_native_owner() -> None:
     assert "def apply_inline_storage_command(" in owner
     assert "struct PromptStorageOutputPlan" in owner
     assert "def plan_inline_storage_output_command(" in owner
+    assert "struct PromptStoredCommandDispatchPlan" in owner
+    assert "def plan_stored_command_dispatch(" in owner
     assert "struct PromptStoredOutputExecutionPlan" in owner
     assert "def plan_stored_output_command(" in owner
     assert "def plan_inline_stored_output_command(" in owner
@@ -41,6 +43,7 @@ def test_production_prompt_activates_the_interaction_owner() -> None:
     assert "record_prompt_line(" in controller
     assert "record_prompt_command(" not in controller
     assert "apply_inline_storage_command(" in controller
+    assert "plan_stored_command_dispatch(" in controller
     assert "plan_inline_stored_output_command(" in controller
     assert "plan_stored_output_command(" in controller
     assert "plan_stored_delete_command(" in controller
@@ -49,10 +52,12 @@ def test_production_prompt_activates_the_interaction_owner() -> None:
     assert "plan_stored_default_command(" not in controller
 
     # These lifecycle decisions used to be open-coded in the process entry
-    # point.  Storage command dispatch remains there, but physical input modes
-    # and one-shot assembly now have one typed owner.
+    # point.  Store-next/store-previous dispatch, physical input modes and
+    # one-shot assembly now have one typed owner.
     assert "if session.store_next:" not in controller
     assert "if session.delete_next:" not in controller
+    assert "if command.kind == KIND_STORE_NEXT" not in controller
+    assert "if command.kind == KIND_STORE_PREVIOUS" not in controller
     assert "effective_one_shot_tokens" not in controller
 
 

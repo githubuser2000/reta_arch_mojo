@@ -76,8 +76,6 @@ from reta_mojo.prompt_runtime import (
     KIND_MATH,
     KIND_RETA,
     KIND_PRIME24,
-    KIND_STORE_NEXT,
-    KIND_STORE_PREVIOUS,
     KIND_OUTPUT_STORED,
     KIND_DELETE_STORED,
     PromptProfile,
@@ -99,9 +97,7 @@ from reta_mojo.prompt_runtime import (
 from reta_mojo.prompt_session import (
     NativePromptSession,
     prompt_prefix,
-    store_prompt_text,
     stored_prompt_text,
-    storage_payload,
 )
 from reta_mojo.prompt_interaction import (
     INTERACTION_EXECUTE,
@@ -113,6 +109,7 @@ from reta_mojo.prompt_interaction import (
     accept_prompt_input,
     record_prompt_line,
     apply_inline_storage_command,
+    plan_stored_command_dispatch,
     plan_inline_stored_output_command,
     plan_stored_output_command,
     plan_stored_delete_command,
@@ -474,15 +471,9 @@ def _run_command(
         return True
     if command.kind == KIND_EXIT:
         return False
-    if command.kind == KIND_STORE_NEXT and len(command.words) == 1:
-        session.store_next = True
-        print("Der nächste Befehl wird gespeichert.")
-        return True
-    if command.kind == KIND_STORE_PREVIOUS and len(command.words) == 1:
-        var payload = session.previous_command
-        if payload.byte_length() > 0:
-            store_prompt_text(session, payload)
-            print("Gespeichert:", stored_prompt_text(session))
+    var stored_dispatch = plan_stored_command_dispatch(command, session)
+    if stored_dispatch.handled:
+        _print_lines(stored_dispatch.output_lines)
         return True
     var stored_output = plan_stored_output_command(command, session)
     if stored_output.handled:

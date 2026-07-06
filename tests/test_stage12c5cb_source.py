@@ -46,4 +46,4 @@ def test_prompt_interaction_regression_covers_delete_dispatch() -> None:
     assert "plan_stored_delete_command(" in test
     assert 'assert_equal(no_storage.output_lines[0], "Kein Befehl gespeichert.")' in test
     assert 'assert_equal(deleted.output_lines[0], "Gespeichert: prim multis 12")' in test
-    assert "assert_equal(len(snapshot), 14)" in test
+    assert "stored_delete_dispatch=native-session-delete-plan" in test

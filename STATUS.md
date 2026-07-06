@@ -1,3 +1,4 @@
+- Stage 12c5cd: Single-word prompt storage dispatch (`S`/`s`) is now planned by `prompt_interaction.mojo` via `PromptStoredCommandDispatchPlan`; `prompt_main.mojo` no longer owns the bare `KIND_STORE_NEXT`/`KIND_STORE_PREVIOUS` state mutation. Stage 12c5cc table-adapter counting parity remains in the chain for the uploaded `left: 1/right: 0` broad-suite failure.
 # Status – Stage 12c5cc
 
 ## Stage 12c5cc – Tabellenadapter-Zählungsparität

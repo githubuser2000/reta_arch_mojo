@@ -69,6 +69,14 @@ struct NativePromptInteraction(Copyable):
 
 
 @fieldwise_init
+struct PromptStoredCommandDispatchPlan(Copyable):
+    """Executable plan for single-word ``S``/``s`` storage dispatch."""
+
+    var handled: Bool
+    var output_lines: List[String]
+
+
+@fieldwise_init
 struct PromptStoredDefaultPlan(Copyable):
     """Empty-line execution of the stored prompt placeholder."""
 
@@ -255,6 +263,34 @@ def _plan_stored_output_payload(
     return PromptStoredOutputExecutionPlan(
         True, command_line^, List[String]()
     )
+
+
+def plan_stored_command_dispatch(
+    command: PromptCommand,
+    mut session: NativePromptSession,
+) -> PromptStoredCommandDispatchPlan:
+    """Plan single-word store-next/store-previous commands in the interaction owner.
+
+    Compound storage with payload is handled by ``apply_inline_storage_command``
+    before command classification.  The remaining historical prefix commands
+    are exactly the bare save-next and save-previous controls.  Moving these
+    state transitions out of ``prompt_main.mojo`` keeps all prompt store
+    lifecycle mutations in one typed owner.
+    """
+    if command.kind == KIND_STORE_NEXT and len(command.words) == 1:
+        session.store_next = True
+        return PromptStoredCommandDispatchPlan(
+            True, _single_output("Der nächste Befehl wird gespeichert.")
+        )
+    if command.kind == KIND_STORE_PREVIOUS and len(command.words) == 1:
+        var payload = session.previous_command
+        if payload.byte_length() > 0:
+            store_prompt_text(session, payload)
+            return PromptStoredCommandDispatchPlan(
+                True, _single_output("Gespeichert: " + stored_prompt_text(session))
+            )
+        return PromptStoredCommandDispatchPlan(True, List[String]())
+    return PromptStoredCommandDispatchPlan(False, List[String]())
 
 
 def plan_stored_output_command(
@@ -496,6 +532,7 @@ def prompt_interaction_contract_snapshot() -> List[String]:
         "history=native-previous-command-policy",
         "inline_storage=native-position-and-history-policy",
         "storage_output=native-position-independent-addition-policy",
+        "stored_command_dispatch=native-session-store-plan",
         "stored_output_dispatch=native-session-output-execution-plan",
         "stored_delete_dispatch=native-session-delete-plan",
         "stored_default=native-empty-enter-placeholder-policy",

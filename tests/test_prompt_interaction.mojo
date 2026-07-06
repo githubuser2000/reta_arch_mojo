@@ -317,6 +317,55 @@ def test_inline_storage_output_is_position_independent() raises:
     assert_equal(english.payload, "emotions 1")
 
 
+def test_single_storage_dispatch_is_planned_by_interaction_owner() raises:
+    var catalog = load_prompt_language_catalog("assets")
+    var interaction = new_prompt_interaction(
+        parse_prompt_startup("retaPrompt", [])
+    )
+
+    var save_next = classify_prompt_command_localized(
+        "S", "deutsch", catalog
+    )
+    var save_next_plan = plan_stored_command_dispatch(
+        save_next, interaction.session
+    )
+    assert_true(save_next_plan.handled)
+    assert_equal(len(save_next_plan.output_lines), 1)
+    assert_equal(
+        save_next_plan.output_lines[0],
+        "Der nächste Befehl wird gespeichert.",
+    )
+    assert_true(interaction.session.store_next)
+
+    interaction.session.store_next = False
+    interaction.session.previous_command = "prim 60"
+    var save_previous = classify_prompt_command_localized(
+        "s", "deutsch", catalog
+    )
+    var save_previous_plan = plan_stored_command_dispatch(
+        save_previous, interaction.session
+    )
+    assert_true(save_previous_plan.handled)
+    assert_equal(save_previous_plan.output_lines[0], "Gespeichert: prim 60")
+    assert_equal(stored_prompt_text(interaction.session), "prim 60")
+
+    var no_previous_interaction = new_prompt_interaction(
+        parse_prompt_startup("retaPrompt", [])
+    )
+    var empty_previous_plan = plan_stored_command_dispatch(
+        save_previous, no_previous_interaction.session
+    )
+    assert_true(empty_previous_plan.handled)
+    assert_equal(len(empty_previous_plan.output_lines), 0)
+
+    var normal = classify_prompt_command_localized(
+        "prim 60", "deutsch", catalog
+    )
+    assert_false(
+        plan_stored_command_dispatch(normal, interaction.session).handled
+    )
+
+
 def test_stored_output_execution_is_planned_by_interaction_owner() raises:
     var catalog = load_prompt_language_catalog("assets")
     var interaction = new_prompt_interaction(
@@ -469,7 +518,7 @@ def test_inline_storage_output_edges_and_history() raises:
 
 def test_contract_snapshot() raises:
     var snapshot = prompt_interaction_contract_snapshot()
-    assert_equal(len(snapshot), 14)
+    assert_equal(len(snapshot), 15)
     assert_equal(snapshot[0], "class=PromptInteractionBundle")
     assert_equal(
         snapshot[6],
@@ -481,17 +530,21 @@ def test_contract_snapshot() raises:
     )
     assert_equal(
         snapshot[8],
-        "stored_output_dispatch=native-session-output-execution-plan",
+        "stored_command_dispatch=native-session-store-plan",
     )
     assert_equal(
         snapshot[9],
-        "stored_delete_dispatch=native-session-delete-plan",
+        "stored_output_dispatch=native-session-output-execution-plan",
     )
     assert_equal(
         snapshot[10],
+        "stored_delete_dispatch=native-session-delete-plan",
+    )
+    assert_equal(
+        snapshot[11],
         "stored_default=native-empty-enter-placeholder-policy",
     )
-    assert_equal(snapshot[13], "execution=delegated-native-dispatch")
+    assert_equal(snapshot[14], "execution=delegated-native-dispatch")
 
 
 def main() raises:
