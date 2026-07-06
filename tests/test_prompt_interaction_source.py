@@ -48,8 +48,13 @@ def test_prompt_interaction_has_a_dedicated_native_owner() -> None:
     assert "var run_python: Bool" in owner
     assert "var run_math: Bool" in owner
     assert "var run_reta: Bool" in owner
-    assert "def _prompt_command_payload(" in owner
-    assert "def _prompt_command_arguments(" in owner
+    runtime = (ROOT / "src/reta_mojo/prompt_runtime.mojo").read_text(encoding="utf-8")
+    assert "def command_raw_payload(" in runtime
+    assert "def command_argument_tail(" in runtime
+    assert "def command_raw_payload_arguments(" in runtime
+    assert "def command_shell_arguments(" in runtime
+    assert "def _prompt_command_payload(" not in owner
+    assert "def _prompt_command_arguments(" not in owner
     assert "def plan_external_process_dispatch(" in owner
     assert "def plan_prompt_fallback_process_dispatch(" in owner
     assert "reta_prompt_fallback_arguments_native(" in owner

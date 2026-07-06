@@ -24,11 +24,12 @@ def test_external_process_plan_owns_reta_arguments() -> None:
     )
     assert "struct PromptExternalProcessDispatchPlan" in owner
     assert "var arguments: List[String]" in owner
-    assert "def _prompt_command_arguments(" in owner
-    assert "return result^" in owner
+    runtime = (ROOT / "src/reta_mojo/prompt_runtime.mojo").read_text(encoding="utf-8")
+    assert "def command_argument_tail(" in runtime
+    assert "return result^" in runtime
     assert "var process_kind: Int" not in owner
-    assert "command.raw" in owner
-    assert "_prompt_command_arguments(command)" in owner
+    assert "command.raw" in runtime
+    assert "command_argument_tail(command)" in owner
     assert "external_reta_arguments=native-prompt-reta-argv-plan" in owner
 
 

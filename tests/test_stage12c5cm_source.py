@@ -24,9 +24,10 @@ def test_external_process_plan_owns_payload_boundary() -> None:
     )
     assert "struct PromptExternalProcessDispatchPlan" in owner
     assert "var arguments: List[String]" in owner
-    assert "def _prompt_command_payload(" in owner
-    assert "StringSlice(text)[byte=start:end]" in owner
-    assert "_prompt_command_payload(command)" in owner
+    runtime = (ROOT / "src/reta_mojo/prompt_runtime.mojo").read_text(encoding="utf-8")
+    assert "def command_raw_payload(" in runtime
+    assert "StringSlice(text)[byte=start:end]" in runtime
+    assert ("command_raw_payload(command)" in owner or "command_shell_arguments(command)" in owner)
     assert "external_process_arguments=native-prompt-process-argv-plan" in owner
     assert "external_reta_arguments=native-prompt-reta-argv-plan" in owner
 
@@ -65,7 +66,7 @@ def test_prompt_interaction_regression_covers_payloads() -> None:
     )
     assert "def test_external_process_dispatch_is_planned_by_interaction_owner" in test
     assert 'assert_equal(shell_plan.arguments[0], "echo")' in test
-    assert 'assert_equal(python_plan.payload, "print(1)")' in test
-    assert 'assert_equal(math_plan.payload, "1+1")' in test
+    assert 'assert_equal(python_plan.arguments[0], "print(1)")' in test
+    assert 'assert_equal(math_plan.arguments[0], "1+1")' in test
     assert "external_process_arguments=native-prompt-process-argv-plan" in test
     assert "assert_equal(len(snapshot)," in test

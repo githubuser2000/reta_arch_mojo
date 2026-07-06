@@ -400,7 +400,7 @@ def classify_prompt_command_localized(
 
 
 def command_payload(command: PromptCommand) -> String:
-    """Return the raw text after the first command word."""
+    """Return the normalized text after the first command word."""
     if len(command.words) <= 1:
         return ""
     var result = String()
@@ -409,6 +409,35 @@ def command_payload(command: PromptCommand) -> String:
             result += " "
         result += command.words[index]
     return result^
+
+
+def command_raw_payload(command: PromptCommand) -> String:
+    """Return the exact raw text after the first prompt command token."""
+    var bytes = command.raw.as_bytes()
+    for index in range(len(bytes)):
+        if Int(bytes[index]) == 32:
+            return _slice(command.raw, index + 1, len(bytes))
+    return ""
+
+
+def command_argument_tail(command: PromptCommand) -> List[String]:
+    """Return command words after the command token as an owned argv tail."""
+    var result = List[String]()
+    for index in range(1, len(command.words)):
+        result.append(command.words[index])
+    return result^
+
+
+def command_raw_payload_arguments(command: PromptCommand) -> List[String]:
+    """Return the exact raw payload wrapped as one argv element."""
+    var result = List[String]()
+    result.append(command_raw_payload(command))
+    return result^
+
+
+def command_shell_arguments(command: PromptCommand) raises -> List[String]:
+    """Return shell argv parsed from the command's exact raw payload."""
+    return shell_split(command_raw_payload(command))
 
 
 def _sorted_numbers(expression: String) raises -> List[Int]:

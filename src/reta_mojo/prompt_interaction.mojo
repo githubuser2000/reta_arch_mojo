@@ -12,7 +12,6 @@ observable I/O requested by these plans.
 """
 
 from std.collections import List
-from std.collections.string import StringSlice
 from .prompt_language import (
     PromptLanguageCatalog,
     balanced_prompt_split,
@@ -28,6 +27,9 @@ from .prompt_runtime import (
     fallback_profile_arguments,
     reta_prompt_fallback_arguments_native,
     shell_split,
+    command_argument_tail,
+    command_raw_payload_arguments,
+    command_shell_arguments,
     KIND_EMPTY,
     KIND_EXIT,
     KIND_STORE_NEXT,
@@ -540,32 +542,6 @@ def plan_simple_output_dispatch(
     return PromptSimpleOutputDispatchPlan(False, List[String]())
 
 
-def _prompt_command_arguments(command: PromptCommand) -> List[String]:
-    var result = List[String]()
-    for index in range(1, len(command.words)):
-        result.append(command.words[index])
-    return result^
-
-
-def _prompt_raw_slice(text: String, start: Int, end: Int) -> String:
-    return String(StringSlice(text)[byte=start:end])
-
-
-def _prompt_command_payload(command: PromptCommand) -> String:
-    """Return the exact raw text after the first prompt command token."""
-    var bytes = command.raw.as_bytes()
-    for index in range(len(bytes)):
-        if Int(bytes[index]) == 32:
-            return _prompt_raw_slice(command.raw, index + 1, len(bytes))
-    return ""
-
-
-def _prompt_command_payload_arguments(command: PromptCommand) -> List[String]:
-    var result = List[String]()
-    result.append(_prompt_command_payload(command))
-    return result^
-
-
 def plan_external_process_dispatch(
     command: PromptCommand,
 ) raises -> PromptExternalProcessDispatchPlan:
@@ -579,7 +555,7 @@ def plan_external_process_dispatch(
     if command.kind == KIND_SHELL:
         return PromptExternalProcessDispatchPlan(
             True,
-            shell_split(_prompt_command_payload(command)),
+            command_shell_arguments(command),
             True,
             False,
             False,
@@ -588,7 +564,7 @@ def plan_external_process_dispatch(
     if command.kind == KIND_PYTHON:
         return PromptExternalProcessDispatchPlan(
             True,
-            _prompt_command_payload_arguments(command),
+            command_raw_payload_arguments(command),
             False,
             True,
             False,
@@ -597,7 +573,7 @@ def plan_external_process_dispatch(
     if command.kind == KIND_MATH:
         return PromptExternalProcessDispatchPlan(
             True,
-            _prompt_command_payload_arguments(command),
+            command_raw_payload_arguments(command),
             False,
             False,
             True,
@@ -606,7 +582,7 @@ def plan_external_process_dispatch(
     if command.kind == KIND_RETA:
         return PromptExternalProcessDispatchPlan(
             True,
-            _prompt_command_arguments(command),
+            command_argument_tail(command),
             False,
             False,
             False,
@@ -902,6 +878,7 @@ def prompt_interaction_contract_snapshot() -> List[String]:
         "fallback_shell_split=runtime-owned-argv-tokenizer",
         "external_shell_arguments=native-prompt-shell-argv-plan",
         "external_python_math_arguments=native-prompt-python-math-argv-plan",
+        "external_command_arguments=runtime-owned-command-argv-builders",
         "stored_output_dispatch=native-session-output-execution-plan",
         "stored_delete_dispatch=native-session-delete-plan",
         "stored_default=native-empty-enter-placeholder-policy",

@@ -787,7 +787,7 @@ def test_inline_storage_output_edges_and_history() raises:
 
 def test_contract_snapshot() raises:
     var snapshot = prompt_interaction_contract_snapshot()
-    assert_equal(len(snapshot), 36)
+    assert_equal(len(snapshot), 37)
     assert_equal(snapshot[0], "class=PromptInteractionBundle")
     assert_equal(
         snapshot[6],
@@ -887,17 +887,21 @@ def test_contract_snapshot() raises:
     )
     assert_equal(
         snapshot[30],
-        "stored_output_dispatch=native-session-output-execution-plan",
+        "external_command_arguments=runtime-owned-command-argv-builders",
     )
     assert_equal(
         snapshot[31],
-        "stored_delete_dispatch=native-session-delete-plan",
+        "stored_output_dispatch=native-session-output-execution-plan",
     )
     assert_equal(
         snapshot[32],
+        "stored_delete_dispatch=native-session-delete-plan",
+    )
+    assert_equal(
+        snapshot[33],
         "stored_default=native-empty-enter-placeholder-policy",
     )
-    assert_equal(snapshot[35], "execution=delegated-native-dispatch")
+    assert_equal(snapshot[36], "execution=delegated-native-dispatch")
 
 
 def main() raises:

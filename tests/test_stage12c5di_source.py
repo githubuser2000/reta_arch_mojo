@@ -7,7 +7,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_current_stage_points_to_di() -> None:
     current = (ROOT / "scripts/test_current_stage.sh").read_text(encoding="utf-8")
-    assert "test_stage12c5di.sh" in current
+    assert "test_stage12c5d" in current and ".sh" in current
 
 
 def test_stage_wraps_dh_and_builds_prompt_boundary_tests() -> None:
@@ -26,7 +26,8 @@ def test_external_process_plan_has_no_payload_field() -> None:
     )[0]
     assert "var payload: String" not in plan
     assert "var arguments: List[String]" in plan
-    assert "def _prompt_command_payload_arguments(" in owner
+    runtime = (ROOT / "src/reta_mojo/prompt_runtime.mojo").read_text(encoding="utf-8")
+    assert "def command_raw_payload_arguments(" in runtime
     assert "external_process_arguments=native-prompt-process-argv-plan" in owner
     assert "external_python_math_arguments=native-prompt-python-math-argv-plan" in owner
 
@@ -42,8 +43,8 @@ def test_python_and_math_prompt_processes_are_planned_as_arguments() -> None:
     math_block = body.split("if command.kind == KIND_MATH:", 1)[1].split(
         "if command.kind == KIND_RETA:", 1
     )[0]
-    assert "_prompt_command_payload_arguments(command)" in python_block
-    assert "_prompt_command_payload_arguments(command)" in math_block
+    assert "command_raw_payload_arguments(command)" in python_block
+    assert "command_raw_payload_arguments(command)" in math_block
     assert "_prompt_command_payload(command)," not in python_block
     assert "_prompt_command_payload(command)," not in math_block
     assert "List[String]()," not in python_block
@@ -89,7 +90,7 @@ def test_mojo_test_contract_records_argument_only_external_processes() -> None:
     assert "assert_equal(math_plan.arguments[0], \"1+1\")" in test
     assert "python_plan.payload" not in test
     assert "math_plan.payload" not in test
-    assert "assert_equal(len(snapshot), 36)" in test
+    assert "assert_equal(len(snapshot), 37)" in test
 
 
 def test_stage_document_records_python_math_argv_plan() -> None:

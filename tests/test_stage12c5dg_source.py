@@ -53,7 +53,7 @@ def test_legacy_bridge_probe_and_shell_tests_import_runtime_tokenizer() -> None:
 def test_mojo_snapshot_tracks_runtime_shell_split_owner() -> None:
     test = (ROOT / "tests/test_prompt_interaction.mojo").read_text(encoding="utf-8")
     assert '"fallback_shell_split=runtime-owned-argv-tokenizer"' in test
-    assert ("assert_equal(len(snapshot), 34)" in test or "assert_equal(len(snapshot), 35)" in test or "assert_equal(len(snapshot), 36)" in test)
+    assert ("assert_equal(len(snapshot), 34)" in test or "assert_equal(len(snapshot), 35)" in test or "assert_equal(len(snapshot), 36)" in test or "assert_equal(len(snapshot), 37)" in test)
 
 
 def test_stage_document_records_shell_split_owner_move() -> None:

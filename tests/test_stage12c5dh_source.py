@@ -28,7 +28,7 @@ def test_shell_prompt_process_plan_owns_argv_not_payload() -> None:
     shell_block = body.split("if command.kind == KIND_SHELL:", 1)[1].split(
         "if command.kind == KIND_PYTHON:", 1
     )[0]
-    assert "shell_split(_prompt_command_payload(command))" in shell_block
+    assert "command_shell_arguments(command)" in shell_block
     assert '"",' not in shell_block
     assert "List[String]()," not in shell_block
     assert "external_shell_arguments=native-prompt-shell-argv-plan" in owner
@@ -66,7 +66,7 @@ def test_mojo_test_contract_records_shell_arguments_owner() -> None:
     test = (ROOT / "tests/test_prompt_interaction.mojo").read_text(encoding="utf-8")
     assert "assert_equal(len(shell_plan.arguments), 2)" in test
     assert '"external_shell_arguments=native-prompt-shell-argv-plan"' in test
-    assert "assert_equal(len(snapshot), 36)" in test
+    assert "assert_equal(len(snapshot), 37)" in test
 
 
 def test_stage_document_records_shell_argv_plan() -> None:
