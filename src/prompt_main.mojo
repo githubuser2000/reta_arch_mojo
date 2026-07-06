@@ -57,9 +57,6 @@ from reta_mojo.terminal_geometry import (
 from reta_mojo.prompt_runtime import (
     KIND_EMPTY,
     KIND_EXIT,
-    KIND_HELP,
-    KIND_COMMANDS,
-    KIND_SHORT_COMMANDS,
     KIND_LOG_ON,
     KIND_LOG_OFF,
     KIND_PRIME,
@@ -111,6 +108,7 @@ from reta_mojo.prompt_interaction import (
     plan_stored_command_dispatch,
     plan_logging_dispatch,
     plan_terminal_clear_dispatch,
+    plan_informational_dispatch,
     plan_inline_stored_output_command,
     plan_stored_output_command,
     plan_stored_delete_command,
@@ -586,14 +584,14 @@ def _run_command(
         _run_fallback(profile, line)
         return True
 
-    if command.kind == KIND_HELP:
-        _print_prompt_help()
-        return True
-    if command.kind == KIND_COMMANDS:
-        _print_commands(catalog, profile.language, False)
-        return True
-    if command.kind == KIND_SHORT_COMMANDS:
-        _print_commands(catalog, profile.language, True)
+    var info_dispatch = plan_informational_dispatch(command)
+    if info_dispatch.handled:
+        if info_dispatch.show_help:
+            _print_prompt_help()
+        if info_dispatch.show_commands:
+            _print_commands(catalog, profile.language, False)
+        if info_dispatch.show_short_commands:
+            _print_commands(catalog, profile.language, True)
         return True
     var terminal_clear = plan_terminal_clear_dispatch(command)
     if terminal_clear.handled:
@@ -766,14 +764,14 @@ def _run_native_one_shot(
     ):
         return False
 
-    if command.kind == KIND_HELP:
-        _print_prompt_help()
-        return True
-    if command.kind == KIND_COMMANDS:
-        _print_commands(catalog, profile.language, False)
-        return True
-    if command.kind == KIND_SHORT_COMMANDS:
-        _print_commands(catalog, profile.language, True)
+    var info_dispatch = plan_informational_dispatch(command)
+    if info_dispatch.handled:
+        if info_dispatch.show_help:
+            _print_prompt_help()
+        if info_dispatch.show_commands:
+            _print_commands(catalog, profile.language, False)
+        if info_dispatch.show_short_commands:
+            _print_commands(catalog, profile.language, True)
         return True
     var terminal_clear = plan_terminal_clear_dispatch(command)
     if terminal_clear.handled:

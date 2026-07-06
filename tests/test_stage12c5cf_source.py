@@ -5,9 +5,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def test_current_stage_points_to_cf() -> None:
+def test_current_stage_points_to_a_later_stage_script() -> None:
     current = (ROOT / "scripts/test_current_stage.sh").read_text(encoding="utf-8")
-    assert "test_stage12c5cf.sh" in current
+    assert "test_stage12c5c" in current
 
 
 def test_stage_wraps_ce_and_rebuilds_prompt_boundaries() -> None:
@@ -39,13 +39,13 @@ def test_process_controller_delegates_bare_terminal_clear() -> None:
     )[0]
     one_shot = controller.split("def _run_native_one_shot(", 1)[1]
     for block in (interactive, one_shot):
-        help_dispatch = block.index("if command.kind == KIND_HELP:")
+        info_dispatch = block.index("var info_dispatch = plan_informational_dispatch(command)")
         clear_dispatch = block.index(
             "var terminal_clear = plan_terminal_clear_dispatch(command)",
-            help_dispatch,
+            info_dispatch,
         )
         prime_dispatch = block.index("if command.kind == KIND_PRIME:", clear_dispatch)
-        assert help_dispatch < clear_dispatch < prime_dispatch
+        assert info_dispatch < clear_dispatch < prime_dispatch
         dispatch_block = block.split(
             "var terminal_clear = plan_terminal_clear_dispatch(command)", 1
         )[1].split("if command.kind == KIND_PRIME:", 1)[0]
@@ -59,4 +59,4 @@ def test_prompt_interaction_regression_covers_bare_terminal_clear() -> None:
     assert "def test_terminal_clear_dispatch_is_planned_by_interaction_owner" in test
     assert "plan_terminal_clear_dispatch(" in test
     assert '"terminal_clear_dispatch=native-terminal-clear-plan"' in test
-    assert "assert_equal(len(snapshot), 17)" in test
+    assert "assert_equal(len(snapshot), 18)" in test

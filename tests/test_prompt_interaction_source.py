@@ -27,6 +27,8 @@ def test_prompt_interaction_has_a_dedicated_native_owner() -> None:
     assert "def plan_logging_dispatch(" in owner
     assert "struct PromptTerminalClearDispatchPlan" in owner
     assert "def plan_terminal_clear_dispatch(" in owner
+    assert "struct PromptInformationalDispatchPlan" in owner
+    assert "def plan_informational_dispatch(" in owner
     assert "struct PromptStoredOutputExecutionPlan" in owner
     assert "def plan_stored_output_command(" in owner
     assert "def plan_inline_stored_output_command(" in owner
@@ -50,6 +52,7 @@ def test_production_prompt_activates_the_interaction_owner() -> None:
     assert "plan_stored_command_dispatch(" in controller
     assert "plan_logging_dispatch(" in controller
     assert "plan_terminal_clear_dispatch(" in controller
+    assert "plan_informational_dispatch(" in controller
     assert "plan_inline_stored_output_command(" in controller
     assert "plan_stored_output_command(" in controller
     assert "plan_stored_delete_command(" in controller

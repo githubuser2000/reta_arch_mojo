@@ -755,3 +755,11 @@ Siehe [`ROADMAP.md`](ROADMAP.md) für alle zwölf Stufen.
   damit kein aktueller Runtime-Rückfall.
 
 - Stage 12c5cb vorbereitet: gespeicherte Löschbefehle werden im nativen Prompt-Interaktionsbesitzer geplant; der Stage-Lauf rebuildet zusätzlich `test_table_adapters.mojo`, um stale `target/tests-all`-Fehler zu isolieren.
+
+
+## Stage 12c5cg – Bare informational dispatch ownership
+
+- Alleinstehende Informationsbefehle `hilfe`/`help`, `befehle`/`commands` und `kurzbefehle`/`shortcommands` werden als `PromptInformationalDispatchPlan` im Interaktionsbesitzer geplant.
+- `prompt_main.mojo` rendert nur noch die geplanten Hilfe-/Befehlsausgaben und enthält keine bare `KIND_HELP`-/`KIND_COMMANDS`-/`KIND_SHORT_COMMANDS`-Branches mehr.
+- Zusammengesetzte Informations-Begleiteffekte bei Tabellen- und `mulpri`-Plänen bleiben im historischen Tabellenbesitzer, weil dort die Reihenfolge vor der Tabelle maßgeblich ist.
+- Benutzerprüfung: `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5cg.sh -- -j 8`.

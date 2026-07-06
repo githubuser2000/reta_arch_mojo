@@ -36,7 +36,7 @@ def test_controller_emits_information_before_table_and_keeps_standalone_dispatch
         help_ = block.index("if companion_effects.show_help:", commands)
         clear = block.index("if companion_effects.clear_before_table:", help_)
         table = block.index("var handled_table = _run_native_table_plan(", clear)
-        standalone = block.index("if command.kind == KIND_HELP:", table)
+        standalone = block.index("var info_dispatch = plan_informational_dispatch(command)", table)
         assert companion < short < commands < help_ < clear < table < standalone
 
 
@@ -63,13 +63,13 @@ def test_rejected_compound_falls_back_before_prefix_control_dispatch() -> None:
         "if (table_candidate or mulpri_candidate) and not ("
     )
     fallback = interactive.index("_run_fallback(profile, line)", rejected)
-    help_dispatch = interactive.index("if command.kind == KIND_HELP:", fallback)
-    clear = interactive.index("var terminal_clear = plan_terminal_clear_dispatch(command)", help_dispatch)
-    assert rejected < fallback < help_dispatch < clear
+    info_dispatch = interactive.index("var info_dispatch = plan_informational_dispatch(command)", fallback)
+    clear = interactive.index("var terminal_clear = plan_terminal_clear_dispatch(command)", info_dispatch)
+    assert rejected < fallback < info_dispatch < clear
 
     one_shot = source.split("def _run_native_one_shot(", 1)[1]
     rejected_one_shot = one_shot.index(
         "if (table_candidate or mulpri_candidate) and not ("
     )
-    standalone = one_shot.index("if command.kind == KIND_HELP:", rejected_one_shot)
+    standalone = one_shot.index("var info_dispatch = plan_informational_dispatch(command)", rejected_one_shot)
     assert rejected_one_shot < standalone

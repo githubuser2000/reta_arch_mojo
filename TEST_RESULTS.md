@@ -2641,3 +2641,11 @@ Benutzerlauf.
 - Neue native Grenze: `l`/`BefehlSpeicherungLöschen` wird als `PromptStoredDeletePlan` im Interaktionsbesitzer geplant.
 - Der Stage-Lauf baut jetzt zusätzlich `test_table_adapters.mojo`, damit ein separater `scripts/run-tests.sh`-Fehler nicht mit einem stale `target/tests-all`-Binary verwechselt wird.
 - Die tatsächliche Mojo-Kompilierung bleibt der Benutzerlauf `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5cb.sh -- -j 8`.
+
+
+## Stage 12c5cg – Bare informational dispatch ownership
+
+- Alleinstehende Informationsbefehle `hilfe`/`help`, `befehle`/`commands` und `kurzbefehle`/`shortcommands` werden als `PromptInformationalDispatchPlan` im Interaktionsbesitzer geplant.
+- `prompt_main.mojo` rendert nur noch die geplanten Hilfe-/Befehlsausgaben und enthält keine bare `KIND_HELP`-/`KIND_COMMANDS`-/`KIND_SHORT_COMMANDS`-Branches mehr.
+- Zusammengesetzte Informations-Begleiteffekte bei Tabellen- und `mulpri`-Plänen bleiben im historischen Tabellenbesitzer, weil dort die Reihenfolge vor der Tabelle maßgeblich ist.
+- Benutzerprüfung: `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5cg.sh -- -j 8`.

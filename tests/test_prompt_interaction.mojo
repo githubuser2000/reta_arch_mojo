@@ -428,6 +428,44 @@ def test_terminal_clear_dispatch_is_planned_by_interaction_owner() raises:
     assert_false(plan_terminal_clear_dispatch(normal).handled)
 
 
+
+
+def test_informational_dispatch_is_planned_by_interaction_owner() raises:
+    var catalog = load_prompt_language_catalog("assets")
+
+    var help_command = classify_prompt_command_localized(
+        "hilfe", "deutsch", catalog
+    )
+    var help_plan = plan_informational_dispatch(help_command)
+    assert_true(help_plan.handled)
+    assert_true(help_plan.show_help)
+    assert_false(help_plan.show_commands)
+    assert_false(help_plan.show_short_commands)
+
+    var commands = classify_prompt_command_localized(
+        "befehle", "deutsch", catalog
+    )
+    var commands_plan = plan_informational_dispatch(commands)
+    assert_true(commands_plan.handled)
+    assert_false(commands_plan.show_help)
+    assert_true(commands_plan.show_commands)
+    assert_false(commands_plan.show_short_commands)
+
+    var short_commands = classify_prompt_command_localized(
+        "kurzbefehle", "deutsch", catalog
+    )
+    var short_plan = plan_informational_dispatch(short_commands)
+    assert_true(short_plan.handled)
+    assert_false(short_plan.show_help)
+    assert_false(short_plan.show_commands)
+    assert_true(short_plan.show_short_commands)
+
+    var normal = classify_prompt_command_localized(
+        "prim 60", "deutsch", catalog
+    )
+    assert_false(plan_informational_dispatch(normal).handled)
+
+
 def test_stored_output_execution_is_planned_by_interaction_owner() raises:
     var catalog = load_prompt_language_catalog("assets")
     var interaction = new_prompt_interaction(
@@ -580,7 +618,7 @@ def test_inline_storage_output_edges_and_history() raises:
 
 def test_contract_snapshot() raises:
     var snapshot = prompt_interaction_contract_snapshot()
-    assert_equal(len(snapshot), 17)
+    assert_equal(len(snapshot), 18)
     assert_equal(snapshot[0], "class=PromptInteractionBundle")
     assert_equal(
         snapshot[6],
@@ -604,17 +642,21 @@ def test_contract_snapshot() raises:
     )
     assert_equal(
         snapshot[11],
-        "stored_output_dispatch=native-session-output-execution-plan",
+        "informational_dispatch=native-prompt-information-plan",
     )
     assert_equal(
         snapshot[12],
-        "stored_delete_dispatch=native-session-delete-plan",
+        "stored_output_dispatch=native-session-output-execution-plan",
     )
     assert_equal(
         snapshot[13],
+        "stored_delete_dispatch=native-session-delete-plan",
+    )
+    assert_equal(
+        snapshot[14],
         "stored_default=native-empty-enter-placeholder-policy",
     )
-    assert_equal(snapshot[16], "execution=delegated-native-dispatch")
+    assert_equal(snapshot[17], "execution=delegated-native-dispatch")
 
 
 def main() raises:
