@@ -195,6 +195,8 @@ def _run_fallback(
     line: String,
 ) raises -> None:
     var fallback_process = plan_prompt_fallback_process_dispatch(profile, line)
+    if not fallback_process.handled:
+        return
     _ = run_reta_prompt_fallback_arguments_native(
         fallback_process.profile_arguments,
         fallback_process.command_arguments,

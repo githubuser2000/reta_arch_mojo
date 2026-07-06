@@ -44,7 +44,7 @@ def test_prompt_interaction_regression_covers_direct_reta_child_marker() -> None
         encoding="utf-8"
     )
     assert '"external_reta_child=native-prompt-reta-child-argv"' in test
-    assert ("assert_equal(len(snapshot), 26)" in test or "assert_equal(len(snapshot), 27)" in test or "assert_equal(len(snapshot), 28)" in test or "assert_equal(len(snapshot), 29)" in test)
+    assert ("assert_equal(len(snapshot), 26)" in test or "assert_equal(len(snapshot), 27)" in test or "assert_equal(len(snapshot), 28)" in test or "assert_equal(len(snapshot), 29)" in test or "assert_equal(len(snapshot), 30)" in test)
 
 
 def test_previous_payload_and_effect_stage_guards_accept_stronger_reta_boundary() -> None:

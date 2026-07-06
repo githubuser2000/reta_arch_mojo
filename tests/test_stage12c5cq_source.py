@@ -7,7 +7,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_current_stage_points_to_cq_or_later() -> None:
     current = (ROOT / "scripts/test_current_stage.sh").read_text(encoding="utf-8")
-    assert "test_stage12c5c" in current
+    assert "test_stage12c5" in current
 
 
 def test_stage_wraps_cp_and_rebuilds_prompt_boundaries() -> None:
@@ -45,4 +45,4 @@ def test_prompt_interaction_regression_covers_kind_elimination() -> None:
     assert ".process_kind" not in test
     assert "EXTERNAL_PROMPT_" not in test
     assert '"external_process_kind=eliminated-from-external-process-plan"' in test
-    assert "assert_equal(len(snapshot), 28)" in test or "assert_equal(len(snapshot), 29)" in test
+    assert "assert_equal(len(snapshot), 28)" in test or "assert_equal(len(snapshot), 29)" in test or "assert_equal(len(snapshot), 30)" in test

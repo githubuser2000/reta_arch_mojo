@@ -7,7 +7,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_current_stage_points_to_cp_or_later() -> None:
     current = (ROOT / "scripts/test_current_stage.sh").read_text(encoding="utf-8")
-    assert "test_stage12c5c" in current
+    assert "test_stage12c5" in current
 
 
 def test_stage_wraps_co_and_rebuilds_prompt_boundaries() -> None:
@@ -40,7 +40,7 @@ def test_prompt_interaction_regression_covers_raw_line_elimination() -> None:
     test = (ROOT / "tests/test_prompt_interaction.mojo").read_text(encoding="utf-8")
     assert "shell_plan.raw" not in test
     assert '"external_raw_line=eliminated-from-external-process-plan"' in test
-    assert ("assert_equal(len(snapshot), 27)" in test or "assert_equal(len(snapshot), 28)" in test or "assert_equal(len(snapshot), 29)" in test)
+    assert ("assert_equal(len(snapshot), 27)" in test or "assert_equal(len(snapshot), 28)" in test or "assert_equal(len(snapshot), 29)" in test or "assert_equal(len(snapshot), 30)" in test)
 
 
 def test_source_guards_track_raw_line_elimination() -> None:

@@ -5,9 +5,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def test_current_stage_points_to_da() -> None:
+def test_current_stage_points_to_da_or_later() -> None:
     current = (ROOT / "scripts/test_current_stage.sh").read_text(encoding="utf-8")
-    assert "test_stage12c5da.sh" in current
+    assert "test_stage12c5" in current
+    assert "test_stage12c5cz.sh" not in current
 
 
 def test_stage_wraps_cz_and_builds_prompt_interaction() -> None:

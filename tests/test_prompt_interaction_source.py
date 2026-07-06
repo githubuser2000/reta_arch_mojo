@@ -37,6 +37,7 @@ def test_prompt_interaction_has_a_dedicated_native_owner() -> None:
     assert "def plan_simple_output_dispatch(" in owner
     assert "struct PromptExternalProcessDispatchPlan" in owner
     assert "struct PromptFallbackProcessDispatchPlan" in owner
+    assert "var handled: Bool" in owner
     assert "var raw: String" not in owner
     assert "var process_kind: Int" not in owner
     assert "EXTERNAL_PROMPT_" not in owner
@@ -50,7 +51,7 @@ def test_prompt_interaction_has_a_dedicated_native_owner() -> None:
     assert "def _prompt_command_arguments(" in owner
     assert "def plan_external_process_dispatch(" in owner
     assert "def plan_prompt_fallback_process_dispatch(" in owner
-    assert "fallback_profile_arguments(profile), shell_split(line)" in owner
+    assert "True, fallback_profile_arguments(profile), shell_split(line)" in owner
     assert "struct PromptStoredOutputExecutionPlan" in owner
     assert "def plan_stored_output_command(" in owner
     assert "def plan_inline_stored_output_command(" in owner
@@ -125,6 +126,7 @@ def test_production_prompt_activates_the_interaction_owner() -> None:
     assert "fallback_profile_arguments(profile), shell_split(line), reference_root()" not in controller
     assert "fallback_process.profile_arguments" in controller
     assert "fallback_process.command_arguments" in controller
+    assert "if not fallback_process.handled:" in controller
     assert "external_process.process_kind == EXTERNAL_PROMPT" not in controller
     assert "external_process.process_kind" not in controller
     assert "EXTERNAL_PROMPT_SHELL," not in controller
