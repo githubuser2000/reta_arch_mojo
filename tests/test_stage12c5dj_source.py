@@ -60,9 +60,13 @@ def test_external_process_dispatch_uses_runtime_argument_builders() -> None:
 
 def test_contract_snapshot_records_runtime_command_argument_owner() -> None:
     test = (ROOT / "tests/test_prompt_interaction.mojo").read_text(encoding="utf-8")
-    assert ("assert_equal(len(snapshot), 37)" in test or "assert_equal(len(snapshot), 38)" in test)
+    assert ("assert_equal(len(snapshot), 37)" in test or "assert_equal(len(snapshot), 38)" in test or "assert_equal(len(snapshot), 21)" in test)
     assert '"external_command_arguments=runtime-owned-command-argv-builders"' in test
-    assert ("assert_equal(snapshot[36], \"execution=delegated-native-dispatch\")" in test or "assert_equal(snapshot[37], \"execution=delegated-native-dispatch\")" in test)
+    assert (
+        "assert_equal(snapshot[36], \"execution=delegated-native-dispatch\")" in test
+        or "assert_equal(snapshot[37], \"execution=delegated-native-dispatch\")" in test
+        or "assert_equal(snapshot[20], \"execution=delegated-native-dispatch\")" in test
+    )
 
 
 def test_stage_document_records_runtime_command_argv_owner() -> None:

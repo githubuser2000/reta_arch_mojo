@@ -68,6 +68,12 @@ def test_prompt_interaction_has_a_dedicated_native_owner() -> None:
     assert "struct PromptStoredDefaultPlan" in owner
     assert "def plan_stored_default_command(" in owner
     assert "def prompt_interaction_contract_snapshot(" in owner
+
+    interaction_contract = owner.split("def prompt_interaction_contract_snapshot", 1)[1]
+    interaction_contract = interaction_contract.split("return [", 1)[1].split("    ]", 1)[0]
+    assert "external_process_dispatch=native-prompt-process-edge-plan" not in interaction_contract
+    assert "fallback_process_dispatch=native-interaction-argv-plan" not in interaction_contract
+    assert "external_dispatch_owner=prompt-execution-process-plan" not in interaction_contract
     assert "from std.python import" not in owner
     assert "PythonObject" not in owner
 

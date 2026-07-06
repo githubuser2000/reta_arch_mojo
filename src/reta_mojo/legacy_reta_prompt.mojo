@@ -24,6 +24,7 @@ from .prompt_interaction import (
     new_prompt_interaction,
     prompt_interaction_contract_snapshot,
 )
+from .prompt_process_dispatch import prompt_process_dispatch_contract_snapshot
 from .prompt_session import (
     NativePromptSession,
     PromptDeleteResult,
@@ -194,11 +195,34 @@ def promptInput(
     return result^
 
 
+def _legacy_prompt_scope_snapshot() -> List[String]:
+    """Historical retaPrompt.py scope with reaction and process contracts.
+
+    The native prompt-reaction owner no longer carries process-dispatch
+    details.  Keep the compatibility facade's old observable PromptScope shape
+    by composing the reaction contract with the prompt-execution process
+    contract in the historical order.
+    """
+    var interaction = prompt_interaction_contract_snapshot()
+    var process = prompt_process_dispatch_contract_snapshot()
+    var result = List[String]()
+    for index in range(15):
+        result.append(interaction[index].copy())
+    # Detailed external/fallback process markers, excluding the process bundle
+    # class marker, the owner marker and the adapter implementation marker.
+    for index in range(2, len(process) - 1):
+        result.append(process[index].copy())
+    result.append(process[1].copy())
+    for index in range(15, len(interaction)):
+        result.append(interaction[index].copy())
+    return result^
+
+
 def PromptScope(
     facade: LegacyRetaPromptBundle,
 ) -> List[String]:
     _ = facade
-    return prompt_interaction_contract_snapshot()
+    return _legacy_prompt_scope_snapshot()
 
 
 def start(

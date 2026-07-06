@@ -90,7 +90,7 @@ def test_mojo_test_contract_records_argument_only_external_processes() -> None:
     assert "assert_equal(math_plan.arguments[0], \"1+1\")" in test
     assert "python_plan.payload" not in test
     assert "math_plan.payload" not in test
-    assert ("assert_equal(len(snapshot), 37)" in test or "assert_equal(len(snapshot), 38)" in test)
+    assert ("assert_equal(len(snapshot), 37)" in test or "assert_equal(len(snapshot), 38)" in test or "assert_equal(len(snapshot), 21)" in test)
 
 
 def test_stage_document_records_python_math_argv_plan() -> None:

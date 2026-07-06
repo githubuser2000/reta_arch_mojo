@@ -65,6 +65,7 @@ def test_native_facade_reuses_existing_prompt_owners() -> None:
         ".legacy_libreta_prompt",
         ".prompt_runtime",
         ".prompt_interaction",
+        ".prompt_process_dispatch",
         ".prompt_session",
     ):
         assert owner in source

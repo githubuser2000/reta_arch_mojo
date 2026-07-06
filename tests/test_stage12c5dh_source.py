@@ -66,7 +66,7 @@ def test_mojo_test_contract_records_shell_arguments_owner() -> None:
     test = (ROOT / "tests/test_prompt_interaction.mojo").read_text(encoding="utf-8")
     assert "assert_equal(len(shell_plan.arguments), 2)" in test
     assert '"external_shell_arguments=native-prompt-shell-argv-plan"' in test
-    assert ("assert_equal(len(snapshot), 37)" in test or "assert_equal(len(snapshot), 38)" in test)
+    assert ("assert_equal(len(snapshot), 37)" in test or "assert_equal(len(snapshot), 38)" in test or "assert_equal(len(snapshot), 21)" in test)
 
 
 def test_stage_document_records_shell_argv_plan() -> None:

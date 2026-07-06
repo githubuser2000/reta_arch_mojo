@@ -63,12 +63,15 @@ def test_historical_input_and_start_delegate_to_native_controller() raises:
     assert_false(facade.promptInteraction.session.store_next)
     var scope = PromptScope(facade)
     var interaction_scope = prompt_interaction_contract_snapshot()
-    assert_equal(len(scope), len(interaction_scope))
+    assert_equal(len(interaction_scope), 21)
+    assert_equal(len(scope), 38)
     assert_equal(scope[0], "class=PromptInteractionBundle")
     assert_equal(
         scope[7],
         "storage_output=native-position-independent-addition-policy",
     )
+    assert_equal(scope[15], "external_process_dispatch=native-prompt-process-edge-plan")
+    assert_equal(scope[31], "external_dispatch_owner=prompt-execution-process-plan")
     assert_equal(scope[len(scope) - 1], "execution=delegated-native-dispatch")
 
 

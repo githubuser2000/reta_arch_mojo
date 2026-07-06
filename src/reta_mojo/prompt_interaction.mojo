@@ -738,7 +738,13 @@ def record_prompt_line(
 
 
 def prompt_interaction_contract_snapshot() -> List[String]:
-    """Stable ownership snapshot used by source archives and release gates."""
+    """Stable ownership snapshot for the prompt-reaction controller.
+
+    Process-dispatch details intentionally live in
+    ``prompt_process_dispatch_contract_snapshot``.  The interaction owner is the
+    future prompt-reaction boundary: session lifecycle, storage, history,
+    line acceptance and deterministic local effects only.
+    """
 
     return [
         "class=PromptInteractionBundle",
@@ -756,23 +762,6 @@ def prompt_interaction_contract_snapshot() -> List[String]:
         "terminal_clear_dispatch=native-terminal-clear-plan",
         "informational_dispatch=native-prompt-information-plan",
         "simple_output_dispatch=native-deterministic-prompt-output-plan",
-        "external_process_dispatch=native-prompt-process-edge-plan",
-        "external_reta_arguments=native-prompt-reta-argv-plan",
-        "external_process_arguments=native-prompt-process-argv-plan",
-        "external_process_flags=native-prompt-process-effect-flags",
-        "external_process_kind=eliminated-from-external-process-plan",
-        "external_reta_child=native-prompt-reta-child-argv",
-        "external_raw_line=eliminated-from-external-process-plan",
-        "fallback_process_dispatch=native-interaction-argv-plan",
-        "fallback_process_handled=native-explicit-fallback-effect-flag",
-        "fallback_process_flags=native-explicit-fallback-run-flag",
-        "fallback_process_arguments=native-merged-fallback-argv",
-        "fallback_runtime_arguments=runtime-owned-argv-builder",
-        "fallback_shell_split=runtime-owned-argv-tokenizer",
-        "external_shell_arguments=native-prompt-shell-argv-plan",
-        "external_python_math_arguments=native-prompt-python-math-argv-plan",
-        "external_command_arguments=runtime-owned-command-argv-builders",
-        "external_dispatch_owner=prompt-execution-process-plan",
         "stored_output_dispatch=native-session-output-execution-plan",
         "stored_delete_dispatch=native-session-delete-plan",
         "stored_default=native-empty-enter-placeholder-policy",
