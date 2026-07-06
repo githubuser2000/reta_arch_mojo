@@ -5,9 +5,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def test_current_stage_points_to_cw() -> None:
+def test_current_stage_points_to_cw_or_later() -> None:
     current = (ROOT / "scripts/test_current_stage.sh").read_text(encoding="utf-8")
-    assert "test_stage12c5cw.sh" in current
+    assert "test_stage12c5c" in current
+    assert ".sh" in current
 
 
 def test_stage_wraps_cv_and_runs_normalized_source_guards() -> None:

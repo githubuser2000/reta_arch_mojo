@@ -95,6 +95,7 @@ def test_external_adapter_exposes_payload_and_argument_children_only() -> None:
     assert "def run_shell_prompt_payload_native(" in adapter
     assert "def run_python_prompt_payload_native(" in adapter
     assert "def run_math_prompt_payload_native(" in adapter
+    assert "def raw_command_payload(" not in adapter
     assert "def run_reta_arguments_native(" in adapter
     assert "def run_shell_prompt_line_native(" not in adapter
     assert "def run_python_prompt_line_native(" not in adapter

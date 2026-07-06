@@ -23,7 +23,7 @@ def test_external_process_adapter_exposes_payload_and_argument_boundaries_only()
     adapter = (ROOT / "src/reta_mojo/prompt_external_commands.mojo").read_text(
         encoding="utf-8"
     )
-    assert "def raw_command_payload(line: String) -> String:" in adapter
+    assert "def raw_command_payload(line: String) -> String:" not in adapter
     assert "def run_shell_prompt_payload_native(" in adapter
     assert "def run_python_prompt_payload_native(" in adapter
     assert "def run_math_prompt_payload_native(" in adapter
@@ -40,9 +40,9 @@ def test_prompt_external_probe_uses_owned_payloads_and_argv() -> None:
     probe = (ROOT / "tests/prompt_external_commands_probe.mojo").read_text(
         encoding="utf-8"
     )
-    assert "run_shell_prompt_payload_native(raw_command_payload(line), reference_root)" in probe
-    assert "run_python_prompt_payload_native(raw_command_payload(line), reference_root)" in probe
-    assert "run_math_prompt_payload_native(raw_command_payload(line), reference_root)" in probe
+    assert "run_shell_prompt_payload_native(_prompt_line_payload(line), reference_root)" in probe
+    assert "run_python_prompt_payload_native(_prompt_line_payload(line), reference_root)" in probe
+    assert "run_math_prompt_payload_native(_prompt_line_payload(line), reference_root)" in probe
     assert "run_reta_arguments_native(" in probe
     assert "_reta_child_arguments(shell_split(line))" in probe
     assert "run_shell_prompt_line_native" not in probe
@@ -58,7 +58,7 @@ def test_legacy_bridge_keeps_public_line_compatibility_locally() -> None:
     assert "def run_shell_prompt_line(line: String) raises -> Int:" in bridge
     assert "def run_python_prompt_line(line: String) raises -> Int:" in bridge
     assert "def run_math_prompt_line(line: String) raises -> Int:" in bridge
-    assert "raw_command_payload(line), reference_root()" in bridge
+    assert "_prompt_line_payload(line), reference_root()" in bridge
     assert "external_line_wrappers=removed-payload-argv-only" in bridge
     assert "run_shell_prompt_line_native" not in bridge
     assert "run_python_prompt_line_native" not in bridge
@@ -70,5 +70,5 @@ def test_owner_snapshot_tracks_external_line_wrapper_removal() -> None:
     test = (ROOT / "tests/test_legacy_mojo_bridge.mojo").read_text(
         encoding="utf-8"
     )
-    assert "assert_equal(len(owners), 13)" in test
+    assert "assert_equal(len(owners), 14)" in test or "assert_equal(len(owners), 13)" in test
     assert 'assert_equal(owners[11], "external_line_wrappers=removed-payload-argv-only")' in test

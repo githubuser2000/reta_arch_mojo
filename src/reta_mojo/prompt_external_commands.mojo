@@ -3,9 +3,9 @@
 The historical prompt exposes explicit commands whose purpose is to start
 another program: ``shell``, ``python`` and ``math`` plus still-unported
 ``reta`` and atomic prompt-fallback paths.  Callers pass already separated
-payloads or argv vectors; raw prompt-line compatibility is owned by the
-legacy bridge facade.  The general ``reta`` compatibility
-launcher uses the same boundary.  Their dispatch belongs to Mojo; importing
+payloads or argv vectors; raw prompt-line compatibility is owned by callers
+that still expose historical line-based facades.  The general ``reta``
+compatibility launcher uses the same boundary.  Their dispatch belongs to Mojo; importing
 CPython merely to ask it to spawn a second interpreter is both slower and a
 needless runtime dependency.
 
@@ -38,15 +38,6 @@ def _next_codepoint_end(text: String, start: Int) -> Int:
     while end < len(bytes) and (Int(bytes[end]) & 0xC0) == 0x80:
         end += 1
     return end
-
-
-def raw_command_payload(line: String) -> String:
-    """Match Python ``line.partition(" ")[2]`` exactly."""
-    var bytes = line.as_bytes()
-    for index in range(len(bytes)):
-        if Int(bytes[index]) == 32:
-            return _slice(line, index + 1, len(bytes))
-    return ""
 
 
 def shell_split(text: String) raises -> List[String]:

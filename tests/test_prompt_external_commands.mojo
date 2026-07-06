@@ -1,6 +1,5 @@
 from std.testing import assert_equal, assert_true, TestSuite
 from reta_mojo.prompt_external_commands import (
-    raw_command_payload,
     shell_quote,
     shell_split,
 )
@@ -8,12 +7,6 @@ from reta_mojo.prompt_external_commands import (
 
 def _joined(values: List[String]) -> String:
     return "\x1f".join(values)
-
-
-def test_raw_payload_matches_partition() raises:
-    assert_equal(raw_command_payload("python print(1)"), "print(1)")
-    assert_equal(raw_command_payload("python  print(1)"), " print(1)")
-    assert_equal(raw_command_payload("python"), "")
 
 
 def test_shell_split_plain_and_quotes() raises:

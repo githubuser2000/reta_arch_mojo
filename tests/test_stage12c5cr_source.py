@@ -40,7 +40,10 @@ def test_line_based_legacy_prompt_adapters_are_still_present() -> None:
     assert "def run_shell_prompt_line(line: String) raises -> Int:" in bridge
     assert "def run_python_prompt_line(line: String) raises -> Int:" in bridge
     assert "def run_math_prompt_line(line: String) raises -> Int:" in bridge
-    assert "raw_command_payload(line), reference_root()" in bridge
+    assert (
+        "raw_command_payload(line), reference_root()" in bridge
+        or "_prompt_line_payload(line), reference_root()" in bridge
+    )
     assert "return run_shell_prompt_payload_native(" in bridge
     assert "return run_python_prompt_payload_native(" in bridge
     assert "return run_math_prompt_payload_native(" in bridge

@@ -83,6 +83,8 @@ def test_native_facade_uses_existing_native_boundaries() -> None:
         "def generate_html_document(",
     ):
         assert symbol in source
+    assert "def _prompt_line_payload(line: String) -> String:" in source
+    assert "raw_command_payload," not in source
     assert "from std.python import" not in source
     assert "PythonObject" not in source
     assert "import_module" not in source

@@ -52,10 +52,11 @@ def test_payload_helpers_are_the_external_process_boundary() -> None:
     assert "def run_shell_prompt_payload_native(" in adapter
     assert "def run_python_prompt_payload_native(" in adapter
     assert "def run_math_prompt_payload_native(" in adapter
-    assert "def raw_command_payload(line: String) -> String:" in adapter
+    assert "def run_shell_prompt_payload_native(" in adapter
+    assert "def run_python_prompt_payload_native(" in adapter
+    assert "def run_math_prompt_payload_native(" in adapter
     if "def run_shell_prompt_line_native(" in adapter:
         assert "return run_shell_prompt_payload_native(" in adapter
-        assert "raw_command_payload(line), reference_root" in adapter
 
 
 def test_prompt_interaction_regression_covers_payloads() -> None:

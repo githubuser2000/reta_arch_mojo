@@ -8,6 +8,7 @@ Python interpreter is embedded in this module.
 """
 
 from std.collections import List
+from std.collections.string import StringSlice
 from .completion_nested import nested_completion_candidates_from_catalog
 from .html_document import assemble_html_document, write_html_document_stdout
 from .legacy_mojo_bridge_catalog import (
@@ -18,7 +19,6 @@ from .legacy_mojo_bridge_catalog import (
 )
 from .native_prompt_input import read_native_prompt_line
 from .prompt_external_commands import (
-    raw_command_payload,
     run_math_prompt_payload_native,
     run_python_prompt_payload_native,
     run_reta_arguments_native,
@@ -67,6 +67,21 @@ struct LegacyMojoBridgeBundle(Copyable):
 
 def bootstrap_legacy_mojo_bridge() -> LegacyMojoBridgeBundle:
     return LegacyMojoBridgeBundle(reference_root())
+
+
+
+
+def _prompt_line_slice(text: String, start: Int, end: Int) -> String:
+    return String(StringSlice(text)[byte=start:end])
+
+
+def _prompt_line_payload(line: String) -> String:
+    """Match Python ``line.partition(" ")[2]`` for legacy facades."""
+    var bytes = line.as_bytes()
+    for index in range(len(bytes)):
+        if Int(bytes[index]) == 32:
+            return _prompt_line_slice(line, index + 1, len(bytes))
+    return ""
 
 
 def _split_encoded(encoded: String, separator: String) -> List[String]:
@@ -208,19 +223,19 @@ def run_reta_prompt_line_encoded(encoded: String) raises -> Int:
 
 def run_shell_prompt_line(line: String) raises -> Int:
     return run_shell_prompt_payload_native(
-        raw_command_payload(line), reference_root()
+        _prompt_line_payload(line), reference_root()
     )
 
 
 def run_python_prompt_line(line: String) raises -> Int:
     return run_python_prompt_payload_native(
-        raw_command_payload(line), reference_root()
+        _prompt_line_payload(line), reference_root()
     )
 
 
 def run_math_prompt_line(line: String) raises -> Int:
     return run_math_prompt_payload_native(
-        raw_command_payload(line), reference_root()
+        _prompt_line_payload(line), reference_root()
     )
 
 
@@ -249,4 +264,5 @@ def legacy_mojo_bridge_owner_snapshot() -> List[String]:
         "prompt_line_bridge=payload-owner",
         "external_line_wrappers=removed-payload-argv-only",
         "fallback_bridge=native-argv-owner",
+        "external_raw_payload_helper=legacy-local",
     ]

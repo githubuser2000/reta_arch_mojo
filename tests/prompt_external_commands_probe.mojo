@@ -1,7 +1,7 @@
 from std.collections import List
+from std.collections.string import StringSlice
 from std.sys import argv
 from reta_mojo.prompt_external_commands import (
-    raw_command_payload,
     run_math_prompt_payload_native,
     run_python_prompt_payload_native,
     run_reta_arguments_native,
@@ -9,6 +9,20 @@ from reta_mojo.prompt_external_commands import (
     run_shell_prompt_payload_native,
     shell_split,
 )
+
+
+
+
+def _line_slice(text: String, start: Int, end: Int) -> String:
+    return String(StringSlice(text)[byte=start:end])
+
+
+def _prompt_line_payload(line: String) -> String:
+    var bytes = line.as_bytes()
+    for index in range(len(bytes)):
+        if Int(bytes[index]) == 32:
+            return _line_slice(line, index + 1, len(bytes))
+    return ""
 
 
 def _reta_child_arguments(arguments: List[String]) -> List[String]:
@@ -27,11 +41,11 @@ def _reta_child_arguments(arguments: List[String]) -> List[String]:
 
 def _run(mode: String, line: String, reference_root: String) raises -> Int:
     if mode == "shell":
-        return run_shell_prompt_payload_native(raw_command_payload(line), reference_root)
+        return run_shell_prompt_payload_native(_prompt_line_payload(line), reference_root)
     if mode == "python":
-        return run_python_prompt_payload_native(raw_command_payload(line), reference_root)
+        return run_python_prompt_payload_native(_prompt_line_payload(line), reference_root)
     if mode == "math":
-        return run_math_prompt_payload_native(raw_command_payload(line), reference_root)
+        return run_math_prompt_payload_native(_prompt_line_payload(line), reference_root)
     if mode == "reta":
         return run_reta_arguments_native(
             _reta_child_arguments(shell_split(line)), reference_root
