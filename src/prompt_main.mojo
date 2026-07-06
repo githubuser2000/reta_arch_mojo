@@ -29,11 +29,11 @@ from reta_mojo.prompt_table_execution import (
 from reta_mojo.prompt_legacy_echo import compact_prompt_announcement_line
 from reta_mojo.native_prompt_input import read_native_prompt_line
 from reta_mojo.prompt_external_commands import (
-    run_math_prompt_line_native,
-    run_python_prompt_line_native,
+    run_math_prompt_payload_native,
+    run_python_prompt_payload_native,
     run_reta_line_native,
     run_reta_prompt_fallback_native,
-    run_shell_prompt_line_native,
+    run_shell_prompt_payload_native,
 )
 from reta_mojo.native_reta_cli import (
     native_reta_tokens_supported,
@@ -58,7 +58,6 @@ from reta_mojo.prompt_runtime import (
     KIND_PRIME,
     KIND_MULTIS,
     KIND_PRIME_COMPARE,
-    KIND_RETA,
     PromptProfile,
     PromptCommand,
     PromptStartup,
@@ -204,12 +203,7 @@ def _run_fallback(
     )
 
 
-def _run_native_reta_prompt_command(command: PromptCommand) raises -> Bool:
-    if command.kind != KIND_RETA or len(command.words) < 1:
-        return False
-    var tokens = List[String]()
-    for index in range(1, len(command.words)):
-        tokens.append(command.words[index])
+def _run_native_reta_prompt_command(tokens: List[String]) raises -> Bool:
     var startup = native_cli_startup(tokens)
     if startup.owned:
         print(startup.output, end="")
@@ -596,16 +590,16 @@ def _run_command(
     var external_process = plan_external_process_dispatch(command)
     if external_process.handled:
         if external_process.process_kind == EXTERNAL_PROMPT_SHELL:
-            _ = run_shell_prompt_line_native(external_process.raw)
+            _ = run_shell_prompt_payload_native(external_process.payload)
             return True
         if external_process.process_kind == EXTERNAL_PROMPT_PYTHON:
-            _ = run_python_prompt_line_native(external_process.raw)
+            _ = run_python_prompt_payload_native(external_process.payload)
             return True
         if external_process.process_kind == EXTERNAL_PROMPT_MATH:
-            _ = run_math_prompt_line_native(external_process.raw)
+            _ = run_math_prompt_payload_native(external_process.payload)
             return True
         if external_process.process_kind == EXTERNAL_PROMPT_RETA:
-            if _run_native_reta_prompt_command(command):
+            if _run_native_reta_prompt_command(external_process.arguments):
                 return True
             _ = run_reta_line_native(external_process.raw)
             return True
@@ -760,7 +754,7 @@ def _run_native_one_shot(
     var external_process = plan_external_process_dispatch(command)
     if external_process.handled:
         if external_process.process_kind == EXTERNAL_PROMPT_RETA:
-            if _run_native_reta_prompt_command(command):
+            if _run_native_reta_prompt_command(external_process.arguments):
                 return True
         return False
     return False

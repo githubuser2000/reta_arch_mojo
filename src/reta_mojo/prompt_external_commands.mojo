@@ -183,11 +183,12 @@ def prompt_python_executable() -> String:
     return configured if configured.byte_length() > 0 else "python3"
 
 
-def run_shell_prompt_line_native(
-    line: String,
+def run_shell_prompt_payload_native(
+    payload: String,
     reference_root: String = "python_reference",
 ) raises -> Int:
-    var arguments = shell_split(raw_command_payload(line))
+    """Run an explicit shell payload already separated by the prompt owner."""
+    var arguments = shell_split(payload)
     if len(arguments) == 0:
         return 0
     var command = _working_command_prefix(reference_root)
@@ -198,16 +199,49 @@ def run_shell_prompt_line_native(
     return _run_spawned_child(command)
 
 
-def run_python_prompt_line_native(
+def run_shell_prompt_line_native(
     line: String,
     reference_root: String = "python_reference",
 ) raises -> Int:
-    var code = raw_command_payload(line)
+    return run_shell_prompt_payload_native(
+        raw_command_payload(line), reference_root
+    )
+
+
+def run_python_prompt_payload_native(
+    payload: String,
+    reference_root: String = "python_reference",
+) raises -> Int:
+    """Run an explicit Python payload already separated by the prompt owner."""
     var command = (
         _working_command_prefix(reference_root)
         + shell_quote(prompt_python_executable())
         + " -c "
-        + shell_quote(code)
+        + shell_quote(payload)
+    )
+    return _run_spawned_child(command)
+
+
+def run_python_prompt_line_native(
+    line: String,
+    reference_root: String = "python_reference",
+) raises -> Int:
+    return run_python_prompt_payload_native(
+        raw_command_payload(line), reference_root
+    )
+
+
+def run_math_prompt_payload_native(
+    payload: String,
+    reference_root: String = "python_reference",
+) raises -> Int:
+    """Run an explicit math expression already separated by the prompt owner."""
+    var program = "print(" + payload + ")"
+    var command = (
+        _working_command_prefix(reference_root)
+        + shell_quote(prompt_python_executable())
+        + " -c "
+        + shell_quote(program)
     )
     return _run_spawned_child(command)
 
@@ -216,15 +250,9 @@ def run_math_prompt_line_native(
     line: String,
     reference_root: String = "python_reference",
 ) raises -> Int:
-    var expression = raw_command_payload(line)
-    var program = "print(" + expression + ")"
-    var command = (
-        _working_command_prefix(reference_root)
-        + shell_quote(prompt_python_executable())
-        + " -c "
-        + shell_quote(program)
+    return run_math_prompt_payload_native(
+        raw_command_payload(line), reference_root
     )
-    return _run_spawned_child(command)
 
 
 def _run_reference_python_script(

@@ -1,3 +1,25 @@
+# Test Results – Stage 12c5cm
+
+## Compilerfreie lokale Prüfung
+
+- Neuer compilerfreier Gate deckt `tests/test_stage12c5cm_source.py`, die vorherigen 12c5c*-Stageverträge, den Prompt-Interaktionsbesitzer, historische Begleiteffekte, Tabellenadapter-Parität, Ledger, Metrik und Archivvertrag ab: **124/124** fokussierte Source-Verträge grün.
+- Defektledger: **169** bekannte Defekte, **19** spätere Python-Aufgaben, konsistent.
+- Portierungsmetrik: **89/92 = 96,7 %** vollständig nativ/generiert, **92/92 = 100,0 %** mindestens teilweise portiert.
+- Mojo-Zeilen in `src/`: **64.503**; in `src/reta_mojo/`: **59.900**.
+- Manifest nach Aktualisierung: **1.773 Dateien**, **114 Symlinks**.
+- Mojo-Kompilierung wurde in dieser Umgebung nicht ausgeführt; der Benutzer kompiliert die nativen Ziele lokal.
+
+# Test Results – Stage 12c5cl
+
+## Compilerfreie lokale Prüfung
+
+- Neuer compilerfreier Gate deckt `tests/test_stage12c5cl_source.py`, die vorherigen 12c5c*-Stageverträge, den Prompt-Interaktionsbesitzer, historische Begleiteffekte, Tabellenadapter-Parität, Ledger, Metrik und Archivvertrag ab: **118/118** fokussierte Source-Verträge grün.
+- Defektledger: **169** bekannte Defekte, **19** spätere Python-Aufgaben, konsistent.
+- Portierungsmetrik: **89/92 = 96,7 %** vollständig nativ/generiert, **92/92 = 100,0 %** mindestens teilweise portiert.
+- Mojo-Zeilen in `src/`: **64.443**; in `src/reta_mojo/`: **59.840**.
+- Manifest nach Aktualisierung: **1.770 Dateien**, **114 Symlinks**.
+- Mojo-Kompilierung wurde in dieser Umgebung nicht ausgeführt; der Benutzer kompiliert die nativen Ziele lokal.
+
 # Test Results – Stage 12c5ck
 
 ## Compilerfreie lokale Prüfung

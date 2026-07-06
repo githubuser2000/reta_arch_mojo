@@ -36,6 +36,10 @@ def test_prompt_interaction_has_a_dedicated_native_owner() -> None:
     assert "struct PromptSimpleOutputDispatchPlan" in owner
     assert "def plan_simple_output_dispatch(" in owner
     assert "struct PromptExternalProcessDispatchPlan" in owner
+    assert "var payload: String" in owner
+    assert "var arguments: List[String]" in owner
+    assert "def _prompt_command_payload(" in owner
+    assert "def _prompt_command_arguments(" in owner
     assert "def plan_external_process_dispatch(" in owner
     assert "struct PromptStoredOutputExecutionPlan" in owner
     assert "def plan_stored_output_command(" in owner
@@ -94,6 +98,16 @@ def test_production_prompt_activates_the_interaction_owner() -> None:
     assert "KIND_SHELL," not in controller
     assert "KIND_PYTHON," not in controller
     assert "KIND_MATH," not in controller
+    assert "KIND_RETA," not in controller
+    assert "if command.kind != KIND_RETA" not in controller
+    assert "if command.kind == KIND_RETA" not in controller
+    assert "run_shell_prompt_payload_native(external_process.payload)" in controller
+    assert "run_python_prompt_payload_native(external_process.payload)" in controller
+    assert "run_math_prompt_payload_native(external_process.payload)" in controller
+    assert "run_shell_prompt_line_native(external_process.raw)" not in controller
+    assert "run_python_prompt_line_native(external_process.raw)" not in controller
+    assert "run_math_prompt_line_native(external_process.raw)" not in controller
+    assert "_run_native_reta_prompt_command(external_process.arguments)" in controller
     assert "effective_one_shot_tokens" not in controller
 
 

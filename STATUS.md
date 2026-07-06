@@ -1,3 +1,22 @@
+# Status – Stage 12c5cm
+
+## Stage 12c5cm – External-Process-Payload im Interaktionsbesitzer
+
+- `PromptExternalProcessDispatchPlan` trägt jetzt neben `raw` und `arguments` auch `payload`.
+- `prompt_interaction.mojo` extrahiert die bytegenaue Nutzlast für `shell`, `python` und `math`; `prompt_main.mojo` ruft dafür nur noch die geplanten Payload-Adapter auf.
+- Die `reta`-Argumentplanung aus 12c5cl bleibt erhalten; der historische Raw-Fallback bleibt bewusst am Prozessrand.
+- Der Interaktions-Snapshot enthält `external_process_payload=native-prompt-process-payload-plan`.
+
+# Status – Stage 12c5cl
+
+## Stage 12c5cl – External-Reta-Argumente im Interaktionsbesitzer
+
+- `PromptExternalProcessDispatchPlan` besitzt jetzt zusätzlich die geplanten `reta`-Nutzargumente als `arguments: List[String]`.
+- `plan_external_process_dispatch(...)` trennt bei `KIND_RETA` die Prozessart und die Argumentliste im Interaktionsbesitzer; `prompt_main.mojo` erhält nur noch den Plan.
+- `_run_native_reta_prompt_command(...)` arbeitet auf geplanten Tokens und importiert/prüft `KIND_RETA` nicht mehr im Prozesscontroller.
+- Der Interaktions-Snapshot enthält `external_reta_arguments=native-prompt-reta-argv-plan`.
+- Benutzerseitig sind 12c5cj breit und fokussiert grün; 12c5ck bleibt eine reine Folgestufe auf dieser grünen Basis.
+
 # Status – Stage 12c5ck
 
 ## Stage 12c5ck – External-Process-Dispatch im Interaktionsbesitzer
