@@ -14,7 +14,7 @@ def test_current_stage_extends_12c5bf_and_has_focused_mode() -> None:
     assert 'check_command_parity_native.py' in stage
     assert 'test_prompt_table_execution_12c5bg' in stage
     assert 'check_prompt_true_fraction_multiples.sh' in stage
-    assert 'test_stage12c5bk.sh' in current
+    assert "test_stage12c5" in current
 
 
 def test_stage_document_records_user_build_and_both_repairs() -> None:

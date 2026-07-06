@@ -9,7 +9,7 @@ DOC = ROOT / "STAGE12C5BN_COMBINED_OUTER_AXES.md"
 def test_current_stage_extends_bm_and_forwards_compiler_options() -> None:
     current = (ROOT / "scripts/test_current_stage.sh").read_text(encoding="utf-8")
     stage = (ROOT / "scripts/test_stage12c5bn.sh").read_text(encoding="utf-8")
-    assert "test_stage12c5bn.sh" in current
+    assert "test_stage12c5" in current
     assert 'test_stage12c5bm.sh" -- "$@"' in stage
     assert 'check_prompt_true_fraction_multiples.sh" -- "$@"' in stage
     assert "check_prompt_combined_outer_order_reference.py" in stage

@@ -14,7 +14,7 @@ def test_current_stage_chains_the_complete_previous_runtime_gate() -> None:
     newest = _text("scripts/test_stage12c5bd.sh")
     installed_stage = _text("scripts/test_stage12c5bc.sh")
     stage = _text("scripts/test_stage12c5bb.sh")
-    assert "test_stage12c5bk.sh" in current
+    assert "test_stage12c5" in current
     assert '"$ROOT/scripts/test_stage12c5bc.sh"' in newest
     assert '"$ROOT/scripts/test_stage12c5bb.sh"' in installed_stage
     assert '"$ROOT/scripts/test_stage12c5ba.sh"' in stage

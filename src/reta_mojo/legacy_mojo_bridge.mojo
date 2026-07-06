@@ -23,7 +23,7 @@ from .prompt_external_commands import (
     run_python_prompt_payload_native,
     run_reta_arguments_native,
     run_reta_prompt_arguments_native,
-    run_reta_prompt_fallback_native,
+    run_reta_prompt_fallback_arguments_native,
     run_shell_prompt_payload_native,
     shell_split,
 )
@@ -201,8 +201,8 @@ def run_reta_prompt_line_encoded(encoded: String) raises -> Int:
     var raw_line = String()
     if len(pieces) > 1:
         raw_line = pieces[1]
-    return run_reta_prompt_fallback_native(
-        flags, raw_line, reference_root()
+    return run_reta_prompt_fallback_arguments_native(
+        flags, shell_split(raw_line), reference_root()
     )
 
 
@@ -248,4 +248,5 @@ def legacy_mojo_bridge_owner_snapshot() -> List[String]:
         "reta_line_bridge=native-argv-owner",
         "prompt_line_bridge=payload-owner",
         "external_line_wrappers=removed-payload-argv-only",
+        "fallback_bridge=native-argv-owner",
     ]

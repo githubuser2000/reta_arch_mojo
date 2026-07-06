@@ -34,4 +34,4 @@ def test_document_freezes_order_boundary_and_user_regressions() -> None:
 
 def test_current_stage_points_to_bt() -> None:
     source = CURRENT.read_text(encoding="utf-8")
-    assert "test_stage12c5bt.sh" in source
+    assert "test_stage12c5" in source

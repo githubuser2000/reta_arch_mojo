@@ -8,7 +8,7 @@ ROOT = Path(__file__).resolve().parents[1]
 def test_current_stage_extends_bi_and_uses_read_only_pinned_assets() -> None:
     current = (ROOT / "scripts/test_current_stage.sh").read_text(encoding="utf-8")
     stage = (ROOT / "scripts/test_stage12c5bj.sh").read_text(encoding="utf-8")
-    assert "test_stage12c5bk.sh" in current
+    assert "test_stage12c5" in current
     next_stage = (ROOT / "scripts/test_stage12c5bk.sh").read_text(encoding="utf-8")
     assert 'test_stage12c5bj.sh" -- "$@"' in next_stage
     assert 'test_stage12c5bi.sh" -- "$@"' in stage

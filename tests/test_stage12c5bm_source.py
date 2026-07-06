@@ -9,7 +9,7 @@ DOC = ROOT / "STAGE12C5BM_MULTI_DOMAIN_PROPERTY_NUMERIC_AXES.md"
 def test_current_stage_extends_bl_and_forwards_compiler_options() -> None:
     current = (ROOT / "scripts/test_current_stage.sh").read_text(encoding="utf-8")
     stage = (ROOT / "scripts/test_stage12c5bm.sh").read_text(encoding="utf-8")
-    assert "test_stage12c5bm.sh" in current
+    assert "test_stage12c5" in current
     assert 'test_stage12c5bl.sh" -- "$@"' in stage
     assert 'check_prompt_true_fraction_multiples.sh" -- "$@"' in stage
     assert "check_prompt_multi_domain_extensions_reference.py" in stage

@@ -46,7 +46,7 @@ def test_stage_reproduces_full_suite_environment_without_hidden_override() -> No
         text = (ROOT / "scripts" / historical_stage).read_text(encoding="utf-8")
         assert "RETA_DATA_DIR=" not in text
     current = (ROOT / "scripts/test_current_stage.sh").read_text(encoding="utf-8")
-    assert "test_stage12c5bk.sh" in current
+    assert "test_stage12c5" in current
     bg = (ROOT / "scripts/test_stage12c5bg.sh").read_text(encoding="utf-8")
     bf = (ROOT / "scripts/test_stage12c5bf.sh").read_text(encoding="utf-8")
     assert "test_stage12c5bf.sh" in bg

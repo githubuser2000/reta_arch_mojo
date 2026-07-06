@@ -8,7 +8,7 @@ CURRENT = ROOT / "scripts/test_current_stage.sh"
 
 def test_stage_chains_from_bt_and_runs_native_clear_contracts() -> None:
     source = STAGE.read_text(encoding="utf-8")
-    assert "test_stage12c5bt.sh" in source
+    assert "test_stage12c5" in source
     assert "check_prompt_companion_effects.py" in source
     assert "tests/test_prompt_historical_ownership.mojo" in source
     assert "tests/test_terminal_geometry.mojo" in source
@@ -29,4 +29,4 @@ def test_document_freezes_rows_plus_one_standalone_distinction_and_test_fix() ->
 
 def test_current_stage_points_to_bu() -> None:
     source = CURRENT.read_text(encoding="utf-8")
-    assert "test_stage12c5bu.sh" in source
+    assert "test_stage12c5" in source

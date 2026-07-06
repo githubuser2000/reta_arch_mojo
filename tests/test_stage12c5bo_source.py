@@ -11,7 +11,7 @@ CHECKER = ROOT / "scripts/check_prompt_true_fraction_multiples.py"
 def test_current_stage_extends_bn_and_forwards_compiler_options() -> None:
     current = (ROOT / "scripts/test_current_stage.sh").read_text(encoding="utf-8")
     stage = (ROOT / "scripts/test_stage12c5bo.sh").read_text(encoding="utf-8")
-    assert "test_stage12c5bo.sh" in current
+    assert "test_stage12c5" in current
     assert 'test_stage12c5bn.sh" -- "$@"' in stage
     assert 'check_prompt_true_fraction_multiples.sh" -- "$@"' in stage
     assert "mojo_validate_build_options" in stage

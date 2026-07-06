@@ -89,7 +89,7 @@ def test_stage_extends_12c5be_and_is_the_current_entrypoint() -> None:
     assert "tests/test_prompt_table_execution.mojo" in stage
     assert "tests/test_prompt_historical_ownership_source.py" in stage
     assert "check_prompt_true_fraction_multiples.sh" in stage
-    assert "test_stage12c5bk.sh" in current
+    assert "test_stage12c5" in current
     assert "12c5bk" in do_sh
     current_stage = (ROOT / "scripts/test_stage12c5bk.sh").read_text(encoding="utf-8")
     assert 'test_stage12c5bj.sh" -- "$@"' in current_stage

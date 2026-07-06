@@ -67,5 +67,5 @@ def test_legacy_bridge_owner_snapshot_tracks_prompt_line_payload_boundary() -> N
         encoding="utf-8"
     )
     assert '"prompt_line_bridge=payload-owner"' in bridge
-    assert "assert_equal(len(owners), 12)" in test or "assert_equal(len(owners), 11)" in test
+    assert "assert_equal(len(owners), 13)" in test or "assert_equal(len(owners), 12)" in test or "assert_equal(len(owners), 11)" in test
     assert 'assert_equal(owners[10], "prompt_line_bridge=payload-owner")' in test

@@ -274,24 +274,24 @@ def run_reta_prompt_arguments_native(
     )
 
 
-def run_reta_prompt_fallback_native(
+def run_reta_prompt_fallback_arguments_native(
     profile_arguments: List[String],
-    line: String,
+    command_arguments: List[String],
     reference_root: String = "python_reference",
 ) raises -> Int:
-    """Execute one unported prompt command atomically in the legacy facade.
+    """Execute one unported prompt command with owned argv fragments.
 
-    Profile arguments are already typed by the native controller.  Only the raw
-    command line is tokenized here, with the same POSIX ``shlex.split`` rules as
-    the previous ``mojo_bridge.run_reta_prompt_line_encoded`` implementation.
+    Profile arguments are already typed by the native controller, and the
+    unported command line has already been tokenized by the prompt/legacy
+    facade that still owns raw compatibility text.  The process adapter now
+    only receives argv vectors and starts the explicit reference child.
     """
     var arguments = List[String]()
     for index in range(len(profile_arguments)):
         if profile_arguments[index].byte_length() > 0:
             arguments.append(profile_arguments[index])
-    var words = shell_split(line)
-    for index in range(len(words)):
-        arguments.append(words[index])
+    for index in range(len(command_arguments)):
+        arguments.append(command_arguments[index])
     return _run_reference_python_script(
         "retaPrompt.py", arguments, reference_root
     )

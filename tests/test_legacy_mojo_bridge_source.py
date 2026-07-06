@@ -103,6 +103,7 @@ def test_prompt_external_adapter_exposes_tokenized_prompt_child() -> None:
         encoding="utf-8"
     )
     assert "def run_reta_prompt_arguments_native(" in source
+    assert "def run_reta_prompt_fallback_arguments_native(" in source
     assert '"retaPrompt.py", arguments, reference_root' in source
 
 

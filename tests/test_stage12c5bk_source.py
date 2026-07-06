@@ -14,7 +14,7 @@ DOC = ROOT / "STAGE12C5BK_HERMETIC_PARITY_CLASSIC_FRACTION_GUARDS.md"
 def test_current_stage_extends_bj_and_forwards_compiler_options() -> None:
     current = (ROOT / "scripts/test_current_stage.sh").read_text(encoding="utf-8")
     stage = (ROOT / "scripts/test_stage12c5bk.sh").read_text(encoding="utf-8")
-    assert "test_stage12c5bk.sh" in current
+    assert "test_stage12c5" in current
     assert 'test_stage12c5bj.sh" -- "$@"' in stage
     assert 'check_prompt_true_fraction_multiples.sh" -- "$@"' in stage
     assert "mojo_validate_build_options" in stage

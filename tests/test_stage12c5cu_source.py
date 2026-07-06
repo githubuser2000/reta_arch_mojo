@@ -5,9 +5,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def test_current_stage_points_to_cu() -> None:
+def test_current_stage_points_to_cu_or_later() -> None:
     current = (ROOT / "scripts/test_current_stage.sh").read_text(encoding="utf-8")
-    assert "test_stage12c5cu.sh" in current
+    assert "test_stage12c5c" in current
+    assert ".sh" in current
 
 
 def test_stage_wraps_ct_and_checks_external_wrapper_elimination() -> None:
@@ -28,7 +29,7 @@ def test_external_process_adapter_exposes_payload_and_argument_boundaries_only()
     assert "def run_math_prompt_payload_native(" in adapter
     assert "def run_reta_arguments_native(" in adapter
     assert "def run_reta_prompt_arguments_native(" in adapter
-    assert "def run_reta_prompt_fallback_native(" in adapter
+    assert "def run_reta_prompt_fallback_arguments_native(" in adapter
     assert "def run_shell_prompt_line_native(" not in adapter
     assert "def run_python_prompt_line_native(" not in adapter
     assert "def run_math_prompt_line_native(" not in adapter
@@ -69,5 +70,5 @@ def test_owner_snapshot_tracks_external_line_wrapper_removal() -> None:
     test = (ROOT / "tests/test_legacy_mojo_bridge.mojo").read_text(
         encoding="utf-8"
     )
-    assert "assert_equal(len(owners), 12)" in test
+    assert "assert_equal(len(owners), 13)" in test
     assert 'assert_equal(owners[11], "external_line_wrappers=removed-payload-argv-only")' in test

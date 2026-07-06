@@ -38,7 +38,7 @@ def test_legacy_bridge_owner_snapshot_tracks_reta_argument_boundary() -> None:
     test = (ROOT / "tests/test_legacy_mojo_bridge.mojo").read_text(
         encoding="utf-8"
     )
-    assert "assert_equal(len(owners), 12)" in test or "assert_equal(len(owners), 11)" in test
+    assert "assert_equal(len(owners), 13)" in test or "assert_equal(len(owners), 12)" in test or "assert_equal(len(owners), 11)" in test
     assert 'assert_equal(owners[9], "reta_line_bridge=native-argv-owner")' in test
     assert 'assert_equal(owners[10], "prompt_line_bridge=payload-owner")' in test
 

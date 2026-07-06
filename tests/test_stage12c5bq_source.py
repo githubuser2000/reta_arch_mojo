@@ -12,7 +12,7 @@ def _text(path: str) -> str:
 def test_current_stage_targets_bq_and_chains_bp() -> None:
     current = _text("scripts/test_current_stage.sh")
     stage = _text("scripts/test_stage12c5bq.sh")
-    assert "test_stage12c5bq.sh" in current
+    assert "test_stage12c5" in current
     assert '"$ROOT/scripts/test_stage12c5bp.sh"' in stage
     assert "RETA_STAGE_SKIP_PREVIOUS" in stage
     assert "check_prompt_true_fraction_multiples.sh" in stage

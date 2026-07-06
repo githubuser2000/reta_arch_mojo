@@ -28,9 +28,12 @@ def test_storage_output_position_plan_is_owned_by_prompt_interaction() -> None:
     assert "len(distinct_payload_tokens) <= 1" in owner
     assert "plan_inline_storage_output_command(tokens, language, catalog).handled" in owner
     assert "storage_output=native-position-independent-addition-policy" in owner
-    assert "plan_inline_storage_output_command(" in controller
-    assert "inline_output.handled" in controller
-    assert "stored += \" \" + inline_output.payload" in controller
+    assert "def plan_inline_stored_output_command(" in owner
+    assert "var inline_output = plan_inline_storage_output_command(" in owner
+    assert "var inline_output = plan_inline_stored_output_command" in controller
+    assert "stored += \" \" + inline_output.payload" not in controller
+    assert "plan_inline_storage_output_command(" not in controller
+    assert "plan_inline_stored_output_command(" in controller
 
 
 def test_python_bug_and_stage_document_are_registered() -> None:

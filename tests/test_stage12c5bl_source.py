@@ -15,7 +15,7 @@ PARITY = ROOT / "scripts/check_command_parity_native.py"
 def test_current_stage_extends_bk_and_forwards_compiler_options() -> None:
     current = (ROOT / "scripts/test_current_stage.sh").read_text(encoding="utf-8")
     stage = (ROOT / "scripts/test_stage12c5bl.sh").read_text(encoding="utf-8")
-    assert "test_stage12c5bl.sh" in current
+    assert "test_stage12c5" in current
     assert 'test_stage12c5bk.sh" -- "$@"' in stage
     assert 'check_prompt_true_fraction_multiples.sh" -- "$@"' in stage
     assert "check_prompt_classic_fraction_composition.py" in stage

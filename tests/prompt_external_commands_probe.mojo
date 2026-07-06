@@ -5,7 +5,7 @@ from reta_mojo.prompt_external_commands import (
     run_math_prompt_payload_native,
     run_python_prompt_payload_native,
     run_reta_arguments_native,
-    run_reta_prompt_fallback_native,
+    run_reta_prompt_fallback_arguments_native,
     run_shell_prompt_payload_native,
     shell_split,
 )
@@ -41,7 +41,9 @@ def _run(mode: String, line: String, reference_root: String) raises -> Int:
         flags.append("-vi")
         flags.append("-language=english")
         flags.append("-befehl")
-        return run_reta_prompt_fallback_native(flags, line, reference_root)
+        return run_reta_prompt_fallback_arguments_native(
+            flags, shell_split(line), reference_root
+        )
     raise Error("unknown mode: " + mode)
 
 

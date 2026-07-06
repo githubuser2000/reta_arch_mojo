@@ -32,8 +32,9 @@ from reta_mojo.prompt_external_commands import (
     run_math_prompt_payload_native,
     run_python_prompt_payload_native,
     run_reta_arguments_native,
-    run_reta_prompt_fallback_native,
+    run_reta_prompt_fallback_arguments_native,
     run_shell_prompt_payload_native,
+    shell_split,
 )
 from reta_mojo.native_reta_cli import (
     native_reta_tokens_supported,
@@ -194,8 +195,8 @@ def _run_fallback(
     profile: PromptProfile,
     line: String,
 ) raises -> None:
-    _ = run_reta_prompt_fallback_native(
-        fallback_profile_arguments(profile), line, reference_root()
+    _ = run_reta_prompt_fallback_arguments_native(
+        fallback_profile_arguments(profile), shell_split(line), reference_root()
     )
 
 
