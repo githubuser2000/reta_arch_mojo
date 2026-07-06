@@ -12,6 +12,9 @@ def test_prompt_interaction_has_a_dedicated_native_owner() -> None:
     reaction_owner = (ROOT / "src/reta_mojo/prompt_reaction_dispatch.mojo").read_text(
         encoding="utf-8"
     )
+    storage_owner = (ROOT / "src/reta_mojo/prompt_reaction_storage.mojo").read_text(
+        encoding="utf-8"
+    )
     input_owner = (ROOT / "src/reta_mojo/prompt_reaction_input.mojo").read_text(
         encoding="utf-8"
     )
@@ -24,13 +27,13 @@ def test_prompt_interaction_has_a_dedicated_native_owner() -> None:
     assert "def record_prompt_command(" in owner
     assert "def prompt_line_updates_previous(" in input_owner
     assert "def record_prompt_line(" in owner
-    assert "struct PromptInlineStoragePlan" in reaction_owner
+    assert "struct PromptInlineStoragePlan" in storage_owner
     assert "struct PromptLoopControlDispatchPlan" in reaction_owner
     assert "def plan_loop_control_dispatch(" in reaction_owner
-    assert "def plan_inline_storage_command(" in reaction_owner
+    assert "def plan_inline_storage_command(" in storage_owner
     assert "def apply_inline_storage_command(" in reaction_owner
-    assert "struct PromptStorageOutputPlan" in reaction_owner
-    assert "def plan_inline_storage_output_command(" in reaction_owner
+    assert "struct PromptStorageOutputPlan" in storage_owner
+    assert "def plan_inline_storage_output_command(" in storage_owner
     assert "struct PromptStoredCommandDispatchPlan" in reaction_owner
     assert "def plan_stored_command_dispatch(" in reaction_owner
     assert "struct PromptLoggingDispatchPlan" in reaction_owner
@@ -83,8 +86,8 @@ def test_prompt_interaction_has_a_dedicated_native_owner() -> None:
     assert "def plan_inline_stored_output_command(" in reaction_owner
     assert "struct PromptStoredDeletePlan" in reaction_owner
     assert "def plan_stored_delete_command(" in reaction_owner
-    assert "struct PromptStoredDefaultPlan" in reaction_owner
-    assert "def plan_stored_default_command(" in reaction_owner
+    assert "struct PromptStoredDefaultPlan" in storage_owner
+    assert "def plan_stored_default_command(" in storage_owner
     assert "def prompt_interaction_contract_snapshot(" in owner
 
     interaction_contract = owner.split("def prompt_interaction_contract_snapshot", 1)[1]
@@ -98,9 +101,11 @@ def test_prompt_interaction_has_a_dedicated_native_owner() -> None:
     assert "external_dispatch_owner=prompt-execution-process-plan" not in interaction_contract
     assert "from std.python import" not in owner
     assert "from std.python import" not in reaction_owner
+    assert "from std.python import" not in storage_owner
     assert "from std.python import" not in input_owner
     assert "PythonObject" not in owner
     assert "PythonObject" not in reaction_owner
+    assert "PythonObject" not in storage_owner
     assert "PythonObject" not in input_owner
 
 
@@ -109,6 +114,7 @@ def test_production_prompt_activates_the_interaction_owner() -> None:
     assert "from reta_mojo.prompt_interaction import" in controller
     assert "from reta_mojo.prompt_reaction_input import" in controller
     assert "from reta_mojo.prompt_reaction_dispatch import" in controller
+    assert "from reta_mojo.prompt_reaction_storage import" not in controller
     assert "new_prompt_interaction(startup)" in controller
     assert "accept_prompt_reaction_input(" in controller
     assert "record_prompt_session_line(" in controller

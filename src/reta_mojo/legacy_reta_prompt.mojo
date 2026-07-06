@@ -29,6 +29,7 @@ from .prompt_reaction_input import (
 )
 from .prompt_process_dispatch import prompt_process_dispatch_contract_snapshot
 from .prompt_reaction_dispatch import prompt_reaction_dispatch_contract_snapshot
+from .prompt_reaction_storage import prompt_reaction_storage_contract_snapshot
 from .prompt_session import (
     NativePromptSession,
     PromptDeleteResult,
@@ -204,12 +205,13 @@ def _legacy_prompt_scope_snapshot() -> List[String]:
     """Historical retaPrompt.py scope with split reaction/process contracts.
 
     The native owners are now split into interaction lifecycle, physical input,
-    local reaction dispatch and prompt-execution process dispatch.  The legacy
+    shared storage decisions, local reaction dispatch and prompt-execution process dispatch.  The legacy
     facade keeps the historical PromptScope ordering by reconstructing the old
     interaction snapshot from the split owners before inserting process markers.
     """
     var interaction = prompt_interaction_contract_snapshot()
     var reaction_input = prompt_reaction_input_contract_snapshot()
+    var reaction_storage = prompt_reaction_storage_contract_snapshot()
     var reaction_dispatch = prompt_reaction_dispatch_contract_snapshot()
     var process = prompt_process_dispatch_contract_snapshot()
 
@@ -220,6 +222,8 @@ def _legacy_prompt_scope_snapshot() -> List[String]:
     legacy_interaction.append(reaction_input[3].copy())
     legacy_interaction.append(reaction_input[4].copy())
     legacy_interaction.append(reaction_input[6].copy())
+    for index in range(2, len(reaction_storage)):
+        legacy_interaction.append(reaction_storage[index].copy())
     for index in range(2, len(reaction_dispatch)):
         legacy_interaction.append(reaction_dispatch[index].copy())
     legacy_interaction.append(interaction[2].copy())

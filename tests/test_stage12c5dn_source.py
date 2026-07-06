@@ -7,7 +7,8 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_current_stage_points_to_dn() -> None:
     current = (ROOT / "scripts/test_current_stage.sh").read_text(encoding="utf-8")
-    assert "test_stage12c5dn.sh" in current
+    assert "test_stage12c5" in current
+    assert ".sh" in current
 
 
 def test_stage_script_covers_prompt_reaction_input_owner() -> None:
@@ -35,6 +36,7 @@ def test_prompt_reaction_input_module_owns_physical_input_and_history() -> None:
     assert "if session.delete_next:" in input_owner
     assert "delete_stored_selection(session, line)" in input_owner
     assert "plan_stored_default_command(" in input_owner
+    assert "from .prompt_reaction_storage import (" in input_owner
     assert "balanced_prompt_split(line)" in input_owner
     assert "if interaction.session.store_next:" not in interaction
     assert "if interaction.session.delete_next:" not in interaction

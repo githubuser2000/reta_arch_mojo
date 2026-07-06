@@ -20,6 +20,7 @@ from reta_mojo.prompt_session import (
 )
 from reta_mojo.prompt_interaction import *
 from reta_mojo.prompt_reaction_input import *
+from reta_mojo.prompt_reaction_storage import *
 from reta_mojo.prompt_reaction_dispatch import *
 from reta_mojo.prompt_process_dispatch import *
 
@@ -844,11 +845,19 @@ def test_contract_snapshot() raises:
     assert_equal(process_snapshot[17], "fallback_shell_split=runtime-owned-argv-tokenizer")
     assert_equal(process_snapshot[18], "process_adapter=argv-execution-only")
 
+    var storage_snapshot = prompt_reaction_storage_contract_snapshot()
+    assert_equal(len(storage_snapshot), 5)
+    assert_equal(storage_snapshot[0], "class=PromptReactionStorageBundle")
+    assert_equal(storage_snapshot[1], "reaction_storage_owner=prompt-reaction-storage-plan")
+    assert_equal(storage_snapshot[2], "inline_storage=native-position-and-history-policy")
+    assert_equal(storage_snapshot[3], "storage_output=native-position-independent-addition-policy")
+    assert_equal(storage_snapshot[4], "stored_default=native-empty-enter-placeholder-policy")
+
     var reaction_snapshot = prompt_reaction_dispatch_contract_snapshot()
-    assert_equal(len(reaction_snapshot), 14)
+    assert_equal(len(reaction_snapshot), 11)
     assert_equal(reaction_snapshot[0], "class=PromptReactionDispatchBundle")
     assert_equal(reaction_snapshot[1], "reaction_dispatch_owner=prompt-reaction-local-plan")
-    assert_equal(reaction_snapshot[13], "stored_default=native-empty-enter-placeholder-policy")
+    assert_equal(reaction_snapshot[10], "stored_delete_dispatch=native-session-delete-plan")
 
 def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()

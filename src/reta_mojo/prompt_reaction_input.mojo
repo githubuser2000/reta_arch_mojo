@@ -3,7 +3,7 @@
 This module owns the pre-dispatch input edge of the interactive prompt:
 terminal sentinel handling, store-next/delete-next continuations, empty-line
 stored-default execution and previous-command recording.  It depends only on
-prompt language/runtime/session/reaction-dispatch helpers and deliberately does
+prompt language/runtime/session/storage helpers and deliberately does
 not depend on the reta core or the OS process adapter.  It is preparation for
 future ``libreta-prompt-reaction`` extraction.
 """
@@ -29,7 +29,7 @@ from .prompt_session import (
     stored_prompt_text,
     delete_stored_selection,
 )
-from .prompt_reaction_dispatch import (
+from .prompt_reaction_storage import (
     plan_inline_storage_command,
     plan_inline_storage_output_command,
     plan_stored_default_command,

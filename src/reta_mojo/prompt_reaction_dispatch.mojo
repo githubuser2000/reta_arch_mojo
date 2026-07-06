@@ -1,7 +1,7 @@
 """Native prompt-reaction dispatch plans for local interactive effects.
 
 This module owns prompt-reaction effects that do not need the reta core and do
-not cross the OS process boundary: inline storage, stored command output and
+not cross the OS process boundary: stored command output and
 removal, logging toggles, terminal clear flags, informational flags and small
 prompt-only numeric/helper output.  It is the planned source boundary for the
 future ``libreta-prompt-reaction`` shared library.
@@ -10,11 +10,9 @@ future ``libreta-prompt-reaction`` shared library.
 from std.collections import List
 from .prompt_language import (
     PromptLanguageCatalog,
-    localized_prompt_kind,
 )
 from .prompt_runtime import (
     PromptCommand,
-    join_prompt_tokens,
     KIND_EMPTY,
     KIND_EXIT,
     KIND_STORE_NEXT,
@@ -51,6 +49,10 @@ from .prompt_session import (
     stored_prompt_text,
     stored_prompt_numbered,
     delete_stored_selection,
+)
+from .prompt_reaction_storage import (
+    plan_inline_storage_command,
+    plan_inline_storage_output_command,
 )
 
 
@@ -114,29 +116,6 @@ struct PromptSimpleOutputDispatchPlan(Copyable):
     var output_lines: List[String]
 
 
-@fieldwise_init
-struct PromptStoredDefaultPlan(Copyable):
-    """Empty-line execution of the stored prompt placeholder."""
-
-    var handled: Bool
-    var command_line: String
-
-
-@fieldwise_init
-struct PromptInlineStoragePlan(Copyable):
-    """Position-independent compound ``S``/``s`` storage decision."""
-
-    var handled: Bool
-    var payload: String
-
-
-@fieldwise_init
-struct PromptStorageOutputPlan(Copyable):
-    """Position-independent stored-command output/addition decision."""
-
-    var handled: Bool
-    var payload: String
-
 
 @fieldwise_init
 struct PromptStoredOutputExecutionPlan(Copyable):
@@ -155,65 +134,6 @@ struct PromptStoredDeletePlan(Copyable):
     var output_lines: List[String]
 
 
-def _token_list_contains(values: List[String], token: String) -> Bool:
-    for index in range(len(values)):
-        if values[index] == token:
-            return True
-    return False
-
-
-def plan_inline_storage_command(
-    tokens: List[String],
-    language: String,
-    catalog: PromptLanguageCatalog,
-) -> PromptInlineStoragePlan:
-    """Mirror the historical set-based compound storage branch.
-
-    Exactly one distinct save-after/save-before alias must occur together with
-    at least one non-storage token.  The alias may stand anywhere.  As in the
-    Python ``for token in save_all: storage_text.remove(token)`` loop, only the
-    first occurrence of the selected alias is removed; duplicate occurrences
-    remain part of the stored payload.  Any ``abc``/``abcd`` token disables the
-    storage branch so the exceptional two-word alphabet command keeps priority.
-    """
-    var selected = ""
-    var ambiguous = False
-    var has_non_storage = False
-    var has_abc = False
-
-    for index in range(len(tokens)):
-        var token = tokens[index]
-        var kind = localized_prompt_kind(catalog, language, token)
-        if kind == KIND_ABC:
-            has_abc = True
-        if kind == KIND_STORE_NEXT or kind == KIND_STORE_PREVIOUS:
-            if selected.byte_length() == 0:
-                selected = token
-            elif selected != token:
-                ambiguous = True
-        else:
-            has_non_storage = True
-
-    if (
-        has_abc
-        or ambiguous
-        or selected.byte_length() == 0
-        or not has_non_storage
-    ):
-        return PromptInlineStoragePlan(False, "")
-
-    var payload_tokens = List[String]()
-    var removed = False
-    for index in range(len(tokens)):
-        if not removed and tokens[index] == selected:
-            removed = True
-            continue
-        payload_tokens.append(tokens[index])
-    return PromptInlineStoragePlan(
-        True, join_prompt_tokens(payload_tokens)
-    )
-
-
 def apply_inline_storage_command(
     mut session: NativePromptSession,
     tokens: List[String],
@@ -226,60 +146,6 @@ def apply_inline_storage_command(
         return False
     store_prompt_text(session, plan.payload)
     return True
-
-
-def plan_inline_storage_output_command(
-    tokens: List[String],
-    language: String,
-    catalog: PromptLanguageCatalog,
-) -> PromptStorageOutputPlan:
-    """Plan ``o``/``BefehlSpeicherungAusgeben`` at any word position.
-
-    The Python controller recognizes a single output alias as a prompt mode and
-    also recognizes a mixed command when more than one distinct non-output token
-    accompanies that alias.  The latter Python path currently leaks
-    ``text_state.liste`` as a list into a string concatenation; the native owner
-    keeps the same trigger boundary but carries the addition as typed text.
-    Exactly one selected output alias is removed from the payload, matching the
-    prefix ``storage_payload`` contract already used by ``prompt_main.mojo``.
-    """
-    var selected = ""
-    var ambiguous = False
-    var has_abc = False
-    var distinct_payload_tokens = List[String]()
-
-    for index in range(len(tokens)):
-        var token = tokens[index]
-        var kind = localized_prompt_kind(catalog, language, token)
-        if kind == KIND_ABC:
-            has_abc = True
-        if kind == KIND_OUTPUT_STORED:
-            if selected.byte_length() == 0:
-                selected = token
-            elif selected != token:
-                ambiguous = True
-        else:
-            if not _token_list_contains(distinct_payload_tokens, token):
-                distinct_payload_tokens.append(token)
-
-    if has_abc or ambiguous or selected.byte_length() == 0:
-        return PromptStorageOutputPlan(False, "")
-    if len(tokens) == 1:
-        return PromptStorageOutputPlan(True, "")
-    if len(distinct_payload_tokens) <= 1:
-        return PromptStorageOutputPlan(False, "")
-
-    var payload_tokens = List[String]()
-    var removed = False
-    for index in range(len(tokens)):
-        if not removed and tokens[index] == selected:
-            removed = True
-            continue
-        payload_tokens.append(tokens[index])
-    return PromptStorageOutputPlan(
-        True, join_prompt_tokens(payload_tokens)
-    )
-
 
 def _single_output(value: String) -> List[String]:
     var result = List[String]()
@@ -552,35 +418,12 @@ def plan_stored_delete_command(
     return PromptStoredDeletePlan(True, numbered^)
 
 
-def plan_stored_default_command(
-    line: String,
-    session: NativePromptSession,
-) -> PromptStoredDefaultPlan:
-    """Plan the documented empty-enter shortcut for stored commands.
-
-    The historical prompt displays the stored command as the line-editor
-    placeholder; pressing Enter with an empty physical line executes that stored
-    placeholder.  Keep this lifecycle decision in the interaction owner so the
-    process controller receives an executable command line instead of treating
-    the blank as a no-op.
-    """
-    if String(line.strip()).byte_length() != 0:
-        return PromptStoredDefaultPlan(False, "")
-    var stored = stored_prompt_text(session)
-    if stored.byte_length() == 0:
-        return PromptStoredDefaultPlan(False, "")
-    return PromptStoredDefaultPlan(True, stored^)
-
-
-
 def prompt_reaction_dispatch_contract_snapshot() -> List[String]:
     """Stable ownership snapshot for prompt-reaction local dispatch."""
     return [
         "class=PromptReactionDispatchBundle",
         "reaction_dispatch_owner=prompt-reaction-local-plan",
-        "inline_storage=native-position-and-history-policy",
-        "storage_output=native-position-independent-addition-policy",
-        "loop_control=native-empty-exit-loop-plan",
+            "loop_control=native-empty-exit-loop-plan",
         "stored_command_dispatch=native-session-store-plan",
         "logging_dispatch=native-session-logging-plan",
         "one_shot_logging_dispatch=native-stateless-logging-plan",
@@ -589,5 +432,4 @@ def prompt_reaction_dispatch_contract_snapshot() -> List[String]:
         "simple_output_dispatch=native-deterministic-prompt-output-plan",
         "stored_output_dispatch=native-session-output-execution-plan",
         "stored_delete_dispatch=native-session-delete-plan",
-        "stored_default=native-empty-enter-placeholder-policy",
     ]
