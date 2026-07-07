@@ -1,0 +1,119 @@
+Zusätzliche Mojo-Buildoptionen: <-j> <8>
+Kompiliere vollständige native Parametersemantik ...
+Erzeugt: /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/bin/reta-mojo-semantics
+Kompiliere schweres Parameterschema ...
+Erzeugt: /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/bin/reta-mojo-schema
+Kompiliere schweren Architekturkatalog ...
+Erzeugt: /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/bin/reta-mojo-architecture
+Kompiliere nativen Architektur-Grenzgraph ...
+Erzeugt: /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/bin/reta-mojo-boundaries
+Kompiliere native Architekturverträge ...
+Erzeugt: /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/bin/reta-mojo-contracts
+Kompiliere native Architektur-Witnesses ...
+Erzeugt: /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/bin/reta-mojo-witnesses
+Kompiliere native Architektur-Kohärenzmatrix ...
+Erzeugt: /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/bin/reta-mojo-coherence
+Kompiliere native Architektur-Traces ...
+Erzeugt: /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/bin/reta-mojo-traces
+Kompiliere nativen Architektur-Impact-Kalkül ...
+Erzeugt: /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/bin/reta-mojo-impact
+Kompiliere nativen Architektur-Migrationsplan ...
+Erzeugt: /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/bin/reta-mojo-migration
+Kompiliere native Architektur-Rehearsal-Schicht ...
+Erzeugt: /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/bin/reta-mojo-rehearsal
+Kompiliere native Architektur-Aktivierungsschicht ...
+Erzeugt: /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/bin/reta-mojo-activation
+Kompiliere native Architektur-Gesamtvalidierung ...
+Erzeugt: /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/bin/reta-mojo-validation
+Kompiliere natives Architektur-Fortschritts-Overlay ...
+Erzeugt: /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/bin/reta-mojo-progress
+Kompiliere native SQLite-Persistenz ...
+Erzeugt: /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/bin/reta-mojo-persistence
+Kompiliere natives deterministisches Ausführungsnetz ...
+Erzeugt: /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/bin/reta-mojo-execution-network
+Kompiliere native Thread-Tabellenparallelisierung ...
+Erzeugt: /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/bin/reta-mojo-parallel-execution
+Kompiliere native typisierte Thread-Zeilenvorbereitung ...
+Erzeugt: /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/bin/reta-mojo-row-preparation
+Zusätzliche Mojo-Buildoptionen: <-j> <8>
+Kompiliere src/main.mojo                       -> reta-mojo-native
+Kompiliere src/table_main.mojo                 -> reta-mojo-table
+Kompiliere src/tags_main.mojo                  -> reta-mojo-tags
+Kompiliere src/i18n_words_main.mojo            -> reta-mojo-i18n
+Kompiliere src/package_integrity_main.mojo     -> reta-mojo-package-integrity
+Kompiliere src/architecture_exports_main.mojo  -> reta-mojo-exports
+Kompiliere src/architecture_facade_main.mojo   -> reta-mojo-facade
+Kompiliere src/program_workflow_main.mojo      -> reta-mojo-workflow
+Kompiliere src/sheaves_main.mojo               -> reta-mojo-sheaves
+Kompiliere gemeinsame Mojo-Diagnosebibliothek -> /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/lib/reta/libreta-mojo-diagnostics.so
+Kompiliere kleinen Diagnose-Loader          -> /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/bin/reta-mojo-diagnostics
+Gemeinsame Diagnose-ABI 1 erzeugt.
+Kompiliere src/domain_probe_main.mojo          -> reta-mojo-domain-probe
+Kompiliere src/architecture_probe_main.mojo    -> reta-mojo-architecture-probe
+Kompiliere src/combi_join_main.mojo            -> reta-mojo-combi-join
+Kompiliere src/reta_native_main.mojo           -> reta-native
+Kompiliere src/compat_main.mojo                -> reta-mojo-compat-bin
+Kompiliere src/prompt_main.mojo                -> reta-prompt-native
+Kompiliere src/prompt_completion_main.mojo     -> reta-prompt-complete
+Kompiliere src/grundstruk_html_main.mojo       -> grundStrukHtml-native
+Kompiliere src/generate_html_main.mojo         -> generate-html-native
+Kompiliere src/generate_readme_main.mojo       -> generate-readme-native
+Kompiliere src/extract_html_classes_main.mojo  -> reta-extract-html-classes-native
+
+Kompilierte Mojo-Executables:
+  /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/bin/generate-html-native
+  /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/bin/generate-readme-native
+  /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/bin/grundStrukHtml-native
+  /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/bin/reta-extract-html-classes-native
+  /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/bin/reta-mojo-activation
+  /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/bin/reta-mojo-architecture
+  /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/bin/reta-mojo-architecture-probe
+  /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/bin/reta-mojo-boundaries
+  /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/bin/reta-mojo-coherence
+  /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/bin/reta-mojo-combi-join
+  /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/bin/reta-mojo-compat-bin
+  /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/bin/reta-mojo-contracts
+  /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/bin/reta-mojo-diagnostics
+  /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/bin/reta-mojo-domain-probe
+  /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/bin/reta-mojo-execution-network
+  /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/bin/reta-mojo-exports
+  /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/bin/reta-mojo-facade
+  /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/bin/reta-mojo-i18n
+  /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/bin/reta-mojo-impact
+  /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/bin/reta-mojo-migration
+  /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/bin/reta-mojo-native
+  /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/bin/reta-mojo-package-integrity
+  /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/bin/reta-mojo-parallel-execution
+  /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/bin/reta-mojo-persistence
+  /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/bin/reta-mojo-progress
+  /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/bin/reta-mojo-rehearsal
+  /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/bin/reta-mojo-row-preparation
+  /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/bin/reta-mojo-schema
+  /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/bin/reta-mojo-semantics
+  /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/bin/reta-mojo-sheaves
+  /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/bin/reta-mojo-table
+  /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/bin/reta-mojo-tags
+  /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/bin/reta-mojo-traces
+  /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/bin/reta-mojo-validation
+  /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/bin/reta-mojo-witnesses
+  /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/bin/reta-mojo-workflow
+  /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/bin/reta-native
+  /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/bin/reta-prompt-complete
+  /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/bin/reta-prompt-native
+
+Kompilierte Mojo-Shared-Libraries:
+  /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/lib/reta/libreta-mojo-diagnostics.so
+
+Build abgeschlossen. Tests werden nicht automatisch ausgeführt.
+Vollständiger Build inklusive schwerer Ziele: scripts/build-all.sh
+Optionale Shared-Diagnostics-Parität: scripts/build-and-test-shared-diagnostics.sh
+Buildlayout und Build-Frische korrekt:
+  Launcher:     /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/bin
+  Executables: /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/bin
+  Libraries:   /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/lib/reta
+
+Vollständiger nativer Build abgeschlossen.
+Erzeugt und verifiziert wurden alle regulären und schweren Executables sowie die Shared Libraries.
+Aktuellen Stage-Test nach Änderungen ausführen; vollständige Mojo-Suite vor Releases oder nach mehreren Stages: scripts/test_all.sh
+Mit zwei zusätzlichen schweren Testzielen: RETA_TEST_HEAVY=1 scripts/test_all.sh
+Kompilierung des vollständigen nativen Builds erfolgreich: JA

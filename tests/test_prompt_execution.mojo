@@ -381,6 +381,163 @@ def test_prompt_execution_one_shot_compatibility_boundary_owns_probe_exit() rais
     assert_equal(continued_boundary.source, "p 17")
 
 
+def test_prompt_execution_one_shot_loop_control_result_owns_probe_return() raises:
+    var handled = plan_prompt_execution_one_shot_loop_control_result(
+        True, ""
+    )
+    assert_true(handled.handled)
+    assert_true(handled.stop_native_probe)
+    assert_false(handled.continue_native_probe)
+    assert_equal(handled.source, "")
+
+    var declined = plan_prompt_execution_one_shot_loop_control_result(
+        False, "p 17"
+    )
+    assert_false(declined.handled)
+    assert_false(declined.stop_native_probe)
+    assert_true(declined.continue_native_probe)
+    assert_equal(declined.source, "p 17")
+
+
+
+def test_prompt_execution_one_shot_native_completion_result_owns_probe_return() raises:
+    var catalog = _catalog()
+    var owned_routing = plan_prompt_execution_routing("p 17", "deutsch", catalog)
+    var owned_branch = plan_prompt_execution_native_branch(
+        owned_routing, "p 17", "deutsch", catalog
+    )
+    var owned_outcome = plan_prompt_execution_native_branch_outcome(
+        owned_branch, True
+    )
+    var owned_completion = plan_prompt_execution_native_branch_completion(
+        owned_outcome, False
+    )
+    var owned_result = plan_prompt_execution_one_shot_native_completion_result(
+        owned_completion, "p 17"
+    )
+    assert_true(owned_result.handled)
+    assert_true(owned_result.stop_native_probe)
+    assert_false(owned_result.continue_native_probe)
+    assert_equal(owned_result.source, "p 17")
+
+    var fallback_routing = plan_prompt_execution_routing(
+        "r unportedtail 2", "deutsch", catalog
+    )
+    var fallback_branch = plan_prompt_execution_native_branch(
+        fallback_routing, "r unportedtail 2", "deutsch", catalog
+    )
+    var fallback_outcome = plan_prompt_execution_native_branch_outcome(
+        fallback_branch, False
+    )
+    var fallback_completion = plan_prompt_execution_native_branch_completion(
+        fallback_outcome, False
+    )
+    var fallback_result = plan_prompt_execution_one_shot_native_completion_result(
+        fallback_completion, "r unportedtail 2"
+    )
+    assert_false(fallback_result.handled)
+    assert_false(fallback_result.stop_native_probe)
+    assert_true(fallback_result.continue_native_probe)
+    assert_equal(fallback_result.source, "r unportedtail 2")
+
+
+
+def test_prompt_execution_one_shot_compatibility_result_owns_probe_return() raises:
+    var stopped_boundary = PromptExecutionOneShotCompatibilityBoundaryPlan(
+        True, False, "r unportedtail 2"
+    )
+    var stopped_result = plan_prompt_execution_one_shot_compatibility_result(
+        stopped_boundary
+    )
+    assert_false(stopped_result.handled)
+    assert_true(stopped_result.stop_native_probe)
+    assert_false(stopped_result.continue_native_probe)
+    assert_equal(stopped_result.source, "r unportedtail 2")
+
+    var continued_boundary = PromptExecutionOneShotCompatibilityBoundaryPlan(
+        False, False, "simple maybe native"
+    )
+    var continued_result = plan_prompt_execution_one_shot_compatibility_result(
+        continued_boundary
+    )
+    assert_false(continued_result.handled)
+    assert_false(continued_result.stop_native_probe)
+    assert_true(continued_result.continue_native_probe)
+    assert_equal(continued_result.source, "simple maybe native")
+
+    var already_handled_boundary = PromptExecutionOneShotCompatibilityBoundaryPlan(
+        False, True, "p 17"
+    )
+    var already_handled_result = plan_prompt_execution_one_shot_compatibility_result(
+        already_handled_boundary
+    )
+    assert_true(already_handled_result.handled)
+    assert_false(already_handled_result.stop_native_probe)
+    assert_true(already_handled_result.continue_native_probe)
+    assert_equal(already_handled_result.source, "p 17")
+
+
+
+def test_prompt_execution_one_shot_local_result_owns_dispatch_return() raises:
+    var handled = plan_prompt_execution_one_shot_local_result(
+        True, "hilfe"
+    )
+    assert_true(handled.handled)
+    assert_false(handled.continue_native_probe)
+    assert_equal(handled.source, "hilfe")
+
+    var declined = plan_prompt_execution_one_shot_local_result(
+        False, "unowned local probe"
+    )
+    assert_false(declined.handled)
+    assert_true(declined.continue_native_probe)
+    assert_equal(declined.source, "unowned local probe")
+
+
+
+def test_prompt_execution_one_shot_local_dispatch_result_owns_combined_return() raises:
+    var informational = plan_prompt_execution_one_shot_local_dispatch_result(
+        True, True, True, True, "hilfe"
+    )
+    assert_true(informational.handled)
+    assert_true(informational.stop_native_probe)
+    assert_false(informational.continue_native_probe)
+    assert_equal(informational.dispatch_owner, "informational")
+    assert_equal(informational.source, "hilfe")
+
+    var terminal = plan_prompt_execution_one_shot_local_dispatch_result(
+        False, True, True, True, "clear"
+    )
+    assert_true(terminal.handled)
+    assert_true(terminal.stop_native_probe)
+    assert_false(terminal.continue_native_probe)
+    assert_equal(terminal.dispatch_owner, "terminal_clear")
+
+    var logging = plan_prompt_execution_one_shot_local_dispatch_result(
+        False, False, True, True, "loggen"
+    )
+    assert_true(logging.handled)
+    assert_true(logging.stop_native_probe)
+    assert_false(logging.continue_native_probe)
+    assert_equal(logging.dispatch_owner, "one_shot_logging")
+
+    var simple = plan_prompt_execution_one_shot_local_dispatch_result(
+        False, False, False, True, "prim 7"
+    )
+    assert_true(simple.handled)
+    assert_true(simple.stop_native_probe)
+    assert_false(simple.continue_native_probe)
+    assert_equal(simple.dispatch_owner, "simple_output")
+
+    var declined = plan_prompt_execution_one_shot_local_dispatch_result(
+        False, False, False, False, "external command"
+    )
+    assert_false(declined.handled)
+    assert_false(declined.stop_native_probe)
+    assert_true(declined.continue_native_probe)
+    assert_equal(declined.dispatch_owner, "none")
+    assert_equal(declined.source, "external command")
+
 def test_prompt_execution_one_shot_residual_result_owns_final_probe_return() raises:
     var stopped_boundary = PromptExecutionOneShotCompatibilityBoundaryPlan(
         True, False, "unowned one-shot residual"

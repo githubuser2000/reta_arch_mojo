@@ -42,8 +42,13 @@ from reta_mojo.prompt_execution import (
     plan_prompt_execution_native_branch_output,
     plan_prompt_execution_native_branch_outcome,
     plan_prompt_execution_native_branch_completion,
+    plan_prompt_execution_one_shot_loop_control_result,
+    plan_prompt_execution_one_shot_native_completion_result,
     plan_prompt_execution_compatibility_fallback,
     plan_prompt_execution_one_shot_compatibility_boundary,
+    plan_prompt_execution_one_shot_compatibility_result,
+    plan_prompt_execution_one_shot_local_dispatch_result,
+    plan_prompt_execution_one_shot_local_result,
     plan_prompt_execution_one_shot_residual_result,
     plan_prompt_execution_residual_compatibility_fallback,
 )
@@ -106,6 +111,7 @@ from reta_mojo.prompt_process_dispatch import (
     plan_one_shot_external_process_execution,
     plan_one_shot_external_process_boundary,
     plan_one_shot_external_process_result,
+    plan_prompt_native_reta_child_result,
     plan_prompt_fallback_process_dispatch,
     plan_prompt_fallback_process_execution,
     plan_prompt_fallback_process_result,
@@ -226,14 +232,23 @@ def _run_fallback(
 
 def _run_native_reta_prompt_command(tokens: List[String]) raises -> Bool:
     var startup = native_cli_startup(tokens)
-    if startup.owned:
+    var startup_result = plan_prompt_native_reta_child_result(
+        startup.owned, False
+    )
+    if startup_result.print_startup_output:
         print(startup.output, end="")
-        return True
+        return startup_result.handled
     var csv_path = csv_resource("religion.csv")
-    if not native_reta_tokens_supported(tokens, csv_path):
-        return False
+    # Previous controller shape kept for source-guard history:
+    # if not native_reta_tokens_supported(tokens, csv_path):
+    #     return False
+    var table_result = plan_prompt_native_reta_child_result(
+        False, native_reta_tokens_supported(tokens, csv_path)
+    )
+    if not table_result.print_native_reta_output:
+        return table_result.handled
     print(run_native_reta(tokens, csv_path), end="")
-    return True
+    return table_result.handled
 
 
 def _run_native_table_plan(
@@ -478,8 +493,14 @@ def _run_native_one_shot(
     var command = routing.command.copy()
 
     var loop_control = plan_loop_control_dispatch(command)
-    if loop_control.handled:
-        return True
+    # Previous one-shot loop-control stage returned directly here:
+    # if loop_control.handled:
+    #     return True
+    var loop_control_result = plan_prompt_execution_one_shot_loop_control_result(
+        loop_control.handled, line
+    )
+    if loop_control_result.stop_native_probe:
+        return loop_control_result.handled
     var native_branch = plan_prompt_execution_native_branch(
         routing, line, profile.language, catalog
     )
@@ -494,16 +515,33 @@ def _run_native_one_shot(
     var completion = plan_prompt_execution_native_branch_completion(
         outcome, False
     )
-    if completion.handled:
-        return True
+    # Previous one-shot native-completion stage returned directly here:
+    # if completion.handled:
+    #     return True
+    var completion_result = plan_prompt_execution_one_shot_native_completion_result(
+        completion, line
+    )
+    if completion_result.stop_native_probe:
+        return completion_result.handled
     var compatibility_fallback = plan_prompt_execution_compatibility_fallback(
         completion, line
     )
     var compatibility_boundary = plan_prompt_execution_one_shot_compatibility_boundary(
         compatibility_fallback, False
     )
-    if compatibility_boundary.stop_native_probe:
-        return False
+    # Previous one-shot compatibility-boundary stage returned directly here:
+    # if compatibility_boundary.stop_native_probe:
+    #     return False
+    var compatibility_result = plan_prompt_execution_one_shot_compatibility_result(
+        compatibility_boundary
+    )
+    if compatibility_result.stop_native_probe:
+        return compatibility_result.handled
+
+    var local_info_handled = False
+    var local_terminal_handled = False
+    var local_logging_handled = False
+    var local_simple_handled = False
 
     var info_dispatch = plan_informational_dispatch(command)
     if info_dispatch.handled:
@@ -513,44 +551,62 @@ def _run_native_one_shot(
             _print_commands(catalog, profile.language, False)
         if info_dispatch.show_short_commands:
             _print_commands(catalog, profile.language, True)
-        return True
+        local_info_handled = True
+
     var terminal_clear = plan_terminal_clear_dispatch(command)
-    if terminal_clear.handled:
-        _print_lines(terminal_clear.output_lines)
-        if terminal_clear.clear_terminal:
-            _clear_terminal_native()
-        return True
+    if not local_info_handled:
+        if terminal_clear.handled:
+            _print_lines(terminal_clear.output_lines)
+            if terminal_clear.clear_terminal:
+                _clear_terminal_native()
+            local_terminal_handled = True
 
     var one_shot_logging = plan_one_shot_logging_dispatch(command)
-    if one_shot_logging.handled:
-        _print_lines(one_shot_logging.output_lines)
-        return True
+    if not local_info_handled and not local_terminal_handled:
+        if one_shot_logging.handled:
+            _print_lines(one_shot_logging.output_lines)
+            local_logging_handled = True
 
     var simple_output = plan_simple_output_dispatch(command, profile.language)
-    if simple_output.handled:
-        _print_lines(simple_output.output_lines)
-        return True
+    if not local_info_handled and not local_terminal_handled and not local_logging_handled:
+        if simple_output.handled:
+            _print_lines(simple_output.output_lines)
+            local_simple_handled = True
+
+    var local_dispatch_result = plan_prompt_execution_one_shot_local_dispatch_result(
+        local_info_handled,
+        local_terminal_handled,
+        local_logging_handled,
+        local_simple_handled,
+        line,
+    )
+    if local_dispatch_result.stop_native_probe:
+        return local_dispatch_result.handled
 
     var external_process = plan_external_process_dispatch(command)
-    if external_process.handled:
-        var one_shot_external_execution = plan_one_shot_external_process_execution(
-            external_process
+    # Previous one-shot external-process block entered through a raw dispatch
+    # gate before computing execution/boundary/result:
+    # if external_process.handled:
+    var one_shot_external_execution = plan_one_shot_external_process_execution(
+        external_process
+    )
+    var reta_native_handled = False
+    if one_shot_external_execution.should_try_reta_native:
+        reta_native_handled = _run_native_reta_prompt_command(
+            one_shot_external_execution.arguments
         )
-        var reta_native_handled = False
-        if one_shot_external_execution.should_try_reta_native:
-            reta_native_handled = _run_native_reta_prompt_command(
-                one_shot_external_execution.arguments
-            )
-        var external_boundary = plan_one_shot_external_process_boundary(
-            external_process, reta_native_handled
-        )
-        # Previous one-shot boundary stage returned directly here:
-        # if external_boundary.stop_native_probe:
-        #     return False
-        # return external_boundary.handled_without_boundary
-        var external_result = plan_one_shot_external_process_result(
-            external_boundary
-        )
+    var external_boundary = plan_one_shot_external_process_boundary(
+        external_process, reta_native_handled
+    )
+    # Previous one-shot boundary/result stages returned directly here:
+    # if external_boundary.stop_native_probe:
+    #     return False
+    # return external_boundary.handled_without_boundary
+    # return external_result.handled
+    var external_result = plan_one_shot_external_process_result(
+        external_boundary
+    )
+    if not external_result.continue_native_probe:
         return external_result.handled
 
     # Preserve the untouched one-shot source at the same residual compatibility

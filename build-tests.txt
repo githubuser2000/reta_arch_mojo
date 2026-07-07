@@ -1,0 +1,270 @@
+
+== reuse tests/test_all_columns.mojo ==
+
+== reuse tests/test_architecture_activation.mojo ==
+
+== reuse tests/test_architecture_boundaries.mojo ==
+
+== reuse tests/test_architecture_coherence.mojo ==
+
+== reuse tests/test_architecture_exports.mojo ==
+
+== reuse tests/test_architecture_facade.mojo ==
+
+== reuse tests/test_architecture_impact.mojo ==
+
+== reuse tests/test_architecture_map.mojo ==
+
+== reuse tests/test_architecture_migration.mojo ==
+
+== reuse tests/test_architecture_probe_assets.mojo ==
+
+== reuse tests/test_architecture_progress.mojo ==
+
+== reuse tests/test_architecture_refactor_native.mojo ==
+
+== reuse tests/test_architecture_rehearsal.mojo ==
+
+== reuse tests/test_architecture_traces.mojo ==
+
+== reuse tests/test_architecture_validation.mojo ==
+
+== reuse tests/test_arithmetic.mojo ==
+SKIP schweres Compilerziel: tests/test_category_theory.mojo
+
+== reuse tests/test_column_selection.mojo ==
+
+== reuse tests/test_combi_join.mojo ==
+
+== reuse tests/test_command_parity_native.mojo ==
+
+== reuse tests/test_completion_nested.mojo ==
+
+== reuse tests/test_completion_runtime.mojo ==
+
+== reuse tests/test_completion_word.mojo ==
+
+== reuse tests/test_concat_csv.mojo ==
+
+== reuse tests/test_console_io_complete.mojo ==
+
+== reuse tests/test_console_io.mojo ==
+
+== reuse tests/test_csv_reference.mojo ==
+
+== reuse tests/test_csv_table.mojo ==
+
+== reuse tests/test_execution_network.mojo ==
+
+== reuse tests/test_execution_network_persistence.mojo ==
+
+== reuse tests/test_fraction_concat_columns.mojo ==
+
+== reuse tests/test_generated_aliases.mojo ==
+
+== reuse tests/test_generated_columns_integration.mojo ==
+
+== reuse tests/test_generated_columns.mojo ==
+
+== reuse tests/test_generated_columns_registry.mojo ==
+
+== reuse tests/test_generated_parity.mojo ==
+
+== reuse tests/test_generated_table_columns.mojo ==
+
+== reuse tests/test_generated_table_runtime_parity.mojo ==
+
+== reuse tests/test_grundstrukturen_html.mojo ==
+
+== reuse tests/test_html_cell_metadata.mojo ==
+
+== reuse tests/test_html_class_extractor.mojo ==
+
+== reuse tests/test_i18n_words.mojo ==
+
+== reuse tests/test_input_semantics.mojo ==
+
+== reuse tests/test_integer_expressions.mojo ==
+
+== reuse tests/test_kombi_join_columns.mojo ==
+
+== reuse tests/test_legacy_center.mojo ==
+
+== reuse tests/test_legacy_lib4tables_concat.mojo ==
+
+== reuse tests/test_legacy_lib4tables.mojo ==
+
+== reuse tests/test_legacy_lib4tables_prepare.mojo ==
+
+== reuse tests/test_legacy_libreta_prompt.mojo ==
+
+== reuse tests/test_legacy_mojo_bridge.mojo ==
+
+== reuse tests/test_legacy_reta_program.mojo ==
+
+== reuse tests/test_legacy_reta_program_startup.mojo ==
+
+== build tests/test_legacy_reta_prompt.mojo ==
+
+== reuse tests/test_legacy_table_handling.mojo ==
+
+== reuse tests/test_meta_columns_complete.mojo ==
+
+== reuse tests/test_meta_columns.mojo ==
+
+== reuse tests/test_morphisms_complete.mojo ==
+
+== reuse tests/test_morphisms.mojo ==
+
+== reuse tests/test_multis3_parity.mojo ==
+
+== reuse tests/test_native_cli_controls.mojo ==
+
+== reuse tests/test_native_cli_startup.mojo ==
+
+== reuse tests/test_native_prompt_input.mojo ==
+
+== reuse tests/test_native_reta_cli.mojo ==
+
+== reuse tests/test_native_reta_utf8_html.mojo ==
+
+== reuse tests/test_no_blank_contents.mojo ==
+
+== reuse tests/test_number_theory.mojo ==
+
+== reuse tests/test_output_application.mojo ==
+
+== reuse tests/test_output_modes.mojo ==
+
+== reuse tests/test_output_semantics_complete.mojo ==
+
+== reuse tests/test_package_integrity.mojo ==
+
+== reuse tests/test_parallel_execution_config.mojo ==
+
+== reuse tests/test_parallel_number_processes.mojo ==
+
+== reuse tests/test_parallel_number_threads.mojo ==
+
+== reuse tests/test_parallel_row_preparation.mojo ==
+
+== reuse tests/test_parallel_row_processes.mojo ==
+
+== reuse tests/test_parallel_row_threads.mojo ==
+
+== reuse tests/test_parallel_table_execution.mojo ==
+
+== reuse tests/test_parallel_thread_backend.mojo ==
+
+== reuse tests/test_parameter_runtime_complete.mojo ==
+
+== reuse tests/test_parameter_runtime.mojo ==
+
+== reuse tests/test_parameter_semantics.mojo ==
+
+== reuse tests/test_persistence.mojo ==
+
+== reuse tests/test_presheaves_complete.mojo ==
+
+== reuse tests/test_presheaves.mojo ==
+
+== reuse tests/test_prime_effect_columns.mojo ==
+
+== reuse tests/test_prime_universe_columns.mojo ==
+
+== reuse tests/test_program_workflow.mojo ==
+
+== reuse tests/test_prompt_execution_helpers.mojo ==
+
+== build tests/test_prompt_execution.mojo ==
+
+== reuse tests/test_prompt_execution_runtime.mojo ==
+
+== reuse tests/test_prompt_external_commands.mojo ==
+
+== reuse tests/test_prompt_fraction_execution.mojo ==
+
+== reuse tests/test_prompt_historical_ownership.mojo ==
+
+== build tests/test_prompt_interaction.mojo ==
+
+== reuse tests/test_prompt_language.mojo ==
+
+== reuse tests/test_prompt_legacy_echo.mojo ==
+
+== reuse tests/test_prompt_line_editor.mojo ==
+
+== reuse tests/test_prompt_preparation.mojo ==
+
+== reuse tests/test_prompt_property_execution.mojo ==
+
+== reuse tests/test_prompt_property_table_integration.mojo ==
+
+== reuse tests/test_prompt_raw_commands.mojo ==
+
+== reuse tests/test_prompt_runtime_contract.mojo ==
+
+== reuse tests/test_prompt_runtime.mojo ==
+
+== reuse tests/test_prompt_session.mojo ==
+
+== reuse tests/test_prompt_table_execution.mojo ==
+
+== reuse tests/test_prompt_table_execution_regressions.mojo ==
+
+== reuse tests/test_py_reta_truth_native.mojo ==
+
+== reuse tests/test_readme_generator.mojo ==
+
+== reuse tests/test_row_filtering.mojo ==
+
+== reuse tests/test_row_filtering_reference.mojo ==
+
+== reuse tests/test_row_ranges.mojo ==
+
+== reuse tests/test_runtime_compat_complete.mojo ==
+
+== reuse tests/test_runtime_compat.mojo ==
+SKIP schweres Compilerziel: tests/test_schema_catalog_parity.mojo
+
+== reuse tests/test_schema_snapshot.mojo ==
+
+== reuse tests/test_semantics_builder.mojo ==
+
+== reuse tests/test_semantics_stage12c5f.mojo ==
+
+== reuse tests/test_setup_metadata.mojo ==
+
+== reuse tests/test_sheaves_complete.mojo ==
+
+== reuse tests/test_split_i18n.mojo ==
+
+== reuse tests/test_table_adapters.mojo ==
+
+== reuse tests/test_table_generation_complete.mojo ==
+
+== reuse tests/test_table_output_complete.mojo ==
+
+== reuse tests/test_table_preparation_complete.mojo ==
+
+== reuse tests/test_table_preparation.mojo ==
+
+== reuse tests/test_table_rendering.mojo ==
+
+== reuse tests/test_table_runtime_complete.mojo ==
+
+== reuse tests/test_table_state.mojo ==
+
+== reuse tests/test_table_wrapping.mojo ==
+
+== reuse tests/test_tag_schema.mojo ==
+
+== reuse tests/test_terminal_geometry.mojo ==
+
+== reuse tests/test_topology.mojo ==
+
+== reuse tests/test_universal.mojo ==
+
+Testkompilierung abgeschlossen: 132 Programme (3 neu, 129 wiederverwendet).
+Manifest: /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/tests-all/manifest.tsv
+Ausführen: scripts/run-tests.sh

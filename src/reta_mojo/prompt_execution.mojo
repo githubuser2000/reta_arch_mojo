@@ -329,6 +329,90 @@ struct PromptExecutionOneShotCompatibilityBoundaryPlan(Copyable):
 
 
 @fieldwise_init
+struct PromptExecutionOneShotLoopControlResultPlan(Copyable):
+    """Controller-facing result for bare one-shot loop-control commands.
+
+    Empty input and explicit exit commands are owned before any table, process
+    or compatibility probing.  Prompt execution owns the one-shot boolean
+    projection so ``_run_native_one_shot`` no longer returns directly from the
+    raw prompt-reaction loop-control dispatch flag.
+    """
+
+    var handled: Bool
+    var stop_native_probe: Bool
+    var continue_native_probe: Bool
+    var source: String
+
+
+@fieldwise_init
+struct PromptExecutionOneShotNativeCompletionResultPlan(Copyable):
+    """Controller-facing result after a native one-shot branch completion.
+
+    ``_run_native_one_shot`` uses the regular native branch planner first for
+    table and compact numeric commands.  Once that completion plan is known,
+    prompt execution owns the boolean projection: a handled completion stops the
+    native probe successfully, while an unhandled completion continues into the
+    remaining one-shot dispatchers.
+    """
+
+    var handled: Bool
+    var stop_native_probe: Bool
+    var continue_native_probe: Bool
+    var source: String
+
+
+@fieldwise_init
+struct PromptExecutionOneShotCompatibilityResultPlan(Copyable):
+    """Controller-facing result for the first one-shot compatibility boundary.
+
+    After native table/mulpri probing, ``-befehl`` must either stop the native
+    probe so the caller can enter the compatibility path, or continue with the
+    remaining native one-shot dispatchers.  This result plan owns that return
+    projection instead of leaving the controller to read the raw boundary flag.
+    """
+
+    var handled: Bool
+    var stop_native_probe: Bool
+    var continue_native_probe: Bool
+    var source: String
+
+
+
+
+@fieldwise_init
+struct PromptExecutionOneShotLocalResultPlan(Copyable):
+    """Controller-facing result for local one-shot prompt dispatchers.
+
+    Informational, terminal-clear, stateless logging and deterministic helper
+    output branches all have the same one-shot result algebra after their
+    owner-specific side effects have been printed.  Prompt execution owns that
+    boolean projection so ``_run_native_one_shot`` does not directly return
+    from each local dispatch branch.
+    """
+
+    var handled: Bool
+    var continue_native_probe: Bool
+    var source: String
+
+
+@fieldwise_init
+struct PromptExecutionOneShotLocalDispatchResultPlan(Copyable):
+    """Controller-facing result for the combined local one-shot dispatch chain.
+
+    The controller still performs the small terminal effects for informational,
+    terminal-clear, one-shot logging and simple-output branches.  Prompt
+    execution owns the precedence and final probe result so those branches no
+    longer each form their own controller return island.
+    """
+
+    var handled: Bool
+    var stop_native_probe: Bool
+    var continue_native_probe: Bool
+    var dispatch_owner: String
+    var source: String
+
+
+@fieldwise_init
 struct PromptExecutionOneShotResidualResultPlan(Copyable):
     """Controller-facing result for the final one-shot residual boundary.
 
@@ -631,6 +715,121 @@ def plan_prompt_execution_residual_compatibility_fallback(
     """
 
     return PromptExecutionCompatibilityFallbackPlan(True, source)
+
+
+
+def plan_prompt_execution_one_shot_loop_control_result(
+    loop_control_handled: Bool, source: String
+) -> PromptExecutionOneShotLoopControlResultPlan:
+    """Plan the one-shot return value after bare loop-control dispatch.
+
+    A handled empty/exit prompt line is already fully owned by the prompt
+    reaction layer.  This plan turns that raw dispatch flag into the probe
+    result: handled loop-control commands stop successfully, otherwise the
+    one-shot controller continues into normal native execution probing.
+    """
+
+    if loop_control_handled:
+        return PromptExecutionOneShotLoopControlResultPlan(
+            True, True, False, source
+        )
+    return PromptExecutionOneShotLoopControlResultPlan(
+        False, False, True, source
+    )
+
+
+
+def plan_prompt_execution_one_shot_native_completion_result(
+    completion: PromptExecutionNativeBranchCompletionPlan, source: String
+) -> PromptExecutionOneShotNativeCompletionResultPlan:
+    """Plan the one-shot return value after native branch completion.
+
+    A completed native table/mulpri/logging branch has already performed its
+    terminal effects in the controller.  This plan owns the remaining decision:
+    return ``True`` for handled branches or continue probing for local one-shot
+    dispatchers when the branch declined ownership.
+    """
+
+    if completion.handled:
+        return PromptExecutionOneShotNativeCompletionResultPlan(
+            True, True, False, source
+        )
+    return PromptExecutionOneShotNativeCompletionResultPlan(
+        False, False, True, source
+    )
+
+
+def plan_prompt_execution_one_shot_compatibility_result(
+    boundary: PromptExecutionOneShotCompatibilityBoundaryPlan,
+) -> PromptExecutionOneShotCompatibilityResultPlan:
+    """Plan the first one-shot compatibility-boundary return value.
+
+    A required fallback means the native probe must return ``False`` immediately
+    so the main one-shot caller can cross the historical compatibility boundary.
+    Otherwise probing may continue with the non-table native dispatchers.
+    """
+
+    if boundary.stop_native_probe:
+        return PromptExecutionOneShotCompatibilityResultPlan(
+            False, True, False, boundary.source
+        )
+    return PromptExecutionOneShotCompatibilityResultPlan(
+        boundary.handled_without_fallback, False, True, boundary.source
+    )
+
+
+
+
+def plan_prompt_execution_one_shot_local_result(
+    local_handled: Bool, source: String
+) -> PromptExecutionOneShotLocalResultPlan:
+    """Plan the one-shot return value after a local native dispatcher.
+
+    Local dispatchers may already have performed their small terminal effect in
+    the controller.  This owner turns their handled flag into the probe result:
+    handled local commands stop successfully, declined local commands let the
+    remaining native probe continue.
+    """
+
+    return PromptExecutionOneShotLocalResultPlan(
+        local_handled, not local_handled, source
+    )
+
+
+def plan_prompt_execution_one_shot_local_dispatch_result(
+    info_handled: Bool,
+    terminal_clear_handled: Bool,
+    logging_handled: Bool,
+    simple_output_handled: Bool,
+    source: String,
+) -> PromptExecutionOneShotLocalDispatchResultPlan:
+    """Plan the combined local one-shot dispatch result and precedence.
+
+    The historical controller tries local one-shot handlers in a fixed order:
+    informational help/command output, terminal clearing, one-shot logging and
+    finally deterministic simple output.  This owner records that precedence and
+    returns a single probe decision for the controller.
+    """
+
+    if info_handled:
+        return PromptExecutionOneShotLocalDispatchResultPlan(
+            True, True, False, "informational", source
+        )
+    if terminal_clear_handled:
+        return PromptExecutionOneShotLocalDispatchResultPlan(
+            True, True, False, "terminal_clear", source
+        )
+    if logging_handled:
+        return PromptExecutionOneShotLocalDispatchResultPlan(
+            True, True, False, "one_shot_logging", source
+        )
+    if simple_output_handled:
+        return PromptExecutionOneShotLocalDispatchResultPlan(
+            True, True, False, "simple_output", source
+        )
+    return PromptExecutionOneShotLocalDispatchResultPlan(
+        False, False, True, "none", source
+    )
 
 
 def plan_prompt_execution_one_shot_residual_result(

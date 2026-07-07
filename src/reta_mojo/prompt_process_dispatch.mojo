@@ -241,13 +241,31 @@ struct PromptOneShotExternalResultPlan(Copyable):
 
     The one-shot external boundary owns the decision whether a command must
     leave the native probe.  This result plan owns the final bool returned by
-    ``_run_native_one_shot`` so the controller no longer returns directly from
-    the boundary shape.
+    ``_run_native_one_shot`` and now also exposes the explicit continue flag so
+    the controller no longer needs an outer raw ``external_process.handled``
+    branch around the whole probe.
     """
 
     var handled: Bool
     var stop_native_probe: Bool
+    var continue_native_probe: Bool
     var reta_native_handled: Bool
+
+
+@fieldwise_init
+struct PromptNativeRetaChildResultPlan(Copyable):
+    """Controller-facing result for direct native ``reta`` child attempts.
+
+    Direct prompt ``reta`` commands first pass through the native startup/table
+    recognizer before the historical reference child is tried.  This plan owns
+    the final handled/print projection so the controller no longer maps
+    ``startup.owned`` and ``native_reta_tokens_supported`` directly to raw
+    return values.
+    """
+
+    var handled: Bool
+    var print_startup_output: Bool
+    var print_native_reta_output: Bool
 
 
 def plan_external_process_dispatch(
@@ -430,13 +448,36 @@ def plan_one_shot_external_process_result(
 
     if boundary.stop_native_probe:
         return PromptOneShotExternalResultPlan(
-            False, True, boundary.reta_native_handled
+            False, True, False, boundary.reta_native_handled
+        )
+    if boundary.handled_without_boundary:
+        return PromptOneShotExternalResultPlan(
+            True, False, False, boundary.reta_native_handled
         )
     return PromptOneShotExternalResultPlan(
-        boundary.handled_without_boundary,
         False,
+        False,
+        True,
         boundary.reta_native_handled,
     )
+
+
+def plan_prompt_native_reta_child_result(
+    startup_owned: Bool, native_tokens_supported: Bool
+) -> PromptNativeRetaChildResultPlan:
+    """Plan the direct native ``reta`` child return/print projection.
+
+    Startup help/debug output is already a complete native result.  Otherwise a
+    direct ``reta`` prompt line is handled only when the native reta CLI accepts
+    the token vector; unsupported vectors stay on the reference compatibility
+    boundary.
+    """
+
+    if startup_owned:
+        return PromptNativeRetaChildResultPlan(True, True, False)
+    if native_tokens_supported:
+        return PromptNativeRetaChildResultPlan(True, False, True)
+    return PromptNativeRetaChildResultPlan(False, False, False)
 
 
 def plan_prompt_fallback_process_dispatch(
@@ -593,6 +634,7 @@ def prompt_process_dispatch_contract_snapshot() -> List[String]:
         "one_shot_external_execution=native-prompt-process-one-shot-execution-boundary",
         "one_shot_external_boundary=native-prompt-process-probe-boundary",
         "one_shot_external_result=native-prompt-process-one-shot-result-boundary",
+        "native_reta_child_result=native-prompt-reta-child-result-boundary",
         "external_reta_child=native-prompt-reta-child-argv",
         "external_raw_line=eliminated-from-external-process-plan",
         "external_shell_arguments=native-prompt-shell-argv-plan",
