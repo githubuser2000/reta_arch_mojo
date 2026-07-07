@@ -5,7 +5,10 @@ if command -v readlink >/dev/null 2>&1; then
     SELF=$(readlink -f "$0" 2>/dev/null || printf '%s' "$0")
 fi
 ROOT=$(CDPATH= cd -- "$(dirname -- "$SELF")/.." && pwd)
-if [ "${RETA_NATIVE:-0}" = "1" ]; then
-    exec "$ROOT/bin/reta-native" "$@"
+CORE_STARTER="$ROOT/target/bin/reta"
+if [ ! -x "$CORE_STARTER" ]; then
+    printf 'Dünner reta-Core-Starter fehlt: %s\n' "$CORE_STARTER" >&2
+    printf 'Bitte neu kompilieren: scripts/build_core_shared.sh oder scripts/build-all.sh\n' >&2
+    exit 127
 fi
-exec "$ROOT/bin/reta-mojo-compat" "$@"
+exec "$CORE_STARTER" "$@"

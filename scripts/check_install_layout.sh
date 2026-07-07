@@ -23,6 +23,11 @@ DESTDIR=$STAGE PREFIX=/usr "$ROOT/scripts/install.sh" >"$TMP/install.log"
 [ -x "$STAGE/usr/lib/reta/scripts/check_mojo_binary_freshness.sh" ]
 [ -x "$STAGE/usr/lib/reta/scripts/current_source_id.sh" ]
 [ -L "$STAGE/usr/bin/reta" ]
+[ -L "$STAGE/usr/bin/grundStrukHtml" ]
+[ -x "$STAGE/usr/lib/reta/target/bin/reta" ]
+[ -x "$STAGE/usr/lib/reta/target/bin/grundStrukHtml" ]
+[ -f "$STAGE/usr/lib/reta/target/lib/reta/libreta-core.so" ]
+[ -f "$STAGE/usr/lib/reta/target/lib/reta/libreta-core.so.reta-source-id" ]
 
 (
     cd "$TMP"
@@ -86,11 +91,10 @@ set -- \
 (
     cd "$TMP"
     "$STAGE/usr/bin/reta-native" "$@" >"$TMP/native.out"
-    RETA_FORCE_REFERENCE=1 "$STAGE/usr/bin/reta" "$@" \
-        >"$TMP/compat-reference.out"
+    "$STAGE/usr/bin/reta" "$@" >"$TMP/core-launcher.out"
 )
 cmp "$TMP/reference.out" "$TMP/native.out"
-cmp "$TMP/reference.out" "$TMP/compat-reference.out"
+cmp "$TMP/reference.out" "$TMP/core-launcher.out"
 
 (
     cd "$TMP"
@@ -104,4 +108,4 @@ DESTDIR=$STAGE PREFIX=/usr "$ROOT/scripts/uninstall.sh" >/dev/null
 [ ! -e "$STAGE/usr/lib/reta" ]
 [ ! -e "$STAGE/usr/share/reta" ]
 
-printf '%s\n' 'FHS-Installation: Layout, native CSV, Python-Fallback und Deinstallation bestanden.'
+printf '%s\n' 'FHS-Installation: Layout, native CSV, Core-Starter und Deinstallation bestanden.'

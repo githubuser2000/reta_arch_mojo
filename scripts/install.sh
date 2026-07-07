@@ -40,11 +40,19 @@ require_file() {
 
 require_file "$ROOT/python_reference/csv/religion.csv"
 require_file "$ROOT/assets/parameter_aliases.tsv"
+require_file "$TARGETDIR/reta"
+require_file "$TARGETDIR/grundStrukHtml"
 require_file "$TARGETDIR/reta-native"
 require_file "$TARGETDIR/reta-mojo-compat-bin"
 require_file "$TARGETDIR/generate-html-native"
 require_file "$ROOT/man/generate_html.1"
 require_file "$ROOT/scripts/install_targets.txt"
+
+CORE_LIBRARY="$TARGETLIBDIR/libreta-core.so"
+require_file "$CORE_LIBRARY"
+require_file "$CORE_LIBRARY.reta-source-id"
+require_file "$TARGETDIR/reta.reta-source-id"
+require_file "$TARGETDIR/grundStrukHtml.reta-source-id"
 
 INSTALL_DIAGNOSTICS=0
 if [ -f "$TARGETDIR/reta-mojo-diagnostics" ]; then
@@ -121,6 +129,17 @@ while IFS= read -r name || [ -n "$name" ]; do
 done < "$ROOT/scripts/install_targets.txt"
 
 INSTALLED_LIBRARIES=0
+RETA_TARGET_DIR="$TARGETDIR" \
+RETA_TARGET_LIB_DIR="$TARGETLIBDIR" \
+RETA_REBUILD_COMMAND=scripts/build_core_shared.sh \
+RETA_CURRENT_SOURCE_ID="$CURRENT_SOURCE_ID" \
+    "$ROOT/scripts/check_mojo_binary_freshness.sh" "$CORE_LIBRARY"
+install -m 0755 "$CORE_LIBRARY" \
+    "$STAGE_LIBEXECDIR/target/lib/reta/libreta-core.so"
+install -m 0644 "$CORE_LIBRARY.reta-source-id" \
+    "$STAGE_LIBEXECDIR/target/lib/reta/libreta-core.so.reta-source-id"
+INSTALLED_LIBRARIES=$((INSTALLED_LIBRARIES + 1))
+
 if [ "$INSTALL_DIAGNOSTICS" = 1 ]; then
     RETA_TARGET_DIR="$TARGETDIR" \
     RETA_TARGET_LIB_DIR="$TARGETLIBDIR" \
@@ -133,7 +152,7 @@ if [ "$INSTALL_DIAGNOSTICS" = 1 ]; then
         "$STAGE_LIBEXECDIR/target/lib/reta/libreta-mojo-diagnostics.so.reta-source-id"
     install -m 0644 "$LOADER_STAMP" \
         "$STAGE_LIBEXECDIR/target/bin/reta-mojo-diagnostics.reta-source-id"
-    INSTALLED_LIBRARIES=1
+    INSTALLED_LIBRARIES=$((INSTALLED_LIBRARIES + 1))
 fi
 
 if [ "$INSTALL_MOJO_RUNTIME" != 0 ]; then
