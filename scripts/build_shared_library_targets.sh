@@ -12,9 +12,9 @@ Beschreibt die neue dynamische Zielarchitektur:
   - libreta-prompt-interactive.so / libreta-prompt-interactive.dll
 
 Diese Stage friert die Zielarchitektur und ihre Starter-Abhängigkeiten ein.
-Der vorhandene Shared-Diagnostics-Build bleibt der einzige aktiv kompilierte
-Shared-Library-Build. Die echten ABI-Dateien für core/prompt/interactive werden
-in Folgestages angebunden, sobald diese Source-Guards lokal grün sind.
+libreta-core.so ist inzwischen der erste aktiv kompilierte ABI-Build.
+Die echten ABI-Dateien für prompt/interactive folgen in weiteren Stages,
+sobald der Core-Pfad lokal grün ist.
 USAGE
         exit 0
         ;;
@@ -52,8 +52,8 @@ Geplante Shared-Library-Zielarchitektur:
     Nicht verwendet von: rpb
 
 Dünne Starter:
-  reta          -> libreta-core
-  grundStrukHtml-> libreta-core
+  reta          -> libreta-core  (aktiv über scripts/build_core_shared.sh)
+  grundStrukHtml-> libreta-core  (aktiv über scripts/build_core_shared.sh)
   rpb           -> libreta-prompt + libreta-core
   rp/rpl/rpe    -> libreta-prompt-interactive + libreta-prompt + libreta-core
 PLAN
@@ -63,6 +63,5 @@ if [ "$DRY_RUN" = 1 ]; then
     exit 0
 fi
 
-printf '%s\n' 'Noch kein produktiver Build-Schritt für diese Zielarchitektur aktiv.'
-printf '%s\n' 'Nutze --dry-run für die planbare Ausgabe; echte ABI-Builds folgen in der nächsten Stage.'
-exit 0
+printf '%s\n' 'Baue aktive Core-Shared-Zielgruppe; Prompt-Shared-Libraries bleiben Plan.'
+"$ROOT/scripts/build_core_shared.sh" -- "$@"

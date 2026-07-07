@@ -180,19 +180,20 @@ def plan_shared_library_architecture() -> SharedLibraryArchitecturePlan:
     var libraries = load_shared_library_targets()
     var starters = load_thin_starter_targets()
     var rpb_uses_interactive = False
+    var thin_starter_count = len(starters)
     for starter_index in range(len(starters)):
         if starters[starter_index].starter_name == "rpb":
             for lib_index in range(len(starters[starter_index].libraries)):
                 if starters[starter_index].libraries[lib_index] == "libreta-prompt-interactive":
                     rpb_uses_interactive = True
     return SharedLibraryArchitecturePlan(
-        libraries,
-        starters,
+        libraries^,
+        starters^,
         "libreta-core",
         "libreta-prompt",
         "libreta-prompt-interactive",
         rpb_uses_interactive,
-        len(starters),
+        thin_starter_count,
     )
 
 
@@ -216,7 +217,7 @@ def shared_library_architecture_valid(plan: SharedLibraryArchitecturePlan) -> Bo
     var saw_prompt = False
     var saw_interactive = False
     for index in range(len(plan.libraries)):
-        var target = plan.libraries[index]
+        var target = plan.libraries[index].copy()
         if target.logical_name == "libreta-core":
             saw_core = True
             if target.contains_interactive_input:

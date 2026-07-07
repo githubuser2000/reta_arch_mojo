@@ -1,5 +1,8 @@
 # Official compiled runtime targets installed below LIBEXECDIR/target/bin.
 # Missing optional targets are skipped; unknown/stale files are never copied.
+# core shared build_core_shared.sh targets
+reta
+grundStrukHtml
 # regular build.sh targets
 generate-html-native
 generate-readme-native

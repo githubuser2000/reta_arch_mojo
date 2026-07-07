@@ -81,7 +81,8 @@ def test_shared_library_build_script_is_non_destructive_plan_scaffold() -> None:
     assert "libreta-prompt-interactive.so / libreta-prompt-interactive.dll" in script
     assert "rpb           -> libreta-prompt + libreta-core" in script
     assert "rp/rpl/rpe    -> libreta-prompt-interactive + libreta-prompt + libreta-core" in script
-    assert "Noch kein produktiver Build-Schritt" in script
+    assert "libreta-core.so ist inzwischen der erste aktiv kompilierte ABI-Build" in script
+    assert "build_core_shared.sh" in script
     assert "mojo build" not in script
 
 
