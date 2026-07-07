@@ -831,6 +831,48 @@ def test_one_shot_external_boundary_is_planned_by_process_execution_owner() rais
     assert_false(fallback_reta_boundary.handled_without_boundary)
 
 
+def test_one_shot_external_result_is_planned_by_process_execution_owner() raises:
+    var catalog = load_prompt_language_catalog("assets")
+    var shell_command = classify_prompt_command_localized(
+        "shell echo hi", "deutsch", catalog
+    )
+    var shell_plan = plan_external_process_dispatch(shell_command)
+    var shell_boundary = plan_one_shot_external_process_boundary(
+        shell_plan, False
+    )
+    var shell_result = plan_one_shot_external_process_result(shell_boundary)
+    assert_false(shell_result.handled)
+    assert_true(shell_result.stop_native_probe)
+    assert_false(shell_result.reta_native_handled)
+
+    var reta_command = classify_prompt_command_localized(
+        "reta -h", "deutsch", catalog
+    )
+    var reta_plan = plan_external_process_dispatch(reta_command)
+    var accepted_boundary = plan_one_shot_external_process_boundary(
+        reta_plan, True
+    )
+    var accepted_result = plan_one_shot_external_process_result(
+        accepted_boundary
+    )
+    assert_true(accepted_result.handled)
+    assert_false(accepted_result.stop_native_probe)
+    assert_true(accepted_result.reta_native_handled)
+
+    var unhandled_boundary = plan_one_shot_external_process_boundary(
+        PromptExternalProcessDispatchPlan(
+            False, List[String](), False, False, False, False
+        ),
+        False,
+    )
+    var unhandled_result = plan_one_shot_external_process_result(
+        unhandled_boundary
+    )
+    assert_false(unhandled_result.handled)
+    assert_false(unhandled_result.stop_native_probe)
+    assert_false(unhandled_result.reta_native_handled)
+
+
 def test_fallback_process_dispatch_is_planned_by_process_execution_owner() raises:
     var profile = parse_prompt_startup("rpe", []).profile.copy()
     var plan = plan_prompt_fallback_process_dispatch(
@@ -888,6 +930,27 @@ def test_residual_fallback_process_execution_is_planned_by_process_execution_own
     )
     assert_false(skipped.should_execute)
     assert_equal(len(skipped.arguments), 0)
+
+
+def test_residual_fallback_process_result_is_planned_by_process_execution_owner() raises:
+    var profile = parse_prompt_startup("rpe", []).profile.copy()
+    var fallback = plan_prompt_execution_residual_compatibility_fallback(
+        "unknown residual command"
+    )
+    var execution = plan_prompt_residual_fallback_process_execution(
+        profile, fallback
+    )
+    var result = plan_prompt_residual_fallback_process_result(execution)
+    assert_true(result.handled)
+    assert_true(result.process_executed)
+    assert_equal(result.source, "unknown residual command")
+
+    var skipped = plan_prompt_residual_fallback_process_result(
+        PromptResidualFallbackProcessExecutionPlan(False, List[String](), "ignored")
+    )
+    assert_true(skipped.handled)
+    assert_false(skipped.process_executed)
+    assert_equal(skipped.source, "ignored")
 
 
 def test_fallback_process_execution_is_planned_by_process_execution_owner() raises:
@@ -1091,8 +1154,10 @@ def test_contract_snapshot() raises:
      # assert_equal(len(process_snapshot), 26)
     # assert_equal(process_snapshot[25], "process_adapter=argv-execution-only")
     # assert_equal(len(process_snapshot), 27)
+    # assert_equal(len(process_snapshot), 28)
+    # assert_equal(len(process_snapshot), 29)
     var process_snapshot = prompt_process_dispatch_contract_snapshot()
-    assert_equal(len(process_snapshot), 28)
+    assert_equal(len(process_snapshot), 30)
     assert_equal(process_snapshot[0], "class=PromptProcessDispatchBundle")
     assert_equal(process_snapshot[1], "external_dispatch_owner=prompt-execution-process-plan")
     assert_equal(process_snapshot[2], "external_process_dispatch=native-prompt-process-edge-plan")
@@ -1106,21 +1171,23 @@ def test_contract_snapshot() raises:
     assert_equal(process_snapshot[10], "interactive_external_result=native-prompt-process-result-boundary")
     assert_equal(process_snapshot[11], "one_shot_external_execution=native-prompt-process-one-shot-execution-boundary")
     assert_equal(process_snapshot[12], "one_shot_external_boundary=native-prompt-process-probe-boundary")
-    assert_equal(process_snapshot[13], "external_reta_child=native-prompt-reta-child-argv")
-    assert_equal(process_snapshot[14], "external_raw_line=eliminated-from-external-process-plan")
-    assert_equal(process_snapshot[15], "external_shell_arguments=native-prompt-shell-argv-plan")
-    assert_equal(process_snapshot[16], "external_python_math_arguments=native-prompt-python-math-argv-plan")
-    assert_equal(process_snapshot[17], "external_command_arguments=runtime-owned-command-argv-builders")
-    assert_equal(process_snapshot[18], "compatibility_fallback_process_execution=native-prompt-compatibility-fallback-execution-boundary")
-    assert_equal(process_snapshot[19], "residual_fallback_process_execution=native-prompt-residual-fallback-execution-boundary")
-    assert_equal(process_snapshot[20], "fallback_process_dispatch=native-interaction-argv-plan")
-    assert_equal(process_snapshot[21], "fallback_process_execution=native-prompt-fallback-execution-boundary")
-    assert_equal(process_snapshot[22], "fallback_process_handled=native-explicit-fallback-effect-flag")
-    assert_equal(process_snapshot[23], "fallback_process_flags=native-explicit-fallback-run-flag")
-    assert_equal(process_snapshot[24], "fallback_process_arguments=native-merged-fallback-argv")
-    assert_equal(process_snapshot[25], "fallback_runtime_arguments=runtime-owned-argv-builder")
-    assert_equal(process_snapshot[26], "fallback_shell_split=runtime-owned-argv-tokenizer")
-    assert_equal(process_snapshot[27], "process_adapter=argv-execution-only")
+    assert_equal(process_snapshot[13], "one_shot_external_result=native-prompt-process-one-shot-result-boundary")
+    assert_equal(process_snapshot[14], "external_reta_child=native-prompt-reta-child-argv")
+    assert_equal(process_snapshot[15], "external_raw_line=eliminated-from-external-process-plan")
+    assert_equal(process_snapshot[16], "external_shell_arguments=native-prompt-shell-argv-plan")
+    assert_equal(process_snapshot[17], "external_python_math_arguments=native-prompt-python-math-argv-plan")
+    assert_equal(process_snapshot[18], "external_command_arguments=runtime-owned-command-argv-builders")
+    assert_equal(process_snapshot[19], "compatibility_fallback_process_execution=native-prompt-compatibility-fallback-execution-boundary")
+    assert_equal(process_snapshot[20], "residual_fallback_process_execution=native-prompt-residual-fallback-execution-boundary")
+    assert_equal(process_snapshot[21], "residual_fallback_process_result=native-prompt-residual-fallback-result-boundary")
+    assert_equal(process_snapshot[22], "fallback_process_dispatch=native-interaction-argv-plan")
+    assert_equal(process_snapshot[23], "fallback_process_execution=native-prompt-fallback-execution-boundary")
+    assert_equal(process_snapshot[24], "fallback_process_handled=native-explicit-fallback-effect-flag")
+    assert_equal(process_snapshot[25], "fallback_process_flags=native-explicit-fallback-run-flag")
+    assert_equal(process_snapshot[26], "fallback_process_arguments=native-merged-fallback-argv")
+    assert_equal(process_snapshot[27], "fallback_runtime_arguments=runtime-owned-argv-builder")
+    assert_equal(process_snapshot[28], "fallback_shell_split=runtime-owned-argv-tokenizer")
+    assert_equal(process_snapshot[29], "process_adapter=argv-execution-only")
 
     var storage_snapshot = prompt_reaction_storage_contract_snapshot()
     assert_equal(len(storage_snapshot), 8)

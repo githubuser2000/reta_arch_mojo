@@ -44,6 +44,7 @@ from reta_mojo.prompt_execution import (
     plan_prompt_execution_native_branch_completion,
     plan_prompt_execution_compatibility_fallback,
     plan_prompt_execution_one_shot_compatibility_boundary,
+    plan_prompt_execution_one_shot_residual_result,
     plan_prompt_execution_residual_compatibility_fallback,
 )
 from reta_mojo.native_cli_startup import native_cli_startup
@@ -100,8 +101,10 @@ from reta_mojo.prompt_process_dispatch import (
     plan_interactive_external_process_result,
     plan_prompt_compatibility_fallback_process_execution,
     plan_prompt_residual_fallback_process_execution,
+    plan_prompt_residual_fallback_process_result,
     plan_one_shot_external_process_execution,
     plan_one_shot_external_process_boundary,
+    plan_one_shot_external_process_result,
     plan_prompt_fallback_process_dispatch,
     plan_prompt_fallback_process_execution,
 )
@@ -440,7 +443,10 @@ def _run_command(
         _ = run_reta_prompt_arguments_native(
             residual_execution.arguments, reference_root()
         )
-    return True
+    var residual_result = plan_prompt_residual_fallback_process_result(
+        residual_execution
+    )
+    return residual_result.handled
 
 
 def _run_native_one_shot(
@@ -526,9 +532,14 @@ def _run_native_one_shot(
         var external_boundary = plan_one_shot_external_process_boundary(
             external_process, reta_native_handled
         )
-        if external_boundary.stop_native_probe:
-            return False
-        return external_boundary.handled_without_boundary
+        # Previous one-shot boundary stage returned directly here:
+        # if external_boundary.stop_native_probe:
+        #     return False
+        # return external_boundary.handled_without_boundary
+        var external_result = plan_one_shot_external_process_result(
+            external_boundary
+        )
+        return external_result.handled
 
     # Preserve the untouched one-shot source at the same residual compatibility
     # boundary as the interactive controller.  The main one-shot caller remains
@@ -540,9 +551,14 @@ def _run_native_one_shot(
     var one_shot_residual_boundary = plan_prompt_execution_one_shot_compatibility_boundary(
         one_shot_residual_fallback, True
     )
-    if one_shot_residual_boundary.stop_native_probe:
-        return False
-    return one_shot_residual_boundary.handled_without_fallback
+    # Previous one-shot residual stage returned directly from the boundary:
+    # if one_shot_residual_boundary.stop_native_probe:
+    #     return False
+    # return one_shot_residual_boundary.handled_without_fallback
+    var one_shot_residual_result = plan_prompt_execution_one_shot_residual_result(
+        one_shot_residual_boundary
+    )
+    return one_shot_residual_result.handled
 
 
 def main() raises:

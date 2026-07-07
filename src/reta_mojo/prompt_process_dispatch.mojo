@@ -98,6 +98,21 @@ struct PromptResidualFallbackProcessExecutionPlan(Copyable):
 
 
 @fieldwise_init
+struct PromptResidualFallbackProcessResultPlan(Copyable):
+    """Controller-facing result after residual compatibility fallback.
+
+    The residual fallback is the final interactive command path.  Process
+    dispatch now owns the final handled projection as well as the execution
+    gate, so the controller no longer returns a naked success value after
+    optional ``retaPrompt.py`` child execution.
+    """
+
+    var handled: Bool
+    var process_executed: Bool
+    var source: String
+
+
+@fieldwise_init
 struct PromptInteractiveExternalExecutionPlan(Copyable):
     """Controller-facing execution gate for interactive external commands.
 
@@ -177,7 +192,7 @@ struct PromptInteractiveExternalResultPlan(Copyable):
 
 @fieldwise_init
 struct PromptOneShotExternalBoundaryPlan(Copyable):
-    """Pure one-shot result after an explicit external-process command.
+    """Pure one-shot boundary after an explicit external-process command.
 
     Interactive prompt execution may directly run shell/python/math/reta child
     processes.  ``-befehl`` deliberately keeps shell/python/math and unowned
@@ -187,6 +202,21 @@ struct PromptOneShotExternalBoundaryPlan(Copyable):
 
     var stop_native_probe: Bool
     var handled_without_boundary: Bool
+    var reta_native_handled: Bool
+
+
+@fieldwise_init
+struct PromptOneShotExternalResultPlan(Copyable):
+    """Controller-facing one-shot return gate after external probing.
+
+    The one-shot external boundary owns the decision whether a command must
+    leave the native probe.  This result plan owns the final bool returned by
+    ``_run_native_one_shot`` so the controller no longer returns directly from
+    the boundary shape.
+    """
+
+    var handled: Bool
+    var stop_native_probe: Bool
     var reta_native_handled: Bool
 
 
@@ -359,6 +389,26 @@ def plan_one_shot_external_process_boundary(
     return PromptOneShotExternalBoundaryPlan(True, False, reta_native_handled)
 
 
+def plan_one_shot_external_process_result(
+    boundary: PromptOneShotExternalBoundaryPlan,
+) -> PromptOneShotExternalResultPlan:
+    """Plan the final one-shot result after external process probing.
+
+    The boundary keeps the compatibility decision visible; this final projection
+    turns it into the value returned by ``_run_native_one_shot``.
+    """
+
+    if boundary.stop_native_probe:
+        return PromptOneShotExternalResultPlan(
+            False, True, boundary.reta_native_handled
+        )
+    return PromptOneShotExternalResultPlan(
+        boundary.handled_without_boundary,
+        False,
+        boundary.reta_native_handled,
+    )
+
+
 def plan_prompt_fallback_process_dispatch(
     profile: PromptProfile,
     line: String,
@@ -448,6 +498,23 @@ def plan_prompt_residual_fallback_process_execution(
     )
 
 
+def plan_prompt_residual_fallback_process_result(
+    execution: PromptResidualFallbackProcessExecutionPlan,
+) -> PromptResidualFallbackProcessResultPlan:
+    """Plan the final interactive residual fallback return value.
+
+    Once all native interactive dispatchers declined ownership, the prompt loop
+    should continue after the residual compatibility edge.  Keeping this final
+    handled projection here removes the last raw ``return True`` from that
+    residual process boundary in the controller while still exposing whether the
+    child process was actually executed.
+    """
+
+    return PromptResidualFallbackProcessResultPlan(
+        True, execution.should_execute, execution.source
+    )
+
+
 def prompt_process_dispatch_contract_snapshot() -> List[String]:
     """Stable ownership snapshot for process-facing prompt execution."""
     return [
@@ -464,6 +531,7 @@ def prompt_process_dispatch_contract_snapshot() -> List[String]:
         "interactive_external_result=native-prompt-process-result-boundary",
         "one_shot_external_execution=native-prompt-process-one-shot-execution-boundary",
         "one_shot_external_boundary=native-prompt-process-probe-boundary",
+        "one_shot_external_result=native-prompt-process-one-shot-result-boundary",
         "external_reta_child=native-prompt-reta-child-argv",
         "external_raw_line=eliminated-from-external-process-plan",
         "external_shell_arguments=native-prompt-shell-argv-plan",
@@ -471,6 +539,7 @@ def prompt_process_dispatch_contract_snapshot() -> List[String]:
         "external_command_arguments=runtime-owned-command-argv-builders",
         "compatibility_fallback_process_execution=native-prompt-compatibility-fallback-execution-boundary",
         "residual_fallback_process_execution=native-prompt-residual-fallback-execution-boundary",
+        "residual_fallback_process_result=native-prompt-residual-fallback-result-boundary",
         "fallback_process_dispatch=native-interaction-argv-plan",
         "fallback_process_execution=native-prompt-fallback-execution-boundary",
         "fallback_process_handled=native-explicit-fallback-effect-flag",

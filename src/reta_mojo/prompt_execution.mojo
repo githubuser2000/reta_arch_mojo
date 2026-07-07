@@ -328,6 +328,21 @@ struct PromptExecutionOneShotCompatibilityBoundaryPlan(Copyable):
     var source: String
 
 
+@fieldwise_init
+struct PromptExecutionOneShotResidualResultPlan(Copyable):
+    """Controller-facing result for the final one-shot residual boundary.
+
+    The residual compatibility boundary owns whether the native ``-befehl``
+    probe must stop.  This result plan owns the final boolean returned by the
+    one-shot controller so it no longer returns directly from the raw boundary
+    fields.
+    """
+
+    var handled: Bool
+    var stop_native_probe: Bool
+    var source: String
+
+
 def prompt_execution_integer_argument_words(values: List[String]) -> List[String]:
     var result = List[String]()
     for index in range(len(values)):
@@ -616,6 +631,27 @@ def plan_prompt_execution_residual_compatibility_fallback(
     """
 
     return PromptExecutionCompatibilityFallbackPlan(True, source)
+
+
+def plan_prompt_execution_one_shot_residual_result(
+    boundary: PromptExecutionOneShotCompatibilityBoundaryPlan,
+) -> PromptExecutionOneShotResidualResultPlan:
+    """Plan the final one-shot residual return value.
+
+    This is the final projection in ``_run_native_one_shot`` after all native
+    dispatchers declined a command.  The controller can now consume one result
+    value instead of interpreting ``stop_native_probe`` and
+    ``handled_without_fallback`` directly.
+    """
+
+    if boundary.stop_native_probe:
+        return PromptExecutionOneShotResidualResultPlan(
+            False, True, boundary.source
+        )
+    return PromptExecutionOneShotResidualResultPlan(
+        boundary.handled_without_fallback, False, boundary.source
+    )
+
 
 def plan_prompt_execution_native_branch_outcome(
     branch: PromptExecutionNativeBranchPlan, native_handled: Bool

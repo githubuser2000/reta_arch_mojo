@@ -381,5 +381,27 @@ def test_prompt_execution_one_shot_compatibility_boundary_owns_probe_exit() rais
     assert_equal(continued_boundary.source, "p 17")
 
 
+def test_prompt_execution_one_shot_residual_result_owns_final_probe_return() raises:
+    var stopped_boundary = PromptExecutionOneShotCompatibilityBoundaryPlan(
+        True, False, "unowned one-shot residual"
+    )
+    var stopped_result = plan_prompt_execution_one_shot_residual_result(
+        stopped_boundary
+    )
+    assert_false(stopped_result.handled)
+    assert_true(stopped_result.stop_native_probe)
+    assert_equal(stopped_result.source, "unowned one-shot residual")
+
+    var handled_boundary = PromptExecutionOneShotCompatibilityBoundaryPlan(
+        False, True, "owned one-shot residual"
+    )
+    var handled_result = plan_prompt_execution_one_shot_residual_result(
+        handled_boundary
+    )
+    assert_true(handled_result.handled)
+    assert_false(handled_result.stop_native_probe)
+    assert_equal(handled_result.source, "owned one-shot residual")
+
+
 def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()
