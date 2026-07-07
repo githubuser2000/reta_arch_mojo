@@ -44,5 +44,21 @@ def test_facade_dependency_graph_is_typed() raises:
     ])
 
 
+def test_facade_native_completion_witness_marks_graph_complete() raises:
+    var catalog = load_architecture_facade_catalog()
+    var completion = plan_architecture_facade_native_completion(catalog)
+    assert_equal(completion.source_file, "reta_architecture/facade.py")
+    assert_equal(completion.status, "nativ")
+    assert_true(completion.complete)
+    assert_true(completion.bridge_free)
+    assert_equal(completion.fields, 45)
+    assert_equal(completion.methods, 49)
+    assert_equal(completion.bootstrap_steps, 45)
+    assert_equal(completion.snapshot_entries, 48)
+    assert_equal(completion.force_rebuild_methods, 44)
+    assert_equal(completion.dependency_edges, 98)
+    assert_true(architecture_facade_native_completion_valid(catalog))
+
+
 def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()

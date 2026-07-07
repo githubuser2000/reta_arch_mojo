@@ -45,6 +45,7 @@ def test_one_shot_final_probe_result_owns_external_or_residual_arbitration() -> 
     assert (
         "return final_probe_result.handled" in active_body
         or "return final_pipeline_gate.handled" in active_body
+        or "return one_shot_pipeline_state.handled" in active_body
     )
     assert "return external_result.handled" not in active_body
     assert "var one_shot_residual_probe =" not in active_body

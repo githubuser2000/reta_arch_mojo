@@ -45,10 +45,12 @@ def test_one_shot_post_local_probe_owns_external_gate() -> None:
     assert (
         "post_local_probe_result.should_probe_external" in active_body
         or "post_local_pipeline_gate.stop_native_probe" in active_body
+        or "one_shot_pipeline_state.stopped" in active_body
     )
     assert (
         "return post_local_probe_result.handled" in active_body
         or "return post_local_pipeline_gate.handled" in active_body
+        or "return one_shot_pipeline_state.handled" in active_body
     )
     assert "if local_dispatch_result.stop_native_probe:" not in active_body
     assert "return local_dispatch_result.handled" not in active_body

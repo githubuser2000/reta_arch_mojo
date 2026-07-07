@@ -50,10 +50,11 @@ def test_one_shot_probe_pipeline_gate_normalizes_existing_phase_gates() -> None:
     assert "plan_prompt_execution_one_shot_pipeline_post_native_gate" in active_body
     assert "plan_prompt_execution_one_shot_pipeline_post_local_gate" in active_body
     assert "plan_prompt_execution_one_shot_pipeline_final_gate" in active_body
-    assert "return pre_native_pipeline_gate.handled" in active_body
-    assert "return post_native_pipeline_gate.handled" in active_body
-    assert "return post_local_pipeline_gate.handled" in active_body
-    assert "return final_pipeline_gate.handled" in active_body
+    assert "pre_native_pipeline_gate" in active_body
+    assert "post_native_pipeline_gate" in active_body
+    assert "post_local_pipeline_gate" in active_body
+    assert "final_pipeline_gate" in active_body
+    assert "one_shot_pipeline_state" in active_body
     assert "pre_native_probe_result.should_probe_native" not in active_body
     assert "post_native_probe_result.should_probe_local" not in active_body
     assert "post_local_probe_result.should_probe_external" not in active_body

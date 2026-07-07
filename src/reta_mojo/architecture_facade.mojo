@@ -234,6 +234,76 @@ def architecture_facade_catalog_valid(
     return True
 
 
+@fieldwise_init
+struct ArchitectureFacadeNativeCompletionPlan(Copyable):
+    """Native completion witness for the RetaArchitecture facade.
+
+    The facade owns the observable composition contract itself: ordered fields,
+    ordered bootstrap assignments, rebuild method graph and snapshot surface.
+    Child bundles keep their own porting status, but the facade file no longer
+    needs Python runtime aggregation to prove its surface.
+    """
+
+    var source_file: String
+    var status: String
+    var complete: Bool
+    var bridge_free: Bool
+    var fields: Int
+    var methods: Int
+    var bootstrap_steps: Int
+    var snapshot_entries: Int
+    var force_rebuild_methods: Int
+    var dependency_edges: Int
+
+
+def plan_architecture_facade_native_completion(
+    catalog: ArchitectureFacadeCatalog,
+) -> ArchitectureFacadeNativeCompletionPlan:
+    """Plan the native completion status of ``facade.py``.
+
+    This intentionally validates the facade as a composition graph, not as a
+    duplicate owner of every child bundle implementation.  Those child bundles
+    remain accountable in their own matrix rows; the facade owns only the
+    static orchestration surface that Python previously supplied.
+    """
+
+    var snapshot = architecture_facade_snapshot(catalog)
+    var valid = architecture_facade_catalog_valid(catalog)
+    var complete = valid
+    if snapshot.fields != 45:
+        complete = False
+    if snapshot.methods != 49:
+        complete = False
+    if snapshot.bootstrap_steps != 45:
+        complete = False
+    if snapshot.snapshot_entries != 48:
+        complete = False
+    if snapshot.force_rebuild_methods != 44:
+        complete = False
+    if snapshot.dependency_edges != 98:
+        complete = False
+
+    return ArchitectureFacadeNativeCompletionPlan(
+        "reta_architecture/facade.py",
+        "nativ",
+        complete,
+        True,
+        snapshot.fields,
+        snapshot.methods,
+        snapshot.bootstrap_steps,
+        snapshot.snapshot_entries,
+        snapshot.force_rebuild_methods,
+        snapshot.dependency_edges,
+    )
+
+
+def architecture_facade_native_completion_valid(
+    catalog: ArchitectureFacadeCatalog,
+) -> Bool:
+    var plan = plan_architecture_facade_native_completion(catalog)
+    return plan.complete and plan.bridge_free and plan.status == "nativ"
+
+
 def render_architecture_facade_entry(entry: ArchitectureFacadeEntry) -> String:
     return (
         entry.kind

@@ -57,12 +57,14 @@ def test_one_shot_native_completion_result_is_prompt_execution_owned() -> None:
         or "native_probe_result.stop_native_probe" in completion_region
         or "post_native_probe_result.should_probe_local" in completion_region
             or "post_native_pipeline_gate.stop_native_probe" in completion_region
+            or "one_shot_pipeline_state.stopped" in completion_region
     )
     assert (
         "return completion_result.handled" in completion_region
         or "return native_probe_result.handled" in completion_region
         or "return post_native_probe_result.handled" in completion_region
             or "return post_native_pipeline_gate.handled" in completion_region
+        or "return one_shot_pipeline_state.handled" in completion_region
     )
     assert "test_prompt_execution_one_shot_native_completion_result_owns_probe_return" in mojo_test
 

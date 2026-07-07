@@ -112,6 +112,9 @@ def test_catalog_preserves_all_four_ordered_surfaces() -> None:
 def test_native_facade_graph_is_bridge_free_and_queryable() -> None:
     text = MODULE.read_text(encoding="utf-8")
     assert "struct ArchitectureFacadeEntry" in text
+    assert "struct ArchitectureFacadeNativeCompletionPlan" in text
+    assert "plan_architecture_facade_native_completion" in text
+    assert "architecture_facade_native_completion_valid" in text
     assert "architecture_facade_catalog_valid" in text
     assert "architecture_facade_dependencies" in text
     assert "architecture_facade.tsv" in text
@@ -137,12 +140,12 @@ def test_architecture_export_filter_transfers_its_local_copy() -> None:
     assert "result.append(entry)" not in text
 
 
-def test_porting_matrix_marks_facade_as_partial_native_owner() -> None:
+def test_porting_matrix_marks_facade_as_native_owner() -> None:
     matrix = (ROOT / "PORTING_MATRIX.md").read_text(encoding="utf-8")
     row = next(
         line
         for line in matrix.splitlines()
         if "`reta_architecture/facade.py`" in line
     )
-    assert "| teilweise nativ |" in row
+    assert "| nativ |" in row
     assert "architecture_facade.mojo" in row

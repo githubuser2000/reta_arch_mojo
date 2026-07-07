@@ -57,10 +57,12 @@ def test_one_shot_loop_control_result_is_prompt_execution_owned() -> None:
         and (
             "pre_native_probe_result.should_probe_native" in loop_region
             or "pre_native_pipeline_gate.stop_native_probe" in loop_region
+            or "one_shot_pipeline_state.stopped" in loop_region
         )
         and (
             "return pre_native_probe_result.handled" in loop_region
             or "return pre_native_pipeline_gate.handled" in loop_region
+            or "return one_shot_pipeline_state.handled" in loop_region
         )
     )
     assert direct_result_shape or pre_native_gate_shape

@@ -52,6 +52,7 @@ def test_one_shot_local_result_is_prompt_execution_owned() -> None:
             "return local_dispatch_result.handled" in active_body
             or "return post_local_probe_result.handled" in active_body
                 or "return post_local_pipeline_gate.handled" in active_body
+                or "return one_shot_pipeline_state.handled" in active_body
         )
     else:
         for result_name in (

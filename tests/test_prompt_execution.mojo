@@ -778,5 +778,37 @@ def test_prompt_execution_one_shot_probe_pipeline_gate_normalizes_stage_edges() 
     assert_equal(final_gate.source, "unowned residual")
 
 
+def test_prompt_execution_one_shot_probe_pipeline_state_consumes_gates() raises:
+    var initial = plan_prompt_execution_one_shot_pipeline_initial_state("15")
+    assert_false(initial.handled)
+    assert_false(initial.stopped)
+    assert_equal(initial.phase, "pre_native")
+    assert_equal(initial.result_owner, "pipeline")
+    assert_equal(initial.source, "15")
+
+    var continue_gate = PromptExecutionOneShotProbePipelineGatePlan(
+        False, False, True, "native_branch", "native_branch", "15"
+    )
+    var continued = plan_prompt_execution_one_shot_pipeline_apply_gate(
+        initial, continue_gate
+    )
+    assert_false(continued.handled)
+    assert_false(continued.stopped)
+    assert_equal(continued.phase, "native_branch")
+    assert_equal(continued.result_owner, "native_branch")
+
+    var stop_gate = PromptExecutionOneShotProbePipelineGatePlan(
+        True, True, False, "local_dispatch", "return", "hilfe"
+    )
+    var stopped = plan_prompt_execution_one_shot_pipeline_apply_gate(
+        continued, stop_gate
+    )
+    assert_true(stopped.handled)
+    assert_true(stopped.stopped)
+    assert_equal(stopped.phase, "return")
+    assert_equal(stopped.result_owner, "local_dispatch")
+    assert_equal(stopped.source, "hilfe")
+
+
 def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()

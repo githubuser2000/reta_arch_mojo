@@ -45,10 +45,12 @@ def test_one_shot_pre_native_probe_owns_native_gate() -> None:
     assert (
         "pre_native_probe_result.should_probe_native" in active_body
         or "pre_native_pipeline_gate.stop_native_probe" in active_body
+        or "one_shot_pipeline_state.stopped" in active_body
     )
     assert (
         "return pre_native_probe_result.handled" in active_body
         or "return pre_native_pipeline_gate.handled" in active_body
+        or "return one_shot_pipeline_state.handled" in active_body
     )
     assert "if loop_control_result.stop_native_probe:" not in active_body
     assert "return loop_control_result.handled" not in active_body

@@ -56,6 +56,8 @@ from reta_mojo.prompt_execution import (
     plan_prompt_execution_one_shot_residual_result,
     plan_prompt_execution_one_shot_residual_probe,
     plan_prompt_execution_one_shot_final_probe_result,
+    plan_prompt_execution_one_shot_pipeline_initial_state,
+    plan_prompt_execution_one_shot_pipeline_apply_gate,
     plan_prompt_execution_one_shot_pipeline_pre_native_gate,
     plan_prompt_execution_one_shot_pipeline_post_native_gate,
     plan_prompt_execution_one_shot_pipeline_post_local_gate,
@@ -501,6 +503,9 @@ def _run_native_one_shot(
         line, profile.language, catalog, profile.force_e_command
     )
     var command = routing.command.copy()
+    var one_shot_pipeline_state = plan_prompt_execution_one_shot_pipeline_initial_state(
+        line
+    )
 
     var loop_control = plan_loop_control_dispatch(command)
     # Previous one-shot loop-control stage returned directly here:
@@ -518,8 +523,11 @@ def _run_native_one_shot(
     var pre_native_pipeline_gate = plan_prompt_execution_one_shot_pipeline_pre_native_gate(
         pre_native_probe_result
     )
-    if pre_native_pipeline_gate.stop_native_probe:
-        return pre_native_pipeline_gate.handled
+    one_shot_pipeline_state = plan_prompt_execution_one_shot_pipeline_apply_gate(
+        one_shot_pipeline_state, pre_native_pipeline_gate
+    )
+    if one_shot_pipeline_state.stopped:
+        return one_shot_pipeline_state.handled
     var native_branch = plan_prompt_execution_native_branch(
         routing, line, profile.language, catalog
     )
@@ -546,8 +554,11 @@ def _run_native_one_shot(
     var post_native_pipeline_gate = plan_prompt_execution_one_shot_pipeline_post_native_gate(
         post_native_probe_result
     )
-    if post_native_pipeline_gate.stop_native_probe:
-        return post_native_pipeline_gate.handled
+    one_shot_pipeline_state = plan_prompt_execution_one_shot_pipeline_apply_gate(
+        one_shot_pipeline_state, post_native_pipeline_gate
+    )
+    if one_shot_pipeline_state.stopped:
+        return one_shot_pipeline_state.handled
 
     var local_info_handled = False
     var local_terminal_handled = False
@@ -600,8 +611,11 @@ def _run_native_one_shot(
     var post_local_pipeline_gate = plan_prompt_execution_one_shot_pipeline_post_local_gate(
         post_local_probe_result
     )
-    if post_local_pipeline_gate.stop_native_probe:
-        return post_local_pipeline_gate.handled
+    one_shot_pipeline_state = plan_prompt_execution_one_shot_pipeline_apply_gate(
+        one_shot_pipeline_state, post_local_pipeline_gate
+    )
+    if one_shot_pipeline_state.stopped:
+        return one_shot_pipeline_state.handled
 
     var external_process = plan_external_process_dispatch(command)
     # Previous one-shot external-process block entered through a raw dispatch
@@ -634,7 +648,10 @@ def _run_native_one_shot(
     var final_pipeline_gate = plan_prompt_execution_one_shot_pipeline_final_gate(
         final_probe_result
     )
-    return final_pipeline_gate.handled
+    one_shot_pipeline_state = plan_prompt_execution_one_shot_pipeline_apply_gate(
+        one_shot_pipeline_state, final_pipeline_gate
+    )
+    return one_shot_pipeline_state.handled
 
 
 def main() raises:

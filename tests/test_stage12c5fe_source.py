@@ -50,6 +50,7 @@ def test_one_shot_native_probe_result_owns_completion_and_boundary() -> None:
         "return native_probe_result.handled" in active_body
         or "return post_native_probe_result.handled" in active_body
             or "return post_native_pipeline_gate.handled" in active_body
+            or "return one_shot_pipeline_state.handled" in active_body
     )
     assert "var completion_result =" not in active_body
     assert "var compatibility_fallback =" not in active_body

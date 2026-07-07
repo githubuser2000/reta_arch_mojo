@@ -44,12 +44,15 @@ def test_one_shot_compatibility_result_is_prompt_execution_owned() -> None:
         or "native_probe_result.stop_native_probe" in active_body
         or "post_native_probe_result.should_probe_local" in active_body
         or "post_native_pipeline_gate.stop_native_probe" in active_body
+        or "one_shot_pipeline_state.stopped" in active_body
+        or "one_shot_pipeline_state.stopped" in active_body
     )
     assert (
         "return compatibility_result.handled" in active_body
         or "return native_probe_result.handled" in active_body
         or "return post_native_probe_result.handled" in active_body
             or "return post_native_pipeline_gate.handled" in active_body
+            or "return one_shot_pipeline_state.handled" in active_body
     )
     assert "test_prompt_execution_one_shot_compatibility_result_owns_probe_return" in mojo_test
 

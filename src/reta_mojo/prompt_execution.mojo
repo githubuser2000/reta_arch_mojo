@@ -537,6 +537,23 @@ struct PromptExecutionOneShotProbePipelineGatePlan(Copyable):
 
 
 @fieldwise_init
+struct PromptExecutionOneShotProbePipelineStatePlan(Copyable):
+    """Running pure state for the one-shot native probe pipeline.
+
+    The controller still performs the side effects between phases, but it no
+    longer has to consume each gate ad hoc.  Prompt execution owns the state
+    projection from a phase gate to either the next phase or the final return
+    value.
+    """
+
+    var handled: Bool
+    var stopped: Bool
+    var phase: String
+    var result_owner: String
+    var source: String
+
+
+@fieldwise_init
 struct PromptExecutionOneShotFinalProbeResultPlan(Copyable):
     """Final controller-facing result for the one-shot native probe.
 
@@ -1151,6 +1168,38 @@ def plan_prompt_execution_one_shot_final_probe_result(
         residual_probe.source,
     )
 
+
+
+def plan_prompt_execution_one_shot_pipeline_initial_state(
+    source: String,
+) -> PromptExecutionOneShotProbePipelineStatePlan:
+    """Create the initial pure state for the one-shot probe pipeline."""
+
+    return PromptExecutionOneShotProbePipelineStatePlan(
+        False, False, "pre_native", "pipeline", source
+    )
+
+
+def plan_prompt_execution_one_shot_pipeline_apply_gate(
+    state: PromptExecutionOneShotProbePipelineStatePlan,
+    gate: PromptExecutionOneShotProbePipelineGatePlan,
+) -> PromptExecutionOneShotProbePipelineStatePlan:
+    """Advance the pure one-shot pipeline state from a normalized gate."""
+
+    var source = gate.source.copy()
+    if source.byte_length() == 0:
+        source = state.source.copy()
+    if gate.stop_native_probe:
+        return PromptExecutionOneShotProbePipelineStatePlan(
+            gate.handled, True, "return", gate.result_owner, source
+        )
+    if gate.continue_pipeline:
+        return PromptExecutionOneShotProbePipelineStatePlan(
+            False, False, gate.next_phase, gate.result_owner, source
+        )
+    return PromptExecutionOneShotProbePipelineStatePlan(
+        gate.handled, True, "return", gate.result_owner, source
+    )
 
 
 def plan_prompt_execution_one_shot_pipeline_pre_native_gate(
