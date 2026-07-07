@@ -400,6 +400,33 @@ def test_prompt_execution_one_shot_loop_control_result_owns_probe_return() raise
 
 
 
+def test_prompt_execution_one_shot_pre_native_probe_result_owns_native_gate() raises:
+    var loop_stop = PromptExecutionOneShotLoopControlResultPlan(
+        True, True, False, ""
+    )
+    var stopped = plan_prompt_execution_one_shot_pre_native_probe_result(
+        loop_stop
+    )
+    assert_true(stopped.handled)
+    assert_true(stopped.stop_native_probe)
+    assert_false(stopped.should_probe_native)
+    assert_equal(stopped.result_owner, "loop_control")
+    assert_equal(stopped.source, "")
+
+    var loop_declined = PromptExecutionOneShotLoopControlResultPlan(
+        False, False, True, "p 17"
+    )
+    var native_gate = plan_prompt_execution_one_shot_pre_native_probe_result(
+        loop_declined
+    )
+    assert_false(native_gate.handled)
+    assert_false(native_gate.stop_native_probe)
+    assert_true(native_gate.should_probe_native)
+    assert_equal(native_gate.result_owner, "native_branch")
+    assert_equal(native_gate.source, "p 17")
+
+
+
 def test_prompt_execution_one_shot_native_completion_result_owns_probe_return() raises:
     var catalog = _catalog()
     var owned_routing = plan_prompt_execution_routing("p 17", "deutsch", catalog)
@@ -485,6 +512,34 @@ def test_prompt_execution_one_shot_native_probe_result_owns_completion_and_bound
     assert_true(fallback_probe.fallback_required)
     assert_equal(fallback_probe.result_owner, "compatibility_boundary")
     assert_equal(fallback_probe.source, "r unportedtail 2")
+
+
+
+def test_prompt_execution_one_shot_post_native_probe_result_owns_local_gate() raises:
+    var native_stop = PromptExecutionOneShotNativeProbeResultPlan(
+        True, True, False, False, "native_completion", "p 17"
+    )
+    var stopped = plan_prompt_execution_one_shot_post_native_probe_result(
+        native_stop
+    )
+    assert_true(stopped.handled)
+    assert_true(stopped.stop_native_probe)
+    assert_false(stopped.should_probe_local)
+    assert_equal(stopped.result_owner, "native_completion")
+    assert_equal(stopped.source, "p 17")
+
+    var native_declined = PromptExecutionOneShotNativeProbeResultPlan(
+        False, False, True, False, "local_dispatch", "hilfe"
+    )
+    var local_gate = plan_prompt_execution_one_shot_post_native_probe_result(
+        native_declined
+    )
+    assert_false(local_gate.handled)
+    assert_false(local_gate.stop_native_probe)
+    assert_true(local_gate.should_probe_local)
+    assert_equal(local_gate.result_owner, "local_dispatch")
+    assert_equal(local_gate.source, "hilfe")
+
 
 
 
@@ -584,6 +639,32 @@ def test_prompt_execution_one_shot_local_dispatch_result_owns_combined_return() 
     assert_true(declined.continue_native_probe)
     assert_equal(declined.dispatch_owner, "none")
     assert_equal(declined.source, "external command")
+
+def test_prompt_execution_one_shot_post_local_probe_result_owns_external_gate() raises:
+    var local_stop = plan_prompt_execution_one_shot_local_dispatch_result(
+        True, False, False, False, "hilfe"
+    )
+    var local_gate = plan_prompt_execution_one_shot_post_local_probe_result(
+        local_stop
+    )
+    assert_true(local_gate.handled)
+    assert_true(local_gate.stop_native_probe)
+    assert_false(local_gate.should_probe_external)
+    assert_equal(local_gate.result_owner, "local_dispatch")
+    assert_equal(local_gate.source, "hilfe")
+
+    var local_declined = plan_prompt_execution_one_shot_local_dispatch_result(
+        False, False, False, False, "! echo hi"
+    )
+    var external_gate = plan_prompt_execution_one_shot_post_local_probe_result(
+        local_declined
+    )
+    assert_false(external_gate.handled)
+    assert_false(external_gate.stop_native_probe)
+    assert_true(external_gate.should_probe_external)
+    assert_equal(external_gate.result_owner, "external_process")
+    assert_equal(external_gate.source, "! echo hi")
+
 
 def test_prompt_execution_one_shot_residual_result_owns_final_probe_return() raises:
     var stopped_boundary = PromptExecutionOneShotCompatibilityBoundaryPlan(

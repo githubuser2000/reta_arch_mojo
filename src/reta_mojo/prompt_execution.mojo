@@ -345,6 +345,23 @@ struct PromptExecutionOneShotLoopControlResultPlan(Copyable):
 
 
 @fieldwise_init
+struct PromptExecutionOneShotPreNativeProbeResultPlan(Copyable):
+    """Controller-facing gate between loop control and native branch probing.
+
+    Bare one-shot loop-control commands have already been classified before any
+    table, process or local prompt probing runs.  Prompt execution now owns the
+    gate that either returns their handled value or continues into the native
+    branch probe.
+    """
+
+    var handled: Bool
+    var stop_native_probe: Bool
+    var should_probe_native: Bool
+    var result_owner: String
+    var source: String
+
+
+@fieldwise_init
 struct PromptExecutionOneShotNativeCompletionResultPlan(Copyable):
     """Controller-facing result after a native one-shot branch completion.
 
@@ -401,6 +418,23 @@ struct PromptExecutionOneShotNativeProbeResultPlan(Copyable):
 
 
 @fieldwise_init
+struct PromptExecutionOneShotPostNativeProbeResultPlan(Copyable):
+    """Controller-facing gate after the native one-shot branch probe.
+
+    Native table/mulpri probing has already run any owned terminal effects in
+    the controller.  Prompt execution now owns the next gate: stop immediately
+    when the native/compatibility probe decided the result, or continue into
+    local one-shot dispatchers when that probe declined ownership.
+    """
+
+    var handled: Bool
+    var stop_native_probe: Bool
+    var should_probe_local: Bool
+    var result_owner: String
+    var source: String
+
+
+@fieldwise_init
 struct PromptExecutionOneShotLocalResultPlan(Copyable):
     """Controller-facing result for local one-shot prompt dispatchers.
 
@@ -430,6 +464,23 @@ struct PromptExecutionOneShotLocalDispatchResultPlan(Copyable):
     var stop_native_probe: Bool
     var continue_native_probe: Bool
     var dispatch_owner: String
+    var source: String
+
+
+@fieldwise_init
+struct PromptExecutionOneShotPostLocalProbeResultPlan(Copyable):
+    """Controller-facing gate after local one-shot dispatchers.
+
+    Local one-shot handlers have already performed their small terminal effects in
+    the controller.  Prompt execution now owns the gate that either returns from
+    those handled local branches or continues into the explicit external-process
+    probe.
+    """
+
+    var handled: Bool
+    var stop_native_probe: Bool
+    var should_probe_external: Bool
+    var result_owner: String
     var source: String
 
 
@@ -793,6 +844,30 @@ def plan_prompt_execution_one_shot_loop_control_result(
 
 
 
+def plan_prompt_execution_one_shot_pre_native_probe_result(
+    loop_control: PromptExecutionOneShotLoopControlResultPlan,
+) -> PromptExecutionOneShotPreNativeProbeResultPlan:
+    """Plan the one-shot gate between loop control and native probing.
+
+    This owns the controller decision that previously returned directly from
+    ``loop_control_result``.  If loop control did not consume the command, the
+    pipeline proceeds to the native table/mulpri branch probe.
+    """
+
+    if loop_control.stop_native_probe:
+        return PromptExecutionOneShotPreNativeProbeResultPlan(
+            loop_control.handled,
+            True,
+            False,
+            "loop_control",
+            loop_control.source,
+        )
+    return PromptExecutionOneShotPreNativeProbeResultPlan(
+        False, False, True, "native_branch", loop_control.source
+    )
+
+
+
 def plan_prompt_execution_one_shot_native_completion_result(
     completion: PromptExecutionNativeBranchCompletionPlan, source: String
 ) -> PromptExecutionOneShotNativeCompletionResultPlan:
@@ -886,6 +961,32 @@ def plan_prompt_execution_one_shot_native_probe_result(
     )
 
 
+def plan_prompt_execution_one_shot_post_native_probe_result(
+    native_probe: PromptExecutionOneShotNativeProbeResultPlan,
+) -> PromptExecutionOneShotPostNativeProbeResultPlan:
+    """Plan the one-shot gate between native probing and local dispatch.
+
+    This owns the controller decision that previously returned directly from
+    ``native_probe_result``.  If native probing did not finish or require
+    fallback, the pipeline proceeds to informational, terminal and simple-output
+    local dispatchers.
+    """
+
+    if native_probe.stop_native_probe:
+        return PromptExecutionOneShotPostNativeProbeResultPlan(
+            native_probe.handled,
+            True,
+            False,
+            native_probe.result_owner,
+            native_probe.source,
+        )
+    return PromptExecutionOneShotPostNativeProbeResultPlan(
+        False, False, True, "local_dispatch", native_probe.source
+    )
+
+
+
+
 
 
 def plan_prompt_execution_one_shot_local_result(
@@ -938,6 +1039,30 @@ def plan_prompt_execution_one_shot_local_dispatch_result(
     return PromptExecutionOneShotLocalDispatchResultPlan(
         False, False, True, "none", source
     )
+
+
+def plan_prompt_execution_one_shot_post_local_probe_result(
+    local_dispatch: PromptExecutionOneShotLocalDispatchResultPlan,
+) -> PromptExecutionOneShotPostLocalProbeResultPlan:
+    """Plan the one-shot gate after local dispatchers.
+
+    This owns the controller decision that previously returned immediately from
+    ``local_dispatch_result``.  If no local branch handled the line, the pipeline
+    continues to the external process owner.
+    """
+
+    if local_dispatch.stop_native_probe:
+        return PromptExecutionOneShotPostLocalProbeResultPlan(
+            local_dispatch.handled,
+            True,
+            False,
+            "local_dispatch",
+            local_dispatch.source,
+        )
+    return PromptExecutionOneShotPostLocalProbeResultPlan(
+        False, False, True, "external_process", local_dispatch.source
+    )
+
 
 
 def plan_prompt_execution_one_shot_residual_result(

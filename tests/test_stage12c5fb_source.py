@@ -53,8 +53,14 @@ def test_one_shot_local_dispatch_result_is_prompt_execution_owned() -> None:
     assert "return terminal_result.handled" not in local_region
     assert "return logging_result.handled" not in local_region
     assert "return simple_result.handled" not in local_region
-    assert "local_dispatch_result.stop_native_probe" in local_region
-    assert "return local_dispatch_result.handled" in local_region
+    assert (
+        "local_dispatch_result.stop_native_probe" in local_region
+        or "plan_prompt_execution_one_shot_post_local_probe_result" in local_region
+    )
+    assert (
+        "return local_dispatch_result.handled" in local_region
+        or "return post_local_probe_result.handled" in local_region
+    )
     assert local_region.count("return ") == 1
     assert "test_prompt_execution_one_shot_local_dispatch_result_owns_combined_return" in mojo_test
 

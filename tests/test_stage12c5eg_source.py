@@ -44,6 +44,7 @@ def test_one_shot_compatibility_boundary_is_prompt_execution_owned() -> None:
     assert (
         "return one_shot_residual_boundary.handled_without_fallback" in controller
         or "return one_shot_residual_probe.result.handled" in controller
+        or "return final_probe_result.handled" in controller
     )
     assert "test_prompt_execution_one_shot_compatibility_boundary_owns_probe_exit" in test
 

@@ -44,8 +44,14 @@ def test_one_shot_local_result_is_prompt_execution_owned() -> None:
     # the newer combined owner so this historical guard keeps checking the
     # absence of raw ``return True`` without blocking later consolidation.
     if "plan_prompt_execution_one_shot_local_dispatch_result" in active_body:
-        assert "local_dispatch_result.stop_native_probe" in active_body
-        assert "return local_dispatch_result.handled" in active_body
+        assert (
+            "local_dispatch_result.stop_native_probe" in active_body
+            or "plan_prompt_execution_one_shot_post_local_probe_result" in active_body
+        )
+        assert (
+            "return local_dispatch_result.handled" in active_body
+            or "return post_local_probe_result.handled" in active_body
+        )
     else:
         for result_name in (
             "info_result",

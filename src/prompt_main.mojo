@@ -43,12 +43,15 @@ from reta_mojo.prompt_execution import (
     plan_prompt_execution_native_branch_outcome,
     plan_prompt_execution_native_branch_completion,
     plan_prompt_execution_one_shot_loop_control_result,
+    plan_prompt_execution_one_shot_pre_native_probe_result,
     plan_prompt_execution_one_shot_native_completion_result,
     plan_prompt_execution_one_shot_native_probe_result,
+    plan_prompt_execution_one_shot_post_native_probe_result,
     plan_prompt_execution_compatibility_fallback,
     plan_prompt_execution_one_shot_compatibility_boundary,
     plan_prompt_execution_one_shot_compatibility_result,
     plan_prompt_execution_one_shot_local_dispatch_result,
+    plan_prompt_execution_one_shot_post_local_probe_result,
     plan_prompt_execution_one_shot_local_result,
     plan_prompt_execution_one_shot_residual_result,
     plan_prompt_execution_one_shot_residual_probe,
@@ -502,8 +505,14 @@ def _run_native_one_shot(
     var loop_control_result = plan_prompt_execution_one_shot_loop_control_result(
         loop_control.handled, line
     )
-    if loop_control_result.stop_native_probe:
-        return loop_control_result.handled
+    # Previous one-shot pre-native stage returned directly from
+    # loop_control_result.  The pre-native probe owner now decides whether the
+    # pipeline may continue into the native table/mulpri branch probe.
+    var pre_native_probe_result = plan_prompt_execution_one_shot_pre_native_probe_result(
+        loop_control_result
+    )
+    if not pre_native_probe_result.should_probe_native:
+        return pre_native_probe_result.handled
     var native_branch = plan_prompt_execution_native_branch(
         routing, line, profile.language, catalog
     )
@@ -524,8 +533,11 @@ def _run_native_one_shot(
     var native_probe_result = plan_prompt_execution_one_shot_native_probe_result(
         completion, line
     )
-    if native_probe_result.stop_native_probe:
-        return native_probe_result.handled
+    var post_native_probe_result = plan_prompt_execution_one_shot_post_native_probe_result(
+        native_probe_result
+    )
+    if not post_native_probe_result.should_probe_local:
+        return post_native_probe_result.handled
 
     var local_info_handled = False
     var local_terminal_handled = False
@@ -569,8 +581,14 @@ def _run_native_one_shot(
         local_simple_handled,
         line,
     )
-    if local_dispatch_result.stop_native_probe:
-        return local_dispatch_result.handled
+    # Previous local dispatch stage returned directly from local_dispatch_result.
+    # The post-local probe owner now decides whether the pipeline may continue
+    # into explicit external-process probing.
+    var post_local_probe_result = plan_prompt_execution_one_shot_post_local_probe_result(
+        local_dispatch_result
+    )
+    if not post_local_probe_result.should_probe_external:
+        return post_local_probe_result.handled
 
     var external_process = plan_external_process_dispatch(command)
     # Previous one-shot external-process block entered through a raw dispatch
