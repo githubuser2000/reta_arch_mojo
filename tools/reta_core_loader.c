@@ -92,6 +92,132 @@ static int format_library_path(
     return written < 0 || (size_t)written >= size ? -1 : 0;
 }
 
+
+static int environment_is_set(const char *name) {
+    const char *value = getenv(name);
+    return value != NULL && value[0] != '\0';
+}
+
+static void set_environment_if_unset(const char *name, const char *value) {
+    if (!environment_is_set(name) && value != NULL && value[0] != '\0') {
+        setenv(name, value, 1);
+    }
+}
+
+static int join_path(char *buffer, size_t size, const char *left, const char *right) {
+    int written;
+    if (left[0] == '\0' || strcmp(left, "/") == 0) {
+        written = snprintf(buffer, size, "/%s", right);
+    } else if (left[strlen(left) - 1] == '/') {
+        written = snprintf(buffer, size, "%s%s", left, right);
+    } else {
+        written = snprintf(buffer, size, "%s/%s", left, right);
+    }
+    return written < 0 || (size_t)written >= size ? -1 : 0;
+}
+
+static int parent_directory(char *path) {
+    char *slash = strrchr(path, '/');
+    if (slash == NULL) {
+        return -1;
+    }
+    if (slash == path) {
+        slash[1] = '\0';
+    } else {
+        *slash = '\0';
+    }
+    return 0;
+}
+
+static int strip_suffix(char *path, const char *suffix) {
+    size_t path_length = strlen(path);
+    size_t suffix_length = strlen(suffix);
+    if (path_length < suffix_length) {
+        return -1;
+    }
+    if (strcmp(path + path_length - suffix_length, suffix) != 0) {
+        return -1;
+    }
+    path[path_length - suffix_length] = '\0';
+    if (path[0] == '\0') {
+        strcpy(path, "/");
+    }
+    return 0;
+}
+
+static int directory_exists(const char *path) {
+    return access(path, F_OK) == 0;
+}
+
+static void set_runtime_environment(const char *argv0) {
+    char executable[PATH_MAX];
+    char root[PATH_MAX];
+    char prefix[PATH_MAX];
+    char share[PATH_MAX];
+    char csv[PATH_MAX];
+    char assets[PATH_MAX];
+    char reference[PATH_MAX];
+
+    if (executable_path(executable, sizeof(executable), argv0) != 0) {
+        return;
+    }
+    char *slash = strrchr(executable, '/');
+    if (slash == NULL) {
+        return;
+    }
+    *slash = '\0';
+
+    if (strlen(executable) + 1 > sizeof(root)) {
+        return;
+    }
+    memcpy(root, executable, strlen(executable) + 1);
+
+    /* Build tree: target/bin/<starter> -> project root. */
+    if (strip_suffix(root, "/target/bin") != 0) {
+        /* Installed tree: /usr/lib/reta/<starter> -> private runtime root. */
+        memcpy(root, executable, strlen(executable) + 1);
+    }
+
+    set_environment_if_unset("RETA_ROOT", root);
+
+    if (join_path(reference, sizeof(reference), root, "python_reference") == 0) {
+        set_environment_if_unset("RETA_REFERENCE_DIR", reference);
+    }
+
+    if (!environment_is_set("RETA_SHARE_DIR")) {
+        if (strlen(root) + 1 <= sizeof(prefix)) {
+            memcpy(prefix, root, strlen(root) + 1);
+            if (parent_directory(prefix) == 0 && parent_directory(prefix) == 0 &&
+                join_path(share, sizeof(share), prefix, "share/reta") == 0 &&
+                join_path(csv, sizeof(csv), share, "csv") == 0 &&
+                join_path(assets, sizeof(assets), share, "assets") == 0 &&
+                directory_exists(csv) && directory_exists(assets)) {
+                setenv("RETA_SHARE_DIR", share, 1);
+            }
+        }
+    }
+
+    if (!environment_is_set("RETA_DATA_DIR")) {
+        const char *configured_share = getenv("RETA_SHARE_DIR");
+        if (configured_share != NULL && configured_share[0] != '\0' &&
+            join_path(csv, sizeof(csv), configured_share, "csv") == 0) {
+            setenv("RETA_DATA_DIR", csv, 1);
+        } else if (join_path(csv, sizeof(csv), root, "python_reference/csv") == 0) {
+            setenv("RETA_DATA_DIR", csv, 1);
+        }
+    }
+
+    if (!environment_is_set("RETA_ASSET_DIR")) {
+        const char *configured_share = getenv("RETA_SHARE_DIR");
+        if (configured_share != NULL && configured_share[0] != '\0' &&
+            join_path(assets, sizeof(assets), configured_share, "assets") == 0) {
+            setenv("RETA_ASSET_DIR", assets, 1);
+        } else if (join_path(assets, sizeof(assets), root, "assets") == 0) {
+            setenv("RETA_ASSET_DIR", assets, 1);
+        }
+    }
+}
+
 static int library_path(char *buffer, size_t size, const char *argv0) {
     const char *override = getenv("RETA_CORE_LIBRARY");
     if (override != NULL && override[0] != '\0') {
@@ -203,6 +329,8 @@ int main(int argc, char **argv) {
         }
         forwarded_argv = allocated_argv;
     }
+
+    set_runtime_environment(argc > 0 ? argv[0] : NULL);
 
     char library[PATH_MAX];
     if (library_path(library, sizeof(library), argc > 0 ? argv[0] : NULL) != 0) {
