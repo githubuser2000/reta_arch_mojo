@@ -67,6 +67,20 @@ struct PromptFallbackProcessExecutionPlan(Copyable):
 
 
 @fieldwise_init
+struct PromptFallbackProcessResultPlan(Copyable):
+    """Controller-facing result after explicit fallback execution.
+
+    ``_run_fallback`` is used by one-shot compatibility and startup fallback
+    paths.  Process dispatch already owns argv materialization and the execution
+    gate; this result projection keeps the final handled/process-executed flags
+    out of the controller as well.
+    """
+
+    var handled: Bool
+    var process_executed: Bool
+
+
+@fieldwise_init
 struct PromptCompatibilityFallbackProcessExecutionPlan(Copyable):
     """Controller-facing execution gate for native-branch fallback.
 
@@ -461,6 +475,21 @@ def plan_prompt_fallback_process_execution(
     )
 
 
+def plan_prompt_fallback_process_result(
+    execution: PromptFallbackProcessExecutionPlan,
+) -> PromptFallbackProcessResultPlan:
+    """Plan the final explicit fallback process result.
+
+    The explicit fallback caller has no prompt-loop boolean to return, but the
+    same process owner still exposes whether the compatibility child should be
+    treated as handled and whether the OS adapter must be invoked.
+    """
+
+    return PromptFallbackProcessResultPlan(
+        execution.should_execute, execution.should_execute
+    )
+
+
 def plan_prompt_compatibility_fallback_process_execution(
     profile: PromptProfile,
     fallback: PromptExecutionCompatibilityFallbackPlan,
@@ -575,6 +604,7 @@ def prompt_process_dispatch_contract_snapshot() -> List[String]:
         "residual_fallback_process_result=native-prompt-residual-fallback-result-boundary",
         "fallback_process_dispatch=native-interaction-argv-plan",
         "fallback_process_execution=native-prompt-fallback-execution-boundary",
+        "fallback_process_result=native-prompt-fallback-result-boundary",
         "fallback_process_handled=native-explicit-fallback-effect-flag",
         "fallback_process_flags=native-explicit-fallback-run-flag",
         "fallback_process_arguments=native-merged-fallback-argv",
