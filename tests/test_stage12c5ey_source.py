@@ -38,19 +38,28 @@ def test_one_shot_native_completion_result_is_prompt_execution_owned() -> None:
     assert "PromptExecutionOneShotNativeCompletionResultPlan(" in owner
     assert "completion.handled" in owner
     assert "not completion.handled" not in owner
-    assert "plan_prompt_execution_one_shot_native_completion_result" in controller
+    assert (
+        "plan_prompt_execution_one_shot_native_completion_result" in controller
+        or "plan_prompt_execution_one_shot_native_probe_result" in controller
+    )
 
     body = controller.split("def _run_native_one_shot", 1)[1].split("\ndef main", 1)[0]
     active_body = _active(body)
     completion_region = active_body.split(
         "var completion = plan_prompt_execution_native_branch_completion(", 1
     )[1].split(
-        "var compatibility_fallback = plan_prompt_execution_compatibility_fallback(", 1
+        "var local_info_handled = False", 1
     )[0]
     assert "if completion.handled:" not in completion_region
     assert "return True" not in completion_region
-    assert "completion_result.stop_native_probe" in completion_region
-    assert "return completion_result.handled" in completion_region
+    assert (
+        "completion_result.stop_native_probe" in completion_region
+        or "native_probe_result.stop_native_probe" in completion_region
+    )
+    assert (
+        "return completion_result.handled" in completion_region
+        or "return native_probe_result.handled" in completion_region
+    )
     assert "test_prompt_execution_one_shot_native_completion_result_owns_probe_return" in mojo_test
 
 

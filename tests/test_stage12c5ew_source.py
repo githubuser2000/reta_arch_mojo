@@ -29,15 +29,24 @@ def test_one_shot_compatibility_result_is_prompt_execution_owned() -> None:
     assert "struct PromptExecutionOneShotCompatibilityResultPlan" in owner
     assert "def plan_prompt_execution_one_shot_compatibility_result(" in owner
     assert "boundary.handled_without_fallback" in owner
-    assert "plan_prompt_execution_one_shot_compatibility_result" in controller
+    assert (
+        "plan_prompt_execution_one_shot_compatibility_result" in controller
+        or "plan_prompt_execution_one_shot_native_probe_result" in controller
+    )
     body = controller.split("def _run_native_one_shot", 1)[1].split("\ndef main", 1)[0]
     active_body = "\n".join(
         line for line in body.splitlines()
         if not line.strip().startswith("#")
     )
     assert "compatibility_boundary.stop_native_probe" not in active_body
-    assert "compatibility_result.stop_native_probe" in active_body
-    assert "return compatibility_result.handled" in active_body
+    assert (
+        "compatibility_result.stop_native_probe" in active_body
+        or "native_probe_result.stop_native_probe" in active_body
+    )
+    assert (
+        "return compatibility_result.handled" in active_body
+        or "return native_probe_result.handled" in active_body
+    )
     assert "test_prompt_execution_one_shot_compatibility_result_owns_probe_return" in mojo_test
 
 

@@ -44,6 +44,7 @@ from reta_mojo.prompt_execution import (
     plan_prompt_execution_native_branch_completion,
     plan_prompt_execution_one_shot_loop_control_result,
     plan_prompt_execution_one_shot_native_completion_result,
+    plan_prompt_execution_one_shot_native_probe_result,
     plan_prompt_execution_compatibility_fallback,
     plan_prompt_execution_one_shot_compatibility_boundary,
     plan_prompt_execution_one_shot_compatibility_result,
@@ -516,28 +517,14 @@ def _run_native_one_shot(
     var completion = plan_prompt_execution_native_branch_completion(
         outcome, False
     )
-    # Previous one-shot native-completion stage returned directly here:
-    # if completion.handled:
-    #     return True
-    var completion_result = plan_prompt_execution_one_shot_native_completion_result(
+    # Previous one-shot native/compatibility probe stages assembled this by
+    # hand from completion_result, compatibility_fallback,
+    # compatibility_boundary and compatibility_result.
+    var native_probe_result = plan_prompt_execution_one_shot_native_probe_result(
         completion, line
     )
-    if completion_result.stop_native_probe:
-        return completion_result.handled
-    var compatibility_fallback = plan_prompt_execution_compatibility_fallback(
-        completion, line
-    )
-    var compatibility_boundary = plan_prompt_execution_one_shot_compatibility_boundary(
-        compatibility_fallback, False
-    )
-    # Previous one-shot compatibility-boundary stage returned directly here:
-    # if compatibility_boundary.stop_native_probe:
-    #     return False
-    var compatibility_result = plan_prompt_execution_one_shot_compatibility_result(
-        compatibility_boundary
-    )
-    if compatibility_result.stop_native_probe:
-        return compatibility_result.handled
+    if native_probe_result.stop_native_probe:
+        return native_probe_result.handled
 
     var local_info_handled = False
     var local_terminal_handled = False

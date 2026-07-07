@@ -442,6 +442,53 @@ def test_prompt_execution_one_shot_native_completion_result_owns_probe_return() 
 
 
 
+def test_prompt_execution_one_shot_native_probe_result_owns_completion_and_boundary() raises:
+    var catalog = _catalog()
+    var owned_routing = plan_prompt_execution_routing("p 17", "deutsch", catalog)
+    var owned_branch = plan_prompt_execution_native_branch(
+        owned_routing, "p 17", "deutsch", catalog
+    )
+    var owned_outcome = plan_prompt_execution_native_branch_outcome(
+        owned_branch, True
+    )
+    var owned_completion = plan_prompt_execution_native_branch_completion(
+        owned_outcome, False
+    )
+    var owned_probe = plan_prompt_execution_one_shot_native_probe_result(
+        owned_completion, "p 17"
+    )
+    assert_true(owned_probe.handled)
+    assert_true(owned_probe.stop_native_probe)
+    assert_false(owned_probe.continue_native_probe)
+    assert_false(owned_probe.fallback_required)
+    assert_equal(owned_probe.result_owner, "native_completion")
+    assert_equal(owned_probe.source, "p 17")
+
+    var fallback_routing = plan_prompt_execution_routing(
+        "r unportedtail 2", "deutsch", catalog
+    )
+    var fallback_branch = plan_prompt_execution_native_branch(
+        fallback_routing, "r unportedtail 2", "deutsch", catalog
+    )
+    var fallback_outcome = plan_prompt_execution_native_branch_outcome(
+        fallback_branch, False
+    )
+    var fallback_completion = plan_prompt_execution_native_branch_completion(
+        fallback_outcome, False
+    )
+    var fallback_probe = plan_prompt_execution_one_shot_native_probe_result(
+        fallback_completion, "r unportedtail 2"
+    )
+    assert_false(fallback_probe.handled)
+    assert_true(fallback_probe.stop_native_probe)
+    assert_false(fallback_probe.continue_native_probe)
+    assert_true(fallback_probe.fallback_required)
+    assert_equal(fallback_probe.result_owner, "compatibility_boundary")
+    assert_equal(fallback_probe.source, "r unportedtail 2")
+
+
+
+
 def test_prompt_execution_one_shot_compatibility_result_owns_probe_return() raises:
     var stopped_boundary = PromptExecutionOneShotCompatibilityBoundaryPlan(
         True, False, "r unportedtail 2"

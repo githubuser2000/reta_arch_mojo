@@ -104,7 +104,7 @@ SKIP schweres Compilerziel: tests/test_category_theory.mojo
 
 == reuse tests/test_legacy_reta_program_startup.mojo ==
 
-== build tests/test_legacy_reta_prompt.mojo ==
+== reuse tests/test_legacy_reta_prompt.mojo ==
 
 == reuse tests/test_legacy_table_handling.mojo ==
 
@@ -176,95 +176,22 @@ SKIP schweres Compilerziel: tests/test_category_theory.mojo
 
 == reuse tests/test_prompt_execution_helpers.mojo ==
 
-== reuse tests/test_prompt_execution.mojo ==
-
-== reuse tests/test_prompt_execution_runtime.mojo ==
-
-== reuse tests/test_prompt_external_commands.mojo ==
-
-== reuse tests/test_prompt_fraction_execution.mojo ==
-
-== reuse tests/test_prompt_historical_ownership.mojo ==
-
-== build tests/test_prompt_interaction.mojo ==
-
-== reuse tests/test_prompt_language.mojo ==
-
-== reuse tests/test_prompt_legacy_echo.mojo ==
-
-== reuse tests/test_prompt_line_editor.mojo ==
-
-== reuse tests/test_prompt_preparation.mojo ==
-
-== reuse tests/test_prompt_property_execution.mojo ==
-
-== reuse tests/test_prompt_property_table_integration.mojo ==
-
-== reuse tests/test_prompt_raw_commands.mojo ==
-
-== reuse tests/test_prompt_runtime_contract.mojo ==
-
-== reuse tests/test_prompt_runtime.mojo ==
-
-== reuse tests/test_prompt_session.mojo ==
-
-== reuse tests/test_prompt_table_execution.mojo ==
-
-== reuse tests/test_prompt_table_execution_regressions.mojo ==
-
-== reuse tests/test_py_reta_truth_native.mojo ==
-
-== reuse tests/test_readme_generator.mojo ==
-
-== reuse tests/test_row_filtering.mojo ==
-
-== reuse tests/test_row_filtering_reference.mojo ==
-
-== reuse tests/test_row_ranges.mojo ==
-
-== reuse tests/test_runtime_compat_complete.mojo ==
-
-== reuse tests/test_runtime_compat.mojo ==
-SKIP schweres Compilerziel: tests/test_schema_catalog_parity.mojo
-
-== reuse tests/test_schema_snapshot.mojo ==
-
-== reuse tests/test_semantics_builder.mojo ==
-
-== reuse tests/test_semantics_stage12c5f.mojo ==
-
-== reuse tests/test_setup_metadata.mojo ==
-
-== reuse tests/test_sheaves_complete.mojo ==
-
-== reuse tests/test_split_i18n.mojo ==
-
-== reuse tests/test_table_adapters.mojo ==
-
-== reuse tests/test_table_generation_complete.mojo ==
-
-== reuse tests/test_table_output_complete.mojo ==
-
-== reuse tests/test_table_preparation_complete.mojo ==
-
-== reuse tests/test_table_preparation.mojo ==
-
-== reuse tests/test_table_rendering.mojo ==
-
-== reuse tests/test_table_runtime_complete.mojo ==
-
-== reuse tests/test_table_state.mojo ==
-
-== reuse tests/test_table_wrapping.mojo ==
-
-== reuse tests/test_tag_schema.mojo ==
-
-== reuse tests/test_terminal_geometry.mojo ==
-
-== reuse tests/test_topology.mojo ==
-
-== reuse tests/test_universal.mojo ==
-
-Testkompilierung abgeschlossen: 132 Programme (2 neu, 130 wiederverwendet).
-Manifest: /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/tests-all/manifest.tsv
-Ausführen: scripts/run-tests.sh
+== build tests/test_prompt_execution.mojo ==
+Included from /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/src/reta_mojo/__init__.mojo:1:
+Included from /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/src/reta_mojo/__init__.mojo:276:
+/home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/src/reta_mojo/prompt_execution.mojo:888:9: error: value of type 'PromptExecutionOneShotResidualResultPlan' cannot be implicitly copied, it does not conform to 'ImplicitlyCopyable'
+        result, fallback.should_run, fallback.source
+        ^~~~~~
+Included from /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/src/reta_mojo/__init__.mojo:1:
+Included from /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/src/reta_mojo/__init__.mojo:276:
+/home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/src/reta_mojo/prompt_execution.mojo:888:9: note: consider transferring the value with '^'
+        result, fallback.should_run, fallback.source
+        ^
+              ^
+Included from /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/src/reta_mojo/__init__.mojo:1:
+Included from /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/src/reta_mojo/__init__.mojo:276:
+/home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/src/reta_mojo/prompt_execution.mojo:888:9: note: you can copy it explicitly with '.copy()'
+        result, fallback.should_run, fallback.source
+        ^
+              .copy()
+/home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/.venv/bin/mojo: error: failed to parse the provided Mojo source module

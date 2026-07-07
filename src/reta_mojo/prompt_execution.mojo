@@ -380,6 +380,27 @@ struct PromptExecutionOneShotCompatibilityResultPlan(Copyable):
 
 
 @fieldwise_init
+struct PromptExecutionOneShotNativeProbeResultPlan(Copyable):
+    """Controller-facing result for the native one-shot branch probe.
+
+    The native table/mulpri/logging branch first yields a completion plan.  If
+    that completion is handled, the one-shot probe returns successfully.  If it
+    instead requires compatibility, the native probe returns ``False`` so the
+    caller can cross the historical Python boundary.  Only declined, non-fallback
+    completions continue into local one-shot dispatchers.
+    """
+
+    var handled: Bool
+    var stop_native_probe: Bool
+    var continue_native_probe: Bool
+    var fallback_required: Bool
+    var result_owner: String
+    var source: String
+
+
+
+
+@fieldwise_init
 struct PromptExecutionOneShotLocalResultPlan(Copyable):
     """Controller-facing result for local one-shot prompt dispatchers.
 
@@ -796,6 +817,60 @@ def plan_prompt_execution_one_shot_compatibility_result(
 
 
 
+def plan_prompt_execution_one_shot_native_probe_result(
+    completion: PromptExecutionNativeBranchCompletionPlan, source: String
+) -> PromptExecutionOneShotNativeProbeResultPlan:
+    """Plan the combined native-branch probe result for one-shot mode.
+
+    This owner replaces the controller's hand-built sequence of native
+    completion, compatibility fallback, compatibility boundary and boundary
+    result.  It keeps the same stop/continue algebra visible while letting
+    ``_run_native_one_shot`` consume one pure value before local dispatch.
+    """
+
+    var completion_result = plan_prompt_execution_one_shot_native_completion_result(
+        completion, source
+    )
+    if completion_result.stop_native_probe:
+        return PromptExecutionOneShotNativeProbeResultPlan(
+            completion_result.handled,
+            True,
+            False,
+            False,
+            "native_completion",
+            completion_result.source,
+        )
+
+    var fallback = plan_prompt_execution_compatibility_fallback(
+        completion, source
+    )
+    var boundary = plan_prompt_execution_one_shot_compatibility_boundary(
+        fallback, False
+    )
+    var compatibility_result = plan_prompt_execution_one_shot_compatibility_result(
+        boundary
+    )
+    if compatibility_result.stop_native_probe:
+        return PromptExecutionOneShotNativeProbeResultPlan(
+            compatibility_result.handled,
+            True,
+            False,
+            fallback.should_run,
+            "compatibility_boundary",
+            compatibility_result.source,
+        )
+    return PromptExecutionOneShotNativeProbeResultPlan(
+        compatibility_result.handled,
+        False,
+        True,
+        fallback.should_run,
+        "local_dispatch",
+        compatibility_result.source,
+    )
+
+
+
+
 def plan_prompt_execution_one_shot_local_result(
     local_handled: Bool, source: String
 ) -> PromptExecutionOneShotLocalResultPlan:
@@ -885,7 +960,7 @@ def plan_prompt_execution_one_shot_residual_probe(
     )
     var result = plan_prompt_execution_one_shot_residual_result(boundary)
     return PromptExecutionOneShotResidualProbePlan(
-        result, fallback.should_run, fallback.source
+        result^, fallback.should_run, fallback.source
     )
 
 
