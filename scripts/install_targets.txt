@@ -3,6 +3,11 @@
 # core shared build_core_shared.sh targets
 reta
 grundStrukHtml
+# prompt shared build_prompt_shared.sh targets
+rp
+rpl
+rpe
+rpb
 # regular build.sh targets
 generate-html-native
 generate-readme-native

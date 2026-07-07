@@ -12,8 +12,8 @@ Baut die nächste Prompt-Shared-Library-Zielgruppe:
   - target/bin/rpb als dünner One-shot-Starter ohne interactive Library
   - target/bin/rp, rpl und rpe als dünne interaktive Starter
 
-Diese Stage hängt die Prompt-Shared-Libraries noch nicht in build-all.sh ein.
-Sie bereitet den ABI-Pfad analog zur Core-Shared-Library vor.
+Diese Stage baut die offiziellen Prompt-Shared-Libraries und dünnen Prompt-Starter.
+build-all.sh ruft sie nach dem Core-Shared-Build auf.
 USAGE
         exit 0
         ;;

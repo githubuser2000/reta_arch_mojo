@@ -55,9 +55,9 @@ def test_install_script_installs_core_library_for_public_thin_launchers() -> Non
     assert 'require_file "$CORE_LIBRARY.reta-source-id"' in script
     assert 'require_file "$TARGETDIR/reta.reta-source-id"' in script
     assert 'require_file "$TARGETDIR/grundStrukHtml.reta-source-id"' in script
-    assert 'install -m 0755 "$CORE_LIBRARY"' in script
-    assert 'libreta-core.so.reta-source-id' in script
-    assert 'RETA_REBUILD_COMMAND=scripts/build_core_shared.sh' in script
+    assert 'install_shared_library "$CORE_LIBRARY" scripts/build_core_shared.sh' in script
+    assert '$source_library.reta-source-id' in script
+    assert 'install_shared_library "$CORE_LIBRARY" scripts/build_core_shared.sh' in script
     assert 'INSTALLED_LIBRARIES=$((INSTALLED_LIBRARIES + 1))' in script
 
 

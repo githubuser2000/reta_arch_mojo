@@ -7,13 +7,16 @@ fi
 ROOT=$(CDPATH= cd -- "$(dirname -- "$SELF")/.." && pwd)
 PROFILE=${RETA_PROMPT_PROFILE:-$(basename -- "$0")}
 # Preserve the historical PyPy3 reference for explicit Python/math commands
-# and for the atomic compatibility child process.
+# and for the atomic compatibility child process.  The prompt execution itself
+# is now reached through the thin shared-library starter below.
 if [ -z "${RETA_PYTHON-}" ]; then
     RETA_PYTHON=$(RETA_PROJECT_ROOT="$ROOT" "$ROOT/scripts/select_reference_python.sh")
     export RETA_PYTHON
 fi
-cd "$ROOT"
-if [ -x "$ROOT/target/bin/reta-prompt-native" ]; then
-    exec "$ROOT/bin/mojo-runtime-exec" "$ROOT/target/bin/reta-prompt-native" "$PROFILE" "$@"
+PROMPT_STARTER="$ROOT/target/bin/$PROFILE"
+if [ ! -x "$PROMPT_STARTER" ]; then
+    printf 'Dünner Prompt-Starter fehlt: %s\n' "$PROMPT_STARTER" >&2
+    printf 'Bitte neu kompilieren: scripts/build_prompt_shared.sh oder scripts/build-all.sh\n' >&2
+    exit 127
 fi
-exec "$ROOT/bin/mojo-real" run -I "$ROOT/src" "$ROOT/src/prompt_main.mojo" "$PROFILE" "$@"
+exec "$PROMPT_STARTER" "$@"

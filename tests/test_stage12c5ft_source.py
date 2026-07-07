@@ -51,7 +51,7 @@ def test_prompt_loader_routes_rpb_away_from_interactive_library() -> None:
     assert "reta_prompt_interactive_entry" not in rpb_entry
 
 
-def test_prompt_shared_build_is_documented_but_not_yet_forced_by_build_all() -> None:
+def test_prompt_shared_build_is_documented_and_promoted_after_ft() -> None:
     build = (ROOT / "scripts/build_prompt_shared.sh").read_text(encoding="utf-8")
     assert "libreta-prompt.so" in build
     assert "libreta-prompt-interactive.so" in build
@@ -60,7 +60,7 @@ def test_prompt_shared_build_is_documented_but_not_yet_forced_by_build_all() -> 
     assert "stamp_mojo_binary.sh" in build
     assert "sanitize_mojo_runpath.py" in build
     build_all = (ROOT / "scripts/build-all.sh").read_text(encoding="utf-8")
-    assert "build_prompt_shared.sh" not in build_all
+    assert "build_prompt_shared.sh" in build_all
 
 
 def test_stage_is_documented() -> None:

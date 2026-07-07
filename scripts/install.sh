@@ -53,6 +53,16 @@ require_file "$CORE_LIBRARY"
 require_file "$CORE_LIBRARY.reta-source-id"
 require_file "$TARGETDIR/reta.reta-source-id"
 require_file "$TARGETDIR/grundStrukHtml.reta-source-id"
+PROMPT_LIBRARY="$TARGETLIBDIR/libreta-prompt.so"
+PROMPT_INTERACTIVE_LIBRARY="$TARGETLIBDIR/libreta-prompt-interactive.so"
+require_file "$PROMPT_LIBRARY"
+require_file "$PROMPT_LIBRARY.reta-source-id"
+require_file "$PROMPT_INTERACTIVE_LIBRARY"
+require_file "$PROMPT_INTERACTIVE_LIBRARY.reta-source-id"
+for prompt_starter in rp rpl rpe rpb; do
+    require_file "$TARGETDIR/$prompt_starter"
+    require_file "$TARGETDIR/$prompt_starter.reta-source-id"
+done
 
 INSTALL_DIAGNOSTICS=0
 if [ -f "$TARGETDIR/reta-mojo-diagnostics" ]; then
@@ -129,16 +139,25 @@ while IFS= read -r name || [ -n "$name" ]; do
 done < "$ROOT/scripts/install_targets.txt"
 
 INSTALLED_LIBRARIES=0
-RETA_TARGET_DIR="$TARGETDIR" \
-RETA_TARGET_LIB_DIR="$TARGETLIBDIR" \
-RETA_REBUILD_COMMAND=scripts/build_core_shared.sh \
-RETA_CURRENT_SOURCE_ID="$CURRENT_SOURCE_ID" \
-    "$ROOT/scripts/check_mojo_binary_freshness.sh" "$CORE_LIBRARY"
-install -m 0755 "$CORE_LIBRARY" \
-    "$STAGE_LIBEXECDIR/target/lib/reta/libreta-core.so"
-install -m 0644 "$CORE_LIBRARY.reta-source-id" \
-    "$STAGE_LIBEXECDIR/target/lib/reta/libreta-core.so.reta-source-id"
-INSTALLED_LIBRARIES=$((INSTALLED_LIBRARIES + 1))
+install_shared_library() {
+    source_library=$1
+    rebuild_command=$2
+    installed_name=$(basename -- "$source_library")
+    RETA_TARGET_DIR="$TARGETDIR" \
+    RETA_TARGET_LIB_DIR="$TARGETLIBDIR" \
+    RETA_REBUILD_COMMAND="$rebuild_command" \
+    RETA_CURRENT_SOURCE_ID="$CURRENT_SOURCE_ID" \
+        "$ROOT/scripts/check_mojo_binary_freshness.sh" "$source_library"
+    install -m 0755 "$source_library" \
+        "$STAGE_LIBEXECDIR/target/lib/reta/$installed_name"
+    install -m 0644 "$source_library.reta-source-id" \
+        "$STAGE_LIBEXECDIR/target/lib/reta/$installed_name.reta-source-id"
+    INSTALLED_LIBRARIES=$((INSTALLED_LIBRARIES + 1))
+}
+
+install_shared_library "$CORE_LIBRARY" scripts/build_core_shared.sh
+install_shared_library "$PROMPT_LIBRARY" scripts/build_prompt_shared.sh
+install_shared_library "$PROMPT_INTERACTIVE_LIBRARY" scripts/build_prompt_shared.sh
 
 if [ "$INSTALL_DIAGNOSTICS" = 1 ]; then
     RETA_TARGET_DIR="$TARGETDIR" \

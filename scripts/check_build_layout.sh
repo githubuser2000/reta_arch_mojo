@@ -6,7 +6,7 @@ TARGET_DIR=${RETA_TARGET_DIR:-"$ROOT/target/bin"}
 TARGET_ROOT=$(dirname -- "$TARGET_DIR")
 TARGET_LIB_DIR=${RETA_TARGET_LIB_DIR:-"$TARGET_ROOT/lib/reta"}
 
-expected='reta grundStrukHtml reta-mojo-native reta-mojo-table reta-mojo-tags reta-mojo-i18n reta-mojo-package-integrity reta-mojo-exports reta-mojo-facade reta-mojo-workflow reta-mojo-sheaves reta-mojo-diagnostics reta-mojo-domain-probe reta-mojo-architecture-probe reta-mojo-combi-join reta-native reta-mojo-compat-bin reta-prompt-native reta-prompt-complete grundStrukHtml-native generate-html-native generate-readme-native reta-extract-html-classes-native'
+expected='reta grundStrukHtml rp rpl rpe rpb reta-mojo-native reta-mojo-table reta-mojo-tags reta-mojo-i18n reta-mojo-package-integrity reta-mojo-exports reta-mojo-facade reta-mojo-workflow reta-mojo-sheaves reta-mojo-diagnostics reta-mojo-domain-probe reta-mojo-architecture-probe reta-mojo-combi-join reta-native reta-mojo-compat-bin reta-prompt-native reta-prompt-complete grundStrukHtml-native generate-html-native generate-readme-native reta-extract-html-classes-native'
 CURRENT_SOURCE_ID=$("$ROOT/scripts/current_source_id.sh")
 
 heavy='reta-mojo-semantics reta-mojo-schema reta-mojo-architecture reta-mojo-boundaries reta-mojo-contracts reta-mojo-witnesses reta-mojo-coherence reta-mojo-traces reta-mojo-impact reta-mojo-migration reta-mojo-rehearsal reta-mojo-activation reta-mojo-validation reta-mojo-progress reta-mojo-persistence reta-mojo-execution-network reta-mojo-parallel-execution reta-mojo-row-preparation'
@@ -48,28 +48,48 @@ for name in $expected; do
         reta|grundStrukHtml)
             check_target "$name" scripts/build_core_shared.sh
             ;;
+        rp|rpl|rpe|rpb)
+            check_target "$name" scripts/build_prompt_shared.sh
+            ;;
         *)
             check_target "$name" scripts/build.sh
             ;;
     esac
 done
 
-CORE_LIBRARY="$TARGET_LIB_DIR/libreta-core.so"
-if [ ! -f "$CORE_LIBRARY" ]; then
-    printf 'Fehler: erwartete Core-Shared-Library fehlt: %s\n' "$CORE_LIBRARY" >&2
-    exit 1
-fi
-if ! file -b "$CORE_LIBRARY" | grep -q '^ELF 64-bit.*shared object'; then
-    printf 'Fehler: keine native ELF-Core-Shared-Library: %s\n' "$CORE_LIBRARY" >&2
-    exit 1
-fi
-RETA_TARGET_DIR="$TARGET_DIR" \
-RETA_TARGET_LIB_DIR="$TARGET_LIB_DIR" \
-RETA_REBUILD_COMMAND=scripts/build_core_shared.sh \
-RETA_CURRENT_SOURCE_ID="$CURRENT_SOURCE_ID" \
-    "$ROOT/scripts/check_mojo_binary_freshness.sh" "$CORE_LIBRARY"
+check_shared_library() {
+    library=$1
+    rebuild=$2
+    description=$3
+    if [ ! -f "$library" ]; then
+        printf 'Fehler: erwartete %s fehlt: %s\n' "$description" "$library" >&2
+        exit 1
+    fi
+    if ! file -b "$library" | grep -q '^ELF 64-bit.*shared object'; then
+        printf 'Fehler: keine native ELF-%s: %s\n' "$description" "$library" >&2
+        exit 1
+    fi
+    RETA_TARGET_DIR="$TARGET_DIR" \
+    RETA_TARGET_LIB_DIR="$TARGET_LIB_DIR" \
+    RETA_REBUILD_COMMAND="$rebuild" \
+    RETA_CURRENT_SOURCE_ID="$CURRENT_SOURCE_ID" \
+        "$ROOT/scripts/check_mojo_binary_freshness.sh" "$library"
+    [ -f "$library.reta-source-id" ] || {
+        printf 'Fehler: Source-ID-Sidecar fehlt: %s.reta-source-id\n' "$library" >&2
+        exit 1
+    }
+}
 
-for stamped in "$TARGET_DIR/reta" "$TARGET_DIR/grundStrukHtml" "$CORE_LIBRARY"; do
+CORE_LIBRARY="$TARGET_LIB_DIR/libreta-core.so"
+PROMPT_LIBRARY="$TARGET_LIB_DIR/libreta-prompt.so"
+PROMPT_INTERACTIVE_LIBRARY="$TARGET_LIB_DIR/libreta-prompt-interactive.so"
+check_shared_library "$CORE_LIBRARY" scripts/build_core_shared.sh 'Core-Shared-Library'
+check_shared_library "$PROMPT_LIBRARY" scripts/build_prompt_shared.sh 'Prompt-Shared-Library'
+check_shared_library "$PROMPT_INTERACTIVE_LIBRARY" scripts/build_prompt_shared.sh 'interaktive Prompt-Shared-Library'
+
+for stamped in "$TARGET_DIR/reta" "$TARGET_DIR/grundStrukHtml" "$CORE_LIBRARY" \
+    "$TARGET_DIR/rp" "$TARGET_DIR/rpl" "$TARGET_DIR/rpe" "$TARGET_DIR/rpb" \
+    "$PROMPT_LIBRARY" "$PROMPT_INTERACTIVE_LIBRARY"; do
     [ -f "$stamped.reta-source-id" ] || {
         printf 'Fehler: Source-ID-Sidecar fehlt: %s.reta-source-id\n' "$stamped" >&2
         exit 1
@@ -82,6 +102,18 @@ if [ "$(sed -n '1p' "$TARGET_DIR/reta.reta-source-id")" != \
     printf '%s\n' 'Fehler: Core-Dünnstarter und libreta-core haben verschiedene Source-IDs.' >&2
     exit 1
 fi
+if [ "$(sed -n '1p' "$TARGET_DIR/rpb.reta-source-id")" != \
+     "$(sed -n '1p' "$PROMPT_LIBRARY.reta-source-id")" ]; then
+    printf '%s\n' 'Fehler: rpb und libreta-prompt haben verschiedene Source-IDs.' >&2
+    exit 1
+fi
+for prompt_starter in rp rpl rpe; do
+    if [ "$(sed -n '1p' "$TARGET_DIR/$prompt_starter.reta-source-id")" != \
+         "$(sed -n '1p' "$PROMPT_INTERACTIVE_LIBRARY.reta-source-id")" ]; then
+        printf 'Fehler: %s und libreta-prompt-interactive haben verschiedene Source-IDs.\n' "$prompt_starter" >&2
+        exit 1
+    fi
+done
 
 DIAGNOSTICS_LIBRARY="$TARGET_LIB_DIR/libreta-mojo-diagnostics.so"
 if [ ! -f "$DIAGNOSTICS_LIBRARY" ]; then

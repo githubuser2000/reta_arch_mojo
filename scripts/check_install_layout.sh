@@ -28,6 +28,18 @@ DESTDIR=$STAGE PREFIX=/usr "$ROOT/scripts/install.sh" >"$TMP/install.log"
 [ -x "$STAGE/usr/lib/reta/target/bin/grundStrukHtml" ]
 [ -f "$STAGE/usr/lib/reta/target/lib/reta/libreta-core.so" ]
 [ -f "$STAGE/usr/lib/reta/target/lib/reta/libreta-core.so.reta-source-id" ]
+[ -x "$STAGE/usr/lib/reta/target/bin/rp" ]
+[ -x "$STAGE/usr/lib/reta/target/bin/rpl" ]
+[ -x "$STAGE/usr/lib/reta/target/bin/rpe" ]
+[ -x "$STAGE/usr/lib/reta/target/bin/rpb" ]
+[ -f "$STAGE/usr/lib/reta/target/lib/reta/libreta-prompt.so" ]
+[ -f "$STAGE/usr/lib/reta/target/lib/reta/libreta-prompt.so.reta-source-id" ]
+[ -f "$STAGE/usr/lib/reta/target/lib/reta/libreta-prompt-interactive.so" ]
+[ -f "$STAGE/usr/lib/reta/target/lib/reta/libreta-prompt-interactive.so.reta-source-id" ]
+[ -L "$STAGE/usr/bin/rp" ]
+[ -L "$STAGE/usr/bin/rpl" ]
+[ -L "$STAGE/usr/bin/rpe" ]
+[ -L "$STAGE/usr/bin/rpb" ]
 
 (
     cd "$TMP"

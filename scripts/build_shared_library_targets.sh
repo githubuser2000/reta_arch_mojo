@@ -12,10 +12,9 @@ Beschreibt die neue dynamische Zielarchitektur:
   - libreta-prompt-interactive.so / libreta-prompt-interactive.dll
 
 Diese Stage friert die Zielarchitektur und ihre Starter-Abhängigkeiten ein.
-libreta-core.so ist der offizielle Core-ABI-Build.  libreta-prompt.so und
-libreta-prompt-interactive.so sind als optionale Prompt-ABI-Zielgruppe über
-scripts/build_prompt_shared.sh vorbereitet, aber noch nicht in build-all.sh
-erzwungen.
+libreta-core.so, libreta-prompt.so und libreta-prompt-interactive.so
+sind offizielle Shared-Library-Zielgruppen. build-all.sh baut alle drei
+Bibliotheken und die zugehörigen dünnen Starter.
 USAGE
         exit 0
         ;;
@@ -55,9 +54,9 @@ Geplante Shared-Library-Zielarchitektur:
 Dünne Starter:
   reta          -> libreta-core  (aktiv über scripts/build_core_shared.sh)
   grundStrukHtml-> libreta-core  (aktiv über scripts/build_core_shared.sh)
-  rpb           -> libreta-prompt + libreta-core       (vorbereitet über scripts/build_prompt_shared.sh)
+  rpb           -> libreta-prompt + libreta-core       (aktiv über scripts/build_prompt_shared.sh)
   rp/rpl/rpe    -> libreta-prompt-interactive + libreta-prompt + libreta-core
-                  (vorbereitet über scripts/build_prompt_shared.sh)
+                  (aktiv über scripts/build_prompt_shared.sh)
 PLAN
 
 if [ "$DRY_RUN" = 1 ]; then
@@ -67,5 +66,5 @@ fi
 
 printf '%s\n' 'Baue aktive Core-Shared-Zielgruppe.'
 "$ROOT/scripts/build_core_shared.sh" -- "$@"
-printf '%s\n' 'Baue optionale Prompt-Shared-Zielgruppe.'
+printf '%s\n' 'Baue offizielle Prompt-Shared-Zielgruppe.'
 "$ROOT/scripts/build_prompt_shared.sh" -- "$@"

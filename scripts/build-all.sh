@@ -6,7 +6,7 @@ usage() {
 Verwendung: scripts/build-all.sh [--optimize-heavy] [--] [MOJO_BUILD_OPTION ...]
 
 Baut zuerst alle schweren, danach alle regulären nativen Ziele und anschließend
-die offiziellen Core-Shared-Artefakte. Die nach `--`
+die offiziellen Core- und Prompt-Shared-Artefakte. Die nach `--`
 stehenden Mojo-Compileroptionen werden unverändert an beide untergeordneten
 Build-Skripte und damit an jedes `mojo build` weitergereicht.
 
@@ -85,8 +85,11 @@ RETA_TARGET_LIB_DIR="$TARGET_LIB_DIR" \
 RETA_TARGET_DIR="$TARGET_DIR" \
 RETA_TARGET_LIB_DIR="$TARGET_LIB_DIR" \
     "$ROOT/scripts/build_core_shared.sh" -- "$@"
+RETA_TARGET_DIR="$TARGET_DIR" \
+RETA_TARGET_LIB_DIR="$TARGET_LIB_DIR" \
+    "$ROOT/scripts/build_prompt_shared.sh" -- "$@"
 
-# A build is successful only if every regular, heavy and official shared-core artifact exists, is a
+# A build is successful only if every regular, heavy and official shared artifact exists, is a
 # valid ELF and carries the live content ID of sources plus build recipes.
 RETA_TARGET_DIR="$TARGET_DIR" \
 RETA_TARGET_LIB_DIR="$TARGET_LIB_DIR" \
@@ -94,6 +97,6 @@ RETA_CHECK_HEAVY=1 \
     "$ROOT/scripts/check_build_layout.sh"
 
 printf '\n%s\n' 'Vollständiger nativer Build abgeschlossen.'
-printf '%s\n' 'Erzeugt und verifiziert wurden alle regulären und schweren Executables, die Shared Libraries und die Core-Dünnstarter.'
+printf '%s\n' 'Erzeugt und verifiziert wurden alle regulären und schweren Executables, die Shared Libraries sowie die Core- und Prompt-Dünnstarter.'
 printf '%s\n' 'Aktuellen Stage-Test nach Änderungen ausführen; vollständige Mojo-Suite vor Releases oder nach mehreren Stages: scripts/test_all.sh'
 printf '%s\n' 'Mit zwei zusätzlichen schweren Testzielen: RETA_TEST_HEAVY=1 scripts/test_all.sh'

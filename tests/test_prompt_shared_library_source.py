@@ -155,7 +155,7 @@ def test_interactive_prompt_abi_is_separate_and_documents_rpb_exclusion() -> Non
     assert "run_prompt_profile_from_args" in source
 
 
-def test_prompt_shared_build_script_keeps_prompt_group_out_of_build_all_for_now() -> None:
+def test_prompt_shared_build_script_is_now_an_official_build_all_target() -> None:
     build = BUILD_SCRIPT.read_text(encoding="utf-8")
     assert "src/reta_prompt_abi.mojo" in build
     assert "src/reta_prompt_interactive_abi.mojo" in build
@@ -165,7 +165,8 @@ def test_prompt_shared_build_script_keeps_prompt_group_out_of_build_all_for_now(
     assert '"$TARGET_DIR/$name"' in build
     assert "rpb lädt nur libreta-prompt.so" in build
     build_all = (ROOT / "scripts/build-all.sh").read_text(encoding="utf-8")
-    assert "build_prompt_shared.sh" not in build_all
+    assert "build_prompt_shared.sh" in build_all
+    assert "build_core_shared.sh" in build_all
 
 
 def test_rpb_loader_uses_prompt_library_without_interactive_library(tmp_path: Path) -> None:
