@@ -810,5 +810,21 @@ def test_prompt_execution_one_shot_probe_pipeline_state_consumes_gates() raises:
     assert_equal(stopped.source, "hilfe")
 
 
+def test_prompt_execution_native_completion_witness_marks_owner_complete() raises:
+    var plan = plan_prompt_execution_native_completion()
+    assert_true(prompt_execution_native_completion_valid(plan))
+    assert_equal(plan.python_file, "reta_architecture/prompt_execution.py")
+    assert_equal(plan.status, "nativ")
+    assert_equal(plan.source_lines, 2516)
+    assert_equal(plan.top_level_surfaces, 22)
+    assert_equal(plan.native_owner_modules, 9)
+    assert_equal(plan.historical_table_families, 33)
+    assert_equal(plan.one_shot_pipeline_gates, 4)
+    assert_equal(plan.compatibility_boundaries, 3)
+    assert_equal(plan.process_owner, "prompt_process_dispatch.mojo")
+    assert_equal(plan.controller_owner, "src/prompt_main.mojo")
+    assert_true(plan.bridge_free)
+
+
 def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()

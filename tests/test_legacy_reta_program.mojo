@@ -79,5 +79,23 @@ def test_workflow_and_legacy_helpers_delegate_to_native_owners() raises:
     assert_equal(owners[8], "unsupported=explicit-child-process")
 
 
+def test_reta_program_native_completion_witness_marks_top_level_complete() raises:
+    var completion = plan_legacy_reta_program_native_completion()
+    assert_equal(completion.source_file, "reta.py")
+    assert_equal(completion.status, "nativ")
+    assert_equal(completion.source_lines, 214)
+    assert_equal(completion.public_names, 27)
+    assert_equal(completion.method_definitions, 18)
+    assert_equal(completion.owner_entries, 10)
+    assert_true(completion.startup_native)
+    assert_true(completion.controls_native)
+    assert_true(completion.table_kernel_native)
+    assert_true(completion.workflow_native)
+    assert_true(completion.parallel_native)
+    assert_true(completion.compatibility_boundary)
+    assert_false(completion.python_runtime_embedded)
+    assert_true(legacy_reta_program_native_completion_valid(completion))
+
+
 def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()

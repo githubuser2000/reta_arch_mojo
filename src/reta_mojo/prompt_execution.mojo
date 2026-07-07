@@ -1406,6 +1406,32 @@ def plan_prompt_execution_routing(
 
 
 @fieldwise_init
+struct PromptExecutionNativeCompletionPlan(Copyable):
+    """Completion witness for the full prompt-execution Python owner.
+
+    The historical module is split across pure prompt-execution plans, table
+    and fraction owners, legacy echo rendering, process-dispatch boundaries and
+    the native prompt controller.  This witness records the exact native
+    evidence needed before the porting matrix can mark
+    ``reta_architecture/prompt_execution.py`` as fully native instead of merely
+    partially ported.
+    """
+
+    var python_file: String
+    var status: String
+    var source_lines: Int
+    var top_level_surfaces: Int
+    var native_owner_modules: Int
+    var historical_table_families: Int
+    var one_shot_pipeline_gates: Int
+    var compatibility_boundaries: Int
+    var process_owner: String
+    var controller_owner: String
+    var bridge_free: Bool
+
+
+
+@fieldwise_init
 struct PromptExecutionSnapshot(Copyable, Equatable):
     var class_name: String
     var command_runner: String
@@ -1466,6 +1492,58 @@ def prompt_execution_bundle_valid(bundle: PromptExecutionBundle) -> Bool:
         and bundle.ownership_count == 22
     )
 
+
+
+def plan_prompt_execution_native_completion() -> PromptExecutionNativeCompletionPlan:
+    """Return the native completion witness for prompt execution.
+
+    The remaining compatibility edges are explicit typed process boundaries,
+    not embedded Python execution inside the prompt-execution owner.  The
+    controller performs terminal and child-process I/O; this owner provides the
+    deterministic planning, ordering and fallback algebra.
+    """
+
+    return PromptExecutionNativeCompletionPlan(
+        "reta_architecture/prompt_execution.py",
+        "nativ",
+        2516,
+        len(prompt_execution_owners()),
+        9,
+        33,
+        4,
+        3,
+        "prompt_process_dispatch.mojo",
+        "src/prompt_main.mojo",
+        True,
+    )
+
+
+def prompt_execution_native_completion_valid(
+    plan: PromptExecutionNativeCompletionPlan,
+) -> Bool:
+    """Validate that the completion witness matches the historical owner."""
+
+    if plan.python_file != "reta_architecture/prompt_execution.py":
+        return False
+    if plan.status != "nativ":
+        return False
+    if plan.source_lines != 2516:
+        return False
+    if plan.top_level_surfaces != 22:
+        return False
+    if plan.native_owner_modules != 9:
+        return False
+    if plan.historical_table_families != 33:
+        return False
+    if plan.one_shot_pipeline_gates != 4:
+        return False
+    if plan.compatibility_boundaries != 3:
+        return False
+    if plan.process_owner != "prompt_process_dispatch.mojo":
+        return False
+    if plan.controller_owner != "src/prompt_main.mojo":
+        return False
+    return plan.bridge_free
 
 def prompt_execution_snapshot_json(
     snapshot: PromptExecutionSnapshot

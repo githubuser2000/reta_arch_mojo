@@ -54,6 +54,9 @@ def test_native_facade_has_all_historical_program_adapters():
     assert 'struct LegacyRetaProgram(Copyable)' in text
     assert 'run_native_reta' in text
     assert 'run_reta_arguments_native' in text
+    assert 'struct LegacyRetaProgramNativeCompletionPlan' in text
+    assert 'def plan_legacy_reta_program_native_completion(' in text
+    assert 'def legacy_reta_program_native_completion_valid(' in text
     assert 'std.python' not in text and 'PythonObject' not in text
     assert 'extract_parallel_config_from_argv(' in text
     assert 'parallel_config_from_environment()' in text
@@ -75,3 +78,19 @@ def test_upper_limit_adapter_test_preserves_historical_monotonic_ceiling():
     assert 'assert_equal(program.runtime.highest, 1024)' in text
     assert 'oberesMaximum(program, "--oberesmaximum=2048")' in text
     assert 'assert_equal(program.runtime.highest, 2048)' in text
+
+
+def test_native_completion_witness_freezes_reta_top_level_contract():
+    text=MOJO.read_text()
+    mojo_test=MOJO_TEST.read_text()
+    assert 'struct LegacyRetaProgramNativeCompletionPlan' in text
+    assert 'var source_lines: Int' in text
+    assert '"reta.py"' in text
+    assert '"nativ"' in text
+    assert 'legacy_reta_program_public_count()' in text
+    assert 'legacy_reta_program_method_definition_count()' in text
+    assert 'plan.source_lines != 214' in text
+    assert 'plan.public_names != 27' in text
+    assert 'plan.method_definitions != 18' in text
+    assert 'plan.owner_entries != 10' in text
+    assert 'test_reta_program_native_completion_witness_marks_top_level_complete' in mojo_test

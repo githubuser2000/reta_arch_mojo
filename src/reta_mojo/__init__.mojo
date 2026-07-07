@@ -115,6 +115,7 @@ from .legacy_mojo_bridge import (
 from .legacy_reta_program import (
     LegacyRetaProgramSnapshot,
     LegacyRetaProgramRunResult,
+    LegacyRetaProgramNativeCompletionPlan,
     LegacyRetaProgram,
     bootstrap_legacy_reta_program,
     bootstrap_legacy_reta_program_with_parallel_config,
@@ -136,6 +137,8 @@ from .legacy_reta_program import (
     run,
     resultingTable,
     combiTableWorkflow,
+    plan_legacy_reta_program_native_completion,
+    legacy_reta_program_native_completion_valid,
     legacy_reta_program_owner_snapshot,
 )
 from .legacy_reta_prompt import (

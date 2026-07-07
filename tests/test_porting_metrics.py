@@ -182,12 +182,13 @@ def test_setup_metadata_is_generated_native() -> None:
     assert "fünf Command-Klassen" in note
 
 
-def test_reta_program_has_typed_partial_facade() -> None:
+def test_reta_program_top_level_owner_is_complete() -> None:
     mapping = _load_module().native_mapping()
     status, owner, note = mapping["reta.py"]
-    assert status == "teilweise nativ"
+    assert status == "nativ"
     assert "legacy_reta_program.mojo" in owner
-    assert "27-Namen-/18-Methoden" in note
+    assert "27 öffentliche Namen" in note
+    assert "LegacyRetaProgramNativeCompletionPlan" in note
 
 
 def test_command_parity_matrix_is_generated_native() -> None:
@@ -196,3 +197,13 @@ def test_command_parity_matrix_is_generated_native() -> None:
     assert status == "generiert nativ"
     assert "command_parity.mojo" in owner
     assert "vier" in note
+
+
+def test_prompt_execution_owner_is_complete() -> None:
+    mapping = _load_module().native_mapping()
+    status, owner, note = mapping["reta_architecture/prompt_execution.py"]
+    assert status == "nativ"
+    assert "prompt_execution.mojo" in owner
+    assert "prompt_process_dispatch.mojo" in owner
+    assert "PromptExecutionNativeCompletionPlan" in note
+    assert "2516-Zeilen" in note

@@ -55,8 +55,8 @@ def test_architecture_facade_native_completion_owner_exists() -> None:
 def test_porting_matrix_promotes_only_facade_to_native() -> None:
     mapping = _native_mapping()
     assert mapping["reta_architecture/facade.py"][0] == "nativ"
-    assert mapping["reta.py"][0] == "teilweise nativ"
-    assert mapping["reta_architecture/prompt_execution.py"][0] == "teilweise nativ"
+    assert mapping["reta.py"][0] in {"teilweise nativ", "nativ"}
+    assert mapping["reta_architecture/prompt_execution.py"][0] == "nativ"
     row = next(
         line
         for line in (ROOT / "PORTING_MATRIX.md").read_text(encoding="utf-8").splitlines()

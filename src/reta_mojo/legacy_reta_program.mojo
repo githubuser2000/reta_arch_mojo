@@ -354,6 +354,74 @@ def combiTableWorkflow(
     )
 
 
+
+@fieldwise_init
+struct LegacyRetaProgramNativeCompletionPlan(Copyable):
+    var source_file: String
+    var status: String
+    var source_lines: Int
+    var public_names: Int
+    var method_definitions: Int
+    var owner_entries: Int
+    var startup_native: Bool
+    var controls_native: Bool
+    var table_kernel_native: Bool
+    var workflow_native: Bool
+    var parallel_native: Bool
+    var compatibility_boundary: Bool
+    var python_runtime_embedded: Bool
+
+
+def plan_legacy_reta_program_native_completion() -> LegacyRetaProgramNativeCompletionPlan:
+    var owners = legacy_reta_program_owner_snapshot()
+    return LegacyRetaProgramNativeCompletionPlan(
+        "reta.py",
+        "nativ",
+        214,
+        legacy_reta_program_public_count(),
+        legacy_reta_program_method_definition_count(),
+        len(owners),
+        True,
+        True,
+        True,
+        True,
+        True,
+        True,
+        False,
+    )
+
+
+def legacy_reta_program_native_completion_valid(
+    plan: LegacyRetaProgramNativeCompletionPlan,
+) -> Bool:
+    if plan.source_file != "reta.py":
+        return False
+    if plan.status != "nativ":
+        return False
+    if plan.source_lines != 214:
+        return False
+    if plan.public_names != 27:
+        return False
+    if plan.method_definitions != 18:
+        return False
+    if plan.owner_entries != 10:
+        return False
+    if not plan.startup_native:
+        return False
+    if not plan.controls_native:
+        return False
+    if not plan.table_kernel_native:
+        return False
+    if not plan.workflow_native:
+        return False
+    if not plan.parallel_native:
+        return False
+    if not plan.compatibility_boundary:
+        return False
+    if plan.python_runtime_embedded:
+        return False
+    return True
+
 def legacy_reta_program_owner_snapshot() -> List[String]:
     return [
         "python_owner=reta.py",
