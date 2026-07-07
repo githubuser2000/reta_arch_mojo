@@ -83,6 +83,22 @@ struct PromptCompatibilityFallbackProcessExecutionPlan(Copyable):
 
 
 @fieldwise_init
+struct PromptCompatibilityFallbackProcessResultPlan(Copyable):
+    """Controller-facing result after compatibility fallback execution.
+
+    Compatibility fallback is an earlier interactive process boundary entered
+    after native table/mulpri execution declined ownership.  Process dispatch now
+    owns the final handled projection as well as the child-process execution
+    gate, so the controller no longer returns a naked success value after the
+    optional ``retaPrompt.py`` child.
+    """
+
+    var handled: Bool
+    var process_executed: Bool
+    var source: String
+
+
+@fieldwise_init
 struct PromptResidualFallbackProcessExecutionPlan(Copyable):
     """Controller-facing execution gate for residual compatibility fallback.
 
@@ -471,6 +487,22 @@ def plan_prompt_compatibility_fallback_process_execution(
     )
 
 
+def plan_prompt_compatibility_fallback_process_result(
+    execution: PromptCompatibilityFallbackProcessExecutionPlan,
+) -> PromptCompatibilityFallbackProcessResultPlan:
+    """Plan the final interactive compatibility fallback return value.
+
+    Once the native branch has explicitly requested the compatibility edge, the
+    prompt loop should continue after the fallback child was optionally run.  This
+    mirrors the residual result owner but keeps the earlier branch distinct in
+    the process contract.
+    """
+
+    return PromptCompatibilityFallbackProcessResultPlan(
+        execution.should_execute, execution.should_execute, execution.source
+    )
+
+
 def plan_prompt_residual_fallback_process_execution(
     profile: PromptProfile,
     fallback: PromptExecutionCompatibilityFallbackPlan,
@@ -538,6 +570,7 @@ def prompt_process_dispatch_contract_snapshot() -> List[String]:
         "external_python_math_arguments=native-prompt-python-math-argv-plan",
         "external_command_arguments=runtime-owned-command-argv-builders",
         "compatibility_fallback_process_execution=native-prompt-compatibility-fallback-execution-boundary",
+        "compatibility_fallback_process_result=native-prompt-compatibility-fallback-result-boundary",
         "residual_fallback_process_execution=native-prompt-residual-fallback-execution-boundary",
         "residual_fallback_process_result=native-prompt-residual-fallback-result-boundary",
         "fallback_process_dispatch=native-interaction-argv-plan",

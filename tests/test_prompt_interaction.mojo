@@ -910,6 +910,29 @@ def test_compatibility_fallback_process_execution_is_planned_by_process_executio
     assert_equal(len(skipped.arguments), 0)
 
 
+def test_compatibility_fallback_process_result_is_planned_by_process_execution_owner() raises:
+    var profile = parse_prompt_startup("rpe", []).profile.copy()
+    var fallback = PromptExecutionCompatibilityFallbackPlan(
+        True, "unknown compatibility command"
+    )
+    var execution = plan_prompt_compatibility_fallback_process_execution(
+        profile, fallback
+    )
+    var result = plan_prompt_compatibility_fallback_process_result(execution)
+    assert_true(result.handled)
+    assert_true(result.process_executed)
+    assert_equal(result.source, "unknown compatibility command")
+
+    var skipped = plan_prompt_compatibility_fallback_process_result(
+        PromptCompatibilityFallbackProcessExecutionPlan(
+            False, List[String](), "ignored"
+        )
+    )
+    assert_false(skipped.handled)
+    assert_false(skipped.process_executed)
+    assert_equal(skipped.source, "ignored")
+
+
 def test_residual_fallback_process_execution_is_planned_by_process_execution_owner() raises:
     var profile = parse_prompt_startup("rpe", []).profile.copy()
     var fallback = plan_prompt_execution_residual_compatibility_fallback(
@@ -1157,7 +1180,8 @@ def test_contract_snapshot() raises:
     # assert_equal(len(process_snapshot), 28)
     # assert_equal(len(process_snapshot), 29)
     var process_snapshot = prompt_process_dispatch_contract_snapshot()
-    assert_equal(len(process_snapshot), 30)
+    # assert_equal(len(process_snapshot), 30)
+    assert_equal(len(process_snapshot), 31)
     assert_equal(process_snapshot[0], "class=PromptProcessDispatchBundle")
     assert_equal(process_snapshot[1], "external_dispatch_owner=prompt-execution-process-plan")
     assert_equal(process_snapshot[2], "external_process_dispatch=native-prompt-process-edge-plan")
@@ -1178,16 +1202,17 @@ def test_contract_snapshot() raises:
     assert_equal(process_snapshot[17], "external_python_math_arguments=native-prompt-python-math-argv-plan")
     assert_equal(process_snapshot[18], "external_command_arguments=runtime-owned-command-argv-builders")
     assert_equal(process_snapshot[19], "compatibility_fallback_process_execution=native-prompt-compatibility-fallback-execution-boundary")
-    assert_equal(process_snapshot[20], "residual_fallback_process_execution=native-prompt-residual-fallback-execution-boundary")
-    assert_equal(process_snapshot[21], "residual_fallback_process_result=native-prompt-residual-fallback-result-boundary")
-    assert_equal(process_snapshot[22], "fallback_process_dispatch=native-interaction-argv-plan")
-    assert_equal(process_snapshot[23], "fallback_process_execution=native-prompt-fallback-execution-boundary")
-    assert_equal(process_snapshot[24], "fallback_process_handled=native-explicit-fallback-effect-flag")
-    assert_equal(process_snapshot[25], "fallback_process_flags=native-explicit-fallback-run-flag")
-    assert_equal(process_snapshot[26], "fallback_process_arguments=native-merged-fallback-argv")
-    assert_equal(process_snapshot[27], "fallback_runtime_arguments=runtime-owned-argv-builder")
-    assert_equal(process_snapshot[28], "fallback_shell_split=runtime-owned-argv-tokenizer")
-    assert_equal(process_snapshot[29], "process_adapter=argv-execution-only")
+    assert_equal(process_snapshot[20], "compatibility_fallback_process_result=native-prompt-compatibility-fallback-result-boundary")
+    assert_equal(process_snapshot[21], "residual_fallback_process_execution=native-prompt-residual-fallback-execution-boundary")
+    assert_equal(process_snapshot[22], "residual_fallback_process_result=native-prompt-residual-fallback-result-boundary")
+    assert_equal(process_snapshot[23], "fallback_process_dispatch=native-interaction-argv-plan")
+    assert_equal(process_snapshot[24], "fallback_process_execution=native-prompt-fallback-execution-boundary")
+    assert_equal(process_snapshot[25], "fallback_process_handled=native-explicit-fallback-effect-flag")
+    assert_equal(process_snapshot[26], "fallback_process_flags=native-explicit-fallback-run-flag")
+    assert_equal(process_snapshot[27], "fallback_process_arguments=native-merged-fallback-argv")
+    assert_equal(process_snapshot[28], "fallback_runtime_arguments=runtime-owned-argv-builder")
+    assert_equal(process_snapshot[29], "fallback_shell_split=runtime-owned-argv-tokenizer")
+    assert_equal(process_snapshot[30], "process_adapter=argv-execution-only")
 
     var storage_snapshot = prompt_reaction_storage_contract_snapshot()
     assert_equal(len(storage_snapshot), 8)

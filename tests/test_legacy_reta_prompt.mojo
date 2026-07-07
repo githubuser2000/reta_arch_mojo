@@ -70,7 +70,8 @@ def test_historical_input_and_start_delegate_to_native_controller() raises:
     # assert_equal(len(scope), 46)
     # assert_equal(len(scope), 47)
     # assert_equal(len(scope), 48)
-    assert_equal(len(scope), 49)
+    # assert_equal(len(scope), 49)
+    assert_equal(len(scope), 50)
     assert_equal(scope[0], "class=PromptInteractionBundle")
     assert_equal(
         scope[7],
@@ -83,14 +84,15 @@ def test_historical_input_and_start_delegate_to_native_controller() raises:
     assert_equal(scope[24], "one_shot_external_execution=native-prompt-process-one-shot-execution-boundary")
     assert_equal(scope[26], "one_shot_external_result=native-prompt-process-one-shot-result-boundary")
     assert_equal(scope[32], "compatibility_fallback_process_execution=native-prompt-compatibility-fallback-execution-boundary")
-    assert_equal(scope[33], "residual_fallback_process_execution=native-prompt-residual-fallback-execution-boundary")
-    assert_equal(scope[34], "residual_fallback_process_result=native-prompt-residual-fallback-result-boundary")
+    assert_equal(scope[33], "compatibility_fallback_process_result=native-prompt-compatibility-fallback-result-boundary")
+    assert_equal(scope[34], "residual_fallback_process_execution=native-prompt-residual-fallback-execution-boundary")
+    assert_equal(scope[35], "residual_fallback_process_result=native-prompt-residual-fallback-result-boundary")
     # Previous process-owner insertion points kept for source guards:
     # assert_equal(scope[38], "external_dispatch_owner=prompt-execution-process-plan")
     # assert_equal(scope[39], "external_dispatch_owner=prompt-execution-process-plan")
     # assert_equal(scope[40], "external_dispatch_owner=prompt-execution-process-plan")
     # assert_equal(scope[41], "external_dispatch_owner=prompt-execution-process-plan")
-    assert_equal(scope[42], "external_dispatch_owner=prompt-execution-process-plan")
+    assert_equal(scope[43], "external_dispatch_owner=prompt-execution-process-plan")
     assert_equal(scope[len(scope) - 1], "execution=delegated-native-dispatch")
 
 

@@ -100,6 +100,7 @@ from reta_mojo.prompt_process_dispatch import (
     plan_interactive_reference_reta_process_execution,
     plan_interactive_external_process_result,
     plan_prompt_compatibility_fallback_process_execution,
+    plan_prompt_compatibility_fallback_process_result,
     plan_prompt_residual_fallback_process_execution,
     plan_prompt_residual_fallback_process_result,
     plan_one_shot_external_process_execution,
@@ -375,6 +376,10 @@ def _run_command(
         _ = run_reta_prompt_arguments_native(
             compatibility_execution.arguments, reference_root()
         )
+    var compatibility_result = plan_prompt_compatibility_fallback_process_result(
+        compatibility_execution
+    )
+    if compatibility_result.handled:
         return True
 
     var info_dispatch = plan_informational_dispatch(command)
