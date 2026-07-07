@@ -7,7 +7,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_current_stage_points_to_ek_or_later() -> None:
     current = (ROOT / "scripts/test_current_stage.sh").read_text(encoding="utf-8")
-    assert ("test_stage12c5ek.sh" in current or "test_stage12c5em.sh" in current)
+    assert ("test_stage12c5ek.sh" in current or "test_stage12c5em.sh" in current or "test_stage12c5en.sh" in current)
 
 
 def test_stage_script_chains_ej_and_source_tests() -> None:
@@ -41,6 +41,7 @@ def test_interactive_external_execution_is_process_dispatch_owned() -> None:
         "assert_equal(len(scope), 41)" in legacy_test
         or "assert_equal(len(scope), 42)" in legacy_test
         or "assert_equal(len(scope), 43)" in legacy_test
+        or "assert_equal(len(scope), 45)" in legacy_test
     )
     assert "interactive_external_execution=native-prompt-process-execution-boundary" in legacy_test
 

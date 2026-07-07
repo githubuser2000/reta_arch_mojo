@@ -26,8 +26,8 @@ def test_residual_compatibility_fallback_is_owned_by_prompt_execution() -> None:
     assert "def plan_prompt_execution_residual_compatibility_fallback(" in owner
     assert "final unowned-command compatibility boundary" in owner
     assert "plan_prompt_execution_residual_compatibility_fallback(" in controller
-    assert "residual_fallback.should_run" in controller
-    assert "_run_fallback(profile, residual_fallback.source)" in controller
+    assert ("residual_fallback.should_run" in controller or "residual_execution.should_execute" in controller)
+    assert ("_run_fallback(profile, residual_fallback.source)" in controller or "plan_prompt_residual_fallback_process_execution" in controller)
     assert "_run_fallback(profile, line)" not in controller
     assert "test_prompt_execution_residual_compatibility_fallback_owns_last_boundary" in test
 

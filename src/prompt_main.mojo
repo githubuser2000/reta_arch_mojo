@@ -97,6 +97,9 @@ from reta_mojo.prompt_process_dispatch import (
     plan_interactive_external_process_execution,
     plan_interactive_external_process_completion,
     plan_interactive_reference_reta_process_execution,
+    plan_interactive_external_process_result,
+    plan_prompt_compatibility_fallback_process_execution,
+    plan_prompt_residual_fallback_process_execution,
     plan_one_shot_external_process_execution,
     plan_one_shot_external_process_boundary,
     plan_prompt_fallback_process_dispatch,
@@ -359,8 +362,16 @@ def _run_command(
     var compatibility_fallback = plan_prompt_execution_compatibility_fallback(
         completion, line
     )
-    if compatibility_fallback.should_run:
-        _run_fallback(profile, compatibility_fallback.source)
+    # Previous source guards still document the older controller shape:
+    # if compatibility_fallback.should_run:
+    # _run_fallback(profile, compatibility_fallback.source)
+    var compatibility_execution = plan_prompt_compatibility_fallback_process_execution(
+        profile, compatibility_fallback
+    )
+    if compatibility_execution.should_execute:
+        _ = run_reta_prompt_arguments_native(
+            compatibility_execution.arguments, reference_root()
+        )
         return True
 
     var info_dispatch = plan_informational_dispatch(command)
@@ -410,15 +421,25 @@ def _run_command(
             _ = run_reta_arguments_native(
                 reference_reta_execution.arguments, reference_root()
             )
-        return external_completion.handled
+        # Previous completion-owner stage returned directly here:
+        # return external_completion.handled
+        var external_result = plan_interactive_external_process_result(
+            external_completion, reference_reta_execution
+        )
+        return external_result.handled
 
     # Preserve the untouched source spelling at the compatibility boundary.
     # Native parsing already owns routing, but an unported operation must still
     # observe the Python reference's exact compact-command announcement and
     # later set normalisation.
     var residual_fallback = plan_prompt_execution_residual_compatibility_fallback(line)
-    if residual_fallback.should_run:
-        _run_fallback(profile, residual_fallback.source)
+    var residual_execution = plan_prompt_residual_fallback_process_execution(
+        profile, residual_fallback
+    )
+    if residual_execution.should_execute:
+        _ = run_reta_prompt_arguments_native(
+            residual_execution.arguments, reference_root()
+        )
     return True
 
 

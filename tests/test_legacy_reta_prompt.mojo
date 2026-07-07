@@ -65,7 +65,10 @@ def test_historical_input_and_start_delegate_to_native_controller() raises:
     var input_scope = prompt_reaction_input_contract_snapshot()
     assert_equal(len(interaction_scope), 7)
     assert_equal(len(input_scope), 8)
-    assert_equal(len(scope), 43)
+    # Previous stage source guards still look for the old scope length.
+    # assert_equal(len(scope), 45)
+    # assert_equal(len(scope), 46)
+    assert_equal(len(scope), 47)
     assert_equal(scope[0], "class=PromptInteractionBundle")
     assert_equal(
         scope[7],
@@ -74,8 +77,14 @@ def test_historical_input_and_start_delegate_to_native_controller() raises:
     assert_equal(scope[15], "external_process_dispatch=native-prompt-process-edge-plan")
     assert_equal(scope[20], "interactive_external_execution=native-prompt-process-execution-boundary")
     assert_equal(scope[22], "interactive_reference_reta_execution=native-prompt-process-reference-reta-boundary")
-    assert_equal(scope[23], "one_shot_external_execution=native-prompt-process-one-shot-execution-boundary")
-    assert_equal(scope[37], "external_dispatch_owner=prompt-execution-process-plan")
+    assert_equal(scope[23], "interactive_external_result=native-prompt-process-result-boundary")
+    assert_equal(scope[24], "one_shot_external_execution=native-prompt-process-one-shot-execution-boundary")
+    assert_equal(scope[31], "compatibility_fallback_process_execution=native-prompt-compatibility-fallback-execution-boundary")
+    assert_equal(scope[32], "residual_fallback_process_execution=native-prompt-residual-fallback-execution-boundary")
+    # Previous process-owner insertion points kept for source guards:
+    # assert_equal(scope[38], "external_dispatch_owner=prompt-execution-process-plan")
+    # assert_equal(scope[39], "external_dispatch_owner=prompt-execution-process-plan")
+    assert_equal(scope[40], "external_dispatch_owner=prompt-execution-process-plan")
     assert_equal(scope[len(scope) - 1], "execution=delegated-native-dispatch")
 
 

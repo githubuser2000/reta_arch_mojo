@@ -14,6 +14,7 @@ This keeps the future shared-library split explicit:
 """
 
 from std.collections import List
+from .prompt_execution import PromptExecutionCompatibilityFallbackPlan
 from .prompt_runtime import (
     PromptProfile,
     PromptCommand,
@@ -63,6 +64,37 @@ struct PromptFallbackProcessExecutionPlan(Copyable):
 
     var should_execute: Bool
     var arguments: List[String]
+
+
+@fieldwise_init
+struct PromptCompatibilityFallbackProcessExecutionPlan(Copyable):
+    """Controller-facing execution gate for native-branch fallback.
+
+    Prompt execution owns the pure compatibility decision after the native
+    branch has declined a command.  Process dispatch owns the translation of
+    that decision into the historical ``retaPrompt.py`` child argv vector, so
+    the controller no longer inspects ``fallback.should_run`` or its source
+    before crossing the process boundary.
+    """
+
+    var should_execute: Bool
+    var arguments: List[String]
+    var source: String
+
+
+@fieldwise_init
+struct PromptResidualFallbackProcessExecutionPlan(Copyable):
+    """Controller-facing execution gate for residual compatibility fallback.
+
+    Prompt execution owns the final residual compatibility boundary.  Process
+    dispatch owns the translation from that boundary source into the historical
+    ``retaPrompt.py`` argv vector.  This removes the last residual fallback
+    boolean/argv projection from the prompt controller.
+    """
+
+    var should_execute: Bool
+    var arguments: List[String]
+    var source: String
 
 
 @fieldwise_init
@@ -127,6 +159,21 @@ struct PromptInteractiveReferenceRetaExecutionPlan(Copyable):
 
     var should_run_reference_reta: Bool
     var arguments: List[String]
+
+
+@fieldwise_init
+struct PromptInteractiveExternalResultPlan(Copyable):
+    """Controller-facing return gate after interactive external I/O.
+
+    Shell, Python, math and direct reta process commands are complete once the
+    required child-process edge was planned and executed.  This result plan owns
+    the final handled/continue projection so the controller no longer returns
+    directly from the raw completion plan.
+    """
+
+    var handled: Bool
+    var reference_reta_requested: Bool
+
 
 @fieldwise_init
 struct PromptOneShotExternalBoundaryPlan(Copyable):
@@ -278,6 +325,23 @@ def plan_interactive_reference_reta_process_execution(
         )
     return PromptInteractiveReferenceRetaExecutionPlan(False, List[String]())
 
+
+def plan_interactive_external_process_result(
+    completion: PromptInteractiveExternalCompletionPlan,
+    reference_execution: PromptInteractiveReferenceRetaExecutionPlan,
+) -> PromptInteractiveExternalResultPlan:
+    """Plan the final interactive return value after external process I/O.
+
+    The reference-``reta`` child request is kept visible for contracts, but the
+    final handled result is still the completion decision for the original
+    external command.
+    """
+
+    return PromptInteractiveExternalResultPlan(
+        completion.handled, reference_execution.should_run_reference_reta
+    )
+
+
 def plan_one_shot_external_process_boundary(
     dispatch: PromptExternalProcessDispatchPlan, reta_native_handled: Bool
 ) -> PromptOneShotExternalBoundaryPlan:
@@ -331,6 +395,59 @@ def plan_prompt_fallback_process_execution(
     )
 
 
+def plan_prompt_compatibility_fallback_process_execution(
+    profile: PromptProfile,
+    fallback: PromptExecutionCompatibilityFallbackPlan,
+) raises -> PromptCompatibilityFallbackProcessExecutionPlan:
+    """Plan the native-branch compatibility child-process execution.
+
+    This is the earlier compatibility fallback that appears immediately after
+    a table/mulpri/native branch completion declined ownership.  It shares the
+    historical ``retaPrompt.py`` child with the residual fallback, but keeping it
+    distinct documents which compatibility edge produced the argv vector.
+    """
+    if not fallback.should_run:
+        return PromptCompatibilityFallbackProcessExecutionPlan(
+            False, List[String](), ""
+        )
+    var dispatch = plan_prompt_fallback_process_dispatch(
+        profile, fallback.source
+    )
+    var execution = plan_prompt_fallback_process_execution(dispatch)
+    return PromptCompatibilityFallbackProcessExecutionPlan(
+        execution.should_execute,
+        execution.arguments.copy(),
+        fallback.source,
+    )
+
+
+def plan_prompt_residual_fallback_process_execution(
+    profile: PromptProfile,
+    fallback: PromptExecutionCompatibilityFallbackPlan,
+) raises -> PromptResidualFallbackProcessExecutionPlan:
+    """Plan the residual compatibility child-process execution.
+
+    The residual fallback enters the same historical ``retaPrompt.py`` child as
+    explicit compatibility fallbacks, but its source boundary is produced by the
+    prompt-execution owner.  Keeping the final gate and argv materialization here
+    prevents ``prompt_main.mojo`` from interpreting ``fallback.should_run`` and
+    ``fallback.source`` itself.
+    """
+    if not fallback.should_run:
+        return PromptResidualFallbackProcessExecutionPlan(
+            False, List[String](), ""
+        )
+    var dispatch = plan_prompt_fallback_process_dispatch(
+        profile, fallback.source
+    )
+    var execution = plan_prompt_fallback_process_execution(dispatch)
+    return PromptResidualFallbackProcessExecutionPlan(
+        execution.should_execute,
+        execution.arguments.copy(),
+        fallback.source,
+    )
+
+
 def prompt_process_dispatch_contract_snapshot() -> List[String]:
     """Stable ownership snapshot for process-facing prompt execution."""
     return [
@@ -344,6 +461,7 @@ def prompt_process_dispatch_contract_snapshot() -> List[String]:
         "interactive_external_execution=native-prompt-process-execution-boundary",
         "interactive_external_completion=native-prompt-process-completion-boundary",
         "interactive_reference_reta_execution=native-prompt-process-reference-reta-boundary",
+        "interactive_external_result=native-prompt-process-result-boundary",
         "one_shot_external_execution=native-prompt-process-one-shot-execution-boundary",
         "one_shot_external_boundary=native-prompt-process-probe-boundary",
         "external_reta_child=native-prompt-reta-child-argv",
@@ -351,6 +469,8 @@ def prompt_process_dispatch_contract_snapshot() -> List[String]:
         "external_shell_arguments=native-prompt-shell-argv-plan",
         "external_python_math_arguments=native-prompt-python-math-argv-plan",
         "external_command_arguments=runtime-owned-command-argv-builders",
+        "compatibility_fallback_process_execution=native-prompt-compatibility-fallback-execution-boundary",
+        "residual_fallback_process_execution=native-prompt-residual-fallback-execution-boundary",
         "fallback_process_dispatch=native-interaction-argv-plan",
         "fallback_process_execution=native-prompt-fallback-execution-boundary",
         "fallback_process_handled=native-explicit-fallback-effect-flag",
