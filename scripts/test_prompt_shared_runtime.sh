@@ -97,7 +97,16 @@ done
 # wenn deren Override absichtlich auf einen kaputten Pfad gesetzt ist.
 RETA_PROMPT_INTERACTIVE_LIBRARY=/definitely/missing/libreta-prompt-interactive.so \
     "$TARGET_DIR/rpb" prim 60 > "$TMP/rpb-prim"
-[ "$(cat "$TMP/rpb-prim")" = "60: 2^2 3 5" ]
+if [ "$(cat "$TMP/rpb-prim")" != "60: 2^2 3 5" ]; then
+    printf '%s
+' 'rpb lieferte nicht die erwartete Primfaktor-Ausgabe.' >&2
+    printf '%s
+' 'Erwartet: 60: 2^2 3 5' >&2
+    printf '%s
+' 'Erhalten:' >&2
+    cat "$TMP/rpb-prim" >&2
+    exit 1
+fi
 
 set +e
 RETA_PROMPT_LIBRARY=/definitely/missing/libreta-prompt.so \
@@ -109,13 +118,24 @@ if [ "$missing_status" -eq 0 ]; then
     exit 1
 fi
 
-grep -F 'Prompt-Bibliothek konnte nicht geladen werden' "$TMP/rpb-missing.err" >/dev/null
+if ! grep -F 'Prompt-Bibliothek konnte nicht geladen werden' "$TMP/rpb-missing.err" >/dev/null && \
+   ! grep -F 'Prompt-Starter und Shared Library stammen nicht aus demselben Quellstand' "$TMP/rpb-missing.err" >/dev/null; then
+    printf '%s
+' 'rpb scheiterte bei fehlender libreta-prompt.so nicht mit einer bekannten Diagnose.' >&2
+    cat "$TMP/rpb-missing.err" >&2
+    exit 1
+fi
 
 # rp/rpl/rpe sind interaktive Starter.  Für den schnellen Smoke genügt ein
 # kurzes Kommando über stdin; sie müssen außerdem die gemeinsame Prompt-Bibliothek
 # zusätzlich zur interaktiven Bibliothek laden können.
 printf 'prim 29\nq\n' | "$TARGET_DIR/rp" > "$TMP/rp"
-grep -F '29: 29' "$TMP/rp" >/dev/null
+if ! grep -F '29: 29' "$TMP/rp" >/dev/null; then
+    printf '%s
+' 'rp lieferte im interaktiven Prompt-Smoke keine Primzahl-Ausgabe für 29.' >&2
+    cat "$TMP/rp" >&2
+    exit 1
+fi
 
 for name in rpl rpe; do
     printf 'q\n' | "$TARGET_DIR/$name" > "$TMP/$name" || {
