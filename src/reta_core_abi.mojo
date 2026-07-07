@@ -13,6 +13,7 @@ from reta_mojo.grundstrukturen_html import (
     is_supported_grundstrukturen_language,
     render_grundstrukturen_html,
 )
+from reta_mojo.native_cli_startup import native_cli_startup
 from reta_mojo.native_reta_cli import run_native_reta
 from reta_mojo.resource_paths import csv_resource
 
@@ -37,6 +38,10 @@ def reta_core_reta_entry(
         var tokens = List[String]()
         for index in range(1, len(args)):
             tokens.append(args[index].copy())
+        var startup = native_cli_startup(tokens)
+        if startup.owned:
+            print(startup.output, end="")
+            return c_int(0)
         print(run_native_reta(tokens, csv_resource("religion.csv")), end="")
         return c_int(0)
     except:
