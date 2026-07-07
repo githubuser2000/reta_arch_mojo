@@ -287,3 +287,5 @@ from .py_reta_truth import *
 from .command_parity import *
 
 from .architecture_refactor_contracts import *
+
+from .shared_library_architecture import *
