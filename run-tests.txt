@@ -1,2 +1,0 @@
-Testmanifest fehlt: /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/tests-all/manifest.tsv
-Bitte zuerst kompilieren: scripts/build-tests.sh

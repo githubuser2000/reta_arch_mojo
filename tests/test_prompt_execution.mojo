@@ -619,5 +619,24 @@ def test_prompt_execution_one_shot_residual_probe_owns_final_boundary() raises:
 
 
 
+def test_prompt_execution_one_shot_final_probe_result_owns_last_arbitration() raises:
+    var external = plan_prompt_execution_one_shot_final_probe_result(
+        True, False, "reta -zeilen --alles"
+    )
+    assert_true(external.handled)
+    assert_true(external.stop_native_probe)
+    assert_equal(external.result_owner, "external_process")
+    assert_equal(external.source, "reta -zeilen --alles")
+
+    var residual = plan_prompt_execution_one_shot_final_probe_result(
+        False, True, "unowned residual command"
+    )
+    assert_false(residual.handled)
+    assert_true(residual.stop_native_probe)
+    assert_equal(residual.result_owner, "residual_probe")
+    assert_equal(residual.source, "unowned residual command")
+
+
+
 def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()

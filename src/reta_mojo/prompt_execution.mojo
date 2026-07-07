@@ -464,6 +464,23 @@ struct PromptExecutionOneShotResidualProbePlan(Copyable):
     var source: String
 
 
+@fieldwise_init
+struct PromptExecutionOneShotFinalProbeResultPlan(Copyable):
+    """Final controller-facing result for the one-shot native probe.
+
+    External process probing may either stop the native ``-befehl`` probe or
+    decline it and let the residual compatibility edge decide.  Prompt
+    execution now owns that last arbitration, so ``_run_native_one_shot`` no
+    longer returns directly from the external-process result or assembles the
+    residual probe itself.
+    """
+
+    var handled: Bool
+    var stop_native_probe: Bool
+    var result_owner: String
+    var source: String
+
+
 def prompt_execution_integer_argument_words(values: List[String]) -> List[String]:
     var result = List[String]()
     for index in range(len(values)):
@@ -961,6 +978,31 @@ def plan_prompt_execution_one_shot_residual_probe(
     var result = plan_prompt_execution_one_shot_residual_result(boundary)
     return PromptExecutionOneShotResidualProbePlan(
         result^, fallback.should_run, fallback.source
+    )
+
+
+def plan_prompt_execution_one_shot_final_probe_result(
+    external_handled: Bool, external_continue_native_probe: Bool, source: String
+) -> PromptExecutionOneShotFinalProbeResultPlan:
+    """Plan the final arbitration after one-shot external process probing.
+
+    If the external process owner already stopped the native probe, the
+    controller should return its handled value.  Otherwise prompt execution
+    constructs and consumes the residual compatibility probe internally, keeping
+    the final ``-befehl`` return edge in one owner.
+    """
+
+    if not external_continue_native_probe:
+        return PromptExecutionOneShotFinalProbeResultPlan(
+            external_handled, True, "external_process", source
+        )
+
+    var residual_probe = plan_prompt_execution_one_shot_residual_probe(source)
+    return PromptExecutionOneShotFinalProbeResultPlan(
+        residual_probe.result.handled,
+        residual_probe.result.stop_native_probe,
+        "residual_probe",
+        residual_probe.source,
     )
 
 

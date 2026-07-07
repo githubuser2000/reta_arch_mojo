@@ -50,7 +50,10 @@ def test_one_shot_external_probe_result_owns_continue_gate() -> None:
     assert "plan_one_shot_external_process_boundary" in external_region
     assert "plan_one_shot_external_process_result" in external_region
     assert "external_result.continue_native_probe" in external_region
-    assert "return external_result.handled" in external_region
+    assert (
+        "return external_result.handled" in external_region
+        or "plan_prompt_execution_one_shot_final_probe_result" in external_region
+    )
     assert external_region.count("return ") == 1
 
     assert "assert_true(unhandled_result.continue_native_probe)" in mojo_test

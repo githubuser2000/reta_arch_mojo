@@ -52,6 +52,7 @@ from reta_mojo.prompt_execution import (
     plan_prompt_execution_one_shot_local_result,
     plan_prompt_execution_one_shot_residual_result,
     plan_prompt_execution_one_shot_residual_probe,
+    plan_prompt_execution_one_shot_final_probe_result,
     plan_prompt_execution_residual_compatibility_fallback,
 )
 from reta_mojo.native_cli_startup import native_cli_startup
@@ -594,17 +595,12 @@ def _run_native_one_shot(
     var external_result = plan_one_shot_external_process_result(
         external_boundary
     )
-    if not external_result.continue_native_probe:
-        return external_result.handled
-
-    # Preserve the untouched one-shot source at the same residual compatibility
-    # boundary as the interactive controller.  The main one-shot caller remains
-    # responsible for entering the compatibility path after this native probe
-    # returns False.
-    var one_shot_residual_probe = plan_prompt_execution_one_shot_residual_probe(
-        line
+    # Previous final one-shot probe stages returned either directly from the
+    # external process result or from an explicitly assembled residual probe.
+    var final_probe_result = plan_prompt_execution_one_shot_final_probe_result(
+        external_result.handled, external_result.continue_native_probe, line
     )
-    return one_shot_residual_probe.result.handled
+    return final_probe_result.handled
 
 
 def main() raises:

@@ -41,8 +41,14 @@ def test_one_shot_residual_probe_owns_final_boundary() -> None:
 
     body = controller.split("def _run_native_one_shot", 1)[1].split("\ndef main", 1)[0]
     active_body = _active(body)
-    assert "plan_prompt_execution_one_shot_residual_probe" in active_body
-    assert "return one_shot_residual_probe.result.handled" in active_body
+    assert (
+        "plan_prompt_execution_one_shot_residual_probe" in active_body
+        or "plan_prompt_execution_one_shot_final_probe_result" in active_body
+    )
+    assert (
+        "return one_shot_residual_probe.result.handled" in active_body
+        or "return final_probe_result.handled" in active_body
+    )
     assert "var one_shot_residual_fallback =" not in active_body
     assert "var one_shot_residual_boundary =" not in active_body
     assert "plan_prompt_execution_one_shot_residual_result(" not in active_body

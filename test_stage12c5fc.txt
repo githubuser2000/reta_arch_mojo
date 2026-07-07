@@ -1,1 +1,0 @@
-zsh: keine Berechtigung: scripts/test_stage12c5fc.sh

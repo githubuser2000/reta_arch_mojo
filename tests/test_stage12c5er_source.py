@@ -31,10 +31,12 @@ def test_one_shot_residual_result_is_prompt_execution_owned() -> None:
     assert (
         "plan_prompt_execution_one_shot_residual_result" in controller
         or "plan_prompt_execution_one_shot_residual_probe" in controller
+        or "plan_prompt_execution_one_shot_final_probe_result" in controller
     )
     assert (
         "return one_shot_residual_result.handled" in controller
         or "return one_shot_residual_probe.result.handled" in controller
+        or "return final_probe_result.handled" in controller
     )
     active_controller = "\n".join(
         line for line in controller.splitlines()
