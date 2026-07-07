@@ -45,6 +45,11 @@ static const struct prompt_command COMMANDS[] = {
      "reta_prompt_interactive_entry", 1},
 };
 
+static const struct prompt_command COMMON_PROMPT_LIBRARY = {
+    "rpb", "rpb", "libreta-prompt.so", "RETA_PROMPT_LIBRARY",
+    "reta_prompt_abi_version", "reta_prompt_entry", 0,
+};
+
 static const char *base_name(const char *path) {
     const char *slash = strrchr(path, '/');
     return slash ? slash + 1 : path;
@@ -202,6 +207,43 @@ static char **forwarded_arguments(
     return result;
 }
 
+static int open_prompt_library(
+    const char *argv0,
+    const struct prompt_command *library_command,
+    int dlopen_flags,
+    void **handle_out
+) {
+    char library[PATH_MAX];
+    if (library_path(library, sizeof(library), argv0, library_command) != 0) {
+        fprintf(stderr, "Pfad der Prompt-Bibliothek konnte nicht bestimmt werden.\n");
+        return 127;
+    }
+
+    int stamp_status = verify_matching_stamps(argv0, library);
+    if (stamp_status != 0) {
+        return stamp_status;
+    }
+
+    void *handle = dlopen(library, dlopen_flags);
+    if (handle == NULL) {
+        fprintf(stderr, "Prompt-Bibliothek konnte nicht geladen werden: %s\n", dlerror());
+        return 127;
+    }
+
+    dlerror();
+    prompt_version_fn version =
+        (prompt_version_fn)dlsym(handle, library_command->version_symbol);
+    const char *symbol_error = dlerror();
+    if (symbol_error != NULL || version == NULL ||
+        version() != RETA_PROMPT_ABI_VERSION) {
+        fprintf(stderr, "Unpassende Prompt-Bibliothek-ABI.\n");
+        return 78;
+    }
+
+    *handle_out = handle;
+    return 0;
+}
+
 int main(int argc, char **argv) {
     const char *invoked_as = base_name(argc > 0 ? argv[0] : "");
     const struct prompt_command *command = find_command(invoked_as);
@@ -230,38 +272,35 @@ int main(int argc, char **argv) {
         return 70;
     }
 
-    char library[PATH_MAX];
-    if (library_path(library, sizeof(library), argc > 0 ? argv[0] : NULL, command) != 0) {
-        fprintf(stderr, "Pfad der Prompt-Bibliothek konnte nicht bestimmt werden.\n");
-        free(forwarded_argv);
-        return 127;
+    void *prompt_handle = NULL;
+    if (command->interactive) {
+        int prompt_status = open_prompt_library(
+            argc > 0 ? argv[0] : NULL,
+            &COMMON_PROMPT_LIBRARY,
+            RTLD_NOW | RTLD_GLOBAL,
+            &prompt_handle
+        );
+        if (prompt_status != 0) {
+            free(forwarded_argv);
+            return prompt_status;
+        }
     }
 
-    int stamp_status = verify_matching_stamps(argc > 0 ? argv[0] : NULL, library);
-    if (stamp_status != 0) {
+    void *handle = NULL;
+    int open_status = open_prompt_library(
+        argc > 0 ? argv[0] : NULL,
+        command,
+        RTLD_NOW | RTLD_LOCAL,
+        &handle
+    );
+    if (open_status != 0) {
         free(forwarded_argv);
-        return stamp_status;
-    }
-
-    void *handle = dlopen(library, RTLD_NOW | RTLD_LOCAL);
-    if (handle == NULL) {
-        fprintf(stderr, "Prompt-Bibliothek konnte nicht geladen werden: %s\n", dlerror());
-        free(forwarded_argv);
-        return 127;
-    }
-
-    dlerror();
-    prompt_version_fn version = (prompt_version_fn)dlsym(handle, command->version_symbol);
-    const char *symbol_error = dlerror();
-    if (symbol_error != NULL || version == NULL || version() != RETA_PROMPT_ABI_VERSION) {
-        fprintf(stderr, "Unpassende Prompt-Bibliothek-ABI.\n");
-        free(forwarded_argv);
-        return 78;
+        return open_status;
     }
 
     dlerror();
     prompt_entry_fn entry = (prompt_entry_fn)dlsym(handle, command->entry_symbol);
-    symbol_error = dlerror();
+    const char *symbol_error = dlerror();
     if (symbol_error != NULL || entry == NULL) {
         fprintf(stderr, "Prompt-Einstieg fehlt: %s\n", command->entry_symbol);
         free(forwarded_argv);

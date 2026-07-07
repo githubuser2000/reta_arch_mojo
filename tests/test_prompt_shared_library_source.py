@@ -155,6 +155,14 @@ def test_interactive_prompt_abi_is_separate_and_documents_rpb_exclusion() -> Non
     assert "run_prompt_profile_from_args" in source
 
 
+def test_prompt_loader_declares_common_prompt_dependency_for_interactive_starters() -> None:
+    source = LOADER_SOURCE.read_text(encoding="utf-8")
+    assert "COMMON_PROMPT_LIBRARY" in source
+    assert "RTLD_NOW | RTLD_GLOBAL" in source
+    assert "if (command->interactive)" in source
+    assert '"rpb", "rpb", "libreta-prompt.so"' in source
+
+
 def test_prompt_shared_build_script_is_now_an_official_build_all_target() -> None:
     build = BUILD_SCRIPT.read_text(encoding="utf-8")
     assert "src/reta_prompt_abi.mojo" in build
@@ -200,6 +208,21 @@ def test_rp_loader_uses_interactive_prompt_library(tmp_path: Path) -> None:
     assert "argv0=rp" in result.stdout
     assert "argv1=hilfe" in result.stdout
 
+
+
+def test_interactive_loader_requires_common_prompt_library_first(tmp_path: Path) -> None:
+    _, rp, prompt, _ = _build_fake_prompt_bundle(tmp_path)
+    prompt.unlink()
+    prompt.with_name(prompt.name + ".reta-source-id").unlink()
+    result = subprocess.run(
+        [str(rp), "hilfe"],
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    assert result.returncode == 78 or result.returncode == 127
+    assert "Prompt-Bibliothek" in result.stderr or "Quellstand" in result.stderr
 
 def test_prompt_loader_rejects_mismatched_source_ids(tmp_path: Path) -> None:
     rpb, _, prompt, _ = _build_fake_prompt_bundle(tmp_path)

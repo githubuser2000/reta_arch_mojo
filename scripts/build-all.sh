@@ -10,6 +10,8 @@ die offiziellen Core- und Prompt-Shared-Artefakte. Die nach `--`
 stehenden Mojo-Compileroptionen werden unverändert an beide untergeordneten
 Build-Skripte und damit an jedes `mojo build` weitergereicht.
 
+RETA_SKIP_PROMPT_SHARED_RUNTIME_SMOKE=1 überspringt nur den kurzen Prompt-Shared-Runtime-Smoke nach erfolgreichem Build.
+
 `--optimize-heavy` entfernt die absichtliche O0-Vorgabe der besonders großen
 Metadatenziele. Ohne diesen Schalter bleiben diese Ziele auch dann O0, wenn für
 die übrigen Ziele ein anderer Optimierungsgrad übergeben wurde.
@@ -96,7 +98,24 @@ RETA_TARGET_LIB_DIR="$TARGET_LIB_DIR" \
 RETA_CHECK_HEAVY=1 \
     "$ROOT/scripts/check_build_layout.sh"
 
+case ${RETA_SKIP_PROMPT_SHARED_RUNTIME_SMOKE:-0} in
+    0)
+        RETA_TARGET_DIR="$TARGET_DIR" \
+        RETA_TARGET_LIB_DIR="$TARGET_LIB_DIR" \
+            "$ROOT/scripts/test_prompt_shared_runtime.sh"
+        ;;
+    1)
+        printf '%s\n' 'Prompt-Shared-Runtime-Smoke übersprungen: RETA_SKIP_PROMPT_SHARED_RUNTIME_SMOKE=1'
+        ;;
+    *)
+        printf 'RETA_SKIP_PROMPT_SHARED_RUNTIME_SMOKE muss 0 oder 1 sein, erhalten: %s\n' \
+            "$RETA_SKIP_PROMPT_SHARED_RUNTIME_SMOKE" >&2
+        exit 2
+        ;;
+esac
+
 printf '\n%s\n' 'Vollständiger nativer Build abgeschlossen.'
 printf '%s\n' 'Erzeugt und verifiziert wurden alle regulären und schweren Executables, die Shared Libraries sowie die Core- und Prompt-Dünnstarter.'
+printf '%s\n' 'Zusätzlich wurde der Prompt-Shared-Runtime-Smoke ausgeführt; optional überspringbar mit RETA_SKIP_PROMPT_SHARED_RUNTIME_SMOKE=1.'
 printf '%s\n' 'Aktuellen Stage-Test nach Änderungen ausführen; vollständige Mojo-Suite vor Releases oder nach mehreren Stages: scripts/test_all.sh'
 printf '%s\n' 'Mit zwei zusätzlichen schweren Testzielen: RETA_TEST_HEAVY=1 scripts/test_all.sh'

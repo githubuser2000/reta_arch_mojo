@@ -116,8 +116,24 @@ cmp "$TMP/reference.out" "$TMP/core-launcher.out"
 cmp "$ROOT/assets/reta_help_de.txt" "$TMP/installed-help-de.out"
 cmp "$ROOT/assets/reta_help_en.txt" "$TMP/installed-help-en.out"
 
+RETA_TARGET_DIR="$STAGE/usr/lib/reta/target/bin" \
+RETA_TARGET_LIB_DIR="$STAGE/usr/lib/reta/target/lib/reta" \
+    "$ROOT/scripts/test_prompt_shared_runtime.sh" >"$TMP/installed-prompt-runtime.out"
+grep -q '^Prompt-Shared-Runtime-Smoke bestanden\.$' \
+    "$TMP/installed-prompt-runtime.out"
+
+(
+    cd "$TMP"
+    RETA_PROMPT_INTERACTIVE_LIBRARY=/definitely/missing/libreta-prompt-interactive.so \
+        "$STAGE/usr/bin/rpb" prim 60 >"$TMP/installed-rpb.out"
+    printf 'q\n' | "$STAGE/usr/bin/rp" >"$TMP/installed-rp.out"
+)
+grep -q '^60: 2\^2 3 5$' "$TMP/installed-rpb.out"
+grep -q 'Prompt-Shared-Runtime-Smoke bestanden\.' \
+    "$TMP/installed-prompt-runtime.out"
+
 DESTDIR=$STAGE PREFIX=/usr "$ROOT/scripts/uninstall.sh" >/dev/null
 [ ! -e "$STAGE/usr/lib/reta" ]
 [ ! -e "$STAGE/usr/share/reta" ]
 
-printf '%s\n' 'FHS-Installation: Layout, native CSV, Core-Starter und Deinstallation bestanden.'
+printf '%s\n' 'FHS-Installation: Layout, native CSV, Core-/Prompt-Starter und Deinstallation bestanden.'
