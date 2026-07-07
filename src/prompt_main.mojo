@@ -654,15 +654,18 @@ def _run_native_one_shot(
     return one_shot_pipeline_state.handled
 
 
-def main() raises:
-    var args = argv()
-    if len(args) < 2:
-        raise Error("interner Fehler: Promptprofil fehlt")
+def run_prompt_profile_from_args(
+    profile_name: String,
+    startup_args: List[String],
+) raises -> None:
+    """Run one prompt profile from owned startup arguments.
 
-    var profile_name = String(args[1])
-    var startup_args = List[String]()
-    for index in range(2, len(args)):
-        startup_args.append(String(args[index]))
+    This is the shared controller entry used by both the existing executable
+    and the new prompt shared-library ABI.  The ABI wrappers still accept only
+    C ``argc``/``argv``; this function is the first fully owned Mojo boundary
+    inside the library.
+    """
+
     var startup = parse_prompt_startup(profile_name, startup_args)
     var prompt_catalog = load_prompt_language_catalog(asset_root())
 
@@ -725,3 +728,15 @@ def main() raises:
             startup.profile.language,
             prompt_catalog,
         )
+
+
+def main() raises:
+    var args = argv()
+    if len(args) < 2:
+        raise Error("interner Fehler: Promptprofil fehlt")
+
+    var profile_name = String(args[1])
+    var startup_args = List[String]()
+    for index in range(2, len(args)):
+        startup_args.append(String(args[index]))
+    run_prompt_profile_from_args(profile_name, startup_args)
