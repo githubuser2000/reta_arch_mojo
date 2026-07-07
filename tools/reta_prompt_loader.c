@@ -92,6 +92,26 @@ static int executable_path(char *buffer, size_t size, const char *argv0) {
     return 0;
 }
 
+static int readable_path(const char *path) {
+    return access(path, R_OK) == 0;
+}
+
+static int format_library_path(
+    char *buffer,
+    size_t size,
+    const char *directory,
+    const char *relative,
+    const char *library_name
+) {
+    int written;
+    if (relative == NULL || relative[0] == '\0') {
+        written = snprintf(buffer, size, "%s/%s", directory, library_name);
+    } else {
+        written = snprintf(buffer, size, "%s/%s/%s", directory, relative, library_name);
+    }
+    return written < 0 || (size_t)written >= size ? -1 : 0;
+}
+
 static int library_path(
     char *buffer,
     size_t size,
@@ -143,8 +163,17 @@ static int library_path(
         }
     }
 
-    int written = snprintf(buffer, size, "%s/../lib/reta/%s", executable, library_name);
-    return written < 0 || (size_t)written >= size ? -1 : 0;
+    if (format_library_path(buffer, size, executable, "", library_name) == 0 &&
+        readable_path(buffer)) {
+        return 0;
+    }
+    if (format_library_path(buffer, size, executable, "../lib/reta", library_name) == 0 &&
+        readable_path(buffer)) {
+        return 0;
+    }
+
+    /* Preserve the historic build-tree path in the final error message. */
+    return format_library_path(buffer, size, executable, "../lib/reta", library_name);
 }
 
 static int read_stamp(const char *path, char *buffer, size_t size) {

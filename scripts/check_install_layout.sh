@@ -24,18 +24,25 @@ DESTDIR=$STAGE PREFIX=/usr "$ROOT/scripts/install.sh" >"$TMP/install.log"
 [ -x "$STAGE/usr/lib/reta/scripts/current_source_id.sh" ]
 [ -L "$STAGE/usr/bin/reta" ]
 [ -L "$STAGE/usr/bin/grundStrukHtml" ]
-[ -x "$STAGE/usr/lib/reta/target/bin/reta" ]
-[ -x "$STAGE/usr/lib/reta/target/bin/grundStrukHtml" ]
-[ -f "$STAGE/usr/lib/reta/target/lib/reta/libreta-core.so" ]
-[ -f "$STAGE/usr/lib/reta/target/lib/reta/libreta-core.so.reta-source-id" ]
-[ -x "$STAGE/usr/lib/reta/target/bin/rp" ]
-[ -x "$STAGE/usr/lib/reta/target/bin/rpl" ]
-[ -x "$STAGE/usr/lib/reta/target/bin/rpe" ]
-[ -x "$STAGE/usr/lib/reta/target/bin/rpb" ]
-[ -f "$STAGE/usr/lib/reta/target/lib/reta/libreta-prompt.so" ]
-[ -f "$STAGE/usr/lib/reta/target/lib/reta/libreta-prompt.so.reta-source-id" ]
-[ -f "$STAGE/usr/lib/reta/target/lib/reta/libreta-prompt-interactive.so" ]
-[ -f "$STAGE/usr/lib/reta/target/lib/reta/libreta-prompt-interactive.so.reta-source-id" ]
+[ ! -e "$STAGE/usr/lib/reta/target" ]
+[ -x "$STAGE/usr/lib/reta/reta" ]
+[ -f "$STAGE/usr/lib/reta/reta.reta-source-id" ]
+[ -x "$STAGE/usr/lib/reta/grundStrukHtml" ]
+[ -f "$STAGE/usr/lib/reta/grundStrukHtml.reta-source-id" ]
+[ -f "$STAGE/usr/lib/reta/libreta-core.so" ]
+[ -f "$STAGE/usr/lib/reta/libreta-core.so.reta-source-id" ]
+[ -x "$STAGE/usr/lib/reta/rp" ]
+[ -f "$STAGE/usr/lib/reta/rp.reta-source-id" ]
+[ -x "$STAGE/usr/lib/reta/rpl" ]
+[ -f "$STAGE/usr/lib/reta/rpl.reta-source-id" ]
+[ -x "$STAGE/usr/lib/reta/rpe" ]
+[ -f "$STAGE/usr/lib/reta/rpe.reta-source-id" ]
+[ -x "$STAGE/usr/lib/reta/rpb" ]
+[ -f "$STAGE/usr/lib/reta/rpb.reta-source-id" ]
+[ -f "$STAGE/usr/lib/reta/libreta-prompt.so" ]
+[ -f "$STAGE/usr/lib/reta/libreta-prompt.so.reta-source-id" ]
+[ -f "$STAGE/usr/lib/reta/libreta-prompt-interactive.so" ]
+[ -f "$STAGE/usr/lib/reta/libreta-prompt-interactive.so.reta-source-id" ]
 [ -L "$STAGE/usr/bin/rp" ]
 [ -L "$STAGE/usr/bin/rpl" ]
 [ -L "$STAGE/usr/bin/rpe" ]
@@ -116,8 +123,8 @@ cmp "$TMP/reference.out" "$TMP/core-launcher.out"
 cmp "$ROOT/assets/reta_help_de.txt" "$TMP/installed-help-de.out"
 cmp "$ROOT/assets/reta_help_en.txt" "$TMP/installed-help-en.out"
 
-RETA_TARGET_DIR="$STAGE/usr/lib/reta/target/bin" \
-RETA_TARGET_LIB_DIR="$STAGE/usr/lib/reta/target/lib/reta" \
+RETA_TARGET_DIR="$STAGE/usr/lib/reta" \
+RETA_TARGET_LIB_DIR="$STAGE/usr/lib/reta" \
     "$ROOT/scripts/test_prompt_shared_runtime.sh" >"$TMP/installed-prompt-runtime.out"
 grep -q '^Prompt-Shared-Runtime-Smoke bestanden\.$' \
     "$TMP/installed-prompt-runtime.out"

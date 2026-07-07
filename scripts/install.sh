@@ -81,8 +81,7 @@ STAGE_MANDIR=$(stage_path "$MANDIR")
 
 install -d "$STAGE_BINDIR" "$STAGE_LIBEXECDIR" \
     "$STAGE_LIBEXECDIR/bin" "$STAGE_LIBEXECDIR/scripts" \
-    "$STAGE_LIBEXECDIR/target/bin" "$STAGE_LIBEXECDIR/target/lib/mojo" \
-    "$STAGE_LIBEXECDIR/target/lib/reta" \
+    "$STAGE_LIBEXECDIR/mojo" \
     "$STAGE_DATADIR/csv" "$STAGE_DATADIR/assets" \
     "$STAGE_MANDIR/man1"
 
@@ -110,6 +109,12 @@ ln -s "$ASSET_LINK" "$STAGE_LIBEXECDIR/assets"
 
 rm -rf "$STAGE_LIBEXECDIR/bin"
 cp -a "$ROOT/bin" "$STAGE_LIBEXECDIR/bin"
+# Installed wrappers use the flat LIBEXECDIR runtime instead of the source
+# tree's target/bin directory.  Source-tree wrappers are left unchanged.
+find "$STAGE_LIBEXECDIR/bin" -maxdepth 1 -type f -exec sed -i \
+    -e 's|\$ROOT/target/bin|\$ROOT|g' \
+    -e 's|\$ROOT/target/lib/mojo|\$ROOT/mojo|g' \
+    {} +
 install -m 0755 "$ROOT/scripts/find_mojo_runtime.sh" \
     "$STAGE_LIBEXECDIR/scripts/find_mojo_runtime.sh"
 install -m 0755 "$ROOT/scripts/check_mojo_binary_freshness.sh" \
@@ -119,8 +124,7 @@ install -m 0755 "$ROOT/scripts/current_source_id.sh" \
 install -m 0755 "$ROOT/scripts/select_reference_python.sh" \
     "$STAGE_LIBEXECDIR/scripts/select_reference_python.sh"
 
-rm -rf "$STAGE_LIBEXECDIR/target/bin"
-install -d "$STAGE_LIBEXECDIR/target/bin"
+rm -rf "$STAGE_LIBEXECDIR/target"
 CURRENT_SOURCE_ID=$("$ROOT/scripts/current_source_id.sh")
 INSTALLED_TARGETS=0
 while IFS= read -r name || [ -n "$name" ]; do
@@ -134,7 +138,8 @@ while IFS= read -r name || [ -n "$name" ]; do
     RETA_REBUILD_COMMAND=scripts/build-all.sh \
     RETA_CURRENT_SOURCE_ID="$CURRENT_SOURCE_ID" \
         "$ROOT/scripts/check_mojo_binary_freshness.sh" "$executable"
-    install -m 0755 "$executable" "$STAGE_LIBEXECDIR/target/bin/$name"
+    install -m 0755 "$executable" "$STAGE_LIBEXECDIR/$name"
+    install -m 0644 "$executable.reta-source-id" "$STAGE_LIBEXECDIR/$name.reta-source-id"
     INSTALLED_TARGETS=$((INSTALLED_TARGETS + 1))
 done < "$ROOT/scripts/install_targets.txt"
 
@@ -149,9 +154,9 @@ install_shared_library() {
     RETA_CURRENT_SOURCE_ID="$CURRENT_SOURCE_ID" \
         "$ROOT/scripts/check_mojo_binary_freshness.sh" "$source_library"
     install -m 0755 "$source_library" \
-        "$STAGE_LIBEXECDIR/target/lib/reta/$installed_name"
+        "$STAGE_LIBEXECDIR/$installed_name"
     install -m 0644 "$source_library.reta-source-id" \
-        "$STAGE_LIBEXECDIR/target/lib/reta/$installed_name.reta-source-id"
+        "$STAGE_LIBEXECDIR/$installed_name.reta-source-id"
     INSTALLED_LIBRARIES=$((INSTALLED_LIBRARIES + 1))
 }
 
@@ -166,11 +171,11 @@ if [ "$INSTALL_DIAGNOSTICS" = 1 ]; then
     RETA_CURRENT_SOURCE_ID="$CURRENT_SOURCE_ID" \
         "$ROOT/scripts/check_mojo_binary_freshness.sh" "$DIAGNOSTICS_LIBRARY"
     install -m 0755 "$DIAGNOSTICS_LIBRARY" \
-        "$STAGE_LIBEXECDIR/target/lib/reta/libreta-mojo-diagnostics.so"
+        "$STAGE_LIBEXECDIR/libreta-mojo-diagnostics.so"
     install -m 0644 "$DIAGNOSTICS_LIBRARY.reta-source-id" \
-        "$STAGE_LIBEXECDIR/target/lib/reta/libreta-mojo-diagnostics.so.reta-source-id"
+        "$STAGE_LIBEXECDIR/libreta-mojo-diagnostics.so.reta-source-id"
     install -m 0644 "$LOADER_STAMP" \
-        "$STAGE_LIBEXECDIR/target/bin/reta-mojo-diagnostics.reta-source-id"
+        "$STAGE_LIBEXECDIR/reta-mojo-diagnostics.reta-source-id"
     INSTALLED_LIBRARIES=$((INSTALLED_LIBRARIES + 1))
 fi
 
@@ -185,19 +190,31 @@ if [ "$INSTALL_MOJO_RUNTIME" != 0 ]; then
     do
         require_file "$RUNTIME_DIR/$library"
         install -m 0755 "$RUNTIME_DIR/$library" \
-            "$STAGE_LIBEXECDIR/target/lib/mojo/$library"
+            "$STAGE_LIBEXECDIR/mojo/$library"
     done
 fi
 
-# Public commands are relative links into the private runtime tree. readlink -f
-# in the launchers therefore reconstructs LIBEXECDIR as their runtime root.
+# Public commands are relative links into the private runtime tree.  Prefer
+# flat installed native targets; keep shell dispatchers only where no compiled
+# command with the public name exists.
 for launcher in "$ROOT"/bin/*; do
     [ -f "$launcher" ] || [ -L "$launcher" ] || continue
     name=$(basename -- "$launcher")
     case "$name" in
         mojo-real|mojo-runtime-exec) continue ;;
     esac
-    target=$(relative_path "$BINDIR" "$LIBEXECDIR/bin/$name")
+    case "$name" in
+        reta|grundStrukHtml|rp|rpl|rpe|rpb)
+            if [ -x "$STAGE_LIBEXECDIR/$name" ]; then
+                target=$(relative_path "$BINDIR" "$LIBEXECDIR/$name")
+            else
+                target=$(relative_path "$BINDIR" "$LIBEXECDIR/bin/$name")
+            fi
+            ;;
+        *)
+            target=$(relative_path "$BINDIR" "$LIBEXECDIR/bin/$name")
+            ;;
+    esac
     rm -f "$STAGE_BINDIR/$name"
     ln -s "$target" "$STAGE_BINDIR/$name"
 done
