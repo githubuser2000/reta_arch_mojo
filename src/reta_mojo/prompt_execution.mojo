@@ -515,6 +515,27 @@ struct PromptExecutionOneShotResidualProbePlan(Copyable):
     var source: String
 
 
+
+
+@fieldwise_init
+struct PromptExecutionOneShotProbePipelineGatePlan(Copyable):
+    """Shared controller-facing gate for the one-shot probe pipeline.
+
+    Earlier stages now produce typed phase results, but the controller still had
+    to read each phase-specific ``should_probe_*`` field directly.  This shared
+    gate normalizes the transitions between loop-control, native branch, local
+    dispatch, external process and final residual probing while keeping all
+    side-effecting work in the controller.
+    """
+
+    var handled: Bool
+    var stop_native_probe: Bool
+    var continue_pipeline: Bool
+    var result_owner: String
+    var next_phase: String
+    var source: String
+
+
 @fieldwise_init
 struct PromptExecutionOneShotFinalProbeResultPlan(Copyable):
     """Final controller-facing result for the one-shot native probe.
@@ -1128,6 +1149,79 @@ def plan_prompt_execution_one_shot_final_probe_result(
         residual_probe.result.stop_native_probe,
         "residual_probe",
         residual_probe.source,
+    )
+
+
+
+def plan_prompt_execution_one_shot_pipeline_pre_native_gate(
+    pre_native: PromptExecutionOneShotPreNativeProbeResultPlan,
+) -> PromptExecutionOneShotProbePipelineGatePlan:
+    """Normalize the loop-control/pre-native one-shot pipeline transition."""
+
+    if pre_native.stop_native_probe:
+        return PromptExecutionOneShotProbePipelineGatePlan(
+            pre_native.handled,
+            True,
+            False,
+            pre_native.result_owner,
+            "return",
+            pre_native.source,
+        )
+    return PromptExecutionOneShotProbePipelineGatePlan(
+        False, False, True, pre_native.result_owner, "native_branch", pre_native.source
+    )
+
+
+def plan_prompt_execution_one_shot_pipeline_post_native_gate(
+    post_native: PromptExecutionOneShotPostNativeProbeResultPlan,
+) -> PromptExecutionOneShotProbePipelineGatePlan:
+    """Normalize the native-branch/local-dispatch one-shot transition."""
+
+    if post_native.stop_native_probe:
+        return PromptExecutionOneShotProbePipelineGatePlan(
+            post_native.handled,
+            True,
+            False,
+            post_native.result_owner,
+            "return",
+            post_native.source,
+        )
+    return PromptExecutionOneShotProbePipelineGatePlan(
+        False, False, True, post_native.result_owner, "local_dispatch", post_native.source
+    )
+
+
+def plan_prompt_execution_one_shot_pipeline_post_local_gate(
+    post_local: PromptExecutionOneShotPostLocalProbeResultPlan,
+) -> PromptExecutionOneShotProbePipelineGatePlan:
+    """Normalize the local-dispatch/external-process one-shot transition."""
+
+    if post_local.stop_native_probe:
+        return PromptExecutionOneShotProbePipelineGatePlan(
+            post_local.handled,
+            True,
+            False,
+            post_local.result_owner,
+            "return",
+            post_local.source,
+        )
+    return PromptExecutionOneShotProbePipelineGatePlan(
+        False, False, True, post_local.result_owner, "external_process", post_local.source
+    )
+
+
+def plan_prompt_execution_one_shot_pipeline_final_gate(
+    final_probe: PromptExecutionOneShotFinalProbeResultPlan,
+) -> PromptExecutionOneShotProbePipelineGatePlan:
+    """Normalize the terminal one-shot probe result as a pipeline gate."""
+
+    return PromptExecutionOneShotProbePipelineGatePlan(
+        final_probe.handled,
+        final_probe.stop_native_probe,
+        False,
+        final_probe.result_owner,
+        "return",
+        final_probe.source,
     )
 
 

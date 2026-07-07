@@ -54,8 +54,14 @@ def test_one_shot_loop_control_result_is_prompt_execution_owned() -> None:
     )
     pre_native_gate_shape = (
         "plan_prompt_execution_one_shot_pre_native_probe_result" in loop_region
-        and "pre_native_probe_result.should_probe_native" in loop_region
-        and "return pre_native_probe_result.handled" in loop_region
+        and (
+            "pre_native_probe_result.should_probe_native" in loop_region
+            or "pre_native_pipeline_gate.stop_native_probe" in loop_region
+        )
+        and (
+            "return pre_native_probe_result.handled" in loop_region
+            or "return pre_native_pipeline_gate.handled" in loop_region
+        )
     )
     assert direct_result_shape or pre_native_gate_shape
     assert "test_prompt_execution_one_shot_loop_control_result_owns_probe_return" in mojo_test

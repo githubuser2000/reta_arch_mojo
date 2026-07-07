@@ -33,11 +33,13 @@ def test_one_shot_residual_fallback_uses_prompt_execution_owner() -> None:
         or "one_shot_residual_boundary.stop_native_probe" in controller
         or "one_shot_residual_probe.result.handled" in controller
         or "final_probe_result.handled" in controller
+        or "final_pipeline_gate.handled" in controller
     )
     assert (
         "return False" in controller
         or "return one_shot_residual_probe.result.handled" in controller
         or "return final_probe_result.handled" in controller
+        or "return final_pipeline_gate.handled" in controller
     )
     assert "test_prompt_execution_residual_compatibility_fallback_is_shared_by_one_shot" in test
 

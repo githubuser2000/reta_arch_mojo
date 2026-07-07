@@ -56,6 +56,10 @@ from reta_mojo.prompt_execution import (
     plan_prompt_execution_one_shot_residual_result,
     plan_prompt_execution_one_shot_residual_probe,
     plan_prompt_execution_one_shot_final_probe_result,
+    plan_prompt_execution_one_shot_pipeline_pre_native_gate,
+    plan_prompt_execution_one_shot_pipeline_post_native_gate,
+    plan_prompt_execution_one_shot_pipeline_post_local_gate,
+    plan_prompt_execution_one_shot_pipeline_final_gate,
     plan_prompt_execution_residual_compatibility_fallback,
 )
 from reta_mojo.native_cli_startup import native_cli_startup
@@ -511,8 +515,11 @@ def _run_native_one_shot(
     var pre_native_probe_result = plan_prompt_execution_one_shot_pre_native_probe_result(
         loop_control_result
     )
-    if not pre_native_probe_result.should_probe_native:
-        return pre_native_probe_result.handled
+    var pre_native_pipeline_gate = plan_prompt_execution_one_shot_pipeline_pre_native_gate(
+        pre_native_probe_result
+    )
+    if pre_native_pipeline_gate.stop_native_probe:
+        return pre_native_pipeline_gate.handled
     var native_branch = plan_prompt_execution_native_branch(
         routing, line, profile.language, catalog
     )
@@ -536,8 +543,11 @@ def _run_native_one_shot(
     var post_native_probe_result = plan_prompt_execution_one_shot_post_native_probe_result(
         native_probe_result
     )
-    if not post_native_probe_result.should_probe_local:
-        return post_native_probe_result.handled
+    var post_native_pipeline_gate = plan_prompt_execution_one_shot_pipeline_post_native_gate(
+        post_native_probe_result
+    )
+    if post_native_pipeline_gate.stop_native_probe:
+        return post_native_pipeline_gate.handled
 
     var local_info_handled = False
     var local_terminal_handled = False
@@ -587,8 +597,11 @@ def _run_native_one_shot(
     var post_local_probe_result = plan_prompt_execution_one_shot_post_local_probe_result(
         local_dispatch_result
     )
-    if not post_local_probe_result.should_probe_external:
-        return post_local_probe_result.handled
+    var post_local_pipeline_gate = plan_prompt_execution_one_shot_pipeline_post_local_gate(
+        post_local_probe_result
+    )
+    if post_local_pipeline_gate.stop_native_probe:
+        return post_local_pipeline_gate.handled
 
     var external_process = plan_external_process_dispatch(command)
     # Previous one-shot external-process block entered through a raw dispatch
@@ -618,7 +631,10 @@ def _run_native_one_shot(
     var final_probe_result = plan_prompt_execution_one_shot_final_probe_result(
         external_result.handled, external_result.continue_native_probe, line
     )
-    return final_probe_result.handled
+    var final_pipeline_gate = plan_prompt_execution_one_shot_pipeline_final_gate(
+        final_probe_result
+    )
+    return final_pipeline_gate.handled
 
 
 def main() raises:

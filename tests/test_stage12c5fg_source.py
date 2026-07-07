@@ -42,8 +42,14 @@ def test_one_shot_post_local_probe_owns_external_gate() -> None:
     body = controller.split("def _run_native_one_shot", 1)[1].split("\ndef main", 1)[0]
     active_body = _active(body)
     assert "plan_prompt_execution_one_shot_post_local_probe_result" in active_body
-    assert "post_local_probe_result.should_probe_external" in active_body
-    assert "return post_local_probe_result.handled" in active_body
+    assert (
+        "post_local_probe_result.should_probe_external" in active_body
+        or "post_local_pipeline_gate.stop_native_probe" in active_body
+    )
+    assert (
+        "return post_local_probe_result.handled" in active_body
+        or "return post_local_pipeline_gate.handled" in active_body
+    )
     assert "if local_dispatch_result.stop_native_probe:" not in active_body
     assert "return local_dispatch_result.handled" not in active_body
 

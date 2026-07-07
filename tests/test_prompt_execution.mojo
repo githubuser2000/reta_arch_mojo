@@ -719,5 +719,64 @@ def test_prompt_execution_one_shot_final_probe_result_owns_last_arbitration() ra
 
 
 
+def test_prompt_execution_one_shot_probe_pipeline_gate_normalizes_stage_edges() raises:
+    var pre_stop = PromptExecutionOneShotPreNativeProbeResultPlan(
+        True, True, False, "loop_control", "q"
+    )
+    var pre_gate = plan_prompt_execution_one_shot_pipeline_pre_native_gate(
+        pre_stop
+    )
+    assert_true(pre_gate.handled)
+    assert_true(pre_gate.stop_native_probe)
+    assert_false(pre_gate.continue_pipeline)
+    assert_equal(pre_gate.result_owner, "loop_control")
+    assert_equal(pre_gate.next_phase, "return")
+    assert_equal(pre_gate.source, "q")
+
+    var pre_continue = PromptExecutionOneShotPreNativeProbeResultPlan(
+        False, False, True, "native_branch", "15"
+    )
+    var native_gate = plan_prompt_execution_one_shot_pipeline_pre_native_gate(
+        pre_continue
+    )
+    assert_false(native_gate.handled)
+    assert_false(native_gate.stop_native_probe)
+    assert_true(native_gate.continue_pipeline)
+    assert_equal(native_gate.next_phase, "native_branch")
+
+    var post_native_continue = PromptExecutionOneShotPostNativeProbeResultPlan(
+        False, False, True, "local_dispatch", "hilfe"
+    )
+    var local_gate = plan_prompt_execution_one_shot_pipeline_post_native_gate(
+        post_native_continue
+    )
+    assert_false(local_gate.stop_native_probe)
+    assert_true(local_gate.continue_pipeline)
+    assert_equal(local_gate.next_phase, "local_dispatch")
+
+    var post_local_continue = PromptExecutionOneShotPostLocalProbeResultPlan(
+        False, False, True, "external_process", "! echo hi"
+    )
+    var external_gate = plan_prompt_execution_one_shot_pipeline_post_local_gate(
+        post_local_continue
+    )
+    assert_false(external_gate.stop_native_probe)
+    assert_true(external_gate.continue_pipeline)
+    assert_equal(external_gate.next_phase, "external_process")
+
+    var final_result = PromptExecutionOneShotFinalProbeResultPlan(
+        False, True, "residual_probe", "unowned residual"
+    )
+    var final_gate = plan_prompt_execution_one_shot_pipeline_final_gate(
+        final_result
+    )
+    assert_false(final_gate.handled)
+    assert_true(final_gate.stop_native_probe)
+    assert_false(final_gate.continue_pipeline)
+    assert_equal(final_gate.result_owner, "residual_probe")
+    assert_equal(final_gate.next_phase, "return")
+    assert_equal(final_gate.source, "unowned residual")
+
+
 def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()

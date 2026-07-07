@@ -37,6 +37,7 @@ def test_one_shot_residual_result_is_prompt_execution_owned() -> None:
         "return one_shot_residual_result.handled" in controller
         or "return one_shot_residual_probe.result.handled" in controller
         or "return final_probe_result.handled" in controller
+        or "return final_pipeline_gate.handled" in controller
     )
     active_controller = "\n".join(
         line for line in controller.splitlines()

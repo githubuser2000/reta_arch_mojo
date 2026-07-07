@@ -48,6 +48,7 @@ def test_one_shot_residual_probe_owns_final_boundary() -> None:
     assert (
         "return one_shot_residual_probe.result.handled" in active_body
         or "return final_probe_result.handled" in active_body
+        or "return final_pipeline_gate.handled" in active_body
     )
     assert "var one_shot_residual_fallback =" not in active_body
     assert "var one_shot_residual_boundary =" not in active_body

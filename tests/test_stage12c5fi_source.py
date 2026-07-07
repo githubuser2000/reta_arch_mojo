@@ -42,8 +42,14 @@ def test_one_shot_pre_native_probe_owns_native_gate() -> None:
     body = controller.split("def _run_native_one_shot", 1)[1].split("\ndef main", 1)[0]
     active_body = _active(body)
     assert "plan_prompt_execution_one_shot_pre_native_probe_result" in active_body
-    assert "pre_native_probe_result.should_probe_native" in active_body
-    assert "return pre_native_probe_result.handled" in active_body
+    assert (
+        "pre_native_probe_result.should_probe_native" in active_body
+        or "pre_native_pipeline_gate.stop_native_probe" in active_body
+    )
+    assert (
+        "return pre_native_probe_result.handled" in active_body
+        or "return pre_native_pipeline_gate.handled" in active_body
+    )
     assert "if loop_control_result.stop_native_probe:" not in active_body
     assert "return loop_control_result.handled" not in active_body
 
