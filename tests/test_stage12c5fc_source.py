@@ -44,7 +44,7 @@ def test_one_shot_external_probe_result_owns_continue_gate() -> None:
     active_body = _active(body)
     external_region = active_body.split(
         "var external_process = plan_external_process_dispatch(command)", 1
-    )[1].split("var one_shot_residual_fallback", 1)[0]
+    )[1].split("var one_shot_residual_probe", 1)[0]
     assert "if external_process.handled:" not in external_region
     assert "plan_one_shot_external_process_execution" in external_region
     assert "plan_one_shot_external_process_boundary" in external_region

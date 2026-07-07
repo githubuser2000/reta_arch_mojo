@@ -427,6 +427,22 @@ struct PromptExecutionOneShotResidualResultPlan(Copyable):
     var source: String
 
 
+@fieldwise_init
+struct PromptExecutionOneShotResidualProbePlan(Copyable):
+    """Complete final residual one-shot probe result.
+
+    After native table, local and explicit external dispatchers all decline a
+    ``-befehl`` command, prompt execution owns the last compatibility fallback,
+    the one-shot boundary around that fallback and the returned probe value as
+    one pure projection.  The controller no longer has to assemble the final
+    residual fallback and boundary by hand.
+    """
+
+    var result: PromptExecutionOneShotResidualResultPlan
+    var fallback_required: Bool
+    var source: String
+
+
 def prompt_execution_integer_argument_words(values: List[String]) -> List[String]:
     var result = List[String]()
     for index in range(len(values)):
@@ -849,6 +865,27 @@ def plan_prompt_execution_one_shot_residual_result(
         )
     return PromptExecutionOneShotResidualResultPlan(
         boundary.handled_without_fallback, False, boundary.source
+    )
+
+
+def plan_prompt_execution_one_shot_residual_probe(
+    source: String,
+) -> PromptExecutionOneShotResidualProbePlan:
+    """Plan the complete final one-shot residual compatibility probe.
+
+    This combines the residual compatibility fallback, the final one-shot
+    compatibility boundary and its returned result.  It keeps the final
+    ``-befehl`` compatibility edge inside prompt execution, leaving the
+    controller with one value to consume.
+    """
+
+    var fallback = plan_prompt_execution_residual_compatibility_fallback(source)
+    var boundary = plan_prompt_execution_one_shot_compatibility_boundary(
+        fallback, True
+    )
+    var result = plan_prompt_execution_one_shot_residual_result(boundary)
+    return PromptExecutionOneShotResidualProbePlan(
+        result, fallback.should_run, fallback.source
     )
 
 

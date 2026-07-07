@@ -28,8 +28,14 @@ def test_one_shot_residual_result_is_prompt_execution_owned() -> None:
     assert "struct PromptExecutionOneShotResidualResultPlan" in owner
     assert "def plan_prompt_execution_one_shot_residual_result(" in owner
     assert "handled_without_fallback" in owner
-    assert "plan_prompt_execution_one_shot_residual_result" in controller
-    assert "return one_shot_residual_result.handled" in controller
+    assert (
+        "plan_prompt_execution_one_shot_residual_result" in controller
+        or "plan_prompt_execution_one_shot_residual_probe" in controller
+    )
+    assert (
+        "return one_shot_residual_result.handled" in controller
+        or "return one_shot_residual_probe.result.handled" in controller
+    )
     active_controller = "\n".join(
         line for line in controller.splitlines()
         if not line.strip().startswith("#")

@@ -176,7 +176,7 @@ SKIP schweres Compilerziel: tests/test_category_theory.mojo
 
 == reuse tests/test_prompt_execution_helpers.mojo ==
 
-== build tests/test_prompt_execution.mojo ==
+== reuse tests/test_prompt_execution.mojo ==
 
 == reuse tests/test_prompt_execution_runtime.mojo ==
 
@@ -265,6 +265,6 @@ SKIP schweres Compilerziel: tests/test_schema_catalog_parity.mojo
 
 == reuse tests/test_universal.mojo ==
 
-Testkompilierung abgeschlossen: 132 Programme (3 neu, 129 wiederverwendet).
+Testkompilierung abgeschlossen: 132 Programme (2 neu, 130 wiederverwendet).
 Manifest: /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/tests-all/manifest.tsv
 Ausführen: scripts/run-tests.sh

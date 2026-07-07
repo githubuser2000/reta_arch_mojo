@@ -560,5 +560,17 @@ def test_prompt_execution_one_shot_residual_result_owns_final_probe_return() rai
     assert_equal(handled_result.source, "owned one-shot residual")
 
 
+def test_prompt_execution_one_shot_residual_probe_owns_final_boundary() raises:
+    var probe = plan_prompt_execution_one_shot_residual_probe(
+        "unowned one-shot residual"
+    )
+    assert_false(probe.result.handled)
+    assert_true(probe.result.stop_native_probe)
+    assert_true(probe.fallback_required)
+    assert_equal(probe.source, "unowned one-shot residual")
+    assert_equal(probe.result.source, "unowned one-shot residual")
+
+
+
 def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()
