@@ -128,3 +128,32 @@ Danach den Lock neu erzeugen lassen:
 rm -f pixi.lock
 pixi run check-toolchain
 ```
+
+## Einheitliche Install-Layout-Defaults
+
+Die Installationspfade werden ab dieser Stufe zentral in
+`scripts/reta_install_defaults.sh` gesetzt. Der Default bleibt `/usr/local`.
+Shell, Pixi und CMake verwenden dieselben Variablen:
+
+```sh
+scripts/print_install_layout.sh
+pixi run install-layout
+pixi run cmake-install-layout
+```
+
+Wichtige Variablen:
+
+```text
+PREFIX=/usr/local
+BINDIR=$PREFIX/bin
+LIBEXECDIR=$PREFIX/lib/reta
+DATADIR=$PREFIX/share/reta
+MANDIR=$PREFIX/share/man
+```
+
+Für Paketbau oder Tests kann weiterhin bewusst überschrieben werden:
+
+```sh
+DESTDIR=/tmp/pkgroot PREFIX=/usr/local scripts/install.sh
+cmake -S . -B build -G Ninja -DRETA_INSTALL_PREFIX=/usr/local
+```

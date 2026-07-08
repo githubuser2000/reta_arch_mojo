@@ -884,3 +884,16 @@ Falls noch ein alter Lockfile-Zustand vorhanden ist:
 rm -f pixi.lock
 pixi run check-toolchain
 ```
+
+### Einheitliches Install-Layout
+
+Die Shell-, Pixi- und CMake-Einstiege verwenden denselben Default-Prefix:
+`/usr/local`. Die effektiven Pfade können ohne Installation angezeigt werden:
+
+```sh
+scripts/print_install_layout.sh
+pixi run install-layout
+pixi run cmake-install-layout
+```
+
+Die zentrale Vorgabe liegt in `scripts/reta_install_defaults.sh`.

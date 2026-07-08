@@ -2,12 +2,8 @@
 set -eu
 
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
-PREFIX=${PREFIX:-/usr/local}
-DESTDIR=${DESTDIR:-}
-BINDIR=${BINDIR:-$PREFIX/bin}
-LIBEXECDIR=${LIBEXECDIR:-$PREFIX/lib/reta}
-DATADIR=${DATADIR:-$PREFIX/share/reta}
-MANDIR=${MANDIR:-$PREFIX/share/man}
+. "$ROOT/scripts/reta_install_defaults.sh"
+reta_install_set_defaults
 INSTALL_MOJO_RUNTIME=${RETA_INSTALL_MOJO_RUNTIME:-1}
 TARGETDIR=${RETA_TARGET_DIR:-$ROOT/target/bin}
 TARGETROOT=$(dirname -- "$TARGETDIR")

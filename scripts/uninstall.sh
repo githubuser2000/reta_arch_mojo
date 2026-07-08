@@ -1,12 +1,9 @@
 #!/usr/bin/env sh
 set -eu
 
-PREFIX=${PREFIX:-/usr/local}
-DESTDIR=${DESTDIR:-}
-BINDIR=${BINDIR:-$PREFIX/bin}
-LIBEXECDIR=${LIBEXECDIR:-$PREFIX/lib/reta}
-DATADIR=${DATADIR:-$PREFIX/share/reta}
-MANDIR=${MANDIR:-$PREFIX/share/man}
+ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+. "$ROOT/scripts/reta_install_defaults.sh"
+reta_install_set_defaults
 
 stage_path() {
     printf '%s%s\n' "$DESTDIR" "$1"

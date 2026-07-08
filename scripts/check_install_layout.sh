@@ -3,11 +3,8 @@ set -eu
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 TMP=${TMPDIR:-/tmp}/reta-install-layout.$$
 STAGE=$TMP/stage
-PREFIX=${PREFIX:-/usr/local}
-BINDIR=${BINDIR:-$PREFIX/bin}
-LIBEXECDIR=${LIBEXECDIR:-$PREFIX/lib/reta}
-DATADIR=${DATADIR:-$PREFIX/share/reta}
-MANDIR=${MANDIR:-$PREFIX/share/man}
+. "$ROOT/scripts/reta_install_defaults.sh"
+reta_install_set_defaults
 STAGE_BINDIR=$STAGE$BINDIR
 STAGE_LIBEXECDIR=$STAGE$LIBEXECDIR
 STAGE_DATADIR=$STAGE$DATADIR

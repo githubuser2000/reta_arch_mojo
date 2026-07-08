@@ -17,11 +17,6 @@ set(RETA_INSTALL_PREFIX "/usr/local" CACHE PATH "Installation prefix used by scr
 set(RETA_MOJO_BUILD_OPTIONS -- -j ${RETA_MOJO_JOBS})
 
 reta_script_target(reta-toolchain-check
-  COMMENT "Check external Mojo/Pixi/CMake toolchain without compiling"
-  COMMAND scripts/check_pixi_cmake_toolchain.sh
-)
-
-reta_script_target(reta-toolchain-check
   COMMENT "Check Pixi/CMake/Mojo toolchain without compiling"
   COMMAND scripts/check_pixi_cmake_toolchain.sh
 )
@@ -83,6 +78,11 @@ reta_script_target(reta-test-all
 reta_script_target(reta-release-check
   COMMENT "Run the release-check gate"
   COMMAND scripts/release_check.sh
+)
+
+reta_script_target(reta-install-layout
+  COMMENT "Print effective install layout defaults"
+  COMMAND scripts/print_install_layout.sh
 )
 
 reta_script_target(reta-install
