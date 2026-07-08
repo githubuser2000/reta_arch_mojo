@@ -30,14 +30,15 @@ def test_build_all_runs_prompt_shared_runtime_smoke_after_layout_check() -> None
 
 def test_install_layout_runs_prompt_shared_runtime_smoke_on_installed_tree() -> None:
     check = _read("scripts/check_install_layout.sh")
-    assert 'RETA_TARGET_DIR="$STAGE/usr/lib/reta/target/bin"' in check
-    assert 'RETA_TARGET_LIB_DIR="$STAGE/usr/lib/reta/target/lib/reta"' in check
+    assert 'RETA_TARGET_DIR="$STAGE_LIBEXECDIR"' in check
+    assert 'RETA_TARGET_LIB_DIR="$STAGE_LIBEXECDIR"' in check
     assert "test_prompt_shared_runtime.sh" in check
     assert "installed-prompt-runtime.out" in check
     assert "Prompt-Shared-Runtime-Smoke bestanden" in check
-    assert '"$STAGE/usr/bin/rpb" prim 60' in check
-    assert '"$STAGE/usr/bin/rp"' in check
+    assert '"$STAGE_BINDIR/rpb" prim 60' in check
+    assert '"$STAGE_BINDIR/rp"' in check
     assert "Core-/Prompt-Starter" in check
+    assert 'PREFIX=${PREFIX:-/usr/local}' in check
 
 
 def test_runtime_smoke_still_keeps_rpb_non_interactive() -> None:

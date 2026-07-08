@@ -63,15 +63,16 @@ def test_install_script_installs_core_library_for_public_thin_launchers() -> Non
 
 def test_install_layout_checks_core_launcher_and_no_reference_for_public_reta() -> None:
     script = (ROOT / "scripts/check_install_layout.sh").read_text(encoding="utf-8")
-    assert '[ -L "$STAGE/usr/bin/reta" ]' in script
-    assert '[ -L "$STAGE/usr/bin/grundStrukHtml" ]' in script
-    assert '[ -x "$STAGE/usr/lib/reta/target/bin/reta" ]' in script
-    assert '[ -x "$STAGE/usr/lib/reta/target/bin/grundStrukHtml" ]' in script
-    assert '[ -f "$STAGE/usr/lib/reta/target/lib/reta/libreta-core.so" ]' in script
-    assert '"$STAGE/usr/bin/reta" "$@" >"$TMP/core-launcher.out"' in script
+    assert '[ -L "$STAGE_BINDIR/reta" ]' in script
+    assert '[ -L "$STAGE_BINDIR/grundStrukHtml" ]' in script
+    assert '[ -x "$STAGE_LIBEXECDIR/reta" ]' in script
+    assert '[ -x "$STAGE_LIBEXECDIR/grundStrukHtml" ]' in script
+    assert '[ -f "$STAGE_LIBEXECDIR/libreta-core.so" ]' in script
+    assert '"$STAGE_BINDIR/reta" "$@" >"$TMP/core-launcher.out"' in script
     assert 'cmp "$TMP/reference.out" "$TMP/core-launcher.out"' in script
     assert "RETA_FORCE_REFERENCE=1" not in script
     assert "Core-Starter" in script
+    assert 'PREFIX=${PREFIX:-/usr/local}' in script
 
 
 def test_stage_is_documented() -> None:

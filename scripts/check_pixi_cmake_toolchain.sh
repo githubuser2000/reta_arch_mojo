@@ -1,6 +1,45 @@
 #!/usr/bin/env sh
 set -eu
 
+ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+cd "$ROOT"
+
+require_command() {
+    name=$1
+    command -v "$name" >/dev/null 2>&1 || {
+        printf 'Fehlendes Werkzeug: %s\n' "$name" >&2
+        exit 2
+    }
+}
+
+require_command python3
+require_command uv
+require_command cmake
+require_command ninja
+
+[ -x "$ROOT/bin/mojo-real" ] || {
+    printf 'Fehlender Mojo-Wrapper: %s\n' "$ROOT/bin/mojo-real" >&2
+    exit 2
+}
+
+if ! "$ROOT/bin/mojo-real" --version >/dev/null 2>&1; then
+    cat >&2 <<'MSG'
+Mojo ist nicht ausführbar.
+
+Erwartet wird eine vorhandene Mojo-Installation über einen dieser Wege:
+  - MOJO_BIN=/pfad/zum/mojo
+  - .venv/bin/mojo nach scripts/setup_mojo.sh
+  - .pixi/envs/default/bin/mojo, falls du Mojo selbst dort bereitstellst
+
+Pixi installiert Mojo in diesem Projekt absichtlich nicht als PyPI-Abhängigkeit.
+MSG
+    exit 2
+fi
+
+printf '%s\n' 'Pixi/CMake-Toolchain: OK'
+#!/usr/bin/env sh
+set -eu
+
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 ROOT=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)
 status=0

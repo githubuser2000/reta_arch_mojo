@@ -36,7 +36,7 @@ def _layout_target_dir(tmp_path: Path) -> Path:
     return target_dir
 
 
-def _install(tmp_path: Path, prefix: str = "/usr") -> Path:
+def _install(tmp_path: Path, prefix: str = "/usr/local") -> Path:
     stage = tmp_path / "stage"
     result = subprocess.run(
         [str(ROOT / "scripts" / "install.sh")],
@@ -57,9 +57,9 @@ def _install(tmp_path: Path, prefix: str = "/usr") -> Path:
     return stage
 
 
-def test_fhs_usr_layout_uses_share_for_csv_and_assets(tmp_path: Path) -> None:
+def test_fhs_usr_local_layout_uses_share_for_csv_and_assets(tmp_path: Path) -> None:
     stage = _install(tmp_path)
-    prefix = stage / "usr"
+    prefix = stage / "usr" / "local"
     private = prefix / "lib" / "reta"
     shared = prefix / "share" / "reta"
 
@@ -111,9 +111,9 @@ def test_fhs_usr_layout_uses_share_for_csv_and_assets(tmp_path: Path) -> None:
             assert "Keine vollständige Modular-Mojo-Laufzeit gefunden" in result.stderr
 
     layout = (private / "INSTALL_LAYOUT").read_text(encoding="utf-8")
-    assert "csvdir=/usr/share/reta/csv" in layout
-    assert "assetdir=/usr/share/reta/assets" in layout
-    assert "mandir=/usr/share/man" in layout
+    assert "csvdir=/usr/local/share/reta/csv" in layout
+    assert "assetdir=/usr/local/share/reta/assets" in layout
+    assert "mandir=/usr/local/share/man" in layout
 
     help_result = subprocess.run(
         [str(prefix / "bin" / "generate_html"), "--help"],
@@ -198,23 +198,23 @@ def test_user_local_prefix_keeps_data_below_home_share(tmp_path: Path) -> None:
 
 def test_uninstall_removes_only_reta_layout(tmp_path: Path) -> None:
     stage = _install(tmp_path)
-    unrelated = stage / "usr" / "share" / "keep-me"
+    unrelated = stage / "usr" / "local" / "share" / "keep-me"
     unrelated.parent.mkdir(parents=True, exist_ok=True)
     unrelated.write_text("unrelated", encoding="utf-8")
 
     result = subprocess.run(
         [str(ROOT / "scripts" / "uninstall.sh")],
         cwd=ROOT,
-        env={**os.environ, "DESTDIR": str(stage), "PREFIX": "/usr"},
+        env={**os.environ, "DESTDIR": str(stage), "PREFIX": "/usr/local"},
         text=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         check=False,
     )
     assert result.returncode == 0, result.stderr
-    assert not (stage / "usr" / "lib" / "reta").exists()
-    assert not (stage / "usr" / "share" / "reta").exists()
-    assert not (stage / "usr" / "share" / "man" / "man1" / "generate_html.1").exists()
+    assert not (stage / "usr" / "local" / "lib" / "reta").exists()
+    assert not (stage / "usr" / "local" / "share" / "reta").exists()
+    assert not (stage / "usr" / "local" / "share" / "man" / "man1" / "generate_html.1").exists()
     assert unrelated.read_text(encoding="utf-8") == "unrelated"
 
 

@@ -12,14 +12,8 @@ include(cmake/RetaScriptTargets.cmake)
 set(RETA_MOJO_JOBS "8" CACHE STRING "Mojo compiler jobs forwarded as '-j N' to project build scripts")
 set(RETA_TEST_RUN_JOBS "1" CACHE STRING "Runtime jobs for scripts/run-tests.sh")
 set(RETA_TEST_RUN_TIMEOUT "0" CACHE STRING "Optional per-test timeout in seconds, 0 disables it")
-set(RETA_INSTALL_PREFIX "/usr/local" CACHE PATH "Installation prefix used by script-backed install targets")
 
 set(RETA_MOJO_BUILD_OPTIONS -- -j ${RETA_MOJO_JOBS})
-
-reta_script_target(reta-toolchain-check
-  COMMENT "Check external Mojo/Pixi/CMake toolchain without compiling"
-  COMMAND scripts/check_pixi_cmake_toolchain.sh
-)
 
 reta_script_target(reta-toolchain-check
   COMMENT "Check Pixi/CMake/Mojo toolchain without compiling"
@@ -83,21 +77,6 @@ reta_script_target(reta-test-all
 reta_script_target(reta-release-check
   COMMENT "Run the release-check gate"
   COMMAND scripts/release_check.sh
-)
-
-reta_script_target(reta-install
-  COMMENT "Install reta under ${RETA_INSTALL_PREFIX}"
-  COMMAND ${CMAKE_COMMAND} -E env PREFIX=${RETA_INSTALL_PREFIX} scripts/install.sh
-)
-
-reta_script_target(reta-uninstall
-  COMMENT "Uninstall reta from ${RETA_INSTALL_PREFIX}"
-  COMMAND ${CMAKE_COMMAND} -E env PREFIX=${RETA_INSTALL_PREFIX} scripts/uninstall.sh
-)
-
-reta_script_target(reta-check-install-layout
-  COMMENT "Check staged install layout with prefix ${RETA_INSTALL_PREFIX}"
-  COMMAND ${CMAKE_COMMAND} -E env PREFIX=${RETA_INSTALL_PREFIX} scripts/check_install_layout.sh
 )
 
 reta_script_target(reta-clean-generated

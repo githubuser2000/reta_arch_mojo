@@ -16,10 +16,8 @@ c-compiler = "*"
 openssl = "*"
 sqlite = "*"
 
-[pypi-dependencies]
-mojo = "==1.0.0b2"
-
 [tasks]
+check-toolchain = "scripts/check_pixi_cmake_toolchain.sh"
 mojo-version = "bin/mojo-real --version"
 setup-mojo-venv = "RETA_SKIP_BUILD=1 scripts/setup_mojo.sh"
 build = "scripts/build.sh -- -j 8"
@@ -36,6 +34,7 @@ test-parallel = "scripts/build-tests.sh -- -j 8 && scripts/run-tests.sh --jobs 4
 test-all = "scripts/test_all.sh -- -j 8"
 release-check = "scripts/release_check.sh"
 cmake-configure = "cmake -S . -B build -G Ninja -DRETA_MOJO_JOBS=8"
+cmake-list-targets = "cmake --build build --target help"
 cmake-build = "cmake --build build"
 cmake-build-core-shared = "cmake --build build --target reta-core-shared"
 cmake-build-shared = "cmake --build build --target reta-shared"

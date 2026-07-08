@@ -10,7 +10,7 @@ Verwendung: scripts/release_check.sh [--dry-run] [--] [MOJO_BUILD_OPTION ...]
 Führt den vollständigen Release-Sicherheitsgurt aus:
   1. vollständiger nativer Build inklusive Core-/Prompt-Shared-Libraries
   2. Buildlayout-Prüfung inklusive .reta-source-id-Frische
-  3. FHS-/usr-Installationsprüfung mit installierten dünnen Startern
+  3. FHS-/usr/local-Installationsprüfung mit installierten dünnen Startern
   4. Prompt-Shared-Runtime-Smoke im Build- und Installationsbaum
   5. alle Katalog-, Paritäts- und Test-Suiten
 
@@ -60,7 +60,7 @@ run_step 'vollständiger nativer Build mit Core-/Prompt-Shared-Libraries' \
     "$ROOT/scripts/build-all.sh" -- "$@"
 run_step 'Buildlayout inklusive Shared-Libraries prüfen' \
     "$ROOT/scripts/check_build_layout.sh"
-run_step 'FHS-/usr-Installation inklusive dünner Starter prüfen' \
+run_step 'FHS-/usr/local-Installation inklusive dünner Starter prüfen' \
     "$ROOT/scripts/check_install_layout.sh"
 run_step 'Multis3-Parität prüfen' "$ROOT/scripts/check_multis3_parity.sh"
 run_step 'Tag-Schema prüfen' "$ROOT/scripts/check_tag_schema.sh"
@@ -91,5 +91,5 @@ run_step 'Vollständige Mojo-Test-Suite ausführen' "$ROOT/scripts/test_all.sh"
 if [ "$DRY_RUN" = 1 ]; then
     printf '\n%s\n' 'Release-Prüfplan ausgegeben; keine Kommandos ausgeführt.'
 else
-    printf '\n%s\n' 'Alle Release-Prüfungen bestanden, inklusive FHS-/usr-Installation und Prompt-Shared-Runtime-Smoke.'
+    printf '\n%s\n' 'Alle Release-Prüfungen bestanden, inklusive FHS-/usr/local-Installation und Prompt-Shared-Runtime-Smoke.'
 fi

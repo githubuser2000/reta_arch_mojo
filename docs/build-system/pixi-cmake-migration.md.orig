@@ -32,9 +32,6 @@ pixi run build-shared
 pixi run build-all
 pixi run test
 pixi run release-check
-pixi run install
-pixi run uninstall
-pixi run check-install-layout
 ```
 
 Für den bisherigen uv/.venv-Weg bleibt ein eigener Task erhalten:
@@ -70,19 +67,6 @@ Vollbuild:
 pixi run cmake-build-all
 ```
 
-Installation unter `/usr/local`:
-
-```sh
-pixi run cmake-configure
-sudo pixi run cmake-install
-```
-
-Der CMake-Installationspräfix ist standardmäßig `/usr/local` und kann bei Bedarf bewusst überschrieben werden:
-
-```sh
-cmake -S . -B build -G Ninja -DRETA_INSTALL_PREFIX=/usr/local
-```
-
 Tests bauen und ausführen:
 
 ```sh
@@ -107,7 +91,7 @@ pixi run cmake-ctest
 ## Bewusste Nicht-Ziele dieser ersten Stufe
 
 - keine Entfernung funktionierender Shell-Skripte
-- keine Änderung an `target/`-Layout; Install-Targets verwenden standardmäßig `/usr/local`
+- keine Änderung an `target/`-Layout oder Installpfaden
 - keine Änderung an den Mojo-Quellen
 - kein direkter CMake-Sprachsupport für Mojo
 - kein Wechsel auf CPack/Packaging

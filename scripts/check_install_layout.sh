@@ -3,54 +3,63 @@ set -eu
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 TMP=${TMPDIR:-/tmp}/reta-install-layout.$$
 STAGE=$TMP/stage
+PREFIX=${PREFIX:-/usr/local}
+BINDIR=${BINDIR:-$PREFIX/bin}
+LIBEXECDIR=${LIBEXECDIR:-$PREFIX/lib/reta}
+DATADIR=${DATADIR:-$PREFIX/share/reta}
+MANDIR=${MANDIR:-$PREFIX/share/man}
+STAGE_BINDIR=$STAGE$BINDIR
+STAGE_LIBEXECDIR=$STAGE$LIBEXECDIR
+STAGE_DATADIR=$STAGE$DATADIR
+STAGE_MANDIR=$STAGE$MANDIR
 trap 'rm -rf "$TMP"' EXIT HUP INT TERM
 mkdir -p "$TMP"
 
-DESTDIR=$STAGE PREFIX=/usr "$ROOT/scripts/install.sh" >"$TMP/install.log"
+DESTDIR="$STAGE" PREFIX="$PREFIX" BINDIR="$BINDIR" LIBEXECDIR="$LIBEXECDIR" DATADIR="$DATADIR" MANDIR="$MANDIR" "$ROOT/scripts/install.sh" >"$TMP/install.log"
 
-[ -f "$STAGE/usr/share/reta/csv/religion.csv" ]
-[ -f "$STAGE/usr/share/reta/assets/parameter_aliases.tsv" ]
-[ -f "$STAGE/usr/share/reta/assets/input_semantics_catalog.tsv" ]
-[ -f "$STAGE/usr/share/reta/assets/reta_help_de.txt" ]
-[ -f "$STAGE/usr/share/reta/assets/reta_help_en.txt" ]
-[ -f "$STAGE/usr/share/reta/assets/i18n_words/deutsch.tsv" ]
-[ -f "$STAGE/usr/share/reta/assets/i18n_words/manifest.json" ]
-[ -f "$STAGE/usr/share/man/man1/generate_html.1" ]
-[ -L "$STAGE/usr/bin/reta-mojo-i18n" ]
-[ -L "$STAGE/usr/bin/reta-mojo-package-integrity" ]
-[ -L "$STAGE/usr/lib/reta/python_reference/csv" ]
-[ -L "$STAGE/usr/lib/reta/assets" ]
-[ -x "$STAGE/usr/lib/reta/scripts/check_mojo_binary_freshness.sh" ]
-[ -x "$STAGE/usr/lib/reta/scripts/current_source_id.sh" ]
-[ -L "$STAGE/usr/bin/reta" ]
-[ -L "$STAGE/usr/bin/grundStrukHtml" ]
-[ ! -e "$STAGE/usr/lib/reta/target" ]
-[ -x "$STAGE/usr/lib/reta/reta" ]
-[ -f "$STAGE/usr/lib/reta/reta.reta-source-id" ]
-[ -x "$STAGE/usr/lib/reta/grundStrukHtml" ]
-[ -f "$STAGE/usr/lib/reta/grundStrukHtml.reta-source-id" ]
-[ -f "$STAGE/usr/lib/reta/libreta-core.so" ]
-[ -f "$STAGE/usr/lib/reta/libreta-core.so.reta-source-id" ]
-[ -x "$STAGE/usr/lib/reta/rp" ]
-[ -f "$STAGE/usr/lib/reta/rp.reta-source-id" ]
-[ -x "$STAGE/usr/lib/reta/rpl" ]
-[ -f "$STAGE/usr/lib/reta/rpl.reta-source-id" ]
-[ -x "$STAGE/usr/lib/reta/rpe" ]
-[ -f "$STAGE/usr/lib/reta/rpe.reta-source-id" ]
-[ -x "$STAGE/usr/lib/reta/rpb" ]
-[ -f "$STAGE/usr/lib/reta/rpb.reta-source-id" ]
-[ -f "$STAGE/usr/lib/reta/libreta-prompt.so" ]
-[ -f "$STAGE/usr/lib/reta/libreta-prompt.so.reta-source-id" ]
-[ -f "$STAGE/usr/lib/reta/libreta-prompt-interactive.so" ]
-[ -f "$STAGE/usr/lib/reta/libreta-prompt-interactive.so.reta-source-id" ]
-[ -L "$STAGE/usr/bin/rp" ]
-[ -L "$STAGE/usr/bin/rpl" ]
-[ -L "$STAGE/usr/bin/rpe" ]
-[ -L "$STAGE/usr/bin/rpb" ]
+[ -f "$STAGE_DATADIR/csv/religion.csv" ]
+[ -f "$STAGE_DATADIR/assets/parameter_aliases.tsv" ]
+[ -f "$STAGE_DATADIR/assets/input_semantics_catalog.tsv" ]
+[ -f "$STAGE_DATADIR/assets/reta_help_de.txt" ]
+[ -f "$STAGE_DATADIR/assets/reta_help_en.txt" ]
+[ -f "$STAGE_DATADIR/assets/i18n_words/deutsch.tsv" ]
+[ -f "$STAGE_DATADIR/assets/i18n_words/manifest.json" ]
+[ -f "$STAGE_MANDIR/man1/generate_html.1" ]
+[ -L "$STAGE_BINDIR/reta-mojo-i18n" ]
+[ -L "$STAGE_BINDIR/reta-mojo-package-integrity" ]
+[ -L "$STAGE_LIBEXECDIR/python_reference/csv" ]
+[ -L "$STAGE_LIBEXECDIR/assets" ]
+[ -x "$STAGE_LIBEXECDIR/scripts/check_mojo_binary_freshness.sh" ]
+[ -x "$STAGE_LIBEXECDIR/scripts/current_source_id.sh" ]
+[ -L "$STAGE_BINDIR/reta" ]
+[ -L "$STAGE_BINDIR/grundStrukHtml" ]
+[ ! -e "$STAGE_LIBEXECDIR/target" ]
+[ -x "$STAGE_LIBEXECDIR/reta" ]
+[ -f "$STAGE_LIBEXECDIR/reta.reta-source-id" ]
+[ -x "$STAGE_LIBEXECDIR/grundStrukHtml" ]
+[ -f "$STAGE_LIBEXECDIR/grundStrukHtml.reta-source-id" ]
+[ -f "$STAGE_LIBEXECDIR/libreta-core.so" ]
+[ -f "$STAGE_LIBEXECDIR/libreta-core.so.reta-source-id" ]
+[ -x "$STAGE_LIBEXECDIR/rp" ]
+[ -f "$STAGE_LIBEXECDIR/rp.reta-source-id" ]
+[ -x "$STAGE_LIBEXECDIR/rpl" ]
+[ -f "$STAGE_LIBEXECDIR/rpl.reta-source-id" ]
+[ -x "$STAGE_LIBEXECDIR/rpe" ]
+[ -f "$STAGE_LIBEXECDIR/rpe.reta-source-id" ]
+[ -x "$STAGE_LIBEXECDIR/rpb" ]
+[ -f "$STAGE_LIBEXECDIR/rpb.reta-source-id" ]
+[ -f "$STAGE_LIBEXECDIR/libreta-prompt.so" ]
+[ -f "$STAGE_LIBEXECDIR/libreta-prompt.so.reta-source-id" ]
+[ -f "$STAGE_LIBEXECDIR/libreta-prompt-interactive.so" ]
+[ -f "$STAGE_LIBEXECDIR/libreta-prompt-interactive.so.reta-source-id" ]
+[ -L "$STAGE_BINDIR/rp" ]
+[ -L "$STAGE_BINDIR/rpl" ]
+[ -L "$STAGE_BINDIR/rpe" ]
+[ -L "$STAGE_BINDIR/rpb" ]
 
 (
     cd "$TMP"
-    "$STAGE/usr/bin/reta-mojo" --mojo-csv-info >"$TMP/csv-info.out"
+    "$STAGE_BINDIR/reta-mojo" --mojo-csv-info >"$TMP/csv-info.out"
 )
 grep -q '^Zeilen: 1025$' "$TMP/csv-info.out"
 grep -q '^Spalten: 746$' "$TMP/csv-info.out"
@@ -58,7 +67,7 @@ grep -q '^Spalten: 746$' "$TMP/csv-info.out"
 
 (
     cd "$TMP"
-    "$STAGE/usr/bin/reta-mojo-i18n" --summary english >"$TMP/i18n-summary.out"
+    "$STAGE_BINDIR/reta-mojo-i18n" --summary english >"$TMP/i18n-summary.out"
 )
 grep -q '^language=english$' "$TMP/i18n-summary.out"
 grep -q '^rows=13655$' "$TMP/i18n-summary.out"
@@ -67,7 +76,7 @@ grep -q '^matrix_rows=4766$' "$TMP/i18n-summary.out"
 
 (
     cd "$TMP"
-    "$STAGE/usr/bin/reta-mojo-package-integrity" --summary \
+    "$STAGE_BINDIR/reta-mojo-package-integrity" --summary \
         "$ROOT/python_reference" >"$TMP/package-integrity.out"
 )
 grep -q '^file_count=457$' "$TMP/package-integrity.out"
@@ -86,12 +95,12 @@ cat "$ROOT/assets/html/head1.alx" \
 mkdir -p "$TMP/caller"
 (
     cd "$TMP/caller"
-    "$STAGE/usr/bin/generate_html" \
+    "$STAGE_BINDIR/generate_html" \
         --middle-file "$TMP/middle.fixture" \
         --middle-output "$TMP/middle.saved" \
         --output "$TMP/generate-html.actual"
-    "$STAGE/usr/bin/generate_html" --help > "$TMP/generate-html.help"
-    "$STAGE/usr/bin/generate_html" --version > "$TMP/generate-html.version"
+    "$STAGE_BINDIR/generate_html" --help > "$TMP/generate-html.help"
+    "$STAGE_BINDIR/generate_html" --version > "$TMP/generate-html.version"
 )
 cmp "$TMP/generate-html.expected" "$TMP/generate-html.actual"
 cmp "$TMP/middle.fixture" "$TMP/middle.saved"
@@ -109,22 +118,22 @@ set -- \
 )
 (
     cd "$TMP"
-    "$STAGE/usr/bin/reta-native" "$@" >"$TMP/native.out"
-    "$STAGE/usr/bin/reta" "$@" >"$TMP/core-launcher.out"
+    "$STAGE_BINDIR/reta-native" "$@" >"$TMP/native.out"
+    "$STAGE_BINDIR/reta" "$@" >"$TMP/core-launcher.out"
 )
 cmp "$TMP/reference.out" "$TMP/native.out"
 cmp "$TMP/reference.out" "$TMP/core-launcher.out"
 
 (
     cd "$TMP"
-    RETA_PYTHON=/definitely/not/available "$STAGE/usr/bin/reta" -h         >"$TMP/installed-help-de.out"
-    RETA_PYTHON=/definitely/not/available "$STAGE/usr/bin/reta"         -language=english -h >"$TMP/installed-help-en.out"
+    RETA_PYTHON=/definitely/not/available "$STAGE_BINDIR/reta" -h         >"$TMP/installed-help-de.out"
+    RETA_PYTHON=/definitely/not/available "$STAGE_BINDIR/reta"         -language=english -h >"$TMP/installed-help-en.out"
 )
 cmp "$ROOT/assets/reta_help_de.txt" "$TMP/installed-help-de.out"
 cmp "$ROOT/assets/reta_help_en.txt" "$TMP/installed-help-en.out"
 
-RETA_TARGET_DIR="$STAGE/usr/lib/reta" \
-RETA_TARGET_LIB_DIR="$STAGE/usr/lib/reta" \
+RETA_TARGET_DIR="$STAGE_LIBEXECDIR" \
+RETA_TARGET_LIB_DIR="$STAGE_LIBEXECDIR" \
     "$ROOT/scripts/test_prompt_shared_runtime.sh" >"$TMP/installed-prompt-runtime.out"
 grep -q '^Prompt-Shared-Runtime-Smoke bestanden\.$' \
     "$TMP/installed-prompt-runtime.out"
@@ -132,15 +141,15 @@ grep -q '^Prompt-Shared-Runtime-Smoke bestanden\.$' \
 (
     cd "$TMP"
     RETA_PROMPT_INTERACTIVE_LIBRARY=/definitely/missing/libreta-prompt-interactive.so \
-        "$STAGE/usr/bin/rpb" prim 60 >"$TMP/installed-rpb.out"
-    printf 'q\n' | "$STAGE/usr/bin/rp" >"$TMP/installed-rp.out"
+        "$STAGE_BINDIR/rpb" prim 60 >"$TMP/installed-rpb.out"
+    printf 'q\n' | "$STAGE_BINDIR/rp" >"$TMP/installed-rp.out"
 )
 grep -q '^60: 2\^2 3 5$' "$TMP/installed-rpb.out"
 grep -q 'Prompt-Shared-Runtime-Smoke bestanden\.' \
     "$TMP/installed-prompt-runtime.out"
 
-DESTDIR=$STAGE PREFIX=/usr "$ROOT/scripts/uninstall.sh" >/dev/null
-[ ! -e "$STAGE/usr/lib/reta" ]
-[ ! -e "$STAGE/usr/share/reta" ]
+DESTDIR="$STAGE" PREFIX="$PREFIX" BINDIR="$BINDIR" LIBEXECDIR="$LIBEXECDIR" DATADIR="$DATADIR" MANDIR="$MANDIR" "$ROOT/scripts/uninstall.sh" >/dev/null
+[ ! -e "$STAGE_LIBEXECDIR" ]
+[ ! -e "$STAGE_DATADIR" ]
 
 printf '%s\n' 'FHS-Installation: Layout, native CSV, Core-/Prompt-Starter und Deinstallation bestanden.'

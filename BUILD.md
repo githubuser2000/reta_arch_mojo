@@ -368,7 +368,7 @@ produktiven Promptlink, der auf schwächeren oder begrenzten Buildumgebungen
 deutlich länger als die Modulprüfung dauern kann.
 
 
-## Stage 12c4m: Installation unter `/usr/local` oder `/usr`
+## Stage 12c4m: Installation unter `/usr/local`
 
 Unveränderliche CSV- und Katalogdaten werden nicht in `bin` oder `lib`
 installiert. Das FHS-konforme Standardlayout einer manuellen Installation ist:
@@ -380,22 +380,35 @@ installiert. Das FHS-konforme Standardlayout einer manuellen Installation ist:
 /usr/local/share/reta/assets
 ```
 
-Nach dem Build:
+Nach dem Build, Shell-Variante:
 
 ```bash
 sudo ./scripts/install.sh
 ```
 
-Ein Distributionspaket verwendet stattdessen ein Staging-Verzeichnis und den
-Präfix `/usr`:
+Pixi-Variante:
 
 ```bash
-DESTDIR="$pkgdir" PREFIX=/usr ./scripts/install.sh
+sudo pixi run install
 ```
 
-Dann liegen die Tabellen unter `/usr/share/reta/csv`. Die öffentliche
-`/usr/bin`-Ebene enthält nur relative Symlinks zu den privaten Launchern unter
-`/usr/lib/reta/bin`. Die privaten ELFs werden nicht mehr per Wildcard kopiert,
+CMake-Variante:
+
+```bash
+pixi run cmake-configure
+sudo pixi run cmake-install
+```
+
+Ein Staging-Verzeichnis für lokale Pakete verwendet ebenfalls standardmäßig
+den Präfix `/usr/local`:
+
+```bash
+DESTDIR="$pkgdir" PREFIX=/usr/local ./scripts/install.sh
+```
+
+Dann liegen die Tabellen unter `/usr/local/share/reta/csv`. Die öffentliche
+`/usr/local/bin`-Ebene enthält nur relative Symlinks zu den privaten Launchern unter
+`/usr/local/lib/reta/bin`. Die privaten ELFs werden nicht mehr per Wildcard kopiert,
 sondern ausschließlich aus der 36-Ziel-Allowlist
 `scripts/install_targets.txt`; dadurch gelangen keine lokalen Alt-/Debugziele
 ins Paket. Der Python-Kompatibilitätsbaum behält seinen historischen
@@ -408,14 +421,14 @@ Benutzerinstallation ohne Administratorrechte:
 PREFIX="$HOME/.local" ./scripts/install.sh
 ```
 
-Fedora-/RPM-konformes privates Programmverzeichnis:
+Optionales Fedora-/RPM-Override, nur wenn ein Distributionspaket ausdrücklich `/usr` verlangt:
 
 ```bash
 DESTDIR="$RPM_BUILD_ROOT" PREFIX=/usr LIBEXECDIR=/usr/libexec/reta \
   ./scripts/install.sh
 ```
 
-Die Daten bleiben unabhängig davon unter `/usr/share/reta`.
+Der normale manuelle Projektweg bleibt `/usr/local`.
 
 Prüfung des vollständigen Staging-Vertrags:
 
@@ -455,10 +468,10 @@ sanitisierte Binärdateien erhalten.
 
 ## Installierbares `generate_html`
 
-Nach `scripts/build.sh` und `scripts/install.sh /usr` liegt der öffentliche
-Starter unter `/usr/bin/generate_html`, das private Mojo-ELF unter
-`/usr/lib/reta/target/bin/generate-html-native` und die Manpage unter
-`/usr/share/man/man1/generate_html.1`.
+Nach `scripts/build.sh` und `scripts/install.sh` liegt der öffentliche
+Starter unter `/usr/local/bin/generate_html`, das private Mojo-ELF unter
+`/usr/local/lib/reta/generate-html-native` und die Manpage unter
+`/usr/local/share/man/man1/generate_html.1`.
 
 ```sh
 generate_html --help
