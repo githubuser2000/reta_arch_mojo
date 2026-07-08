@@ -992,3 +992,28 @@ scripts/run_build_task.sh --dry-run build-core-shared
 scripts/run_install_task.sh --dry-run install
 ```
 
+### Buildsystem-Diagnose ohne Kompilierung
+
+```sh
+scripts/reta_doctor.sh
+pixi run doctor
+pixi run cmake-configure
+pixi run cmake-doctor
+```
+
+Der Doctor prüft Shell/Pixi/CMake-Defaults, `/usr/local`-Install-Layout,
+das zentrale Artefaktmanifest, Toolchain und Plan-Kommandos. Er baut nichts
+und installiert nichts.
+
+
+### Punkt 4 Abschlussstatus
+
+```sh
+scripts/print_buildsystem_cleanup_status.sh
+pixi run script-cleanup-status
+pixi run cmake-configure
+pixi run cmake-script-cleanup-status
+```
+
+Wenn diese Anzeige und der Doctor grün sind, ist Punkt 4 abgeschlossen und der
+nächste Hauptschritt ist die ABI-/Shared-Library-Stabilisierung.

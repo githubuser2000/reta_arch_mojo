@@ -286,3 +286,36 @@ scripts/run_install_task.sh --dry-run install
 Der Planmodus ist bewusst eine Wrapper-Funktion.  Die historischen
 Spezialskripte bleiben ausführbar und werden nicht durch eine zweite
 Buildlogik ersetzt.
+
+
+## Diagnose ohne Build
+
+Der gemeinsame Doctor-Befehl prüft Shell-Syntax, zentrale Defaults,
+Install-Layout, Artefaktmanifest, Toolchain und die wichtigsten Plan-Kommandos.
+Er kompiliert nichts und installiert nichts.
+
+```sh
+scripts/reta_doctor.sh
+pixi run doctor
+pixi run cmake-configure
+pixi run cmake-doctor
+```
+
+Wenn CMake noch nicht konfiguriert ist, meldet der Doctor das nur als Hinweis.
+Für die CMake-Variante muss zuerst `pixi run cmake-configure` gelaufen sein.
+
+
+## Punkt 4 Abschlussstatus
+
+Der Buildsystem-Aufräumpunkt ist abgeschlossen, wenn diese nicht-kompilierenden
+Prüfungen grün sind:
+
+```sh
+scripts/print_buildsystem_cleanup_status.sh
+scripts/reta_doctor.sh
+pixi run doctor
+pixi run cmake-configure
+pixi run cmake-doctor
+```
+
+Danach beginnt als nächster Hauptpunkt die ABI-/Shared-Library-Stabilisierung.

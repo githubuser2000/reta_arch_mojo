@@ -19,6 +19,17 @@ reta_script_target(reta-toolchain-check
   COMMAND scripts/check_pixi_cmake_toolchain.sh
 )
 
+
+reta_script_target(reta-doctor
+  COMMENT "Run non-compiling Shell/Pixi/CMake buildsystem diagnostics"
+  COMMAND scripts/reta_doctor.sh
+)
+
+reta_script_target(reta-script-cleanup-status
+  COMMENT "Print Punkt 4 buildsystem cleanup completion status"
+  COMMAND scripts/print_buildsystem_cleanup_status.sh
+)
+
 reta_script_target(reta-build-defaults
   COMMENT "Print shared Shell/Pixi/CMake build defaults"
   COMMAND scripts/print_build_defaults.sh
