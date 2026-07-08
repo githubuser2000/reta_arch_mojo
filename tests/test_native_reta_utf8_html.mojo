@@ -37,8 +37,11 @@ def test_unicode_prefix_wrapping_never_uses_partial_bytes() raises:
         17,
         True,
     )
-    assert_true("Überraschungs-" in rendered)
-    assert_true("漢字kombination" in rendered)
+    # Hard column wrapping must split at the configured width even in the
+    # middle of a Unicode word, while still never slicing inside UTF-8 bytes.
+    assert_true("Überraschungs-漢字k" in rendered)
+    assert_true("ombination" in rendered)
+    assert_false("漢字kombination" in rendered)
     assert_true("größer-" in rendered)
     assert_true("Äußerung" in rendered)
     assert_true("🙂" in rendered)

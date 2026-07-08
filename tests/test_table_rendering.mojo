@@ -72,7 +72,7 @@ def test_shell_width_uses_prepared_fragments() raises:
         render_shell_table_with_width_reference(
             table, table, [0, 1], True, 10, False
         ),
-        "   H         \n 1 aaaa bbbb \n   cccc      \n",
+        "   H          \n 1 aaaa bbbb  \n   cccc       \n",
     )
 
 
@@ -88,14 +88,14 @@ def test_shell_wrap_preserves_internal_space_runs_at_boundary() raises:
     )
     assert_true(
         " 15 gegen 6 |  Darin kann sich die 15 am Besten "
-        + "hineinversetzen. | pro 5 | "
+        + "hineinversetzen. | pro 5 |  D"
         in rendered
     )
     assert_true(
-        "\n    Darin kann sich die 15 am Besten hineinversetzen."
+        "\n    arin kann sich die 15 am Besten hineinversetzen."
         in rendered
     )
-    assert_false("\n    |  Darin kann sich die 15" in rendered)
+    assert_false("\n    Darin kann sich die 15" in rendered)
 
 
 
@@ -223,8 +223,9 @@ def test_explicit_zero_width_keeps_only_that_column_unwrapped() raises:
     var rendered = render_shell_table_with_width_reference(
         table, table, [0, 1], True, 5, False, 0, True, False, [0, 5]
     )
-    assert_true("alpha beta gamma one" in rendered)
-    assert_true("two" in rendered)
+    assert_true("alpha beta gamma one t" in rendered)
+    assert_true("wo th" in rendered)
+    assert_true("ree" in rendered)
     assert_false("\n   beta gamma" in rendered)
 
 

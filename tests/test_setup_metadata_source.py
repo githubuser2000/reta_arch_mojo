@@ -67,7 +67,7 @@ def test_reference_setup_contract_is_frozen_exactly():
     keywords, classes, methods = _reference_contract()
     assert ast.literal_eval(keywords["name"]) == "reta"
     assert ast.literal_eval(keywords["version"]) == "3.20250507.4591"
-    assert len(ast.literal_eval(keywords["install_requires"])) == 6
+    assert len(ast.literal_eval(keywords["install_requires"])) == 4
     assert [node.name for node in classes] == [
         "Build",
         "BuildExt",

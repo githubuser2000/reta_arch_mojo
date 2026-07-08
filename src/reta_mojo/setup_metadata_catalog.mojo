@@ -26,8 +26,6 @@ def setup_install_requirements() -> List[String]:
     return [
         "html2text==2020.1.16",
         "bbcode==1.1.0",
-	#"pyphen==0.9.5",
-	#"PyHyphen==3.0.1",
         "prompt_toolkit==3.0.19",
         "rich==10.12.0"
     ]
