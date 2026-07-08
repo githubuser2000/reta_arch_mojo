@@ -85,6 +85,11 @@ reta_script_target(reta-install-layout
   COMMAND scripts/print_install_layout.sh
 )
 
+reta_script_target(reta-artifact-manifest
+  COMMENT "Print central build/install artifact manifest"
+  COMMAND scripts/print_artifact_manifest.sh
+)
+
 reta_script_target(reta-install
   COMMENT "Install reta under ${RETA_INSTALL_PREFIX}"
   COMMAND ${CMAKE_COMMAND} -E env PREFIX=${RETA_INSTALL_PREFIX} scripts/install.sh

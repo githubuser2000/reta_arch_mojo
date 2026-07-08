@@ -157,3 +157,26 @@ Für Paketbau oder Tests kann weiterhin bewusst überschrieben werden:
 DESTDIR=/tmp/pkgroot PREFIX=/usr/local scripts/install.sh
 cmake -S . -B build -G Ninja -DRETA_INSTALL_PREFIX=/usr/local
 ```
+
+## Zentrales Artefaktmanifest
+
+Die Build- und Install-Artefakte werden schrittweise aus einer gemeinsamen
+Shell-Manifestdatei gespeist:
+
+```text
+scripts/reta_artifacts.sh
+scripts/print_artifact_manifest.sh
+```
+
+Ziel ist, dass Shell-Skripte, Pixi-Tasks und CMake-Targets nicht dauerhaft
+separate Listen für Executables, schwere Compilerziele und Shared Libraries
+pflegen müssen.  Die vorhandenen Build-Skripte bleiben zunächst die ausführende
+Instanz; das Manifest ist die zentrale Namensquelle.
+
+Prüfen:
+
+```sh
+scripts/print_artifact_manifest.sh
+pixi run artifact-manifest
+cmake --build build --target reta-artifact-manifest
+```

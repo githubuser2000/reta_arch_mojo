@@ -897,3 +897,16 @@ pixi run cmake-install-layout
 ```
 
 Die zentrale Vorgabe liegt in `scripts/reta_install_defaults.sh`.
+
+## Zentrales Artefaktmanifest
+
+Shell, Pixi und CMake teilen sich schrittweise eine zentrale Artefaktliste:
+
+```sh
+scripts/print_artifact_manifest.sh
+pixi run artifact-manifest
+cmake --build build --target reta-artifact-manifest
+```
+
+Die Datei `scripts/reta_artifacts.sh` ist die Namensquelle für öffentliche
+Dünnstarter, reguläre native Ziele, schwere native Ziele und Shared Libraries.

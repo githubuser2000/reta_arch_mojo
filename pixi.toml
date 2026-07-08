@@ -35,6 +35,7 @@ test-all = "scripts/test_all.sh -- -j 8"
 release-check = "scripts/release_check.sh"
 
 install-layout = "scripts/print_install_layout.sh"
+artifact-manifest = "scripts/print_artifact_manifest.sh"
 install = "PREFIX=/usr/local scripts/install.sh"
 uninstall = "PREFIX=/usr/local scripts/uninstall.sh"
 check-install-layout = "PREFIX=/usr/local scripts/check_install_layout.sh"
