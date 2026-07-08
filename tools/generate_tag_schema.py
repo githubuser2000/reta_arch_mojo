@@ -32,9 +32,19 @@ def quote(value: object) -> str:
     return json.dumps(str(value), ensure_ascii=False)
 
 
-def emit_reverse(lines: list[str], name: str, mapping: dict) -> None:
+def reverse_sort_key(group_mapping: dict, column: object, tags: object) -> tuple[int, int]:
+    tag_values = tuple(sorted(int(tag.value) for tag in tags))
+    for index, (group_tags, _columns) in enumerate(group_mapping.items()):
+        if tuple(sorted(int(tag.value) for tag in group_tags)) == tag_values:
+            return index, int(column)
+    return len(group_mapping), int(column)
+
+
+def emit_reverse(lines: list[str], name: str, mapping: dict, group_mapping: dict) -> None:
     lines.append(f"    var {name} = List[TagColumnEntry]()")
-    for column, tags in mapping.items():
+    for column, tags in sorted(
+        mapping.items(), key=lambda item: reverse_sort_key(group_mapping, item[0], item[1])
+    ):
         tag_values = sorted(int(tag.value) for tag in tags)
         lines.append(
             f"    {name}.append(TagColumnEntry({int(column)}, {ints(tag_values)}))"
@@ -62,11 +72,11 @@ def generate_catalog() -> str:
         "def bootstrap_tag_schema() -> TagSchemaBundle:",
     ]
     emit_groups(lines, "primary", tableTags)
-    emit_reverse(lines, "primary_reverse", tableTags2)
+    emit_reverse(lines, "primary_reverse", tableTags2, tableTags)
     emit_groups(lines, "combination", tableTags_kombiTable)
-    emit_reverse(lines, "combination_reverse", tableTags2_kombiTable)
+    emit_reverse(lines, "combination_reverse", tableTags2_kombiTable, tableTags_kombiTable)
     emit_groups(lines, "combination_two", tableTags_kombiTable2)
-    emit_reverse(lines, "combination_two_reverse", tableTags2_kombiTable2)
+    emit_reverse(lines, "combination_two_reverse", tableTags2_kombiTable2, tableTags_kombiTable2)
     lines.append("    var tag_names = List[String]()")
     for tag in ST:
         lines.append(f"    tag_names.append({quote(tag.name)})")
