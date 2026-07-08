@@ -968,3 +968,27 @@ Mojo-Threadoption enthält. Explizite lokale Aufrufe bleiben also möglich:
 scripts/run_build_task.sh build-core-shared --target-cpu native
 scripts/run_build_task.sh build-core-shared -j 4
 ```
+
+## Planmodus ohne Build oder Installation
+
+Die Pixi- und CMake-Einstiege besitzen einen Dry-Run/Planmodus.  Er zeigt die
+effektiven Wrapper-Kommandos an, führt aber keinen Mojo-Build, keine Tests und
+keine Installation aus.
+
+```sh
+pixi run plan-build-core-shared
+pixi run plan-build-all
+pixi run plan-test
+pixi run plan-install
+pixi run cmake-configure
+pixi run cmake-plan-build-core-shared
+pixi run cmake-plan-install
+```
+
+Direkt über die zentralen Wrapper:
+
+```sh
+scripts/run_build_task.sh --dry-run build-core-shared
+scripts/run_install_task.sh --dry-run install
+```
+

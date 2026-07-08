@@ -40,6 +40,11 @@ reta_script_target(reta-core-shared
   COMMAND ${CMAKE_COMMAND} -E env RETA_MOJO_JOBS=${RETA_MOJO_JOBS} scripts/run_build_task.sh build-core-shared
 )
 
+reta_script_target(reta-plan-core-shared
+  COMMENT "Print libreta-core/thin-starter build command without compiling"
+  COMMAND ${CMAKE_COMMAND} -E env RETA_DRY_RUN=1 RETA_MOJO_JOBS=${RETA_MOJO_JOBS} scripts/run_build_task.sh build-core-shared
+)
+
 reta_script_target(reta-prompt-shared
   COMMENT "Build prompt shared libraries and thin rp/rpl/rpe/rpb starters"
   COMMAND ${CMAKE_COMMAND} -E env RETA_MOJO_JOBS=${RETA_MOJO_JOBS} scripts/run_build_task.sh build-prompt-shared
@@ -53,6 +58,11 @@ reta_script_target(reta-shared
 reta_script_target(reta-all
   COMMENT "Build the complete production target set"
   COMMAND ${CMAKE_COMMAND} -E env RETA_MOJO_JOBS=${RETA_MOJO_JOBS} scripts/run_build_task.sh build-all
+)
+
+reta_script_target(reta-plan-all
+  COMMENT "Print full production build command without compiling"
+  COMMAND ${CMAKE_COMMAND} -E env RETA_DRY_RUN=1 RETA_MOJO_JOBS=${RETA_MOJO_JOBS} scripts/run_build_task.sh build-all
 )
 
 reta_script_target(reta-tests-build
@@ -72,6 +82,11 @@ add_custom_target(reta-tests
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
   USES_TERMINAL
   VERBATIM
+)
+
+reta_script_target(reta-plan-test
+  COMMENT "Print test build/run commands without compiling or running tests"
+  COMMAND ${CMAKE_COMMAND} -E env RETA_DRY_RUN=1 RETA_MOJO_JOBS=${RETA_MOJO_JOBS} RETA_TEST_RUN_JOBS=${RETA_TEST_RUN_JOBS} scripts/run_build_task.sh test
 )
 
 reta_script_target(reta-test-all
@@ -106,17 +121,32 @@ reta_script_target(reta-check-artifact-manifest
 
 reta_script_target(reta-install
   COMMENT "Install reta under ${RETA_INSTALL_PREFIX}"
-  COMMAND ${CMAKE_COMMAND} -E env PREFIX=${RETA_INSTALL_PREFIX} scripts/install.sh
+  COMMAND ${CMAKE_COMMAND} -E env PREFIX=${RETA_INSTALL_PREFIX} scripts/run_install_task.sh install
+)
+
+reta_script_target(reta-install-plan
+  COMMENT "Print install command for ${RETA_INSTALL_PREFIX} without installing"
+  COMMAND ${CMAKE_COMMAND} -E env RETA_DRY_RUN=1 PREFIX=${RETA_INSTALL_PREFIX} scripts/run_install_task.sh install
 )
 
 reta_script_target(reta-uninstall
   COMMENT "Uninstall reta from ${RETA_INSTALL_PREFIX}"
-  COMMAND ${CMAKE_COMMAND} -E env PREFIX=${RETA_INSTALL_PREFIX} scripts/uninstall.sh
+  COMMAND ${CMAKE_COMMAND} -E env PREFIX=${RETA_INSTALL_PREFIX} scripts/run_install_task.sh uninstall
+)
+
+reta_script_target(reta-uninstall-plan
+  COMMENT "Print uninstall command for ${RETA_INSTALL_PREFIX} without uninstalling"
+  COMMAND ${CMAKE_COMMAND} -E env RETA_DRY_RUN=1 PREFIX=${RETA_INSTALL_PREFIX} scripts/run_install_task.sh uninstall
 )
 
 reta_script_target(reta-check-install-layout
   COMMENT "Check staged install layout with prefix ${RETA_INSTALL_PREFIX}"
-  COMMAND ${CMAKE_COMMAND} -E env PREFIX=${RETA_INSTALL_PREFIX} scripts/check_install_layout.sh
+  COMMAND ${CMAKE_COMMAND} -E env PREFIX=${RETA_INSTALL_PREFIX} scripts/run_install_task.sh check-install-layout
+)
+
+reta_script_target(reta-check-install-layout-plan
+  COMMENT "Print install-layout check command without checking"
+  COMMAND ${CMAKE_COMMAND} -E env RETA_DRY_RUN=1 PREFIX=${RETA_INSTALL_PREFIX} scripts/run_install_task.sh check-install-layout
 )
 
 reta_script_target(reta-clean-generated

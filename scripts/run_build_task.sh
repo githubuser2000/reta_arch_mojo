@@ -3,7 +3,7 @@ set -eu
 
 usage() {
     cat <<'USAGE'
-Verwendung: scripts/run_build_task.sh TASK [MOJO_BUILD_OPTION ...]
+Verwendung: scripts/run_build_task.sh [--dry-run] TASK [MOJO_BUILD_OPTION ...]
 
 Zentraler Einstiegspunkt für Pixi- und CMake-Tasks.  Direkte Shell-Skripte
 bleiben gültig; dieser Wrapper sorgt nur dafür, dass die bequemen Task-Varianten
@@ -14,6 +14,7 @@ Build-Defaults:
   RETA_TEST_RUN_JOBS=1             Default für sequentiellen Testlauf
   RETA_TEST_RUN_PARALLEL_JOBS=4    Default für *-parallel Tasks
   RETA_TEST_RUN_TIMEOUT=0          0 bedeutet kein Timeout
+  RETA_DRY_RUN=1                   Befehle nur anzeigen, nicht ausführen
 
 Tasks:
   build
@@ -34,6 +35,14 @@ USAGE
 }
 
 case ${1:-} in
+    --dry-run)
+        RETA_DRY_RUN=1
+        export RETA_DRY_RUN
+        shift
+        ;;
+esac
+
+case ${1:-} in
     -h|--help|'')
         usage
         exit 0
@@ -46,6 +55,7 @@ ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 cd "$ROOT"
 . "$ROOT/scripts/reta_build_defaults.sh"
 . "$ROOT/scripts/mojo_build_options.sh"
+. "$ROOT/scripts/reta_command_runner.sh"
 reta_build_set_defaults
 reta_build_validate_defaults
 mojo_validate_build_options "$@"
@@ -54,9 +64,9 @@ run_mojo_script() {
     _reta_script=$1
     shift
     if mojo_has_thread_option "$@"; then
-        "$ROOT/$_reta_script" -- "$@"
+        reta_run_or_print "$ROOT/$_reta_script" -- "$@"
     else
-        "$ROOT/$_reta_script" -- -j "$RETA_MOJO_JOBS" "$@"
+        reta_run_or_print "$ROOT/$_reta_script" -- -j "$RETA_MOJO_JOBS" "$@"
     fi
 }
 
@@ -64,9 +74,9 @@ run_mojo_script_exec() {
     _reta_script=$1
     shift
     if mojo_has_thread_option "$@"; then
-        exec "$ROOT/$_reta_script" -- "$@"
+        reta_exec_or_print "$ROOT/$_reta_script" -- "$@"
     else
-        exec "$ROOT/$_reta_script" -- -j "$RETA_MOJO_JOBS" "$@"
+        reta_exec_or_print "$ROOT/$_reta_script" -- -j "$RETA_MOJO_JOBS" "$@"
     fi
 }
 
@@ -93,26 +103,26 @@ case $TASK in
         run_mojo_script_exec scripts/build-tests.sh "$@"
         ;;
     run-tests)
-        exec "$ROOT/scripts/run-tests.sh" --jobs "$RETA_TEST_RUN_JOBS"
+        reta_exec_or_print "$ROOT/scripts/run-tests.sh" --jobs "$RETA_TEST_RUN_JOBS"
         ;;
     run-tests-parallel)
-        exec env RETA_TEST_RUN_JOBS="$RETA_TEST_RUN_PARALLEL_JOBS" \
+        reta_exec_or_print env RETA_TEST_RUN_JOBS="$RETA_TEST_RUN_PARALLEL_JOBS" \
             "$ROOT/scripts/run-tests.sh" --jobs "$RETA_TEST_RUN_PARALLEL_JOBS"
         ;;
     test)
         run_mojo_script scripts/build-tests.sh "$@"
-        exec "$ROOT/scripts/run-tests.sh" --jobs "$RETA_TEST_RUN_JOBS"
+        reta_exec_or_print "$ROOT/scripts/run-tests.sh" --jobs "$RETA_TEST_RUN_JOBS"
         ;;
     test-parallel)
         run_mojo_script scripts/build-tests.sh "$@"
-        exec env RETA_TEST_RUN_JOBS="$RETA_TEST_RUN_PARALLEL_JOBS" \
+        reta_exec_or_print env RETA_TEST_RUN_JOBS="$RETA_TEST_RUN_PARALLEL_JOBS" \
             "$ROOT/scripts/run-tests.sh" --jobs "$RETA_TEST_RUN_PARALLEL_JOBS"
         ;;
     test-all)
         if mojo_has_thread_option "$@"; then
-            exec "$ROOT/scripts/test_all.sh" --run-jobs "$RETA_TEST_RUN_JOBS" -- "$@"
+            reta_exec_or_print "$ROOT/scripts/test_all.sh" --run-jobs "$RETA_TEST_RUN_JOBS" -- "$@"
         else
-            exec "$ROOT/scripts/test_all.sh" --run-jobs "$RETA_TEST_RUN_JOBS" -- -j "$RETA_MOJO_JOBS" "$@"
+            reta_exec_or_print "$ROOT/scripts/test_all.sh" --run-jobs "$RETA_TEST_RUN_JOBS" -- -j "$RETA_MOJO_JOBS" "$@"
         fi
         ;;
     release-check)
@@ -120,9 +130,9 @@ case $TASK in
         ;;
     release-plan)
         if mojo_has_thread_option "$@"; then
-            exec "$ROOT/scripts/release_check.sh" --dry-run -- "$@"
+            reta_exec_or_print "$ROOT/scripts/release_check.sh" --dry-run -- "$@"
         else
-            exec "$ROOT/scripts/release_check.sh" --dry-run -- -j "$RETA_MOJO_JOBS" "$@"
+            reta_exec_or_print "$ROOT/scripts/release_check.sh" --dry-run -- -j "$RETA_MOJO_JOBS" "$@"
         fi
         ;;
     *)

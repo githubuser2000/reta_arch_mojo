@@ -258,3 +258,31 @@ RETA_MOJO_JOBS=4 pixi run build-core-shared
 RETA_TEST_RUN_PARALLEL_JOBS=6 pixi run test-parallel
 RETA_CMAKE_BUILD_DIR=build-debug pixi run cmake-configure
 ```
+
+
+### Plan-/Dry-Run-Modus
+
+Für Pixi- und CMake-Einstiege gibt es einen Planmodus.  Er zeigt die effektiv
+geplanten Befehle an, ohne Mojo zu kompilieren, Tests auszuführen oder nach
+`/usr/local` zu installieren.
+
+```sh
+pixi run plan-build-core-shared
+pixi run plan-build-all
+pixi run plan-test
+pixi run plan-install
+pixi run cmake-configure
+pixi run cmake-plan-build-core-shared
+pixi run cmake-plan-install
+```
+
+Direkt über die Wrapper geht dasselbe:
+
+```sh
+scripts/run_build_task.sh --dry-run build-core-shared
+scripts/run_install_task.sh --dry-run install
+```
+
+Der Planmodus ist bewusst eine Wrapper-Funktion.  Die historischen
+Spezialskripte bleiben ausführbar und werden nicht durch eine zweite
+Buildlogik ersetzt.
