@@ -200,3 +200,61 @@ lässt sich weiterhin ohne Ausführung anzeigen:
 pixi run release-plan
 cmake --build build --target reta-release-plan
 ```
+
+## Einheitliche Build-Defaults
+
+Ab dieser Stufe verwenden Pixi und CMake denselben zentralen Shell-Wrapper für
+Build-Tasks:
+
+```text
+scripts/reta_build_defaults.sh
+scripts/run_build_task.sh
+scripts/print_build_defaults.sh
+scripts/configure_cmake_with_defaults.sh
+```
+
+Die direkten historischen Skripte bleiben unverändert nutzbar. Der Wrapper ist
+nur die gemeinsame Schicht für Pixi/CMake und für Nutzer, die einen einheitlichen
+Einstieg wünschen.
+
+Defaults anzeigen:
+
+```sh
+scripts/print_build_defaults.sh
+pixi run build-defaults
+cmake --build build --target reta-build-defaults
+```
+
+Standardwerte:
+
+```text
+RETA_MOJO_JOBS=8
+RETA_TEST_RUN_JOBS=1
+RETA_TEST_RUN_PARALLEL_JOBS=4
+RETA_TEST_RUN_TIMEOUT=0
+RETA_CMAKE_BUILD_DIR=build
+RETA_CMAKE_GENERATOR=Ninja
+```
+
+Pixi nutzt diese Schicht direkt:
+
+```sh
+pixi run build-core-shared
+pixi run test-parallel
+pixi run release-plan
+```
+
+CMake wird ebenfalls über die Defaults konfiguriert:
+
+```sh
+pixi run cmake-configure
+cmake --build build --target reta-core-shared
+```
+
+Wer bewusst andere Werte will, setzt sie vor dem Aufruf:
+
+```sh
+RETA_MOJO_JOBS=4 pixi run build-core-shared
+RETA_TEST_RUN_PARALLEL_JOBS=6 pixi run test-parallel
+RETA_CMAKE_BUILD_DIR=build-debug pixi run cmake-configure
+```

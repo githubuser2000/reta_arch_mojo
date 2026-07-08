@@ -929,3 +929,42 @@ Der Release-Plan kann ohne Ausführung angezeigt werden:
 pixi run release-plan
 cmake --build build --target reta-release-plan
 ```
+
+## Einheitliche Build-Defaults
+
+Shell, Pixi und CMake bekommen jetzt eine gemeinsame Default-Schicht für die
+häufigsten Build-Parameter. Die direkten historischen Skripte bleiben gültig;
+Pixi und CMake gehen über den zentralen Wrapper `scripts/run_build_task.sh`.
+
+Defaults anzeigen:
+
+```sh
+scripts/print_build_defaults.sh
+pixi run build-defaults
+cmake --build build --target reta-build-defaults
+```
+
+Zentrale Datei:
+
+```text
+scripts/reta_build_defaults.sh
+```
+
+Wichtige Defaults:
+
+```text
+RETA_MOJO_JOBS=8
+RETA_TEST_RUN_JOBS=1
+RETA_TEST_RUN_PARALLEL_JOBS=4
+RETA_TEST_RUN_TIMEOUT=0
+RETA_CMAKE_BUILD_DIR=build
+RETA_CMAKE_GENERATOR=Ninja
+```
+
+Der Wrapper ergänzt `-j $RETA_MOJO_JOBS` nur dann, wenn der Aufruf noch keine
+Mojo-Threadoption enthält. Explizite lokale Aufrufe bleiben also möglich:
+
+```sh
+scripts/run_build_task.sh build-core-shared --target-cpu native
+scripts/run_build_task.sh build-core-shared -j 4
+```
