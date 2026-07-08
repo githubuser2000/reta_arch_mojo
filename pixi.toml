@@ -1,0 +1,42 @@
+[workspace]
+name = "reta-arch-mojo"
+version = "0.1.0"
+description = "Reproducible build and test entrypoints for the reta Mojo transpilation project"
+channels = ["conda-forge"]
+platforms = ["linux-64"]
+
+[dependencies]
+python = ">=3.10,<3.15"
+pytest = ">=8"
+uv = ">=0.5"
+cmake = ">=3.25"
+ninja = ">=1.11"
+pkg-config = ">=0.29"
+c-compiler = "*"
+openssl = "*"
+sqlite = "*"
+
+[tasks]
+mojo-version = "bin/mojo-real --version"
+setup-mojo-venv = "RETA_SKIP_BUILD=1 scripts/setup_mojo.sh"
+build = "scripts/build.sh -- -j 8"
+build-heavy = "scripts/build-heavy.sh -- -j 8"
+build-all = "scripts/build-all.sh -- -j 8"
+build-core-shared = "scripts/build_core_shared.sh -- -j 8"
+build-prompt-shared = "scripts/build_prompt_shared.sh -- -j 8"
+build-shared = "scripts/build_shared_library_targets.sh -- -j 8"
+build-tests = "scripts/build-tests.sh -- -j 8"
+run-tests = "scripts/run-tests.sh"
+run-tests-parallel = "scripts/run-tests.sh --jobs 4"
+test = "scripts/build-tests.sh -- -j 8 && scripts/run-tests.sh"
+test-parallel = "scripts/build-tests.sh -- -j 8 && scripts/run-tests.sh --jobs 4"
+test-all = "scripts/test_all.sh -- -j 8"
+release-check = "scripts/release_check.sh"
+cmake-configure = "cmake -S . -B build -G Ninja -DRETA_MOJO_JOBS=8"
+cmake-build = "cmake --build build"
+cmake-build-core-shared = "cmake --build build --target reta-core-shared"
+cmake-build-shared = "cmake --build build --target reta-shared"
+cmake-build-all = "cmake --build build --target reta-all"
+cmake-build-tests = "cmake --build build --target reta-tests-build"
+cmake-test = "cmake --build build --target reta-tests"
+cmake-ctest = "ctest --test-dir build --output-on-failure"

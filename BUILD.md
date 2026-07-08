@@ -830,3 +830,25 @@ gebündelten Python-Referenzprobe für die äußere klassische
 Präfix-/Suffixordnung aus und kompiliert den vollständigen True-Fraction-Probe.
 Die Python-Referenz wird nicht als Sollwert für ihr bekannt defektes inneres
 Bruchrechteck verwendet.
+
+
+## Pixi/CMake-Einstieg
+
+Die neue Pixi/CMake-Schicht ist additiv. Die bewährten Shell-Skripte bleiben
+zunächst die Quelle der Wahrheit; Pixi stellt die Umgebung und CMake benannte
+Targets bereit. Details stehen in `docs/build-system/pixi-cmake-migration.md`.
+
+Kurzeinstieg:
+
+```sh
+pixi run build-core-shared
+pixi run test
+pixi run cmake-configure
+pixi run cmake-build-core-shared
+```
+
+Für nur `reta` und `libreta-core.so` bleibt der direkte alte Einstieg gültig:
+
+```sh
+scripts/build_core_shared.sh -- -j 8
+```
