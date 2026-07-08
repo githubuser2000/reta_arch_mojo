@@ -56,6 +56,8 @@ run_step() {
     "$@"
 }
 
+run_step 'Artefaktmanifest gegen Installationsziele prüfen' \
+    "$ROOT/scripts/check_artifact_manifest_consistency.sh"
 run_step 'vollständiger nativer Build mit Core-/Prompt-Shared-Libraries' \
     "$ROOT/scripts/build-all.sh" -- "$@"
 run_step 'Buildlayout inklusive Shared-Libraries prüfen' \

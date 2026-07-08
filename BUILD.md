@@ -910,3 +910,22 @@ cmake --build build --target reta-artifact-manifest
 
 Die Datei `scripts/reta_artifacts.sh` ist die Namensquelle für öffentliche
 Dünnstarter, reguläre native Ziele, schwere native Ziele und Shared Libraries.
+
+### Artefaktmanifest als Release-Gate
+
+`scripts/install_targets.txt` wird jetzt gegen `scripts/reta_artifacts.sh`
+geprüft, damit Shell, Pixi und CMake dieselben Build-/Install-Zielnamen
+verwenden:
+
+```sh
+scripts/check_artifact_manifest_consistency.sh
+pixi run check-artifact-manifest
+cmake --build build --target reta-check-artifact-manifest
+```
+
+Der Release-Plan kann ohne Ausführung angezeigt werden:
+
+```sh
+pixi run release-plan
+cmake --build build --target reta-release-plan
+```

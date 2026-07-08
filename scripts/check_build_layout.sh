@@ -81,16 +81,40 @@ check_shared_library() {
     }
 }
 
-CORE_LIBRARY="$TARGET_LIB_DIR/libreta-core.so"
-PROMPT_LIBRARY="$TARGET_LIB_DIR/libreta-prompt.so"
-PROMPT_INTERACTIVE_LIBRARY="$TARGET_LIB_DIR/libreta-prompt-interactive.so"
-check_shared_library "$CORE_LIBRARY" scripts/build_core_shared.sh 'Core-Shared-Library'
-check_shared_library "$PROMPT_LIBRARY" scripts/build_prompt_shared.sh 'Prompt-Shared-Library'
-check_shared_library "$PROMPT_INTERACTIVE_LIBRARY" scripts/build_prompt_shared.sh 'interaktive Prompt-Shared-Library'
+CORE_LIBRARY="$TARGET_LIB_DIR/$(reta_artifact_core_shared_libraries | sed -n '1p')"
+PROMPT_LIBRARY="$TARGET_LIB_DIR/$(reta_artifact_prompt_shared_libraries | sed -n '1p')"
+PROMPT_INTERACTIVE_LIBRARY="$TARGET_LIB_DIR/$(reta_artifact_prompt_shared_libraries | sed -n '2p')"
 
-for stamped in "$TARGET_DIR/reta" "$TARGET_DIR/grundStrukHtml" "$CORE_LIBRARY" \
-    "$TARGET_DIR/rp" "$TARGET_DIR/rpl" "$TARGET_DIR/rpe" "$TARGET_DIR/rpb" \
-    "$PROMPT_LIBRARY" "$PROMPT_INTERACTIVE_LIBRARY"; do
+for library_name in $(reta_artifact_core_shared_libraries); do
+    check_shared_library "$TARGET_LIB_DIR/$library_name" scripts/build_core_shared.sh 'Core-Shared-Library'
+done
+for library_name in $(reta_artifact_prompt_shared_libraries); do
+    check_shared_library "$TARGET_LIB_DIR/$library_name" scripts/build_prompt_shared.sh 'Prompt-Shared-Library'
+done
+
+for starter in $(reta_artifact_core_starters); do
+    stamped="$TARGET_DIR/$starter"
+    [ -f "$stamped.reta-source-id" ] || {
+        printf 'Fehler: Source-ID-Sidecar fehlt: %s.reta-source-id\n' "$stamped" >&2
+        exit 1
+    }
+done
+for library_name in $(reta_artifact_core_shared_libraries); do
+    stamped="$TARGET_LIB_DIR/$library_name"
+    [ -f "$stamped.reta-source-id" ] || {
+        printf 'Fehler: Source-ID-Sidecar fehlt: %s.reta-source-id\n' "$stamped" >&2
+        exit 1
+    }
+done
+for starter in $(reta_artifact_prompt_starters); do
+    stamped="$TARGET_DIR/$starter"
+    [ -f "$stamped.reta-source-id" ] || {
+        printf 'Fehler: Source-ID-Sidecar fehlt: %s.reta-source-id\n' "$stamped" >&2
+        exit 1
+    }
+done
+for library_name in $(reta_artifact_prompt_shared_libraries); do
+    stamped="$TARGET_LIB_DIR/$library_name"
     [ -f "$stamped.reta-source-id" ] || {
         printf 'Fehler: Source-ID-Sidecar fehlt: %s.reta-source-id\n' "$stamped" >&2
         exit 1
@@ -116,7 +140,7 @@ for prompt_starter in rp rpl rpe; do
     fi
 done
 
-DIAGNOSTICS_LIBRARY="$TARGET_LIB_DIR/libreta-mojo-diagnostics.so"
+DIAGNOSTICS_LIBRARY="$TARGET_LIB_DIR/$(reta_artifact_diagnostics_shared_libraries | sed -n '1p')"
 if [ ! -f "$DIAGNOSTICS_LIBRARY" ]; then
     printf 'Fehler: erwartete Shared Library fehlt: %s\n' "$DIAGNOSTICS_LIBRARY" >&2
     exit 1

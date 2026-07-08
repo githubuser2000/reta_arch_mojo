@@ -80,6 +80,11 @@ reta_script_target(reta-release-check
   COMMAND scripts/release_check.sh
 )
 
+reta_script_target(reta-release-plan
+  COMMENT "Print the release-check plan without running commands"
+  COMMAND scripts/release_check.sh --dry-run
+)
+
 reta_script_target(reta-install-layout
   COMMENT "Print effective install layout defaults"
   COMMAND scripts/print_install_layout.sh
@@ -88,6 +93,11 @@ reta_script_target(reta-install-layout
 reta_script_target(reta-artifact-manifest
   COMMENT "Print central build/install artifact manifest"
   COMMAND scripts/print_artifact_manifest.sh
+)
+
+reta_script_target(reta-check-artifact-manifest
+  COMMENT "Check install_targets.txt against the central artifact manifest"
+  COMMAND scripts/check_artifact_manifest_consistency.sh
 )
 
 reta_script_target(reta-install

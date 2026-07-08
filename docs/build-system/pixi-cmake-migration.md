@@ -180,3 +180,23 @@ scripts/print_artifact_manifest.sh
 pixi run artifact-manifest
 cmake --build build --target reta-artifact-manifest
 ```
+
+## Artefaktmanifest als Release-Gate
+
+Ab dieser Stufe wird `scripts/install_targets.txt` gegen das zentrale Manifest
+geprüft. Dadurch fällt sofort auf, wenn ein neues Executable in einer Liste
+steht, aber in der anderen fehlt.
+
+```sh
+scripts/check_artifact_manifest_consistency.sh
+pixi run check-artifact-manifest
+cmake --build build --target reta-check-artifact-manifest
+```
+
+`release_check.sh` führt diese Prüfung vor dem nativen Vollbuild aus. Der Plan
+lässt sich weiterhin ohne Ausführung anzeigen:
+
+```sh
+pixi run release-plan
+cmake --build build --target reta-release-plan
+```

@@ -3,6 +3,7 @@ set -eu
 
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 . "$ROOT/scripts/reta_install_defaults.sh"
+. "$ROOT/scripts/reta_artifacts.sh"
 reta_install_set_defaults
 INSTALL_MOJO_RUNTIME=${RETA_INSTALL_MOJO_RUNTIME:-1}
 TARGETDIR=${RETA_TARGET_DIR:-$ROOT/target/bin}
@@ -36,34 +37,26 @@ require_file() {
 
 require_file "$ROOT/python_reference/csv/religion.csv"
 require_file "$ROOT/assets/parameter_aliases.tsv"
-require_file "$TARGETDIR/reta"
-require_file "$TARGETDIR/grundStrukHtml"
-require_file "$TARGETDIR/reta-native"
-require_file "$TARGETDIR/reta-mojo-compat-bin"
-require_file "$TARGETDIR/generate-html-native"
+for required_target in reta-native reta-mojo-compat-bin generate-html-native; do
+    require_file "$TARGETDIR/$required_target"
+done
 require_file "$ROOT/man/generate_html.1"
-require_file "$ROOT/scripts/install_targets.txt"
+require_file "$(reta_artifact_install_target_file "$ROOT")"
 
-CORE_LIBRARY="$TARGETLIBDIR/libreta-core.so"
-require_file "$CORE_LIBRARY"
-require_file "$CORE_LIBRARY.reta-source-id"
-require_file "$TARGETDIR/reta.reta-source-id"
-require_file "$TARGETDIR/grundStrukHtml.reta-source-id"
-PROMPT_LIBRARY="$TARGETLIBDIR/libreta-prompt.so"
-PROMPT_INTERACTIVE_LIBRARY="$TARGETLIBDIR/libreta-prompt-interactive.so"
-require_file "$PROMPT_LIBRARY"
-require_file "$PROMPT_LIBRARY.reta-source-id"
-require_file "$PROMPT_INTERACTIVE_LIBRARY"
-require_file "$PROMPT_INTERACTIVE_LIBRARY.reta-source-id"
-for prompt_starter in rp rpl rpe rpb; do
-    require_file "$TARGETDIR/$prompt_starter"
-    require_file "$TARGETDIR/$prompt_starter.reta-source-id"
+for starter in $(reta_artifact_core_starters) $(reta_artifact_prompt_starters); do
+    require_file "$TARGETDIR/$starter"
+    require_file "$TARGETDIR/$starter.reta-source-id"
+done
+for library_name in $(reta_artifact_core_shared_libraries) $(reta_artifact_prompt_shared_libraries); do
+    require_file "$TARGETLIBDIR/$library_name"
+    require_file "$TARGETLIBDIR/$library_name.reta-source-id"
 done
 
+
 INSTALL_DIAGNOSTICS=0
+DIAGNOSTICS_LIBRARY="$TARGETLIBDIR/$(reta_artifact_diagnostics_shared_libraries | sed -n '1p')"
 if [ -f "$TARGETDIR/reta-mojo-diagnostics" ]; then
     INSTALL_DIAGNOSTICS=1
-    DIAGNOSTICS_LIBRARY="$TARGETLIBDIR/libreta-mojo-diagnostics.so"
     LOADER_STAMP="$TARGETDIR/reta-mojo-diagnostics.reta-source-id"
     require_file "$DIAGNOSTICS_LIBRARY"
     require_file "$DIAGNOSTICS_LIBRARY.reta-source-id"
@@ -156,9 +149,12 @@ install_shared_library() {
     INSTALLED_LIBRARIES=$((INSTALLED_LIBRARIES + 1))
 }
 
-install_shared_library "$CORE_LIBRARY" scripts/build_core_shared.sh
-install_shared_library "$PROMPT_LIBRARY" scripts/build_prompt_shared.sh
-install_shared_library "$PROMPT_INTERACTIVE_LIBRARY" scripts/build_prompt_shared.sh
+for library_name in $(reta_artifact_core_shared_libraries); do
+    install_shared_library "$TARGETLIBDIR/$library_name" scripts/build_core_shared.sh
+done
+for library_name in $(reta_artifact_prompt_shared_libraries); do
+    install_shared_library "$TARGETLIBDIR/$library_name" scripts/build_prompt_shared.sh
+done
 
 if [ "$INSTALL_DIAGNOSTICS" = 1 ]; then
     RETA_TARGET_DIR="$TARGETDIR" \

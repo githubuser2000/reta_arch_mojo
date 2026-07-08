@@ -4,6 +4,7 @@ ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 TMP=${TMPDIR:-/tmp}/reta-install-layout.$$
 STAGE=$TMP/stage
 . "$ROOT/scripts/reta_install_defaults.sh"
+. "$ROOT/scripts/reta_artifacts.sh"
 reta_install_set_defaults
 STAGE_BINDIR=$STAGE$BINDIR
 STAGE_LIBEXECDIR=$STAGE$LIBEXECDIR
@@ -28,31 +29,25 @@ DESTDIR="$STAGE" PREFIX="$PREFIX" BINDIR="$BINDIR" LIBEXECDIR="$LIBEXECDIR" DATA
 [ -L "$STAGE_LIBEXECDIR/assets" ]
 [ -x "$STAGE_LIBEXECDIR/scripts/check_mojo_binary_freshness.sh" ]
 [ -x "$STAGE_LIBEXECDIR/scripts/current_source_id.sh" ]
-[ -L "$STAGE_BINDIR/reta" ]
-[ -L "$STAGE_BINDIR/grundStrukHtml" ]
+for starter in $(reta_artifact_core_starters); do
+    [ -L "$STAGE_BINDIR/$starter" ]
+    [ -x "$STAGE_LIBEXECDIR/$starter" ]
+    [ -f "$STAGE_LIBEXECDIR/$starter.reta-source-id" ]
+done
+for starter in $(reta_artifact_prompt_starters); do
+    [ -L "$STAGE_BINDIR/$starter" ]
+    [ -x "$STAGE_LIBEXECDIR/$starter" ]
+    [ -f "$STAGE_LIBEXECDIR/$starter.reta-source-id" ]
+done
+for library_name in $(reta_artifact_core_shared_libraries); do
+    [ -f "$STAGE_LIBEXECDIR/$library_name" ]
+    [ -f "$STAGE_LIBEXECDIR/$library_name.reta-source-id" ]
+done
+for library_name in $(reta_artifact_prompt_shared_libraries); do
+    [ -f "$STAGE_LIBEXECDIR/$library_name" ]
+    [ -f "$STAGE_LIBEXECDIR/$library_name.reta-source-id" ]
+done
 [ ! -e "$STAGE_LIBEXECDIR/target" ]
-[ -x "$STAGE_LIBEXECDIR/reta" ]
-[ -f "$STAGE_LIBEXECDIR/reta.reta-source-id" ]
-[ -x "$STAGE_LIBEXECDIR/grundStrukHtml" ]
-[ -f "$STAGE_LIBEXECDIR/grundStrukHtml.reta-source-id" ]
-[ -f "$STAGE_LIBEXECDIR/libreta-core.so" ]
-[ -f "$STAGE_LIBEXECDIR/libreta-core.so.reta-source-id" ]
-[ -x "$STAGE_LIBEXECDIR/rp" ]
-[ -f "$STAGE_LIBEXECDIR/rp.reta-source-id" ]
-[ -x "$STAGE_LIBEXECDIR/rpl" ]
-[ -f "$STAGE_LIBEXECDIR/rpl.reta-source-id" ]
-[ -x "$STAGE_LIBEXECDIR/rpe" ]
-[ -f "$STAGE_LIBEXECDIR/rpe.reta-source-id" ]
-[ -x "$STAGE_LIBEXECDIR/rpb" ]
-[ -f "$STAGE_LIBEXECDIR/rpb.reta-source-id" ]
-[ -f "$STAGE_LIBEXECDIR/libreta-prompt.so" ]
-[ -f "$STAGE_LIBEXECDIR/libreta-prompt.so.reta-source-id" ]
-[ -f "$STAGE_LIBEXECDIR/libreta-prompt-interactive.so" ]
-[ -f "$STAGE_LIBEXECDIR/libreta-prompt-interactive.so.reta-source-id" ]
-[ -L "$STAGE_BINDIR/rp" ]
-[ -L "$STAGE_BINDIR/rpl" ]
-[ -L "$STAGE_BINDIR/rpe" ]
-[ -L "$STAGE_BINDIR/rpb" ]
 
 (
     cd "$TMP"
