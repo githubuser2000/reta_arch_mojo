@@ -15,6 +15,11 @@ set(RETA_TEST_RUN_TIMEOUT "0" CACHE STRING "Optional per-test timeout in seconds
 
 set(RETA_MOJO_BUILD_OPTIONS -- -j ${RETA_MOJO_JOBS})
 
+reta_script_target(reta-toolchain-check
+  COMMENT "Check Pixi/CMake/Mojo toolchain without compiling"
+  COMMAND scripts/check_pixi_cmake_toolchain.sh
+)
+
 reta_script_target(reta-regular
   COMMENT "Build regular native Mojo targets"
   COMMAND scripts/build.sh ${RETA_MOJO_BUILD_OPTIONS}

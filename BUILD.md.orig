@@ -852,22 +852,3 @@ Für nur `reta` und `libreta-core.so` bleibt der direkte alte Einstieg gültig:
 ```sh
 scripts/build_core_shared.sh -- -j 8
 ```
-
-
-### Pixi/CMake ohne Mojo-PyPI-Abhängigkeit
-
-Mojo wird nicht von Pixi als PyPI-Abhängigkeit installiert. Pixi/CMake dienen
-hier nur als reproduzierbare Task- und Orchestrierungsschicht über den
-bestehenden Skripten. Vor einem Build kann die Toolchain ohne Kompilierung
-geprüft werden:
-
-```sh
-pixi run check-toolchain
-```
-
-Falls noch ein alter Lockfile-Zustand vorhanden ist:
-
-```sh
-rm -f pixi.lock
-pixi run check-toolchain
-```

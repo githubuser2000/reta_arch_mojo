@@ -11,9 +11,21 @@ Pixi legt seine Umgebung unter `.pixi/` an. `bin/mojo-real` sucht dort bereits
 nach `.pixi/envs/default/bin/mojo`, deshalb ist kein zusätzlicher Mojo-Wrapper
 notwendig.
 
+Wichtig: Mojo wird nicht als Pixi-PyPI-Abhängigkeit installiert. Der Compiler
+bleibt extern über `MOJO_BIN`, `.venv/bin/mojo`, `.pixi/envs/default/bin/mojo`
+oder `PATH` auffindbar. Dadurch vermeidet Pixi Resolver-Probleme mit
+`mojo==1.0.0b2` und den verfügbaren manylinux-Wheels.
+
+Vor dem ersten Build kann die Umgebung geprüft werden, ohne zu kompilieren:
+
+```sh
+pixi run check-toolchain
+```
+
 Wichtige Befehle:
 
 ```sh
+pixi run check-toolchain
 pixi run mojo-version
 pixi run build-core-shared
 pixi run build-shared
@@ -34,6 +46,7 @@ Konfigurieren:
 
 ```sh
 pixi run cmake-configure
+pixi run cmake-list-targets
 ```
 
 Nur `reta` und `libreta-core.so` bauen:
@@ -82,3 +95,20 @@ pixi run cmake-ctest
 - keine Änderung an den Mojo-Quellen
 - kein direkter CMake-Sprachsupport für Mojo
 - kein Wechsel auf CPack/Packaging
+
+## Fehlerbild: Pixi versucht Mojo zu lösen
+
+Wenn Pixi meldet, dass `mojo==1.0.0b2` wegen eines manylinux-Tags nicht
+auflösbar ist, steht Mojo noch als PyPI-Abhängigkeit in `pixi.toml` oder ein
+altes `pixi.lock` hält diesen Zustand fest. Der gewünschte Zustand ist:
+
+```toml
+# keine [pypi-dependencies]-Zeile fuer mojo
+```
+
+Danach den Lock neu erzeugen lassen:
+
+```sh
+rm -f pixi.lock
+pixi run check-toolchain
+```
