@@ -24,6 +24,7 @@ from .number_theory import (
     prime_repeat,
 )
 from .types import IntPair
+from .os_line_endings import split_os_lines
 
 
 @fieldwise_init
@@ -384,7 +385,7 @@ def _linux_physical_cpu_count() raises -> Int:
     var physical_id = String()
     var core_id = String()
     var processors = 0
-    var lines = text.split("\n")
+    var lines = split_os_lines(text)
     for line_slice in lines:
         var line = String(line_slice).strip()
         if line.byte_length() == 0:

@@ -24,6 +24,7 @@ from .parameter_runtime import ParameterRuntimePlan, build_parameter_runtime_pla
 from .column_selection import ColumnSelectionBundle, bootstrap_column_selection
 from .row_filtering import RowFilterConfig
 from .table_preparation import DisplaySelection, select_display_lines
+from .os_line_endings import split_os_lines
 from .table_generation import (
     TableGenerationPlan,
     TableGenerationResult,
@@ -340,7 +341,7 @@ def load_program_workflow_catalog(
         path if path.byte_length() > 0 else asset_resource("program_workflow.tsv")
     )
     var entries = List[ProgramWorkflowCatalogEntry]()
-    var lines = read_text_file(source_path).split("\n")
+    var lines = split_os_lines(read_text_file(source_path))
     for line_index in range(len(lines)):
         var line = String(lines[line_index])
         if line.byte_length() == 0 or line.startswith("#"):

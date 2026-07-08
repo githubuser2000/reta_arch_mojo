@@ -9,6 +9,7 @@ from std.collections import List
 from std.collections.string import atol
 from .csv_table import read_text_file
 from .resource_paths import asset_resource
+from .os_line_endings import split_os_lines
 
 
 @fieldwise_init
@@ -53,7 +54,7 @@ struct MetaColumnRequest(Copyable):
 
 def load_generated_alias_catalog(path: String) raises -> GeneratedAliasCatalog:
     var text = read_text_file(path)
-    var lines = text.split("\n")
+    var lines = split_os_lines(text)
     var entries = List[GeneratedAliasEntry]()
     for line_index in range(len(lines)):
         var line = String(lines[line_index])
@@ -208,7 +209,7 @@ def sort_meta_requests_by_python_set(
     var wanted = String(mask) + "\t"
     var source_path = path if path.byte_length() > 0 else asset_resource("meta_request_order.tsv")
     var text = read_text_file(source_path)
-    var lines = text.split("\n")
+    var lines = split_os_lines(text)
     for line_index in range(len(lines)):
         var line = String(lines[line_index])
         if not line.startswith(wanted):

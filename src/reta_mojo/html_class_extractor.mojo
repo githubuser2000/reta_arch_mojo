@@ -8,6 +8,7 @@ process.
 
 from std.collections import List
 from std.collections.string import atol
+from .os_line_endings import os_linesep
 
 
 @fieldwise_init
@@ -418,5 +419,5 @@ def html_class_cell_json(cell: HtmlClassCell) -> String:
 def render_html_class_jsonl(cells: List[HtmlClassCell]) -> String:
     var result = String()
     for index in range(len(cells)):
-        result += html_class_cell_json(cells[index]) + "\n"
+        result += html_class_cell_json(cells[index]) + os_linesep()
     return result^

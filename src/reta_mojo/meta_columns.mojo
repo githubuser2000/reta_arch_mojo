@@ -13,6 +13,7 @@ from .csv_table import CsvTable, read_semicolon_csv, read_text_file
 from .resource_paths import asset_resource, csv_resource
 from .generated_aliases import MetaColumnRequest
 from .prime_effect_columns import PrimeEffectColumns, generate_prime_effect_columns
+from .os_line_endings import split_os_lines
 from .tag_schema import (
     TAG_GEBROCHEN_RATIONAL,
     TAG_GLEICHFOERMIGES_POLYGON,
@@ -242,7 +243,7 @@ def load_meta_columns_catalog(path: String = "") raises -> MetaColumnsCatalog:
     var sources = List[MetaFractionSource]()
     var fractions = List[MetaFractionEntry]()
     var combinations = List[MetaFractionCombination]()
-    var lines = read_text_file(source_path).split("\n")
+    var lines = split_os_lines(read_text_file(source_path))
     for line_index in range(len(lines)):
         var line = String(lines[line_index])
         if line.byte_length() == 0 or line.startswith("#"):

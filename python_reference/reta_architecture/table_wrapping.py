@@ -19,6 +19,7 @@ class Wraptype(Enum):
     pyphen = 1
     pyhyphen = 2
     nohyphen = 3
+    duden = 4
 
 
 @dataclass
@@ -110,6 +111,11 @@ def split_more_if_not_small(text_list: list, len_to_be: int) -> tuple:
         return tuple(new_list)
     return tuple(text_list)
 
+def chunks(s, n):
+    """Produce `n`-character chunks from `s`."""
+    for start in range(0, len(s), n):
+        yield s[start:start+n] #+os.linesep
+
 
 def alxwrap(text: str, len_: int, wrapping_type: Wraptype | None = None):
     """Wrap a single string using the configured reta wrapping backend."""
@@ -123,6 +129,7 @@ def alxwrap(text: str, len_: int, wrapping_type: Wraptype | None = None):
     if "Brython" in sys.version.split():
         return (text,)
     try:
+        raise NameError
         return (
             dic.wrap(text, len_)
             if wrapping_type == Wraptype.pyphen and len_ != 0
@@ -135,17 +142,20 @@ def alxwrap(text: str, len_: int, wrapping_type: Wraptype | None = None):
             )
         )
     except Exception:
-        return (
-            dic.wrap(text, len_)
-            if wrapping_type == Wraptype.pyhyphen and len_ != 0
-            else (
-                split_more_if_not_small(
-                    fill(text, width=len_, use_hyphenator=h_de).split("\n"), len_
-                )
-                if wrapping_type == Wraptype.pyphen and len_ != 0
-                else (text,)
-            )
-        )
+        simpleSeparated = tuple((line for line in chunks(text, len_)))
+        #print(simpleSeparated)
+        return simpleSeparated 
+    #return (
+    #        dic.wrap(text, len_)
+    #        if wrapping_type == Wraptype.pyhyphen and len_ != 0
+    #        else (
+   #             split_more_if_not_small(
+   #                 fill(text, width=len_, use_hyphenator=h_de).split("\n"), len_
+   #             )
+   #             if wrapping_type == Wraptype.pyphen and len_ != 0
+   #             else (text,)
+   #         )
+   #     )
 
 
 def wrap_cell_text(text: str, length: int, wrapping_type: Wraptype | None = None) -> list | tuple | None:

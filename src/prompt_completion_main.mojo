@@ -12,6 +12,7 @@ from reta_mojo.prompt_language import (
     normalize_prompt_language,
 )
 from reta_mojo.completion_nested import nested_completion_candidates_from_catalog
+from reta_mojo.os_line_endings import os_linesep
 
 
 def _without_line_ending(text: String) -> String:
@@ -49,9 +50,9 @@ def main() raises:
 
         var text = _without_line_ending(raw)
         var values = nested_completion_candidates_from_catalog(catalog, language, text)
-        var response = String(len(values)) + "\n"
+        var response = String(len(values)) + os_linesep()
         for index in range(len(values)):
-            response += values[index] + "\n"
+            response += values[index] + os_linesep()
         stdout_file.write_all(response.as_bytes())
         raw = String()
         if at_eof:

@@ -8,6 +8,7 @@ contract without feeding legacy spellings back into the typed native planner.
 
 from std.collections import List
 from .prompt_language import normalize_prompt_language
+from .os_line_endings import os_linesep
 
 
 def _slice_after(text: String, prefix: String) -> String:
@@ -49,7 +50,7 @@ def compact_prompt_announcement_line(
     prepared_tokens: List[String], source: String, language: String
 ) -> String:
     """Render one complete announcement line including its LF boundary."""
-    return compact_prompt_announcement(prepared_tokens, source, language) + "\n"
+    return compact_prompt_announcement(prepared_tokens, source, language) + os_linesep()
 
 
 def legacy_table_echo_tokens(tokens: List[String]) -> List[String]:

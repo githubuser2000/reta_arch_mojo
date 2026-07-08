@@ -11,6 +11,7 @@ from std.collections import List
 from std.collections.string import atol
 from .csv_table import read_text_file
 from .resource_paths import asset_resource, reference_root
+from .os_line_endings import split_os_lines
 from .topology import (
     ContextSelection,
     SelectionDimension,
@@ -409,7 +410,7 @@ def load_presheaf_catalog(
         else asset_resource("presheaf_catalog.tsv")
     )
     var entries = List[PresheafCatalogEntry]()
-    var lines = read_text_file(source_path).split("\n")
+    var lines = split_os_lines(read_text_file(source_path))
     for line_index in range(len(lines)):
         var line = String(lines[line_index])
         if line.byte_length() == 0 or line.startswith("#"):

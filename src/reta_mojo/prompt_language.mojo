@@ -8,6 +8,7 @@ shortcut expansion and completion filtering in this module are native Mojo.
 from std.collections import List
 from std.collections.string import atol, ord
 from .csv_table import read_text_file
+from .os_line_endings import split_os_lines
 from .row_ranges import (
     is_fraction_or_integer_range,
     is_fraction_range_token,
@@ -103,7 +104,7 @@ def _split_values(encoded: String) -> List[String]:
 
 def _parse_completion_catalog(path: String) raises -> List[PromptCompletionEntry]:
     var result = List[PromptCompletionEntry]()
-    var lines = read_text_file(path).split("\n")
+    var lines = split_os_lines(read_text_file(path))
     for line_index in range(len(lines)):
         var line = String(lines[line_index])
         if line.byte_length() == 0:
@@ -121,7 +122,7 @@ def _parse_completion_catalog(path: String) raises -> List[PromptCompletionEntry
 
 def _parse_dispatch_catalog(path: String) raises -> List[PromptDispatchAlias]:
     var result = List[PromptDispatchAlias]()
-    var lines = read_text_file(path).split("\n")
+    var lines = split_os_lines(read_text_file(path))
     for line_index in range(len(lines)):
         var line = String(lines[line_index])
         if line.byte_length() == 0:
@@ -139,7 +140,7 @@ def _parse_dispatch_catalog(path: String) raises -> List[PromptDispatchAlias]:
 
 def _parse_replacement_catalog(path: String) raises -> List[PromptShortcutReplacement]:
     var result = List[PromptShortcutReplacement]()
-    var lines = read_text_file(path).split("\n")
+    var lines = split_os_lines(read_text_file(path))
     for line_index in range(len(lines)):
         var line = String(lines[line_index])
         if line.byte_length() == 0:
@@ -155,7 +156,7 @@ def _parse_replacement_catalog(path: String) raises -> List[PromptShortcutReplac
 
 def _parse_numeric_catalog(path: String) raises -> List[PromptNumericShortcut]:
     var result = List[PromptNumericShortcut]()
-    var lines = read_text_file(path).split("\n")
+    var lines = split_os_lines(read_text_file(path))
     for line_index in range(len(lines)):
         var line = String(lines[line_index])
         if line.byte_length() == 0:
@@ -173,7 +174,7 @@ def _parse_numeric_catalog(path: String) raises -> List[PromptNumericShortcut]:
 
 def _parse_vocabulary_catalog(path: String) raises -> List[PromptVocabularyAlias]:
     var result = List[PromptVocabularyAlias]()
-    var lines = read_text_file(path).split("\n")
+    var lines = split_os_lines(read_text_file(path))
     for line_index in range(len(lines)):
         var line = String(lines[line_index])
         if line.byte_length() == 0:
@@ -191,7 +192,7 @@ def _parse_vocabulary_catalog(path: String) raises -> List[PromptVocabularyAlias
 
 def _parse_legacy_catalog(path: String) raises -> List[PromptLegacyValue]:
     var result = List[PromptLegacyValue]()
-    var lines = read_text_file(path).split("\n")
+    var lines = split_os_lines(read_text_file(path))
     for line_index in range(len(lines)):
         var line = String(lines[line_index])
         if line.byte_length() == 0:

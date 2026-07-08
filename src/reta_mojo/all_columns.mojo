@@ -18,6 +18,7 @@ from .generated_aliases import (
     append_unique_modal_concept,
 )
 from .kombi_join_columns import KombiColumnRequest, append_unique_kombi_request
+from .os_line_endings import split_os_lines
 
 
 @fieldwise_init
@@ -74,7 +75,7 @@ def load_all_column_selection(
     var source_entries = 0
 
     var source_path = path if path.byte_length() > 0 else asset_resource("all_columns_plan.tsv")
-    var lines = read_text_file(source_path).split("\n")
+    var lines = split_os_lines(read_text_file(source_path))
     for line_index in range(len(lines)):
         var line = String(lines[line_index])
         if line.byte_length() == 0 or line.startswith("#"):

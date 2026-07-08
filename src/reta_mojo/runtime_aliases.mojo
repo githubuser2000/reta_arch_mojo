@@ -3,6 +3,7 @@
 from std.collections import List
 from std.collections.string import atol
 from .csv_table import read_text_file
+from .os_line_endings import split_os_lines
 
 
 @fieldwise_init
@@ -19,7 +20,7 @@ struct RuntimeAliasCatalog(Copyable):
 
 def load_runtime_alias_catalog(path: String) raises -> RuntimeAliasCatalog:
     var text = read_text_file(path)
-    var lines = text.split("\n")
+    var lines = split_os_lines(text)
     var entries = List[RuntimeAliasEntry]()
     for line_index in range(len(lines)):
         var line = String(lines[line_index])

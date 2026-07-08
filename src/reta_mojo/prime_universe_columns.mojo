@@ -10,6 +10,7 @@ from .csv_table import CsvTable, read_semicolon_csv, read_text_file
 from .resource_paths import asset_resource, csv_resource
 from .arithmetic import factor_pairs
 from .types import IntPair
+from .os_line_endings import split_os_lines
 
 
 @fieldwise_init
@@ -300,7 +301,7 @@ def load_fraction_pair_entries(
 ) raises -> List[FractionPairEntry]:
     """Load only relations needed by the selected fractional coordinates."""
     var result = List[FractionPairEntry]()
-    var lines = read_text_file(path).split("\n")
+    var lines = split_os_lines(read_text_file(path))
     for line_index in range(len(lines)):
         var line = String(lines[line_index])
         if line.byte_length() == 0:

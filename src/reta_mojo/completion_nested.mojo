@@ -12,6 +12,7 @@ from .completion_runtime import (
     bootstrap_completion_runtime,
 )
 from .completion_word import utf8_scalar_count
+from .os_line_endings import endswith_line_ending
 from .prompt_language import (
     PromptLanguageCatalog,
     balanced_prompt_split,
@@ -561,8 +562,7 @@ def nested_completion_candidates(
     var ends_with_space = (
         text.endswith(" ")
         or text.endswith("\t")
-        or text.endswith("\n")
-        or text.endswith("\r")
+        or endswith_line_ending(text)
     )
     var words = balanced_prompt_split(text)
     if len(words) == 0:

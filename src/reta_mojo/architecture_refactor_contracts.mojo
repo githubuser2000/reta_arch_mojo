@@ -11,6 +11,7 @@ from std.collections import List
 
 from .csv_table import read_text_file
 from .resource_paths import asset_resource
+from .os_line_endings import split_os_lines
 
 
 @fieldwise_init
@@ -53,7 +54,7 @@ def load_architecture_refactor_contracts(
         else asset_resource("architecture_refactor_contracts.tsv")
     )
     var contracts = List[ArchitectureRefactorContract]()
-    var lines = read_text_file(source_path).split("\n")
+    var lines = split_os_lines(read_text_file(source_path))
     for line_index in range(len(lines)):
         var line = String(lines[line_index])
         if line.byte_length() == 0 or line.startswith("ordinal\t"):

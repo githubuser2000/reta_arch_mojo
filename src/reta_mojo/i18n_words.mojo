@@ -9,6 +9,7 @@ from std.collections import List
 from std.collections.string import atol
 from .csv_table import read_text_file
 from .resource_paths import asset_resource
+from .os_line_endings import os_linesep, split_os_lines
 
 
 @fieldwise_init
@@ -154,7 +155,7 @@ def load_i18n_words_catalog_from_path(
     language: String, path: String
 ) raises -> I18nWordsCatalog:
     var nodes = List[I18nWordNode]()
-    var lines = read_text_file(path).split("\n")
+    var lines = split_os_lines(read_text_file(path))
     for line_index in range(len(lines)):
         var line = String(lines[line_index])
         if line.byte_length() == 0:
@@ -192,7 +193,7 @@ def render_i18n_words_catalog(catalog: I18nWordsCatalog) -> String:
         result += node.kind
         result += "\t"
         result += encode_i18n_field(node.value)
-        result += "\n"
+        result += os_linesep()
     return result^
 
 

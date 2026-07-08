@@ -10,6 +10,7 @@ from std.collections import List
 from std.collections.string import atol
 from .csv_table import read_text_file
 from .resource_paths import asset_resource
+from .os_line_endings import os_linesep, split_os_lines
 
 
 @fieldwise_init
@@ -44,7 +45,7 @@ def load_architecture_export_catalog(
         if path.byte_length() > 0
         else asset_resource("architecture_exports.tsv")
     )
-    var lines = read_text_file(source_path).split("\n")
+    var lines = split_os_lines(read_text_file(source_path))
     for line_index in range(len(lines)):
         var line = String(lines[line_index])
         if line.byte_length() == 0 or line.startswith("#"):
@@ -159,5 +160,5 @@ def render_architecture_export_catalog(
         var entry = catalog.entries[index].copy()
         if public_only and not entry.is_public:
             continue
-        result += render_architecture_export(entry) + "\n"
+        result += render_architecture_export(entry) + os_linesep()
     return result^

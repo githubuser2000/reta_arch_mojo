@@ -14,6 +14,7 @@ from .runtime_compat import getTextWrapThings
 comptime WRAP_PYPHEN = 1
 comptime WRAP_PYHYPHEN = 2
 comptime WRAP_NOHYPHEN = 3
+comptime WRAP_DUDEN = 4
 
 
 @fieldwise_init
@@ -189,8 +190,17 @@ def text_wrap_runtime_snapshot(
 def codepoint_length(text: String) -> Int:
     return len(text.codepoints())
 
+def chunks2(text: String, width: Int) -> List[String]:
+    """Compatibility alias for the native hard string chunker."""
+    return hard_chunks(text, width)
+
 
 def hard_chunks(text: String, width: Int) -> List[String]:
+    """Split text into width-sized Unicode codepoint chunks.
+
+    This intentionally does not look for spaces or hyphens: table columns must
+    wrap at the configured column width even when that cuts through a word.
+    """
     var result = List[String]()
     if width <= 0:
         result.append(text)
@@ -208,10 +218,6 @@ def hard_chunks(text: String, width: Int) -> List[String]:
         result.append(current^)
     return result^
 
-
-def chunks(text: String, width: Int) -> List[String]:
-    """Typed specialization of Python's generic chunk generator for strings."""
-    return hard_chunks(text, width)
 
 
 def split_more_if_not_small(
@@ -237,6 +243,10 @@ def split_more_if_not_small(
             result.append(texts[index])
     return result^
 
+def chunks(text: String, width: Int) -> List[String]:
+    """Return successive width-sized hard chunks from text."""
+    return hard_chunks(text, width)
+
 
 def alxwrap(
     text: String,
@@ -244,26 +254,11 @@ def alxwrap(
     runtime: TextWrapRuntime = default_text_wrap_runtime(),
     wrapping_type: Int = 0,
 ) -> List[String]:
-    """Wrap one string using explicit native backend capabilities.
-
-    Python's pyphen and pyhyphen values are dynamic callables.  In the native
-    owner the capabilities are booleans and the deterministic hard wrapper is
-    the owned implementation.  Missing capabilities preserve the historical
-    one-element fallback.
-    """
-    var resolved_type = (
-        runtime.wrapping_type
-        if wrapping_type == 0
-        else _normalise_wrapping_type(wrapping_type)
-    )
-    if length == 0 or resolved_type == WRAP_NOHYPHEN:
+    """Wrap one string by hard column width, never by word boundaries."""
+    _ = runtime
+    _ = wrapping_type
+    if length == 0:
         return [text]
-    if resolved_type == WRAP_PYPHEN and not runtime.has_dictionary:
-        if not runtime.has_fill:
-            return [text]
-    elif resolved_type == WRAP_PYHYPHEN and not runtime.has_fill:
-        if not runtime.has_dictionary:
-            return [text]
     return hard_chunks(text, length)
 
 
@@ -272,6 +267,7 @@ def wrap_cell_text(
     length: Int,
     runtime: TextWrapRuntime = default_text_wrap_runtime(),
 ) -> WrapResult:
+    _ = runtime
     if length == 0 or codepoint_length(text) <= length:
         return WrapResult(False, List[String]())
     return WrapResult(True, alxwrap(text, length, runtime))

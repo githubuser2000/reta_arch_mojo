@@ -11,6 +11,7 @@ from std.os import getenv, isatty
 from .prompt_language import PromptLanguageCatalog
 from .prompt_session import history_should_append
 from .prompt_terminal_input import read_terminal_prompt_line
+from .os_line_endings import os_linesep, split_os_lines
 
 
 comptime PROMPT_EOF = "\x04"
@@ -51,7 +52,7 @@ def append_prompt_history(path: String, line: String) -> Bool:
         return False
     try:
         var file = open(expanded_history_path(path), "a")
-        var payload = line + "\n"
+        var payload = line + os_linesep()
         file.write_all(payload.as_bytes())
         return True
     except:
@@ -81,7 +82,7 @@ def load_prompt_history(path: String) -> List[String]:
         var file = open(expanded_history_path(path), "r")
         var text = file.read()
         file.close()
-        for line_slice in text.split("\n"):
+        for line_slice in split_os_lines(text):
             var line = String(line_slice)
             if line.endswith("\r"):
                 line = String(

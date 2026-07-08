@@ -9,6 +9,7 @@ become accidental section names.
 """
 
 from std.collections import List
+from .os_line_endings import os_linesep
 
 
 @fieldwise_init
@@ -36,7 +37,7 @@ def _debug_prefix(tokens: List[String], enabled: Bool) -> String:
             selected = _selector_value_control(tokens[index])
             break
     var language_line = "not german" if selected == "english" else "german"
-    return "Sprachenwahl: " + selected + "\n" + language_line + "\n"
+    return "Sprachenwahl: " + selected + os_linesep() + language_line + os_linesep()
 
 
 def normalize_native_cli_controls(tokens: List[String]) -> NativeCliControls:

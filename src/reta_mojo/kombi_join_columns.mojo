@@ -14,6 +14,7 @@ from std.collections import List
 from std.collections.string import atol
 from .csv_table import CsvTable, read_semicolon_csv, read_text_file
 from .resource_paths import asset_resource, csv_resource
+from .os_line_endings import split_os_lines
 
 
 @fieldwise_init
@@ -48,7 +49,7 @@ def load_kombi_alias_catalog(
 ) raises -> KombiAliasCatalog:
     var source_path = path if path.byte_length() > 0 else asset_resource("kombi_aliases.tsv")
     var text = read_text_file(source_path)
-    var lines = text.split("\n")
+    var lines = split_os_lines(text)
     var entries = List[KombiAliasEntry]()
     for line_index in range(len(lines)):
         var line = String(lines[line_index])
@@ -154,7 +155,7 @@ def _relation_rows(
     var wanted = kind + "\t" + String(number) + "\t"
     var source_path = path if path.byte_length() > 0 else asset_resource("kombi_relation_order.tsv")
     var text = read_text_file(source_path)
-    var lines = text.split("\n")
+    var lines = split_os_lines(text)
     for line_index in range(len(lines)):
         var line = String(lines[line_index])
         if not line.startswith(wanted):

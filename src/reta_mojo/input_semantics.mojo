@@ -18,6 +18,7 @@ from .row_ranges import (
     split_top_level_commas,
 )
 from .schema import RetaContextSchema
+from .os_line_endings import split_os_lines
 from .parameter_semantics import (
     ParameterSemanticsSheaf,
     canonicalize_pair,
@@ -452,7 +453,7 @@ def load_prompt_vocabulary(
     if catalog_path.byte_length() == 0:
         catalog_path = asset_resource("input_semantics_catalog.tsv")
     var vocabulary = _empty_prompt_vocabulary()
-    var lines = read_text_file(catalog_path).split("\n")
+    var lines = split_os_lines(read_text_file(catalog_path))
     for line_index in range(len(lines)):
         var line = String(lines[line_index])
         if line.byte_length() == 0 or line.startswith("#"):

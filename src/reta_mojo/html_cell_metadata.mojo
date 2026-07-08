@@ -4,6 +4,7 @@ from std.collections import List
 from std.collections.string import atol
 from .csv_table import read_text_file
 from .resource_paths import asset_resource
+from .os_line_endings import split_os_lines
 
 
 @fieldwise_init
@@ -36,7 +37,7 @@ def load_html_cell_catalog(
     var entries = List[HtmlCellMetadata]()
     var cell_path = path if path.byte_length() > 0 else asset_resource("html_cell_catalog.tsv")
     var heading_source_path = heading_path if heading_path.byte_length() > 0 else asset_resource("html_heading_catalog.tsv")
-    var lines = read_text_file(cell_path).split("\n")
+    var lines = split_os_lines(read_text_file(cell_path))
     for line_index in range(len(lines)):
         var line = String(lines[line_index])
         if line.byte_length() == 0 or line.startswith("#"):
@@ -54,7 +55,7 @@ def load_html_cell_catalog(
         )
 
     var headings = List[HtmlHeadingMetadata]()
-    var heading_lines = read_text_file(heading_source_path).split("\n")
+    var heading_lines = split_os_lines(read_text_file(heading_source_path))
     for line_index in range(len(heading_lines)):
         var line = String(heading_lines[line_index])
         if line.byte_length() == 0 or line.startswith("#"):

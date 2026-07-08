@@ -2,6 +2,7 @@
 
 from std.collections import List
 from .csv_table import read_text_file
+from .os_line_endings import split_os_lines
 
 
 @fieldwise_init
@@ -31,7 +32,7 @@ def _split_encoded_values(encoded: String) -> List[String]:
 
 def load_prompt_preparation_catalog(path: String) raises -> PromptPreparationCatalog:
     var domains = List[PromptPreparationDomain]()
-    var lines = read_text_file(path).split("\n")
+    var lines = split_os_lines(read_text_file(path))
     for line_index in range(len(lines)):
         var line = String(lines[line_index])
         if line.byte_length() == 0:

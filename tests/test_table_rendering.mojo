@@ -149,24 +149,22 @@ def test_bbcode_one_table_disables_horizontal_paging() raises:
         in single
     )
 
-def test_markup_wrap_prefers_existing_hyphen_on_fresh_line() raises:
+def test_markup_wrap_uses_hard_column_chunks_inside_words() raises:
     var table = parse_semicolon_csv(
         "; ;Heading\n"
         + "1;1;(gefährliche Wildkatzen-Außerirdische)\n"
     )
     var bbcode = render_bbcode_table(table, [0, 1], True, 21, True)
-    assert_true("[td=\"\"](gefährliche [/td]" in bbcode)
-    assert_true("[td=\"\"]Wildkatzen- [/td]" in bbcode)
-    assert_true("[td=\"\"]Außerirdische)[/td]" in bbcode)
-    assert_false("Wildkatz[/td]" in bbcode)
+    assert_true("[td=\"\"](gefährliche Wildkatz[/td]" in bbcode)
+    assert_true("[td=\"\"]en-Außerirdische) [/td]" in bbcode)
+    assert_false("[td=\"\"]Wildkatzen- [/td]" in bbcode)
 
     var html = render_html_table_with_context(
         table, table, [0, 1], [0], "german", True, 21, True
     )
-    assert_true("> (gefährliche </td>" in html)
-    assert_true("> Wildkatzen- </td>" in html)
-    assert_true("> Außerirdische) </td>" in html)
-    assert_false("Wildkatz</td>" in html)
+    assert_true("> (gefährliche Wildkatz </td>" in html)
+    assert_true("> en-Außerirdische) </td>" in html)
+    assert_false("> Wildkatzen- </td>" in html)
 
 
 def test_shell_missing_continuation_fragment_uses_rest_color() raises:
@@ -230,7 +228,7 @@ def test_explicit_zero_width_keeps_only_that_column_unwrapped() raises:
     assert_false("\n   beta gamma" in rendered)
 
 
-def test_markup_exact_fit_uses_raw_whitespace_for_wrap_decision() raises:
+def test_markup_exact_visible_fit_no_longer_wraps_at_spaces() raises:
     var visible = parse_semicolon_csv(
         "; ;A;B\n"
         + "1;1;first;(14) (n)\n"
@@ -242,17 +240,15 @@ def test_markup_exact_fit_uses_raw_whitespace_for_wrap_decision() raises:
     var bbcode = render_bbcode_table_with_width_reference(
         visible, raw, [0, 1], True, 8, True, False, [0, 8]
     )
-    assert_true("[td=\"\"](14)[/td]" in bbcode)
-    assert_true("[td=\"\"](n) [/td]" in bbcode)
-    assert_false("[td=\"\"](14) (n)[/td]" in bbcode)
+    assert_true("[td=\"\"](14) (n)[/td]" in bbcode)
+    assert_false("[td=\"\"](14)[/td]" in bbcode)
 
     var html = render_html_table_with_context(
         visible, raw, [0, 1], [0, 1], "german",
         True, 8, True, False, [0, 8]
     )
-    assert_true("> (14) </td>" in html)
-    assert_true("> (n) </td>" in html)
-    assert_false("> (14) (n) </td>" in html)
+    assert_true("> (14) (n) </td>" in html)
+    assert_false("> (14) </td>" in html)
 
 
 def test_shell_oversized_zero_width_reproduces_legacy_page_truncation() raises:

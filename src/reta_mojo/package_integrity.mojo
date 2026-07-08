@@ -12,6 +12,7 @@ from std.collections import List
 from std.collections.string import StringSlice
 from std.ffi import CStringSlice, c_int, c_long, c_size_t, external_call
 from std.memory import Span, UnsafePointer, stack_allocation
+from .os_line_endings import os_linesep
 
 
 @fieldwise_init
@@ -563,22 +564,22 @@ def repo_manifest_summary(manifest: RepoManifest) -> String:
     return (
         "root="
         + manifest.root
-        + "\n"
+        + os_linesep()
         + "file_count="
         + String(manifest.file_count)
-        + "\n"
+        + os_linesep()
         + "total_bytes="
         + String(manifest.total_bytes)
-        + "\n"
+        + os_linesep()
         + "digest="
         + manifest.digest
-        + "\n"
+        + os_linesep()
         + "missing_required="
         + String(len(manifest.missing_required))
-        + "\n"
+        + os_linesep()
         + "runtime_artifact_count="
         + String(manifest.runtime_artifact_count)
-        + "\n"
+        + os_linesep()
         + "suspicious_csvs="
         + String(len(manifest.suspicious_csvs))
     )

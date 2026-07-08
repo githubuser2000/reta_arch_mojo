@@ -5,6 +5,7 @@ from .csv_table import CsvTable
 from .row_filtering import counting_groups
 from .number_theory import moon_number, prime_factors
 from .output_modes import colored_row_begin
+from .os_line_endings import has_line_ending, os_linesep, strip_line_endings
 from .table_wrapping import codepoint_length, hard_chunks
 from .html_cell_metadata import (
     HtmlCellCatalog,
@@ -145,7 +146,7 @@ def add_numbering_columns(
 
 def _csv_quote_minimal(text: String) -> String:
     var value = text
-    if value.find(";") >= 0 or value.find("\"") >= 0 or value.find("\n") >= 0 or value.find("\r") >= 0:
+    if value.find(";") >= 0 or value.find("\"") >= 0 or has_line_ending(value):
         return "\"" + value.replace("\"", "\"\"") + "\""
     return value^
 
@@ -174,7 +175,7 @@ def render_csv_table(
             elif column_index == 1:
                 value += " "
             result += _csv_quote_minimal(value)
-        result += "\n"
+        result += os_linesep()
     return result^
 
 
@@ -206,7 +207,7 @@ def _render_flat_width_csv_table(
             ):
                 value = " "
             result += _csv_quote_minimal(value)
-        result += "\n"
+        result += os_linesep()
     return result^
 
 
@@ -231,7 +232,7 @@ def render_markdown_table_with_rows(
             if number == 0 or not number_rows or column_index != 0:
                 result += " "
             result += "|"
-        result += "\n"
+        result += os_linesep()
         # The Python renderer emits the Markdown separator after every visual
         # fragment of the logical heading row, not merely after the first
         # physical output line.
@@ -239,7 +240,7 @@ def render_markdown_table_with_rows(
             result += "|"
             for _ in range(len(row)):
                 result += ":--:|"
-            result += "\n"
+            result += os_linesep()
     return result^
 
 
@@ -269,7 +270,7 @@ def _append_emacs_separator(mut result: String, columns: Int) -> None:
     for column_index in range(columns):
         result += "----"
         result += "+" if column_index + 1 < columns else "|"
-    result += "\n"
+    result += os_linesep()
 
 
 def render_emacs_table_with_rows(
@@ -293,7 +294,7 @@ def render_emacs_table_with_rows(
             if number == 0 or not number_rows or column_index != 0:
                 result += " "
             result += "|"
-        result += "\n"
+        result += os_linesep()
         # Like Markdown, a wrapped logical heading remains a heading on every
         # physical line.  Prime-power separators likewise follow every visual
         # fragment of the corresponding data row in the legacy loop.
@@ -465,7 +466,7 @@ def _html_escape_preserving_tags(
 
 
 def render_html_table(table: CsvTable, row_numbers: List[Int]) -> String:
-    var result = String("<table border=0 id=\"bigtable\">\n")
+    var result = String("<table border=0 id=\"bigtable\">") + os_linesep()
     for row_index in range(len(table.rows)):
         var number = row_numbers[row_index] if row_index < len(row_numbers) else row_index
         result += colored_row_begin("html", number)
@@ -476,8 +477,8 @@ def render_html_table(table: CsvTable, row_numbers: List[Int]) -> String:
             else:
                 result += " <td> "
             result += _html_escape(row[column_index]) + " </td>"
-        result += " </tr>\n"
-    result += "</table>\n"
+        result += " </tr>" + os_linesep()
+    result += "</table>" + os_linesep()
     return result^
 
 
@@ -527,290 +528,24 @@ def _raw_number_field(text: String, width: Int) -> String:
     return result^
 
 
-def _append_long_word(mut result: List[String], word: String, width: Int) -> String:
-    """Append TextWrapper-compatible long-word parts.
-
-    Python's ``textwrap`` prefers an existing ASCII hyphen as a break point
-    before falling back to hard chunks.  This distinction matters when a word
-    is moved to a fresh visual line: ``Wildkatzen-Außerirdische)`` at width 21
-    becomes ``Wildkatzen-`` / ``Außerirdische)`` rather than two arbitrary
-    21-codepoint chunks.
-    """
-    if width <= 0:
-        return word
-    var remainder = word
-    while codepoint_length(remainder) > width:
-        var hyphen_prefix = _hyphen_prefix_fitting(remainder, width)
-        if hyphen_prefix.byte_length() > 0:
-            var next_remainder = _slice_after_ascii_prefix(
-                remainder, hyphen_prefix
-            )
-            if next_remainder == remainder:
-                # Defensive no-progress guard: a reconstructed prefix must be
-                # exact, but a fallback hard split is safer than looping or
-                # slicing at an invalid UTF-8 byte offset.
-                var fallback_chunks = hard_chunks(remainder, width)
-                for index in range(len(fallback_chunks) - 1):
-                    result.append(fallback_chunks[index])
-                return fallback_chunks[len(fallback_chunks) - 1]
-            result.append(hyphen_prefix)
-            remainder = next_remainder^
-            continue
-        var chunks = hard_chunks(remainder, width)
-        if len(chunks) == 0:
-            return ""
-        for index in range(len(chunks) - 1):
-            result.append(chunks[index])
-        return chunks[len(chunks) - 1]
-    return remainder^
-
-
-def _hyphen_prefix_fitting(word: String, available: Int) -> String:
-    """Return the longest existing-hyphen prefix fitting this line."""
-    if available <= 0 or not "-" in word:
-        return ""
-    var parts = word.split("-")
-    if len(parts) < 2:
-        return ""
-    var candidate = String()
-    var best = String()
-    for index in range(len(parts) - 1):
-        if index > 0:
-            candidate += "-"
-        candidate += String(parts[index]) + "-"
-        if codepoint_length(candidate) <= available:
-            best = candidate
-        else:
-            break
-    return best^
-
-
-def _slice_after_ascii_prefix(text: String, prefix: String) -> String:
-    """Remove an exact prefix without constructing a raw byte slice.
-
-    ``prefix`` is assembled from code-point slices or ASCII-hyphen split
-    fragments.  ``removeprefix`` therefore preserves the UTF-8 boundary even
-    when the prefix contains umlauts, CJK text or combining characters.
-    """
-    if prefix.byte_length() == 0:
-        return text
-    if not text.startswith(prefix):
-        return text
-    return String(text.removeprefix(prefix))
-
-
-def _codepoint_prefix(text: String, wanted: Int) -> String:
-    """Return at most ``wanted`` Unicode code points from ``text``."""
-    if wanted <= 0:
-        return ""
-    var result = String()
-    var count = 0
-    for character in text.codepoint_slices():
-        if count >= wanted:
-            break
-        result += String(character)
-        count += 1
-    return result^
-
-
-def _split_markup_words(
-    text: String,
-    mut words: List[String],
-    mut separator_widths: List[Int],
-) -> None:
-    """Split text while retaining the width of legacy whitespace runs.
-
-    Iterate by Unicode code points rather than advancing raw byte offsets.  A
-    byte scanner is sufficient for finding ASCII separators, but later slicing
-    those offsets is needlessly fragile when a word contains multi-byte UTF-8.
-    """
-    var clean = String(text.strip())
-    var pending_width = 0
-    var current = String()
-    for character in clean.codepoint_slices():
-        var part = String(character)
-        var whitespace = (
-            part == " " or part == "\t" or part == "\n" or part == "\r"
-        )
-        if whitespace:
-            if current.byte_length() > 0:
-                words.append(current^)
-                current = String()
-            pending_width += 1
-            continue
-        if current.byte_length() == 0:
-            separator_widths.append(
-                0 if len(separator_widths) == 0 else pending_width
-            )
-            pending_width = 0
-        current += part
-    if current.byte_length() > 0:
-        words.append(current^)
-
-
 def _word_wrap_cell(text: String, width: Int) -> List[String]:
+    """Hard-wrap a visible cell at the column width, including inside words."""
     var clean = normalize_cell_whitespace(text)
-    var result = List[String]()
-    if width <= 0:
+    if width <= 0 or codepoint_length(clean) <= width:
+        var result = List[String]()
         result.append(clean)
         return result^
-    var words = List[String]()
-    var separator_widths = List[Int]()
-    _split_markup_words(text, words, separator_widths)
-    if len(words) == 0:
-        result.append(clean)
-        return result^
-
-    # Use the raw source width for the wrap decision.  Visible output remains
-    # normalized, matching the HTML/BBCode serializers.
-    var raw_width = 0
-    for index in range(len(words)):
-        raw_width += codepoint_length(words[index]) + separator_widths[index]
-    if raw_width <= width:
-        result.append(clean)
-        return result^
-
-    var current = String()
-    for index in range(len(words)):
-        var word = words[index]
-        var separator_width = separator_widths[index]
-        if current.byte_length() == 0:
-            if codepoint_length(word) <= width:
-                current = word
-            else:
-                current = _append_long_word(result, word, width)
-        elif (
-            codepoint_length(current)
-            + separator_width
-            + codepoint_length(word)
-            <= width
-        ):
-            current += " " + word
-        else:
-            # Python's stdlib ``textwrap`` keeps ``break_on_hyphens=True``.
-            # If an existing hyphen prefix still fits on the current line, it
-            # is consumed there before the remainder starts the next line.
-            var available = width - codepoint_length(current) - separator_width
-            var prefix = _hyphen_prefix_fitting(word, available)
-            if (
-                prefix.byte_length() == 0
-                and available > 0
-                and codepoint_length(word) > width
-                and not "-" in word
-            ):
-                prefix = _codepoint_prefix(word, available)
-            if prefix.byte_length() > 0:
-                current += " " + prefix
-                result.append(current^)
-                var remainder = _slice_after_ascii_prefix(word, prefix)
-                if remainder == word:
-                    var fallback = hard_chunks(word, width)
-                    for fallback_index in range(len(fallback) - 1):
-                        result.append(fallback[fallback_index])
-                    current = fallback[len(fallback) - 1]
-                elif codepoint_length(remainder) <= width:
-                    current = remainder^
-                else:
-                    current = _append_long_word(result, remainder, width)
-            else:
-                result.append(current^)
-                if codepoint_length(word) <= width:
-                    current = word^
-                else:
-                    current = _append_long_word(result, word, width)
-    if current.byte_length() > 0 or len(result) == 0:
-        result.append(current^)
-    return result^
-
+    return hard_chunks(clean, width)
 
 
 def _raw_markup_word_wrap_cell(text: String, width: Int) -> List[String]:
-    """Wrap like Python ``textwrap`` while retaining internal space runs.
-
-    The raw HTML/BBCode path used by ``--nocolor`` bypasses Rich, therefore
-    the prepared fragments themselves—not only their source widths—must keep
-    significant runs of spaces.  Control whitespace is normalized to ASCII
-    spaces, matching ``TextWrapper.replace_whitespace``.
-    """
+    """Hard-wrap raw markup cells while preserving significant spaces."""
     var clean = String(text.strip())
-    var result = List[String]()
     if width <= 0 or codepoint_length(clean) <= width:
+        var result = List[String]()
         result.append(clean)
         return result^
-
-    var words = List[String]()
-    var separators = List[String]()
-    var pending_spaces = String()
-    var current_word = String()
-    for character in clean.codepoint_slices():
-        var part = String(character)
-        var whitespace = (
-            part == " " or part == "\t" or part == "\n" or part == "\r"
-        )
-        if whitespace:
-            if current_word.byte_length() > 0:
-                words.append(current_word^)
-                current_word = String()
-            pending_spaces += " "
-            continue
-        if current_word.byte_length() == 0:
-            separators.append(
-                "" if len(separators) == 0 else pending_spaces
-            )
-            pending_spaces = String()
-        current_word += part
-    if current_word.byte_length() > 0:
-        words.append(current_word^)
-
-    var current = String()
-    for index in range(len(words)):
-        var word = words[index]
-        var separator = separators[index]
-        var separator_width = codepoint_length(separator)
-        if current.byte_length() == 0:
-            if codepoint_length(word) <= width:
-                current = word
-            else:
-                current = _append_long_word(result, word, width)
-        elif (
-            codepoint_length(current)
-            + separator_width
-            + codepoint_length(word)
-            <= width
-        ):
-            current += separator + word
-        else:
-            var available = width - codepoint_length(current) - separator_width
-            var prefix = _hyphen_prefix_fitting(word, available)
-            if (
-                prefix.byte_length() == 0
-                and available > 0
-                and codepoint_length(word) > width
-                and not "-" in word
-            ):
-                prefix = _codepoint_prefix(word, available)
-            if prefix.byte_length() > 0:
-                current += separator + prefix
-                result.append(current^)
-                var remainder = _slice_after_ascii_prefix(word, prefix)
-                if remainder == word:
-                    var fallback = hard_chunks(word, width)
-                    for fallback_index in range(len(fallback) - 1):
-                        result.append(fallback[fallback_index])
-                    current = fallback[len(fallback) - 1]
-                elif codepoint_length(remainder) <= width:
-                    current = remainder^
-                else:
-                    current = _append_long_word(result, remainder, width)
-            else:
-                result.append(current^)
-                if codepoint_length(word) <= width:
-                    current = word^
-                else:
-                    current = _append_long_word(result, word, width)
-    if current.byte_length() > 0 or len(result) == 0:
-        result.append(current^)
-    return result^
+    return hard_chunks(clean, width)
 
 
 def _markup_word_wrap_cell(
@@ -916,7 +651,7 @@ def render_bbcode_table_with_width_reference(
                 page_end += 1
         if page_end == page_start:
             page_end += 1
-        result += "[table]\n"
+        result += "[table]" + os_linesep()
         for row_index in range(len(table.rows)):
             var row = table.rows[row_index].copy()
             var row_height = 1
@@ -997,8 +732,8 @@ def render_bbcode_table_with_width_reference(
                         else _pad_cell_raw(part, column_width)
                     )
                     result += "[td=\"\"]" + rendered_part + "[/td] "
-                result += "[/tr]\n"
-        result += "[/table]\n"
+                result += "[/tr]" + os_linesep()
+        result += "[/table]" + os_linesep()
         page_start = page_end
     return result^
 
@@ -1092,7 +827,7 @@ def render_html_table_with_context(
                 page_end += 1
         if page_end == page_start:
             page_end += 1
-        result += '<table border=0 id="bigtable">\n'
+        result += '<table border=0 id="bigtable">' + os_linesep()
         for row_index in range(len(table.rows)):
             var row = table.rows[row_index].copy()
             var row_height = 1
@@ -1139,7 +874,7 @@ def render_html_table_with_context(
                 )
                 var is_heading = number == 0
                 if color_rows:
-                    result += colored_row_begin("html", number).replace("\n", "")
+                    result += strip_line_endings(colored_row_begin("html", number))
                     if number_rows and len(row) > 0:
                         result += " " + _html_counting_open(
                             catalog, language, row[0], is_heading
@@ -1167,14 +902,14 @@ def render_html_table_with_context(
                     if number_rows and len(row) > 0:
                         result += _html_counting_open(
                             catalog, language, row[0], is_heading
-                        ) + "\n"
+                        ) + os_linesep()
                         result += _html_escape(
                             " " if is_heading else row[0]
-                        ) + "\n</td>\n"
+                        ) + os_linesep() + "</td>" + os_linesep()
                     if number_rows and len(row) > 1:
                         result += html_cell_open(
                             catalog, language, -1, 1, is_heading, ""
-                        ) + "\n"
+                        ) + os_linesep()
                         result += _html_escape(
                             _raw_number_field(
                                 ""
@@ -1182,7 +917,7 @@ def render_html_table_with_context(
                                 else String(row[1].strip()),
                                 raw_number_width,
                             )
-                        ) + "\n</td>\n"
+                        ) + os_linesep() + "</td>" + os_linesep()
                 for column_index in range(page_start, page_end):
                     var requested_width = _column_wrap_width(
                         column_index, data_start, width, widths
@@ -1233,7 +968,7 @@ def render_html_table_with_context(
                             is_heading,
                             semantic_heading,
                             all_columns_reference_layout,
-                        ) + "\n"
+                        ) + os_linesep()
                         var trusted_generator = source_column > 745
                         var column_width = _markup_wrapped_column_width(
                             width_reference, column_index, requested_width,
@@ -1242,15 +977,15 @@ def render_html_table_with_context(
                         result += _html_escape_preserving_tags(
                             _pad_cell_raw(part, column_width),
                             trusted_generator,
-                        ) + "\n</td>\n "
+                        ) + os_linesep() + "</td>" + os_linesep() + " "
                 if color_rows:
-                    result += " </tr>\n"
+                    result += " </tr>" + os_linesep()
                 else:
-                    result += "</tr>\n\n"
+                    result += "</tr>" + os_linesep() + os_linesep()
         if color_rows:
-            result += "</table>\n"
+            result += "</table>" + os_linesep()
         else:
-            result += "</table>\n\n"
+            result += "</table>" + os_linesep() + os_linesep()
         page_start = page_end
     return result^
 
@@ -1283,111 +1018,14 @@ def colorize_shell_text(
     return _shell_colorize(text, number, rest)
 
 
-def _shell_split_words(
-    text: String,
-    mut words: List[String],
-    mut separators: List[String],
-) -> None:
-    """Split like ``textwrap`` while retaining inter-word space widths.
-
-    This code-point implementation cannot create a substring that begins in a
-    UTF-8 continuation byte, while preserving the historical ASCII whitespace
-    contract exactly.
-    """
-    var clean = String(text.strip())
-    var pending_spaces = String()
-    var current_word = String()
-    for character in clean.codepoint_slices():
-        var part = String(character)
-        var whitespace = (
-            part == " " or part == "\t" or part == "\n" or part == "\r"
-        )
-        if whitespace:
-            if current_word.byte_length() > 0:
-                words.append(current_word^)
-                current_word = String()
-            pending_spaces += " "
-            continue
-        if current_word.byte_length() == 0:
-            separators.append(
-                "" if len(separators) == 0 else pending_spaces
-            )
-            pending_spaces = String()
-        current_word += part
-    if current_word.byte_length() > 0:
-        words.append(current_word^)
-
-
 def _shell_word_wrap_cell(text: String, width: Int) -> List[String]:
-    """Wrap terminal cells with Python ``textwrap`` space-run semantics."""
+    """Hard-wrap terminal cells at the column width, including inside words."""
     var clean = String(text.strip())
-    var result = List[String]()
     if width <= 0 or codepoint_length(clean) <= width:
+        var result = List[String]()
         result.append(clean)
         return result^
-
-    var words = List[String]()
-    var separators = List[String]()
-    _shell_split_words(clean, words, separators)
-    var current = String()
-    for index in range(len(words)):
-        var word = words[index]
-        var separator = separators[index]
-        var separator_width = codepoint_length(separator)
-        if current.byte_length() == 0:
-            if codepoint_length(word) <= width:
-                current = word
-            else:
-                current = _append_long_word(result, word, width)
-        elif (
-            codepoint_length(current)
-            + separator_width
-            + codepoint_length(word)
-            <= width
-        ):
-            current += separator + word
-        else:
-            # Whitespace chunks are discarded at a line boundary, matching
-            # TextWrapper(drop_whitespace=True). Existing-hyphen prefixes may
-            # still consume the remaining width on the current line.
-            var available = (
-                width - codepoint_length(current) - separator_width
-            )
-            var prefix = _hyphen_prefix_fitting(word, available)
-            # ``textwrap.TextWrapper`` fills the remaining space of the
-            # current line from an overlong word before continuing it on the
-            # next line.  The former native path moved the complete word to a
-            # fresh line and therefore diverged on words such as
-            # ``Antitranszendentalien,``.
-            if (
-                prefix.byte_length() == 0
-                and available > 0
-                and codepoint_length(word) > width
-                and not "-" in word
-            ):
-                prefix = _codepoint_prefix(word, available)
-            if prefix.byte_length() > 0:
-                current += separator + prefix
-                result.append(current^)
-                var remainder = _slice_after_ascii_prefix(word, prefix)
-                if remainder == word:
-                    var fallback = hard_chunks(word, width)
-                    for fallback_index in range(len(fallback) - 1):
-                        result.append(fallback[fallback_index])
-                    current = fallback[len(fallback) - 1]
-                elif codepoint_length(remainder) <= width:
-                    current = remainder^
-                else:
-                    current = _append_long_word(result, remainder, width)
-            else:
-                result.append(current^)
-                if codepoint_length(word) <= width:
-                    current = word
-                else:
-                    current = _append_long_word(result, word, width)
-    if current.byte_length() > 0 or len(result) == 0:
-        result.append(current^)
-    return result^
+    return hard_chunks(clean, width)
 
 
 def _shell_pad(text: String, width: Int) -> String:
@@ -1583,7 +1221,7 @@ def render_shell_table_with_width_reference(
             page_end,
             no_blank_contents,
         ):
-            result += "\n"
+            result += os_linesep()
         for row_index in range(len(table.rows)):
             var row = table.rows[row_index].copy()
             var number = row_numbers[row_index] if row_index < len(row_numbers) else row_index
@@ -1652,7 +1290,7 @@ def render_shell_table_with_width_reference(
                         ) + " "
                     else:
                         result += padded + " "
-                result += "\n"
+                result += os_linesep()
         page_start = page_end
     return result^
 
@@ -1665,93 +1303,13 @@ def _flat_width_text(text: String) -> String:
 
 
 def _flat_word_wrap_cell(text: String, width: Int) -> List[String]:
-    """Match Python preparation plus Rich normalization for flat formats.
-
-    Wrapping decisions use the original whitespace widths, while visible
-    fragments collapse internal whitespace to one space.  CPython's
-    ``TextWrapper`` exposes one exceptional trailing space when a separator
-    exactly fills the line immediately before an overlong word; CSV preserves
-    that byte, whereas Markdown and Emacs normalize it later.
-    """
+    """Hard-wrap flat-format cells at the requested column width."""
     var clean = normalize_cell_whitespace(text)
-    var result = List[String]()
-    if width <= 0:
+    if width <= 0 or codepoint_length(clean) <= width:
+        var result = List[String]()
         result.append(clean)
         return result^
-
-    var words = List[String]()
-    var separator_widths = List[Int]()
-    _split_markup_words(text, words, separator_widths)
-    if len(words) == 0:
-        result.append(clean)
-        return result^
-
-    var raw_width = 0
-    for index in range(len(words)):
-        raw_width += codepoint_length(words[index]) + separator_widths[index]
-    if raw_width <= width:
-        result.append(clean)
-        return result^
-
-    var current = String()
-    var current_raw_width = 0
-    for index in range(len(words)):
-        var word = words[index]
-        var separator_width = separator_widths[index]
-        var word_width = codepoint_length(word)
-        if current.byte_length() == 0:
-            if word_width <= width:
-                current = word
-                current_raw_width = word_width
-            else:
-                current = _append_long_word(result, word, width)
-                current_raw_width = codepoint_length(current)
-        elif current_raw_width + separator_width + word_width <= width:
-            current += " " + word
-            current_raw_width += separator_width + word_width
-        else:
-            var available = width - current_raw_width - separator_width
-            var prefix = _hyphen_prefix_fitting(word, available)
-            if (
-                prefix.byte_length() == 0
-                and available > 0
-                and word_width > width
-                and not "-" in word
-            ):
-                prefix = _codepoint_prefix(word, available)
-            if prefix.byte_length() > 0:
-                current += " " + prefix
-                result.append(current^)
-                var remainder = _slice_after_ascii_prefix(word, prefix)
-                if remainder == word:
-                    var fallback = hard_chunks(word, width)
-                    for fallback_index in range(len(fallback) - 1):
-                        result.append(fallback[fallback_index])
-                    current = fallback[len(fallback) - 1]
-                elif codepoint_length(remainder) <= width:
-                    current = remainder^
-                else:
-                    current = _append_long_word(result, remainder, width)
-                current_raw_width = codepoint_length(current)
-            else:
-                # ``TextWrapper._handle_long_word`` appends an empty prefix
-                # when no width remains.  Its later whitespace cleanup then
-                # leaves the preceding separator observable, but only because
-                # the pending next chunk itself is overlong.
-                if (
-                    current_raw_width + separator_width == width
-                    and word_width > width
-                ):
-                    current += " "
-                result.append(current^)
-                if word_width <= width:
-                    current = word^
-                else:
-                    current = _append_long_word(result, word, width)
-                current_raw_width = codepoint_length(current)
-    if current.byte_length() > 0 or len(result) == 0:
-        result.append(current^)
-    return result^
+    return hard_chunks(clean, width)
 
 
 def _find_row_number_index(row_numbers: List[Int], wanted: Int) -> Int:
@@ -1860,7 +1418,7 @@ def render_plain_table(table: CsvTable) -> String:
             if column_index > 0:
                 result += " | "
             result += row[column_index]
-        result += "\n"
+        result += os_linesep()
     return result^
 
 

@@ -7,6 +7,7 @@ CSV tables, generated catalogs, prompt language assets and HTML metadata.
 
 from std.collections import List
 from std.collections.string import ord
+from .os_line_endings import os_linesep, split_os_lines
 
 
 @fieldwise_init
@@ -28,7 +29,7 @@ def _csv_slice(text: String, start: Int, end: Int) -> String:
 def _parse_simple_semicolon_csv(text: String) -> CsvTable:
     var rows = List[List[String]]()
     var maximum_columns = 0
-    var lines = text.split("\n")
+    var lines = split_os_lines(text)
     for line_index in range(len(lines)):
         var line = String(lines[line_index])
         if line.endswith("\r"):
@@ -176,7 +177,7 @@ def render_semicolon_csv(table: CsvTable) -> String:
             if column_index > 0:
                 result += ";"
             result += _escape_csv_cell(row[column_index])
-        result += "\n"
+        result += os_linesep()
     return result^
 
 

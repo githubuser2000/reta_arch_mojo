@@ -11,6 +11,7 @@ from std.collections import List
 
 from .csv_table import read_text_file
 from .resource_paths import asset_resource
+from .os_line_endings import split_os_lines, endswith_line_ending
 
 
 @fieldwise_init
@@ -69,8 +70,8 @@ def readme_asset_name(language: String) -> String:
 def _readme_line_count(text: String) -> Int:
     if text.byte_length() == 0:
         return 0
-    var pieces = text.split("\n")
-    return len(pieces) - 1 if text.endswith("\n") else len(pieces)
+    var pieces = split_os_lines(text)
+    return len(pieces) - 1 if endswith_line_ending(text) else len(pieces)
 
 
 def generate_readme(language: String = "german") raises -> GeneratedReadme:

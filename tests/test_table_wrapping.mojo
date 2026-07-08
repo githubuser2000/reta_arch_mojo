@@ -26,7 +26,7 @@ def test_split_more_only_when_one_value_is_too_long() raises:
     assert_equal(split[3], "xy")
 
 
-def test_wrap_result_matches_minimal_python_fallback() raises:
+def test_wrap_result_uses_hard_chunks_without_backend_dependency() raises:
     var runtime = default_text_wrap_runtime()
     var no_wrap = wrap_cell_text("abc", 3, runtime)
     assert_false(no_wrap.wrapped)
@@ -34,15 +34,17 @@ def test_wrap_result_matches_minimal_python_fallback() raises:
 
     var requested = wrap_cell_text("abcdef", 3, runtime)
     assert_true(requested.wrapped)
-    assert_equal(len(requested.parts), 1)
-    assert_equal(requested.parts[0], "abcdef")
+    assert_equal(len(requested.parts), 2)
+    assert_equal(requested.parts[0], "abc")
+    assert_equal(requested.parts[1], "def")
 
     runtime.has_fill = True
-    var native = wrap_cell_text("abcdef", 3, runtime)
+    var native = wrap_cell_text("abc def", 3, runtime)
     assert_true(native.wrapped)
-    assert_equal(len(native.parts), 2)
+    assert_equal(len(native.parts), 3)
     assert_equal(native.parts[0], "abc")
-    assert_equal(native.parts[1], "def")
+    assert_equal(native.parts[1], " de")
+    assert_equal(native.parts[2], "f")
 
 
 def test_width_for_row_matches_architecture_formula() raises:

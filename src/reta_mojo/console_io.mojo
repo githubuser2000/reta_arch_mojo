@@ -10,6 +10,7 @@ mapping becomes an insertion-ordered string-to-string-list value.
 from std.collections import List, Set
 from .resource_paths import asset_resource, runtime_root
 from .terminal_geometry import terminal_columns
+from .os_line_endings import drop_one_trailing_line_ending
 
 
 @fieldwise_init
@@ -377,11 +378,7 @@ def _doc_path(repo_root: String, readme_filename: String) -> String:
 
 
 def _drop_one_trailing_newline(text: String) -> String:
-    if not text.endswith("\n"):
-        return text
-    # Newline is one ASCII byte and therefore both slice boundaries are known
-    # UTF-8 codepoint boundaries even when the preceding text is multibyte.
-    return String(StringSlice(text)[byte=:-1])
+    return drop_one_trailing_line_ending(text)
 
 
 def _read_help_asset(filename: String) raises -> String:

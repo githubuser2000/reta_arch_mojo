@@ -9,6 +9,7 @@ owned ``OutputRuntimeState`` and an explicit application result.
 
 from std.collections import List
 from .number_theory import prime_creativity
+from .os_line_endings import os_linesep
 
 
 @fieldwise_init
@@ -149,11 +150,11 @@ def output_mode_specs() -> List[OutputModeSpec]:
             True,
             ["html"],
             "<table border=0 id=\"bigtable\">",
-            "</table>\n",
-            "<td>\n",
-            "\n</td>\n",
+            "</table>" + os_linesep(),
+            "<td>" + os_linesep(),
+            os_linesep() + "</td>" + os_linesep(),
             "",
-            "</tr>\n",
+            "</tr>" + os_linesep(),
         ),
         OutputModeSpec(
             "csv",
@@ -407,7 +408,7 @@ def colored_row_begin(mode: String, num: Int, rest: Bool = False) -> String:
         return output_mode_spec(canonical).begin_row
     if rest:
         if canonical == "html":
-            return "<tr>\n"
+            return "<tr>" + os_linesep()
         return "[tr]"
 
     var number_type = prime_creativity(num)
@@ -415,27 +416,27 @@ def colored_row_begin(mode: String, num: Int, rest: Bool = False) -> String:
     var bb_result = String()
     if number_type == 1:
         if num % 2 == 0:
-            html_result = "<tr style=\"background-color:#66ff66;color:#000000;\">\n"
+            html_result = "<tr style=\"background-color:#66ff66;color:#000000;\">" + os_linesep()
             bb_result = "[tr=\"background-color:#66ff66;color:#000000;\"]"
         else:
-            html_result = "<tr style=\"background-color:#009900;color:#ffffff;\">\n"
+            html_result = "<tr style=\"background-color:#009900;color:#ffffff;\">" + os_linesep()
             bb_result = "[tr=\"background-color:#009900;color:#ffffff;\"]"
     elif number_type == 2 or num == 1:
         if num % 2 == 0:
-            html_result = "<tr style=\"background-color:#ffff66;color:#000099;\">\n"
+            html_result = "<tr style=\"background-color:#ffff66;color:#000099;\">" + os_linesep()
             bb_result = "[tr=\"background-color:#ffff66;color:#000099;\"]"
         else:
-            html_result = "<tr style=\"background-color:#555500;color:#aaaaff;\">\n"
+            html_result = "<tr style=\"background-color:#555500;color:#aaaaff;\">" + os_linesep()
             bb_result = "[tr=\"background-color:#555500;color:#aaaaff;\"]"
     elif number_type == 3:
         if num % 2 == 0:
-            html_result = "<tr style=\"background-color:#9999ff;color:#202000;\">\n"
+            html_result = "<tr style=\"background-color:#9999ff;color:#202000;\">" + os_linesep()
             bb_result = "[tr=\"background-color:#9999ff;color:#202000;\"]"
         else:
-            html_result = "<tr style=\"background-color:#000099;color:#ffff66;\">\n"
+            html_result = "<tr style=\"background-color:#000099;color:#ffff66;\">" + os_linesep()
             bb_result = "[tr=\"background-color:#000099;color:#ffff66;\"]"
     elif num == 0:
-        html_result = "<tr style=\"background-color:#ff2222;color:#002222;\">\n"
+        html_result = "<tr style=\"background-color:#ff2222;color:#002222;\">" + os_linesep()
         bb_result = "[tr=\"background-color:#ff2222;color:#002222;\"]"
 
     if canonical == "html":
@@ -452,7 +453,7 @@ def generate_simple_cell(
     """Generate the state-independent cell opening used by simple renderers."""
     var canonical = canonicalize_output_mode(mode)
     if canonical == "html":
-        return "<td>\n"
+        return "<td>" + os_linesep()
     if canonical == "bbcode":
         # Python increments the column by two. Its conditional branch for
         # column == 0 is therefore only reachable for the numbering sentinel -2.
