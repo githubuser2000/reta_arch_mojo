@@ -10,6 +10,7 @@ build/
 __pycache__/
 *.py[cod]
 .pytest_cache/
+bin/*
 
 # Runtime-generated table artifact
 /middle.alx
