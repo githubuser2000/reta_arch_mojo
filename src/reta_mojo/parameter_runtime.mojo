@@ -10,7 +10,7 @@ attribute writes.
 from std.collections import List
 from std.collections.string import ord
 from .input_semantics import parse_cli_tokens, ParsedCliOption
-from .runtime_aliases import load_runtime_alias_catalog, resolve_runtime_columns
+from .runtime_aliases import load_runtime_alias_catalog, resolve_runtime_columns_pattern
 from .resource_paths import asset_resource
 from .row_ranges import range_to_numbers
 from .all_columns import load_all_column_selection
@@ -38,7 +38,7 @@ from .generated_aliases import (
     remove_meta_requests,
     sort_meta_requests_by_python_set,
     remove_modal_concepts,
-    resolve_generated_aliases,
+    resolve_generated_aliases_pattern,
     sort_modal_concepts,
 )
 
@@ -486,8 +486,8 @@ def build_parameter_runtime_plan(tokens: List[String], maximum_columns: Int, max
                 continue
             for value_index in range(len(option.values)):
                 var value = option.values[value_index].copy()
-                var resolved = resolve_runtime_columns(aliases, option.name, value.text)
-                var generated_resolved = resolve_generated_aliases(
+                var resolved = resolve_runtime_columns_pattern(aliases, option.name, value.text)
+                var generated_resolved = resolve_generated_aliases_pattern(
                     generated_aliases, language, option.name, value.text
                 )
                 if len(resolved) == 0 and len(generated_resolved) == 0:

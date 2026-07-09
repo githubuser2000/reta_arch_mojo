@@ -92,9 +92,11 @@ struct PromptMorphisms(Copyable):
         return self.split(text)
 
     def split_command_words(self, text: String) -> List[String]:
-        # Python checks text[:4] == "reta". startswith is equivalent for the
-        # fixed four-byte command prefix and also preserves the retaXYZ case.
-        if not text.startswith(self.reta_command_prefix):
+        var first_words = text.strip().split()
+        if len(first_words) == 0:
+            return self.split(text)
+        var first = String(first_words[0])
+        if not (first == self.reta_command_prefix or first == "+" + self.reta_command_prefix):
             return self.split(text)
         var slices = text.split()
         var result = List[String]()

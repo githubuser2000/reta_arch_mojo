@@ -349,7 +349,7 @@ def classify_prompt_command(raw: String) -> PromptCommand:
         return PromptCommand(KIND_PYTHON, text^, words^)
     if first == "math":
         return PromptCommand(KIND_MATH, text^, words^)
-    if first == "reta":
+    if first == "reta" or first == "+reta":
         return PromptCommand(KIND_RETA, text^, words^)
     if first == "S" or first == "BefehlSpeichernDanach":
         return PromptCommand(KIND_STORE_NEXT, text^, words^)
@@ -1035,7 +1035,7 @@ def effective_one_shot_tokens(startup: PromptStartup) -> List[String]:
 
     var direct_reta = (
         len(startup.command_tokens) > 0
-        and startup.command_tokens[0] == "reta"
+        and (startup.command_tokens[0] == "reta" or startup.command_tokens[0] == "+reta")
     )
     if not direct_reta:
         result.append("-ausgabe")

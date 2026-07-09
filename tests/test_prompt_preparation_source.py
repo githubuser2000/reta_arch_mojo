@@ -92,3 +92,35 @@ def test_prompt_preparation_is_claimed_as_fully_native() -> None:
     )
     assert "| nativ |" in row
 
+
+
+def test_prompt_regex_treats_plus_reta_as_reta_command_prefix() -> None:
+    native_regex = (ROOT / "src/reta_mojo/prompt_regex.mojo").read_text(encoding="utf-8")
+    reference = (ROOT / "python_reference/reta_architecture/prompt_preparation.py").read_text(encoding="utf-8")
+    assert 'def _is_reta_command_token(token: String) -> Bool:' in native_regex
+    assert 'token == "reta" or token == "+reta"' in native_regex
+    assert 'def _is_reta_command_token(token: str) -> bool:' in reference
+    assert 'return token in ("reta", "+reta")' in reference
+
+def test_python_reference_prompt_preparation_accepts_plus_reta_column_wildcards() -> None:
+    import sys
+
+    sys.path.insert(0, str(ROOT / "python_reference"))
+    from reta_architecture.prompt_language import PromptModus
+    from reta_architecture.prompt_preparation import bootstrap_prompt_preparation
+
+    preparation = bootstrap_prompt_preparation()
+    main_result = preparation.prepare_grosse_ausgabe(
+        "", PromptModus.normal, PromptModus.normal, PromptModus.normal,
+        "+reta -spalten --*=motive", []
+    )
+    value_result = preparation.prepare_grosse_ausgabe(
+        "", PromptModus.normal, PromptModus.normal, PromptModus.normal,
+        "+reta -spalten --menschliches=*", []
+    )
+    main_tokens = main_result[5]
+    value_tokens = value_result[5]
+    assert main_tokens[0] == "+reta"
+    assert value_tokens[0] == "+reta"
+    assert any(token.lower() == "--menschliches=motive" for token in main_tokens)
+    assert any(token.startswith("--menschliches=") and "motive" in token for token in value_tokens)

@@ -120,6 +120,16 @@ def test_output_parameter_and_value_regex() raises:
     )
     assert_equal(literal_star.tokens[2], "--*")
 
+    var plus_main = bundle.regex_replace(["+reta", "-spalten", "--*=motive"])
+    assert_true(plus_main.changed)
+    assert_equal(plus_main.tokens[0], "+reta")
+    assert_true(_contains(plus_main.tokens, "--menschliches=motive"))
+
+    var plus_value = bundle.regex_replace(["+reta", "-spalten", "--menschliches=*"])
+    assert_true(plus_value.changed)
+    assert_equal(plus_value.tokens[0], "+reta")
+    assert_true(_contains(plus_value.tokens, "--menschliches=motive"))
+
 
 def test_line_and_combination_regex() raises:
     var bundle = _bundle()

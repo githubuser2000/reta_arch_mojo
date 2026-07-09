@@ -93,6 +93,38 @@ def resolve_generated_aliases(
     return result^
 
 
+def _generated_side_matches(requested: String, actual: String) -> Bool:
+    return requested == "*" or requested == actual
+
+
+def resolve_generated_aliases_pattern(
+    catalog: GeneratedAliasCatalog,
+    language: String,
+    main_alias: String,
+    parameter_alias: String,
+) -> List[GeneratedAliasEntry]:
+    """Resolve generated/fraction/meta aliases, including ``*`` side wildcards.
+
+    The language remains explicit because generated aliases are language-scoped.
+    The wildcard applies only to the user-visible main/parameter sides.
+    """
+    if main_alias != "*" and parameter_alias != "*":
+        return resolve_generated_aliases(
+            catalog, language, main_alias, parameter_alias
+        )
+
+    var result = List[GeneratedAliasEntry]()
+    for index in range(len(catalog.entries)):
+        var entry = catalog.entries[index].copy()
+        if (
+            entry.language == language
+            and _generated_side_matches(main_alias, entry.main_alias)
+            and _generated_side_matches(parameter_alias, entry.parameter_alias)
+        ):
+            result.append(entry.copy())
+    return result^
+
+
 def modal_concept_from_entry(entry: GeneratedAliasEntry) raises -> ModalConcept:
     var pieces = entry.payload.split(",")
     if len(pieces) < 2:

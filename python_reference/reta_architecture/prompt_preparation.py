@@ -95,8 +95,17 @@ def bootstrap_prompt_preparation(
     )
 
 
+def _is_reta_command_token(token: str) -> bool:
+    return token in ("reta", "+reta")
+
+
+def _starts_with_reta_command(text: str) -> bool:
+    first = custom_split(text.strip())[:1]
+    return len(first) > 0 and _is_reta_command_token(first[0])
+
+
 def verdreheWoReTaBefehl(text1: str, text2: str, text3: str, PromptMode: PromptModus):
-    if text2[:4] == "reta" and text1[:4] != "reta" and len(text3) > 0:
+    if _starts_with_reta_command(text2) and not _starts_with_reta_command(text1) and len(text3) > 0:
         return text2, text1, custom_split(text2)
     return text1, text2, text3
 
@@ -105,7 +114,8 @@ spaltenParaNvalueS: dict = {"zeilen": {},"spalten": {}, "ausgabe": {}, "kombinat
 def regExReplace(Txt) -> list:
     if not any(("r\"" in a or "*" in a for a in Txt.menge)):
         return Txt.liste
-    ifReta: bool = True if Txt.liste[:1] == ["reta"] else False
+    first_token = Txt.liste[0] if len(Txt.liste) > 0 else ""
+    ifReta: bool = _is_reta_command_token(first_token)
     neueListe: list = []
     foundParas4value: list = []
     i: int = -1
@@ -361,7 +371,7 @@ def promptVorbereitungGrosseAusgabe(
     if (
         promptMode == PromptModus.normal
         and len(Txt.platzhalter) > 1
-        and Txt.platzhalter[:4] == "reta"
+        and _starts_with_reta_command(Txt.platzhalter)
         and any(zahlenBereichMatch)
         and zahlenBereichMatch.count(True) == 1
     ):
@@ -425,7 +435,7 @@ def promptVorbereitungGrosseAusgabe(
                 Txt.liste = tx
             except:
                 pass
-    IsPureOnlyReTaCmd: bool = len(Txt.liste) > 0 and Txt.liste[0] == "reta"
+    IsPureOnlyReTaCmd: bool = len(Txt.liste) > 0 and _is_reta_command_token(Txt.liste[0])
     brueche = []
     zahlenAngaben_ = []
     zahlenAngabenC = ""
@@ -433,12 +443,14 @@ def promptVorbereitungGrosseAusgabe(
         Txt.liste = [tuple(befehleBeenden)[0]]
         exit()
     replacements = i18nRP.replacements
-    if len(Txt.liste) > 0 and Txt.liste[0] not in [
-        "reta",
-        i18n.befehle2["shell"],
-        i18n.befehle2["python"],
-        i18n.befehle2["abstand"],
-    ]:
+    if len(Txt.liste) > 0 and not (
+        _is_reta_command_token(Txt.liste[0])
+        or Txt.liste[0] in [
+            i18n.befehle2["shell"],
+            i18n.befehle2["python"],
+            i18n.befehle2["abstand"],
+        ]
+    ):
         listeNeu: list = []
         for token in Txt.liste:
             try:
@@ -446,7 +458,7 @@ def promptVorbereitungGrosseAusgabe(
             except KeyError:
                 listeNeu += [token]
         Txt.liste = listeNeu
-    if Txt.liste[:1] != ["reta"]:
+    if not (len(Txt.liste) > 0 and _is_reta_command_token(Txt.liste[0])):
         Txt.liste = list(Txt.menge)
     Txt.liste = regExReplace(Txt)
     return (

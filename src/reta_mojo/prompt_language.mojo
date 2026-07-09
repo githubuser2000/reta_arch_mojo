@@ -852,7 +852,7 @@ def _is_raw_prompt_command(
     catalog: PromptLanguageCatalog, language: String, first: String
 ) -> Bool:
     """Raw-tail commands must bypass compact and set-order transformations."""
-    if first == "reta":
+    if first == "reta" or first == "+reta":
         return True
     for canonical in ["shell", "python", "math"]:
         if first == prompt_vocabulary_alias(
@@ -920,6 +920,7 @@ def expand_compact_prompt_tokens(
             not is_prompt_numeric_shortcut(catalog, language, original)
             and not _contains_string(roots, original)
             and first_input != "reta"
+            and first_input != "+reta"
         ):
             var rotated = _rotate_compact_number_to_end(original)
             var number_start = _compact_number_start(rotated)
@@ -1078,7 +1079,7 @@ def prepare_prompt_tokens(
     # line bypasses the later CPython-set ordering.  Shell/Python/math execute
     # from their untouched raw line before this planning-only representation is
     # observed, but tests and callers still rely on the old set-order result.
-    if len(replaced) > 0 and replaced[0] == "reta":
+    if len(replaced) > 0 and (replaced[0] == "reta" or replaced[0] == "+reta"):
         return PromptExpansionResult(expanded.compact, replaced^)
     return PromptExpansionResult(
         expanded.compact, _python_string_set_order(replaced)

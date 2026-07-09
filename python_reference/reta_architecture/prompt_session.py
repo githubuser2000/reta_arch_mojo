@@ -40,6 +40,14 @@ from .prompt_language import (
 from .prompt_runtime import PromptRuntimeBundle, bootstrap_prompt_runtime
 from .topology import ContextSelection
 
+def _is_reta_command_token(token: str) -> bool:
+    return token in ("reta", "+reta")
+
+
+def _starts_with_reta_command(text: str) -> bool:
+    first = custom_split(text.strip())[:1]
+    return len(first) > 0 and _is_reta_command_token(first[0])
+
 
 _DEFAULT_TEXT_ARCHITECTURES: MutableMapping[str, RetaArchitecture] = {}
 
@@ -133,7 +141,7 @@ class PromptTextState:
         assert type(value) is str
         value = str(value).strip()
         self._text = value
-        if value[:4] != "reta":
+        if not _starts_with_reta_command(value):
             self._stext = self.architecture.morphisms.prompt.split_prompt_text(
                 self._text,
                 custom_split,
@@ -356,10 +364,10 @@ class PromptSessionBundle:
             if has_placeholder:
                 where_reta_command = []
                 txt_placeholder = self.new_text_state(txt_state.platzhalter)
-                if txt_state.liste[:1] == ["reta"]:
+                if len(txt_state.liste) > 0 and _is_reta_command_token(txt_state.liste[0]):
                     where_reta_command += ["bereits-dabei"]
                     txt_state.liste.pop(0)
-                if txt_placeholder.liste[:1] == ["reta"]:
+                if len(txt_placeholder.liste) > 0 and _is_reta_command_token(txt_placeholder.liste[0]):
                     where_reta_command += ["bei-dazu"]
                     txt_placeholder.liste.pop(0)
                 if len(where_reta_command) > 0:
@@ -483,7 +491,7 @@ class PromptSessionBundle:
                     else Style.from_dict({"bla": "#0000ff bg:#ff0000"}),
                     placeholder=txt_state.platzhalter,
                 )
-                if setup.force_e_command and txt_state.text[:4] != "reta":
+                if setup.force_e_command and not _starts_with_reta_command(txt_state.text):
                     txt_state.e = [
                         self.i18n.befehle2[
                             "keineEinZeichenZeilenPlusKeineAusgabeWelcherBefehlEsWar"

@@ -260,7 +260,7 @@ class PromptLanguageBundle:
             s_ = s_.strip(",")
             s_m = s_
             textDazu = []
-            if not self.is15or16command(s_) and s_ not in self.befehle and stext[0] != "reta":
+            if not self.is15or16command(s_) and s_ not in self.befehle and stext[0] not in ("reta", "+reta"):
                 nn: Optional[int] = 0
                 for iii, s_3 in enumerate(s_[::-1]):
                     if s_3.isdecimal() or (

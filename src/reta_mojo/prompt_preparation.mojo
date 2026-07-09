@@ -486,7 +486,7 @@ def prepare_large_prompt_output(
             )
             tokens.append("--" + parameter + "=" + joined_range)
     
-    var pure_reta = len(tokens) > 0 and tokens[0] == "reta"
+    var pure_reta = len(tokens) > 0 and (tokens[0] == "reta" or tokens[0] == "+reta")
     if not pure_reta:
         tokens = python_string_set_order(tokens)
     var exit_requested = _has_exit_command(tokens, exit_commands)

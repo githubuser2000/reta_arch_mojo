@@ -407,17 +407,17 @@ def combine_stored_prompt(
     var right = split_prompt_words(String(text.strip()))
     var result = List[String]()
     var has_reta = False
-    if len(left) > 0 and left[0] == "reta":
+    if len(left) > 0 and (left[0] == "reta" or left[0] == "+reta"):
         has_reta = True
-    if len(right) > 0 and right[0] == "reta":
+    if len(right) > 0 and (right[0] == "reta" or right[0] == "+reta"):
         has_reta = True
     if has_reta:
         result.append("reta")
     for index in range(len(left)):
-        if not (index == 0 and left[index] == "reta"):
+        if not (index == 0 and (left[index] == "reta" or left[index] == "+reta")):
             result.append(left[index])
     for index in range(len(right)):
-        if not (index == 0 and right[index] == "reta"):
+        if not (index == 0 and (right[index] == "reta" or right[index] == "+reta")):
             result.append(right[index])
     return join_prompt_tokens(result)
 

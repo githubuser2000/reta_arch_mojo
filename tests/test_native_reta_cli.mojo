@@ -3,6 +3,20 @@ from std.collections import List
 from reta_mojo.native_reta_cli import *
 
 
+def _contains_test_int(values: List[Int], wanted: Int) -> Bool:
+    for index in range(len(values)):
+        if values[index] == wanted:
+            return True
+    return False
+
+
+def _contains_test_string(values: List[String], wanted: String) -> Bool:
+    for index in range(len(values)):
+        if values[index] == wanted:
+            return True
+    return False
+
+
 def test_plan_resolves_rows_columns_and_output() raises:
     var plan = build_native_reta_plan(
         ["-zeilen", "--vorhervonausschnitt=1-3", "-spalten", "--religionen=sternpolygon", "-ausgabe", "--art=csv"],
@@ -72,6 +86,56 @@ def test_absolute_multiple_selector_raises_runtime_table_ceiling() raises:
             ["-zeilen", "--vorhervonausschnitt=24,v24"], 1024
         ),
         1024,
+    )
+
+
+def test_column_value_wildcard_expands_inside_runtime_library() raises:
+    var plan = build_native_reta_plan(
+        ["-spalten", "--menschliches=*"],
+        746,
+        1024,
+    )
+    assert_equal(len(plan.diagnostics), 0)
+    assert_true(_contains_test_int(plan.columns, 10))
+    assert_true(_contains_test_int(plan.columns, 607))
+    assert_true(len(plan.columns) > 100)
+
+
+def test_column_main_wildcard_expands_inside_runtime_library() raises:
+    var plan = build_native_reta_plan(
+        ["-spalten", "--*=motive"],
+        746,
+        1024,
+    )
+    assert_equal(len(plan.diagnostics), 0)
+    assert_true(_contains_test_int(plan.columns, 10))
+    assert_true(_contains_test_int(plan.columns, 607))
+    assert_true(_contains_test_string(plan.generated_commands, "prime_effect:10"))
+
+
+def test_prompt_fast_path_accepts_column_wildcards() raises:
+    var csv_path = "python_reference/csv/religion.csv"
+    assert_true(
+        native_reta_tokens_supported(
+            [
+                "-spalten",
+                "--menschliches=*",
+                "-ausgabe",
+                "--art=csv",
+            ],
+            csv_path,
+        )
+    )
+    assert_true(
+        native_reta_tokens_supported(
+            [
+                "-spalten",
+                "--*=motive",
+                "-ausgabe",
+                "--art=csv",
+            ],
+            csv_path,
+        )
     )
 
 

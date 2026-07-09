@@ -12,7 +12,10 @@ include(cmake/RetaScriptTargets.cmake)
 set(RETA_MOJO_JOBS "8" CACHE STRING "Mojo compiler jobs forwarded as '-j N' to project build scripts")
 set(RETA_TEST_RUN_JOBS "1" CACHE STRING "Runtime jobs for scripts/run-tests.sh")
 set(RETA_TEST_RUN_TIMEOUT "0" CACHE STRING "Optional per-test timeout in seconds, 0 disables it")
-set(RETA_INSTALL_PREFIX "/usr/local" CACHE PATH "Installation prefix used by script-backed install targets")
+# Keep project-native install targets and standard `cmake --install` on the
+# same prefix.  CMake defaults CMAKE_INSTALL_PREFIX to /usr/local on Unix, so
+# an empty/minimal configure already installs under /usr/local.
+set(RETA_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}" CACHE PATH "Installation prefix used by script-backed install targets")
 
 reta_script_target(reta-toolchain-check
   COMMENT "Check Pixi/CMake/Mojo toolchain without compiling"
@@ -70,6 +73,11 @@ reta_script_target(reta-all
   COMMENT "Build the complete production target set"
   COMMAND ${CMAKE_COMMAND} -E env RETA_MOJO_JOBS=${RETA_MOJO_JOBS} scripts/run_build_task.sh build-all
 )
+
+add_custom_target(reta-default ALL
+  COMMENT "Build the complete production target set by default"
+)
+add_dependencies(reta-default reta-all)
 
 reta_script_target(reta-plan-all
   COMMENT "Print full production build command without compiling"
@@ -129,6 +137,17 @@ reta_script_target(reta-check-artifact-manifest
   COMMENT "Check install_targets.txt against the central artifact manifest"
   COMMAND scripts/check_artifact_manifest_consistency.sh
 )
+
+install(CODE "
+  execute_process(
+    COMMAND \"${CMAKE_COMMAND}\" -E env \"PREFIX=\${CMAKE_INSTALL_PREFIX}\" \"${CMAKE_CURRENT_SOURCE_DIR}/scripts/run_install_task.sh\" install
+    WORKING_DIRECTORY \"${CMAKE_CURRENT_SOURCE_DIR}\"
+    RESULT_VARIABLE _reta_install_result
+  )
+  if(NOT _reta_install_result EQUAL 0)
+    message(FATAL_ERROR \"reta install failed with exit code \${_reta_install_result}\")
+  endif()
+")
 
 reta_script_target(reta-install
   COMMENT "Install reta under ${RETA_INSTALL_PREFIX}"

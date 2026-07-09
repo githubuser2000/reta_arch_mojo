@@ -422,6 +422,10 @@ def _expand_equals_token(
     return PromptRegexResult(_render_expansions(expansions), True)
 
 
+def _is_reta_command_token(token: String) -> Bool:
+    return token == "reta" or token == "+reta"
+
+
 def regex_replace(
     catalog: PromptLanguageCatalog,
     preparation_catalog: PromptPreparationCatalog,
@@ -436,7 +440,7 @@ def regex_replace(
     if not needs_expansion:
         return PromptRegexResult(input_tokens.copy(), False)
 
-    var if_reta = len(input_tokens) > 0 and input_tokens[0] == "reta"
+    var if_reta = len(input_tokens) > 0 and _is_reta_command_token(input_tokens[0])
     var result = List[String]()
     var changed = False
     for token_index in range(len(input_tokens)):

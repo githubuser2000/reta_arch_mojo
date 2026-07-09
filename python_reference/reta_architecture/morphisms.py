@@ -43,7 +43,8 @@ class PromptMorphisms:
         return self.split(text, splitter)
 
     def split_command_words(self, text: str, splitter: Callable[[str], List[str]]) -> List[str]:
-        if text[:4] != "reta":
+        first = splitter(text.strip())[:1]
+        if not first or first[0] not in ("reta", "+reta"):
             return self.split(text, splitter)
         return [s.strip() for s in text.split() if len(s.strip()) > 0]
 
