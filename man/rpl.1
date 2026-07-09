@@ -1,0 +1,67 @@
+.TH RPL 1 "2026-07-09" "reta arch mojo" "Reta commands"
+.SH NAME
+rpl \- start the compact logged Reta prompt profile
+.SH SYNOPSIS
+.B rpl
+.RI [ prompt-options ]
+.SH DESCRIPTION
+.B rpl
+starts a historical Reta prompt profile for compact interactive work.  Compared
+with
+.BR rp ,
+it uses vi mode, starts with logging disabled and enables the compact
+.B e
+command behaviour by default.
+.PP
+It is useful when the prompt should print fewer explanatory lines while keeping
+the same command language as
+.BR rp .
+.SH OPTIONS
+.B rpl
+accepts the same startup options as
+.BR rp (1):
+.BR -vi ,
+.BR -log ,
+.BR -language=LANGUAGE ,
+.BR -debug ,
+.BR -befehl ,
+.B -e
+and
+.BR -h .
+.SH COMMAND LANGUAGE
+The interactive commands are the same as in
+.BR rp (1).
+Common commands include
+.BR a ,
+.BR u ,
+.BR prim ,
+.BR multis ,
+.BR modulo ,
+.BR reta ,
+.BR shell ,
+.BR python ,
+.BR math ,
+.BR S ,
+.BR s ,
+.B o
+and
+.BR l .
+.SH FILES
+.TP
+.I /usr/local/bin/rpl
+Default public executable for a standard installation.
+.TP
+.I /usr/local/lib/reta/libreta_prompt_interactive_mojo.so
+Interactive prompt library used by
+.BR rpl .
+.SH EXAMPLES
+.PP
+.nf
+rpl
+rpl -befehl prim 60
+.fi
+.SH SEE ALSO
+.BR rp (1),
+.BR rpe (1),
+.BR rpb (1),
+.BR reta (1)

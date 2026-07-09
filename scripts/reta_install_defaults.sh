@@ -8,5 +8,6 @@ reta_install_set_defaults() {
     : "${BINDIR:=$PREFIX/bin}"
     : "${LIBEXECDIR:=$PREFIX/lib/reta}"
     : "${DATADIR:=$PREFIX/share/reta}"
+    : "${REFERENCEDIR:=$DATADIR/python_reference}"
     : "${MANDIR:=$PREFIX/share/man}"
 }

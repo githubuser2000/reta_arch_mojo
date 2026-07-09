@@ -5,15 +5,17 @@ TMP=${TMPDIR:-/tmp}/reta-install-layout.$$
 STAGE=$TMP/stage
 . "$ROOT/scripts/reta_install_defaults.sh"
 . "$ROOT/scripts/reta_artifacts.sh"
+. "$ROOT/scripts/reta_manpages.sh"
 reta_install_set_defaults
 STAGE_BINDIR=$STAGE$BINDIR
 STAGE_LIBEXECDIR=$STAGE$LIBEXECDIR
 STAGE_DATADIR=$STAGE$DATADIR
+STAGE_REFERENCEDIR=$STAGE$REFERENCEDIR
 STAGE_MANDIR=$STAGE$MANDIR
 trap 'rm -rf "$TMP"' EXIT HUP INT TERM
 mkdir -p "$TMP"
 
-DESTDIR="$STAGE" PREFIX="$PREFIX" BINDIR="$BINDIR" LIBEXECDIR="$LIBEXECDIR" DATADIR="$DATADIR" MANDIR="$MANDIR" "$ROOT/scripts/install.sh" >"$TMP/install.log"
+DESTDIR="$STAGE" PREFIX="$PREFIX" BINDIR="$BINDIR" LIBEXECDIR="$LIBEXECDIR" DATADIR="$DATADIR" REFERENCEDIR="$REFERENCEDIR" MANDIR="$MANDIR" "$ROOT/scripts/install.sh" >"$TMP/install.log"
 
 [ -f "$STAGE_DATADIR/csv/religion.csv" ]
 [ -f "$STAGE_DATADIR/assets/parameter_aliases.tsv" ]
@@ -22,12 +24,17 @@ DESTDIR="$STAGE" PREFIX="$PREFIX" BINDIR="$BINDIR" LIBEXECDIR="$LIBEXECDIR" DATA
 [ -f "$STAGE_DATADIR/assets/reta_help_en.txt" ]
 [ -f "$STAGE_DATADIR/assets/i18n_words/deutsch.tsv" ]
 [ -f "$STAGE_DATADIR/assets/i18n_words/manifest.json" ]
-[ -f "$STAGE_MANDIR/man1/generate_html.1" ]
+for manpage in $(reta_public_manpages); do
+    [ -f "$STAGE_MANDIR/man1/$manpage" ]
+done
 [ -x "$STAGE_BINDIR/reta-mojo-i18n" ]
 [ ! -L "$STAGE_BINDIR/reta-mojo-i18n" ]
 [ -x "$STAGE_BINDIR/reta-mojo-package-integrity" ]
 [ ! -L "$STAGE_BINDIR/reta-mojo-package-integrity" ]
-[ -L "$STAGE_LIBEXECDIR/python_reference/csv" ]
+[ ! -e "$STAGE_LIBEXECDIR/python_reference" ]
+[ -d "$STAGE_REFERENCEDIR" ]
+[ -L "$STAGE_REFERENCEDIR/csv" ]
+[ -f "$STAGE_REFERENCEDIR/csv/religion.csv" ]
 [ -L "$STAGE_LIBEXECDIR/assets" ]
 [ -x "$STAGE_LIBEXECDIR/scripts/check_mojo_binary_freshness.sh" ]
 [ -x "$STAGE_LIBEXECDIR/scripts/current_source_id.sh" ]
@@ -76,7 +83,7 @@ grep -q '^matrix_rows=4766$' "$TMP/i18n-summary.out"
 (
     cd "$TMP"
     "$STAGE_BINDIR/reta-mojo-package-integrity" --summary \
-        "$ROOT/python_reference" >"$TMP/package-integrity.out"
+        "$STAGE_REFERENCEDIR" >"$TMP/package-integrity.out"
 )
 grep -q '^file_count=457$' "$TMP/package-integrity.out"
 grep -q '^missing_required=0$' "$TMP/package-integrity.out"
@@ -147,7 +154,10 @@ grep -q '^60: 2\^2 3 5$' "$TMP/installed-rpb.out"
 grep -q 'Prompt-Shared-Runtime-Smoke bestanden\.' \
     "$TMP/installed-prompt-runtime.out"
 
-DESTDIR="$STAGE" PREFIX="$PREFIX" BINDIR="$BINDIR" LIBEXECDIR="$LIBEXECDIR" DATADIR="$DATADIR" MANDIR="$MANDIR" "$ROOT/scripts/uninstall.sh" >/dev/null
+DESTDIR="$STAGE" PREFIX="$PREFIX" BINDIR="$BINDIR" LIBEXECDIR="$LIBEXECDIR" DATADIR="$DATADIR" REFERENCEDIR="$REFERENCEDIR" MANDIR="$MANDIR" "$ROOT/scripts/uninstall.sh" >/dev/null
+for manpage in $(reta_public_manpages); do
+    [ ! -e "$STAGE_MANDIR/man1/$manpage" ]
+done
 [ ! -e "$STAGE_LIBEXECDIR" ]
 [ ! -e "$STAGE_DATADIR" ]
 

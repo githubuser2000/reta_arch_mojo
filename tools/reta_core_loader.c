@@ -188,7 +188,7 @@ static void set_runtime_environment(const char *argv0) {
     set_environment_if_unset("RETA_ROOT", root);
 
     if (installed_bin_layout) {
-        if (join_path(reference, sizeof(reference), root, "lib/reta/python_reference") == 0) {
+        if (join_path(reference, sizeof(reference), root, "share/reta/python_reference") == 0) {
             set_environment_if_unset("RETA_REFERENCE_DIR", reference);
         }
     } else if (join_path(reference, sizeof(reference), root, "python_reference") == 0) {

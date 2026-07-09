@@ -406,14 +406,17 @@ den Präfix `/usr/local`:
 DESTDIR="$pkgdir" PREFIX=/usr/local ./scripts/install.sh
 ```
 
-Dann liegen die Tabellen unter `/usr/local/share/reta/csv`. Die öffentliche
+Dann liegen die Tabellen unter `/usr/local/share/reta/csv`. Der installierte
+Python-Referenz-/Kompatibilitätsbaum liegt unter
+`/usr/local/share/reta/python_reference`; im Library-Ordner
+`/usr/local/lib/reta` wird kein `python_reference` mehr abgelegt. Die öffentliche
 `/usr/local/bin`-Ebene enthält nur relative Symlinks zu den privaten Launchern unter
-`/usr/local/lib/reta/bin`. Die privaten ELFs werden nicht mehr per Wildcard kopiert,
-sondern ausschließlich aus der 36-Ziel-Allowlist
-`scripts/install_targets.txt`; dadurch gelangen keine lokalen Alt-/Debugziele
-ins Paket. Der Python-Kompatibilitätsbaum behält seinen historischen
-Pfad `python_reference/csv` als relativen Symlink auf die kanonischen
-Shared-Data-Dateien.
+`/usr/local/lib/reta/bin` oder echte kompilierte Starter/Tools. Die privaten ELFs
+werden nicht mehr per Wildcard kopiert, sondern ausschließlich aus der
+Ziel-Allowlist `scripts/install_targets.txt`; dadurch gelangen keine lokalen
+Alt-/Debugziele ins Paket. Der Python-Kompatibilitätsbaum behält seinen
+historischen Pfad `python_reference/csv` als relativen Symlink auf die
+kanonischen Shared-Data-Dateien.
 
 Benutzerinstallation ohne Administratorrechte:
 

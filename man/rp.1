@@ -1,0 +1,155 @@
+.TH RP 1 "2026-07-09" "reta arch mojo" "Reta commands"
+.SH NAME
+rp \- start the interactive Reta prompt in vi mode with logging
+.SH SYNOPSIS
+.B rp
+.RI [ prompt-options ]
+.PP
+.B rp
+.B -befehl
+.RI command ...
+.SH DESCRIPTION
+.B rp
+starts the interactive Reta prompt profile.  It is the convenient prompt
+frontend for repeatedly entering short Reta commands, numeric commands and full
+.B reta
+command lines.
+.PP
+The historical
+.B rp
+profile uses vi-style editing and has command logging enabled by default.  It
+shares the native prompt execution library with
+.BR rpl ,
+.B rpe
+and
+.BR rpb ;
+interactive input is handled only by the interactive prompt library.
+.SH PROMPT OPTIONS
+.TP
+.B -vi
+Use vi mode instead of Emacs-style editing.
+.TP
+.B -log
+Enable prompt command-history logging at startup.
+.TP
+.B -language=LANGUAGE
+Select the prompt language.  Accepted aliases include
+.BR deutsch ,
+.BR german ,
+.BR english ,
+.BR englisch ,
+.BR vietnamese ,
+.BR vietnamesisch ,
+.BR chinese ,
+.B chinesisch
+and Korean aliases.
+.TP
+.B -debug
+Enable developer debug output.
+.TP
+.B -befehl
+Execute one prompt command built from the remaining arguments and exit.
+.TP
+.B -e
+Apply the compact/no-empty-output command modifier to prompt commands where the
+historical prompt allows it.
+.TP
+.BR -h , " " -help
+Show prompt help.
+.SH INTERACTIVE COMMANDS
+The prompt accepts short output commands such as
+.BR a ,
+.BR u ,
+.BR t ,
+.BR p ,
+.BR prim ,
+.BR multis ,
+.BR modulo ,
+.BR mond ,
+.BR alles ,
+.BR primzahlkreuz ,
+.BR richtung
+and full
+.B reta
+commands.
+.PP
+.BR q ,
+.BR :q ,
+.BR exit ,
+.B quit
+and
+.B ende
+leave the prompt.
+.PP
+.B shell
+runs a shell command,
+.B python
+runs a Python command and
+.B math
+runs a Python-style calculation command.
+.SH STORAGE COMMANDS
+.TP
+.B S
+Store the next command.  Repeating
+.B S
+extends the stored command sequence.
+.TP
+.B s
+Store the previous command.
+.TP
+.B o
+Print or apply the stored command.  Pressing Enter alone can also use the stored
+command.
+.TP
+.B l
+Open deletion of stored commands by selection.
+.SH ROW EXPRESSIONS
+Prompt row expressions follow the same numeric language as
+.BR reta :
+.BR 2 ,
+.BR 3-5 ,
+.BR 2,3-5 ,
+.BR 5+2+4 ,
+.BR v20-22 ,
+.BR -20,v10 ,
+.BR 1/2,3 ,
+.B 1/2-3/3
+and similar fraction ranges are accepted by supported commands.
+.SH FILES
+.TP
+.I /usr/local/bin/rp
+Default public executable for a standard installation.
+.TP
+.I /usr/local/lib/reta/libreta_prompt_interactive_mojo.so
+Interactive prompt input/session library used by
+.BR rp ,
+.B rpl
+and
+.BR rpe .
+.TP
+.I /usr/local/lib/reta/libreta_prompt_mojo.so
+Shared prompt execution library.
+.SH EXAMPLES
+.PP
+Start the interactive prompt:
+.PP
+.nf
+rp
+.fi
+.PP
+Run one command and exit:
+.PP
+.nf
+rp -befehl prim 60
+.fi
+.PP
+Inside the prompt, print the prime factorisation of 60:
+.PP
+.nf
+prim 60
+.fi
+.SH SEE ALSO
+.BR reta (1),
+.BR rpl (1),
+.BR rpe (1),
+.BR rpb (1)

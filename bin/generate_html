@@ -231,12 +231,27 @@ run_generator() {
             RETA_ROOT=$ROOT
             export RETA_ROOT
         fi
+        if [ -z "${RETA_SHARE_DIR-}" ]; then
+            prefix_root=$(CDPATH= cd -- "$ROOT/../.." 2>/dev/null && pwd || true)
+            if [ -n "$prefix_root" ] && [ -d "$prefix_root/share/reta/csv" ] && [ -d "$prefix_root/share/reta/assets" ]; then
+                RETA_SHARE_DIR=$prefix_root/share/reta
+                export RETA_SHARE_DIR
+            fi
+        fi
         if [ -z "${RETA_DATA_DIR-}" ]; then
-            RETA_DATA_DIR=$ROOT/python_reference/csv
+            if [ -n "${RETA_SHARE_DIR-}" ]; then
+                RETA_DATA_DIR=$RETA_SHARE_DIR/csv
+            else
+                RETA_DATA_DIR=$ROOT/python_reference/csv
+            fi
             export RETA_DATA_DIR
         fi
         if [ -z "${RETA_ASSET_DIR-}" ]; then
-            RETA_ASSET_DIR=$ROOT/assets
+            if [ -n "${RETA_SHARE_DIR-}" ]; then
+                RETA_ASSET_DIR=$RETA_SHARE_DIR/assets
+            else
+                RETA_ASSET_DIR=$ROOT/assets
+            fi
             export RETA_ASSET_DIR
         fi
         if [ -n "$LANGUAGE_ARG" ]; then

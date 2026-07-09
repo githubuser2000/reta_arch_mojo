@@ -9,6 +9,7 @@ Erledigt:
   - Pixi/CMake-Einstieg ist additiv vorhanden.
   - Mojo bleibt extern über bin/mojo-real; Pixi installiert Mojo nicht als PyPI-Abhängigkeit.
   - /usr/local ist der gemeinsame Install-Prefix-Default.
+  - lib/reta enthält keine installierte python_reference-Kopie; diese liegt unter share/reta/python_reference.
   - Install-Layout-Defaults liegen zentral in scripts/reta_install_defaults.sh.
   - Build-Defaults liegen zentral in scripts/reta_build_defaults.sh.
   - Artefaktlisten liegen zentral in scripts/reta_artifacts.sh.

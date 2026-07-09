@@ -66,9 +66,11 @@ def test_fhs_usr_local_layout_uses_share_for_csv_and_assets(tmp_path: Path) -> N
     assert (shared / "csv" / "religion.csv").is_file()
     assert (shared / "assets" / "parameter_aliases.tsv").is_file()
     assert (shared / "assets" / "input_semantics_catalog.tsv").is_file()
-    assert (prefix / "share" / "man" / "man1" / "generate_html.1").is_file()
-    assert (private / "python_reference" / "csv").is_symlink()
-    assert (private / "python_reference" / "csv" / "religion.csv").is_file()
+    for manpage in ("generate_html.1", "reta.1", "rp.1", "rpl.1", "rpe.1", "rpb.1"):
+        assert (prefix / "share" / "man" / "man1" / manpage).is_file()
+    assert not (private / "python_reference").exists()
+    assert (shared / "python_reference" / "csv").is_symlink()
+    assert (shared / "python_reference" / "csv" / "religion.csv").is_file()
     assert (private / "assets").is_symlink()
     assert (private / "assets" / "parameter_aliases.tsv").is_file()
     assert (private / "assets" / "input_semantics_catalog.tsv").is_file()
@@ -88,7 +90,7 @@ def test_fhs_usr_local_layout_uses_share_for_csv_and_assets(tmp_path: Path) -> N
     public_integrity = prefix / "bin" / "reta-mojo-package-integrity"
     assert public_integrity.is_symlink()
     result = subprocess.run(
-        [str(public_integrity), "--summary", str(ROOT / "python_reference")],
+        [str(public_integrity), "--summary", str(shared / "python_reference")],
         cwd=tmp_path,
         text=True,
         stdout=subprocess.PIPE,
@@ -119,6 +121,7 @@ def test_fhs_usr_local_layout_uses_share_for_csv_and_assets(tmp_path: Path) -> N
     layout = (private / "INSTALL_LAYOUT").read_text(encoding="utf-8")
     assert "csvdir=/usr/local/share/reta/csv" in layout
     assert "assetdir=/usr/local/share/reta/assets" in layout
+    assert "referencedir=/usr/local/share/reta/python_reference" in layout
     assert "mandir=/usr/local/share/man" in layout
     assert "binarydir=/usr/local/bin" in layout
     assert "sharedlibdir=/usr/local/lib/reta" in layout
@@ -169,8 +172,9 @@ def test_user_local_prefix_keeps_data_below_home_share(tmp_path: Path) -> None:
     assert (shared / "csv" / "religion.csv").is_file()
     assert (shared / "assets" / "parameter_aliases.tsv").is_file()
     assert (shared / "assets" / "input_semantics_catalog.tsv").is_file()
-    assert (private / "python_reference" / "csv").is_symlink()
-    assert (private / "python_reference" / "csv" / "religion.csv").is_file()
+    assert not (private / "python_reference").exists()
+    assert (shared / "python_reference" / "csv").is_symlink()
+    assert (shared / "python_reference" / "csv" / "religion.csv").is_file()
     assert (prefix / "bin" / "reta").resolve() == (private / "bin" / "reta").resolve()
     assert (prefix / "bin" / "reta-native").is_file()
     assert not (private / "reta-native").exists()
@@ -209,6 +213,7 @@ def test_user_local_prefix_keeps_data_below_home_share(tmp_path: Path) -> None:
     layout = (private / "INSTALL_LAYOUT").read_text(encoding="utf-8")
     assert "csvdir=/home/alex/.local/share/reta/csv" in layout
     assert "assetdir=/home/alex/.local/share/reta/assets" in layout
+    assert "referencedir=/home/alex/.local/share/reta/python_reference" in layout
     assert "binarydir=/home/alex/.local/bin" in layout
     assert "sharedlibdir=/home/alex/.local/lib/reta" in layout
 
@@ -230,7 +235,8 @@ def test_uninstall_removes_only_reta_layout(tmp_path: Path) -> None:
     assert result.returncode == 0, result.stderr
     assert not (stage / "usr" / "local" / "lib" / "reta").exists()
     assert not (stage / "usr" / "local" / "share" / "reta").exists()
-    assert not (stage / "usr" / "local" / "share" / "man" / "man1" / "generate_html.1").exists()
+    for manpage in ("generate_html.1", "reta.1", "rp.1", "rpl.1", "rpe.1", "rpb.1"):
+        assert not (stage / "usr" / "local" / "share" / "man" / "man1" / manpage).exists()
     assert unrelated.read_text(encoding="utf-8") == "unrelated"
 
 
@@ -257,8 +263,9 @@ def test_fedora_libexec_override_keeps_shared_data_in_usr_share(tmp_path: Path) 
     shared = stage / "usr" / "share" / "reta"
     assert (stage / "usr" / "bin" / "reta-native").is_file()
     assert not (private / "reta-native").exists()
-    assert (private / "python_reference" / "csv").is_symlink()
-    assert (private / "python_reference" / "csv" / "religion.csv").is_file()
+    assert not (private / "python_reference").exists()
+    assert (shared / "python_reference" / "csv").is_symlink()
+    assert (shared / "python_reference" / "csv" / "religion.csv").is_file()
     assert (shared / "csv" / "religion.csv").is_file()
     assert (stage / "usr" / "bin" / "reta").resolve() == (private / "bin" / "reta").resolve()
     assert not list((stage / "usr").rglob("*.reta-source-id"))

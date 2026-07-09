@@ -1,0 +1,161 @@
+.TH RETA 1 "2026-07-09" "reta arch mojo" "Reta commands"
+.SH NAME
+reta \- filter and render the Reta table
+.SH SYNOPSIS
+.B reta
+.RI [ main-options ]
+.RI [ sub-options ]
+.SH DESCRIPTION
+.B reta
+is the public table command for Reta.  It selects rows, selects columns,
+combines table domains and renders the result in a chosen output format.  The
+program is intentionally parameter driven: main parameters start with one dash,
+sub-parameters start with two dashes and must immediately follow the main
+parameter to which they belong.
+.PP
+The most important rule is ordering.  A sub-parameter only belongs to the last
+main parameter before it.  Inserting another main parameter in between changes
+where the sub-parameter applies.
+.SH MAIN PARAMETERS
+.TP
+.B -zeilen
+Select rows.  Common sub-parameters are
+.BR --alles ,
+.BR --zeit= ,
+.BR --zaehlung= ,
+.BR --typ= ,
+.BR --primzahlen= ,
+.BR --vielfachevonzahlen= ,
+.BR --primzahlvielfache= ,
+.BR --vorhervonausschnitt= ,
+.BR --vorhervonausschnittteiler ,
+.BR --nachtraeglichneuabzaehlung= ,
+.BR --nachtraeglichneuabzaehlungvielfache= ,
+.BR --potenzenvonzahlen= ,
+.BR --oberesmaximum=
+and
+.BR --invertieren .
+.TP
+.B -spalten
+Select columns and column families.  Common sub-parameters are
+.BR --alles ,
+.BR --breite= ,
+.BR --breiten= ,
+.BR --wichtigsteverstehen= ,
+.BR --menschliches= ,
+.BR --planet= ,
+.BR --religionen= ,
+.BR --galaxie= ,
+.BR --universum= ,
+.BR --teilchen= ,
+.BR --multiversum= ,
+.BR --grundstrukturen= ,
+.BR --groessenordnung= ,
+.BR --primzahlwirkung= ,
+.BR --wirtschaft= ,
+.BR --procontra= ,
+.BR --licht ,
+.BR --bedeutung= ,
+.BR --symbole ,
+.BR --eigenschaften= ,
+.BR --konzept2=
+and
+.BR --multiplikationen= .
+.TP
+.B -kombination
+Select combination tables.  Important sub-parameters are
+.B --galaxie=
+and
+.BR --universum= .
+.TP
+.B -ausgabe
+Control rendering.  Common sub-parameters are
+.BR --nocolor ,
+.BR --art= ,
+.BR --onetable ,
+.BR --spaltenreihenfolgeundnurdiese= ,
+.BR --keineleereninhalte ,
+.BR --keineueberschriften
+and
+.BR --keinenummerierung .
+.TP
+.B -debug
+Enable developer/debug behaviour.
+.SH ROW EXPRESSIONS
+Row expressions and numeric ranges can contain single numbers, comma lists,
+ranges, distances, multiples and fractions.
+.PP
+Examples include
+.BR 2 ,
+.BR 3-5 ,
+.BR 2,3-5 ,
+.BR 5+2+4 ,
+.BR v20-22 ,
+.BR -20,v10 ,
+.BR 1/2,3 ,
+.B 1/2-3/3
+and
+.BR 4/5+2/2 .
+.PP
+.B --vorhervonausschnittteiler
+adds divisors of the selected rows.  With multiples this can expand the result
+substantially.
+.SH OUTPUT FORMATS
+.B -ausgabe --art=
+accepts one output format.  The usual values are
+.BR shell ,
+.BR html ,
+.BR csv ,
+.B markdown
+and
+.BR bbcode .
+.PP
+.B --breite=0
+uses the effective terminal width in the native path when available.
+.SH LANGUAGE
+Some frontends accept
+.BR -language=english ,
+.BR -language=deutsch
+and additional language aliases.  Most table contents are historically German.
+.SH FILES
+.TP
+.I /usr/local/bin/reta
+Default public executable for a standard installation.
+.TP
+.I /usr/local/lib/reta/libreta_core_mojo.so
+Shared core library used by the thin
+.B reta
+starter.
+.TP
+.I /usr/local/share/reta/csv
+Installed CSV data.
+.TP
+.I /usr/local/share/reta/assets
+Installed generated catalogs, help text and static assets.
+.SH EXAMPLES
+.PP
+Show the main help:
+.PP
+.nf
+reta -h
+.fi
+.PP
+Print rows 1 to 2 with the Sternpolygon religion columns as CSV:
+.PP
+.nf
+reta -zeilen --vorhervonausschnitt=1-2 \\
+     -spalten --religionen=sternpolygon --breite=40 \\
+     -ausgabe --art=csv --nocolor
+.fi
+.PP
+Render all columns as one HTML table:
+.PP
+.nf
+reta -spalten --alles --breite=0 -ausgabe --art=html --onetable --nocolor
+.fi
+.SH SEE ALSO
+.BR rp (1),
+.BR rpl (1),
+.BR rpe (1),
+.BR rpb (1),
+.BR generate_html (1)

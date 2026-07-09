@@ -14,6 +14,7 @@ Tasks:
   install
   uninstall
   check-install-layout
+  check-manpages
   install-layout
 
 Mit --dry-run oder RETA_DRY_RUN=1 werden die Befehle nur angezeigt.
@@ -52,6 +53,9 @@ case $TASK in
         ;;
     check-install-layout)
         reta_exec_or_print env PREFIX="$PREFIX" "$ROOT/scripts/check_install_layout.sh"
+        ;;
+    check-manpages)
+        reta_exec_or_print "$ROOT/scripts/check_manpages.sh"
         ;;
     install-layout)
         reta_exec_or_print env PREFIX="$PREFIX" "$ROOT/scripts/print_install_layout.sh"

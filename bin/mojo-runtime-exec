@@ -12,10 +12,6 @@ if [ -z "${RETA_ROOT-}" ]; then
     RETA_ROOT=$ROOT
     export RETA_ROOT
 fi
-if [ -z "${RETA_REFERENCE_DIR-}" ]; then
-    RETA_REFERENCE_DIR=$ROOT/python_reference
-    export RETA_REFERENCE_DIR
-fi
 if [ -z "${RETA_SHARE_DIR-}" ]; then
     prefix_root=$(CDPATH= cd -- "$ROOT/../.." 2>/dev/null && pwd || true)
     if [ -n "$prefix_root" ]; then
@@ -25,6 +21,14 @@ if [ -z "${RETA_SHARE_DIR-}" ]; then
             export RETA_SHARE_DIR
         fi
     fi
+fi
+if [ -z "${RETA_REFERENCE_DIR-}" ]; then
+    if [ -n "${RETA_SHARE_DIR-}" ] && [ -d "$RETA_SHARE_DIR/python_reference" ]; then
+        RETA_REFERENCE_DIR=$RETA_SHARE_DIR/python_reference
+    else
+        RETA_REFERENCE_DIR=$ROOT/python_reference
+    fi
+    export RETA_REFERENCE_DIR
 fi
 if [ -z "${RETA_DATA_DIR-}" ]; then
     if [ -n "${RETA_SHARE_DIR-}" ]; then

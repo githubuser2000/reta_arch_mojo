@@ -1,0 +1,85 @@
+.TH RPB 1 "2026-07-09" "reta arch mojo" "Reta commands"
+.SH NAME
+rpb \- run one Reta prompt command and exit
+.SH SYNOPSIS
+.B rpb
+.RI command ...
+.SH DESCRIPTION
+.B rpb
+is the one-shot Reta prompt frontend.  It builds a single prompt command from
+its arguments, executes it and exits.  It is the right command for scripts,
+smoke tests and shell pipelines that need prompt syntax without opening an
+interactive session.
+.PP
+The profile uses vi-style historical defaults and applies the compact
+.B e
+behaviour by default.  Unlike
+.BR rp ,
+.B rpl
+and
+.BR rpe ,
+.B rpb
+does not load the interactive prompt-input library.  It uses the shared prompt
+execution library and the Reta core library only.
+.SH COMMANDS
+.B rpb
+accepts the same prompt command language as
+.BR rp (1).
+Common examples are
+.BR prim ,
+.BR multis ,
+.BR modulo ,
+.BR abc ,
+.BR abstand ,
+.BR abstandPrim ,
+short table commands such as
+.B a
+or
+.B u
+and complete
+.B reta
+commands.
+.SH OPTIONS
+Because
+.B rpb
+is already a one-shot profile, its remaining arguments are normally interpreted
+as the command.  For startup help use
+.BR -h
+or
+.BR -help .
+.SH FILES
+.TP
+.I /usr/local/bin/rpb
+Default public executable for a standard installation.
+.TP
+.I /usr/local/lib/reta/libreta_prompt_mojo.so
+Shared prompt execution library used by
+.BR rpb .
+.TP
+.I /usr/local/lib/reta/libreta_core_mojo.so
+Reta table core library reached by the prompt execution path.
+.SH EXAMPLES
+.PP
+Prime factorisation:
+.PP
+.nf
+rpb prim 60
+.fi
+.PP
+Run a compact table command:
+.PP
+.nf
+rpb a 2
+.fi
+.PP
+Run a full Reta command through prompt syntax:
+.PP
+.nf
+rpb reta -zeilen --vorhervonausschnitt=1-2 \\
+        -spalten --religionen=sternpolygon --breite=40
+.fi
+.SH SEE ALSO
+.BR rp (1),
+.BR rpl (1),
+.BR rpe (1),
+.BR reta (1)

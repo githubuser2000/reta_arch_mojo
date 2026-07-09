@@ -1028,10 +1028,11 @@ Leerraumläufe, Einzel- und Nullbreiten nativ. Details:
 
 
 Stage 12c4m trennt Quellbaum, private Laufzeit und unveränderliche Daten nach
-FHS. CSV-Dateien liegen je nach `PREFIX` unter `share/reta/csv`, während
-relative Symlinks die historischen Pfade `python_reference/csv` und `assets`
-erhalten. `DESTDIR`, `/usr`, `/usr/local`, `$HOME/.local` und Fedora-`libexec`
-sind getestet. Details:
+FHS. CSV-Dateien liegen je nach `PREFIX` unter `share/reta/csv`; der installierte
+Python-Referenzbaum liegt unter `share/reta/python_reference` und nicht unter
+`lib/reta`. Relative Symlinks erhalten die historischen Pfade
+`python_reference/csv` und `assets`. `DESTDIR`, `/usr`, `/usr/local`,
+`$HOME/.local` und Fedora-`libexec` sind getestet. Details:
 [`STAGE12C4M_FHS_RESOURCE_INSTALLATION.md`](STAGE12C4M_FHS_RESOURCE_INSTALLATION.md).
 
 Stage 12c4n korrigiert den vollständigen nativen `--alles`-Plan von 863 auf die

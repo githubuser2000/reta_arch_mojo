@@ -138,6 +138,11 @@ reta_script_target(reta-check-artifact-manifest
   COMMAND scripts/check_artifact_manifest_consistency.sh
 )
 
+reta_script_target(reta-check-manpages
+  COMMENT "Check public manual pages for reta/rp/rpl/rpe/rpb"
+  COMMAND scripts/check_manpages.sh
+)
+
 install(CODE "
   execute_process(
     COMMAND \"${CMAKE_COMMAND}\" -E env \"PREFIX=\${CMAKE_INSTALL_PREFIX}\" \"${CMAKE_CURRENT_SOURCE_DIR}/scripts/run_install_task.sh\" install

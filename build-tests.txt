@@ -1,0 +1,272 @@
+
+== build tests/test_all_columns.mojo ==
+
+== build tests/test_architecture_activation.mojo ==
+
+== build tests/test_architecture_boundaries.mojo ==
+
+== build tests/test_architecture_coherence.mojo ==
+
+== build tests/test_architecture_exports.mojo ==
+
+== build tests/test_architecture_facade.mojo ==
+
+== build tests/test_architecture_impact.mojo ==
+
+== build tests/test_architecture_map.mojo ==
+
+== build tests/test_architecture_migration.mojo ==
+
+== build tests/test_architecture_probe_assets.mojo ==
+
+== build tests/test_architecture_progress.mojo ==
+
+== build tests/test_architecture_refactor_native.mojo ==
+
+== build tests/test_architecture_rehearsal.mojo ==
+
+== build tests/test_architecture_traces.mojo ==
+
+== build tests/test_architecture_validation.mojo ==
+
+== build tests/test_arithmetic.mojo ==
+SKIP schweres Compilerziel: tests/test_category_theory.mojo
+
+== build tests/test_column_selection.mojo ==
+
+== build tests/test_combi_join.mojo ==
+
+== build tests/test_command_parity_native.mojo ==
+
+== build tests/test_completion_nested.mojo ==
+
+== build tests/test_completion_runtime.mojo ==
+
+== build tests/test_completion_word.mojo ==
+
+== build tests/test_concat_csv.mojo ==
+
+== build tests/test_console_io_complete.mojo ==
+
+== build tests/test_console_io.mojo ==
+
+== build tests/test_csv_reference.mojo ==
+
+== build tests/test_csv_table.mojo ==
+
+== build tests/test_execution_network.mojo ==
+
+== build tests/test_execution_network_persistence.mojo ==
+
+== build tests/test_fraction_concat_columns.mojo ==
+
+== build tests/test_generated_aliases.mojo ==
+
+== build tests/test_generated_columns_integration.mojo ==
+
+== build tests/test_generated_columns.mojo ==
+
+== build tests/test_generated_columns_registry.mojo ==
+
+== build tests/test_generated_parity.mojo ==
+
+== build tests/test_generated_table_columns.mojo ==
+
+== build tests/test_generated_table_runtime_parity.mojo ==
+
+== build tests/test_grundstrukturen_html.mojo ==
+
+== build tests/test_html_cell_metadata.mojo ==
+
+== build tests/test_html_class_extractor.mojo ==
+
+== build tests/test_i18n_words.mojo ==
+
+== build tests/test_input_semantics.mojo ==
+
+== build tests/test_integer_expressions.mojo ==
+
+== build tests/test_kombi_join_columns.mojo ==
+
+== build tests/test_legacy_center.mojo ==
+
+== build tests/test_legacy_lib4tables_concat.mojo ==
+
+== build tests/test_legacy_lib4tables.mojo ==
+
+== build tests/test_legacy_lib4tables_prepare.mojo ==
+
+== build tests/test_legacy_libreta_prompt.mojo ==
+
+== build tests/test_legacy_mojo_bridge.mojo ==
+
+== build tests/test_legacy_reta_program.mojo ==
+
+== build tests/test_legacy_reta_program_startup.mojo ==
+
+== build tests/test_legacy_reta_prompt.mojo ==
+
+== build tests/test_legacy_table_handling.mojo ==
+
+== build tests/test_meta_columns_complete.mojo ==
+
+== build tests/test_meta_columns.mojo ==
+
+== build tests/test_morphisms_complete.mojo ==
+
+== build tests/test_morphisms.mojo ==
+
+== build tests/test_multis3_parity.mojo ==
+
+== build tests/test_native_cli_controls.mojo ==
+
+== build tests/test_native_cli_startup.mojo ==
+
+== build tests/test_native_prompt_input.mojo ==
+
+== build tests/test_native_reta_cli.mojo ==
+
+== build tests/test_native_reta_utf8_html.mojo ==
+
+== build tests/test_no_blank_contents.mojo ==
+
+== build tests/test_number_theory.mojo ==
+
+== build tests/test_output_application.mojo ==
+
+== build tests/test_output_modes.mojo ==
+
+== build tests/test_output_semantics_complete.mojo ==
+
+== build tests/test_package_integrity.mojo ==
+
+== build tests/test_parallel_execution_config.mojo ==
+
+== build tests/test_parallel_number_processes.mojo ==
+
+== build tests/test_parallel_number_threads.mojo ==
+
+== build tests/test_parallel_row_preparation.mojo ==
+
+== build tests/test_parallel_row_processes.mojo ==
+
+== build tests/test_parallel_row_threads.mojo ==
+
+== build tests/test_parallel_table_execution.mojo ==
+
+== build tests/test_parallel_thread_backend.mojo ==
+
+== build tests/test_parameter_runtime_complete.mojo ==
+
+== build tests/test_parameter_runtime.mojo ==
+
+== build tests/test_parameter_semantics.mojo ==
+
+== build tests/test_persistence.mojo ==
+
+== build tests/test_presheaves_complete.mojo ==
+
+== build tests/test_presheaves.mojo ==
+
+== build tests/test_prime_effect_columns.mojo ==
+
+== build tests/test_prime_universe_columns.mojo ==
+
+== build tests/test_program_workflow.mojo ==
+
+== build tests/test_prompt_execution_helpers.mojo ==
+
+== build tests/test_prompt_execution.mojo ==
+
+== build tests/test_prompt_execution_runtime.mojo ==
+
+== build tests/test_prompt_external_commands.mojo ==
+
+== build tests/test_prompt_fraction_execution.mojo ==
+
+== build tests/test_prompt_historical_ownership.mojo ==
+
+== build tests/test_prompt_interaction.mojo ==
+
+== build tests/test_prompt_language.mojo ==
+
+== build tests/test_prompt_legacy_echo.mojo ==
+
+== build tests/test_prompt_line_editor.mojo ==
+
+== build tests/test_prompt_preparation.mojo ==
+
+== build tests/test_prompt_property_execution.mojo ==
+
+== build tests/test_prompt_property_table_integration.mojo ==
+
+== build tests/test_prompt_raw_commands.mojo ==
+
+== build tests/test_prompt_runtime_contract.mojo ==
+
+== build tests/test_prompt_runtime.mojo ==
+
+== build tests/test_prompt_session.mojo ==
+
+== build tests/test_prompt_table_execution.mojo ==
+
+== build tests/test_prompt_table_execution_regressions.mojo ==
+
+== build tests/test_py_reta_truth_native.mojo ==
+
+== build tests/test_readme_generator.mojo ==
+
+== build tests/test_row_filtering.mojo ==
+
+== build tests/test_row_filtering_reference.mojo ==
+
+== build tests/test_row_ranges.mojo ==
+
+== build tests/test_runtime_compat_complete.mojo ==
+
+== build tests/test_runtime_compat.mojo ==
+SKIP schweres Compilerziel: tests/test_schema_catalog_parity.mojo
+
+== build tests/test_schema_snapshot.mojo ==
+
+== build tests/test_semantics_builder.mojo ==
+
+== build tests/test_semantics_stage12c5f.mojo ==
+
+== build tests/test_setup_metadata.mojo ==
+
+== build tests/test_shared_library_architecture.mojo ==
+
+== build tests/test_sheaves_complete.mojo ==
+
+== build tests/test_split_i18n.mojo ==
+
+== build tests/test_table_adapters.mojo ==
+
+== build tests/test_table_generation_complete.mojo ==
+
+== build tests/test_table_output_complete.mojo ==
+
+== build tests/test_table_preparation_complete.mojo ==
+
+== build tests/test_table_preparation.mojo ==
+
+== build tests/test_table_rendering.mojo ==
+
+== build tests/test_table_runtime_complete.mojo ==
+
+== build tests/test_table_state.mojo ==
+
+== build tests/test_table_wrapping.mojo ==
+
+== build tests/test_tag_schema.mojo ==
+
+== build tests/test_terminal_geometry.mojo ==
+
+== build tests/test_topology.mojo ==
+
+== build tests/test_universal.mojo ==
+
+Testkompilierung abgeschlossen: 133 Programme (133 neu, 0 wiederverwendet).
+Manifest: /home/alex/Eigene-Dateien/myRepos/reta_arch_mojo/target/tests-all/manifest.tsv
+Ausführen: scripts/run-tests.sh

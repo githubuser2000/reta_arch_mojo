@@ -4,6 +4,7 @@ set -eu
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 . "$ROOT/scripts/reta_install_defaults.sh"
 . "$ROOT/scripts/reta_artifacts.sh"
+. "$ROOT/scripts/reta_manpages.sh"
 reta_install_set_defaults
 INSTALL_MOJO_RUNTIME=${RETA_INSTALL_MOJO_RUNTIME:-1}
 TARGETDIR=${RETA_TARGET_DIR:-$ROOT/target/bin}
@@ -45,7 +46,9 @@ require_file "$ROOT/assets/parameter_aliases.tsv"
 for required_target in reta-native reta-mojo-compat-bin generate-html-native; do
     maybe_require_stamp "$TARGETDIR/$required_target"
 done
-require_file "$ROOT/man/generate_html.1"
+for manpage in $(reta_public_manpages); do
+    require_file "$ROOT/man/$manpage"
+done
 require_file "$(reta_artifact_install_target_file "$ROOT")"
 
 CORE_LIBRARY="$TARGETLIBDIR/$(reta_artifact_core_shared_libraries | sed -n '1p')"
@@ -93,6 +96,7 @@ fi
 STAGE_BINDIR=$(stage_path "$BINDIR")
 STAGE_LIBEXECDIR=$(stage_path "$LIBEXECDIR")
 STAGE_DATADIR=$(stage_path "$DATADIR")
+STAGE_REFERENCEDIR=$(stage_path "$REFERENCEDIR")
 STAGE_MANDIR=$(stage_path "$MANDIR")
 
 install -d "$STAGE_BINDIR" "$STAGE_LIBEXECDIR" \
@@ -101,21 +105,23 @@ install -d "$STAGE_BINDIR" "$STAGE_LIBEXECDIR" \
     "$STAGE_DATADIR/csv" "$STAGE_DATADIR/assets" \
     "$STAGE_MANDIR/man1"
 
-install -m 0644 "$ROOT/man/generate_html.1" "$STAGE_MANDIR/man1/generate_html.1"
+for manpage in $(reta_public_manpages); do
+    install -m 0644 "$ROOT/man/$manpage" "$STAGE_MANDIR/man1/$manpage"
+done
 
 # Architecture-independent immutable data belongs below share/reta.
 cp -a "$ROOT/python_reference/csv/." "$STAGE_DATADIR/csv/"
 cp -a "$ROOT/assets/." "$STAGE_DATADIR/assets/"
 
-# Keep the compatibility tree private. Its historical csv/ path is redirected
-# to the canonical shared-data directory instead of duplicating the tables.
-rm -rf "$STAGE_LIBEXECDIR/python_reference"
-cp -a "$ROOT/python_reference" "$STAGE_LIBEXECDIR/python_reference"
-rm -rf "$STAGE_LIBEXECDIR/python_reference/csv"
-CSV_LINK=$(relative_path "$LIBEXECDIR/python_reference" "$DATADIR/csv")
-ln -s "$CSV_LINK" "$STAGE_LIBEXECDIR/python_reference/csv"
-find "$STAGE_LIBEXECDIR/python_reference" -type d -name __pycache__ -prune -exec rm -rf {} + 2>/dev/null || true
-find "$STAGE_LIBEXECDIR/python_reference" -type f \( -name '*.pyc' -o -name '*.pyo' \) -delete 2>/dev/null || true
+# Keep the Python reference tree out of lib/reta. It is architecture-independent
+# reference/compatibility material, so its installed home is share/reta.
+rm -rf "$STAGE_LIBEXECDIR/python_reference" "$STAGE_REFERENCEDIR"
+cp -a "$ROOT/python_reference" "$STAGE_REFERENCEDIR"
+rm -rf "$STAGE_REFERENCEDIR/csv"
+CSV_LINK=$(relative_path "$REFERENCEDIR" "$DATADIR/csv")
+ln -s "$CSV_LINK" "$STAGE_REFERENCEDIR/csv"
+find "$STAGE_REFERENCEDIR" -type d -name __pycache__ -prune -exec rm -rf {} + 2>/dev/null || true
+find "$STAGE_REFERENCEDIR" -type f \( -name '*.pyc' -o -name '*.pyo' \) -delete 2>/dev/null || true
 
 # Native catalogs remain at the source-compatible private path through one
 # relative link; the physical files still live exclusively below share/reta.
@@ -220,9 +226,13 @@ for launcher in "$ROOT"/bin/*; do
     ln -s "$target" "$STAGE_BINDIR/$name"
 done
 
-# Make accidental source-id leakage a hard installation error.
+# Make accidental source-id/python-reference leakage into bin/lib a hard installation error.
 if find "$STAGE_BINDIR" "$STAGE_LIBEXECDIR" \( -name '*.reta-source-id' -o -name '*.reta-test-source-id' \) | grep -q .; then
     printf '%s\n' 'Fehler: Source-ID-Sidecars dürfen nicht installiert werden.' >&2
+    exit 3
+fi
+if [ -e "$STAGE_LIBEXECDIR/python_reference" ]; then
+    printf '%s\n' 'Fehler: python_reference darf nicht unter lib/reta installiert werden.' >&2
     exit 3
 fi
 
@@ -235,6 +245,7 @@ sharedlibdir=$LIBEXECDIR
 datadir=$DATADIR
 csvdir=$DATADIR/csv
 assetdir=$DATADIR/assets
+referencedir=$REFERENCEDIR
 mandir=$MANDIR
 compiled_targets=$INSTALLED_TARGETS
 compiled_shared_libraries=$INSTALLED_LIBRARIES
@@ -249,7 +260,8 @@ printf '  Compilerziele:      %s\n' "$INSTALLED_TARGETS"
 printf '  Shared Libraries:   %s\n' "$INSTALLED_LIBRARIES"
 printf '  CSV-Daten:          %s\n' "$DATADIR/csv"
 printf '  Assets:             %s\n' "$DATADIR/assets"
-printf '  Manpage:            %s\n' "$MANDIR/man1/generate_html.1"
+printf '  Python-Referenz:    %s\n' "$REFERENCEDIR"
+printf '  Manpages:           %s/man1/{generate_html,reta,rp,rpl,rpe,rpb}.1\n' "$MANDIR"
 if [ -n "$DESTDIR" ]; then
     printf '  Paketwurzel:        %s\n' "$DESTDIR"
 fi

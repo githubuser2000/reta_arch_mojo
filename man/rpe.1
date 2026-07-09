@@ -1,0 +1,57 @@
+.TH RPE 1 "2026-07-09" "reta arch mojo" "Reta commands"
+.SH NAME
+rpe \- run one Reta prompt command with Emacs-style output formatting
+.SH SYNOPSIS
+.B rpe
+.RI command ...
+.SH DESCRIPTION
+.B rpe
+is a one-shot Reta prompt profile for Emacs-oriented output.  It executes a
+single prompt command and exits.  For non-
+.B reta
+prompt commands it wraps the command so that Emacs output is selected and
+headings are suppressed.  For direct
+.B reta
+commands it appends the corresponding
+.B -ausgabe --art=emacs --keineueberschriften
+output options.
+.PP
+Historically, the fallback argument profile for
+.B rpe
+is equivalent to
+.B -vi -e -befehl
+plus the Emacs-output transformation.
+.SH COMMANDS
+.B rpe
+accepts the same one-shot prompt command language as
+.BR rpb (1),
+including
+.BR prim ,
+.BR multis ,
+.BR modulo ,
+.BR abc ,
+short table commands and full
+.B reta
+commands.
+.SH FILES
+.TP
+.I /usr/local/bin/rpe
+Default public executable for a standard installation.
+.TP
+.I /usr/local/lib/reta/libreta_prompt_interactive_mojo.so
+Interactive/profile boundary used by
+.BR rpe .
+.TP
+.I /usr/local/lib/reta/libreta_prompt_mojo.so
+Shared prompt execution library.
+.SH EXAMPLES
+.PP
+.nf
+rpe prim 60
+rpe reta -h
+.fi
+.SH SEE ALSO
+.BR rp (1),
+.BR rpl (1),
+.BR rpb (1),
+.BR reta (1)
