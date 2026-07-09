@@ -74,49 +74,20 @@ def test_fhs_usr_local_layout_uses_share_for_csv_and_assets(tmp_path: Path) -> N
     assert (private / "assets").is_symlink()
     assert (private / "assets" / "parameter_aliases.tsv").is_file()
     assert (private / "assets" / "input_semantics_catalog.tsv").is_file()
-    assert (private / "scripts" / "check_mojo_binary_freshness.sh").is_file()
-    assert (private / "scripts" / "current_source_id.sh").is_file()
+    assert not (private / "bin").exists()
+    assert not (private / "scripts").exists()
 
-    # Without a compiled thin reta starter in this minimal staged test, reta stays
-    # a shell-wrapper symlink. Compiled targets that do exist are installed as
-    # real binaries directly in bin, never below lib/reta.
-    public_reta = prefix / "bin" / "reta"
-    assert public_reta.is_symlink()
-    assert public_reta.resolve() == (private / "bin" / "reta").resolve()
+    # Minimal staged tests only provide three compiled targets. Those real
+    # binaries go directly to bin; no fallback launcher depot is created below
+    # lib/reta.
+    assert not (prefix / "bin" / "reta").exists()
     assert (prefix / "bin" / "reta-native").is_file()
     assert not (private / "reta-native").exists()
+    assert (prefix / "bin" / "mojo-runtime-exec").is_file()
     assert not list(prefix.rglob("*.reta-source-id"))
-
-    public_integrity = prefix / "bin" / "reta-mojo-package-integrity"
-    assert public_integrity.is_symlink()
-    result = subprocess.run(
-        [str(public_integrity), "--summary", str(shared / "python_reference")],
-        cwd=tmp_path,
-        text=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        check=False,
-    )
-    installed_integrity = prefix / "bin" / "reta-mojo-package-integrity"
-    if not installed_integrity.is_file() or installed_integrity.is_symlink():
-        assert result.returncode == 127
-        assert "Fehlendes Compilerziel" in result.stderr
-    else:
-        runtime_probe = subprocess.run(
-            [str(private / "scripts" / "find_mojo_runtime.sh")],
-            cwd=tmp_path,
-            text=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            check=False,
-        )
-        if runtime_probe.returncode == 0:
-            assert result.returncode == 0, result.stderr
-            assert "file_count=457" in result.stdout
-            assert "missing_required=0" in result.stdout
-        else:
-            assert result.returncode == 127
-            assert "Keine vollständige Modular-Mojo-Laufzeit gefunden" in result.stderr
+    for wrapper in ("generate_html", "generate4readme", "reta-extract-html-classes", "reta-mojo", "reta-mojo-compat"):
+        assert (prefix / "bin" / wrapper).is_file()
+        assert not (prefix / "bin" / wrapper).is_symlink()
 
     layout = (private / "INSTALL_LAYOUT").read_text(encoding="utf-8")
     assert "csvdir=/usr/local/share/reta/csv" in layout
@@ -173,9 +144,11 @@ def test_user_local_prefix_keeps_data_below_home_share(tmp_path: Path) -> None:
     assert (shared / "assets" / "parameter_aliases.tsv").is_file()
     assert (shared / "assets" / "input_semantics_catalog.tsv").is_file()
     assert not (private / "python_reference").exists()
+    assert not (private / "bin").exists()
+    assert not (private / "scripts").exists()
     assert (shared / "python_reference" / "csv").is_symlink()
     assert (shared / "python_reference" / "csv" / "religion.csv").is_file()
-    assert (prefix / "bin" / "reta").resolve() == (private / "bin" / "reta").resolve()
+    assert not (prefix / "bin" / "reta").exists()
     assert (prefix / "bin" / "reta-native").is_file()
     assert not (private / "reta-native").exists()
     assert not list(prefix.rglob("*.reta-source-id"))
@@ -194,15 +167,7 @@ def test_user_local_prefix_keeps_data_below_home_share(tmp_path: Path) -> None:
         assert "Fehlendes Compilerziel" in csv_info.stderr
         assert "Keine installierte Mojo-Quelle verfügbar" in csv_info.stderr
     else:
-        runtime_probe = subprocess.run(
-            [str(private / "scripts" / "find_mojo_runtime.sh")],
-            cwd=tmp_path,
-            text=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            check=False,
-        )
-        if runtime_probe.returncode == 0:
+        if (prefix / "lib" / "reta" / "mojo" / "libKGENCompilerRTShared.so").exists():
             assert csv_info.returncode == 0, csv_info.stderr
             assert "Zeilen: 1025" in csv_info.stdout
             assert "Spalten: 746" in csv_info.stdout
@@ -235,6 +200,8 @@ def test_uninstall_removes_only_reta_layout(tmp_path: Path) -> None:
     assert result.returncode == 0, result.stderr
     assert not (stage / "usr" / "local" / "lib" / "reta").exists()
     assert not (stage / "usr" / "local" / "share" / "reta").exists()
+    for command in ("reta-native", "generate-html-native", "reta-mojo-compat-bin", "generate_html", "reta-mojo", "reta-mojo-compat", "mojo-runtime-exec"):
+        assert not (stage / "usr" / "local" / "bin" / command).exists()
     for manpage in ("generate_html.1", "reta.1", "rp.1", "rpl.1", "rpe.1", "rpb.1"):
         assert not (stage / "usr" / "local" / "share" / "man" / "man1" / manpage).exists()
     assert unrelated.read_text(encoding="utf-8") == "unrelated"
@@ -264,8 +231,10 @@ def test_fedora_libexec_override_keeps_shared_data_in_usr_share(tmp_path: Path) 
     assert (stage / "usr" / "bin" / "reta-native").is_file()
     assert not (private / "reta-native").exists()
     assert not (private / "python_reference").exists()
+    assert not (private / "bin").exists()
+    assert not (private / "scripts").exists()
     assert (shared / "python_reference" / "csv").is_symlink()
     assert (shared / "python_reference" / "csv" / "religion.csv").is_file()
     assert (shared / "csv" / "religion.csv").is_file()
-    assert (stage / "usr" / "bin" / "reta").resolve() == (private / "bin" / "reta").resolve()
+    assert not (stage / "usr" / "bin" / "reta").exists()
     assert not list((stage / "usr").rglob("*.reta-source-id"))

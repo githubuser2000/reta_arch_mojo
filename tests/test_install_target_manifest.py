@@ -129,16 +129,24 @@ def test_installer_copies_only_manifested_compiler_targets(tmp_path: Path) -> No
         if path.is_file() and not path.is_symlink() and not path.name.endswith(".reta-source-id")
     }
     sidecars = {path.name for path in (stage / "usr").rglob("*.reta-source-id")}
-    expected = {
+    expected_compiled = {
         name for name in _manifest_names() if (target_dir / name).is_file()
     }
-    assert actual_targets == expected
+    expected_public_helpers = {
+        "generate4readme",
+        "generate_html",
+        "reta-extract-html-classes",
+        "reta-mojo",
+        "reta-mojo-compat",
+        "mojo-runtime-exec",
+    }
+    assert actual_targets == expected_compiled | expected_public_helpers
     assert sidecars == set()
     assert not (stage / "usr/lib/reta/target/bin").exists()
     assert "reta-unofficial-stale-test" not in actual_targets
     assert "reta-native-o0" not in actual_targets
     layout = (stage / "usr/lib/reta/INSTALL_LAYOUT").read_text(encoding="utf-8")
-    assert f"compiled_targets={len(expected)}" in layout
+    assert f"compiled_targets={len(expected_compiled)}" in layout
 
 
 def test_build_layout_uses_central_regular_manifest() -> None:

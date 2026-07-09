@@ -3,6 +3,7 @@ set -eu
 
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 . "$ROOT/scripts/reta_install_defaults.sh"
+. "$ROOT/scripts/reta_artifacts.sh"
 . "$ROOT/scripts/reta_manpages.sh"
 reta_install_set_defaults
 
@@ -16,16 +17,23 @@ STAGE_DATADIR=$(stage_path "$DATADIR")
 STAGE_REFERENCEDIR=$(stage_path "$REFERENCEDIR")
 STAGE_MANDIR=$(stage_path "$MANDIR")
 
-if [ -d "$STAGE_LIBEXECDIR/bin" ]; then
-    for launcher in "$STAGE_LIBEXECDIR"/bin/*; do
-        [ -f "$launcher" ] || [ -L "$launcher" ] || continue
-        name=$(basename -- "$launcher")
-        case "$name" in
-            mojo-real|mojo-runtime-exec) continue ;;
-        esac
-        [ -L "$STAGE_BINDIR/$name" ] && rm -f "$STAGE_BINDIR/$name"
-    done
-fi
+remove_public_command() {
+    name=$1
+    rm -f "$STAGE_BINDIR/$name"
+}
+
+while IFS= read -r name || [ -n "$name" ]; do
+    case "$name" in
+        ''|'#'*) continue ;;
+    esac
+    remove_public_command "$name"
+done < "$ROOT/scripts/install_targets.txt"
+
+for wrapper_name in $(reta_artifact_public_shell_wrappers); do
+    remove_public_command "$wrapper_name"
+done
+remove_public_command mojo-runtime-exec
+
 for manpage in $(reta_public_manpages); do
     rm -f "$STAGE_MANDIR/man1/$manpage"
 done
@@ -33,4 +41,5 @@ if [ "$STAGE_REFERENCEDIR" != "$STAGE_DATADIR/python_reference" ]; then
     rm -rf "$STAGE_REFERENCEDIR"
 fi
 rm -rf "$STAGE_LIBEXECDIR" "$STAGE_DATADIR"
-printf 'Reta entfernt aus %s, %s und %s.\n' "$LIBEXECDIR" "$DATADIR" "$REFERENCEDIR"
+printf 'Reta entfernt aus %s, %s und %s. Öffentliche Befehle wurden aus %s entfernt.\n' \
+    "$LIBEXECDIR" "$DATADIR" "$REFERENCEDIR" "$BINDIR"

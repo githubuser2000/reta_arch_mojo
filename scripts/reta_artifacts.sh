@@ -47,6 +47,17 @@ reta-prompt-native
 ARTIFACTS
 }
 
+
+reta_artifact_public_shell_wrappers() {
+    cat <<'ARTIFACTS'
+generate4readme
+generate_html
+reta-extract-html-classes
+reta-mojo
+reta-mojo-compat
+ARTIFACTS
+}
+
 reta_artifact_heavy_executables() {
     cat <<'ARTIFACTS'
 reta-mojo-activation

@@ -100,8 +100,6 @@ STAGE_REFERENCEDIR=$(stage_path "$REFERENCEDIR")
 STAGE_MANDIR=$(stage_path "$MANDIR")
 
 install -d "$STAGE_BINDIR" "$STAGE_LIBEXECDIR" \
-    "$STAGE_LIBEXECDIR/bin" "$STAGE_LIBEXECDIR/scripts" \
-    "$STAGE_LIBEXECDIR/mojo" \
     "$STAGE_DATADIR/csv" "$STAGE_DATADIR/assets" \
     "$STAGE_MANDIR/man1"
 
@@ -129,22 +127,26 @@ rm -rf "$STAGE_LIBEXECDIR/assets"
 ASSET_LINK=$(relative_path "$LIBEXECDIR" "$DATADIR/assets")
 ln -s "$ASSET_LINK" "$STAGE_LIBEXECDIR/assets"
 
-rm -rf "$STAGE_LIBEXECDIR/bin"
-cp -a "$ROOT/bin" "$STAGE_LIBEXECDIR/bin"
-# Installed wrappers use public compiled binaries from BINDIR and the private
-# runtime helpers from LIBEXECDIR. Source-tree wrappers are left unchanged.
-find "$STAGE_LIBEXECDIR/bin" -maxdepth 1 -type f -exec sed -i \
-    -e "s|\$ROOT/target/bin|$BINDIR|g" \
-    -e 's|$ROOT/target/lib/mojo|$ROOT/mojo|g' \
-    {} +
-install -m 0755 "$ROOT/scripts/find_mojo_runtime.sh" \
-    "$STAGE_LIBEXECDIR/scripts/find_mojo_runtime.sh"
-install -m 0755 "$ROOT/scripts/check_mojo_binary_freshness.sh" \
-    "$STAGE_LIBEXECDIR/scripts/check_mojo_binary_freshness.sh"
-install -m 0755 "$ROOT/scripts/current_source_id.sh" \
-    "$STAGE_LIBEXECDIR/scripts/current_source_id.sh"
-install -m 0755 "$ROOT/scripts/select_reference_python.sh" \
-    "$STAGE_LIBEXECDIR/scripts/select_reference_python.sh"
+# Public shell frontends belong directly below BINDIR, never below lib/reta.
+# They delegate to compiled targets in BINDIR and to the public runtime helper
+# in BINDIR.  No private bin/ or scripts/ directory is installed under lib/reta.
+install_public_wrapper() {
+    wrapper_name=$1
+    wrapper_source=$ROOT/bin/$wrapper_name
+    [ -f "$wrapper_source" ] || return 0
+    install -m 0755 "$wrapper_source" "$STAGE_BINDIR/$wrapper_name"
+    sed -i \
+        -e "s|\$ROOT/target/bin|$BINDIR|g" \
+        -e "s|\$ROOT/bin/mojo-runtime-exec|$BINDIR/mojo-runtime-exec|g" \
+        "$STAGE_BINDIR/$wrapper_name"
+}
+
+install -m 0755 "$ROOT/bin/mojo-runtime-exec" "$STAGE_BINDIR/mojo-runtime-exec"
+for wrapper_name in $(reta_artifact_public_shell_wrappers); do
+    install_public_wrapper "$wrapper_name"
+done
+
+rm -rf "$STAGE_LIBEXECDIR/bin" "$STAGE_LIBEXECDIR/scripts"
 
 rm -rf "$STAGE_LIBEXECDIR/target"
 CURRENT_SOURCE_ID=$("$ROOT/scripts/current_source_id.sh")
@@ -195,6 +197,7 @@ if [ "$INSTALL_DIAGNOSTICS" = 1 ]; then
 fi
 
 if [ "$INSTALL_MOJO_RUNTIME" != 0 ]; then
+    install -d "$STAGE_LIBEXECDIR/mojo"
     RUNTIME_DIR=$($ROOT/scripts/find_mojo_runtime.sh)
     for library in \
         libKGENCompilerRTShared.so \
@@ -209,22 +212,8 @@ if [ "$INSTALL_MOJO_RUNTIME" != 0 ]; then
     done
 fi
 
-# Public commands: compiled binaries already live directly in BINDIR.  Only
-# source-compatible shell wrappers without a compiled public target remain
-# relative links into the private runtime tree.
-for launcher in "$ROOT"/bin/*; do
-    [ -f "$launcher" ] || [ -L "$launcher" ] || continue
-    name=$(basename -- "$launcher")
-    case "$name" in
-        mojo-real|mojo-runtime-exec) continue ;;
-    esac
-    if [ -x "$STAGE_BINDIR/$name" ] && [ ! -L "$STAGE_BINDIR/$name" ]; then
-        continue
-    fi
-    target=$(relative_path "$BINDIR" "$LIBEXECDIR/bin/$name")
-    rm -f "$STAGE_BINDIR/$name"
-    ln -s "$target" "$STAGE_BINDIR/$name"
-done
+# Public commands are now either compiled files or shell frontends directly
+# below BINDIR.  lib/reta intentionally contains no bin/ launcher depot.
 
 # Make accidental source-id/python-reference leakage into bin/lib a hard installation error.
 if find "$STAGE_BINDIR" "$STAGE_LIBEXECDIR" \( -name '*.reta-source-id' -o -name '*.reta-test-source-id' \) | grep -q .; then
@@ -233,6 +222,10 @@ if find "$STAGE_BINDIR" "$STAGE_LIBEXECDIR" \( -name '*.reta-source-id' -o -name
 fi
 if [ -e "$STAGE_LIBEXECDIR/python_reference" ]; then
     printf '%s\n' 'Fehler: python_reference darf nicht unter lib/reta installiert werden.' >&2
+    exit 3
+fi
+if [ -e "$STAGE_LIBEXECDIR/bin" ] || [ -e "$STAGE_LIBEXECDIR/scripts" ]; then
+    printf '%s\n' 'Fehler: bin/ und scripts/ dürfen nicht unter lib/reta installiert werden.' >&2
     exit 3
 fi
 
@@ -255,7 +248,6 @@ LAYOUT
 printf 'Reta installiert:\n'
 printf '  Programme/Binaries: %s\n' "$BINDIR"
 printf '  Shared Libraries:   %s\n' "$LIBEXECDIR"
-printf '  Private Skripte:    %s/bin\n' "$LIBEXECDIR"
 printf '  Compilerziele:      %s\n' "$INSTALLED_TARGETS"
 printf '  Shared Libraries:   %s\n' "$INSTALLED_LIBRARIES"
 printf '  CSV-Daten:          %s\n' "$DATADIR/csv"

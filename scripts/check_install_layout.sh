@@ -36,8 +36,13 @@ done
 [ -L "$STAGE_REFERENCEDIR/csv" ]
 [ -f "$STAGE_REFERENCEDIR/csv/religion.csv" ]
 [ -L "$STAGE_LIBEXECDIR/assets" ]
-[ -x "$STAGE_LIBEXECDIR/scripts/check_mojo_binary_freshness.sh" ]
-[ -x "$STAGE_LIBEXECDIR/scripts/current_source_id.sh" ]
+[ ! -e "$STAGE_LIBEXECDIR/bin" ]
+[ ! -e "$STAGE_LIBEXECDIR/scripts" ]
+[ -x "$STAGE_BINDIR/mojo-runtime-exec" ]
+for wrapper in $(reta_artifact_public_shell_wrappers); do
+    [ -x "$STAGE_BINDIR/$wrapper" ]
+    [ ! -L "$STAGE_BINDIR/$wrapper" ]
+done
 for starter in $(reta_artifact_core_starters); do
     [ -x "$STAGE_BINDIR/$starter" ]
     [ ! -L "$STAGE_BINDIR/$starter" ]
@@ -138,11 +143,9 @@ cmp "$TMP/reference.out" "$TMP/core-launcher.out"
 cmp "$ROOT/assets/reta_help_de.txt" "$TMP/installed-help-de.out"
 cmp "$ROOT/assets/reta_help_en.txt" "$TMP/installed-help-en.out"
 
-RETA_TARGET_DIR="$STAGE_LIBEXECDIR" \
-RETA_TARGET_LIB_DIR="$STAGE_LIBEXECDIR" \
-    "$ROOT/scripts/test_prompt_shared_runtime.sh" >"$TMP/installed-prompt-runtime.out"
-grep -q '^Prompt-Shared-Runtime-Smoke bestanden\.$' \
-    "$TMP/installed-prompt-runtime.out"
+# Installed packages intentionally do not ship .reta-source-id sidecars, so the
+# source-tree Prompt-Shared-Runtime check is not applicable here. The installed
+# smoke below checks the public BINDIR launchers against LIBEXECDIR libraries.
 
 (
     cd "$TMP"
@@ -151,9 +154,6 @@ grep -q '^Prompt-Shared-Runtime-Smoke bestanden\.$' \
     printf 'q\n' | "$STAGE_BINDIR/rp" >"$TMP/installed-rp.out"
 )
 grep -q '^60: 2\^2 3 5$' "$TMP/installed-rpb.out"
-grep -q 'Prompt-Shared-Runtime-Smoke bestanden\.' \
-    "$TMP/installed-prompt-runtime.out"
-
 DESTDIR="$STAGE" PREFIX="$PREFIX" BINDIR="$BINDIR" LIBEXECDIR="$LIBEXECDIR" DATADIR="$DATADIR" REFERENCEDIR="$REFERENCEDIR" MANDIR="$MANDIR" "$ROOT/scripts/uninstall.sh" >/dev/null
 for manpage in $(reta_public_manpages); do
     [ ! -e "$STAGE_MANDIR/man1/$manpage" ]

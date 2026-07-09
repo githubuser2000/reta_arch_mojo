@@ -124,12 +124,15 @@ schwere Ziele aus `scripts/build-heavy.sh`. Nicht gebaute optionale Ziele werden
 übersprungen. Andere Dateien in `target/bin`, insbesondere lokale Debug- oder
 Altvarianten wie `reta-native-o0`, werden ausdrücklich **nicht** installiert.
 
-`/usr/bin` enthält demgegenüber **56 öffentliche Namen als relative Symlinks**
-auf Launcher unter `/usr/lib/reta/bin`; darunter sind Komfortnamen und Profile,
-also nicht 54 verschiedene ELFs. Die zwei internen Helfer `mojo-real` und
-`mojo-runtime-exec` bleiben nur privat unter `/usr/lib/reta/bin`. Standardmäßig
-installiert `scripts/install.sh` nach `/usr/local`; `/usr` wird erst mit
-`PREFIX=/usr` gewählt.
+`/usr/bin` beziehungsweise standardmäßig `/usr/local/bin` enthält öffentliche
+Befehle direkt: kompilierte Starter/Tools als echte Dateien und wenige
+Shell-Frontends ebenfalls direkt im Binärverzeichnis. Es gibt keinen privaten
+Launcher-Depotordner `/usr/lib/reta/bin` mehr, und unter `lib/reta` werden auch
+keine `scripts/` installiert. `mojo-runtime-exec` ist der öffentliche
+Laufzeit-Helfer für die Shell-Frontends; `mojo-real` bleibt ein
+Entwicklungswerkzeug im Projektbaum und wird nicht als Teil der Reta-Installation
+installiert. Standardmäßig installiert `scripts/install.sh` nach `/usr/local`;
+`/usr` wird erst mit `PREFIX=/usr` gewählt.
 
 ## Wichtige Tabellenpfade
 
