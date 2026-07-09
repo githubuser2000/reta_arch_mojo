@@ -7,6 +7,15 @@ import subprocess
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "scripts/install_targets.txt"
 
+STARTERS = {
+    "reta",
+    "grundStrukHtml",
+    "rp",
+    "rpl",
+    "rpe",
+    "rpb",
+}
+
 REGULAR = {
     "reta-mojo-native",
     "reta-mojo-table",
@@ -81,8 +90,8 @@ def _manifest_names() -> list[str]:
 
 def test_manifest_is_complete_unique_and_excludes_stale_debug_targets() -> None:
     names = _manifest_names()
-    assert len(names) == len(set(names)) == 39
-    assert set(names) == REGULAR | HEAVY
+    assert len(names) == len(set(names)) == 45
+    assert set(names) == STARTERS | REGULAR | HEAVY
     assert "reta-native-o0" not in names
 
 
@@ -113,34 +122,29 @@ def test_installer_copies_only_manifested_compiler_targets(tmp_path: Path) -> No
         check=False,
     )
     assert result.returncode == 0, result.stderr
-    installed = stage / "usr/lib/reta/target/bin"
+    installed = stage / "usr/bin"
     actual_targets = {
         path.name
         for path in installed.iterdir()
-        if path.is_file() and not path.name.endswith(".reta-source-id")
+        if path.is_file() and not path.is_symlink() and not path.name.endswith(".reta-source-id")
     }
-    sidecars = {
-        path.name
-        for path in installed.iterdir()
-        if path.is_file() and path.name.endswith(".reta-source-id")
-    }
+    sidecars = {path.name for path in (stage / "usr").rglob("*.reta-source-id")}
     expected = {
         name for name in _manifest_names() if (target_dir / name).is_file()
     }
     assert actual_targets == expected
     assert sidecars == set()
+    assert not (stage / "usr/lib/reta/target/bin").exists()
     assert "reta-unofficial-stale-test" not in actual_targets
     assert "reta-native-o0" not in actual_targets
     layout = (stage / "usr/lib/reta/INSTALL_LAYOUT").read_text(encoding="utf-8")
     assert f"compiled_targets={len(expected)}" in layout
 
 
-def test_build_layout_checks_every_regular_target() -> None:
+def test_build_layout_uses_central_regular_manifest() -> None:
     layout = (ROOT / "scripts/check_build_layout.sh").read_text(encoding="utf-8")
-    prefix = "expected='"
-    line = next(raw for raw in layout.splitlines() if raw.startswith(prefix))
-    expected = set(line[len(prefix):-1].split())
-    assert expected == REGULAR
+    assert "expected=$(reta_artifact_build_executables)" in layout
+    assert "heavy=$(reta_artifact_heavy_executables)" in layout
 
 
 def test_installer_places_shared_diagnostics_bundle_atomically(tmp_path: Path) -> None:
@@ -157,9 +161,9 @@ def test_installer_places_shared_diagnostics_bundle_atomically(tmp_path: Path) -
         "reta-mojo-diagnostics",
     ):
         _write_stub_target(target_dir / name, source_id)
-    library = library_dir / "libreta-mojo-diagnostics.so"
+    library = library_dir / "libreta_diagnostics_mojo.so"
     library.write_bytes(b"fake-shared-library")
-    (library_dir / "libreta-mojo-diagnostics.so.reta-source-id").write_text(
+    (library_dir / "libreta_diagnostics_mojo.so.reta-source-id").write_text(
         source_id, encoding="utf-8"
     )
 
@@ -180,12 +184,13 @@ def test_installer_places_shared_diagnostics_bundle_atomically(tmp_path: Path) -
         check=False,
     )
     assert result.returncode == 0, result.stderr
-    private = stage / "usr/lib/reta/target"
-    assert (private / "bin/reta-mojo-diagnostics").is_file()
-    assert (private / "bin/reta-mojo-diagnostics.reta-source-id").read_text() == source_id
-    assert (private / "lib/reta/libreta-mojo-diagnostics.so").read_bytes() == b"fake-shared-library"
-    assert (
-        private / "lib/reta/libreta-mojo-diagnostics.so.reta-source-id"
-    ).read_text() == source_id
+    assert (stage / "usr/bin/reta-mojo-diagnostics").is_file()
+    assert not (stage / "usr/bin/reta-mojo-diagnostics.reta-source-id").exists()
+    assert (stage / "usr/lib/reta/libreta_diagnostics_mojo.so").read_bytes() == b"fake-shared-library"
+    assert not (stage / "usr/lib/reta/libreta_diagnostics_mojo.so.reta-source-id").exists()
+    assert not list((stage / "usr").rglob("*.reta-source-id"))
     layout = (stage / "usr/lib/reta/INSTALL_LAYOUT").read_text(encoding="utf-8")
     assert "compiled_shared_libraries=1" in layout
+    assert "binarydir=/usr/bin" in layout
+    assert "sharedlibdir=/usr/lib/reta" in layout
+    assert "installed_source_id_sidecars=0" in layout

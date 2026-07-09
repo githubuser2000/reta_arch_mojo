@@ -17,7 +17,7 @@ Prozessausführung:
 - Prozess-argv- und Fallback-argv-Grenzen
 
 Diese Details liegen fachlich nicht in der Reaktionsschicht. Sie gehören zur geplanten
-`libreta-prompt-execution` bzw. zur Prozessgrenze.
+`libreta_prompt_mojo-execution` bzw. zur Prozessgrenze.
 
 Jetzt gilt:
 
@@ -50,7 +50,7 @@ einen anderen öffentlichen Scope sieht.
 Diese Stage markiert die geplante Trennung klarer:
 
 ```text
-libreta-prompt-reaction.so/.dll
+libreta_prompt_mojo-reaction.so/.dll
   - Eingabe
   - Promptzeile
   - History
@@ -58,14 +58,14 @@ libreta-prompt-reaction.so/.dll
   - lokale Reaktionspläne
   - keine reta-core-Abhängigkeit nötig
 
-libreta-prompt-execution.so/.dll
+libreta_prompt_mojo-execution.so/.dll
   - shell/python/math/reta Prozesspläne
   - retaPrompt.py-Fallback-argv
   - darf später reta-core/libreta-process verwenden
 ```
 
-Damit kann die spätere `rp/rpl/rpe`-Eingabe-/Reaktions-Library unabhängig von `libreta-core`
-bleiben. Nur die Ausführungs-Library muss `libreta-core` einbinden.
+Damit kann die spätere `rp/rpl/rpe`-Eingabe-/Reaktions-Library unabhängig von `libreta_core_mojo`
+bleiben. Nur die Ausführungs-Library muss `libreta_core_mojo` einbinden.
 
 ## Nicht geändert
 

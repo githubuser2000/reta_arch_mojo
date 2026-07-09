@@ -23,31 +23,38 @@ DESTDIR="$STAGE" PREFIX="$PREFIX" BINDIR="$BINDIR" LIBEXECDIR="$LIBEXECDIR" DATA
 [ -f "$STAGE_DATADIR/assets/i18n_words/deutsch.tsv" ]
 [ -f "$STAGE_DATADIR/assets/i18n_words/manifest.json" ]
 [ -f "$STAGE_MANDIR/man1/generate_html.1" ]
-[ -L "$STAGE_BINDIR/reta-mojo-i18n" ]
-[ -L "$STAGE_BINDIR/reta-mojo-package-integrity" ]
+[ -x "$STAGE_BINDIR/reta-mojo-i18n" ]
+[ ! -L "$STAGE_BINDIR/reta-mojo-i18n" ]
+[ -x "$STAGE_BINDIR/reta-mojo-package-integrity" ]
+[ ! -L "$STAGE_BINDIR/reta-mojo-package-integrity" ]
 [ -L "$STAGE_LIBEXECDIR/python_reference/csv" ]
 [ -L "$STAGE_LIBEXECDIR/assets" ]
 [ -x "$STAGE_LIBEXECDIR/scripts/check_mojo_binary_freshness.sh" ]
 [ -x "$STAGE_LIBEXECDIR/scripts/current_source_id.sh" ]
 for starter in $(reta_artifact_core_starters); do
-    [ -L "$STAGE_BINDIR/$starter" ]
-    [ -x "$STAGE_LIBEXECDIR/$starter" ]
-    [ -f "$STAGE_LIBEXECDIR/$starter.reta-source-id" ]
+    [ -x "$STAGE_BINDIR/$starter" ]
+    [ ! -L "$STAGE_BINDIR/$starter" ]
+    [ ! -e "$STAGE_LIBEXECDIR/$starter" ]
+    [ ! -e "$STAGE_BINDIR/$starter.reta-source-id" ]
+    [ ! -e "$STAGE_LIBEXECDIR/$starter.reta-source-id" ]
 done
 for starter in $(reta_artifact_prompt_starters); do
-    [ -L "$STAGE_BINDIR/$starter" ]
-    [ -x "$STAGE_LIBEXECDIR/$starter" ]
-    [ -f "$STAGE_LIBEXECDIR/$starter.reta-source-id" ]
+    [ -x "$STAGE_BINDIR/$starter" ]
+    [ ! -L "$STAGE_BINDIR/$starter" ]
+    [ ! -e "$STAGE_LIBEXECDIR/$starter" ]
+    [ ! -e "$STAGE_BINDIR/$starter.reta-source-id" ]
+    [ ! -e "$STAGE_LIBEXECDIR/$starter.reta-source-id" ]
 done
 for library_name in $(reta_artifact_core_shared_libraries); do
     [ -f "$STAGE_LIBEXECDIR/$library_name" ]
-    [ -f "$STAGE_LIBEXECDIR/$library_name.reta-source-id" ]
+    [ ! -e "$STAGE_LIBEXECDIR/$library_name.reta-source-id" ]
 done
 for library_name in $(reta_artifact_prompt_shared_libraries); do
     [ -f "$STAGE_LIBEXECDIR/$library_name" ]
-    [ -f "$STAGE_LIBEXECDIR/$library_name.reta-source-id" ]
+    [ ! -e "$STAGE_LIBEXECDIR/$library_name.reta-source-id" ]
 done
 [ ! -e "$STAGE_LIBEXECDIR/target" ]
+! find "$STAGE_BINDIR" "$STAGE_LIBEXECDIR" \( -name '*.reta-source-id' -o -name '*.reta-test-source-id' \) | grep -q .
 
 (
     cd "$TMP"
@@ -132,7 +139,7 @@ grep -q '^Prompt-Shared-Runtime-Smoke bestanden\.$' \
 
 (
     cd "$TMP"
-    RETA_PROMPT_INTERACTIVE_LIBRARY=/definitely/missing/libreta-prompt-interactive.so \
+    RETA_PROMPT_INTERACTIVE_LIBRARY=/definitely/missing/libreta_prompt_interactive_mojo.so \
         "$STAGE_BINDIR/rpb" prim 60 >"$TMP/installed-rpb.out"
     printf 'q\n' | "$STAGE_BINDIR/rp" >"$TMP/installed-rp.out"
 )

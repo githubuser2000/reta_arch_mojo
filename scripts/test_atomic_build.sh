@@ -112,9 +112,9 @@ set -e
 env $COMMON_ENV "$ROOT/scripts/build_diagnostics_shared.sh" \
     > "$TMP/shared.log"
 [ -x "$TARGET/reta-mojo-diagnostics" ]
-[ -f "$LIBDIR/libreta-mojo-diagnostics.so" ]
+[ -f "$LIBDIR/libreta_diagnostics_mojo.so" ]
 cmp "$TARGET/reta-mojo-diagnostics.reta-source-id" \
-    "$LIBDIR/libreta-mojo-diagnostics.so.reta-source-id"
+    "$LIBDIR/libreta_diagnostics_mojo.so.reta-source-id"
 
 if find "$TARGET" "$LIBDIR" -maxdepth 1 \
     -name '.*.tmp.*' -print -quit | grep -q .; then

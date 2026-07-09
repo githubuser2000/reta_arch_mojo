@@ -31,12 +31,12 @@ def test_shared_library_architecture_module_matches_user_split() -> None:
     assert "struct SharedLibraryArchitecturePlan" in source
     assert "def plan_shared_library_architecture(" in source
     assert "def shared_library_architecture_valid(" in source
-    assert "libreta-core.so" in source
-    assert "libreta-core.dll" in source
-    assert "libreta-prompt.so" in source
-    assert "libreta-prompt.dll" in source
-    assert "libreta-prompt-interactive.so" in source
-    assert "libreta-prompt-interactive.dll" in source
+    assert "libreta_core_mojo.so" in source
+    assert "libreta_core_mojo.dll" in source
+    assert "libreta_prompt_mojo.so" in source
+    assert "libreta_prompt_mojo.dll" in source
+    assert "libreta_prompt_interactive_mojo.so" in source
+    assert "libreta_prompt_interactive_mojo.dll" in source
     assert '"grundStrukHtml"' in source
     assert 'ThinStarterTarget("reta"' in source
     assert 'ThinStarterTarget("grundStrukHtml"' in source
@@ -76,12 +76,12 @@ def test_shared_library_build_script_is_non_destructive_plan_scaffold() -> None:
     script = (ROOT / "scripts/build_shared_library_targets.sh").read_text(
         encoding="utf-8"
     )
-    assert "libreta-core.so / libreta-core.dll" in script
-    assert "libreta-prompt.so / libreta-prompt.dll" in script
-    assert "libreta-prompt-interactive.so / libreta-prompt-interactive.dll" in script
-    assert "rpb           -> libreta-prompt + libreta-core" in script
-    assert "rp/rpl/rpe    -> libreta-prompt-interactive + libreta-prompt + libreta-core" in script
-    assert "libreta-core.so ist inzwischen der erste aktiv kompilierte ABI-Build" in script
+    assert "libreta_core_mojo.so / libreta_core_mojo.dll" in script
+    assert "libreta_prompt_mojo.so / libreta_prompt_mojo.dll" in script
+    assert "libreta_prompt_interactive_mojo.so / libreta_prompt_interactive_mojo.dll" in script
+    assert "rpb           -> libreta_prompt_mojo + libreta_core_mojo" in script
+    assert "rp/rpl/rpe    -> libreta_prompt_interactive_mojo + libreta_prompt_mojo + libreta_core_mojo" in script
+    assert "libreta_core_mojo.so ist inzwischen der erste aktiv kompilierte ABI-Build" in script
     assert "build_core_shared.sh" in script
     assert "mojo build" not in script
 
@@ -90,9 +90,9 @@ def test_stage_is_documented() -> None:
     doc = (ROOT / "STAGE12C5FO_SHARED_LIBRARY_TARGET_ARCHITECTURE.md").read_text(
         encoding="utf-8"
     )
-    assert "libreta-core" in doc
-    assert "libreta-prompt" in doc
-    assert "libreta-prompt-interactive" in doc
+    assert "libreta_core_mojo" in doc
+    assert "libreta_prompt_mojo" in doc
+    assert "libreta_prompt_interactive_mojo" in doc
     assert "rpb" in doc
     assert "nicht" in doc.lower()
     assert "grundStrukHtml" in doc

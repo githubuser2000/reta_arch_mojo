@@ -7,15 +7,15 @@ offizielle Build- und Installationsstruktur.
 
 `scripts/build-all.sh` baut nach den Core-Dünnstarter-Artefakten jetzt auch:
 
-- `target/lib/reta/libreta-prompt.so`
-- `target/lib/reta/libreta-prompt-interactive.so`
+- `target/lib/reta/libreta_prompt_mojo.so`
+- `target/lib/reta/libreta_prompt_interactive_mojo.so`
 - `target/bin/rpb`
 - `target/bin/rp`
 - `target/bin/rpl`
 - `target/bin/rpe`
 
-`rpb` bleibt ein One-shot-Starter und lädt nur `libreta-prompt.so`.  `rp`,
-`rpl` und `rpe` laden `libreta-prompt-interactive.so`, die auf der Prompt-
+`rpb` bleibt ein One-shot-Starter und lädt nur `libreta_prompt_mojo.so`.  `rp`,
+`rpl` und `rpe` laden `libreta_prompt_interactive_mojo.so`, die auf der Prompt-
 Ausführungsbibliothek aufsetzt.
 
 ## Öffentliche Launcher

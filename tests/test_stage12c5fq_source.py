@@ -41,11 +41,11 @@ def test_build_all_invokes_core_shared_before_layout_check() -> None:
 def test_build_layout_requires_core_library_and_thin_starters() -> None:
     script = (ROOT / "scripts/check_build_layout.sh").read_text(encoding="utf-8")
     assert "expected='reta grundStrukHtml" in script
-    assert "CORE_LIBRARY=\"$TARGET_LIB_DIR/libreta-core.so\"" in script
+    assert "CORE_LIBRARY=\"$TARGET_LIB_DIR/libreta_core_mojo.so\"" in script
     assert "scripts/build_core_shared.sh" in script
     assert "erwartete Core-Shared-Library fehlt" in script
     assert "ELF-Core-Shared-Library" in script
-    assert "Core-Dünnstarter und libreta-core haben verschiedene Source-IDs" in script
+    assert "Core-Dünnstarter und libreta_core_mojo haben verschiedene Source-IDs" in script
     assert '"$TARGET_DIR/reta" "$TARGET_DIR/grundStrukHtml" "$CORE_LIBRARY"' in script
 
 
@@ -53,11 +53,11 @@ def test_shared_library_targets_builds_active_core_group_only() -> None:
     script = (ROOT / "scripts/build_shared_library_targets.sh").read_text(
         encoding="utf-8"
     )
-    assert "libreta-core.so ist inzwischen der erste aktiv kompilierte ABI-Build" in script
+    assert "libreta_core_mojo.so ist inzwischen der erste aktiv kompilierte ABI-Build" in script
     assert "build_core_shared.sh" in script
     assert "Prompt-Shared-Libraries bleiben Plan" in script
-    assert "libreta-prompt-interactive" in script
-    assert "rpb           -> libreta-prompt + libreta-core" in script
+    assert "libreta_prompt_interactive_mojo" in script
+    assert "rpb           -> libreta_prompt_mojo + libreta_core_mojo" in script
     assert "mojo build" not in script
 
 
@@ -74,7 +74,7 @@ def test_stage_is_documented() -> None:
     doc = (ROOT / "STAGE12C5FQ_CORE_SHARED_OFFICIAL_BUILD_LAYOUT.md").read_text(
         encoding="utf-8"
     )
-    assert "libreta-core.so" in doc
+    assert "libreta_core_mojo.so" in doc
     assert "target/bin/reta" in doc
     assert "target/bin/grundStrukHtml" in doc
     assert "scripts/build-all.sh" in doc

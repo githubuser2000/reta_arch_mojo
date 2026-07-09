@@ -41,7 +41,7 @@ def test_shared_library_architecture_still_preserves_rpb_noninteractive_contract
     )
     assert 'ThinStarterTarget("rpb", _starter_libraries_prompt(), False)' in source
     assert 'if _target_has_consumer(target, "rpb"):' in source
-    assert "libreta-prompt-interactive" in source
+    assert "libreta_prompt_interactive_mojo" in source
     start = source.index("def _interactive_consumers")
     block = source[start : source.index("def _deps_core", start)]
     assert '"rp"' in block and '"rpl"' in block and '"rpe"' in block
@@ -54,6 +54,6 @@ def test_stage_is_documented() -> None:
     )
     assert "Copyability" in doc
     assert "libraries" in doc and "starters" in doc
-    assert "libreta-core" in doc
-    assert "libreta-prompt-interactive" in doc
+    assert "libreta_core_mojo" in doc
+    assert "libreta_prompt_interactive_mojo" in doc
     assert "rpb" in doc and "Nicht verwendet" in doc

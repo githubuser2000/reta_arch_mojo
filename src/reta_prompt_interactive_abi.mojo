@@ -1,7 +1,7 @@
 """C-ABI entry points for the interactive native prompt input library.
 
 Only rp, rpl and rpe are routed through this ABI.  rpb stays on the one-shot
-``libreta-prompt`` ABI and therefore does not load the interactive prompt-input
+``libreta_prompt_mojo`` ABI and therefore does not load the interactive prompt-input
 library.
 """
 

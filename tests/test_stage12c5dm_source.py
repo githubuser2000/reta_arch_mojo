@@ -83,6 +83,6 @@ def test_document_records_library_boundary_without_implementing_shared_libs() ->
     doc = (ROOT / "STAGE12C5DM_PROMPT_REACTION_DISPATCH_OWNER.md").read_text(
         encoding="utf-8"
     )
-    assert "libreta-prompt-reaction" in doc
-    assert "libreta-prompt-execution" in doc
+    assert "libreta_prompt_mojo-reaction" in doc
+    assert "libreta_prompt_mojo-execution" in doc
     assert "no `.so`/`.dll` split is implemented" in doc

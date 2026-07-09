@@ -4,11 +4,11 @@ Diese Stage zieht den in 12c5fv vorbereiteten Prompt-Shared-Runtime-Smoke in die
 offiziellen Build- und Installationsprüfungen.  Die Shared-Library-Aufteilung
 bleibt unverändert:
 
-- `libreta-core.so` bleibt der gemeinsame Kern für `reta`, `grundStrukHtml` und
+- `libreta_core_mojo.so` bleibt der gemeinsame Kern für `reta`, `grundStrukHtml` und
   die Prompt-Ausführung.
-- `libreta-prompt.so` bleibt der gemeinsame Prompt-Ausführungskern für `rp`,
+- `libreta_prompt_mojo.so` bleibt der gemeinsame Prompt-Ausführungskern für `rp`,
   `rpl`, `rpe` und `rpb`.
-- `libreta-prompt-interactive.so` bleibt ausschließlich für `rp`, `rpl` und
+- `libreta_prompt_interactive_mojo.so` bleibt ausschließlich für `rp`, `rpl` und
   `rpe` zuständig.
 - `rpb` darf weiterhin keine interaktive Prompt-Bibliothek laden.
 
@@ -45,8 +45,8 @@ kaputter interaktiver Bibliothek geprüft.  Dadurch bleibt die wichtigste
 Architekturregel ausführbar nachgewiesen:
 
 ```text
-rpb -> libreta-prompt.so
-rpb -> NICHT libreta-prompt-interactive.so
+rpb -> libreta_prompt_mojo.so
+rpb -> NICHT libreta_prompt_interactive_mojo.so
 ```
 
 ## Erwartete lokale Kommandos

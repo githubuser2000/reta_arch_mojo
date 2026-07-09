@@ -25,26 +25,26 @@ dieselben Speicherregeln:
 - leeres Enter als gespeicherter Default-Befehl.
 
 Diese Logik ist weder physische Eingabe noch lokaler Effekt-Dispatch. Sie ist
-eine gemeinsame Speichersemantik der späteren `libreta-prompt-reaction`-Grenze.
+eine gemeinsame Speichersemantik der späteren `libreta_prompt_mojo-reaction`-Grenze.
 
 ## Architekturwirkung
 
 Die spätere Zielstruktur bleibt:
 
 ```text
-libreta-prompt-reaction
+libreta_prompt_mojo-reaction
   ├─ prompt_reaction_input
   ├─ prompt_reaction_storage
   └─ prompt_reaction_dispatch
 
-libreta-prompt-execution
+libreta_prompt_mojo-execution
   └─ prompt_process_dispatch
 
 libreta-process
   └─ prompt_external_commands
 ```
 
-`prompt_reaction_storage` hängt nicht von `libreta-core`, nicht von
+`prompt_reaction_storage` hängt nicht von `libreta_core_mojo`, nicht von
 `prompt_process_dispatch` und nicht vom OS-Prozessadapter ab.
 
 ## Kompatibilität

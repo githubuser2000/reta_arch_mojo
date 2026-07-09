@@ -18,11 +18,11 @@ Prompt-Starter und Shared Library stammen nicht aus demselben Quellstand.
 ```
 
 12c5fy akzeptiert beide Diagnosen als gültigen Fehlschlag für eine fehlende
-`libreta-prompt.so`.  Dadurch bleibt der Sicherheitszweck erhalten:
+`libreta_prompt_mojo.so`.  Dadurch bleibt der Sicherheitszweck erhalten:
 
-- `rpb` muss ohne `libreta-prompt-interactive.so` laufen.
-- `rpb` muss mit kaputter `libreta-prompt.so` scheitern.
-- `rp/rpl/rpe` bleiben interaktive Starter über `libreta-prompt-interactive.so`.
+- `rpb` muss ohne `libreta_prompt_interactive_mojo.so` laufen.
+- `rpb` muss mit kaputter `libreta_prompt_mojo.so` scheitern.
+- `rp/rpl/rpe` bleiben interaktive Starter über `libreta_prompt_interactive_mojo.so`.
 
 Zusätzlich druckt der Smoke bei abweichender `rpb prim 60`- oder `rp prim 29`-
 Ausgabe jetzt den tatsächlichen Inhalt.  Dadurch gibt es keinen stillen

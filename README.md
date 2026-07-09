@@ -411,7 +411,7 @@ Installer ausschließlich die in `scripts/install_targets.txt` deklarierten
 
 ## Stufen 7–10: Generatoren, Kombinationen, Markup und Prompt
 
-Stage 12c5z konsolidiert vier installierbare Diagnoseprogramme in `libreta-mojo-diagnostics.so` und einen kleinen ABI-geprüften Loader. Die bisherigen Befehlsnamen bleiben als kompatible Launcher bestehen; die Standardinstallation enthält nun 39 Executables plus eine Shared Library. `scripts/export_target.sh` ersetzt die beim lokalen Build sinnvollen absoluten Runtime-Symlinks durch echte Dateien für die Rechnerübergabe. Details: [`STAGE12C5Z_SHARED_DIAGNOSTIC_LIBRARY.md`](STAGE12C5Z_SHARED_DIAGNOSTIC_LIBRARY.md).
+Stage 12c5z konsolidiert vier installierbare Diagnoseprogramme in `libreta_diagnostics_mojo.so` und einen kleinen ABI-geprüften Loader. Die bisherigen Befehlsnamen bleiben als kompatible Launcher bestehen; die Standardinstallation enthält nun 39 Executables plus eine Shared Library. `scripts/export_target.sh` ersetzt die beim lokalen Build sinnvollen absoluten Runtime-Symlinks durch echte Dateien für die Rechnerübergabe. Details: [`STAGE12C5Z_SHARED_DIAGNOSTIC_LIBRARY.md`](STAGE12C5Z_SHARED_DIAGNOSTIC_LIBRARY.md).
 
 Stage 12c5y schließt `reta_architecture/table_output.py` vollständig. `TableOutputConfig`, `TableOutput`, Ergebnisbuffer, Spaltenprojektion, ANSI-Farbpolitik und Bundle/Snapshot sind typisiert; alle sieben Ausgabearten delegieren an die bereits nativen und breit getesteten Serializer. `reta-mojo-table-output` war zunächst ein eigenes Diagnoseziel und wird seit Stage 12c5z über die gemeinsame Diagnosebibliothek bereitgestellt. Details: [`STAGE12C5Y_NATIVE_TABLE_OUTPUT.md`](STAGE12C5Y_NATIVE_TABLE_OUTPUT.md).
 

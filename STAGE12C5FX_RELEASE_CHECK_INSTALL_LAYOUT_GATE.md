@@ -19,9 +19,9 @@ scripts/release_check.sh
 `build-all.sh` baut bereits:
 
 ```text
-target/lib/reta/libreta-core.so
-target/lib/reta/libreta-prompt.so
-target/lib/reta/libreta-prompt-interactive.so
+target/lib/reta/libreta_core_mojo.so
+target/lib/reta/libreta_prompt_mojo.so
+target/lib/reta/libreta_prompt_interactive_mojo.so
 target/bin/reta
 target/bin/grundStrukHtml
 target/bin/rp
@@ -38,14 +38,14 @@ target/bin/rpb
 /usr/bin/grundStrukHtml   -> privater dünner Core-Starter
 /usr/bin/rpb              -> privater dünner Prompt-Starter ohne interactive .so
 /usr/bin/rp/rpl/rpe       -> private interaktive Prompt-Starter
-/usr/lib/reta/target/lib/reta/libreta-core.so
-/usr/lib/reta/target/lib/reta/libreta-prompt.so
-/usr/lib/reta/target/lib/reta/libreta-prompt-interactive.so
+/usr/lib/reta/target/lib/reta/libreta_core_mojo.so
+/usr/lib/reta/target/lib/reta/libreta_prompt_mojo.so
+/usr/lib/reta/target/lib/reta/libreta_prompt_interactive_mojo.so
 ```
 
 Außerdem läuft der Prompt-Shared-Runtime-Smoke im installierten Baum. Damit ist
 `rpb` nicht nur im Buildbaum, sondern auch nach Installation gegen die falsche
-Abhängigkeit auf `libreta-prompt-interactive.so` abgesichert.
+Abhängigkeit auf `libreta_prompt_interactive_mojo.so` abgesichert.
 
 ## Dry-run
 

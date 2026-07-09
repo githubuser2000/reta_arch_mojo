@@ -95,11 +95,11 @@ static int library_path(char *buffer, size_t size, const char *argv0) {
     *slash = '\0';
 
 #if defined(__APPLE__)
-    const char *library_name = "libreta-mojo-diagnostics.dylib";
+    const char *library_name = "libreta_diagnostics_mojo.dylib";
 #elif defined(_WIN32)
-    const char *library_name = "reta-mojo-diagnostics.dll";
+    const char *library_name = "libreta_diagnostics_mojo.dll";
 #else
-    const char *library_name = "libreta-mojo-diagnostics.so";
+    const char *library_name = "libreta_diagnostics_mojo.so";
 #endif
 
     int written = snprintf(buffer, size, "%s/../lib/reta/%s", executable, library_name);
@@ -136,8 +136,12 @@ static int verify_matching_stamps(const char *argv0, const char *library) {
             (int)sizeof(library_stamp)) {
         return RETA_STALE_STATUS;
     }
-    if (read_stamp(executable_stamp, executable_id, sizeof(executable_id)) != 0 ||
-        read_stamp(library_stamp, library_id, sizeof(library_id)) != 0 ||
+    int executable_stamp_status = read_stamp(executable_stamp, executable_id, sizeof(executable_id));
+    int library_stamp_status = read_stamp(library_stamp, library_id, sizeof(library_id));
+    if (executable_stamp_status != 0 && library_stamp_status != 0) {
+        return 0;
+    }
+    if (executable_stamp_status != 0 || library_stamp_status != 0 ||
         strcmp(executable_id, library_id) != 0) {
         fprintf(stderr,
                 "Diagnose-Loader und Shared Library stammen nicht aus demselben Quellstand.\n"

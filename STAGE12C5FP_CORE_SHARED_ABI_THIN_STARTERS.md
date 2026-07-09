@@ -8,9 +8,9 @@ split; this stage adds the first concrete ABI path for the shared native core.
 
 `scripts/build_core_shared.sh` builds:
 
-- `target/lib/reta/libreta-core.so`
-- `target/bin/reta` as a thin C loader over `libreta-core.so`
-- `target/bin/grundStrukHtml` as a thin C loader over `libreta-core.so`
+- `target/lib/reta/libreta_core_mojo.so`
+- `target/bin/reta` as a thin C loader over `libreta_core_mojo.so`
+- `target/bin/grundStrukHtml` as a thin C loader over `libreta_core_mojo.so`
 
 The old direct native executables remain in place for compatibility and local
 comparison:
@@ -40,7 +40,7 @@ executable name:
 - invoked as `reta` -> `reta_core_reta_entry`
 - invoked as `grundStrukHtml` -> `reta_core_grundstrukhtml_entry`
 
-It loads `libreta-core.so` from `../lib/reta/` relative to the executable, or
+It loads `libreta_core_mojo.so` from `../lib/reta/` relative to the executable, or
 from `RETA_CORE_LIBRARY` when explicitly overridden for tests.  It also checks
 that the loader and library have matching `.reta-source-id` sidecars before any
 entry point is called.
@@ -50,7 +50,7 @@ entry point is called.
 This stage intentionally does not move `rp`, `rpl`, `rpe`, or `rpb` yet.  They
 will be handled by the next layers:
 
-- `libreta-prompt.so` for shared prompt execution used by `rp/rpl/rpe/rpb`
-- `libreta-prompt-interactive.so` only for `rp/rpl/rpe`
+- `libreta_prompt_mojo.so` for shared prompt execution used by `rp/rpl/rpe/rpb`
+- `libreta_prompt_interactive_mojo.so` only for `rp/rpl/rpe`
 
 `rpb` must not depend on the interactive prompt-input library; auf Deutsch: rpb lädt diese interaktive Bibliothek ausdrücklich nicht.

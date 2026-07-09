@@ -7,7 +7,7 @@ case ${1:-} in
 Verwendung: scripts/test_prompt_shared_runtime.sh [--dry-run]
 
 Prüft die aktiven Prompt-Shared-Runtime-Artefakte:
-  - target/bin/rpb nutzt libreta-prompt.so ohne libreta-prompt-interactive.so
+  - target/bin/rpb nutzt libreta_prompt_mojo.so ohne libreta_prompt_interactive_mojo.so
   - target/bin/rp/rpl/rpe haben zusätzlich die interaktive Prompt-Bibliothek
   - Starter und Bibliotheken tragen denselben .reta-source-id-Quellstand
   - einfache rpb- und rp-Smoke-Kommandos laufen über die dünnen Starter
@@ -27,15 +27,15 @@ cd "$ROOT"
 TARGET_DIR=${RETA_TARGET_DIR:-"$ROOT/target/bin"}
 TARGET_ROOT=$(dirname -- "$TARGET_DIR")
 LIB_DIR=${RETA_TARGET_LIB_DIR:-"$TARGET_ROOT/lib/reta"}
-PROMPT_LIBRARY="$LIB_DIR/libreta-prompt.so"
-INTERACTIVE_LIBRARY="$LIB_DIR/libreta-prompt-interactive.so"
+PROMPT_LIBRARY="$LIB_DIR/libreta_prompt_mojo.so"
+INTERACTIVE_LIBRARY="$LIB_DIR/libreta_prompt_interactive_mojo.so"
 TMP=${TMPDIR:-/tmp}/reta-prompt-shared-runtime.$$
 
 if [ "$DRY_RUN" = 1 ]; then
     cat <<'PLAN'
 Prompt-Shared-Runtime-Smokeplan:
   1. erwarte target/bin/rpb, rp, rpl, rpe
-  2. erwarte libreta-prompt.so und libreta-prompt-interactive.so
+  2. erwarte libreta_prompt_mojo.so und libreta_prompt_interactive_mojo.so
   3. rpb muss mit absichtlich kaputter RETA_PROMPT_INTERACTIVE_LIBRARY laufen
   4. rpb muss mit kaputter RETA_PROMPT_LIBRARY scheitern
   5. rp/rpl/rpe müssen die interaktive Bibliothek als Zusatzgrenze besitzen
@@ -78,24 +78,24 @@ require_file "$INTERACTIVE_LIBRARY"
 prompt_id=$(source_id "$PROMPT_LIBRARY")
 interactive_id=$(source_id "$INTERACTIVE_LIBRARY")
 if [ "$prompt_id" != "$interactive_id" ]; then
-    printf '%s\n' 'libreta-prompt.so und libreta-prompt-interactive.so stammen nicht aus demselben Quellstand.' >&2
+    printf '%s\n' 'libreta_prompt_mojo.so und libreta_prompt_interactive_mojo.so stammen nicht aus demselben Quellstand.' >&2
     exit 78
 fi
 
 if [ "$(source_id "$TARGET_DIR/rpb")" != "$prompt_id" ]; then
-    printf '%s\n' 'rpb und libreta-prompt.so stammen nicht aus demselben Quellstand.' >&2
+    printf '%s\n' 'rpb und libreta_prompt_mojo.so stammen nicht aus demselben Quellstand.' >&2
     exit 78
 fi
 for name in rp rpl rpe; do
     if [ "$(source_id "$TARGET_DIR/$name")" != "$interactive_id" ]; then
-        printf '%s und libreta-prompt-interactive.so stammen nicht aus demselben Quellstand.\n' "$name" >&2
+        printf '%s und libreta_prompt_interactive_mojo.so stammen nicht aus demselben Quellstand.\n' "$name" >&2
         exit 78
     fi
 done
 
 # rpb ist one-shot und darf die interaktive Bibliothek auch dann nicht berühren,
 # wenn deren Override absichtlich auf einen kaputten Pfad gesetzt ist.
-RETA_PROMPT_INTERACTIVE_LIBRARY=/definitely/missing/libreta-prompt-interactive.so \
+RETA_PROMPT_INTERACTIVE_LIBRARY=/definitely/missing/libreta_prompt_interactive_mojo.so \
     "$TARGET_DIR/rpb" prim 60 > "$TMP/rpb-prim"
 if [ "$(cat "$TMP/rpb-prim")" != "60: 2^2 3 5" ]; then
     printf '%s
@@ -109,19 +109,19 @@ if [ "$(cat "$TMP/rpb-prim")" != "60: 2^2 3 5" ]; then
 fi
 
 set +e
-RETA_PROMPT_LIBRARY=/definitely/missing/libreta-prompt.so \
+RETA_PROMPT_LIBRARY=/definitely/missing/libreta_prompt_mojo.so \
     "$TARGET_DIR/rpb" prim 60 > "$TMP/rpb-missing.out" 2> "$TMP/rpb-missing.err"
 missing_status=$?
 set -e
 if [ "$missing_status" -eq 0 ]; then
-    printf '%s\n' 'rpb lief trotz fehlender libreta-prompt.so erfolgreich.' >&2
+    printf '%s\n' 'rpb lief trotz fehlender libreta_prompt_mojo.so erfolgreich.' >&2
     exit 1
 fi
 
 if ! grep -F 'Prompt-Bibliothek konnte nicht geladen werden' "$TMP/rpb-missing.err" >/dev/null && \
    ! grep -F 'Prompt-Starter und Shared Library stammen nicht aus demselben Quellstand' "$TMP/rpb-missing.err" >/dev/null; then
     printf '%s
-' 'rpb scheiterte bei fehlender libreta-prompt.so nicht mit einer bekannten Diagnose.' >&2
+' 'rpb scheiterte bei fehlender libreta_prompt_mojo.so nicht mit einer bekannten Diagnose.' >&2
     cat "$TMP/rpb-missing.err" >&2
     exit 1
 fi

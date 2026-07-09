@@ -12,7 +12,7 @@ scripts/build-all.sh    # beide Gruppen in einem Aufruf
 
 `scripts/build-all.sh` ist damit der einzige vollständige Einstieg. Ein
 Stage-Test ist nach dem Build nicht zusätzlich erforderlich, um
-`libreta-mojo-diagnostics.so` zu erhalten. Die tiefe optionale
+`libreta_diagnostics_mojo.so` zu erhalten. Die tiefe optionale
 Alt-vs.-Shared-Library-Parität heißt nun ausdrücklich:
 
 ```bash

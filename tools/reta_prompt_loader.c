@@ -29,24 +29,24 @@ typedef int (*prompt_entry_fn)(int, char **);
 typedef int (*prompt_version_fn)(void);
 
 static const struct prompt_command COMMANDS[] = {
-    {"rpb", "rpb", "libreta-prompt.so", "RETA_PROMPT_LIBRARY",
+    {"rpb", "rpb", "libreta_prompt_mojo.so", "RETA_PROMPT_LIBRARY",
      "reta_prompt_abi_version", "reta_prompt_entry", 0},
-    {"rp", "rp", "libreta-prompt-interactive.so", "RETA_PROMPT_INTERACTIVE_LIBRARY",
+    {"rp", "rp", "libreta_prompt_interactive_mojo.so", "RETA_PROMPT_INTERACTIVE_LIBRARY",
      "reta_prompt_interactive_abi_version", "reta_prompt_interactive_entry", 1},
-    {"rpl", "rpl", "libreta-prompt-interactive.so", "RETA_PROMPT_INTERACTIVE_LIBRARY",
+    {"rpl", "rpl", "libreta_prompt_interactive_mojo.so", "RETA_PROMPT_INTERACTIVE_LIBRARY",
      "reta_prompt_interactive_abi_version", "reta_prompt_interactive_entry", 1},
-    {"rpe", "rpe", "libreta-prompt-interactive.so", "RETA_PROMPT_INTERACTIVE_LIBRARY",
+    {"rpe", "rpe", "libreta_prompt_interactive_mojo.so", "RETA_PROMPT_INTERACTIVE_LIBRARY",
      "reta_prompt_interactive_abi_version", "reta_prompt_interactive_entry", 1},
-    {"retaPrompt", "retaPrompt", "libreta-prompt-interactive.so",
+    {"retaPrompt", "retaPrompt", "libreta_prompt_interactive_mojo.so",
      "RETA_PROMPT_INTERACTIVE_LIBRARY", "reta_prompt_interactive_abi_version",
      "reta_prompt_interactive_entry", 1},
-    {"retaPrompt.english", "retaPrompt.english", "libreta-prompt-interactive.so",
+    {"retaPrompt.english", "retaPrompt.english", "libreta_prompt_interactive_mojo.so",
      "RETA_PROMPT_INTERACTIVE_LIBRARY", "reta_prompt_interactive_abi_version",
      "reta_prompt_interactive_entry", 1},
 };
 
 static const struct prompt_command COMMON_PROMPT_LIBRARY = {
-    "rpb", "rpb", "libreta-prompt.so", "RETA_PROMPT_LIBRARY",
+    "rpb", "rpb", "libreta_prompt_mojo.so", "RETA_PROMPT_LIBRARY",
     "reta_prompt_abi_version", "reta_prompt_entry", 0,
 };
 
@@ -192,20 +192,38 @@ static void set_runtime_environment(const char *argv0) {
     }
     memcpy(root, executable, strlen(executable) + 1);
 
+    int installed_bin_layout = 0;
     /* Build tree: target/bin/<starter> -> project root. */
     if (strip_suffix(root, "/target/bin") != 0) {
-        /* Installed tree: /usr/lib/reta/<starter> -> private runtime root. */
+        /* Installed tree: <prefix>/bin/<starter> -> <prefix>. */
         memcpy(root, executable, strlen(executable) + 1);
+        if (strip_suffix(root, "/bin") == 0) {
+            installed_bin_layout = 1;
+        } else {
+            /* Private/source-compatible fallback. */
+            memcpy(root, executable, strlen(executable) + 1);
+        }
     }
 
     set_environment_if_unset("RETA_ROOT", root);
 
-    if (join_path(reference, sizeof(reference), root, "python_reference") == 0) {
+    if (installed_bin_layout) {
+        if (join_path(reference, sizeof(reference), root, "lib/reta/python_reference") == 0) {
+            set_environment_if_unset("RETA_REFERENCE_DIR", reference);
+        }
+    } else if (join_path(reference, sizeof(reference), root, "python_reference") == 0) {
         set_environment_if_unset("RETA_REFERENCE_DIR", reference);
     }
 
     if (!environment_is_set("RETA_SHARE_DIR")) {
-        if (strlen(root) + 1 <= sizeof(prefix)) {
+        if (installed_bin_layout) {
+            if (join_path(share, sizeof(share), root, "share/reta") == 0 &&
+                join_path(csv, sizeof(csv), share, "csv") == 0 &&
+                join_path(assets, sizeof(assets), share, "assets") == 0 &&
+                directory_exists(csv) && directory_exists(assets)) {
+                setenv("RETA_SHARE_DIR", share, 1);
+            }
+        } else if (strlen(root) + 1 <= sizeof(prefix)) {
             memcpy(prefix, root, strlen(root) + 1);
             if (parent_directory(prefix) == 0 && parent_directory(prefix) == 0 &&
                 join_path(share, sizeof(share), prefix, "share/reta") == 0 &&
@@ -277,13 +295,13 @@ static int library_path(
             (int)sizeof(library_name)) {
             return -1;
         }
-    } else if (strcmp(command->library_name, "libreta-prompt.so") == 0) {
-        if (snprintf(library_name, sizeof(library_name), "libreta-prompt%s", extension) >=
+    } else if (strcmp(command->library_name, "libreta_prompt_mojo.so") == 0) {
+        if (snprintf(library_name, sizeof(library_name), "libreta_prompt_mojo%s", extension) >=
             (int)sizeof(library_name)) {
             return -1;
         }
     } else {
-        if (snprintf(library_name, sizeof(library_name), "libreta-prompt-interactive%s", extension) >=
+        if (snprintf(library_name, sizeof(library_name), "libreta_prompt_interactive_mojo%s", extension) >=
             (int)sizeof(library_name)) {
             return -1;
         }
@@ -332,8 +350,12 @@ static int verify_matching_stamps(const char *argv0, const char *library) {
             (int)sizeof(library_stamp)) {
         return RETA_STALE_STATUS;
     }
-    if (read_stamp(executable_stamp, executable_id, sizeof(executable_id)) != 0 ||
-        read_stamp(library_stamp, library_id, sizeof(library_id)) != 0 ||
+    int executable_stamp_status = read_stamp(executable_stamp, executable_id, sizeof(executable_id));
+    int library_stamp_status = read_stamp(library_stamp, library_id, sizeof(library_id));
+    if (executable_stamp_status != 0 && library_stamp_status != 0) {
+        return 0;
+    }
+    if (executable_stamp_status != 0 || library_stamp_status != 0 ||
         strcmp(executable_id, library_id) != 0) {
         fprintf(stderr,
                 "Prompt-Starter und Shared Library stammen nicht aus demselben Quellstand.\n"

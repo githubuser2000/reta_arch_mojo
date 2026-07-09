@@ -50,12 +50,12 @@ reta_script_target(reta-heavy
 )
 
 reta_script_target(reta-core-shared
-  COMMENT "Build libreta-core.so and thin reta/grundStrukHtml starters"
+  COMMENT "Build libreta_core_mojo.so and thin reta/grundStrukHtml starters"
   COMMAND ${CMAKE_COMMAND} -E env RETA_MOJO_JOBS=${RETA_MOJO_JOBS} scripts/run_build_task.sh build-core-shared
 )
 
 reta_script_target(reta-plan-core-shared
-  COMMENT "Print libreta-core/thin-starter build command without compiling"
+  COMMENT "Print libreta_core_mojo/thin-starter build command without compiling"
   COMMAND ${CMAKE_COMMAND} -E env RETA_DRY_RUN=1 RETA_MOJO_JOBS=${RETA_MOJO_JOBS} scripts/run_build_task.sh build-core-shared
 )
 

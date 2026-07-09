@@ -75,9 +75,15 @@ def test_fhs_usr_local_layout_uses_share_for_csv_and_assets(tmp_path: Path) -> N
     assert (private / "scripts" / "check_mojo_binary_freshness.sh").is_file()
     assert (private / "scripts" / "current_source_id.sh").is_file()
 
+    # Without a compiled thin reta starter in this minimal staged test, reta stays
+    # a shell-wrapper symlink. Compiled targets that do exist are installed as
+    # real binaries directly in bin, never below lib/reta.
     public_reta = prefix / "bin" / "reta"
     assert public_reta.is_symlink()
     assert public_reta.resolve() == (private / "bin" / "reta").resolve()
+    assert (prefix / "bin" / "reta-native").is_file()
+    assert not (private / "reta-native").exists()
+    assert not list(prefix.rglob("*.reta-source-id"))
 
     public_integrity = prefix / "bin" / "reta-mojo-package-integrity"
     assert public_integrity.is_symlink()
@@ -89,8 +95,8 @@ def test_fhs_usr_local_layout_uses_share_for_csv_and_assets(tmp_path: Path) -> N
         stderr=subprocess.PIPE,
         check=False,
     )
-    installed_integrity = private / "target" / "bin" / "reta-mojo-package-integrity"
-    if not installed_integrity.is_file():
+    installed_integrity = prefix / "bin" / "reta-mojo-package-integrity"
+    if not installed_integrity.is_file() or installed_integrity.is_symlink():
         assert result.returncode == 127
         assert "Fehlendes Compilerziel" in result.stderr
     else:
@@ -114,6 +120,9 @@ def test_fhs_usr_local_layout_uses_share_for_csv_and_assets(tmp_path: Path) -> N
     assert "csvdir=/usr/local/share/reta/csv" in layout
     assert "assetdir=/usr/local/share/reta/assets" in layout
     assert "mandir=/usr/local/share/man" in layout
+    assert "binarydir=/usr/local/bin" in layout
+    assert "sharedlibdir=/usr/local/lib/reta" in layout
+    assert "installed_source_id_sidecars=0" in layout
 
     help_result = subprocess.run(
         [str(prefix / "bin" / "generate_html"), "--help"],
@@ -145,7 +154,9 @@ def test_default_prefix_is_usr_local(tmp_path: Path) -> None:
     )
     assert result.returncode == 0, result.stderr
     assert (stage / "usr" / "local" / "share" / "reta" / "csv" / "religion.csv").is_file()
-    assert (stage / "usr" / "local" / "bin" / "reta").is_symlink()
+    assert (stage / "usr" / "local" / "bin" / "reta-native").is_file()
+    assert not (stage / "usr" / "local" / "lib" / "reta" / "reta-native").exists()
+    assert not list((stage / "usr" / "local").rglob("*.reta-source-id"))
 
 
 
@@ -161,6 +172,9 @@ def test_user_local_prefix_keeps_data_below_home_share(tmp_path: Path) -> None:
     assert (private / "python_reference" / "csv").is_symlink()
     assert (private / "python_reference" / "csv" / "religion.csv").is_file()
     assert (prefix / "bin" / "reta").resolve() == (private / "bin" / "reta").resolve()
+    assert (prefix / "bin" / "reta-native").is_file()
+    assert not (private / "reta-native").exists()
+    assert not list(prefix.rglob("*.reta-source-id"))
 
     csv_info = subprocess.run(
         [str(prefix / "bin" / "reta-mojo"), "--mojo-csv-info"],
@@ -170,8 +184,8 @@ def test_user_local_prefix_keeps_data_below_home_share(tmp_path: Path) -> None:
         stderr=subprocess.PIPE,
         check=False,
     )
-    installed_table = private / "target" / "bin" / "reta-mojo-table"
-    if not installed_table.is_file():
+    installed_table = prefix / "bin" / "reta-mojo-table"
+    if not installed_table.is_file() or installed_table.is_symlink():
         assert csv_info.returncode == 127
         assert "Fehlendes Compilerziel" in csv_info.stderr
         assert "Keine installierte Mojo-Quelle verfügbar" in csv_info.stderr
@@ -195,6 +209,8 @@ def test_user_local_prefix_keeps_data_below_home_share(tmp_path: Path) -> None:
     layout = (private / "INSTALL_LAYOUT").read_text(encoding="utf-8")
     assert "csvdir=/home/alex/.local/share/reta/csv" in layout
     assert "assetdir=/home/alex/.local/share/reta/assets" in layout
+    assert "binarydir=/home/alex/.local/bin" in layout
+    assert "sharedlibdir=/home/alex/.local/lib/reta" in layout
 
 def test_uninstall_removes_only_reta_layout(tmp_path: Path) -> None:
     stage = _install(tmp_path)
@@ -239,8 +255,10 @@ def test_fedora_libexec_override_keeps_shared_data_in_usr_share(tmp_path: Path) 
     assert result.returncode == 0, result.stderr
     private = stage / "usr" / "libexec" / "reta"
     shared = stage / "usr" / "share" / "reta"
-    assert (private / "target" / "bin" / "reta-native").is_file()
+    assert (stage / "usr" / "bin" / "reta-native").is_file()
+    assert not (private / "reta-native").exists()
     assert (private / "python_reference" / "csv").is_symlink()
     assert (private / "python_reference" / "csv" / "religion.csv").is_file()
     assert (shared / "csv" / "religion.csv").is_file()
     assert (stage / "usr" / "bin" / "reta").resolve() == (private / "bin" / "reta").resolve()
+    assert not list((stage / "usr").rglob("*.reta-source-id"))

@@ -35,11 +35,11 @@ This is preparation only; no `.so`/`.dll` split is implemented here.
 The target boundary is now clearer:
 
 ```text
-libreta-prompt-reaction
-  owns local interaction effects without libreta-core
+libreta_prompt_mojo-reaction
+  owns local interaction effects without libreta_core_mojo
 
-libreta-prompt-execution
-  owns external/fallback execution decisions and may use libreta-core
+libreta_prompt_mojo-execution
+  owns external/fallback execution decisions and may use libreta_core_mojo
 
 libreta-process
   only executes already-planned process argv/payloads

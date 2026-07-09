@@ -171,7 +171,7 @@ noch auf den Rechner zeigt, auf dem sie kompiliert wurden.
 
 Dies ist der einzige vollständige Produktions-Baueinstieg. Er führt zuerst
 `scripts/build-heavy.sh` und danach `scripts/build.sh` aus. Die gemeinsame
-Diagnosebibliothek `libreta-mojo-diagnostics.so` gehört bereits zum regulären
+Diagnosebibliothek `libreta_diagnostics_mojo.so` gehört bereits zum regulären
 `scripts/build.sh`; kein `test_stage*.sh` muss nach einem erfolgreichen Build
 zusätzlich aufgerufen werden.
 
@@ -200,7 +200,7 @@ target/bin/reta-mojo-facade
 target/bin/reta-mojo-workflow
 target/bin/reta-mojo-sheaves
 target/bin/reta-mojo-diagnostics
-target/lib/reta/libreta-mojo-diagnostics.so
+target/lib/reta/libreta_diagnostics_mojo.so
 target/bin/reta-mojo-domain-probe
 target/bin/reta-mojo-combi-join
 target/bin/reta-native
@@ -644,7 +644,7 @@ Die optionale tiefe Alt-vs.-Shared-Library-Parität lautet:
 scripts/build-and-test-shared-diagnostics.sh
 ```
 
-Der Standardbuild erzeugt `target/bin/reta-mojo-diagnostics` und `target/lib/reta/libreta-mojo-diagnostics.so`. Die vier bisherigen Launcher für TableGeneration, OutputSyntax, ConsoleIO und TableOutput bleiben unverändert öffentlich, leiten aber auf den gemeinsamen Loader weiter. Die Shared Library trägt `$ORIGIN/../mojo`, während Executables `$ORIGIN/../lib/mojo` verwenden. Für direkte Alt-vs.-Bibliothek-Parität können die vier Einzelprogramme mit `RETA_BUILD_STANDALONE_DIAGNOSTICS=1` zusätzlich gebaut werden. Ein transferierbarer Binärbaum wird mit `scripts/export_target.sh` erzeugt.
+Der Standardbuild erzeugt `target/bin/reta-mojo-diagnostics` und `target/lib/reta/libreta_diagnostics_mojo.so`. Die vier bisherigen Launcher für TableGeneration, OutputSyntax, ConsoleIO und TableOutput bleiben unverändert öffentlich, leiten aber auf den gemeinsamen Loader weiter. Die Shared Library trägt `$ORIGIN/../mojo`, während Executables `$ORIGIN/../lib/mojo` verwenden. Für direkte Alt-vs.-Bibliothek-Parität können die vier Einzelprogramme mit `RETA_BUILD_STANDALONE_DIAGNOSTICS=1` zusätzlich gebaut werden. Ein transferierbarer Binärbaum wird mit `scripts/export_target.sh` erzeugt.
 
 ## Fokussierter Stage-12c5ab-Compilerlauf
 
@@ -847,7 +847,7 @@ pixi run cmake-configure
 pixi run cmake-build-core-shared
 ```
 
-Für nur `reta` und `libreta-core.so` bleibt der direkte alte Einstieg gültig:
+Für nur `reta` und `libreta_core_mojo.so` bleibt der direkte alte Einstieg gültig:
 
 ```sh
 scripts/build_core_shared.sh -- -j 8

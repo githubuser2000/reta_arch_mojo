@@ -83,20 +83,20 @@ reta_artifact_install_executables() {
 
 reta_artifact_core_shared_libraries() {
     cat <<'ARTIFACTS'
-libreta-core.so
+libreta_core_mojo.so
 ARTIFACTS
 }
 
 reta_artifact_prompt_shared_libraries() {
     cat <<'ARTIFACTS'
-libreta-prompt.so
-libreta-prompt-interactive.so
+libreta_prompt_mojo.so
+libreta_prompt_interactive_mojo.so
 ARTIFACTS
 }
 
 reta_artifact_diagnostics_shared_libraries() {
     cat <<'ARTIFACTS'
-libreta-mojo-diagnostics.so
+libreta_diagnostics_mojo.so
 ARTIFACTS
 }
 

@@ -29,7 +29,7 @@ def _build_fake_core_bundle(tmp_path: Path) -> tuple[Path, Path, Path]:
     lib_dir.mkdir(parents=True)
     reta_loader = bin_dir / "reta"
     grund_loader = bin_dir / "grundStrukHtml"
-    library = lib_dir / "libreta-core.so"
+    library = lib_dir / "libreta_core_mojo.so"
 
     subprocess.run(
         [
@@ -118,13 +118,13 @@ def test_core_shared_build_script_compiles_library_and_two_thin_starters() -> No
     build = BUILD_SCRIPT.read_text(encoding="utf-8")
     assert "--emit shared-lib" in build
     assert "src/reta_core_abi.mojo" in build
-    assert "libreta-core.so" in build
+    assert "libreta_core_mojo.so" in build
     assert "tools/reta_core_loader.c" in build
     assert '"$TARGET_DIR/reta"' in build
     assert '"$TARGET_DIR/grundStrukHtml"' in build
     assert "stamp_mojo_binary.sh" in build
     assert "sanitize_mojo_runpath.py" in build
-    assert "libreta-prompt-interactive" not in build
+    assert "libreta_prompt_interactive_mojo" not in build
 
 
 def test_reta_alias_dispatches_to_core_reta_entry(tmp_path: Path) -> None:

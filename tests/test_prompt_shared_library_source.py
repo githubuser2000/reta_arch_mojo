@@ -32,8 +32,8 @@ def _build_fake_prompt_bundle(tmp_path: Path) -> tuple[Path, Path, Path, Path]:
     loader_source = LOADER_SOURCE
     rpb = bin_dir / "rpb"
     rp = bin_dir / "rp"
-    prompt = lib_dir / "libreta-prompt.so"
-    interactive = lib_dir / "libreta-prompt-interactive.so"
+    prompt = lib_dir / "libreta_prompt_mojo.so"
+    interactive = lib_dir / "libreta_prompt_interactive_mojo.so"
 
     subprocess.run(
         [
@@ -160,18 +160,18 @@ def test_prompt_loader_declares_common_prompt_dependency_for_interactive_starter
     assert "COMMON_PROMPT_LIBRARY" in source
     assert "RTLD_NOW | RTLD_GLOBAL" in source
     assert "if (command->interactive)" in source
-    assert '"rpb", "rpb", "libreta-prompt.so"' in source
+    assert '"rpb", "rpb", "libreta_prompt_mojo.so"' in source
 
 
 def test_prompt_shared_build_script_is_now_an_official_build_all_target() -> None:
     build = BUILD_SCRIPT.read_text(encoding="utf-8")
     assert "src/reta_prompt_abi.mojo" in build
     assert "src/reta_prompt_interactive_abi.mojo" in build
-    assert "libreta-prompt.so" in build
-    assert "libreta-prompt-interactive.so" in build
+    assert "libreta_prompt_mojo.so" in build
+    assert "libreta_prompt_interactive_mojo.so" in build
     assert "tools/reta_prompt_loader.c" in build
     assert '"$TARGET_DIR/$name"' in build
-    assert "rpb lädt nur libreta-prompt.so" in build
+    assert "rpb lädt nur libreta_prompt_mojo.so" in build
     build_all = (ROOT / "scripts/build-all.sh").read_text(encoding="utf-8")
     assert "build_prompt_shared.sh" in build_all
     assert "build_core_shared.sh" in build_all

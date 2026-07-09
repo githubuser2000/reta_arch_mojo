@@ -7,7 +7,7 @@ case ${1:-} in
 Verwendung: scripts/build_core_shared.sh [--dry-run] [--] [MOJO_BUILD_OPTION ...]
 
 Baut die erste produktive Core-Shared-Library-Zielgruppe:
-  - target/lib/reta/libreta-core.so
+  - target/lib/reta/libreta_core_mojo.so
   - target/bin/reta als dünner C-Starter
   - target/bin/grundStrukHtml als dünner C-Starter
 
@@ -44,10 +44,10 @@ BUILD_SOURCE_ID=${RETA_BUILD_SOURCE_ID:-$("$ROOT/scripts/current_source_id.sh")}
 if [ "$DRY_RUN" = 1 ]; then
     cat <<'PLAN'
 Core-Shared-Library-Buildplan:
-  src/reta_core_abi.mojo --emit shared-lib -> target/lib/reta/libreta-core.so
+  src/reta_core_abi.mojo --emit shared-lib -> target/lib/reta/libreta_core_mojo.so
   tools/reta_core_loader.c                 -> target/bin/reta
   tools/reta_core_loader.c                 -> target/bin/grundStrukHtml
-  beide Starter laden dieselbe libreta-core.so und prüfen Source-ID-Sidecars
+  beide Starter laden dieselbe libreta_core_mojo.so und prüfen Source-ID-Sidecars
 PLAN
     exit 0
 fi
@@ -56,10 +56,10 @@ mkdir -p "$TARGET_DIR" "$LIB_DIR" "$RUNTIME_LINK_DIR"
 RETA_MOJO_RUNTIME_LINK_DIR="$RUNTIME_LINK_DIR" \
     "$ROOT/scripts/configure_mojo_runtime.sh" >/dev/null
 
-LIBRARY="$LIB_DIR/libreta-core.so"
+LIBRARY="$LIB_DIR/libreta_core_mojo.so"
 RETA_LOADER="$TARGET_DIR/reta"
 GRUND_LOADER="$TARGET_DIR/grundStrukHtml"
-TMP_LIBRARY="$LIB_DIR/.libreta-core.so.tmp.$$"
+TMP_LIBRARY="$LIB_DIR/.libreta_core_mojo.so.tmp.$$"
 TMP_RETA_LOADER="$TARGET_DIR/.reta.tmp.$$"
 TMP_GRUND_LOADER="$TARGET_DIR/.grundStrukHtml.tmp.$$"
 cleanup_tmp() {

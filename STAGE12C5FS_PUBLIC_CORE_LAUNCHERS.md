@@ -11,11 +11,11 @@ Required runtime layout:
 
 - `target/bin/reta`
 - `target/bin/grundStrukHtml`
-- `target/lib/reta/libreta-core.so`
+- `target/lib/reta/libreta_core_mojo.so`
 - matching `.reta-source-id` sidecars for both thin starters and the core library
 
 The install path was tightened as well: `scripts/install.sh` now installs
-`libreta-core.so` and its source-id sidecar into the private runtime tree, so
+`libreta_core_mojo.so` and its source-id sidecar into the private runtime tree, so
 installed public commands can resolve the same shared core layout as the source
 checkout.
 
@@ -27,7 +27,7 @@ compatibility targets:
 
 This keeps the new public contract simple:
 
-- `reta` is a launcher for `target/bin/reta`, which loads `libreta-core.so`.
+- `reta` is a launcher for `target/bin/reta`, which loads `libreta_core_mojo.so`.
 - `grundStrukHtml` is a launcher for `target/bin/grundStrukHtml`, which loads
-  `libreta-core.so`.
+  `libreta_core_mojo.so`.
 - `rpb` still does not depend on the interactive prompt-input library.

@@ -1,5 +1,5 @@
-# Official compiled runtime targets installed below LIBEXECDIR/target/bin.
-# Missing optional targets are skipped; unknown/stale files are never copied.
+# Official compiled runtime targets installed directly below BINDIR.
+# Missing optional targets are skipped; unknown/stale files and source-id sidecars are never copied.
 # core shared build_core_shared.sh targets
 reta
 grundStrukHtml

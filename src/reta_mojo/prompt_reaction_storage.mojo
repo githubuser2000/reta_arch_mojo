@@ -5,7 +5,7 @@ physical input edge and by local reaction dispatch: inline ``S``/``s`` storage,
 position-independent ``o`` output addition and the empty-enter stored-default
 shortcut.  Keeping these pure storage decisions out of both the input owner and
 the local dispatch owner avoids a dependency cycle inside the future
-``libreta-prompt-reaction`` shared library.
+``libreta_prompt_mojo-reaction`` shared library.
 """
 
 from std.collections import List

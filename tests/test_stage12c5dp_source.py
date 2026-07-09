@@ -109,6 +109,6 @@ def test_document_records_storage_dispatch_boundary_without_shared_lib_implement
     doc = (ROOT / "STAGE12C5DP_PROMPT_REACTION_STORAGE_DISPATCH_OWNER.md").read_text(
         encoding="utf-8"
     )
-    assert "libreta-prompt-reaction" in doc
+    assert "libreta_prompt_mojo-reaction" in doc
     assert "prompt_reaction_storage.mojo" in doc
     assert "No `.so`/`.dll` split is implemented" in doc

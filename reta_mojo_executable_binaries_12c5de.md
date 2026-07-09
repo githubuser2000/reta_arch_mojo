@@ -8,7 +8,7 @@ Diese Datei erklärt die ausführbaren Ziele, die durch die Mojo-Buildskripte en
 
 - **Target-Binary**: echte kompilierte Datei unter `target/bin/`, normalerweise ELF auf Linux. Diese wird von `mojo build --emit exe` erzeugt, außer `reta-mojo-diagnostics`, dessen Loader per C kompiliert wird.
 - **Launcher**: Shellskript unter `bin/`, das ein Target-Binary startet, Ressourcenpfade setzt oder bei fehlendem Target auf `mojo run` zurückfällt.
-- **Shared Library**: aktuell vor allem `target/lib/reta/libreta-mojo-diagnostics.so`, gebaut aus Mojo mit `--emit shared-lib` und gestartet über einen kleinen C-Loader.
+- **Shared Library**: aktuell vor allem `target/lib/reta/libreta_diagnostics_mojo.so`, gebaut aus Mojo mit `--emit shared-lib` und gestartet über einen kleinen C-Loader.
 - **Regulär**: Ziel aus `scripts/build.sh`.
 - **Schwer**: Ziel aus `scripts/build-heavy.sh`; meist große generierte Kataloge oder compile-intensive Architektur-/Parallelitätsflächen.
 
@@ -19,7 +19,7 @@ Diese Datei erklärt die ausführbaren Ziele, die durch die Mojo-Buildskripte en
 | Reguläre installierbare Targets | 21 | normale Buildziele aus `scripts/build.sh` |
 | Schwere Targets | 18 | große Kataloge/Architektur/Parallelität aus `scripts/build-heavy.sh` |
 | Optionale Standalone-Diagnose-Targets | 4 | standardmäßig durch `reta-mojo-diagnostics` + `.so` ersetzt |
-| Aktuelle Shared Library | 1 | `libreta-mojo-diagnostics.so` |
+| Aktuelle Shared Library | 1 | `libreta_diagnostics_mojo.so` |
 | Wichtige öffentliche Launcher | 20 Einträge/Gruppen | Shellskripte in `bin/` |
 
 ## Empfehlung für `.so`/`.dll`-Grenzen
@@ -37,9 +37,9 @@ Gute frühe Kandidaten:
 
 - `libreta-i18n.so/.dll`: aus `reta-mojo-i18n`.
 - `libreta-schema.so/.dll`: aus `reta-mojo-schema`, `reta-mojo-semantics`, `reta-mojo-tags`.
-- `libreta-diagnostics.so/.dll`: schon teilweise vorhanden durch `libreta-mojo-diagnostics.so`.
+- `libreta-diagnostics.so/.dll`: schon teilweise vorhanden durch `libreta_diagnostics_mojo.so`.
 - `libreta-architecture.so/.dll`: Architekturmetadaten, aber erst wenn `facade.py` formal abgeschlossen ist.
-- `libreta-core.so/.dll`: erst nach 92/92, für `reta-native`/Workflow/Table/Output.
+- `libreta_core_mojo.so/.dll`: erst nach 92/92, für `reta-native`/Workflow/Table/Output.
 
 Noch nicht früh splitten: `reta-prompt-native`, `reta-mojo-compat-bin`, `reta-native`-Core, solange `prompt_execution.py`, `facade.py` und `reta.py` formal noch Restflächen sind.
 
@@ -114,7 +114,7 @@ Noch nicht früh splitten: `reta-prompt-native`, `reta-mojo-compat-bin`, `reta-n
 - **Quelle/Entrypoint**: `src/program_workflow_main.mojo`
 - **Launcher/öffentlicher Zugriff**: `bin/reta-mojo-workflow`
 - **Kurz**: Diagnose-CLI für den nativen Programm-Workflow-Owner.
-- **Lang**: Dieses Ziel untersucht den Weg von CLI-/Semantikdaten zu Tabellenworkflow, CSV-Laden, Kombi-Planung, Output-Kind und Zell-Decoding. Es sitzt näher am echten Programmkern als reine Architekturtools. Für `.so/.dll` ist es ein Kandidat für `libreta-core` oder `libreta-workflow`, aber erst wenn `reta.py` formal abgeschlossen ist.
+- **Lang**: Dieses Ziel untersucht den Weg von CLI-/Semantikdaten zu Tabellenworkflow, CSV-Laden, Kombi-Planung, Output-Kind und Zell-Decoding. Es sitzt näher am echten Programmkern als reine Architekturtools. Für `.so/.dll` ist es ein Kandidat für `libreta_core_mojo` oder `libreta-workflow`, aber erst wenn `reta.py` formal abgeschlossen ist.
 - **`.so/.dll`-Hinweis**: Mittel- bis langfristiger Core-/Table-/Output-Kandidat; ABI erst nach Stabilisierung festlegen.
 
 ### `reta-mojo-sheaves`
@@ -132,7 +132,7 @@ Noch nicht früh splitten: `reta-prompt-native`, `reta-mojo-compat-bin`, `reta-n
 - **Quelle/Entrypoint**: `tools/reta_mojo_diagnostics_loader.c + src/reta_diagnostics_abi.mojo`
 - **Launcher/öffentlicher Zugriff**: `bin/reta-mojo-diagnostics und Subcommand-Wrapper`
 - **Kurz**: Kleiner C-Loader für die gemeinsame Mojo-Diagnose-Shared-Library.
-- **Lang**: Dieses Ziel ist eine Besonderheit: Das Executable selbst wird mit C gebaut und lädt `target/lib/reta/libreta-mojo-diagnostics.so`. Die eigentliche Logik steckt in der Mojo-Shared-Library. Aktuell bündelt sie Diagnoseflächen wie table-generation, output-syntax, console-io und table-output. Das ist dein vorhandenes Muster für spätere `.so/.dll`: kleine Loader, schmale C-ABI, Logik in Shared Library.
+- **Lang**: Dieses Ziel ist eine Besonderheit: Das Executable selbst wird mit C gebaut und lädt `target/lib/reta/libreta_diagnostics_mojo.so`. Die eigentliche Logik steckt in der Mojo-Shared-Library. Aktuell bündelt sie Diagnoseflächen wie table-generation, output-syntax, console-io und table-output. Das ist dein vorhandenes Muster für spätere `.so/.dll`: kleine Loader, schmale C-ABI, Logik in Shared Library.
 - **`.so/.dll`-Hinweis**: Bereits Shared-Library-Muster; gutes Vorbild für weitere Splits.
 
 ### `reta-mojo-domain-probe`
@@ -150,7 +150,7 @@ Noch nicht früh splitten: `reta-prompt-native`, `reta-mojo-compat-bin`, `reta-n
 - **Quelle/Entrypoint**: `src/architecture_probe_main.mojo`
 - **Launcher/öffentlicher Zugriff**: `bin/reta-mojo-architecture-probe`
 - **Kurz**: Native Architektur-Probe für generierte Probe-Assets.
-- **Lang**: Dieses Ziel liefert Architektur-Inspektionsdaten, Asset-Inhalte und Manifestinformationen. Es ist wichtig für Regression und Parität, aber nicht für normale `reta`-Ausführung. Für `.so/.dll` gehört es in `libreta-architecture` oder `libreta-diagnostics`, nicht in `libreta-core`.
+- **Lang**: Dieses Ziel liefert Architektur-Inspektionsdaten, Asset-Inhalte und Manifestinformationen. Es ist wichtig für Regression und Parität, aber nicht für normale `reta`-Ausführung. Für `.so/.dll` gehört es in `libreta-architecture` oder `libreta-diagnostics`, nicht in `libreta_core_mojo`.
 - **`.so/.dll`-Hinweis**: Eher Architektur-/Diagnose-Library, nicht Runtime-Core.
 
 ### `reta-mojo-combi-join`
@@ -168,7 +168,7 @@ Noch nicht früh splitten: `reta-prompt-native`, `reta-mojo-compat-bin`, `reta-n
 - **Quelle/Entrypoint**: `src/reta_native_main.mojo`
 - **Launcher/öffentlicher Zugriff**: `bin/reta-native`
 - **Kurz**: Native Hauptausführung für bereits vollständig unterstützte historische `reta`-Argumente.
-- **Lang**: Dieses Binary ruft `run_native_reta(...)` direkt auf und ist der wichtigste Kandidat für die spätere echte Python-freie Haupt-CLI. Es benutzt native CSV-Ressourcen und gibt den fertigen Tabellen-/Textoutput aus. Für `.so/.dll` sollte `reta-native` langfristig nur noch ein dünner CLI-Wrapper gegen `libreta-core` sein.
+- **Lang**: Dieses Binary ruft `run_native_reta(...)` direkt auf und ist der wichtigste Kandidat für die spätere echte Python-freie Haupt-CLI. Es benutzt native CSV-Ressourcen und gibt den fertigen Tabellen-/Textoutput aus. Für `.so/.dll` sollte `reta-native` langfristig nur noch ein dünner CLI-Wrapper gegen `libreta_core_mojo` sein.
 - **`.so/.dll`-Hinweis**: Mittel- bis langfristiger Core-/Table-/Output-Kandidat; ABI erst nach Stabilisierung festlegen.
 
 ### `reta-mojo-compat-bin`
@@ -195,7 +195,7 @@ Noch nicht früh splitten: `reta-prompt-native`, `reta-mojo-compat-bin`, `reta-n
 - **Quelle/Entrypoint**: `src/prompt_completion_main.mojo`
 - **Launcher/öffentlicher Zugriff**: `interner Worker für Prompt-Completion`
 - **Kurz**: Persistenter nativer Nested-Completion-Worker für GNU readline.
-- **Lang**: Dieses Ziel ersetzt Python-Completion-Logik: Kontextübergänge, fuzzy matching, Kandidatenreihenfolge und Pipe-Bytes laufen in Mojo. Der Python-/Shell-Anteil verwaltet höchstens Terminalcallback und Prozesslebenszyklus. Für Shared Libraries kann Completion später in eine eigene `libreta-prompt` oder `libreta-completion` wandern, muss aber nicht in die Haupt-Core-Library.
+- **Lang**: Dieses Ziel ersetzt Python-Completion-Logik: Kontextübergänge, fuzzy matching, Kandidatenreihenfolge und Pipe-Bytes laufen in Mojo. Der Python-/Shell-Anteil verwaltet höchstens Terminalcallback und Prozesslebenszyklus. Für Shared Libraries kann Completion später in eine eigene `libreta_prompt_mojo` oder `libreta-completion` wandern, muss aber nicht in die Haupt-Core-Library.
 - **`.so/.dll`-Hinweis**: Eher CLI-/Diagnosewerkzeug; nur bei Bedarf in eine gemeinsame Library ziehen.
 
 ### `grundStrukHtml-native`
@@ -438,7 +438,7 @@ Noch nicht früh splitten: `reta-prompt-native`, `reta-mojo-compat-bin`, `reta-n
 
 ## Aktuelle Shared Library
 
-### `libreta-mojo-diagnostics.so`
+### `libreta_diagnostics_mojo.so`
 
 - **Build**: `scripts/build_diagnostics_shared.sh`, indirekt aus `scripts/build.sh`.
 - **Quelle/Entrypoint**: `src/reta_diagnostics_abi.mojo`.
@@ -626,7 +626,7 @@ Viele `bin/reta-mojo-*` Dateien sind keine eigenen kompilierten Programme, sonde
 
 ### Phase B: nach 92/92
 
-1. `libreta-core`: `run_native_reta`, Workflow, native CLI-Planung.
+1. `libreta_core_mojo`: `run_native_reta`, Workflow, native CLI-Planung.
 2. `libreta-table`: CSV, Table-State, Table-Generation, Kombi-Join, Row-Preparation.
 3. `libreta-render`: Output-Syntax, Table-Output, HTML/BBCode/Markdown/Emacs.
 

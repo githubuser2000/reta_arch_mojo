@@ -52,7 +52,7 @@ pixi run cmake-configure
 pixi run cmake-list-targets
 ```
 
-Nur `reta` und `libreta-core.so` bauen:
+Nur `reta` und `libreta_core_mojo.so` bauen:
 
 ```sh
 pixi run cmake-build-core-shared

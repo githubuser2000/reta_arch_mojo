@@ -6,7 +6,7 @@ explicit native reaction-input owner.
 ## Native owner split
 
 `src/reta_mojo/prompt_reaction_input.mojo` now owns the prompt-reaction input
-edge that does not require `libreta-core` and does not cross an OS process
+edge that does not require `libreta_core_mojo` and does not cross an OS process
 boundary:
 
 - terminal sentinels (`Ctrl-D` / `Ctrl-C`) as explicit typed exit plans,
@@ -35,13 +35,13 @@ This is preparation only; no `.so`/`.dll` split is implemented here.
 The target boundary is clearer:
 
 ```text
-libreta-prompt-reaction
+libreta_prompt_mojo-reaction
   owns physical input, session reaction and local prompt effects
-  does not need libreta-core
+  does not need libreta_core_mojo
 
-libreta-prompt-execution
+libreta_prompt_mojo-execution
   owns reta/fallback/external execution decisions
-  may use libreta-core
+  may use libreta_core_mojo
 
 libreta-process
   only executes already-planned process argv/payloads

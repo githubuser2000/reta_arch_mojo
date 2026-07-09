@@ -56,12 +56,12 @@ reaction effects:
 The desired future architecture becomes clearer:
 
 ```text
-libreta-prompt-reaction
+libreta_prompt_mojo-reaction
   input
   storage
   local dispatch
 
-libreta-prompt-execution
+libreta_prompt_mojo-execution
   process dispatch
 
 libreta-process

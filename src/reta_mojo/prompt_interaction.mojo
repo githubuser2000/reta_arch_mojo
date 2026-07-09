@@ -5,7 +5,7 @@ have dedicated native owners.  This module owns the startup-to-session lifecycle
 and one-shot command assembly.  Physical input reaction, local prompt reaction
 dispatch and external process execution plans are now split into dedicated
 native owners so the future prompt-reaction library can stay independent from
-``libreta-core``.
+``libreta_core_mojo``.
 
 It deliberately returns typed plans instead of printing or executing commands.
 ``prompt_main.mojo`` remains the thin process entry point and performs the

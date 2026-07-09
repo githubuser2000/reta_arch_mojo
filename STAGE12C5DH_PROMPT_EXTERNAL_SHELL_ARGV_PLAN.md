@@ -45,10 +45,10 @@ external_shell_arguments=native-prompt-shell-argv-plan
 Diese Stage passt zum geplanten Zielrahmen:
 
 ```text
-libreta-prompt-reaction.so
+libreta_prompt_mojo-reaction.so
   Eingabe, Tastaturreaktion, Prompt-Zeile, History
 
-libreta-prompt-execution.so
+libreta_prompt_mojo-execution.so
   klassifizierte Prompt-Kommandos, Effektpläne, argv-Bau
 
 libreta-process.so

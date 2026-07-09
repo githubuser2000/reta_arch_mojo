@@ -44,9 +44,9 @@ Wichtig ist: nicht nur `target/bin/...` muss funktionieren, sondern auch ein ins
 /usr/bin/rpe
 /usr/bin/rpb
 
-/usr/lib/reta/target/lib/reta/libreta-core.so
-/usr/lib/reta/target/lib/reta/libreta-prompt.so
-/usr/lib/reta/target/lib/reta/libreta-prompt-interactive.so
+/usr/lib/reta/target/lib/reta/libreta_core_mojo.so
+/usr/lib/reta/target/lib/reta/libreta_prompt_mojo.so
+/usr/lib/reta/target/lib/reta/libreta_prompt_interactive_mojo.so
 ```
 
 ## 3. Öffentliche Starter endgültig festlegen
@@ -126,9 +126,9 @@ RETA_TEST_HEAVY=1
 Jetzt gibt es echte `.so`-Grenzen. Dafür fehlen noch saubere Verträge:
 
 ```text
-libreta-core.so ABI-Version
-libreta-prompt.so ABI-Version
-libreta-prompt-interactive.so ABI-Version
+libreta_core_mojo.so ABI-Version
+libreta_prompt_mojo.so ABI-Version
+libreta_prompt_interactive_mojo.so ABI-Version
 Symbolnamen dokumentieren
 Fehlercodes dokumentieren
 Source-ID-Sidecars finalisieren

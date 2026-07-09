@@ -7,8 +7,8 @@ case ${1:-} in
 Verwendung: scripts/build_prompt_shared.sh [--dry-run] [--] [MOJO_BUILD_OPTION ...]
 
 Baut die nächste Prompt-Shared-Library-Zielgruppe:
-  - target/lib/reta/libreta-prompt.so
-  - target/lib/reta/libreta-prompt-interactive.so
+  - target/lib/reta/libreta_prompt_mojo.so
+  - target/lib/reta/libreta_prompt_interactive_mojo.so
   - target/bin/rpb als dünner One-shot-Starter ohne interactive Library
   - target/bin/rp, rpl und rpe als dünne interaktive Starter
 
@@ -44,13 +44,13 @@ BUILD_SOURCE_ID=${RETA_BUILD_SOURCE_ID:-$("$ROOT/scripts/current_source_id.sh")}
 if [ "$DRY_RUN" = 1 ]; then
     cat <<'PLAN'
 Prompt-Shared-Library-Buildplan:
-  src/reta_prompt_abi.mojo             --emit shared-lib -> target/lib/reta/libreta-prompt.so
-  src/reta_prompt_interactive_abi.mojo --emit shared-lib -> target/lib/reta/libreta-prompt-interactive.so
+  src/reta_prompt_abi.mojo             --emit shared-lib -> target/lib/reta/libreta_prompt_mojo.so
+  src/reta_prompt_interactive_abi.mojo --emit shared-lib -> target/lib/reta/libreta_prompt_interactive_mojo.so
   tools/reta_prompt_loader.c                              -> target/bin/rpb
   tools/reta_prompt_loader.c                              -> target/bin/rp
   tools/reta_prompt_loader.c                              -> target/bin/rpl
   tools/reta_prompt_loader.c                              -> target/bin/rpe
-  rpb lädt nur libreta-prompt.so, nicht libreta-prompt-interactive.so
+  rpb lädt nur libreta_prompt_mojo.so, nicht libreta_prompt_interactive_mojo.so
 PLAN
     exit 0
 fi
@@ -59,10 +59,10 @@ mkdir -p "$TARGET_DIR" "$LIB_DIR" "$RUNTIME_LINK_DIR"
 RETA_MOJO_RUNTIME_LINK_DIR="$RUNTIME_LINK_DIR" \
     "$ROOT/scripts/configure_mojo_runtime.sh" >/dev/null
 
-PROMPT_LIBRARY="$LIB_DIR/libreta-prompt.so"
-INTERACTIVE_LIBRARY="$LIB_DIR/libreta-prompt-interactive.so"
-TMP_PROMPT_LIBRARY="$LIB_DIR/.libreta-prompt.so.tmp.$$"
-TMP_INTERACTIVE_LIBRARY="$LIB_DIR/.libreta-prompt-interactive.so.tmp.$$"
+PROMPT_LIBRARY="$LIB_DIR/libreta_prompt_mojo.so"
+INTERACTIVE_LIBRARY="$LIB_DIR/libreta_prompt_interactive_mojo.so"
+TMP_PROMPT_LIBRARY="$LIB_DIR/.libreta_prompt_mojo.so.tmp.$$"
+TMP_INTERACTIVE_LIBRARY="$LIB_DIR/.libreta_prompt_interactive_mojo.so.tmp.$$"
 TMP_PROMPT_LOADER="$TARGET_DIR/.reta-prompt-loader.tmp.$$"
 
 cleanup_tmp() {

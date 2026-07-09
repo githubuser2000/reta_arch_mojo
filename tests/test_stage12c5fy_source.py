@@ -42,7 +42,7 @@ def test_build_all_keeps_runtime_smoke_but_now_has_non_silent_failures() -> None
     assert "test_prompt_shared_runtime.sh" in build_all
     assert "RETA_SKIP_PROMPT_SHARED_RUNTIME_SMOKE" in build_all
     assert "set -e" in smoke
-    assert "rpb scheiterte bei fehlender libreta-prompt.so nicht" in smoke
+    assert "rpb scheiterte bei fehlender libreta_prompt_mojo.so nicht" in smoke
 
 
 def test_stage_script_collects_fy_regression_guards() -> None:

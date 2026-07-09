@@ -7,7 +7,7 @@ für die nächsten Umbau-Stages ein.
 
 ## Zielbibliotheken
 
-### `libreta-core.so` / `libreta-core.dll`
+### `libreta_core_mojo.so` / `libreta_core_mojo.dll`
 
 Gemeinsamer nativer Kern für:
 
@@ -22,7 +22,7 @@ Inhaltlich gehören hierher: Parametersemantik, Tabellenlogik, Spalten- und
 Zeilenlogik, Ausgabeformate, Program-Workflow, `reta`-CLI-Planung sowie der
 Teil von Grundstrukturen/HTML, der von `grundStrukHtml` wiederverwendet wird.
 
-### `libreta-prompt.so` / `libreta-prompt.dll`
+### `libreta_prompt_mojo.so` / `libreta_prompt_mojo.dll`
 
 Gemeinsame Prompt-Ausführung für:
 
@@ -31,10 +31,10 @@ Gemeinsame Prompt-Ausführung für:
 - `rpe`
 - `rpb`
 
-Diese Bibliothek darf `libreta-core` verwenden.  `rpb` ist hier als direkter
+Diese Bibliothek darf `libreta_core_mojo` verwenden.  `rpb` ist hier als direkter
 One-shot-Starter angebunden.
 
-### `libreta-prompt-interactive.so` / `libreta-prompt-interactive.dll`
+### `libreta_prompt_interactive_mojo.so` / `libreta_prompt_interactive_mojo.dll`
 
 Interaktive Prompteingabe nur für:
 
@@ -48,21 +48,21 @@ Session-/History-/Line-Editor-Logik und reine Terminal-Reaktionsgrenzen.
 ## Dünne Starter
 
 ```text
-reta           -> libreta-core
-grundStrukHtml -> libreta-core
-rpb            -> libreta-prompt + libreta-core
-rp             -> libreta-prompt-interactive + libreta-prompt + libreta-core
-rpl            -> libreta-prompt-interactive + libreta-prompt + libreta-core
-rpe            -> libreta-prompt-interactive + libreta-prompt + libreta-core
+reta           -> libreta_core_mojo
+grundStrukHtml -> libreta_core_mojo
+rpb            -> libreta_prompt_mojo + libreta_core_mojo
+rp             -> libreta_prompt_interactive_mojo + libreta_prompt_mojo + libreta_core_mojo
+rpl            -> libreta_prompt_interactive_mojo + libreta_prompt_mojo + libreta_core_mojo
+rpe            -> libreta_prompt_interactive_mojo + libreta_prompt_mojo + libreta_core_mojo
 ```
 
 ## Harte Regeln
 
-1. `reta` wird nur noch Starter und delegiert an `libreta-core`.
+1. `reta` wird nur noch Starter und delegiert an `libreta_core_mojo`.
 2. `grundStrukHtml` verwendet dieselbe Core-Bibliothek wie `reta`.
-3. `rp`, `rpl`, `rpe`, `rpb` teilen sich `libreta-prompt`.
+3. `rp`, `rpl`, `rpe`, `rpb` teilen sich `libreta_prompt_mojo`.
 4. `rpb` verwendet keine interaktive Prompteingabe-Bibliothek.
-5. Nur `rp`, `rpl`, `rpe` verwenden `libreta-prompt-interactive`.
+5. Nur `rp`, `rpl`, `rpe` verwenden `libreta_prompt_interactive_mojo`.
 6. Diese Stage ist absichtlich nicht der produktive ABI-Umbau; sie verhindert
    erst einmal falsche Abhängigkeiten, bevor echte `--emit shared-lib`-Ziele
    für die drei neuen Bibliotheken angeschlossen werden.

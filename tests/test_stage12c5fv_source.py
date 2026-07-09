@@ -22,7 +22,7 @@ def test_runtime_smoke_script_proves_rpb_does_not_load_interactive_library() -> 
     assert "\"$TARGET_DIR/rpb\" prim 60" in smoke
     assert "60: 2^2 3 5" in smoke
     assert "RETA_PROMPT_LIBRARY=/definitely/missing" in smoke
-    assert "rpb lief trotz fehlender libreta-prompt.so" in smoke
+    assert "rpb lief trotz fehlender libreta_prompt_mojo.so" in smoke
 
 
 def test_runtime_smoke_script_exercises_interactive_starters() -> None:
@@ -40,7 +40,7 @@ def test_prompt_loader_loads_common_prompt_library_before_interactive_boundary()
     assert "RTLD_NOW | RTLD_GLOBAL" in loader
     assert "RTLD_NOW | RTLD_LOCAL" in loader
     rpb_entry = loader[loader.index('{"rpb",'):loader.index('{"rp",')]
-    assert "libreta-prompt-interactive" not in rpb_entry
+    assert "libreta_prompt_interactive_mojo" not in rpb_entry
 
 
 def test_stage_script_runs_runtime_smoke_after_build_all() -> None:

@@ -45,7 +45,7 @@ prompt_external_commands:
 ```
 
 Damit wird der spätere `.so`-/`.dll`-Split sauberer: Die spätere
-`libreta-prompt-runtime` besitzt die Umwandlung von klassifizierten
+`libreta_prompt_mojo-runtime` besitzt die Umwandlung von klassifizierten
 Prompt-Kommandos in argv-Vektoren. Die Interaktions-Library muss nur noch
 entscheiden, welcher Effekt ausgeführt werden soll.
 
@@ -70,10 +70,10 @@ Die beobachtbare Semantik bleibt erhalten:
 Diese Stage bereitet die spätere Trennung vor:
 
 ```text
-libreta-prompt-runtime.so/.dll
+libreta_prompt_mojo-runtime.so/.dll
   besitzt PromptCommand -> argv-Bau
 
-libreta-prompt-execution.so/.dll
+libreta_prompt_mojo-execution.so/.dll
   besitzt Dispatch-Pläne und Effektentscheidungen
 
 libreta-process.so/.dll

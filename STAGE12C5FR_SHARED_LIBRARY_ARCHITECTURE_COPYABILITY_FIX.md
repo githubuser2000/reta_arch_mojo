@@ -15,16 +15,16 @@ Diese Stage macht den Plan strikt Mojo-kompatibel:
 Die fachliche Zielarchitektur bleibt unverändert:
 
 ```text
-libreta-core.so / libreta-core.dll
+libreta_core_mojo.so / libreta_core_mojo.dll
   Verbraucher: reta, rp, rpl, rpe, rpb, grundStrukHtml
 
-libreta-prompt.so / libreta-prompt.dll
+libreta_prompt_mojo.so / libreta_prompt_mojo.dll
   Verbraucher: rp, rpl, rpe, rpb
-  Abhängigkeit: libreta-core
+  Abhängigkeit: libreta_core_mojo
 
-libreta-prompt-interactive.so / libreta-prompt-interactive.dll
+libreta_prompt_interactive_mojo.so / libreta_prompt_interactive_mojo.dll
   Verbraucher: rp, rpl, rpe
-  Abhängigkeit: libreta-prompt
+  Abhängigkeit: libreta_prompt_mojo
   Nicht verwendet von: rpb
 ```
 

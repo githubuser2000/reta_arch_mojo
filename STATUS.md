@@ -405,7 +405,7 @@
 # Status – Stage 12c5av
 
 - `build.sh`, `build-heavy.sh` und `build-all.sh` akzeptieren nun einen unveränderten `MOJO_BUILD_OPTION`-Argumentvektor nach `--`.
-- `build-all.sh` reicht denselben Vektor an schwere und reguläre Ziele weiter; `build.sh` schließt auch `libreta-mojo-diagnostics.so` ein.
+- `build-all.sh` reicht denselben Vektor an schwere und reguläre Ziele weiter; `build.sh` schließt auch `libreta_diagnostics_mojo.so` ein.
 - `--optimize-heavy` beziehungsweise `RETA_HEAVY_DEFAULT_NO_OPT=0` entfernt die lokale O0-Vorgabe der besonders großen Metadatenziele.
 - Ausgabeart, Zielpfad, RUNPATH, Source-ID und atomare Veröffentlichung bleiben fest im Besitz der Skripte.
 - Der Benutzer führt den Modular-Compilerlauf mit `scripts/test_stage12c5av.sh` aus.

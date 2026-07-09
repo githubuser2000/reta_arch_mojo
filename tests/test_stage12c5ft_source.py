@@ -43,18 +43,18 @@ def test_prompt_shared_abi_files_are_present_and_narrow() -> None:
 
 def test_prompt_loader_routes_rpb_away_from_interactive_library() -> None:
     loader = (ROOT / "tools/reta_prompt_loader.c").read_text(encoding="utf-8")
-    assert '{"rpb", "rpb", "libreta-prompt.so"' in loader
-    assert "libreta-prompt-interactive.so" in loader
+    assert '{"rpb", "rpb", "libreta_prompt_mojo.so"' in loader
+    assert "libreta_prompt_interactive_mojo.so" in loader
     rpb_entry = loader[loader.index('{"rpb"') : loader.index('{"rp"')]
-    assert "libreta-prompt-interactive" not in rpb_entry
+    assert "libreta_prompt_interactive_mojo" not in rpb_entry
     assert "reta_prompt_entry" in rpb_entry
     assert "reta_prompt_interactive_entry" not in rpb_entry
 
 
 def test_prompt_shared_build_is_documented_and_promoted_after_ft() -> None:
     build = (ROOT / "scripts/build_prompt_shared.sh").read_text(encoding="utf-8")
-    assert "libreta-prompt.so" in build
-    assert "libreta-prompt-interactive.so" in build
+    assert "libreta_prompt_mojo.so" in build
+    assert "libreta_prompt_interactive_mojo.so" in build
     assert "target/bin/rpb" in build
     assert "target/bin/rp" in build
     assert "stamp_mojo_binary.sh" in build
@@ -67,7 +67,7 @@ def test_stage_is_documented() -> None:
     doc = (ROOT / "STAGE12C5FT_PROMPT_SHARED_ABI_THIN_STARTERS.md").read_text(
         encoding="utf-8"
     )
-    assert "libreta-prompt.so" in doc
-    assert "libreta-prompt-interactive.so" in doc
+    assert "libreta_prompt_mojo.so" in doc
+    assert "libreta_prompt_interactive_mojo.so" in doc
     assert "rpb" in doc and "nicht" in doc
     assert "run_prompt_profile_from_args" in doc

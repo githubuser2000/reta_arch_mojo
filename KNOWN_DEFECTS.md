@@ -1328,7 +1328,7 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 - Python-Status: `not_applicable`
 - Mojo-Status: `fixed`
 - entdeckt in: `12c5z`
-- Reproduktion: `libreta-mojo-diagnostics.so unter target/lib/reta mit dem bisherigen sanitize_mojo_runpath.py bearbeiten; der Helfer fügte immer $ORIGIN/../lib/mojo hinzu, obwohl die Runtime aus diesem Verzeichnis unter $ORIGIN/../mojo liegt.`
+- Reproduktion: `libreta_diagnostics_mojo.so unter target/lib/reta mit dem bisherigen sanitize_mojo_runpath.py bearbeiten; der Helfer fügte immer $ORIGIN/../lib/mojo hinzu, obwohl die Runtime aus diesem Verzeichnis unter $ORIGIN/../mojo liegt.`
 - heutiger Vertrag: Der RUNPATH-Sanitizer erhält den layoutabhängigen relativen Runtimepfad explizit. Executables verwenden $ORIGIN/../lib/mojo; die Shared Library unter target/lib/reta verwendet $ORIGIN/../mojo.
 - spätere Python-Aktion: Keine Python-Änderung erforderlich; betroffen war ausschließlich die native ELF-Paketierung.
 - Mojo-Orte: `tools/sanitize_mojo_runpath.py`, `scripts/build_diagnostics_shared.sh`, `tests/test_mojo_runtime_path.py`

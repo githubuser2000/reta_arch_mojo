@@ -34,9 +34,9 @@ mkdir -p "$TARGET_DIR" "$LIB_DIR" "$RUNTIME_LINK_DIR"
 RETA_MOJO_RUNTIME_LINK_DIR="$RUNTIME_LINK_DIR" \
     "$ROOT/scripts/configure_mojo_runtime.sh" >/dev/null
 
-LIBRARY="$LIB_DIR/libreta-mojo-diagnostics.so"
+LIBRARY="$LIB_DIR/libreta_diagnostics_mojo.so"
 LOADER="$TARGET_DIR/reta-mojo-diagnostics"
-TMP_LIBRARY="$LIB_DIR/.libreta-mojo-diagnostics.so.tmp.$$"
+TMP_LIBRARY="$LIB_DIR/.libreta_diagnostics_mojo.so.tmp.$$"
 TMP_LOADER="$TARGET_DIR/.reta-mojo-diagnostics.tmp.$$"
 cleanup_tmp() {
     rm -f "$TMP_LIBRARY" "$TMP_LIBRARY.reta-source-id" \

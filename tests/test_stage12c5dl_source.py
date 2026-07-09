@@ -104,7 +104,7 @@ def test_stage_document_records_library_boundary() -> None:
         encoding="utf-8"
     )
     assert "prompt-reaction" in document
-    assert "libreta-prompt-reaction" in document
-    assert "libreta-prompt-execution" in document
+    assert "libreta_prompt_mojo-reaction" in document
+    assert "libreta_prompt_mojo-execution" in document
     assert ".so" in document and ".dll" in document
     assert "Keine `.so` oder `.dll`" in document

@@ -7,7 +7,7 @@ scripts/build-all.sh
 ```
 
 Dieser Aufruf baut schwere und reguläre Ziele. `scripts/build.sh` erzeugt dabei
-auch `libreta-mojo-diagnostics.so`; Stage-Tests sind für installierbare
+auch `libreta_diagnostics_mojo.so`; Stage-Tests sind für installierbare
 Artefakte nicht erforderlich. `scripts/build-and-test-shared-diagnostics.sh`
 ist nur ein optionales Paritätswerkzeug und trägt deshalb ausdrücklich
 `build-and-test` im Namen.
@@ -119,7 +119,7 @@ reta-mojo-semantics               reta-mojo-traces
 reta-mojo-validation              reta-mojo-witnesses
 ```
 
-Die ersten 21 Executables und `libreta-mojo-diagnostics.so` stammen aus `scripts/build.sh`; die letzten 18 Executables sind optionale
+Die ersten 21 Executables und `libreta_diagnostics_mojo.so` stammen aus `scripts/build.sh`; die letzten 18 Executables sind optionale
 schwere Ziele aus `scripts/build-heavy.sh`. Nicht gebaute optionale Ziele werden
 übersprungen. Andere Dateien in `target/bin`, insbesondere lokale Debug- oder
 Altvarianten wie `reta-native-o0`, werden ausdrücklich **nicht** installiert.
@@ -257,7 +257,7 @@ zu einem einzigen Releasebinary `target/bin/reta` zusammengeführt werden.
 | Prägarben-/Garbendiagnose | `target/bin/reta-mojo-sheaves` | 269 lokale CSV-/i18n-/Assetsektionen, Promptzustand, Parametersemantik, Generator-/Ausgabesektionen und 669 vollständige HTML-Referenzen vollständig nativ |
 | Tabellen-Gluing | `bin/reta-mojo-table-generation` → gemeinsame Diagnosebibliothek | typisierter Plan für CSV-Anfügung, Last-Line-Capture, zwölf Generatorfamilien und Galaxie-/Universum-Kombi-Join |
 | Ausgabesemantik/-syntax | `bin/reta-mojo-output-syntax` → gemeinsame Diagnosebibliothek | sieben Modi, Aliase, Flags, Syntaxdeskriptoren, Bundle/Snapshot sowie typisierte HTML-/BBCode-/Textzellen |
-| Gemeinsame Diagnose-ABI | `target/bin/reta-mojo-diagnostics` + `target/lib/reta/libreta-mojo-diagnostics.so` | vier kompatible Befehlsoberflächen für TableGeneration, OutputSyntax, ConsoleIO und TableOutput; versionierte C-ABI und Source-ID-Paarprüfung |
+| Gemeinsame Diagnose-ABI | `target/bin/reta-mojo-diagnostics` + `target/lib/reta/libreta_diagnostics_mojo.so` | vier kompatible Befehlsoberflächen für TableGeneration, OutputSyntax, ConsoleIO und TableOutput; versionierte C-ABI und Source-ID-Paarprüfung |
 | Console-/Help-/Utility-Semantik | `bin/reta-mojo-console-io` → gemeinsame Diagnosebibliothek | Chunking, geordnete Eindeutigkeit, Ausgabe-/Debug-Effektplanung, beide Hilfetexte, Terminalkontext und geordneter Default-Container vollständig nativ |
 | Domain-Probe-Kern | `target/bin/reta-mojo-domain-probe` | alle 16 Referenzbefehle nativ: Alias-/Paar-/Spaltenabfragen, HTML-, Schema- und vollständiger Architektursnapshot ohne Python-Laufzeit |
 | Architektur-Gesamtprobe | `target/bin/reta-mojo-architecture-probe` | 63 reproduzierbare JSON-/Markdown-Oberflächen aus installierten Assets plus dynamische native Paketintegrität; portable Referenzpfadauflösung |

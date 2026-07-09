@@ -5,7 +5,7 @@ terminal sentinel handling, store-next/delete-next continuations, empty-line
 stored-default execution and previous-command recording.  It depends only on
 prompt language/runtime/session/storage helpers and deliberately does
 not depend on the reta core or the OS process adapter.  It is preparation for
-future ``libreta-prompt-reaction`` extraction.
+future ``libreta_prompt_mojo-reaction`` extraction.
 """
 
 from std.collections import List

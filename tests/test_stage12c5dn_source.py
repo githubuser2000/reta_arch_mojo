@@ -102,6 +102,6 @@ def test_document_records_input_boundary_without_implementing_shared_libs() -> N
     doc = (ROOT / "STAGE12C5DN_PROMPT_REACTION_INPUT_OWNER.md").read_text(
         encoding="utf-8"
     )
-    assert "libreta-prompt-reaction" in doc
-    assert "libreta-core" in doc
+    assert "libreta_prompt_mojo-reaction" in doc
+    assert "libreta_core_mojo" in doc
     assert "no `.so`/`.dll` split is implemented" in doc

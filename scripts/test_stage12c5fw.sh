@@ -12,8 +12,8 @@ echo '== prompt shared build and install runtime smoke =='
 "$ROOT/scripts/build_shared_library_targets.sh" --dry-run -- "$@"
 
 if [ -x "$ROOT/target/bin/rpb" ] && \
-   [ -f "$ROOT/target/lib/reta/libreta-prompt.so" ] && \
-   [ -f "$ROOT/target/lib/reta/libreta-prompt-interactive.so" ]; then
+   [ -f "$ROOT/target/lib/reta/libreta_prompt_mojo.so" ] && \
+   [ -f "$ROOT/target/lib/reta/libreta_prompt_interactive_mojo.so" ]; then
     "$ROOT/scripts/test_prompt_shared_runtime.sh"
 else
     printf '%s\n' 'Prompt-Shared-Runtime-Smoke übersprungen: bitte zuerst scripts/build-all.sh oder scripts/build_prompt_shared.sh ausführen.'

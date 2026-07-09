@@ -172,20 +172,38 @@ static void set_runtime_environment(const char *argv0) {
     }
     memcpy(root, executable, strlen(executable) + 1);
 
+    int installed_bin_layout = 0;
     /* Build tree: target/bin/<starter> -> project root. */
     if (strip_suffix(root, "/target/bin") != 0) {
-        /* Installed tree: /usr/lib/reta/<starter> -> private runtime root. */
+        /* Installed tree: <prefix>/bin/<starter> -> <prefix>. */
         memcpy(root, executable, strlen(executable) + 1);
+        if (strip_suffix(root, "/bin") == 0) {
+            installed_bin_layout = 1;
+        } else {
+            /* Private/source-compatible fallback. */
+            memcpy(root, executable, strlen(executable) + 1);
+        }
     }
 
     set_environment_if_unset("RETA_ROOT", root);
 
-    if (join_path(reference, sizeof(reference), root, "python_reference") == 0) {
+    if (installed_bin_layout) {
+        if (join_path(reference, sizeof(reference), root, "lib/reta/python_reference") == 0) {
+            set_environment_if_unset("RETA_REFERENCE_DIR", reference);
+        }
+    } else if (join_path(reference, sizeof(reference), root, "python_reference") == 0) {
         set_environment_if_unset("RETA_REFERENCE_DIR", reference);
     }
 
     if (!environment_is_set("RETA_SHARE_DIR")) {
-        if (strlen(root) + 1 <= sizeof(prefix)) {
+        if (installed_bin_layout) {
+            if (join_path(share, sizeof(share), root, "share/reta") == 0 &&
+                join_path(csv, sizeof(csv), share, "csv") == 0 &&
+                join_path(assets, sizeof(assets), share, "assets") == 0 &&
+                directory_exists(csv) && directory_exists(assets)) {
+                setenv("RETA_SHARE_DIR", share, 1);
+            }
+        } else if (strlen(root) + 1 <= sizeof(prefix)) {
             memcpy(prefix, root, strlen(root) + 1);
             if (parent_directory(prefix) == 0 && parent_directory(prefix) == 0 &&
                 join_path(share, sizeof(share), prefix, "share/reta") == 0 &&
@@ -239,11 +257,11 @@ static int library_path(char *buffer, size_t size, const char *argv0) {
     *slash = '\0';
 
 #if defined(__APPLE__)
-    const char *library_name = "libreta-core.dylib";
+    const char *library_name = "libreta_core_mojo.dylib";
 #elif defined(_WIN32)
-    const char *library_name = "libreta-core.dll";
+    const char *library_name = "libreta_core_mojo.dll";
 #else
-    const char *library_name = "libreta-core.so";
+    const char *library_name = "libreta_core_mojo.so";
 #endif
 
     if (format_library_path(buffer, size, executable, "", library_name) == 0 &&
@@ -289,8 +307,12 @@ static int verify_matching_stamps(const char *argv0, const char *library) {
             (int)sizeof(library_stamp)) {
         return RETA_STALE_STATUS;
     }
-    if (read_stamp(executable_stamp, executable_id, sizeof(executable_id)) != 0 ||
-        read_stamp(library_stamp, library_id, sizeof(library_id)) != 0 ||
+    int executable_stamp_status = read_stamp(executable_stamp, executable_id, sizeof(executable_id));
+    int library_stamp_status = read_stamp(library_stamp, library_id, sizeof(library_id));
+    if (executable_stamp_status != 0 && library_stamp_status != 0) {
+        return 0;
+    }
+    if (executable_stamp_status != 0 || library_stamp_status != 0 ||
         strcmp(executable_id, library_id) != 0) {
         fprintf(stderr,
                 "Core-Starter und Shared Library stammen nicht aus demselben Quellstand.\n"

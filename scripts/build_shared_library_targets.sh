@@ -7,12 +7,12 @@ case ${1:-} in
 Verwendung: scripts/build_shared_library_targets.sh [--dry-run] [--] [MOJO_BUILD_OPTION ...]
 
 Beschreibt die neue dynamische Zielarchitektur:
-  - libreta-core.so / libreta-core.dll
-  - libreta-prompt.so / libreta-prompt.dll
-  - libreta-prompt-interactive.so / libreta-prompt-interactive.dll
+  - libreta_core_mojo.so / libreta_core_mojo.dll
+  - libreta_prompt_mojo.so / libreta_prompt_mojo.dll
+  - libreta_prompt_interactive_mojo.so / libreta_prompt_interactive_mojo.dll
 
 Diese Stage friert die Zielarchitektur und ihre Starter-Abhängigkeiten ein.
-libreta-core.so, libreta-prompt.so und libreta-prompt-interactive.so
+libreta_core_mojo.so, libreta_prompt_mojo.so und libreta_prompt_interactive_mojo.so
 sind offizielle Shared-Library-Zielgruppen. build-all.sh baut alle drei
 Bibliotheken und die zugehörigen dünnen Starter.
 USAGE
@@ -36,26 +36,26 @@ mojo_validate_build_options "$@"
 cat <<'PLAN'
 Geplante Shared-Library-Zielarchitektur:
 
-  libreta-core.so / libreta-core.dll
+  libreta_core_mojo.so / libreta_core_mojo.dll
     Verbraucher: reta, rp, rpl, rpe, rpb, grundStrukHtml
     Inhalt: reta-Kern, Parameter, Tabellen, Ausgaben, Grundstrukturen/HTML-Kern
 
-  libreta-prompt.so / libreta-prompt.dll
+  libreta_prompt_mojo.so / libreta_prompt_mojo.dll
     Verbraucher: rp, rpl, rpe, rpb
-    Abhängigkeit: libreta-core
+    Abhängigkeit: libreta_core_mojo
     Inhalt: gemeinsame Prompt-Ausführung inklusive One-shot-rpb
 
-  libreta-prompt-interactive.so / libreta-prompt-interactive.dll
+  libreta_prompt_interactive_mojo.so / libreta_prompt_interactive_mojo.dll
     Verbraucher: rp, rpl, rpe
-    Abhängigkeit: libreta-prompt
+    Abhängigkeit: libreta_prompt_mojo
     Inhalt: interaktive Prompteingabe, Session, History, Line-Editor
     Nicht verwendet von: rpb
 
 Dünne Starter:
-  reta          -> libreta-core  (aktiv über scripts/build_core_shared.sh)
-  grundStrukHtml-> libreta-core  (aktiv über scripts/build_core_shared.sh)
-  rpb           -> libreta-prompt + libreta-core       (aktiv über scripts/build_prompt_shared.sh)
-  rp/rpl/rpe    -> libreta-prompt-interactive + libreta-prompt + libreta-core
+  reta          -> libreta_core_mojo  (aktiv über scripts/build_core_shared.sh)
+  grundStrukHtml-> libreta_core_mojo  (aktiv über scripts/build_core_shared.sh)
+  rpb           -> libreta_prompt_mojo + libreta_core_mojo       (aktiv über scripts/build_prompt_shared.sh)
+  rp/rpl/rpe    -> libreta_prompt_interactive_mojo + libreta_prompt_mojo + libreta_core_mojo
                   (aktiv über scripts/build_prompt_shared.sh)
 PLAN
 

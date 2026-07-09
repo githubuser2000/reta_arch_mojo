@@ -48,8 +48,8 @@ def test_runtime_smoke_still_keeps_rpb_non_interactive() -> None:
     assert '"$TARGET_DIR/rpb" prim 60' in smoke
     assert "RETA_PROMPT_LIBRARY=/definitely/missing" in smoke
     rpb_entry = loader[loader.index('{"rpb",') : loader.index('{"rp",')]
-    assert "libreta-prompt.so" in rpb_entry
-    assert "libreta-prompt-interactive" not in rpb_entry
+    assert "libreta_prompt_mojo.so" in rpb_entry
+    assert "libreta_prompt_interactive_mojo" not in rpb_entry
 
 
 def test_stage_script_collects_build_install_smoke_guards() -> None:
@@ -65,6 +65,6 @@ def test_stage_script_collects_build_install_smoke_guards() -> None:
 def test_stage_is_documented() -> None:
     doc = _read("STAGE12C5FW_PROMPT_SHARED_BUILD_AND_INSTALL_SMOKE.md")
     assert "RETA_SKIP_PROMPT_SHARED_RUNTIME_SMOKE" in doc
-    assert "libreta-prompt-interactive.so" in doc
-    assert "rpb -> NICHT libreta-prompt-interactive.so" in doc
+    assert "libreta_prompt_interactive_mojo.so" in doc
+    assert "rpb -> NICHT libreta_prompt_interactive_mojo.so" in doc
     assert "check_install_layout.sh" in doc

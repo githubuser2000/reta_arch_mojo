@@ -87,13 +87,13 @@ def _interactive_consumers() -> List[String]:
 
 def _deps_core() -> List[String]:
     var result = List[String]()
-    result.append("libreta-core")
+    result.append("libreta_core_mojo")
     return result^
 
 
 def _deps_prompt() -> List[String]:
     var result = List[String]()
-    result.append("libreta-prompt")
+    result.append("libreta_prompt_mojo")
     return result^
 
 
@@ -103,9 +103,9 @@ def load_shared_library_targets() -> List[SharedLibraryTarget]:
     var targets = List[SharedLibraryTarget]()
     targets.append(
         SharedLibraryTarget(
-            "libreta-core",
-            "libreta-core.so",
-            "libreta-core.dll",
+            "libreta_core_mojo",
+            "libreta_core_mojo.so",
+            "libreta_core_mojo.dll",
             "shared native reta core: parameters, tables, output, CLI planning, GrundstrukHtml",
             _consumer_list("reta", "rp", "rpl", "rpe", "rpb", "grundStrukHtml"),
             _strings(),
@@ -115,9 +115,9 @@ def load_shared_library_targets() -> List[SharedLibraryTarget]:
     )
     targets.append(
         SharedLibraryTarget(
-            "libreta-prompt",
-            "libreta-prompt.so",
-            "libreta-prompt.dll",
+            "libreta_prompt_mojo",
+            "libreta_prompt_mojo.so",
+            "libreta_prompt_mojo.dll",
             "shared prompt execution for rp rpl rpe rpb; one-shot rpb lives here too",
             _prompt_consumers(),
             _deps_core(),
@@ -127,9 +127,9 @@ def load_shared_library_targets() -> List[SharedLibraryTarget]:
     )
     targets.append(
         SharedLibraryTarget(
-            "libreta-prompt-interactive",
-            "libreta-prompt-interactive.so",
-            "libreta-prompt-interactive.dll",
+            "libreta_prompt_interactive_mojo",
+            "libreta_prompt_interactive_mojo.so",
+            "libreta_prompt_interactive_mojo.dll",
             "interactive prompt input/session/history layer for rp rpl rpe only",
             _interactive_consumers(),
             _deps_prompt(),
@@ -148,16 +148,16 @@ def _starter_libraries_single(name: String) -> List[String]:
 
 def _starter_libraries_prompt() -> List[String]:
     var result = List[String]()
-    result.append("libreta-prompt")
-    result.append("libreta-core")
+    result.append("libreta_prompt_mojo")
+    result.append("libreta_core_mojo")
     return result^
 
 
 def _starter_libraries_prompt_interactive() -> List[String]:
     var result = List[String]()
-    result.append("libreta-prompt-interactive")
-    result.append("libreta-prompt")
-    result.append("libreta-core")
+    result.append("libreta_prompt_interactive_mojo")
+    result.append("libreta_prompt_mojo")
+    result.append("libreta_core_mojo")
     return result^
 
 
@@ -165,8 +165,8 @@ def load_thin_starter_targets() -> List[ThinStarterTarget]:
     """Return the executables that should become thin dynamic starters."""
 
     var starters = List[ThinStarterTarget]()
-    starters.append(ThinStarterTarget("reta", _starter_libraries_single("libreta-core"), False))
-    starters.append(ThinStarterTarget("grundStrukHtml", _starter_libraries_single("libreta-core"), False))
+    starters.append(ThinStarterTarget("reta", _starter_libraries_single("libreta_core_mojo"), False))
+    starters.append(ThinStarterTarget("grundStrukHtml", _starter_libraries_single("libreta_core_mojo"), False))
     starters.append(ThinStarterTarget("rpb", _starter_libraries_prompt(), False))
     starters.append(ThinStarterTarget("rp", _starter_libraries_prompt_interactive(), True))
     starters.append(ThinStarterTarget("rpl", _starter_libraries_prompt_interactive(), True))
@@ -184,14 +184,14 @@ def plan_shared_library_architecture() -> SharedLibraryArchitecturePlan:
     for starter_index in range(len(starters)):
         if starters[starter_index].starter_name == "rpb":
             for lib_index in range(len(starters[starter_index].libraries)):
-                if starters[starter_index].libraries[lib_index] == "libreta-prompt-interactive":
+                if starters[starter_index].libraries[lib_index] == "libreta_prompt_interactive_mojo":
                     rpb_uses_interactive = True
     return SharedLibraryArchitecturePlan(
         libraries^,
         starters^,
-        "libreta-core",
-        "libreta-prompt",
-        "libreta-prompt-interactive",
+        "libreta_core_mojo",
+        "libreta_prompt_mojo",
+        "libreta_prompt_interactive_mojo",
         rpb_uses_interactive,
         thin_starter_count,
     )
@@ -202,11 +202,11 @@ def shared_library_architecture_valid(plan: SharedLibraryArchitecturePlan) -> Bo
 
     if len(plan.libraries) != 3:
         return False
-    if plan.core_library != "libreta-core":
+    if plan.core_library != "libreta_core_mojo":
         return False
-    if plan.prompt_library != "libreta-prompt":
+    if plan.prompt_library != "libreta_prompt_mojo":
         return False
-    if plan.prompt_interactive_library != "libreta-prompt-interactive":
+    if plan.prompt_interactive_library != "libreta_prompt_interactive_mojo":
         return False
     if plan.rpb_uses_interactive_library:
         return False
@@ -218,7 +218,7 @@ def shared_library_architecture_valid(plan: SharedLibraryArchitecturePlan) -> Bo
     var saw_interactive = False
     for index in range(len(plan.libraries)):
         var target = plan.libraries[index].copy()
-        if target.logical_name == "libreta-core":
+        if target.logical_name == "libreta_core_mojo":
             saw_core = True
             if target.contains_interactive_input:
                 return False
@@ -226,17 +226,17 @@ def shared_library_architecture_valid(plan: SharedLibraryArchitecturePlan) -> Bo
                 return False
             if not _target_has_consumer(target, "grundStrukHtml"):
                 return False
-        if target.logical_name == "libreta-prompt":
+        if target.logical_name == "libreta_prompt_mojo":
             saw_prompt = True
             if target.contains_interactive_input:
                 return False
             if not target.depends_on_core:
                 return False
-            if not _target_has_dependency(target, "libreta-core"):
+            if not _target_has_dependency(target, "libreta_core_mojo"):
                 return False
             if not _target_has_consumer(target, "rpb"):
                 return False
-        if target.logical_name == "libreta-prompt-interactive":
+        if target.logical_name == "libreta_prompt_interactive_mojo":
             saw_interactive = True
             if not target.contains_interactive_input:
                 return False

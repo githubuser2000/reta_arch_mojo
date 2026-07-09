@@ -4,7 +4,7 @@ This module owns prompt-reaction effects that do not need the reta core and do
 not cross the OS process boundary: logging toggles, terminal clear flags,
 informational flags and small prompt-only numeric/helper output. Storage
 lifecycle dispatch lives in ``prompt_reaction_storage``.  It is the planned source boundary for the
-future ``libreta-prompt-reaction`` shared library.
+future ``libreta_prompt_mojo-reaction`` shared library.
 """
 
 from std.collections import List

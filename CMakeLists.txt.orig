@@ -31,7 +31,7 @@ reta_script_target(reta-heavy
 )
 
 reta_script_target(reta-core-shared
-  COMMENT "Build libreta-core.so and thin reta/grundStrukHtml starters"
+  COMMENT "Build libreta_core_mojo.so and thin reta/grundStrukHtml starters"
   COMMAND scripts/build_core_shared.sh ${RETA_MOJO_BUILD_OPTIONS}
 )
 

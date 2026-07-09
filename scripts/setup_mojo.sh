@@ -33,50 +33,10 @@ PY
 rm -rf .venv
 uv venv --python "$PYTHON_REQUEST" .venv
 uv pip install --python .venv/bin/python 'mojo==1.0.0b2' --prerelease allow
-RETA_TEST_PYTHON="$ROOT/.venv/bin/python3" ./scripts/setup_test_dependencies.sh
 
 printf '\n%s\n' 'Installierter Modular-Mojo-Compiler:'
 .venv/bin/mojo --version
-
-if [ "${RETA_SKIP_BUILD-0}" != "1" ]; then
-    case "${RETA_BUILD_SCOPE-all}" in
-        all)
-            printf '\n%s\n' 'Kompiliere alle regulären und schweren Mojo-Artefakte ...'
-            ./scripts/build-all.sh
-            ;;
-        regular)
-            printf '\n%s\n' 'Kompiliere nur reguläre Mojo-Artefakte ...'
-            ./scripts/build.sh
-            ;;
-        *)
-            printf 'Unbekannter RETA_BUILD_SCOPE: %s (erlaubt: all, regular)\n'                 "$RETA_BUILD_SCOPE" >&2
-            exit 2
-            ;;
-    esac
-else
-    printf '\n%s\n' 'Kompilierung durch RETA_SKIP_BUILD=1 übersprungen.'
-fi
-
-printf '\n%s\n' 'Jetzt ausführbar, ohne source/activate:'
-printf '%s\n' '  ./bin/reta-mojo --mojo-prime 60'
-printf '%s\n' "  ./bin/reta-mojo --mojo-range '1-9,-3' 100"
-printf '%s\n' '  ./bin/reta-mojo --mojo-columns religionen sternpolygon'
-printf '%s\n' '  ./bin/reta-mojo-boundaries --summary'
-printf '%s\n' '  ./bin/reta-mojo-contracts --summary'
-printf '%s\n' '  ./bin/reta-mojo-witnesses --summary'
-printf '%s\n' '  ./bin/reta-mojo-coherence --summary'
-printf '%s\n' '  ./bin/reta-mojo-traces --summary'
-printf '%s\n' '  ./bin/reta-mojo-impact --summary'
-printf '%s\n' '  ./bin/reta-mojo-migration --summary'
-printf '%s\n' '  ./bin/reta-mojo-validation --summary'
-printf '%s\n' '  ./bin/reta-mojo-progress --summary'
-printf '%s\n' '  ./bin/reta-mojo-execution-network --summary'
-printf '%s\n' '  ./bin/reta-mojo-parallel-execution --demo 2 2'
-printf '%s\n' '  ./rp'
-printf '%s\n' '  ./rpb prim 60'
-printf '%s\n' '  ./retaPrompt -befehl multis 12'
-printf '%s\n' '  ./multis3 36'
-printf '%s\n' '  ./grundStrukHtml.py blank'
-printf '%s\n' '  ./generate_html > religions-tabelle.html'
-printf '%s\n' 'Optional alle öffentlichen Startnamen verlinken:'
-printf '%s\n' '  ./scripts/install_bins.sh'
+printf '\n%s\n' 'setup_mojo.sh installiert nur Mojo in .venv. Es baut und installiert keine reta/rp-Binaries.'
+printf '%s\n' 'Mojo direkt prüfen:'
+printf '%s\n' '  .venv/bin/mojo --version'
+printf '%s\n' '  ./bin/mojo-real --version'

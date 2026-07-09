@@ -25,7 +25,7 @@ ldd "$STAGE/usr/lib/reta/reta" || true
 
 echo
 echo '== ldd core library =='
-ldd "$STAGE/usr/lib/reta/libreta-core.so" || true
+ldd "$STAGE/usr/lib/reta/libreta_core_mojo.so" || true
 
 echo
 echo '== run reta-native =='

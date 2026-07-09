@@ -50,7 +50,7 @@ def test_install_script_installs_core_library_for_public_thin_launchers() -> Non
     script = (ROOT / "scripts/install.sh").read_text(encoding="utf-8")
     assert 'require_file "$TARGETDIR/reta"' in script
     assert 'require_file "$TARGETDIR/grundStrukHtml"' in script
-    assert 'CORE_LIBRARY="$TARGETLIBDIR/libreta-core.so"' in script
+    assert 'CORE_LIBRARY="$TARGETLIBDIR/libreta_core_mojo.so"' in script
     assert 'require_file "$CORE_LIBRARY"' in script
     assert 'require_file "$CORE_LIBRARY.reta-source-id"' in script
     assert 'require_file "$TARGETDIR/reta.reta-source-id"' in script
@@ -67,7 +67,7 @@ def test_install_layout_checks_core_launcher_and_no_reference_for_public_reta() 
     assert '[ -L "$STAGE_BINDIR/grundStrukHtml" ]' in script
     assert '[ -x "$STAGE_LIBEXECDIR/reta" ]' in script
     assert '[ -x "$STAGE_LIBEXECDIR/grundStrukHtml" ]' in script
-    assert '[ -f "$STAGE_LIBEXECDIR/libreta-core.so" ]' in script
+    assert '[ -f "$STAGE_LIBEXECDIR/libreta_core_mojo.so" ]' in script
     assert '"$STAGE_BINDIR/reta" "$@" >"$TMP/core-launcher.out"' in script
     assert 'cmp "$TMP/reference.out" "$TMP/core-launcher.out"' in script
     assert "RETA_FORCE_REFERENCE=1" not in script
@@ -82,7 +82,7 @@ def test_stage_is_documented() -> None:
     assert "bin/reta" in doc
     assert "bin/grundStrukHtml" in doc
     assert "target/bin/reta" in doc
-    assert "target/lib/reta/libreta-core.so" in doc
+    assert "target/lib/reta/libreta_core_mojo.so" in doc
     assert "scripts/install.sh" in doc
     assert "reta-mojo-compat" in doc
     assert "rpb" in doc and "does not depend" in doc

@@ -28,7 +28,7 @@ def _build_fake_bundle(tmp_path: Path) -> tuple[Path, Path]:
     bin_dir.mkdir(parents=True)
     lib_dir.mkdir(parents=True)
     loader = bin_dir / "reta-mojo-diagnostics"
-    library = lib_dir / "libreta-mojo-diagnostics.so"
+    library = lib_dir / "libreta_diagnostics_mojo.so"
 
     subprocess.run(
         [
@@ -122,7 +122,7 @@ def test_shared_build_and_loader_are_compiler_wired() -> None:
     build = BUILD_SCRIPT.read_text(encoding="utf-8")
     assert "--emit shared-lib" in build
     assert "src/reta_diagnostics_abi.mojo" in build
-    assert "libreta-mojo-diagnostics.so" in build
+    assert "libreta_diagnostics_mojo.so" in build
     assert "reta_mojo_diagnostics_loader.c" in build
     assert "stamp_mojo_binary.sh" in build
     assert "--portable-component '$ORIGIN/../mojo'" in build

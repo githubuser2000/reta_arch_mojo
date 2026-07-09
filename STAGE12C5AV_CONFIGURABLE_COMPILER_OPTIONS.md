@@ -49,7 +49,7 @@ RETA_HEAVY_DEFAULT_NO_OPT=0 \
 ## Shared Diagnostics
 
 Die Mojo-Optionen werden auch an den Build von
-`libreta-mojo-diagnostics.so` weitergereicht. Der kleine C-Loader behält seine
+`libreta_diagnostics_mojo.so` weitergereicht. Der kleine C-Loader behält seine
 separaten festen Optionen `-O2 -Wall -Wextra -Werror`; Mojo-Optionen werden
 nicht fälschlich an den C-Compiler übergeben.
 

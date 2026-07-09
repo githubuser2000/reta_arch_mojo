@@ -34,16 +34,16 @@ Der Kern von `reta` darf die Prompt-Programme nicht kennen. Prompt-Programme dü
 ## 2. Zentrale Regel
 
 ```text
-libreta-core
+libreta_core_mojo
   kennt keine Prompt-Aufforderung
   kennt keine History
   kennt keine interaktive Tastaturreaktion
   kennt keine rp/rpl/rpe/rpb-Spezial-UI
 ```
 
-Prompt-Libraries dürfen `libreta-core` benutzen, wenn sie echte `reta`-Kommandos ausführen müssen.
+Prompt-Libraries dürfen `libreta_core_mojo` benutzen, wenn sie echte `reta`-Kommandos ausführen müssen.
 
-Die reine Eingabe-/Reaktionsschicht von `rp/rpl/rpe` soll `libreta-core` aber **nicht** brauchen.
+Die reine Eingabe-/Reaktionsschicht von `rp/rpl/rpe` soll `libreta_core_mojo` aber **nicht** brauchen.
 
 ---
 
@@ -52,27 +52,27 @@ Die reine Eingabe-/Reaktionsschicht von `rp/rpl/rpe` soll `libreta-core` aber **
 ```text
 bin/reta
   -> libreta-cli
-      -> libreta-core
+      -> libreta_core_mojo
 
 bin/rp
 bin/rpl
 bin/rpe
-  -> libreta-prompt-interactive
-      -> libreta-prompt-reaction
-      -> libreta-prompt-execution
-          -> libreta-core
+  -> libreta_prompt_interactive_mojo
+      -> libreta_prompt_mojo-reaction
+      -> libreta_prompt_mojo-execution
+          -> libreta_core_mojo
       -> libreta-process
 
 bin/rpb
-  -> libreta-prompt-batch
-      -> libreta-prompt-execution
-          -> libreta-core
+  -> libreta_prompt_mojo-batch
+      -> libreta_prompt_mojo-execution
+          -> libreta_core_mojo
       -> libreta-process
 
 bin/grundStrukHtml
 bin/generate4readme
   -> libreta-docs
-      -> libreta-core
+      -> libreta_core_mojo
 ```
 
 Optional können `libreta-cli`, `libreta-docs` oder `libreta-process` später zusammengelegt werden, falls der Build dadurch einfacher bleibt. Die konzeptionellen Grenzen sollten trotzdem erhalten bleiben.
@@ -83,22 +83,22 @@ Optional können `libreta-cli`, `libreta-docs` oder `libreta-process` später zu
 
 | Library | Zweck | Darf von `reta-core` abhängen? | Darf Prompt enthalten? | Späterer Nutzen |
 |---|---:|---:|---:|---|
-| `libreta-core` | eigentliche reta-Tabellen-/Parameter-/Ausgabelogik | nein, ist der Kern | nein | wichtigste große Core-Library |
+| `libreta_core_mojo` | eigentliche reta-Tabellen-/Parameter-/Ausgabelogik | nein, ist der Kern | nein | wichtigste große Core-Library |
 | `libreta-cli` | CLI-Schicht für `reta` | ja | nein | dünner `reta`-Starter |
-| `libreta-prompt-reaction` | Eingabe, Prompt-Aufforderung, History, Zeileneditor | nein | ja, aber nur UI/Reaktion | trennt interaktive Eingabe von Ausführung |
-| `libreta-prompt-execution` | fertige Prompt-Kommandos ausführen | ja | ja | gemeinsame Ausführung für `rp/rpl/rpe/rpb` |
-| `libreta-prompt-interactive` | interaktive Schleife für `rp/rpl/rpe` | indirekt über execution | ja | dünne Starter für `rp/rpl/rpe` |
-| `libreta-prompt-batch` | nicht-interaktive Ausführung für `rpb` | indirekt über execution | nur Batch | dünner Starter für `rpb` |
+| `libreta_prompt_mojo-reaction` | Eingabe, Prompt-Aufforderung, History, Zeileneditor | nein | ja, aber nur UI/Reaktion | trennt interaktive Eingabe von Ausführung |
+| `libreta_prompt_mojo-execution` | fertige Prompt-Kommandos ausführen | ja | ja | gemeinsame Ausführung für `rp/rpl/rpe/rpb` |
+| `libreta_prompt_interactive_mojo` | interaktive Schleife für `rp/rpl/rpe` | indirekt über execution | ja | dünne Starter für `rp/rpl/rpe` |
+| `libreta_prompt_mojo-batch` | nicht-interaktive Ausführung für `rpb` | indirekt über execution | nur Batch | dünner Starter für `rpb` |
 | `libreta-process` | OS-nahe Child-Process-Ausführung | optional | nein | isoliert Shell/Python/Math/Fallback-Prozesse |
 | `libreta-docs` | README/HTML/Grundstruktur-Dokumentation | ja | nein | Tools wie `generate4readme`, `grundStrukHtml` |
 
 ---
 
-## 5. `libreta-core`
+## 5. `libreta_core_mojo`
 
 ### Kurze Erklärung
 
-`libreta-core` ist der eigentliche native `reta`-Kern.
+`libreta_core_mojo` ist der eigentliche native `reta`-Kern.
 
 ### Lange Erklärung
 
@@ -113,7 +113,7 @@ readme/html-tools
 test-/diagnose-tools
 ```
 
-`libreta-core` ist die Library, auf die spätere Tools und Prompt-Ausführung aufbauen.
+`libreta_core_mojo` ist die Library, auf die spätere Tools und Prompt-Ausführung aufbauen.
 
 ### Enthalten
 
@@ -152,7 +152,7 @@ Shell/Python/Math-Promptbefehle als UI
 
 ### Lange Erklärung
 
-`bin/reta` soll später möglichst nur noch `argv`, Umgebung und Standardströme aufnehmen und an `libreta-cli` weiterreichen. `libreta-cli` übersetzt den Prozessstart in einen `reta`-Plan und ruft `libreta-core` auf.
+`bin/reta` soll später möglichst nur noch `argv`, Umgebung und Standardströme aufnehmen und an `libreta-cli` weiterreichen. `libreta-cli` übersetzt den Prozessstart in einen `reta`-Plan und ruft `libreta_core_mojo` auf.
 
 Diese Library kann klein bleiben. Sie dient vor allem dazu, dass das eigentliche Executable `reta` nicht mehr den kompletten nativen Kern direkt enthält.
 
@@ -160,7 +160,7 @@ Diese Library kann klein bleiben. Sie dient vor allem dazu, dass das eigentliche
 
 ```text
 libreta-cli
-  -> libreta-core
+  -> libreta_core_mojo
 ```
 
 ### Benutzt von
@@ -171,11 +171,11 @@ bin/reta
 
 ---
 
-## 7. `libreta-prompt-reaction`
+## 7. `libreta_prompt_mojo-reaction`
 
 ### Kurze Erklärung
 
-`libreta-prompt-reaction` enthält nur die interaktive Eingabe- und Reaktionslogik von `rp/rpl/rpe`.
+`libreta_prompt_mojo-reaction` enthält nur die interaktive Eingabe- und Reaktionslogik von `rp/rpl/rpe`.
 
 ### Lange Erklärung
 
@@ -183,7 +183,7 @@ Diese Library ist für alles zuständig, was mit dem interaktiven Prompt-Verhalt
 
 Dazu gehören Prompt-Aufforderung, Tastaturreaktion, Zeileneditor, History, Session-Navigation, Cursor-/Terminalreaktionen und Eingabezustand.
 
-Diese Library soll **nicht** von `libreta-core` abhängen. Sie soll nicht wissen müssen, wie Tabellen gebaut oder `reta`-Kommandos ausgeführt werden. Sie erzeugt oder sammelt nur fertige Eingaben und Reaktionsereignisse.
+Diese Library soll **nicht** von `libreta_core_mojo` abhängen. Sie soll nicht wissen müssen, wie Tabellen gebaut oder `reta`-Kommandos ausgeführt werden. Sie erzeugt oder sammelt nur fertige Eingaben und Reaktionsereignisse.
 
 Das ist die Trennung, die der Benutzer ausdrücklich bevorzugt: Die Befehlseingabe-/Reaktions-Library von `rp/rpl/rpe` braucht die `reta`-Library nicht.
 
@@ -213,25 +213,25 @@ Shell/Python/Math-Prozessausführung
 ### Abhängigkeiten
 
 ```text
-libreta-prompt-reaction
-  -> keine Abhängigkeit auf libreta-core
+libreta_prompt_mojo-reaction
+  -> keine Abhängigkeit auf libreta_core_mojo
 ```
 
 ---
 
-## 8. `libreta-prompt-execution`
+## 8. `libreta_prompt_mojo-execution`
 
 ### Kurze Erklärung
 
-`libreta-prompt-execution` führt fertige Prompt-Kommandos aus und darf dafür `libreta-core` benutzen.
+`libreta_prompt_mojo-execution` führt fertige Prompt-Kommandos aus und darf dafür `libreta_core_mojo` benutzen.
 
 ### Lange Erklärung
 
-Diese Library ist die gemeinsame Ausführungsschicht für `rp`, `rpl`, `rpe` und `rpb`. Sie bekommt bereits vorbereitete Kommandos, klassifiziert sie und entscheidet, ob ein Kommando nativ über `libreta-core`, über Shell, Python, Math oder über einen Fallback-Prozess ausgeführt werden muss.
+Diese Library ist die gemeinsame Ausführungsschicht für `rp`, `rpl`, `rpe` und `rpb`. Sie bekommt bereits vorbereitete Kommandos, klassifiziert sie und entscheidet, ob ein Kommando nativ über `libreta_core_mojo`, über Shell, Python, Math oder über einen Fallback-Prozess ausgeführt werden muss.
 
-Diese Library darf und soll von `libreta-core` abhängen, weil hier echte `reta`-Ausführung passiert.
+Diese Library darf und soll von `libreta_core_mojo` abhängen, weil hier echte `reta`-Ausführung passiert.
 
-Sie ist bewusst getrennt von `libreta-prompt-reaction`, damit interaktive Eingabe nicht automatisch den gesamten `reta`-Kern einbindet.
+Sie ist bewusst getrennt von `libreta_prompt_mojo-reaction`, damit interaktive Eingabe nicht automatisch den gesamten `reta`-Kern einbindet.
 
 ### Enthalten
 
@@ -248,25 +248,25 @@ Prompt-Profile, soweit für Ausführung nötig
 ### Abhängigkeiten
 
 ```text
-libreta-prompt-execution
-  -> libreta-core
+libreta_prompt_mojo-execution
+  -> libreta_core_mojo
   -> libreta-process optional
 ```
 
 ### Benutzt von
 
 ```text
-libreta-prompt-interactive
-libreta-prompt-batch
+libreta_prompt_interactive_mojo
+libreta_prompt_mojo-batch
 ```
 
 ---
 
-## 9. `libreta-prompt-interactive`
+## 9. `libreta_prompt_interactive_mojo`
 
 ### Kurze Erklärung
 
-`libreta-prompt-interactive` ist die interaktive Prompt-Schleife für `rp`, `rpl` und `rpe`.
+`libreta_prompt_interactive_mojo` ist die interaktive Prompt-Schleife für `rp`, `rpl` und `rpe`.
 
 ### Lange Erklärung
 
@@ -274,7 +274,7 @@ Diese Library verbindet die reine Eingabe-/Reaktionsschicht mit der Prompt-Ausf�
 
 `rp`, `rpl` und `rpe` sollen später nur dünne Starter sein, die ein Profil auswählen und diese Library starten.
 
-Die Library selbst darf indirekt `libreta-core` erreichen, aber nur über `libreta-prompt-execution`. Die reine Eingabereaktion bleibt weiterhin getrennt.
+Die Library selbst darf indirekt `libreta_core_mojo` erreichen, aber nur über `libreta_prompt_mojo-execution`. Die reine Eingabereaktion bleibt weiterhin getrennt.
 
 ### Enthalten
 
@@ -296,10 +296,10 @@ Dokumentationsgeneratoren
 ### Abhängigkeiten
 
 ```text
-libreta-prompt-interactive
-  -> libreta-prompt-reaction
-  -> libreta-prompt-execution
-      -> libreta-core
+libreta_prompt_interactive_mojo
+  -> libreta_prompt_mojo-reaction
+  -> libreta_prompt_mojo-execution
+      -> libreta_core_mojo
 ```
 
 ### Benutzt von
@@ -312,17 +312,17 @@ bin/rpe
 
 ---
 
-## 10. `libreta-prompt-batch`
+## 10. `libreta_prompt_mojo-batch`
 
 ### Kurze Erklärung
 
-`libreta-prompt-batch` ist die nicht-interaktive Prompt-Ausführung für `rpb`.
+`libreta_prompt_mojo-batch` ist die nicht-interaktive Prompt-Ausführung für `rpb`.
 
 ### Lange Erklärung
 
 `rpb` braucht keine Prompt-Aufforderung, keinen interaktiven Line-Editor und keine History-Navigation. Es soll fertige Befehle aus `argv`, stdin oder einer anderen Batch-Quelle nehmen und ausführen.
 
-Darum soll `rpb` nicht `libreta-prompt-interactive` benutzen. Es soll nur `libreta-prompt-batch` starten, und diese verwendet dann `libreta-prompt-execution`.
+Darum soll `rpb` nicht `libreta_prompt_interactive_mojo` benutzen. Es soll nur `libreta_prompt_mojo-batch` starten, und diese verwendet dann `libreta_prompt_mojo-execution`.
 
 ### Enthalten
 
@@ -346,9 +346,9 @@ interaktive Tastaturreaktion
 ### Abhängigkeiten
 
 ```text
-libreta-prompt-batch
-  -> libreta-prompt-execution
-      -> libreta-core
+libreta_prompt_mojo-batch
+  -> libreta_prompt_mojo-execution
+      -> libreta_core_mojo
 ```
 
 ### Benutzt von
@@ -410,9 +410,9 @@ libreta-process
 
 ### Lange Erklärung
 
-Tools wie `grundStrukHtml` und `generate4readme` brauchen wahrscheinlich keine Prompt-Libraries. Sie brauchen eher `libreta-core`, eventuell i18n-Daten, HTML-/README-Assets und Dokumentationsgeneratoren.
+Tools wie `grundStrukHtml` und `generate4readme` brauchen wahrscheinlich keine Prompt-Libraries. Sie brauchen eher `libreta_core_mojo`, eventuell i18n-Daten, HTML-/README-Assets und Dokumentationsgeneratoren.
 
-Darum sollten sie nicht über `libreta-prompt-*` laufen.
+Darum sollten sie nicht über `libreta_prompt_mojo-*` laufen.
 
 ### Enthalten
 
@@ -427,7 +427,7 @@ statische Markdown-/HTML-Ausgabe
 
 ```text
 libreta-docs
-  -> libreta-core
+  -> libreta_core_mojo
 ```
 
 ### Benutzt von
@@ -446,7 +446,7 @@ grundStrukHtml
 ```text
 reta
   -> libreta-cli
-      -> libreta-core
+      -> libreta_core_mojo
 ```
 
 `reta` soll später nur noch ein dünner Starter sein. Es liest `argv`, ruft die CLI-Library auf und gibt Exit-Code und Ausgabe weiter.
@@ -455,7 +455,7 @@ reta
 
 ```text
 rp
-  -> libreta-prompt-interactive
+  -> libreta_prompt_interactive_mojo
 ```
 
 Interaktiver Prompt mit Standardprofil.
@@ -464,7 +464,7 @@ Interaktiver Prompt mit Standardprofil.
 
 ```text
 rpl
-  -> libreta-prompt-interactive
+  -> libreta_prompt_interactive_mojo
 ```
 
 Interaktiver Prompt mit Logging-/Listenprofil, je nach historischer Bedeutung im Projekt.
@@ -473,7 +473,7 @@ Interaktiver Prompt mit Logging-/Listenprofil, je nach historischer Bedeutung im
 
 ```text
 rpe
-  -> libreta-prompt-interactive
+  -> libreta_prompt_interactive_mojo
 ```
 
 Interaktiver oder one-shot-naher Prompt mit `-e`-/Emacs-/Ausgabeprofil gemäß historischem Profil.
@@ -482,7 +482,7 @@ Interaktiver oder one-shot-naher Prompt mit `-e`-/Emacs-/Ausgabeprofil gemäß h
 
 ```text
 rpb
-  -> libreta-prompt-batch
+  -> libreta_prompt_mojo-batch
 ```
 
 Nicht-interaktive Befehlseingabe. Keine Prompt-Aufforderung, kein interaktives Readline.
@@ -492,7 +492,7 @@ Nicht-interaktive Befehlseingabe. Keine Prompt-Aufforderung, kein interaktives R
 ```text
 grundStrukHtml
   -> libreta-docs
-      -> libreta-core
+      -> libreta_core_mojo
 ```
 
 HTML-/Grundstruktur-Ausgabe ohne Prompt-Abhängigkeit.
@@ -502,7 +502,7 @@ HTML-/Grundstruktur-Ausgabe ohne Prompt-Abhängigkeit.
 ```text
 generate4readme
   -> libreta-docs
-      -> libreta-core
+      -> libreta_core_mojo
 ```
 
 README-/Dokumentationsgenerator ohne Prompt-Abhängigkeit.
@@ -549,23 +549,23 @@ Interne Mojo-Typen innerhalb einer Library sind gut.
 ### Erlaubt
 
 ```text
-libreta-cli -> libreta-core
-libreta-prompt-execution -> libreta-core
-libreta-prompt-interactive -> libreta-prompt-reaction
-libreta-prompt-interactive -> libreta-prompt-execution
-libreta-prompt-batch -> libreta-prompt-execution
-libreta-docs -> libreta-core
+libreta-cli -> libreta_core_mojo
+libreta_prompt_mojo-execution -> libreta_core_mojo
+libreta_prompt_interactive_mojo -> libreta_prompt_mojo-reaction
+libreta_prompt_interactive_mojo -> libreta_prompt_mojo-execution
+libreta_prompt_mojo-batch -> libreta_prompt_mojo-execution
+libreta-docs -> libreta_core_mojo
 ```
 
 ### Verboten oder zu vermeiden
 
 ```text
-libreta-core -> libreta-prompt-interactive
-libreta-core -> libreta-prompt-batch
-libreta-core -> libreta-prompt-reaction
-libreta-core -> libreta-process, falls nicht zwingend nötig
-libreta-docs -> libreta-prompt-*
-libreta-prompt-reaction -> libreta-core
+libreta_core_mojo -> libreta_prompt_interactive_mojo
+libreta_core_mojo -> libreta_prompt_mojo-batch
+libreta_core_mojo -> libreta_prompt_mojo-reaction
+libreta_core_mojo -> libreta-process, falls nicht zwingend nötig
+libreta-docs -> libreta_prompt_mojo-*
+libreta_prompt_mojo-reaction -> libreta_core_mojo
 ```
 
 Die wichtigste harte Regel:
@@ -595,7 +595,7 @@ keine ABI-Arbeit erzwingen
 ### Phase 2: Erste stabile Libraries
 
 ```text
-libreta-core
+libreta_core_mojo
 libreta-cli
 libreta-docs oder libreta-process als kleiner Testsplit
 ```
@@ -603,10 +603,10 @@ libreta-docs oder libreta-process als kleiner Testsplit
 ### Phase 3: Prompt sauber teilen
 
 ```text
-libreta-prompt-reaction
-libreta-prompt-execution
-libreta-prompt-interactive
-libreta-prompt-batch
+libreta_prompt_mojo-reaction
+libreta_prompt_mojo-execution
+libreta_prompt_interactive_mojo
+libreta_prompt_mojo-batch
 ```
 
 ### Phase 4: Windows `.dll`
@@ -645,7 +645,7 @@ Die bisherigen Stages `12c5df` und `12c5dg` passen bereits zu dieser Richtung, w
 
 ```text
 reta wird dünn.
-libreta-core wird der Kern.
+libreta_core_mojo wird der Kern.
 rp/rpl/rpe werden dünne interaktive Starter.
 rpb wird ein dünner Batch-Starter.
 Prompt-Reaktion braucht reta-core nicht.

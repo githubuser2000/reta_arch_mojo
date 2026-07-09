@@ -124,18 +124,18 @@ if [ "$(sed -n '1p' "$TARGET_DIR/reta.reta-source-id")" != \
      "$(sed -n '1p' "$CORE_LIBRARY.reta-source-id")" ] || \
    [ "$(sed -n '1p' "$TARGET_DIR/grundStrukHtml.reta-source-id")" != \
      "$(sed -n '1p' "$CORE_LIBRARY.reta-source-id")" ]; then
-    printf '%s\n' 'Fehler: Core-Dünnstarter und libreta-core haben verschiedene Source-IDs.' >&2
+    printf '%s\n' 'Fehler: Core-Dünnstarter und libreta_core_mojo haben verschiedene Source-IDs.' >&2
     exit 1
 fi
 if [ "$(sed -n '1p' "$TARGET_DIR/rpb.reta-source-id")" != \
      "$(sed -n '1p' "$PROMPT_LIBRARY.reta-source-id")" ]; then
-    printf '%s\n' 'Fehler: rpb und libreta-prompt haben verschiedene Source-IDs.' >&2
+    printf '%s\n' 'Fehler: rpb und libreta_prompt_mojo haben verschiedene Source-IDs.' >&2
     exit 1
 fi
 for prompt_starter in rp rpl rpe; do
     if [ "$(sed -n '1p' "$TARGET_DIR/$prompt_starter.reta-source-id")" != \
          "$(sed -n '1p' "$PROMPT_INTERACTIVE_LIBRARY.reta-source-id")" ]; then
-        printf 'Fehler: %s und libreta-prompt-interactive haben verschiedene Source-IDs.\n' "$prompt_starter" >&2
+        printf 'Fehler: %s und libreta_prompt_interactive_mojo haben verschiedene Source-IDs.\n' "$prompt_starter" >&2
         exit 1
     fi
 done

@@ -532,7 +532,7 @@ Stage 12c5an schließt die historische `mojo_bridge.py`-Oberfläche vollständig
 
 ## Binärkonsolidierung nach Stage 12c5z
 
-- erledigt: TableGeneration, OutputSyntax, ConsoleIO und TableOutput teilen `libreta-mojo-diagnostics.so` und einen ABI-geprüften Loader;
+- erledigt: TableGeneration, OutputSyntax, ConsoleIO und TableOutput teilen `libreta_diagnostics_mojo.so` und einen ABI-geprüften Loader;
 - nächster sinnvoller Bibliotheksblock: die eng gekoppelten Architekturdiagnosen aus `build-heavy.sh` nach fachlichen Gruppen konsolidieren, nicht alle 18 Ziele blind in eine monolithische DSO werfen;
 - Testprogramme bleiben kurzlebige, nicht installierte Prozesse, bis Messungen zeigen, dass deren Buildzeit oder Speicherverbrauch die bessere Fehlerisolation überwiegt;
 - portable Binärübergaben müssen über `scripts/export_target.sh` erfolgen, damit keine absoluten `.venv`-Symlinks weitergegeben werden.

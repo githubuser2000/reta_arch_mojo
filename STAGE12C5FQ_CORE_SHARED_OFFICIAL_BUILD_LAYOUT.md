@@ -8,12 +8,12 @@ Build-Artefakt des vollständigen Builds.
 `scripts/build-all.sh` baut jetzt zusätzlich zu den schweren und regulären
 nativen Zielen auch die Core-Shared-Zielgruppe:
 
-- `target/lib/reta/libreta-core.so`
+- `target/lib/reta/libreta_core_mojo.so`
 - `target/bin/reta`
 - `target/bin/grundStrukHtml`
 
 Die beiden Programme sind dünne C-Starter. Sie enthalten nicht die reta-Logik
-selbst, sondern laden `libreta-core.so` und rufen die passende C-ABI-Funktion.
+selbst, sondern laden `libreta_core_mojo.so` und rufen die passende C-ABI-Funktion.
 
 ## Geprüftes Layout
 
@@ -21,9 +21,9 @@ selbst, sondern laden `libreta-core.so` und rufen die passende C-ABI-Funktion.
 
 - `target/bin/reta` existiert als natives ELF-Executable.
 - `target/bin/grundStrukHtml` existiert als natives ELF-Executable.
-- `target/lib/reta/libreta-core.so` existiert als ELF-Shared-Library.
+- `target/lib/reta/libreta_core_mojo.so` existiert als ELF-Shared-Library.
 - alle drei Artefakte besitzen Source-ID-Sidecars.
-- beide Starter und `libreta-core.so` stammen aus demselben Quellstand.
+- beide Starter und `libreta_core_mojo.so` stammen aus demselben Quellstand.
 
 Damit wird verhindert, dass ein alter Starter versehentlich mit einer neueren
 oder älteren Core-Bibliothek kombiniert wird.
@@ -43,8 +43,8 @@ Schritt kann dann die Install-/Launcher-Umschaltung sein.
 
 Die Zielarchitektur aus 12c5fo bleibt unverändert:
 
-- `libreta-prompt.so` für `rp/rpl/rpe/rpb`
-- `libreta-prompt-interactive.so` nur für `rp/rpl/rpe`
+- `libreta_prompt_mojo.so` für `rp/rpl/rpe/rpb`
+- `libreta_prompt_interactive_mojo.so` nur für `rp/rpl/rpe`
 - `rpb` verwendet keine interaktive Prompt-Eingabe-Bibliothek
 
 Diese Stage baut noch keine Prompt-Shared-Libraries; sie macht nur den

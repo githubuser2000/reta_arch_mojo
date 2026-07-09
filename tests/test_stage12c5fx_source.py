@@ -58,5 +58,5 @@ def test_stage_is_documented() -> None:
     doc = _read("STAGE12C5FX_RELEASE_CHECK_INSTALL_LAYOUT_GATE.md")
     assert "scripts/release_check.sh" in doc
     assert "scripts/check_install_layout.sh" in doc
-    assert "libreta-prompt-interactive.so" in doc
-    assert "rpb" in doc and "libreta-prompt-interactive.so" in doc
+    assert "libreta_prompt_interactive_mojo.so" in doc
+    assert "rpb" in doc and "libreta_prompt_interactive_mojo.so" in doc

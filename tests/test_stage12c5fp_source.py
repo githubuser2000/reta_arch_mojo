@@ -39,33 +39,33 @@ def test_core_abi_source_owns_reta_and_grundstrukhtml_entries() -> None:
 
 def test_core_loader_dispatches_only_core_consumers() -> None:
     source = (ROOT / "tools/reta_core_loader.c").read_text(encoding="utf-8")
-    assert "libreta-core.so" in source
-    assert "libreta-core.dll" in source
+    assert "libreta_core_mojo.so" in source
+    assert "libreta_core_mojo.dll" in source
     assert "reta_core_abi_version" in source
     assert "reta_core_reta_entry" in source
     assert "reta_core_grundstrukhtml_entry" in source
     assert "RETA_CORE_LIBRARY" in source
-    assert "libreta-prompt" not in source
-    assert "libreta-prompt-interactive" not in source
+    assert "libreta_prompt_mojo" not in source
+    assert "libreta_prompt_interactive_mojo" not in source
 
 
 def test_core_build_script_keeps_old_native_executables_and_adds_thin_starters() -> None:
     script = (ROOT / "scripts/build_core_shared.sh").read_text(encoding="utf-8")
-    assert "libreta-core.so" in script
+    assert "libreta_core_mojo.so" in script
     assert "src/reta_core_abi.mojo" in script
     assert "reta-native" in script
     assert "grundStrukHtml-native" in script
     assert '"$TARGET_DIR/reta"' in script
     assert '"$TARGET_DIR/grundStrukHtml"' in script
     assert "--dry-run" in script
-    assert "libreta-prompt-interactive" not in script
+    assert "libreta_prompt_interactive_mojo" not in script
 
 
 def test_stage_is_documented() -> None:
     doc = (ROOT / "STAGE12C5FP_CORE_SHARED_ABI_THIN_STARTERS.md").read_text(
         encoding="utf-8"
     )
-    assert "libreta-core" in doc
+    assert "libreta_core_mojo" in doc
     assert "reta" in doc
     assert "grundStrukHtml" in doc
     assert "dünne Starter" in doc

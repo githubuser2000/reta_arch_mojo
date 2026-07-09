@@ -7,8 +7,8 @@ Interaktions-Owner in einen eigenen Prompt-Execution-Owner.
 
 Die spätere `.so`/`.dll`-Zielarchitektur trennt drei Rollen:
 
-- `libreta-prompt-runtime`: Prompt-Kommandos, Profile und argv-Bausteine.
-- `libreta-prompt-execution`: Effektentscheidung und Dispatch-Pläne.
+- `libreta_prompt_mojo-runtime`: Prompt-Kommandos, Profile und argv-Bausteine.
+- `libreta_prompt_mojo-execution`: Effektentscheidung und Dispatch-Pläne.
 - `libreta-process`: Ausführung bereits gebauter argv-/Payload-Prozesse.
 
 Vor dieser Stage lagen die Prozess-Dispatch-Strukturen und Planer noch in

@@ -27,7 +27,7 @@ Stage 12c5z ersetzt die vier installierbaren Diagnose-ELFs standardmäßig durch
 
 ```text
 target/bin/reta-mojo-diagnostics
-target/lib/reta/libreta-mojo-diagnostics.so
+target/lib/reta/libreta_diagnostics_mojo.so
 ```
 
 `reta-mojo-diagnostics` ist ein kleiner C-Loader. Die Shared Library exportiert
@@ -77,7 +77,7 @@ Bei `PREFIX=/usr` installiert `scripts/install.sh` das Bundle nach:
 
 ```text
 /usr/lib/reta/target/bin/reta-mojo-diagnostics
-/usr/lib/reta/target/lib/reta/libreta-mojo-diagnostics.so
+/usr/lib/reta/target/lib/reta/libreta_diagnostics_mojo.so
 ```
 
 Loader und Bibliothek werden atomar mit beiden Source-ID-Sidecars installiert.

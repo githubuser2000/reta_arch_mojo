@@ -2348,7 +2348,7 @@
       "python_status": "not_applicable",
       "mojo_status": "fixed",
       "discovered_stage": "12c5z",
-      "reproducer": "libreta-mojo-diagnostics.so unter target/lib/reta mit dem bisherigen sanitize_mojo_runpath.py bearbeiten; der Helfer fügte immer $ORIGIN/../lib/mojo hinzu, obwohl die Runtime aus diesem Verzeichnis unter $ORIGIN/../mojo liegt.",
+      "reproducer": "libreta_diagnostics_mojo.so unter target/lib/reta mit dem bisherigen sanitize_mojo_runpath.py bearbeiten; der Helfer fügte immer $ORIGIN/../lib/mojo hinzu, obwohl die Runtime aus diesem Verzeichnis unter $ORIGIN/../mojo liegt.",
       "python_locations": [],
       "mojo_locations": [
         "tools/sanitize_mojo_runpath.py",

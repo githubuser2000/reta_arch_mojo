@@ -28,11 +28,11 @@ def test_build_all_promotes_prompt_shared_group_after_core() -> None:
 def test_build_layout_requires_prompt_shared_artifacts() -> None:
     layout = _read("scripts/check_build_layout.sh")
     assert "rp rpl rpe rpb" in layout
-    assert "libreta-prompt.so" in layout
-    assert "libreta-prompt-interactive.so" in layout
+    assert "libreta_prompt_mojo.so" in layout
+    assert "libreta_prompt_interactive_mojo.so" in layout
     assert "scripts/build_prompt_shared.sh" in layout
-    assert "rpb und libreta-prompt" in layout
-    assert "libreta-prompt-interactive" in layout
+    assert "rpb und libreta_prompt_mojo" in layout
+    assert "libreta_prompt_interactive_mojo" in layout
 
 
 def test_install_layout_carries_prompt_shared_runtime() -> None:
@@ -44,10 +44,10 @@ def test_install_layout_carries_prompt_shared_runtime() -> None:
         assert f"target/bin/{name}" in check
     assert "for prompt_starter in rp rpl rpe rpb" in install
     assert 'require_file "$TARGETDIR/$prompt_starter"' in install
-    assert "libreta-prompt.so" in install
-    assert "libreta-prompt-interactive.so" in install
-    assert "libreta-prompt.so" in check
-    assert "libreta-prompt-interactive.so" in check
+    assert "libreta_prompt_mojo.so" in install
+    assert "libreta_prompt_interactive_mojo.so" in install
+    assert "libreta_prompt_mojo.so" in check
+    assert "libreta_prompt_interactive_mojo.so" in check
 
 
 def test_public_prompt_launchers_are_thin_shared_starters() -> None:
