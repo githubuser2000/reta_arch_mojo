@@ -1,59 +1,56 @@
 #!/usr/bin/env sh
 set -eu
+
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 cd "$ROOT"
 
-if [ -e run ]; then
-    printf '%s\n' 'Fehler: run/ darf im Projektbaum nicht mehr existieren.' >&2
+fail() {
+    printf 'Fehler: %s\n' "$*" >&2
     exit 1
+}
+
+# Es darf keinen separaten Projekt-Run-Baum geben.
+# Build-Ausgaben gehören nach target/bin, Installation nach PREFIX/bin.
+if [ -e run ] || [ -L run ]; then
+    fail 'run/ darf im Projektbaum nicht mehr existieren.'
 fi
 
+# Keine Komfort-Launcher oder Symlinks direkt in der Projektwurzel.
 for root_launcher in \
     reta rp rpl rpe rpb reta.sh rp.sh rpl.sh retaPrompt retaPrompt.english \
     grundStrukHtml grundStrukHtml.py generate_html generate4readme math modulo \
-    multis multis3 prim prim24 reta-native reta.english
+    multis multis3 prim prim24 reta-native reta.english mojo-real
  do
     if [ -e "$root_launcher" ] || [ -L "$root_launcher" ]; then
-        printf 'Fehler: Launcher/Symlink in der Projektwurzel verboten: %s\n' "$root_launcher" >&2
-        exit 1
+        fail "Launcher/Symlink in der Projektwurzel verboten: $root_launcher"
     fi
 done
 
-for path in bin/*; do
-    [ -e "$path" ] || continue
-    name=${path##*/}
-    if [ "$name" != mojo-real ]; then
-        printf 'Fehler: Projekt-bin darf nur mojo-real enthalten: %s\n' "$path" >&2
-        exit 1
-    fi
-    if [ -L "$path" ]; then
-        printf 'Fehler: Projekt-bin darf keine Symlinks enthalten: %s\n' "$path" >&2
-        exit 1
-    fi
-    if file -b "$path" | grep -q '^ELF '; then
-        printf 'Fehler: Projekt-bin darf keine kompilierten Executables enthalten: %s\n' "$path" >&2
-        exit 1
-    fi
-done
-
-if [ ! -x bin/mojo-real ]; then
-    printf '%s\n' 'Fehler: bin/mojo-real fehlt oder ist nicht ausführbar.' >&2
-    exit 1
+# bin/ darf als bewusst leerer Platzhalter existieren, z.B. für ein späteres
+# lokales Mojo-Setup. Dieses Prüfskript selbst legt dort nichts an.
+if [ ! -d bin ]; then
+    fail 'bin/ fehlt. Der Ordner darf existieren, muss aber leer bleiben.'
 fi
 
+# bin/ muss leer sein: kein mojo-real, keine reta/rp/rpl/rpe/rpb, keine Symlinks,
+# keine versteckten Dateien. find erfasst auch Dotfiles.
+if find bin -mindepth 1 -maxdepth 1 -print -quit | grep -q .; then
+    first_entry=$(find bin -mindepth 1 -maxdepth 1 -print -quit)
+    fail "bin/ muss leer sein; gefunden: $first_entry"
+fi
+
+# Quellbaum-Wrapper sind erlaubt, aber nicht als Symlinks und nicht in bin/.
 if [ ! -d tools/wrappers ]; then
-    printf '%s\n' 'Fehler: tools/wrappers fehlt.' >&2
-    exit 1
+    fail 'tools/wrappers fehlt.'
 fi
-if find tools/wrappers -maxdepth 1 -type l | grep -q .; then
-    printf '%s\n' 'Fehler: tools/wrappers darf keine Symlinks enthalten.' >&2
-    exit 1
+if find tools/wrappers -maxdepth 1 -type l -print -quit | grep -q .; then
+    first_link=$(find tools/wrappers -maxdepth 1 -type l -print -quit)
+    fail "tools/wrappers darf keine Symlinks enthalten; gefunden: $first_link"
 fi
 for wrapper in generate_html generate4readme reta-extract-html-classes reta-mojo reta-mojo-compat mojo-runtime-exec reta rp rpl rpe rpb; do
     if [ ! -x "tools/wrappers/$wrapper" ]; then
-        printf 'Fehler: erwarteter Wrapper fehlt: tools/wrappers/%s\n' "$wrapper" >&2
-        exit 1
+        fail "erwarteter Wrapper fehlt oder ist nicht ausführbar: tools/wrappers/$wrapper"
     fi
 done
 
-printf '%s\n' 'Projekt-Launcher-Layout sauber: target/bin für Build-Binaries, bin/mojo-real als Resolver, tools/wrappers für Quell-Wrapper.'
+printf '%s\n' 'Projekt-Launcher-Layout sauber: target/bin für Build-Binaries, /usr/local/bin für Installation, bin/ leer, tools/wrappers für Quell-Wrapper.'
