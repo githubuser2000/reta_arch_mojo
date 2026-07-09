@@ -16,25 +16,25 @@ printf '\n== build tests/test_legacy_table_handling.mojo ==\n'
 "$MOJO" build -I src -I tests tests/test_legacy_table_handling.mojo \
     -o "$TARGET/test_legacy_table_handling_12c5ai"
 printf '== run test_legacy_table_handling_12c5ai ==\n'
-"$ROOT/bin/mojo-runtime-exec" "$TARGET/test_legacy_table_handling_12c5ai"
+"$ROOT/tools/wrappers/mojo-runtime-exec" "$TARGET/test_legacy_table_handling_12c5ai"
 
 printf '\n== build tests/test_meta_columns_complete.mojo ==\n'
 "$MOJO" build -I src -I tests tests/test_meta_columns_complete.mojo \
     -o "$TARGET/test_meta_columns_complete_12c5ai"
 printf '== run test_meta_columns_complete_12c5ai ==\n'
-"$ROOT/bin/mojo-runtime-exec" "$TARGET/test_meta_columns_complete_12c5ai"
+"$ROOT/tools/wrappers/mojo-runtime-exec" "$TARGET/test_meta_columns_complete_12c5ai"
 
 printf '\n== build tests/test_output_semantics_complete.mojo ==\n'
 "$MOJO" build -I src -I tests tests/test_output_semantics_complete.mojo \
     -o "$TARGET/test_output_semantics_complete_12c5ai"
 printf '== run test_output_semantics_complete_12c5ai ==\n'
-"$ROOT/bin/mojo-runtime-exec" "$TARGET/test_output_semantics_complete_12c5ai"
+"$ROOT/tools/wrappers/mojo-runtime-exec" "$TARGET/test_output_semantics_complete_12c5ai"
 
 printf '\n== build tests/test_table_generation_complete.mojo ==\n'
 "$MOJO" build -I src -I tests tests/test_table_generation_complete.mojo \
     -o "$TARGET/test_table_generation_complete_12c5ai"
 printf '== run test_table_generation_complete_12c5ai ==\n'
-"$ROOT/bin/mojo-runtime-exec" "$TARGET/test_table_generation_complete_12c5ai"
+"$ROOT/tools/wrappers/mojo-runtime-exec" "$TARGET/test_table_generation_complete_12c5ai"
 
 # Compile the newly native schema serializer independently and compare its
 # complete compact JSON snapshot with the frozen Python reference asset.
@@ -42,7 +42,7 @@ printf '\n== build tests/test_schema_snapshot.mojo ==\n'
 "$MOJO" build -I src -I tests tests/test_schema_snapshot.mojo \
     -o "$TARGET/test_schema_snapshot_12c5ai"
 printf '== run test_schema_snapshot_12c5ai ==\n'
-"$ROOT/bin/mojo-runtime-exec" "$TARGET/test_schema_snapshot_12c5ai"
+"$ROOT/tools/wrappers/mojo-runtime-exec" "$TARGET/test_schema_snapshot_12c5ai"
 
 printf '\n== build src/domain_probe_main.mojo ==\n'
 "$MOJO" build -I src src/domain_probe_main.mojo \

@@ -22,7 +22,7 @@ printf '\n== build tests/test_prompt_interaction.mojo ==\n'
 "$MOJO" build -I src -I tests tests/test_prompt_interaction.mojo "$@" \
     -o "$TARGET/test_prompt_interaction_12c5bw"
 printf '== run test_prompt_interaction_12c5bw ==\n'
-"$ROOT/bin/mojo-runtime-exec" "$TARGET/test_prompt_interaction_12c5bw"
+"$ROOT/tools/wrappers/mojo-runtime-exec" "$TARGET/test_prompt_interaction_12c5bw"
 
 "$ROOT/scripts/run_pytest.sh" -q \
     tests/test_stage12c5bw_source.py \

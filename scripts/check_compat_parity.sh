@@ -9,7 +9,7 @@ trap 'rm -f "$PY_OUT" "$MOJO_OUT"' EXIT HUP INT TERM
 python python_reference/reta.py \
   -zeilen --vorhervonausschnitt=1-3 \
   -spalten --religionen=sternpolygon --breite=40 >"$PY_OUT"
-./bin/reta-mojo-compat \
+"$ROOT/tools/wrappers/reta-mojo-compat" \
   -zeilen --vorhervonausschnitt=1-3 \
   -spalten --religionen=sternpolygon --breite=40 >"$MOJO_OUT"
 cmp "$PY_OUT" "$MOJO_OUT"

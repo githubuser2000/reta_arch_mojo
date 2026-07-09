@@ -82,7 +82,7 @@ def test_rpb_a1_matches_python_at_real_terminal_widths() -> None:
         reference = _visible_lines(
             _run_pty(["python3", "python_reference/rpb", "a1"], columns)
         )
-        native = _visible_lines(_run_pty(["bin/rpb", "a1"], columns))
+        native = _visible_lines(_run_pty(["tools/wrappers/rpb", "a1"], columns))
         assert native == reference, f"rpb a1 differs at {columns} columns"
         assert native[0].endswith(b"reta-Befehl:")
         assert native[1].startswith(b"reta -zeilen ")

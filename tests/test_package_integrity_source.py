@@ -13,7 +13,7 @@ def test_native_package_integrity_owner_is_explicit() -> None:
     assert '"opendir"' in source and 'external_call[' in source
     assert '"readdir"' in source
     assert (ROOT / "src/package_integrity_main.mojo").is_file()
-    assert (ROOT / "bin/reta-mojo-package-integrity").is_file()
+    assert (ROOT / "tools/wrappers/reta-mojo-package-integrity").is_file()
     assert "reta-mojo-package-integrity" in (ROOT / "scripts/install_bins.sh").read_text(encoding="utf-8")
     assert "reta-mojo-package-integrity" in (ROOT / "scripts/check_build_layout.sh").read_text(encoding="utf-8")
 

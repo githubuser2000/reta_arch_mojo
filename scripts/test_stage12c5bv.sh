@@ -24,7 +24,7 @@ for test_name in prompt_interaction table_adapters table_rendering; do
     "$MOJO" build -I src -I tests "tests/test_${test_name}.mojo" "$@" \
         -o "$TARGET/test_${test_name}_12c5bv"
     printf '== run test_%s_12c5bv ==\n' "$test_name"
-    "$ROOT/bin/mojo-runtime-exec" "$TARGET/test_${test_name}_12c5bv"
+    "$ROOT/tools/wrappers/mojo-runtime-exec" "$TARGET/test_${test_name}_12c5bv"
 done
 
 if [ ! -x "$PROMPT" ]; then

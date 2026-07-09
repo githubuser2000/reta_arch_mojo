@@ -21,7 +21,7 @@ compare() {
         PYTHONHASHSEED=0 "$REFERENCE_PY" reta.py "$@"
     ) >"$TMP/reference-$label" 2>"$TMP/reference-$label.err"
     env RETA_PYTHON=/definitely/not/available \
-        "$ROOT/bin/mojo-runtime-exec" "$COMPAT" "$@" \
+        "$ROOT/tools/wrappers/mojo-runtime-exec" "$COMPAT" "$@" \
         >"$TMP/native-$label" 2>"$TMP/native-$label.err"
     cmp "$TMP/reference-$label" "$TMP/native-$label"
     cmp "$TMP/reference-$label.err" "$TMP/native-$label.err"

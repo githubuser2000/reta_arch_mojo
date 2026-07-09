@@ -32,7 +32,7 @@ else
         -o "$TARGET/test_prompt_table_execution_12c5bh"
 fi
 printf '== run test_prompt_table_execution_12c5bh ==\n'
-"$ROOT/bin/mojo-runtime-exec" \
+"$ROOT/tools/wrappers/mojo-runtime-exec" \
     "$TARGET/test_prompt_table_execution_12c5bh"
 
 printf '\n== zero/exclusion true-fraction runtime parity ==\n'

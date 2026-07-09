@@ -147,7 +147,7 @@ def test_universal_surface_is_fully_typed() -> None:
 
 def test_semantics_cli_is_wired_into_heavy_build_and_install() -> None:
     assert (ROOT / "src/semantics_builder_main.mojo").is_file()
-    assert (ROOT / "bin/reta-mojo-semantics").is_file()
+    assert (ROOT / "tools/wrappers/reta-mojo-semantics").is_file()
     assert "src/semantics_builder_main.mojo" in (
         ROOT / "scripts/build-heavy.sh"
     ).read_text(encoding="utf-8")

@@ -113,7 +113,7 @@ def test_build_install_launcher_and_stage_wiring() -> None:
     targets = (ROOT / "scripts/install_targets.txt").read_text(encoding="utf-8").splitlines()
     assert "reta-mojo-diagnostics" in targets
     assert "reta-mojo-output-syntax" not in targets
-    launcher = ROOT / "bin/reta-mojo-output-syntax"
+    launcher = ROOT / "tools/wrappers/reta-mojo-output-syntax"
     assert launcher.stat().st_mode & 0o111
     launcher_source = launcher.read_text(encoding="utf-8")
     assert "reta-mojo-diagnostics" in launcher_source

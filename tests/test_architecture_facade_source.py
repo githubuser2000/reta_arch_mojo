@@ -126,7 +126,7 @@ def test_native_facade_graph_is_bridge_free_and_queryable() -> None:
 def test_build_install_and_launcher_own_the_new_diagnostic() -> None:
     build = (ROOT / "scripts/build.sh").read_text(encoding="utf-8")
     targets = (ROOT / "scripts/install_targets.txt").read_text(encoding="utf-8")
-    launcher = ROOT / "bin/reta-mojo-facade"
+    launcher = ROOT / "tools/wrappers/reta-mojo-facade"
     assert "architecture_facade_main.mojo reta-mojo-facade" in build
     assert "reta-mojo-facade" in targets.splitlines()
     assert launcher.stat().st_mode & 0o111

@@ -64,7 +64,7 @@ def test_order_independent_parity_tool_is_content_sensitive() -> None:
 
 def test_cli_build_and_install_surfaces_are_wired() -> None:
     assert (ROOT / "src/combi_join_main.mojo").is_file()
-    assert (ROOT / "bin/reta-mojo-combi-join").is_file()
+    assert (ROOT / "tools/wrappers/reta-mojo-combi-join").is_file()
     assert "src/combi_join_main.mojo" in (ROOT / "scripts/build.sh").read_text(
         encoding="utf-8"
     )

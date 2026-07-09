@@ -16,7 +16,7 @@ printf '\n== build tests/test_prompt_historical_ownership.mojo ==\n'
     tests/test_prompt_historical_ownership.mojo \
     -o "$TARGET/test_prompt_historical_ownership_12c5ax"
 printf '== run test_prompt_historical_ownership_12c5ax ==\n'
-"$ROOT/bin/mojo-runtime-exec" \
+"$ROOT/tools/wrappers/mojo-runtime-exec" \
     "$TARGET/test_prompt_historical_ownership_12c5ax"
 
 "$ROOT/scripts/check_prompt_historical_families_parity.sh"

@@ -21,7 +21,7 @@ for test_name in prompt_interaction legacy_reta_prompt table_adapters; do
     "$MOJO" build -I src -I tests "tests/test_${test_name}.mojo" "$@" \
         -o "$TARGET/test_${test_name}_12c5cm"
     printf '== run test_%s_12c5cm ==\n' "$test_name"
-    "$ROOT/bin/mojo-runtime-exec" "$TARGET/test_${test_name}_12c5cm"
+    "$ROOT/tools/wrappers/mojo-runtime-exec" "$TARGET/test_${test_name}_12c5cm"
 done
 
 "$ROOT/scripts/run_pytest.sh" -q \

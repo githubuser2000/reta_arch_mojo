@@ -19,7 +19,7 @@ printf '\n== build tests/test_architecture_refactor_native.mojo ==\n'
 "$MOJO" build -I src -I tests tests/test_architecture_refactor_native.mojo \
     -o "$TARGET/test_architecture_refactor_native_12c5ar"
 printf '== run test_architecture_refactor_native_12c5ar ==\n'
-"$ROOT/bin/mojo-runtime-exec" \
+"$ROOT/tools/wrappers/mojo-runtime-exec" \
     "$TARGET/test_architecture_refactor_native_12c5ar"
 
 printf '\n== regenerate porting matrix ==\n'

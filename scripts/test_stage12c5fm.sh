@@ -21,7 +21,7 @@ for test_name in legacy_reta_program architecture_progress architecture_boundari
     "$MOJO" build -I src -I tests "tests/test_${test_name}.mojo" "$@" \
         -o "$TARGET/test_${test_name}_12c5fm"
     printf '== run test_%s_12c5fm ==\n' "$test_name"
-    "$ROOT/bin/mojo-runtime-exec" "$TARGET/test_${test_name}_12c5fm"
+    "$ROOT/tools/wrappers/mojo-runtime-exec" "$TARGET/test_${test_name}_12c5fm"
 done
 
 "$ROOT/scripts/run_pytest.sh" -q \

@@ -16,7 +16,7 @@ def test_native_generator_does_not_write_middle_alx_implicitly() -> None:
 
 
 def test_public_launcher_is_cwd_neutral_and_fhs_safe() -> None:
-    launcher = (ROOT / "bin" / "generate_html").read_text(encoding="utf-8")
+    launcher = (ROOT / "tools" / "wrappers" / "generate_html").read_text(encoding="utf-8")
     assert 'cd "$ROOT"' not in launcher
     assert "--middle-file" in launcher
     assert "--middle-output" in launcher

@@ -170,5 +170,5 @@ def test_stage_wiring_contains_native_and_python_parity_checks() -> None:
     assert "test_input_semantics.mojo" in stage
     assert "check_input_semantics_parity.py" in stage
     assert "test_input_semantics_complete_source.py" in stage
-    launcher = (ROOT / "bin/reta-mojo").read_text(encoding="utf-8")
+    launcher = (ROOT / "tools/wrappers/reta-mojo").read_text(encoding="utf-8")
     assert '"--mojo-input-snapshot"' in launcher

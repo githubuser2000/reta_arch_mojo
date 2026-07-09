@@ -16,7 +16,7 @@ for pytest_file in \
  done
 "$ROOT/scripts/run_pytest.sh" -q tests/test_known_defects.py tests/test_documented_python_defects.py
 python3 tools/check_known_defects.py
-sh -n bin/generate_html scripts/install.sh scripts/uninstall.sh \
+sh -n tools/wrappers/generate_html scripts/install.sh scripts/uninstall.sh \
     scripts/check_full_all_against_reference.sh \
     scripts/create_full_all_reference_bundle.sh
 

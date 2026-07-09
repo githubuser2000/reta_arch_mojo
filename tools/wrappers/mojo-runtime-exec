@@ -1,0 +1,145 @@
+#!/usr/bin/env sh
+set -eu
+
+SELF=$0
+if command -v readlink >/dev/null 2>&1; then
+    SELF=$(readlink -f "$0" 2>/dev/null || printf '%s' "$0")
+fi
+SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$SELF")" && pwd)
+if [ -d "$SCRIPT_DIR/../src" ] && [ -d "$SCRIPT_DIR/../scripts" ]; then
+    ROOT=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)
+elif [ -d "$SCRIPT_DIR/../../src" ] && [ -d "$SCRIPT_DIR/../../scripts" ]; then
+    ROOT=$(CDPATH= cd -- "$SCRIPT_DIR/../.." && pwd)
+else
+    ROOT=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)
+fi
+
+# Source-tree and FHS-install resource contract. Explicit caller overrides win.
+if [ -z "${RETA_ROOT-}" ]; then
+    RETA_ROOT=$ROOT
+    export RETA_ROOT
+fi
+if [ -z "${RETA_SHARE_DIR-}" ]; then
+    # Source tree: ROOT is the repository root. Installed tree: ROOT is PREFIX
+    # because this helper is installed directly as PREFIX/bin/mojo-runtime-exec.
+    prefix_parent=$(CDPATH= cd -- "$ROOT/../.." 2>/dev/null && pwd || true)
+    for installed_share in \
+        "$ROOT/share/reta" \
+        "$prefix_parent/share/reta"
+    do
+        [ -n "$installed_share" ] || continue
+        if [ -d "$installed_share/csv" ] && [ -d "$installed_share/assets" ]; then
+            RETA_SHARE_DIR=$installed_share
+            export RETA_SHARE_DIR
+            break
+        fi
+    done
+fi
+if [ -z "${RETA_REFERENCE_DIR-}" ]; then
+    if [ -n "${RETA_SHARE_DIR-}" ] && [ -d "$RETA_SHARE_DIR/python_reference" ]; then
+        RETA_REFERENCE_DIR=$RETA_SHARE_DIR/python_reference
+    else
+        RETA_REFERENCE_DIR=$ROOT/python_reference
+    fi
+    export RETA_REFERENCE_DIR
+fi
+if [ -z "${RETA_DATA_DIR-}" ]; then
+    if [ -n "${RETA_SHARE_DIR-}" ]; then
+        RETA_DATA_DIR=$RETA_SHARE_DIR/csv
+    else
+        RETA_DATA_DIR=$ROOT/python_reference/csv
+    fi
+    export RETA_DATA_DIR
+fi
+if [ -z "${RETA_ASSET_DIR-}" ]; then
+    if [ -n "${RETA_SHARE_DIR-}" ]; then
+        RETA_ASSET_DIR=$RETA_SHARE_DIR/assets
+    else
+        RETA_ASSET_DIR=$ROOT/assets
+    fi
+    export RETA_ASSET_DIR
+fi
+
+if [ "$#" -lt 1 ]; then
+    printf 'Verwendung: %s PROGRAMM [ARGUMENTE ...]\n' "$0" >&2
+    exit 2
+fi
+TARGET=$1
+shift
+
+if [ ! -x "$TARGET" ]; then
+    printf 'Nicht ausführbares Mojo-Ziel: %s\n' "$TARGET" >&2
+    exit 127
+fi
+
+# Source-tree freshness checks need repository scripts and .reta-source-id files.
+# Installed packages intentionally ship neither, so installed runtime execution
+# skips this development-only guard.
+if [ -x "$ROOT/scripts/check_mojo_binary_freshness.sh" ]; then
+    "$ROOT/scripts/check_mojo_binary_freshness.sh" "$TARGET"
+fi
+
+is_runtime_dir() {
+    candidate=$1
+    [ -d "$candidate" ] || return 1
+    for library in \
+        libKGENCompilerRTShared.so \
+        libAsyncRTMojoBindings.so \
+        libMSupportGlobals.so \
+        libAsyncRTRuntimeGlobals.so \
+        libNVPTX.so
+    do
+        [ -f "$candidate/$library" ] || return 1
+    done
+}
+
+find_mojo_runtime() {
+    if [ -n "${RETA_MOJO_RUNTIME_LIBDIR-}" ]; then
+        if is_runtime_dir "$RETA_MOJO_RUNTIME_LIBDIR"; then
+            (CDPATH= cd -- "$RETA_MOJO_RUNTIME_LIBDIR" && pwd)
+            return 0
+        fi
+        printf 'RETA_MOJO_RUNTIME_LIBDIR enthält keine vollständige Mojo-Laufzeit: %s\n' \
+            "$RETA_MOJO_RUNTIME_LIBDIR" >&2
+        return 2
+    fi
+    for candidate in \
+        "$ROOT/lib/reta/mojo" \
+        "$ROOT/lib64/reta/mojo" \
+        "$ROOT/mojo" \
+        "$ROOT/target/lib/mojo"
+    do
+        if is_runtime_dir "$candidate"; then
+            (CDPATH= cd -- "$candidate" && pwd)
+            return 0
+        fi
+    done
+    if [ -x "$ROOT/scripts/find_mojo_runtime.sh" ]; then
+        "$ROOT/scripts/find_mojo_runtime.sh"
+        return $?
+    fi
+    cat >&2 <<'MSG'
+Keine vollständige Modular-Mojo-Laufzeit gefunden.
+
+Einmalig lokal einrichten:
+    ./scripts/setup_mojo.sh
+
+Oder den vorhandenen Ort explizit angeben:
+    RETA_MOJO_RUNTIME_LIBDIR=/pfad/zu/modular/lib PROGRAMM ...
+MSG
+    return 127
+}
+
+RUNTIME_DIR=$(find_mojo_runtime)
+case ":${LD_LIBRARY_PATH-}:" in
+    *:"$RUNTIME_DIR":*) ;;
+    *)
+        if [ -n "${LD_LIBRARY_PATH-}" ]; then
+            LD_LIBRARY_PATH=$RUNTIME_DIR:$LD_LIBRARY_PATH
+        else
+            LD_LIBRARY_PATH=$RUNTIME_DIR
+        fi
+        export LD_LIBRARY_PATH
+        ;;
+esac
+exec "$TARGET" "$@"

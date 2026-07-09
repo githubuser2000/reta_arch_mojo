@@ -92,7 +92,7 @@ def test_build_and_install_surfaces_include_native_sheaf_diagnostics() -> None:
     assert "reta-mojo-sheaves" in (
         ROOT / "scripts/install_targets.txt"
     ).read_text(encoding="utf-8").splitlines()
-    assert (ROOT / "bin/reta-mojo-sheaves").stat().st_mode & 0o111
+    assert (ROOT / "tools/wrappers/reta-mojo-sheaves").stat().st_mode & 0o111
 
 
 def test_presheaf_catalog_is_portable_and_ordered() -> None:

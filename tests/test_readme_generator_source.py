@@ -96,7 +96,7 @@ def test_native_owner_build_launcher_and_install_target_are_wired() -> None:
     main = (ROOT / "src/generate_readme_main.mojo").read_text(encoding="utf-8")
     build = (ROOT / "scripts/build.sh").read_text(encoding="utf-8")
     targets = (ROOT / "scripts/install_targets.txt").read_text(encoding="utf-8")
-    launcher = ROOT / "bin/generate4readme"
+    launcher = ROOT / "tools/wrappers/generate4readme"
     assert "def generate_readme" in module
     assert "from std.python import" not in module
     assert "PythonObject" not in module

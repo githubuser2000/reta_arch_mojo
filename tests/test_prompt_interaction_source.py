@@ -212,9 +212,9 @@ def test_public_prompt_launchers_select_the_native_controller() -> None:
         "rpe",
     )
     for launcher in launchers:
-        source = (ROOT / "bin" / launcher).read_text(encoding="utf-8")
-        assert "target/bin/reta-prompt-native" in source
-        assert "src/prompt_main.mojo" in source
+        source = (ROOT / "tools" / "wrappers" / launcher).read_text(encoding="utf-8")
+        assert 'PROMPT_STARTER="$ROOT/target/bin/$PROFILE"' in source
+        assert 'exec "$PROMPT_STARTER" "$@"' in source
         assert "python_reference/retaPrompt.py" not in source
 
 

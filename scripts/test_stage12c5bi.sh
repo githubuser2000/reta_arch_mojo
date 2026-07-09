@@ -26,7 +26,7 @@ else
         -o "$TARGET/test_native_prompt_input_12c5bi"
 fi
 printf '== run test_native_prompt_input_12c5bi ==\n'
-"$ROOT/bin/mojo-runtime-exec" "$TARGET/test_native_prompt_input_12c5bi"
+"$ROOT/tools/wrappers/mojo-runtime-exec" "$TARGET/test_native_prompt_input_12c5bi"
 
 printf '\n== build tests/test_prompt_table_execution.mojo ==\n'
 if mojo_has_thread_option "$@"; then
@@ -39,7 +39,7 @@ else
         -o "$TARGET/test_prompt_table_execution_12c5bi"
 fi
 printf '== run test_prompt_table_execution_12c5bi ==\n'
-"$ROOT/bin/mojo-runtime-exec" "$TARGET/test_prompt_table_execution_12c5bi"
+"$ROOT/tools/wrappers/mojo-runtime-exec" "$TARGET/test_prompt_table_execution_12c5bi"
 
 printf '\n== corrected true-fraction integer/divider runtime parity ==\n'
 "$ROOT/scripts/check_prompt_true_fraction_multiples.sh" -- "$@"

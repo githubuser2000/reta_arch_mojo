@@ -6,7 +6,7 @@ TMPDIR_BASE=${TMPDIR:-/tmp}/reta-native-parity.$$
 mkdir -p "$TMPDIR_BASE"
 trap 'rm -rf "$TMPDIR_BASE"' EXIT HUP INT TERM
 NATIVE=${RETA_NATIVE_BINARY:-"$ROOT/target/bin/reta-native"}
-[ -x "$NATIVE" ] || NATIVE="$ROOT/bin/reta-native"
+[ -x "$NATIVE" ] || NATIVE="$ROOT/target/bin/reta-native"
 
 run_pair() {
     label=$1
@@ -41,7 +41,7 @@ cmp "$TMPDIR_BASE/python-englisch-csv" "$TMPDIR_BASE/mojo-englisch-csv"
 printf '  %-18s bytegleich (%s Byte)\n' englisch-csv "$(wc -c <"$TMPDIR_BASE/mojo-englisch-csv")"
 
 if [ "${RETA_SKIP_NATIVE_SWITCH:-0}" != 1 ]; then
-    RETA_NATIVE=1 ./reta -zeilen --vorhervonausschnitt=1-3 \
+    RETA_NATIVE=1 "$ROOT/tools/wrappers/reta" -zeilen --vorhervonausschnitt=1-3 \
         -spalten --religionen=sternpolygon -ausgabe --art=csv --breite=40 \
         >"$TMPDIR_BASE/native-switch"
     cmp "$TMPDIR_BASE/python-deutsch-csv" "$TMPDIR_BASE/native-switch"

@@ -13,7 +13,7 @@ mkdir -p "$TMP"
 for language in deutsch english vietnamese chinese korean; do
     PYTHONHASHSEED=0 "$PYTHON" scripts/prompt_preparation_legacy_reference.py \
         "$language" > "$TMP/$language.python"
-    "$ROOT/bin/mojo-runtime-exec" "$PROBE" "$language" > "$TMP/$language.mojo"
+    "$ROOT/tools/wrappers/mojo-runtime-exec" "$PROBE" "$language" > "$TMP/$language.mojo"
     if ! cmp "$TMP/$language.python" "$TMP/$language.mojo"; then
         diff -u "$TMP/$language.python" "$TMP/$language.mojo" || true
         exit 1

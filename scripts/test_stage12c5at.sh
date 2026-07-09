@@ -19,7 +19,7 @@ do
     printf '\n== build %s ==\n' "$test_file"
     "$MOJO" build -I src -I tests "$test_file" -o "$TARGET/${name}_12c5at"
     printf '== run %s_12c5at ==\n' "$name"
-    "$ROOT/bin/mojo-runtime-exec" "$TARGET/${name}_12c5at"
+    "$ROOT/tools/wrappers/mojo-runtime-exec" "$TARGET/${name}_12c5at"
 done
 
 "$ROOT/scripts/run_pytest.sh" -q \

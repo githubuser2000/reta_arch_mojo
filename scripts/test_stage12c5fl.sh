@@ -21,7 +21,7 @@ for test_name in architecture_facade architecture_exports architecture_progress;
     "$MOJO" build -I src -I tests "tests/test_${test_name}.mojo" "$@" \
         -o "$TARGET/test_${test_name}_12c5fl"
     printf '== run test_%s_12c5fl ==\n' "$test_name"
-    "$ROOT/bin/mojo-runtime-exec" "$TARGET/test_${test_name}_12c5fl"
+    "$ROOT/tools/wrappers/mojo-runtime-exec" "$TARGET/test_${test_name}_12c5fl"
 done
 
 "$ROOT/scripts/run_pytest.sh" -q \

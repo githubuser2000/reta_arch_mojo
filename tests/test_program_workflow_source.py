@@ -85,7 +85,7 @@ def test_native_workflow_owns_real_deterministic_operations() -> None:
 def test_build_install_launcher_and_main_are_wired() -> None:
     build = (ROOT / "scripts/build.sh").read_text(encoding="utf-8")
     targets = (ROOT / "scripts/install_targets.txt").read_text(encoding="utf-8")
-    launcher = ROOT / "bin/reta-mojo-workflow"
+    launcher = ROOT / "tools/wrappers/reta-mojo-workflow"
     assert "program_workflow_main.mojo reta-mojo-workflow" in build
     assert "reta-mojo-workflow" in targets.splitlines()
     assert "--load-religion" in MAIN.read_text(encoding="utf-8")

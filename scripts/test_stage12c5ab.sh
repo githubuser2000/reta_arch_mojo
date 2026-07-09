@@ -8,12 +8,12 @@ mkdir -p target/tests
 
 "$MOJO" build -I src tests/test_legacy_lib4tables_prepare.mojo \
     -o target/tests/test_legacy_lib4tables_prepare_12c5ab
-"$ROOT/bin/mojo-runtime-exec" \
+"$ROOT/tools/wrappers/mojo-runtime-exec" \
     target/tests/test_legacy_lib4tables_prepare_12c5ab
 
 "$MOJO" build -I src tests/test_legacy_libreta_prompt.mojo \
     -o target/tests/test_legacy_libreta_prompt_12c5ab
-"$ROOT/bin/mojo-runtime-exec" \
+"$ROOT/tools/wrappers/mojo-runtime-exec" \
     target/tests/test_legacy_libreta_prompt_12c5ab
 
 "$MOJO" build -I src tests/legacy_libreta_prompt_probe.mojo \

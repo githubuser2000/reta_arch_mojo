@@ -25,7 +25,7 @@ def test_stage_script_chains_fr_and_checks_public_launcher_contract() -> None:
 
 
 def test_reta_public_launcher_is_only_a_core_thin_wrapper() -> None:
-    launcher = (ROOT / "bin/reta").read_text(encoding="utf-8")
+    launcher = (ROOT / "tools/wrappers/reta").read_text(encoding="utf-8")
     assert 'CORE_STARTER="$ROOT/target/bin/reta"' in launcher
     assert 'exec "$CORE_STARTER" "$@"' in launcher
     assert "scripts/build_core_shared.sh oder scripts/build-all.sh" in launcher
@@ -37,7 +37,7 @@ def test_reta_public_launcher_is_only_a_core_thin_wrapper() -> None:
 
 
 def test_grundstrukhtml_public_launcher_is_only_a_core_thin_wrapper() -> None:
-    launcher = (ROOT / "bin/grundStrukHtml").read_text(encoding="utf-8")
+    launcher = (ROOT / "tools/wrappers/grundStrukHtml").read_text(encoding="utf-8")
     assert 'CORE_STARTER="$ROOT/target/bin/grundStrukHtml"' in launcher
     assert 'exec "$CORE_STARTER" "$@"' in launcher
     assert "scripts/build_core_shared.sh oder scripts/build-all.sh" in launcher

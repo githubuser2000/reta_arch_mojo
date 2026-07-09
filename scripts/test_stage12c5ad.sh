@@ -9,7 +9,7 @@ TEST_PYTHON=$("$ROOT/scripts/find_test_python.sh")
 # Compile the complete native table-preparation owner surface.
 "$MOJO" build -I src tests/test_table_preparation_complete.mojo \
     -o target/tests/test_table_preparation_complete_12c5ad
-"$ROOT/bin/mojo-runtime-exec" \
+"$ROOT/tools/wrappers/mojo-runtime-exec" \
     target/tests/test_table_preparation_complete_12c5ad
 
 # Compile one small snapshot probe and compare it with the Python reference.
@@ -28,7 +28,7 @@ fi
 # Compile the complete Tables/TableRuntimeBundle owner and its snapshot probe.
 "$MOJO" build -I src tests/test_table_runtime_complete.mojo \
     -o target/tests/test_table_runtime_complete_12c5ad
-"$ROOT/bin/mojo-runtime-exec" \
+"$ROOT/tools/wrappers/mojo-runtime-exec" \
     target/tests/test_table_runtime_complete_12c5ad
 
 "$MOJO" build -I src tests/table_runtime_complete_probe.mojo \

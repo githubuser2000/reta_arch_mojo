@@ -25,14 +25,14 @@ printf '\n== build tests/test_prompt_historical_ownership.mojo ==\n'
 "$MOJO" build -I src -I tests tests/test_prompt_historical_ownership.mojo "$@" \
     -o "$TARGET/test_prompt_historical_ownership_12c5bu"
 printf '== run test_prompt_historical_ownership_12c5bu ==\n'
-"$ROOT/bin/mojo-runtime-exec" \
+"$ROOT/tools/wrappers/mojo-runtime-exec" \
     "$TARGET/test_prompt_historical_ownership_12c5bu"
 
 printf '\n== build tests/test_terminal_geometry.mojo ==\n'
 "$MOJO" build -I src -I tests tests/test_terminal_geometry.mojo "$@" \
     -o "$TARGET/test_terminal_geometry_12c5bu"
 printf '== run test_terminal_geometry_12c5bu ==\n'
-"$ROOT/bin/mojo-runtime-exec" "$TARGET/test_terminal_geometry_12c5bu"
+"$ROOT/tools/wrappers/mojo-runtime-exec" "$TARGET/test_terminal_geometry_12c5bu"
 
 if [ ! -x "$PROMPT" ]; then
     printf '\n== build src/prompt_main.mojo ==\n'

@@ -92,7 +92,7 @@ def test_table_output_build_and_install_surface_is_wired() -> None:
     targets = (ROOT / "scripts/install_targets.txt").read_text(encoding="utf-8").splitlines()
     assert "reta-mojo-diagnostics" in targets
     assert "reta-mojo-table-output" not in targets
-    launcher = ROOT / "bin/reta-mojo-table-output"
+    launcher = ROOT / "tools/wrappers/reta-mojo-table-output"
     assert launcher.is_file()
     assert launcher.stat().st_mode & 0o111
     launcher_source = launcher.read_text(encoding="utf-8")

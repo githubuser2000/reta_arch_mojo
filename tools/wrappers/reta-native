@@ -1,0 +1,19 @@
+#!/usr/bin/env sh
+set -eu
+SELF=$0
+if command -v readlink >/dev/null 2>&1; then
+    SELF=$(readlink -f "$0" 2>/dev/null || printf '%s' "$0")
+fi
+SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$SELF")" && pwd)
+if [ -d "$SCRIPT_DIR/../src" ] && [ -d "$SCRIPT_DIR/../scripts" ]; then
+    ROOT=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)
+elif [ -d "$SCRIPT_DIR/../../src" ] && [ -d "$SCRIPT_DIR/../../scripts" ]; then
+    ROOT=$(CDPATH= cd -- "$SCRIPT_DIR/../.." && pwd)
+else
+    ROOT=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)
+fi
+cd "$ROOT"
+if [ -x "$ROOT/target/bin/reta-native" ]; then
+    exec "$ROOT/tools/wrappers/mojo-runtime-exec" "$ROOT/target/bin/reta-native" "$@"
+fi
+exec "$ROOT/bin/mojo-real" run -I "$ROOT/src" "$ROOT/src/reta_native_main.mojo" "$@"

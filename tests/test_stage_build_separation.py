@@ -54,7 +54,7 @@ def test_full_mojo_suite_runs_through_portable_runtime_wrapper() -> None:
     run = (SCRIPTS / "run-tests.sh").read_text(encoding="utf-8")
     runner = (ROOT / "tools/run_mojo_test_binaries.py").read_text(encoding="utf-8")
     assert 'scripts/run-tests.sh' in wrapper
-    assert 'bin/mojo-runtime-exec' in run
+    assert 'tools/wrappers/mojo-runtime-exec' in run
     assert '[str(runtime_exec), str(entry.binary)]' in runner
     assert not any(
         line.strip() == '"$TARGET/$name"' for line in wrapper.splitlines()

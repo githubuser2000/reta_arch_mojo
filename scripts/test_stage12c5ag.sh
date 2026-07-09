@@ -15,7 +15,7 @@ printf '\n== build tests/test_input_semantics.mojo ==\n'
 "$MOJO" build -I src -I tests tests/test_input_semantics.mojo \
     -o "$TARGET/test_input_semantics_12c5ag"
 printf '== run test_input_semantics_12c5ag ==\n'
-"$ROOT/bin/mojo-runtime-exec" "$TARGET/test_input_semantics_12c5ag"
+"$ROOT/tools/wrappers/mojo-runtime-exec" "$TARGET/test_input_semantics_12c5ag"
 
 # Compile the newly typed architecture registry separately so that metadata
 # ownership cannot hide behind the much larger generated-table test target.
@@ -23,7 +23,7 @@ printf '\n== build tests/test_generated_columns_registry.mojo ==\n'
 "$MOJO" build -I src -I tests tests/test_generated_columns_registry.mojo \
     -o "$TARGET/test_generated_columns_registry_12c5ag"
 printf '== run test_generated_columns_registry_12c5ag ==\n'
-"$ROOT/bin/mojo-runtime-exec" "$TARGET/test_generated_columns_registry_12c5ag"
+"$ROOT/tools/wrappers/mojo-runtime-exec" "$TARGET/test_generated_columns_registry_12c5ag"
 
 "$ROOT/scripts/run_pytest.sh" -q \
     tests/test_compile_status_reporting.py \

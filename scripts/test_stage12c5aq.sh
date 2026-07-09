@@ -22,7 +22,7 @@ printf '\n== build tests/test_command_parity_native.mojo ==\n'
 "$MOJO" build -I src -I tests tests/test_command_parity_native.mojo \
     -o "$TARGET/test_command_parity_native_12c5aq"
 printf '== run test_command_parity_native_12c5aq ==\n'
-"$ROOT/bin/mojo-runtime-exec" "$TARGET/test_command_parity_native_12c5aq"
+"$ROOT/tools/wrappers/mojo-runtime-exec" "$TARGET/test_command_parity_native_12c5aq"
 
 if [ ! -x "$ROOT/target/bin/reta-native" ]; then
     printf '%s\n' \

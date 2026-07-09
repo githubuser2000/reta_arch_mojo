@@ -16,7 +16,7 @@ printf '\n== build tests/test_parallel_number_processes.mojo ==\n'
     tests/test_parallel_number_processes.mojo \
     -o "$TARGET/test_parallel_number_processes_12c5ay"
 printf '== run test_parallel_number_processes_12c5ay ==\n'
-"$ROOT/bin/mojo-runtime-exec" \
+"$ROOT/tools/wrappers/mojo-runtime-exec" \
     "$TARGET/test_parallel_number_processes_12c5ay"
 
 printf '\n== build tests/test_parallel_row_processes.mojo ==\n'
@@ -24,7 +24,7 @@ printf '\n== build tests/test_parallel_row_processes.mojo ==\n'
     tests/test_parallel_row_processes.mojo \
     -o "$TARGET/test_parallel_row_processes_12c5ay"
 printf '== run test_parallel_row_processes_12c5ay ==\n'
-"$ROOT/bin/mojo-runtime-exec" \
+"$ROOT/tools/wrappers/mojo-runtime-exec" \
     "$TARGET/test_parallel_row_processes_12c5ay"
 
 "$ROOT/scripts/run_pytest.sh" -q \

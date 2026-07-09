@@ -8,7 +8,7 @@ trap 'rm -rf "$TMP"' EXIT HUP INT TERM
 REFERENCE_PY=$("$ROOT/scripts/select_reference_python.sh")
 HASH_SEED=${RETA_REFERENCE_HASH_SEED:-0}
 NATIVE=${RETA_NATIVE_BINARY:-"$ROOT/target/bin/reta-native"}
-[ -x "$NATIVE" ] || NATIVE="$ROOT/bin/reta-native"
+[ -x "$NATIVE" ] || NATIVE="$ROOT/target/bin/reta-native"
 
 run_pair() {
     label=$1

@@ -11,7 +11,7 @@ def test_html_renderer_has_no_raw_string_slice() -> None:
 
 
 def test_stale_binary_guard_is_centralized() -> None:
-    runtime = (ROOT / "bin/mojo-runtime-exec").read_text()
+    runtime = (ROOT / "tools/wrappers/mojo-runtime-exec").read_text()
     assert 'check_mojo_binary_freshness.sh" "$TARGET"' in runtime
     build = (ROOT / "scripts/build.sh").read_text()
     assert "stamp_mojo_binary.sh" in build

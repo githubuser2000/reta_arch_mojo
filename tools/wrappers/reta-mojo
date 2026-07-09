@@ -1,0 +1,55 @@
+#!/usr/bin/env sh
+set -eu
+SELF=$0
+if command -v readlink >/dev/null 2>&1; then
+    SELF=$(readlink -f "$0" 2>/dev/null || printf '%s' "$0")
+fi
+SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$SELF")" && pwd)
+if [ -d "$SCRIPT_DIR/../src" ] && [ -d "$SCRIPT_DIR/../scripts" ]; then
+    ROOT=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)
+elif [ -d "$SCRIPT_DIR/../../src" ] && [ -d "$SCRIPT_DIR/../../scripts" ]; then
+    ROOT=$(CDPATH= cd -- "$SCRIPT_DIR/../.." && pwd)
+else
+    ROOT=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)
+fi
+cd "$ROOT"
+
+run_source_or_missing() {
+    target=$1
+    source=$2
+    shift 2
+    if [ ! -f "$source" ]; then
+        printf 'Fehlendes Compilerziel: %s\n' "$target" >&2
+        printf 'Keine installierte Mojo-Quelle verfügbar: %s\n' "$source" >&2
+        exit 127
+    fi
+    exec "$ROOT/bin/mojo-real" run -I "$ROOT/src" "$source" "$@"
+}
+if [ "${1-}" = "--mojo-schema" ] || [ "${1-}" = "--mojo-columns" ] || [ "${1-}" = "--mojo-alias" ] || [ "${1-}" = "--mojo-parse-cli" ] || [ "${1-}" = "--mojo-vocabulary" ] || [ "${1-}" = "--mojo-input-snapshot" ]; then
+    if [ -x "$ROOT/target/bin/reta-mojo-schema" ]; then
+        exec "$ROOT/tools/wrappers/mojo-runtime-exec" "$ROOT/target/bin/reta-mojo-schema" "$@"
+    fi
+    run_source_or_missing "$ROOT/target/bin/reta-mojo-schema" "$ROOT/src/schema_main.mojo" "$@"
+fi
+if [ "${1-}" = "--mojo-architecture" ]; then
+    if [ -x "$ROOT/target/bin/reta-mojo-architecture" ]; then
+        exec "$ROOT/tools/wrappers/mojo-runtime-exec" "$ROOT/target/bin/reta-mojo-architecture"
+    fi
+    run_source_or_missing "$ROOT/target/bin/reta-mojo-architecture" "$ROOT/src/architecture_main.mojo"
+fi
+if [ "${1-}" = "--mojo-tags" ] || [ "${1-}" = "--mojo-tag-columns" ]; then
+    if [ -x "$ROOT/target/bin/reta-mojo-tags" ]; then
+        exec "$ROOT/tools/wrappers/mojo-runtime-exec" "$ROOT/target/bin/reta-mojo-tags" "$@"
+    fi
+    run_source_or_missing "$ROOT/target/bin/reta-mojo-tags" "$ROOT/src/tags_main.mojo" "$@"
+fi
+if [ "${1-}" = "--mojo-table-state" ] || [ "${1-}" = "--mojo-wrap" ] || [ "${1-}" = "--mojo-csv-info" ]; then
+    if [ -x "$ROOT/target/bin/reta-mojo-table" ]; then
+        exec "$ROOT/tools/wrappers/mojo-runtime-exec" "$ROOT/target/bin/reta-mojo-table" "$@"
+    fi
+    run_source_or_missing "$ROOT/target/bin/reta-mojo-table" "$ROOT/src/table_main.mojo" "$@"
+fi
+if [ -x "$ROOT/target/bin/reta-mojo-native" ]; then
+    exec "$ROOT/tools/wrappers/mojo-runtime-exec" "$ROOT/target/bin/reta-mojo-native" "$@"
+fi
+run_source_or_missing "$ROOT/target/bin/reta-mojo-native" "$ROOT/src/main.mojo" "$@"

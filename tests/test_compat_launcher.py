@@ -25,7 +25,7 @@ def _run_compat(
 ) -> subprocess.CompletedProcess[bytes]:
     assert BINARY.is_file(), f"missing compatibility binary: {BINARY}"
     return subprocess.run(
-        [str(ROOT / "bin" / "mojo-runtime-exec"), str(BINARY), *arguments],
+        [str(ROOT / "tools" / "wrappers" / "mojo-runtime-exec"), str(BINARY), *arguments],
         cwd=cwd,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
@@ -516,7 +516,7 @@ def test_compat_source_contains_no_embedded_python() -> None:
 
 
 def test_compat_shell_launcher_preserves_project_interpreter() -> None:
-    source = (ROOT / "bin" / "reta-mojo-compat").read_text(encoding="utf-8")
+    source = (ROOT / "tools" / "wrappers" / "reta-mojo-compat").read_text(encoding="utf-8")
     assert '[ -z "${RETA_PYTHON-}" ]' in source
     assert '[ -x "$ROOT/.venv/bin/python" ]' in source
     assert 'RETA_PYTHON="$ROOT/.venv/bin/python"' in source

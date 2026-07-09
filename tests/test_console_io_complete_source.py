@@ -94,7 +94,7 @@ def test_console_io_build_and_install_surface_is_wired() -> None:
     targets = (ROOT / "scripts/install_targets.txt").read_text(encoding="utf-8").splitlines()
     assert "reta-mojo-diagnostics" in targets
     assert "reta-mojo-console-io" not in targets
-    launcher = ROOT / "bin/reta-mojo-console-io"
+    launcher = ROOT / "tools/wrappers/reta-mojo-console-io"
     assert launcher.is_file()
     assert launcher.stat().st_mode & 0o111
     launcher_source = launcher.read_text(encoding="utf-8")

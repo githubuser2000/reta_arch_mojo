@@ -25,7 +25,7 @@ for test_name in prompt_interaction prompt_external_commands legacy_mojo_bridge 
     "$MOJO" build -I src -I tests "tests/test_${test_name}.mojo" "$@"         -o "$TARGET/test_${test_name}_12c5dp"
     printf '== run test_%s_12c5dp ==
 ' "$test_name"
-    "$ROOT/bin/mojo-runtime-exec" "$TARGET/test_${test_name}_12c5dp"
+    "$ROOT/tools/wrappers/mojo-runtime-exec" "$TARGET/test_${test_name}_12c5dp"
 done
 
 "$ROOT/scripts/run_pytest.sh" -q     tests/test_stage12c5dp_source.py     tests/test_stage12c5do_source.py     tests/test_stage12c5dn_source.py     tests/test_stage12c5dm_source.py     tests/test_stage12c5dl_source.py     tests/test_stage12c5dk_source.py     tests/test_stage12c5dj_source.py     tests/test_stage12c5di_source.py     tests/test_stage12c5dh_source.py     tests/test_stage12c5dg_source.py     tests/test_stage12c5df_source.py     tests/test_stage12c5de_source.py     tests/test_stage12c5dd_source.py     tests/test_stage12c5dc_source.py     tests/test_stage12c5db_source.py     tests/test_stage12c5da_source.py     tests/test_stage12c5cz_source.py     tests/test_stage12c5cy_source.py     tests/test_stage12c5cx_source.py     tests/test_stage12c5cu_source.py     tests/test_stage12c5cv_source.py     tests/test_prompt_interaction_source.py     tests/test_prompt_external_source.py     tests/test_legacy_reta_prompt_source.py     tests/test_legacy_mojo_bridge_source.py     tests/test_known_defects.py     tests/test_documented_python_defects.py     tests/test_porting_metrics.py     tests/test_porting_matrix_ownership.py     tests/test_source_archive_contract.py

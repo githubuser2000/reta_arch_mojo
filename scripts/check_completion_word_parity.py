@@ -49,7 +49,7 @@ def main() -> None:
     env = os.environ.copy()
     env["RETA_MOJO_RUNTIME_LIBDIR"] = str(ROOT / "target" / "lib" / "mojo")
     native = subprocess.run(
-        [str(ROOT / "bin" / "mojo-runtime-exec"), str(BINARY)],
+        [str(ROOT / "tools" / "wrappers" / "mojo-runtime-exec"), str(BINARY)],
         cwd=ROOT,
         env=env,
         check=True,

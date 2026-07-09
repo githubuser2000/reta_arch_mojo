@@ -92,7 +92,7 @@ def test_installed_native_inspection_launchers_resolve_symlinks() -> None:
         "reta-mojo-witnesses",
     ]
     for name in launchers:
-        source = (ROOT / "bin" / name).read_text()
+        source = (ROOT / "tools" / "wrappers" / name).read_text()
         assert "SELF=$0" in source, name
         assert 'readlink -f "$0"' in source, name
         assert 'dirname -- "$SELF"' in source, name

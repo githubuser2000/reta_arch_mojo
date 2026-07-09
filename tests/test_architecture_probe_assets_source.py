@@ -174,7 +174,7 @@ def test_domain_probe_owns_final_architecture_command() -> None:
 def test_build_install_and_launcher_include_architecture_probe() -> None:
     build = (ROOT / "scripts/build.sh").read_text(encoding="utf-8")
     targets = (ROOT / "scripts/install_targets.txt").read_text(encoding="utf-8")
-    launcher = ROOT / "bin/reta-mojo-architecture-probe"
+    launcher = ROOT / "tools/wrappers/reta-mojo-architecture-probe"
     assert "src/architecture_probe_main.mojo reta-mojo-architecture-probe" in build
     assert "reta-mojo-architecture-probe" in targets.splitlines()
     assert launcher.exists()

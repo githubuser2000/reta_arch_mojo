@@ -80,7 +80,7 @@ def main() -> int:
         return 64
     probe = Path(sys.argv[1])
     result = subprocess.run(
-        [str(ROOT / "bin/mojo-runtime-exec"), str(probe)],
+        [str(ROOT / "tools/wrappers/mojo-runtime-exec"), str(probe)],
         cwd=ROOT,
         text=True,
         stdout=subprocess.PIPE,

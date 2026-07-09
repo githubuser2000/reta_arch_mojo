@@ -20,13 +20,13 @@ printf '\n== build tests/test_legacy_reta_prompt.mojo ==\n'
 "$MOJO" build -I src -I tests tests/test_legacy_reta_prompt.mojo \
     -o "$TARGET/test_legacy_reta_prompt_12c5am"
 printf '== run test_legacy_reta_prompt_12c5am ==\n'
-"$ROOT/bin/mojo-runtime-exec" "$TARGET/test_legacy_reta_prompt_12c5am"
+"$ROOT/tools/wrappers/mojo-runtime-exec" "$TARGET/test_legacy_reta_prompt_12c5am"
 
 printf '\n== build tests/test_generated_columns_integration.mojo ==\n'
 "$MOJO" build -I src -I tests tests/test_generated_columns_integration.mojo \
     -o "$TARGET/test_generated_columns_integration_12c5am"
 printf '== run test_generated_columns_integration_12c5am ==\n'
-"$ROOT/bin/mojo-runtime-exec" "$TARGET/test_generated_columns_integration_12c5am"
+"$ROOT/tools/wrappers/mojo-runtime-exec" "$TARGET/test_generated_columns_integration_12c5am"
 
 "$ROOT/scripts/run_pytest.sh" -q \
     tests/test_legacy_reta_prompt_source.py \

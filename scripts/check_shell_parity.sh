@@ -6,7 +6,7 @@ TMP=${TMPDIR:-/tmp}/reta-shell-parity.$$
 mkdir -p "$TMP"
 trap 'rm -rf "$TMP"' EXIT HUP INT TERM
 NATIVE=${RETA_NATIVE_BINARY:-"$ROOT/target/bin/reta-native"}
-[ -x "$NATIVE" ] || NATIVE="$ROOT/bin/reta-native"
+[ -x "$NATIVE" ] || NATIVE="$ROOT/target/bin/reta-native"
 REFERENCE_PY=$("$ROOT/scripts/select_reference_python.sh")
 
 run_pair() {

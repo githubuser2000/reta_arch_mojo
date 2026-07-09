@@ -51,7 +51,7 @@ def test_domain_probe_is_a_regular_installable_compiler_target() -> None:
     targets = INSTALL_TARGETS.read_text(encoding="utf-8").splitlines()
     assert "build src/domain_probe_main.mojo reta-mojo-domain-probe -I src" in build
     assert "reta-mojo-domain-probe" in targets
-    assert (ROOT / "bin/reta-mojo-domain-probe").exists()
+    assert (ROOT / "tools/wrappers/reta-mojo-domain-probe").exists()
     assert "reta-mojo-domain-probe" in BUILD_LAYOUT.read_text(encoding="utf-8")
 
 

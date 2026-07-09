@@ -22,6 +22,6 @@ python3 scripts/prompt_mixed_reciprocal_reference.py "${CASES[@]}" > "$REFERENCE
 cmp "$EXPECTED" "$REFERENCE"
 "$MOJO" build --no-optimization -j 4 -I src \
     tests/prompt_mixed_reciprocal_probe.mojo -o "$BINARY"
-"$ROOT/bin/mojo-runtime-exec" "$BINARY" > "$ACTUAL"
+"$ROOT/tools/wrappers/mojo-runtime-exec" "$BINARY" > "$ACTUAL"
 cmp "$EXPECTED" "$ACTUAL"
 printf '%s\n' 'mixed reciprocal Python↔Mojo plans: 5/5 byte-identical'

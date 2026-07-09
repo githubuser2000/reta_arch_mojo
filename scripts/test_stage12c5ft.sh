@@ -25,7 +25,7 @@ for test_name in shared_library_architecture; do
     "$MOJO" build -I src -I tests "tests/test_${test_name}.mojo" "$@" \
         -o "$TARGET/test_${test_name}_12c5ft"
     printf '== run test_%s_12c5ft ==\n' "$test_name"
-    "$ROOT/bin/mojo-runtime-exec" "$TARGET/test_${test_name}_12c5ft"
+    "$ROOT/tools/wrappers/mojo-runtime-exec" "$TARGET/test_${test_name}_12c5ft"
 done
 
 "$ROOT/scripts/run_pytest.sh" -q \

@@ -33,9 +33,10 @@ done
 [ ! -L "$STAGE_BINDIR/reta-mojo-package-integrity" ]
 [ ! -e "$STAGE_LIBEXECDIR/python_reference" ]
 [ -d "$STAGE_REFERENCEDIR" ]
-[ -L "$STAGE_REFERENCEDIR/csv" ]
+[ -d "$STAGE_REFERENCEDIR/csv" ]
+[ ! -L "$STAGE_REFERENCEDIR/csv" ]
 [ -f "$STAGE_REFERENCEDIR/csv/religion.csv" ]
-[ -L "$STAGE_LIBEXECDIR/assets" ]
+[ ! -e "$STAGE_LIBEXECDIR/assets" ]
 [ ! -e "$STAGE_LIBEXECDIR/bin" ]
 [ ! -e "$STAGE_LIBEXECDIR/scripts" ]
 [ -x "$STAGE_BINDIR/mojo-runtime-exec" ]
@@ -67,6 +68,7 @@ for library_name in $(reta_artifact_prompt_shared_libraries); do
 done
 [ ! -e "$STAGE_LIBEXECDIR/target" ]
 ! find "$STAGE_BINDIR" "$STAGE_LIBEXECDIR" \( -name '*.reta-source-id' -o -name '*.reta-test-source-id' \) | grep -q .
+! find "$STAGE_BINDIR" "$STAGE_LIBEXECDIR" "$STAGE_DATADIR" -type l | grep -q .
 
 (
     cd "$TMP"

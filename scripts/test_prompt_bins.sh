@@ -18,26 +18,26 @@ if [ ! -x target/bin/reta-prompt-complete ]; then
     "$ROOT/bin/mojo-real" build -I src src/prompt_completion_main.mojo -o target/bin/reta-prompt-complete
 fi
 
-[ "$(./bin/rpb prim 60)" = "60: 2^2 3 5" ]
-[ "$(./bin/prim24 29)" = "29: 5" ]
-[ "$(./bin/multis 12)" = "12: [(6, 2), (4, 3), (12, 1)]" ]
-[ "$(./bin/multis3 36)" = "36: [(2, 2, 9), (2, 3, 6), (3, 3, 4)]" ]
-./bin/modulo 5 > "$TMP/modulo"
+[ "$("$ROOT/tools/wrappers/rpb" prim 60)" = "60: 2^2 3 5" ]
+[ "$("$ROOT/tools/wrappers/prim24" 29)" = "29: 5" ]
+[ "$("$ROOT/tools/wrappers/multis" 12)" = "12: [(6, 2), (4, 3), (12, 1)]" ]
+[ "$("$ROOT/tools/wrappers/multis3" 36)" = "36: [(2, 2, 9), (2, 3, 6), (3, 3, 4)]" ]
+"$ROOT/tools/wrappers/modulo" 5 > "$TMP/modulo"
 [ "$(wc -l < "$TMP/modulo")" -eq 24 ]
 [ "$(head -n 1 "$TMP/modulo")" = "5 % 2 = 1 Gegenteil, 1 Gegenteil" ]
 
-printf 'prim 29\nq\n' | ./bin/rp > "$TMP/interactive"
+printf 'prim 29\nq\n' | "$ROOT/tools/wrappers/rp" > "$TMP/interactive"
 grep -F '29: 29' "$TMP/interactive" >/dev/null
 
-./bin/reta -zeilen --vorhervonausschnitt=1-2 -spalten --religionen=sternpolygon --breite=40 > "$TMP/reta"
-./bin/rpb reta -zeilen --vorhervonausschnitt=1-2 -spalten --religionen=sternpolygon --breite=40 > "$TMP/rpb-reta"
+"$ROOT/tools/wrappers/reta" -zeilen --vorhervonausschnitt=1-2 -spalten --religionen=sternpolygon --breite=40 > "$TMP/reta"
+"$ROOT/tools/wrappers/rpb" reta -zeilen --vorhervonausschnitt=1-2 -spalten --religionen=sternpolygon --breite=40 > "$TMP/rpb-reta"
 cmp "$TMP/reta" "$TMP/rpb-reta"
 
 python3 python_reference/retaPrompt.py -vi -e -befehl a 2 > "$TMP/python-a"
-./bin/rpb a 2 > "$TMP/mojo-a"
+"$ROOT/tools/wrappers/rpb" a 2 > "$TMP/mojo-a"
 cmp "$TMP/python-a" "$TMP/mojo-a"
 
-printf 'S\nprim 60\no\nq\n' | ./bin/rp > "$TMP/storage"
+printf 'S\nprim 60\no\nq\n' | "$ROOT/tools/wrappers/rp" > "$TMP/storage"
 grep -F 'Gespeichert: prim 60' "$TMP/storage" >/dev/null
 grep -F '60: 2^2 3 5' "$TMP/storage" >/dev/null
 

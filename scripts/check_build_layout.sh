@@ -18,9 +18,27 @@ if ! grep -Eq '^target/$' .gitignore; then
 fi
 
 for path in bin/*; do
-    [ -f "$path" ] || continue
+    [ -e "$path" ] || continue
+    name=${path##*/}
+    case "$name" in
+        mojo-real) ;;
+        *)
+            printf '%s: %s\n' 'Fehler: Projekt-bin darf nur den Mojo-Resolver enthalten, nicht' "$path" >&2
+            exit 1
+            ;;
+    esac
     if file -b "$path" | grep -q '^ELF '; then
-        printf 'Fehler: kompiliertes ELF liegt im versionierbaren Launcher-Verzeichnis: %s\n' "$path" >&2
+        printf '%s: %s\n' 'Fehler: kompiliertes ELF liegt im versionierbaren Projekt-bin' "$path" >&2
+        exit 1
+    fi
+done
+if [ -e run ]; then
+    printf '%s\n' 'Fehler: obsolete run/-Launcher-Ablage existiert noch.' >&2
+    exit 1
+fi
+for root_launcher in reta rp rpl rpe rpb reta.sh rp.sh rpl.sh retaPrompt retaPrompt.english grundStrukHtml grundStrukHtml.py generate_html generate4readme; do
+    if [ -e "$root_launcher" ] || [ -L "$root_launcher" ]; then
+        printf '%s: %s\n' 'Fehler: kein Launcher/Symlink in der Projektwurzel erlaubt' "$root_launcher" >&2
         exit 1
     fi
 done

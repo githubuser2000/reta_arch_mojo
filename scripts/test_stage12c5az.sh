@@ -16,7 +16,7 @@ printf '\n== build tests/test_prompt_table_execution.mojo ==\n'
     tests/test_prompt_table_execution.mojo \
     -o "$TARGET/test_prompt_table_execution_12c5az"
 printf '== run test_prompt_table_execution_12c5az ==\n'
-"$ROOT/bin/mojo-runtime-exec" \
+"$ROOT/tools/wrappers/mojo-runtime-exec" \
     "$TARGET/test_prompt_table_execution_12c5az"
 
 "$ROOT/scripts/check_prompt_true_fraction_multiples.sh"

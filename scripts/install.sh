@@ -108,40 +108,37 @@ for manpage in $(reta_public_manpages); do
 done
 
 # Architecture-independent immutable data belongs below share/reta.
-cp -a "$ROOT/python_reference/csv/." "$STAGE_DATADIR/csv/"
-cp -a "$ROOT/assets/." "$STAGE_DATADIR/assets/"
+cp -aL "$ROOT/python_reference/csv/." "$STAGE_DATADIR/csv/"
+cp -aL "$ROOT/assets/." "$STAGE_DATADIR/assets/"
 
 # Keep the Python reference tree out of lib/reta. It is architecture-independent
-# reference/compatibility material, so its installed home is share/reta.
+# reference/compatibility material, so its installed home is share/reta.  Do not
+# replace subtrees by symlinks: installed layout should not grow launcher/data
+# symlink depots either.
 rm -rf "$STAGE_LIBEXECDIR/python_reference" "$STAGE_REFERENCEDIR"
-cp -a "$ROOT/python_reference" "$STAGE_REFERENCEDIR"
-rm -rf "$STAGE_REFERENCEDIR/csv"
-CSV_LINK=$(relative_path "$REFERENCEDIR" "$DATADIR/csv")
-ln -s "$CSV_LINK" "$STAGE_REFERENCEDIR/csv"
+cp -aL "$ROOT/python_reference" "$STAGE_REFERENCEDIR"
 find "$STAGE_REFERENCEDIR" -type d -name __pycache__ -prune -exec rm -rf {} + 2>/dev/null || true
 find "$STAGE_REFERENCEDIR" -type f \( -name '*.pyc' -o -name '*.pyo' \) -delete 2>/dev/null || true
 
-# Native catalogs remain at the source-compatible private path through one
-# relative link; the physical files still live exclusively below share/reta.
+# Assets are installed physically under share/reta/assets only.  lib/reta is for
+# native shared libraries and the Mojo runtime, not data aliases.
 rm -rf "$STAGE_LIBEXECDIR/assets"
-ASSET_LINK=$(relative_path "$LIBEXECDIR" "$DATADIR/assets")
-ln -s "$ASSET_LINK" "$STAGE_LIBEXECDIR/assets"
 
 # Public shell frontends belong directly below BINDIR, never below lib/reta.
 # They delegate to compiled targets in BINDIR and to the public runtime helper
 # in BINDIR.  No private bin/ or scripts/ directory is installed under lib/reta.
 install_public_wrapper() {
     wrapper_name=$1
-    wrapper_source=$ROOT/bin/$wrapper_name
+    wrapper_source=$ROOT/tools/wrappers/$wrapper_name
     [ -f "$wrapper_source" ] || return 0
     install -m 0755 "$wrapper_source" "$STAGE_BINDIR/$wrapper_name"
     sed -i \
         -e "s|\$ROOT/target/bin|$BINDIR|g" \
-        -e "s|\$ROOT/bin/mojo-runtime-exec|$BINDIR/mojo-runtime-exec|g" \
+        -e "s|\$ROOT/tools/wrappers/mojo-runtime-exec|$BINDIR/mojo-runtime-exec|g" \
         "$STAGE_BINDIR/$wrapper_name"
 }
 
-install -m 0755 "$ROOT/bin/mojo-runtime-exec" "$STAGE_BINDIR/mojo-runtime-exec"
+install -m 0755 "$ROOT/tools/wrappers/mojo-runtime-exec" "$STAGE_BINDIR/mojo-runtime-exec"
 for wrapper_name in $(reta_artifact_public_shell_wrappers); do
     install_public_wrapper "$wrapper_name"
 done
@@ -226,6 +223,10 @@ if [ -e "$STAGE_LIBEXECDIR/python_reference" ]; then
 fi
 if [ -e "$STAGE_LIBEXECDIR/bin" ] || [ -e "$STAGE_LIBEXECDIR/scripts" ]; then
     printf '%s\n' 'Fehler: bin/ und scripts/ dürfen nicht unter lib/reta installiert werden.' >&2
+    exit 3
+fi
+if find "$STAGE_BINDIR" "$STAGE_LIBEXECDIR" "$STAGE_DATADIR" -type l | grep -q .; then
+    printf '%s\n' 'Fehler: Installation darf keine Launcher-/Daten-Symlinks erzeugen.' >&2
     exit 3
 fi
 

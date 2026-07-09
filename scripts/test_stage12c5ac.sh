@@ -9,13 +9,13 @@ TEST_PYTHON=$("$ROOT/scripts/find_test_python.sh")
 # First compile the exact value-type/list assertion that failed in 12c5ab.
 "$MOJO" build -I src tests/test_legacy_libreta_prompt.mojo \
     -o target/tests/test_legacy_libreta_prompt_12c5ac
-"$ROOT/bin/mojo-runtime-exec" \
+"$ROOT/tools/wrappers/mojo-runtime-exec" \
     target/tests/test_legacy_libreta_prompt_12c5ac
 
 # Then compile the completed prompt-preparation facade and its legacy aliases.
 "$MOJO" build -I src tests/test_prompt_preparation.mojo \
     -o target/tests/test_prompt_preparation_12c5ac
-"$ROOT/bin/mojo-runtime-exec" \
+"$ROOT/tools/wrappers/mojo-runtime-exec" \
     target/tests/test_prompt_preparation_12c5ac
 
 scripts/check_prompt_preparation_legacy_parity.sh

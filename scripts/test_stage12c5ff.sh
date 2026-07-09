@@ -21,7 +21,7 @@ for test_name in prompt_execution prompt_runtime prompt_interaction prompt_legac
     "$MOJO" build -I src -I tests "tests/test_${test_name}.mojo" "$@" \
         -o "$TARGET/test_${test_name}_12c5ff"
     printf '== run test_%s_12c5ff ==\n' "$test_name"
-    "$ROOT/bin/mojo-runtime-exec" "$TARGET/test_${test_name}_12c5ff"
+    "$ROOT/tools/wrappers/mojo-runtime-exec" "$TARGET/test_${test_name}_12c5ff"
 done
 
 "$ROOT/scripts/run_pytest.sh" -q \

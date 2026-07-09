@@ -34,7 +34,7 @@ check_case() {
     (
         cd "$TMP/runtime"
         timeout --signal=KILL 180 \
-            "$ROOT/bin/mojo-runtime-exec" "$PROMPT" rpb "$@"
+            "$ROOT/tools/wrappers/mojo-runtime-exec" "$PROMPT" rpb "$@"
     ) > "$native" 2> "$error"
 
     if [[ -s "$error" ]]; then

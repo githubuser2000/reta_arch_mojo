@@ -48,33 +48,33 @@ compare_command() {
     standalone_binary=$2
     shift 2
     "$public_launcher" "$@" > "$TMP_COMPARE/shared.out"
-    "$ROOT/bin/mojo-runtime-exec" "$standalone_binary" "$@" \
+    "$ROOT/tools/wrappers/mojo-runtime-exec" "$standalone_binary" "$@" \
         > "$TMP_COMPARE/standalone.out"
     cmp "$TMP_COMPARE/shared.out" "$TMP_COMPARE/standalone.out"
 }
-compare_command "$ROOT/bin/reta-mojo-table-generation" \
+compare_command "$ROOT/tools/wrappers/reta-mojo-table-generation" \
     "$ROOT/target/tests/reta-mojo-table-generation-12c5z" --summary
-compare_command "$ROOT/bin/reta-mojo-output-syntax" \
+compare_command "$ROOT/tools/wrappers/reta-mojo-output-syntax" \
     "$ROOT/target/tests/reta-mojo-output-syntax-12c5z" --summary
-compare_command "$ROOT/bin/reta-mojo-console-io" \
+compare_command "$ROOT/tools/wrappers/reta-mojo-console-io" \
     "$ROOT/target/tests/reta-mojo-console-io-12c5z" --summary
-compare_command "$ROOT/bin/reta-mojo-table-output" \
+compare_command "$ROOT/tools/wrappers/reta-mojo-table-output" \
     "$ROOT/target/tests/reta-mojo-table-output-12c5z" --summary
 
 # Existing Python parity checkers exercise the public compatibility launchers,
 # which now route through the shared library.
 "$TEST_PYTHON" scripts/check_table_generation_parity.py \
     --python "$REFERENCE_PYTHON" \
-    --binary "$ROOT/bin/reta-mojo-table-generation"
+    --binary "$ROOT/tools/wrappers/reta-mojo-table-generation"
 "$TEST_PYTHON" scripts/check_output_semantics_parity.py \
     --python "$REFERENCE_PYTHON" \
-    --binary "$ROOT/bin/reta-mojo-output-syntax"
+    --binary "$ROOT/tools/wrappers/reta-mojo-output-syntax"
 "$TEST_PYTHON" scripts/check_console_io_parity.py \
     --python "$REFERENCE_PYTHON" \
-    --binary "$ROOT/bin/reta-mojo-console-io"
+    --binary "$ROOT/tools/wrappers/reta-mojo-console-io"
 "$TEST_PYTHON" scripts/check_table_output_parity.py \
     --python "$REFERENCE_PYTHON" \
-    --binary "$ROOT/bin/reta-mojo-table-output"
+    --binary "$ROOT/tools/wrappers/reta-mojo-table-output"
 
 "$ROOT/scripts/run_pytest.sh" -q \
     tests/test_diagnostics_shared_library_source.py \

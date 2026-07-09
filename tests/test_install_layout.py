@@ -69,11 +69,10 @@ def test_fhs_usr_local_layout_uses_share_for_csv_and_assets(tmp_path: Path) -> N
     for manpage in ("generate_html.1", "reta.1", "rp.1", "rpl.1", "rpe.1", "rpb.1"):
         assert (prefix / "share" / "man" / "man1" / manpage).is_file()
     assert not (private / "python_reference").exists()
-    assert (shared / "python_reference" / "csv").is_symlink()
+    assert (shared / "python_reference" / "csv").is_dir()
+    assert not (shared / "python_reference" / "csv").is_symlink()
     assert (shared / "python_reference" / "csv" / "religion.csv").is_file()
-    assert (private / "assets").is_symlink()
-    assert (private / "assets" / "parameter_aliases.tsv").is_file()
-    assert (private / "assets" / "input_semantics_catalog.tsv").is_file()
+    assert not (private / "assets").exists()
     assert not (private / "bin").exists()
     assert not (private / "scripts").exists()
 
@@ -85,6 +84,7 @@ def test_fhs_usr_local_layout_uses_share_for_csv_and_assets(tmp_path: Path) -> N
     assert not (private / "reta-native").exists()
     assert (prefix / "bin" / "mojo-runtime-exec").is_file()
     assert not list(prefix.rglob("*.reta-source-id"))
+    assert not [p for p in prefix.rglob("*") if p.is_symlink()]
     for wrapper in ("generate_html", "generate4readme", "reta-extract-html-classes", "reta-mojo", "reta-mojo-compat"):
         assert (prefix / "bin" / wrapper).is_file()
         assert not (prefix / "bin" / wrapper).is_symlink()
@@ -146,12 +146,14 @@ def test_user_local_prefix_keeps_data_below_home_share(tmp_path: Path) -> None:
     assert not (private / "python_reference").exists()
     assert not (private / "bin").exists()
     assert not (private / "scripts").exists()
-    assert (shared / "python_reference" / "csv").is_symlink()
+    assert (shared / "python_reference" / "csv").is_dir()
+    assert not (shared / "python_reference" / "csv").is_symlink()
     assert (shared / "python_reference" / "csv" / "religion.csv").is_file()
     assert not (prefix / "bin" / "reta").exists()
     assert (prefix / "bin" / "reta-native").is_file()
     assert not (private / "reta-native").exists()
     assert not list(prefix.rglob("*.reta-source-id"))
+    assert not [p for p in prefix.rglob("*") if p.is_symlink()]
 
     csv_info = subprocess.run(
         [str(prefix / "bin" / "reta-mojo"), "--mojo-csv-info"],
@@ -233,7 +235,8 @@ def test_fedora_libexec_override_keeps_shared_data_in_usr_share(tmp_path: Path) 
     assert not (private / "python_reference").exists()
     assert not (private / "bin").exists()
     assert not (private / "scripts").exists()
-    assert (shared / "python_reference" / "csv").is_symlink()
+    assert (shared / "python_reference" / "csv").is_dir()
+    assert not (shared / "python_reference" / "csv").is_symlink()
     assert (shared / "python_reference" / "csv" / "religion.csv").is_file()
     assert (shared / "csv" / "religion.csv").is_file()
     assert not (stage / "usr" / "bin" / "reta").exists()

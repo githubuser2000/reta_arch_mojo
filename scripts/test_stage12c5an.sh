@@ -15,7 +15,7 @@ printf '\n== build tests/test_parameter_semantics.mojo ==\n'
 "$MOJO" build -I src -I tests tests/test_parameter_semantics.mojo \
     -o "$TARGET/test_parameter_semantics_12c5an"
 printf '== run test_parameter_semantics_12c5an ==\n'
-"$ROOT/bin/mojo-runtime-exec" "$TARGET/test_parameter_semantics_12c5an"
+"$ROOT/tools/wrappers/mojo-runtime-exec" "$TARGET/test_parameter_semantics_12c5an"
 
 printf '\n== generate/check exact legacy mojo_bridge catalog ==\n'
 PYTHONDONTWRITEBYTECODE=1 \
@@ -25,13 +25,13 @@ printf '\n== build tests/test_legacy_mojo_bridge.mojo ==\n'
 "$MOJO" build -I src -I tests tests/test_legacy_mojo_bridge.mojo \
     -o "$TARGET/test_legacy_mojo_bridge_12c5an"
 printf '== run test_legacy_mojo_bridge_12c5an ==\n'
-"$ROOT/bin/mojo-runtime-exec" "$TARGET/test_legacy_mojo_bridge_12c5an"
+"$ROOT/tools/wrappers/mojo-runtime-exec" "$TARGET/test_legacy_mojo_bridge_12c5an"
 
 printf '\n== build tests/test_parameter_runtime_complete.mojo ==\n'
 "$MOJO" build -I src -I tests tests/test_parameter_runtime_complete.mojo \
     -o "$TARGET/test_parameter_runtime_complete_12c5an"
 printf '== run test_parameter_runtime_complete_12c5an ==\n'
-"$ROOT/bin/mojo-runtime-exec" "$TARGET/test_parameter_runtime_complete_12c5an"
+"$ROOT/tools/wrappers/mojo-runtime-exec" "$TARGET/test_parameter_runtime_complete_12c5an"
 
 "$ROOT/scripts/run_pytest.sh" -q \
     tests/test_legacy_mojo_bridge_source.py \

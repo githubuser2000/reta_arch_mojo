@@ -51,24 +51,20 @@ cmp "$TMP/python-blank-en" "$TMP/mojo-blank-en"
 cmp "$TMP/python-debug-de" "$TMP/mojo-debug-de"
 cmp "$TMP/python-debug-en" "$TMP/mojo-debug-en"
 
-./grundStrukHtml.py blank > "$TMP/root-blank-de"
-./run/grundStrukHtml.py blank > "$TMP/run-blank-de"
-cmp "$TMP/python-blank-de" "$TMP/root-blank-de"
-cmp "$TMP/python-blank-de" "$TMP/run-blank-de"
+"$ROOT/tools/wrappers/grundStrukHtml.py" blank > "$TMP/wrapper-blank-de"
+cmp "$TMP/python-blank-de" "$TMP/wrapper-blank-de"
 
 printf 'test-middle\n' > "$TMP/middle"
 cat assets/html/head1.alx assets/html/religionen.js assets/html/head2.alx \
     "$TMP/middle" "$TMP/python-blank-de" assets/html/footer.alx > "$TMP/full-reference"
 RETA_GENERATE_HTML_MIDDLE_FILE="$TMP/middle" ./target/bin/generate-html-native > "$TMP/full-mojo"
-RETA_GENERATE_HTML_MIDDLE_FILE="$TMP/middle" ./generate_html > "$TMP/full-root"
-RETA_GENERATE_HTML_MIDDLE_FILE="$TMP/middle" ./run/generate_html > "$TMP/full-run"
+RETA_GENERATE_HTML_MIDDLE_FILE="$TMP/middle" "$ROOT/tools/wrappers/generate_html" > "$TMP/full-wrapper"
 cmp "$TMP/full-reference" "$TMP/full-mojo"
-cmp "$TMP/full-reference" "$TMP/full-root"
-cmp "$TMP/full-reference" "$TMP/full-run"
+cmp "$TMP/full-reference" "$TMP/full-wrapper"
 
 cat assets/html/head1.alx assets/html/religionen.js assets/html/head2.alx \
     "$TMP/middle" "$TMP/python-blank-en" assets/html/footer.alx > "$TMP/full-reference-en"
-RETA_GENERATE_HTML_MIDDLE_FILE="$TMP/middle" ./generate_html -language=english > "$TMP/full-mojo-en"
+RETA_GENERATE_HTML_MIDDLE_FILE="$TMP/middle" "$ROOT/tools/wrappers/generate_html" -language=english > "$TMP/full-mojo-en"
 cmp "$TMP/full-reference-en" "$TMP/full-mojo-en"
 
 # Exercise the real table pipeline with all columns but one row.  The

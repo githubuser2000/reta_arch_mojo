@@ -36,7 +36,7 @@ MOJO=${MOJO_BIN:-"$ROOT/bin/mojo-real"}
 TMP_BIN=$(mktemp "${TMPDIR:-/tmp}/reta-table-runtime-12c5bk.XXXXXX")
 trap 'rm -f "$TMP_BIN"' EXIT HUP INT TERM
 "$MOJO" build -I src -I tests tests/test_table_runtime_complete.mojo "$@" -o "$TMP_BIN"
-"$ROOT/bin/mojo-runtime-exec" "$TMP_BIN"
+"$ROOT/tools/wrappers/mojo-runtime-exec" "$TMP_BIN"
 rm -f "$TMP_BIN"
 trap - EXIT HUP INT TERM
 

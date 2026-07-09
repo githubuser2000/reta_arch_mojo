@@ -10,13 +10,13 @@ TEST_PYTHON=$("$ROOT/scripts/find_test_python.sh")
 # Python-style underscore helpers out of wildcard-import ambiguity.
 "$MOJO" build -I src tests/test_table_runtime_complete.mojo \
     -o target/tests/test_table_runtime_complete_12c5ae
-"$ROOT/bin/mojo-runtime-exec" target/tests/test_table_runtime_complete_12c5ae
+"$ROOT/tools/wrappers/mojo-runtime-exec" target/tests/test_table_runtime_complete_12c5ae
 
 # Compile the now-complete typed ProgramWorkflow owner and run it against the
 # small deterministic CSV fixture instead of the full production data set.
 "$MOJO" build -I src tests/test_program_workflow.mojo \
     -o target/tests/test_program_workflow_12c5ae
-"$ROOT/bin/mojo-runtime-exec" target/tests/test_program_workflow_12c5ae
+"$ROOT/tools/wrappers/mojo-runtime-exec" target/tests/test_program_workflow_12c5ae
 
 # Rebuild the diagnostic main so the package export and all new methods are
 # parsed and type-checked by the real Mojo compiler.

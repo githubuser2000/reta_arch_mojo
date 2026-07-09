@@ -25,7 +25,7 @@ for test_name in prompt_interaction legacy_reta_prompt table_adapters; do
     "$MOJO" build -I src -I tests "tests/test_${test_name}.mojo" "$@"         -o "$TARGET/test_${test_name}_12c5cl"
     printf '== run test_%s_12c5cl ==
 ' "$test_name"
-    "$ROOT/bin/mojo-runtime-exec" "$TARGET/test_${test_name}_12c5cl"
+    "$ROOT/tools/wrappers/mojo-runtime-exec" "$TARGET/test_${test_name}_12c5cl"
 done
 
 "$ROOT/scripts/run_pytest.sh" -q     tests/test_stage12c5cl_source.py     tests/test_stage12c5ck_source.py     tests/test_stage12c5cj_source.py     tests/test_stage12c5ci_source.py     tests/test_stage12c5ch_source.py     tests/test_stage12c5cg_source.py     tests/test_stage12c5cf_source.py     tests/test_stage12c5ce_source.py     tests/test_stage12c5cd_source.py     tests/test_stage12c5cc_source.py     tests/test_prompt_interaction_source.py     tests/test_prompt_companion_effects_source.py     tests/test_prompt_historical_ownership_source.py     tests/test_table_adapters_source.py     tests/test_known_defects.py     tests/test_documented_python_defects.py     tests/test_porting_metrics.py     tests/test_porting_matrix_ownership.py     tests/test_source_archive_contract.py

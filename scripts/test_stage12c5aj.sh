@@ -15,7 +15,7 @@ printf '\n== build tests/test_parameter_semantics.mojo ==\n'
 "$MOJO" build -I src -I tests tests/test_parameter_semantics.mojo \
     -o "$TARGET/test_parameter_semantics_12c5aj"
 printf '== run test_parameter_semantics_12c5aj ==\n'
-"$ROOT/bin/mojo-runtime-exec" "$TARGET/test_parameter_semantics_12c5aj"
+"$ROOT/tools/wrappers/mojo-runtime-exec" "$TARGET/test_parameter_semantics_12c5aj"
 
 printf '\n== build src/domain_probe_main.mojo ==\n'
 "$MOJO" build -I src src/domain_probe_main.mojo \
@@ -30,13 +30,13 @@ printf '\n== build tests/test_prompt_execution_helpers.mojo ==\n'
 "$MOJO" build -I src -I tests tests/test_prompt_execution_helpers.mojo \
     -o "$TARGET/test_prompt_execution_helpers_12c5aj"
 printf '== run test_prompt_execution_helpers_12c5aj ==\n'
-"$ROOT/bin/mojo-runtime-exec" "$TARGET/test_prompt_execution_helpers_12c5aj"
+"$ROOT/tools/wrappers/mojo-runtime-exec" "$TARGET/test_prompt_execution_helpers_12c5aj"
 
 printf '\n== build tests/test_prompt_execution.mojo ==\n'
 "$MOJO" build -I src -I tests tests/test_prompt_execution.mojo \
     -o "$TARGET/test_prompt_execution_12c5aj"
 printf '== run test_prompt_execution_12c5aj ==\n'
-"$ROOT/bin/mojo-runtime-exec" "$TARGET/test_prompt_execution_12c5aj"
+"$ROOT/tools/wrappers/mojo-runtime-exec" "$TARGET/test_prompt_execution_12c5aj"
 
 "$ROOT/scripts/run_pytest.sh" -q \
     tests/test_parameter_semantics_order_source.py \

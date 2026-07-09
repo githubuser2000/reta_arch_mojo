@@ -16,7 +16,7 @@ printf '\n== build tests/test_py_reta_truth_native.mojo ==\n'
 "$MOJO" build -I src -I tests tests/test_py_reta_truth_native.mojo \
     -o "$TARGET/test_py_reta_truth_native_12c5ap"
 printf '== run test_py_reta_truth_native_12c5ap ==\n'
-"$ROOT/bin/mojo-runtime-exec" "$TARGET/test_py_reta_truth_native_12c5ap"
+"$ROOT/tools/wrappers/mojo-runtime-exec" "$TARGET/test_py_reta_truth_native_12c5ap"
 
 printf '\n== regenerate porting matrix ==\n'
 PYTHONDONTWRITEBYTECODE=1 "$TEST_PYTHON" tools/generate_porting_matrix.py

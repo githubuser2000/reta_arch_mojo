@@ -16,7 +16,7 @@ printf '\n== build tests/test_architecture_probe_assets.mojo ==\n'
 "$MOJO" build -I src -I tests tests/test_architecture_probe_assets.mojo \
     -o "$TARGET/test_architecture_probe_assets_12c5al"
 printf '== run test_architecture_probe_assets_12c5al ==\n'
-"$ROOT/bin/mojo-runtime-exec" "$TARGET/test_architecture_probe_assets_12c5al"
+"$ROOT/tools/wrappers/mojo-runtime-exec" "$TARGET/test_architecture_probe_assets_12c5al"
 
 printf '\n== build src/architecture_probe_main.mojo ==\n'
 "$MOJO" build -I src src/architecture_probe_main.mojo \
@@ -43,14 +43,14 @@ printf '\n== build tests/test_i18n_words.mojo ==\n'
 "$MOJO" build -I src -I tests tests/test_i18n_words.mojo \
     -o "$TARGET/test_i18n_words_12c5al"
 printf '== run test_i18n_words_12c5al ==\n'
-"$ROOT/bin/mojo-runtime-exec" "$TARGET/test_i18n_words_12c5al"
+"$ROOT/tools/wrappers/mojo-runtime-exec" "$TARGET/test_i18n_words_12c5al"
 
 printf '\n== build src/i18n_words_main.mojo ==\n'
 "$MOJO" build -I src src/i18n_words_main.mojo \
     -o "$TARGET/reta-mojo-i18n-12c5al"
 printf '== parity reta-mojo-i18n-12c5al ==\n'
 for language in deutsch english vietnamese chinese korean; do
-    "$ROOT/bin/mojo-runtime-exec" \
+    "$ROOT/tools/wrappers/mojo-runtime-exec" \
         "$TARGET/reta-mojo-i18n-12c5al" --dump "$language" \
         > "$TARGET/i18n-$language-12c5al.dump"
     cmp "$TARGET/i18n-$language-12c5al.dump" \

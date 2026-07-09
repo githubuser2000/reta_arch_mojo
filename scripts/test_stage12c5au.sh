@@ -15,7 +15,7 @@ printf '\n== build tests/test_legacy_reta_program_startup.mojo ==\n'
 "$MOJO" build -I src -I tests tests/test_legacy_reta_program_startup.mojo \
     -o "$TARGET/test_legacy_reta_program_startup_12c5au"
 printf '== run test_legacy_reta_program_startup_12c5au ==\n'
-"$ROOT/bin/mojo-runtime-exec" \
+"$ROOT/tools/wrappers/mojo-runtime-exec" \
     "$TARGET/test_legacy_reta_program_startup_12c5au"
 
 "$ROOT/scripts/run_pytest.sh" -q \

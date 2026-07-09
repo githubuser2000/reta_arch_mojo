@@ -24,13 +24,13 @@ printf '\n== build tests/test_prompt_runtime.mojo ==\n'
 "$MOJO" build -I src -I tests tests/test_prompt_runtime.mojo "$@" \
     -o "$TARGET/test_prompt_runtime_12c5bs"
 printf '== run test_prompt_runtime_12c5bs ==\n'
-"$ROOT/bin/mojo-runtime-exec" "$TARGET/test_prompt_runtime_12c5bs"
+"$ROOT/tools/wrappers/mojo-runtime-exec" "$TARGET/test_prompt_runtime_12c5bs"
 
 printf '\n== build tests/test_prompt_historical_ownership.mojo ==\n'
 "$MOJO" build -I src -I tests tests/test_prompt_historical_ownership.mojo "$@" \
     -o "$TARGET/test_prompt_historical_ownership_12c5bs"
 printf '== run test_prompt_historical_ownership_12c5bs ==\n'
-"$ROOT/bin/mojo-runtime-exec" \
+"$ROOT/tools/wrappers/mojo-runtime-exec" \
     "$TARGET/test_prompt_historical_ownership_12c5bs"
 
 "$ROOT/scripts/run_pytest.sh" -q \

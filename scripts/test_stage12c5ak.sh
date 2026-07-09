@@ -16,7 +16,7 @@ printf '\n== build tests/test_architecture_probe_assets.mojo ==\n'
 "$MOJO" build -I src -I tests tests/test_architecture_probe_assets.mojo \
     -o "$TARGET/test_architecture_probe_assets_12c5ak"
 printf '== run test_architecture_probe_assets_12c5ak ==\n'
-"$ROOT/bin/mojo-runtime-exec" "$TARGET/test_architecture_probe_assets_12c5ak"
+"$ROOT/tools/wrappers/mojo-runtime-exec" "$TARGET/test_architecture_probe_assets_12c5ak"
 
 printf '\n== build src/architecture_probe_main.mojo ==\n'
 "$MOJO" build -I src src/architecture_probe_main.mojo \

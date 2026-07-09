@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-LAUNCHER = ROOT / "bin/reta-mojo"
+LAUNCHER = ROOT / "tools/wrappers/reta-mojo"
 INSTALL_TEST = ROOT / "tests/test_install_layout.py"
 
 

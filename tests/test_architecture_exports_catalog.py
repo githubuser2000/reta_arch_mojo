@@ -80,7 +80,7 @@ def test_native_sources_are_wired_into_build_and_install_surface() -> None:
     module = (ROOT / "src/reta_mojo/architecture_exports.mojo").read_text()
     main = (ROOT / "src/architecture_exports_main.mojo").read_text()
     build = (ROOT / "scripts/build.sh").read_text()
-    launcher = ROOT / "bin/reta-mojo-exports"
+    launcher = ROOT / "tools/wrappers/reta-mojo-exports"
     assert "struct ArchitectureExportSpec" in module
     assert "load_architecture_export_catalog" in module
     assert "--symbol" in main and "--module" in main

@@ -21,4 +21,4 @@ else
 fi
 PYTHONHASHSEED=0 PYTHONDONTWRITEBYTECODE=1 \
     "$TEST_PYTHON" scripts/check_prompt_true_fraction_multiples.py \
-    "$BINARY" "$ROOT/bin/reta-native"
+    "$BINARY" "$ROOT/target/bin/reta-native"

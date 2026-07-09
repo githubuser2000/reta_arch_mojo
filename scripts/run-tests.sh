@@ -79,7 +79,7 @@ TEST_PYTHON=${RETA_TEST_PYTHON:-$(command -v python3 || true)}
 TIMEOUT=${RETA_TEST_RUN_TIMEOUT:-0}
 "$TEST_PYTHON" "$ROOT/tools/run_mojo_test_binaries.py" \
     --manifest "$MANIFEST" \
-    --runtime-exec "$ROOT/bin/mojo-runtime-exec" \
+    --runtime-exec "$ROOT/tools/wrappers/mojo-runtime-exec" \
     --root "$ROOT" \
     --jobs "$JOBS" \
     --timeout "$TIMEOUT"

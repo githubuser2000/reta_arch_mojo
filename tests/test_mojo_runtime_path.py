@@ -65,7 +65,7 @@ def test_runtime_exec_prepends_detected_directory(tmp_path: Path) -> None:
     target.write_text("#!/bin/sh\nprintf '%s' \"$LD_LIBRARY_PATH\"\n", encoding="utf-8")
     target.chmod(0o755)
     result = subprocess.run(
-        [str(ROOT / "bin" / "mojo-runtime-exec"), str(target)],
+        [str(ROOT / "tools" / "wrappers" / "mojo-runtime-exec"), str(target)],
         cwd=ROOT,
         env={
             **os.environ,

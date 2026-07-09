@@ -5,7 +5,7 @@ from pathlib import Path
 import subprocess
 
 ROOT = Path(__file__).resolve().parents[1]
-COMMAND = ROOT / "bin" / "generate_html"
+COMMAND = ROOT / "tools" / "wrappers" / "generate_html"
 RUNTIME_LIBS = (
     "libKGENCompilerRTShared.so",
     "libAsyncRTMojoBindings.so",

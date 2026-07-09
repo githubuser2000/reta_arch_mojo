@@ -1,0 +1,22 @@
+#!/usr/bin/env sh
+set -eu
+SELF=$0
+if command -v readlink >/dev/null 2>&1; then
+    SELF=$(readlink -f "$0" 2>/dev/null || printf '%s' "$0")
+fi
+SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$SELF")" && pwd)
+if [ -d "$SCRIPT_DIR/../src" ] && [ -d "$SCRIPT_DIR/../scripts" ]; then
+    ROOT=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)
+elif [ -d "$SCRIPT_DIR/../../src" ] && [ -d "$SCRIPT_DIR/../../scripts" ]; then
+    ROOT=$(CDPATH= cd -- "$SCRIPT_DIR/../.." && pwd)
+else
+    ROOT=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)
+fi
+TARGET=${RETA_TARGET_DIR:-"$ROOT/target/bin"}/reta-mojo-persistence
+if [ ! -x "$TARGET" ]; then
+    printf '%s\n' "Fehlendes Compilerziel: $TARGET" >&2
+    printf '%s\n' 'Erzeuge es mit: ./scripts/build-heavy.sh' >&2
+    exit 127
+fi
+cd "$ROOT"
+exec "$ROOT/tools/wrappers/mojo-runtime-exec" "$TARGET" "$@"

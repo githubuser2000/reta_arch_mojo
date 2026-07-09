@@ -18,7 +18,7 @@ printf '\n== build tests/test_presheaves_complete.mojo ==\n'
     tests/test_presheaves_complete.mojo \
     -o "$TARGET/test_presheaves_complete_12c5bd"
 printf '== run test_presheaves_complete_12c5bd ==\n'
-"$ROOT/bin/mojo-runtime-exec" \
+"$ROOT/tools/wrappers/mojo-runtime-exec" \
     "$TARGET/test_presheaves_complete_12c5bd"
 
 "$ROOT/scripts/run_pytest.sh" -q \

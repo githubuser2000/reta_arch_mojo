@@ -19,7 +19,7 @@ printf '\n== build tests/test_program_workflow.mojo ==\n'
 "$MOJO" build -I src -I tests tests/test_program_workflow.mojo \
     -o "$TARGET/test_program_workflow_12c5be"
 printf '== run test_program_workflow_12c5be ==\n'
-"$ROOT/bin/mojo-runtime-exec" "$TARGET/test_program_workflow_12c5be"
+"$ROOT/tools/wrappers/mojo-runtime-exec" "$TARGET/test_program_workflow_12c5be"
 
 printf '\n== build src/program_workflow_main.mojo ==\n'
 "$MOJO" build -I src src/program_workflow_main.mojo \

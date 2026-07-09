@@ -21,7 +21,7 @@ for test_name in prompt_external_commands legacy_mojo_bridge; do
     "$MOJO" build -I src -I tests "tests/test_${test_name}.mojo" "$@" \
         -o "$TARGET/test_${test_name}_12c5cz"
     printf '== run test_%s_12c5cz ==\n' "$test_name"
-    "$ROOT/bin/mojo-runtime-exec" "$TARGET/test_${test_name}_12c5cz"
+    "$ROOT/tools/wrappers/mojo-runtime-exec" "$TARGET/test_${test_name}_12c5cz"
 done
 
 "$ROOT/scripts/run_pytest.sh" -q \

@@ -20,7 +20,7 @@ printf '\n== build tests/test_legacy_reta_program.mojo ==\n'
 "$MOJO" build -I src -I tests tests/test_legacy_reta_program.mojo \
     -o "$TARGET/test_legacy_reta_program_12c5ao"
 printf '== run test_legacy_reta_program_12c5ao ==\n'
-"$ROOT/bin/mojo-runtime-exec" "$TARGET/test_legacy_reta_program_12c5ao"
+"$ROOT/tools/wrappers/mojo-runtime-exec" "$TARGET/test_legacy_reta_program_12c5ao"
 
 printf '\n== generate/check exact setup.py metadata ==\n'
 PYTHONDONTWRITEBYTECODE=1 \
@@ -30,7 +30,7 @@ printf '\n== build tests/test_setup_metadata.mojo ==\n'
 "$MOJO" build -I src -I tests tests/test_setup_metadata.mojo \
     -o "$TARGET/test_setup_metadata_12c5ao"
 printf '== run test_setup_metadata_12c5ao ==\n'
-"$ROOT/bin/mojo-runtime-exec" "$TARGET/test_setup_metadata_12c5ao"
+"$ROOT/tools/wrappers/mojo-runtime-exec" "$TARGET/test_setup_metadata_12c5ao"
 
 "$ROOT/scripts/run_pytest.sh" -q \
     tests/test_generated_columns_integration_source.py \
