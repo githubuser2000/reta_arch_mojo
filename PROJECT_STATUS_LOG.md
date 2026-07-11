@@ -1,0 +1,1368 @@
+# reta.arch → Mojo
+
+## Aktueller Stand 12c5bg
+
+Der vollständige 12c5bf-Build ist benutzerseitig bestätigt. Die anschließende
+historische Stage-Kette deckte eine umgebungsabhängige Rich-Grenze der
+generierten Markdown-/HTML-Kommandoassets auf. Ein lokaler textueller
+Rich-Minimaladapter macht diese vier Referenzassets nun unabhängig von
+installierten Rich- und Benutzerpaketversionen.
+
+Positive gewöhnliche Ganzzahlen und Bereiche werden außerdem nativ mit echten
+Bruchvielfachen komponiert, ohne die aus dem Bruchrechteck projizierten
+Ganzzahlen ein zweites Mal zu vervielfachen. Fokussierter Benutzerlauf:
+`RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bg.sh`. Details:
+[`STAGE12C5BG_DETERMINISTIC_COMMAND_PARITY_INTEGER_FRACTION_AXES.md`](STAGE12C5BG_DETERMINISTIC_COMMAND_PARITY_INTEGER_FRACTION_AXES.md).
+
+## Aktueller Stand 12c5bc
+
+Installierte `reta-mojo`-Launcher versuchen bei einem fehlenden optionalen
+ELF-Ziel nicht mehr, nicht installierte `src/*.mojo`-Dateien auszuführen. Im
+Quellbaum bleibt der `mojo run`-Fallback erhalten; im FHS-Binärlayout endet der
+Launcher deterministisch mit Exitstatus 127 und nennt das fehlende Ziel.
+Enthalten ist außerdem der positive-first Bruchvielfachen-Port aus 12c5bb.
+Fokussierter Benutzerlauf: `scripts/test_stage12c5bc.sh`. Details:
+[`STAGE12C5BC_INSTALLED_LAUNCHER_MISSING_TARGET.md`](STAGE12C5BC_INSTALLED_LAUNCHER_MISSING_TARGET.md).
+
+## Aktueller Stand 12c5bb
+
+Positive reziproke Bruchvielfache mit nachfolgenden ausgeschlossenen echten
+Brüchen sind nun ebenfalls nativ. `universum v1/4,-2/3` und
+`universum v1/2,-2/3` erzeugen genau eine bis 1023 begrenzte reziproke Achse;
+`emotion v1/4,-2/3` verwendet dieselbe Zeilenalgebra mit der historischen
+Emotionsspaltenprojektion. Die ausgeschlossenen echten Brüche erzeugen keine
+eigene `n/m`-CSV-Achse. Ausgeschlossene Reziproke und unbewiesene
+Positiv-/Negativkollisionen bleiben atomarer Fallback. Fokussierter
+Benutzerlauf: `scripts/test_stage12c5bb.sh`. Details:
+[`STAGE12C5BB_POSITIVE_RECIPROCAL_EXCLUDED_TRUE_FRACTIONS.md`](STAGE12C5BB_POSITIVE_RECIPROCAL_EXCLUDED_TRUE_FRACTIONS.md).
+
+## Aktueller Stand 12c5ba
+
+Der 12c5az-Benutzerbuild deckte zwei reale Compilergrenzen auf. Ein
+weitergereichtes `-j 8` kollidierte bei drei schweren Zielen mit deren internem
+`-j 4`; nun gewinnt genau ein Benutzerwert, während der konservative Default
+nur ohne Threadoption ergänzt wird. Die gemischte Bruchachsen-Hilfe propagiert
+außerdem ihre potenziell werfende `Int(String)`-Konvertierung ausdrücklich mit
+`raises`. Zusätzlich laufen die historischen negative-first No-op-Zweige
+`universum v-1/4,2/3`, `universum v-2/3` und `universum v-2/3,1/4` ohne
+Python-Kindprozess als behandelte leere Pläne; der positive-first Gegenfall
+bleibt wegen seiner realen Referenzausgabe atomarer Fallback. Fokussierter Benutzerlauf: `scripts/test_stage12c5ba.sh`.
+Details:
+[`STAGE12C5BA_BUILD_THREADS_RAISES_NEGATIVE_FRACTION_NOOPS.md`](STAGE12C5BA_BUILD_THREADS_RAISES_NEGATIVE_FRACTION_NOOPS.md).
+
+## Aktueller Stand 12c5az
+
+Gemischte reziproke und echte Bruchvielfache sind nun innerhalb einer einzelnen
+Bruchdomäne vollständig nativ. `universum v1/2,2/3` trennt die reziproke
+1024er-Zeilenachse vom physischen Universum-Zähler×Nenner-Rechteck und vereinigt
+beide Projektionen deterministisch; der zuvor atomare Fallback entfällt. Mehrere
+verschieden große Bruch-CSV-Domänen bleiben bewusst getrennt. Der eingefrorene
+Python-Absturz wird weiterhin als `PY-OPEN-002` reproduziert. Fokussierter
+Benutzerlauf: `scripts/test_stage12c5az.sh`. Details:
+[`STAGE12C5AZ_MIXED_FRACTION_MULTIPLE_AXES.md`](STAGE12C5AZ_MIXED_FRACTION_MULTIPLE_AXES.md).
+
+## Aktueller Stand 12c5ay
+
+Der vollständige Benutzerlauf von 12c5aw bestätigte den kompletten Produktionsbuild,
+die Shared-Diagnostics-Parität und den überwiegenden Teil der Mojo-Suite. Der erste
+neue Laufzeitabbruch lag in einem veralteten Testvertrag: historische
+`*_in_processes`-Namen benutzen seit der Thread-Migration ausschließlich den nativen
+Thread-Backendmodus. Sechs Number-/Row-Assertions erwarten deshalb nun den
+aufgelösten Statistikwert `threads` statt des nicht mehr existierenden
+Prozessbackends. Stage 12c5ay enthält außerdem die native historische
+Promptfamilien-Portierung aus 12c5ax. Fokussierter Benutzerlauf:
+`scripts/test_stage12c5ay.sh`. Details:
+[`STAGE12C5AY_THREAD_ONLY_PROCESS_ALIASES.md`](STAGE12C5AY_THREAD_ONLY_PROCESS_ALIASES.md).
+
+## Aktueller Stand 12c5ax
+
+Der historische Kompakt- und Ein-Zeichen-Promptpfad besitzt nun alle 33 bereits
+typisierten Tabellenfamilien über einen eigenen reinen Ownership-Entscheid.
+Damit fallen `r mond`, `r primzahlkreuz`, `r alles`, Freiheit/Gleichheit,
+Kugeln/Kreise, Netzwerk und Komplexität nicht länger trotz vorhandenem nativen
+Plan an `retaPrompt.py`. Acht schnelle End-to-End-Familien werden bytegenau in
+einem Python-freien Laufzeitverzeichnis geprüft; der teure `alles`-Pfad bleibt
+im Stage-Gate planvollständig und im vorhandenen Full-All-Releaseworkflow
+stromvollständig. Fokussierter Benutzerlauf: `scripts/test_stage12c5ax.sh`.
+Details:
+[`STAGE12C5AX_NATIVE_HISTORICAL_PROMPT_FAMILIES.md`](STAGE12C5AX_NATIVE_HISTORICAL_PROMPT_FAMILIES.md).
+
+## Aktueller Stand 12c5aw
+
+Der erste echte Lauf nach der `getenv`-Reparatur bestätigte die erfolgreiche
+Kompilierung von `test_legacy_reta_program.mojo` und deckte anschließend eine
+verkehrte Testannahme auf: `--oberesmaximum=77` darf die bereits durch den
+Bereichspfad gesetzte historische 1024-Grenze nicht verkleinern. Der
+Regressionsvertrag prüft nun ausdrücklich 77 → 1024 und 2048 → 2048. Enthalten
+sind außerdem die konfigurierbaren Mojo-Buildoptionen aus 12c5av. Fokussierter
+Benutzerlauf: `scripts/test_stage12c5aw.sh`. Details:
+[`STAGE12C5AW_MONOTONIC_UPPER_LIMIT.md`](STAGE12C5AW_MONOTONIC_UPPER_LIMIT.md).
+
+## Aktueller Stand 12c5av
+
+Die drei Produktions-Baueinstiege reichen nun beliebige `MOJO_BUILD_OPTION`-Werte
+bytegetreu an alle regulären, schweren und Shared-Library-Ziele weiter. Damit
+lassen sich unter anderem `--optimization-level`, `--target-cpu`, Debugflags,
+Defines und `-j` direkt beim Skriptaufruf festlegen. Besonders große
+Metadatenziele behalten standardmäßig ihre O0-Sicherheitsvorgabe;
+`--optimize-heavy` hebt sie ausdrücklich auf. Beispiel:
+
+```sh
+scripts/build-all.sh --optimize-heavy -- --optimization-level 2 -j 8
+```
+
+Die historische `reta.py`-Programmfassade besitzt gleichzeitig ihre nativen
+Start-, Sprach-, Hilfe- und Kontrollpfade aus Stage 12c5au. Der Benutzer führt
+weiterhin alle Mojo-Kompilierungen aus. Fokussierter Lauf:
+`scripts/test_stage12c5av.sh`. Details:
+[`STAGE12C5AV_CONFIGURABLE_COMPILER_OPTIONS.md`](STAGE12C5AV_CONFIGURABLE_COMPILER_OPTIONS.md).
+
+## Aktueller Stand 12c5au
+
+Die historische `reta.py`-Programmfassade besitzt nun auch ihre Start- und
+Kontrollpfade selbst. Leerer Aufruf, reine Sprachwahl, deutsche/englische
+Hilfe, `-debug`, `-nichts` und `-nothing` werden vor jeder CSV-Auflösung und
+ohne Python-Kindprozess verarbeitet. Das nachgereichte `target.tar.xz` wurde
+über seine Source-ID eindeutig als 12c5ar-Build erkannt; es kann den neueren
+12c5as/12c5at-Fix daher nicht prüfen. Fokussierter lokaler Compilerlauf:
+`scripts/test_stage12c5au.sh`. Details:
+[`STAGE12C5AU_NATIVE_LEGACY_RETA_STARTUP.md`](STAGE12C5AU_NATIVE_LEGACY_RETA_STARTUP.md).
+
+## Aktueller Stand 12c5at
+
+Die deterministische Tabellen-Ausführung aus
+`reta_architecture/prompt_execution.py` besitzt nun eine eigene typisierte
+Runtime-Grenze. Alle 22 Top-Level-Oberflächen sind in Originalreihenfolge mit
+lebenden Mojo-Evidenzen verbunden. Planung und Tabellenrendering erfolgen ohne
+Terminal-I/O; erst `prompt_main.mojo` emittiert das vollständige Ergebnis.
+Noch nicht bewiesene historische Verbundbefehle bleiben sichtbar an der
+atomaren Kompatibilitätsgrenze.
+Fokussierte Prüfung: `scripts/test_stage12c5at.sh`. Details:
+[`STAGE12C5AT_NATIVE_PROMPT_EXECUTION.md`](STAGE12C5AT_NATIVE_PROMPT_EXECUTION.md).
+
+## Aktueller Stand 12c5as
+
+Der von `scripts/test_all.sh` gemeldete Mojo-1.0-Abbruch in
+`test_legacy_reta_program.mojo` ist an der eigentlichen Ursache behoben:
+`getenv` wird nicht mehr transitiv aus Default-Argumenten ausgewertet. Die
+Parallelkonfiguration besitzt nun eine reine, injizierbare Wertetransformation
+und eine getrennte Runtime-I/O-Grenze. Auch alle Program-Workflow-Einstiege
+verlangen ihre Konfiguration ausdrücklich. Fokussierte Prüfung:
+`scripts/test_stage12c5as.sh`. Details:
+[`STAGE12C5AS_RUNTIME_SAFE_PARALLEL_CONFIG.md`](STAGE12C5AS_RUNTIME_SAFE_PARALLEL_CONFIG.md).
+
+## Aktueller Stand 12c5ar
+
+Der 1.804-zeilige Python-Regressionsmonolith
+`tests/test_architecture_refactor.py` ist als exakter generiert-nativer Katalog
+mit 70 Verträgen, 1.060 Assertions und lebenden Mojo-Evidenzzielen gebunden.
+Damit sind alle 92 Referenzdateien mindestens teilweise portiert und alle
+48.831 Referenzzeilen angegriffen. Fokussierte Prüfung:
+`scripts/test_stage12c5ar.sh`. Details:
+[`STAGE12C5AR_NATIVE_ARCHITECTURE_REFACTOR_TEST_INVENTORY.md`](STAGE12C5AR_NATIVE_ARCHITECTURE_REFACTOR_TEST_INVENTORY.md).
+
+## Aktueller Stand 12c5aq
+
+Der bislang unberührte End-to-End-Test `tests/test_command_parity.py` ist als
+generiert-nativer Vier-Fälle-Vertrag übernommen. Die Fallmatrix wird direkt
+aus dem Referenz-AST gelesen, drei Ausgaben sind bytegleich und HTML verwendet
+die historische `p4_`-/Leerraumnormalisierung. Der Laufzeittest startet nur
+das native `reta-native`-ELF. Zusätzlich ist der implizite Rückgabekopiervorgang
+des Spaltenplans in `produce_all_spalten_numbers()` Mojo-1.0-konform explizit.
+Fokussierte Prüfung:
+`scripts/test_stage12c5aq.sh`. Details:
+[`STAGE12C5AQ_GENERATED_NATIVE_COMMAND_PARITY.md`](STAGE12C5AQ_GENERATED_NATIVE_COMMAND_PARITY.md).
+
+## Aktueller Stand 12c5ap
+
+Der in `test_parameter_runtime_complete.mojo` gemeldete
+`List[StringSlice]`-zu-`List[String]`-Compilerfehler ist durch eine explizite
+typisierte Tokenliste behoben, ohne die strenge Runtime-API aufzuweichen.
+Zusätzlich ersetzen native semantische Wahrheitszeugen die zwei bisherigen
+Python-Referenztests für die Größenordnungsmatrix, die Religion-CSV-Endspalten
+744/745 und deren Tagzuordnungen. Fokussierte Prüfung:
+`scripts/test_stage12c5ap.sh`. Details:
+[`STAGE12C5AP_NATIVE_PY_RETA_TRUTH_INVARIANTS.md`](STAGE12C5AP_NATIVE_PY_RETA_TRUTH_INVARIANTS.md).
+
+## Aktueller Stand 12c5ao
+
+Der lokale Stage-12c5am-Lauf bestätigte alle Vorgänger bis zur
+Generated-Columns-Integration und deckte anschließend eine strenge Mojo-1.0-
+Besitzverletzung auf: `CsvTable` ist `Copyable`, aber nicht
+`ImplicitlyCopyable`. Die Integrationsgrenze kopiert Tabelle, Listen und Strings
+nun ausdrücklich. Zusätzlich besitzt `reta.py` eine typisierte 27-Namen-/
+18-Methoden-Fassade für den bereits nativen Programmkern; noch nicht bewiesene
+Argumentvektoren bleiben sichtbar am Kindprozessrand. `setup.py` ist als
+reproduzierbarer Metadaten-, Command- und Gettext-Plan vollständig generiert
+nativ. Fokussierte Prüfung: `scripts/test_stage12c5ao.sh`. Details:
+[`STAGE12C5AO_RETA_PROGRAM_SETUP_OWNERSHIP.md`](STAGE12C5AO_RETA_PROGRAM_SETUP_OWNERSHIP.md).
+
+## Aktueller Stand 12c5an
+
+`mojo_bridge.py` ist jetzt eine vollständige native Kompatibilitätsfassade mit
+15 öffentlichen Namen und 19 Funktionsdefinitionen. Native TTY-, Completion-
+und HTML-Besitzer ersetzen die frühere eingebettete Python-Brücke; verbleibende
+`reta.py`-/Prompt-Kompatibilität ist ausschließlich ein expliziter
+Kindprozessrand. Zusätzlich ist `parameter_runtime.py` vollständig nativ und
+verwendet statt mutierbarer Program-Objekte einen typisierten
+`ParameterRuntimePlan`. Fokussierte Prüfung: `scripts/test_stage12c5an.sh`.
+Details:
+[`STAGE12C5AN_NATIVE_MOJO_BRIDGE_PARAMETER_RUNTIME.md`](STAGE12C5AN_NATIVE_MOJO_BRIDGE_PARAMETER_RUNTIME.md).
+
+## Aktueller Stand 12c5am
+
+Der letzte 12c5al-Assetfehler war eine hostabhängige Prozessorkernzahl im
+`parallel_execution`-Teil des Gesamtsnapshots. Der Generator verwendet dafür
+nun acht kanonische Kerne. Zusätzlich besitzen `retaPrompt.py` und
+`reta_architecture/generated_columns.py` vollständige typisierte native
+Besitzerfassaden ohne Python-Laufzeit oder Algorithmusduplikation. Fokussierte
+Prüfung: `scripts/test_stage12c5am.sh`. Details:
+[`STAGE12C5AM_NATIVE_RETA_PROMPT_GENERATED_INTEGRATION.md`](STAGE12C5AM_NATIVE_RETA_PROMPT_GENERATED_INTEGRATION.md).
+
+## Aktueller Stand 12c5al
+
+Der eingefrorene `i18n/words_legacy_monolith.py` besitzt jetzt eine vollständige
+generiert-native Kompatibilitätsoberfläche. Alle fünf Sprachen, acht Klassen,
+vier Funktionen und 68.265 Katalogzeilen werden ohne Python-Laufzeit geladen.
+Fokussierte Prüfung: `scripts/test_stage12c5al.sh`. Details:
+[`STAGE12C5AL_NATIVE_LEGACY_I18N_MONOLITH.md`](STAGE12C5AL_NATIVE_LEGACY_I18N_MONOLITH.md).
+
+
+## Aktueller Stand 12c5ak
+
+Die letzte offene Domänenprobe `architecture-json` ist nativ. Zusätzlich
+ersetzt `reta-mojo-architecture-probe` alle 64 Referenzkommandos von
+`reta_architecture_probe_py.py`: 63 reproduzierbare JSON-/Markdown-Assets und
+die dynamische native Paketintegrität. Absolute Referenzpfade werden erst zur
+Laufzeit portabel eingesetzt; Python oder Unterprozesse sind nicht nötig.
+Fokussierte Prüfung: `scripts/test_stage12c5ak.sh`. Details:
+[`STAGE12C5AK_NATIVE_ARCHITECTURE_PROBES.md`](STAGE12C5AK_NATIVE_ARCHITECTURE_PROBES.md).
+
+## Aktueller Stand 12c5aj
+
+Der lokal bestätigte 12c5ai-Lauf schließt alle acht `raises`-Reparaturen und
+den nativen Schema-Snapshot. Die verbliebene Domänenprobeabweichung war eine
+reine Reihenfolgefrage: Die native Parametergarbe sortiert Unterparameter und
+Paarspalten nun zentral wie Python. Zusätzlich besitzt
+`prompt_execution.py` erstmals eine native Bundle-/Snapshot-Fassade und sechs
+reine Hilfsmorphismen. Fokussierte Prüfung: `scripts/test_stage12c5aj.sh`.
+Details:
+[`STAGE12C5AJ_PARAMETER_ORDER_PROMPT_EXECUTION.md`](STAGE12C5AJ_PARAMETER_ORDER_PROMPT_EXECUTION.md).
+
+## Aktueller Stand 12c5ai
+
+Der von `scripts/test_all.sh` gemeldete Effektfehler in
+`test_legacy_table_handling.mojo` ist behoben. Alle Mojo-Testfunktionen tragen
+nun explizit `raises`; ein Quellvertrag verhindert neue Ausnahmen.
+`reta-mojo-domain-probe schema-json` serialisiert das vollständige typisierte
+Schema bytegenau ohne Python-Laufzeit. Fokussierte Prüfung:
+`scripts/test_stage12c5ai.sh`. Details:
+[`STAGE12C5AI_TEST_EFFECTS_NATIVE_SCHEMA_JSON.md`](STAGE12C5AI_TEST_EFFECTS_NATIVE_SCHEMA_JSON.md).
+
+## Aktueller Stand 12c5ag
+
+Der nach Stage 12c5af gemeldete Compilerabbruch in
+`test_input_semantics.mojo` ist behoben: die Bereichserkennung besitzt nun
+eine explizite Input-Semantics-Fassade statt eines nicht existierenden
+transitiven Wildcard-Reexports. `build-all.sh`,
+`build-and-test-shared-diagnostics.sh` und `test_all.sh` melden abschließend
+eindeutig `JA` oder `NEIN` und bewahren den realen Exitstatus. Zusätzlich ist
+die vollständige Registry-/Bundle-Oberfläche von `generated_columns.py`
+typisiert. Fokussierte Prüfung: `scripts/test_stage12c5ag.sh`. Details:
+[`STAGE12C5AG_COMPILER_STATUS_GENERATED_REGISTRY.md`](STAGE12C5AG_COMPILER_STATUS_GENERATED_REGISTRY.md).
+
+## Aktueller Stand 12c5af
+
+Die Produktionsbuilds bleiben bewusst vollständig statt inkrementell. Alle
+Mojo-Ziele werden nun über temporäre Dateien atomar veröffentlicht; ein
+Compilerfehler bewahrt das vorherige Binary und seinen ursprünglichen
+Exitstatus. Die Frischeprüfung hasht Live-Quellen, Assets und Buildrezepte.
+`do.sh` baut und testet vor dem Commit. Fokussierte Prüfung:
+`scripts/test_stage12c5af.sh`. Details:
+[`STAGE12C5AF_ATOMIC_BUILD_CORRECTNESS.md`](STAGE12C5AF_ATOMIC_BUILD_CORRECTNESS.md).
+
+## Aktueller Stand 12c5ae
+
+Der vollständige Testlauf verknüpft Persistenz- und SHA256-Ziele nun mit ihren erforderlichen Systembibliotheken. Der TableRuntime-Test importiert private Legacy-Helfer explizit. Zusätzlich ist `program_workflow.py` vollständig als typisierte Orchestrierung ohne heterogenen Python-Programmobjektgraph portiert. Nach `scripts/build-all.sh` zuerst `scripts/test_stage12c5ae.sh`, anschließend für die Gesamtprüfung `scripts/test_all.sh` ausführen.
+
+## Aktueller Stand 12c5ad
+
+`table_preparation.py`, `table_runtime.py` und die vollständige Factory-/Snapshot-Oberfläche von `table_state.py` besitzen jetzt explizite typisierte Mojo-Besitzer. Der Metriktest prüft Fortschritt monoton statt mit einer bei jeder Stage veraltenden exakten Zahl. Ein kompletter Build bleibt `scripts/build-all.sh`; die fokussierte Prüfung ist `scripts/test_stage12c5ad.sh`. `scripts/test_all.sh` ist vor Releases oder nach mehreren Stages sinnvoll, nicht nach jedem kleinen Patch.
+
+Dies ist ein inkrementeller, getesteter Port des hochgeladenen Python-Projekts `reta.arch` auf Mojo 1.0.0b2. Das Original umfasst 92 Python-Dateien und 48.831 Zeilen. Wegen der stark dynamischen Architektur werden zusammenhängende Laufzeitpfade typisiert übertragen; die Python-Referenz bleibt sichtbar, bis der jeweilige Pfad vollständig ersetzt ist.
+
+## Fortschritt
+
+```text
+abgeschlossene Release-Stufen:       9 von 12 = 75,0 %
+Stufen 9/10/12:                       Ausgabe, Prompt/i18n und Releaseparität in Arbeit
+Stufe 11:                             11a–11j = 100 %
+Stufe 12:                             12a–12b fertig, 12c zu ca. 99,98 % = ca. 72,6 %
+vollständig nativ/generiert:          89 von 92 = 96,7 %
+mindestens teilweise portiert:       92 von 92 = 100,0 %
+angegriffene Referenzzeilen:          48.831 von 48.831 = 100,0 %
+funktionaler Nutzerumfang:            ca. 96–98 %
+```
+
+Die Metriken messen **orthogonale Bezugsgrößen** und sind nicht als ein einziges wechselndes Gesamtprozent zu lesen:
+
+- **96–98 % geschätzte Funktionsabdeckung**: Anteil der praktisch relevanten Befehls- und Verhaltensfamilien mit einem nativen Pfad. Der atomare Fallback ist nur eine Sicherheitsgrenze und wird nicht als transpiliert gezählt.
+- **96,7 % vollständiger Dateibesitz**: Nur Dateien, deren gesamter wirksamer Vertrag nativ oder reproduzierbar generiert ersetzt ist.
+- **100,0 % angegriffene Referenzzeilen**: maschinenberechneter Umfang vollständig und teilweise besessener Referenzdateien.
+- **84,0 % Stufenfortschritt**: gewichtete Releaseplanung; eine Stufe kann weit fortgeschritten sein, obwohl große historische Python-Besitzer noch sichtbar bleiben.
+
+Der Port ist daher nicht von über 90 % auf rund 65 % zurückgefallen. Die frühere Zahl bezeichnete die Funktionsoberfläche, die strengere Zahl den Quellersatz. Der vollständige Plan steht in [`ROADMAP.md`](ROADMAP.md).
+
+### Aktueller Fokus: Stage 12c5bc
+
+Der Entwicklungsablauf lautet:
+
+```bash
+./do.sh 12c5bc
+```
+
+Die Stage-Kette bestätigt zuerst 12c5bb mit dem positiven
+`v1/n,-a/b`-Ein-Achsen-Vertrag. Danach prüft sie das installierte FHS-Layout:
+Fehlt ein optionales ELF-Ziel, versucht `reta-mojo` keine im Binärpaket nicht
+vorhandene Mojo-Quelle mehr zu starten, sondern endet unabhängig von einer
+zufällig vorhandenen Compilerinstallation mit Exitstatus 127. Die
+Mojo-Kompilierungen führt ausschließlich der Benutzer aus.
+
+## Installation mit Python 3.14
+
+```bash
+RETA_MOJO_PYTHON="$(command -v python3.14)" ./scripts/setup_mojo.sh
+```
+
+Das Skript erzeugt `.venv`, installiert den Modular-Mojo-Compiler sowie die Python-Testabhängigkeiten aus `requirements-test.txt` und baut die regulären ELF-Programme nach `target/bin/`. Eine Aktivierung mit `source` ist nicht nötig.
+
+```bash
+./scripts/check_build_layout.sh
+```
+
+`bin/` enthält nur versionierte Shell-Launcher. `.venv/`, `target/`, `build/` und Laufzeitartefakte stehen in `.gitignore`. Die sehr großen generierten Schema- und Architekturkataloge werden optional gebaut:
+
+```bash
+./scripts/build-heavy.sh
+```
+
+Details: [`BUILD.md`](BUILD.md).
+
+Für einen vollständigen lokalen Neubau ist nur ein Aufruf nötig:
+
+```bash
+./scripts/build-all.sh
+```
+
+Er führt `build-heavy.sh` und danach `build.sh` aus. Die gemeinsame
+Diagnosebibliothek wird bereits von `build.sh` erzeugt; kein Stage-Testskript
+ist dafür dauerhaft zusätzlich aufzurufen.
+
+Auch `setup_mojo.sh` und `release_check.sh` verwenden diesen vollständigen
+Baueinstieg; `RETA_BUILD_SCOPE=regular` bleibt als bewusste Kurzvariante.
+
+`pytest` ist keine Mojo-Bibliothek, sondern wird von den Python-Source- und Paritätstests benötigt. Alle Shelltests starten es über `scripts/run_pytest.sh`; der Resolver bevorzugt einen expliziten `RETA_TEST_PYTHON`-Pfad und danach `.venv/bin/python3`. Für eine bereits vorhandene `.venv` genügt:
+
+```bash
+./scripts/setup_test_dependencies.sh
+# entsprechend direkt:
+uv pip install --python .venv/bin/python3 pytest
+```
+
+### Python-/PyPy3-Referenz
+
+Die `.venv` ist für den Mojo-Compiler bestimmt. Referenz- und Paritätsskripte
+wählen über `scripts/select_reference_python.sh` zuerst explizite Vorgaben,
+danach `pypy3`, dann `python3`; `.venv/bin/python` ist nur der letzte
+Notfallfallback. Für den historischen Volltabellenlauf gilt daher:
+
+```bash
+PYTHONHASHSEED=0 pypy3 reta -spalten --alles --breite=0 \
+  -ausgabe --art=html --onetable --nocolor > middle.alx
+```
+
+`.venv/`, `.git/`, `target/` und Caches gehören nicht in Quellarchive. Für weitere Transpilierungsrunden ist `scripts/create_source_archive.sh <name>.tar.xz` der richtige Export; die vollständige Einteilung steht in [`PROJECT_CONTENT_PROFILES.md`](PROJECT_CONTENT_PROFILES.md). Brotli-Archive (`.tar.br`) werden ebenfalls unterstützt.
+
+Nach jedem Build entfernt `tools/sanitize_mojo_runpath.py` den von Mojo selbst ergänzten absoluten Compilerpfad aus dem ELF-RUNPATH. Ausgelieferte Programme enthalten damit nur `$ORIGIN/../lib:$ORIGIN/../lib/mojo` und bleiben zwischen Rechnern übertragbar.
+
+Source-only Archive enthalten bewusst kein `target/`. Jeder Build versieht sein ELF deshalb mit einer `*.reta-source-id`-Sidecar. `bin/mojo-runtime-exec` verweigert ein altes Binary aus einem früheren Archiv und fordert `scripts/build.sh` an, statt unbemerkt veralteten Code auszuführen.
+
+### Installation der CSV- und Assetdaten
+
+Für eine manuelle Standardinstallation ist `/usr/local` der Standard:
+
+```bash
+./scripts/build-all.sh
+sudo ./scripts/install.sh
+```
+
+Die Standardinstallation enthält nur die öffentlichen Nutzerbefehle
+`reta`, `rp`, `rpl`, `rpe`, `rpb`, `generate_html` und `grundStrukHtml`.
+Zusätzliche Entwickler-/Diagnosebefehle werden bewusst getrennt installiert:
+
+```bash
+sudo ./scripts/install.sh --zusatz
+sudo ./scripts/install.sh --all
+```
+
+Deinstallation ist ebenfalls profiliert; ohne Option räumt `uninstall.sh` alles
+auf, damit alte breite Installationen verschwinden:
+
+```bash
+sudo ./scripts/uninstall.sh --standard
+sudo ./scripts/uninstall.sh --zusatz
+sudo ./scripts/uninstall.sh --all
+```
+
+Die CSV-Dateien liegen dann unter `/usr/local/share/reta/csv`. Ein
+Distributionspaket verwendet `DESTDIR="$pkgdir" PREFIX=/usr` und installiert
+sie unter `/usr/share/reta/csv`. Eine Installation ohne Root verwendet
+`PREFIX="$HOME/.local"` und damit `$HOME/.local/share/reta/csv`. Alle Shared
+Libraries liegen flach unter `PREFIX/lib`; ausführbare Dateien liegen nur unter
+`PREFIX/bin`. Details: [`STAGE12C4M_FHS_RESOURCE_INSTALLATION.md`](STAGE12C4M_FHS_RESOURCE_INSTALLATION.md).
+
+## Stufen 7–10: Generatoren, Kombinationen, Markup und Prompt
+
+Stage 12c5z konsolidiert vier installierbare Diagnoseprogramme in `libreta_diagnostics_mojo.so` und einen kleinen ABI-geprüften Loader. Die bisherigen Befehlsnamen bleiben als Diagnose-/Zusatzprofile verfügbar; die Standardinstallation enthält nur die öffentlichen Nutzerbefehle. `scripts/export_target.sh` ersetzt die beim lokalen Build sinnvollen absoluten Runtime-Symlinks durch echte Dateien für die Rechnerübergabe. Details: [`STAGE12C5Z_SHARED_DIAGNOSTIC_LIBRARY.md`](STAGE12C5Z_SHARED_DIAGNOSTIC_LIBRARY.md).
+
+Stage 12c5y schließt `reta_architecture/table_output.py` vollständig. `TableOutputConfig`, `TableOutput`, Ergebnisbuffer, Spaltenprojektion, ANSI-Farbpolitik und Bundle/Snapshot sind typisiert; alle sieben Ausgabearten delegieren an die bereits nativen und breit getesteten Serializer. `reta-mojo-table-output` war zunächst ein eigenes Diagnoseziel und wird seit Stage 12c5z über die gemeinsame Diagnosebibliothek bereitgestellt. Details: [`STAGE12C5Y_NATIVE_TABLE_OUTPUT.md`](STAGE12C5Y_NATIVE_TABLE_OUTPUT.md).
+
+Stage 12c5x korrigiert den gemeldeten Tabellen-Generatorimport: Das vorhandene Modul heißt `combi_join.mojo`, nicht `kombi_join.mojo`. Ein paketweiter Source-Test löst nun alle 260 relativen Mojo-Importe gegen reale Dateien auf. Außerdem ist `reta_architecture/console_io.py` vollständig durch einen typisierten Console-/Help-/Utility-Besitzer ersetzt; `reta-mojo-console-io` bietet Diagnose und Python/PyPy3-Parität. Details: [`STAGE12C5X_MODULE_IMPORT_CONSOLE_IO.md`](STAGE12C5X_MODULE_IMPORT_CONSOLE_IO.md).
+
+Stage 12c5w repariert den lokalen Gesamtbuild: `alias` war in Mojo als Deklarationsschlüsselwort reserviert und darf nicht als Schleifenvariable verwendet werden. Zusätzlich ist `reta_architecture/input_semantics.py` mit allen vier Klassen, 18 Vokabularfeldern und einem deterministischen Katalog aus 17.741 Datensätzen vollständig nativ beziehungsweise reproduzierbar generiert. Unicode-Präfixe der Row-Range-Syntax sind codepoint-sicher; FHS-Layouttests können ihre Compilerziele reproduzierbar über `RETA_TARGET_DIR` beziehen. Details: [`STAGE12C5W_COMPILER_INPUT_SEMANTICS.md`](STAGE12C5W_COMPILER_INPUT_SEMANTICS.md).
+
+Stage 12c5v schließt `reta_architecture/output_semantics.py` und `output_syntax.py` vollständig. Aliasauflösung, Syntaxkonstruktion, optionale Zero-Width-Grenze, sieben Syntaxdeskriptoren, Bundle/Snapshot, Zeilenfarben und Zellenöffnungen sind typisiert; `reta-mojo-output-syntax` bietet Diagnose und Python/PyPy3-Parität. Details: [`STAGE12C5V_NATIVE_OUTPUT_SEMANTICS_SYNTAX.md`](STAGE12C5V_NATIVE_OUTPUT_SEMANTICS_SYNTAX.md).
+
+Stage 12c5u schließt `reta_architecture/table_generation.py` vollständig. Ein typisierter Plan orchestriert CSV-Gluing, Last-Line-Capture, generierte Spalten und beide Kombi-Tabellen; `reta-mojo-table-generation` bietet native Diagnose und Python/PyPy3-Parität. Details: [`STAGE12C5U_NATIVE_TABLE_GENERATION.md`](STAGE12C5U_NATIVE_TABLE_GENERATION.md).
+
+Stage 12c5t schließt die lokale Prägarben- und globale Garbenschicht vollständig: `presheaves.py` und `sheaves.py` besitzen zusammen alle zehn Klassen und 37 Methoden nativ. Reproduzierbare Kataloge erfassen 269 lokale Repositorysektionen und 669 vollständige HTML-Referenzen; `reta-mojo-sheaves` macht die Gluing-Schicht ohne Python abfragbar. Details: [`STAGE12C5T_NATIVE_PRESHEAVES_SHEAVES.md`](STAGE12C5T_NATIVE_PRESHEAVES_SHEAVES.md).
+
+Stage 12c5r behebt den lokalen Mojo-Ownershipfehler in `MorphismBundle`: der unveränderliche `ContextSelection`-Parameter wird für alle vier Teilmorphismen explizit kopiert statt beim letzten Konstruktor unzulässig mit `^` übertragen. Zugleich ist `reta_architecture/table_wrapping.py` mit allen zwölf Modul-Funktionen, beiden Klassenoberflächen, explizitem Runtime-State, Capability-basierten Hyphenatorgrenzen und Unicode-sicheren Fallbacks vollständig nativ. Details: [`STAGE12C5R_NATIVE_TABLE_WRAPPING_MORPHISM_OWNERSHIP.md`](STAGE12C5R_NATIVE_TABLE_WRAPPING_MORPHISM_OWNERSHIP.md).
+
+Stage 12c5q beseitigt den produktiven UTF-8-Absturz des HTML-Wortumbruchs: Wortzerlegung und Präfixentfernung arbeiten codepointweise, der exakte Aufruf mit `--vorhervonausschnitt=1 --alles --art=html` ist als nativer Regressionstest enthalten. Zugleich ist `reta_architecture/runtime_compat.py` mit allen 17 Funktionen, dem `isZeilenAngabe`-Alias, den `nPmEnum`-Gruppen sowie Hilfe-, Konsolen- und Arithmetikadaptern vollständig nativ. Details: [`STAGE12C5Q_UTF8_RENDERING_NATIVE_RUNTIME_COMPAT.md`](STAGE12C5Q_UTF8_RENDERING_NATIVE_RUNTIME_COMPAT.md).
+
+Stage 12c5p schließt `reta_architecture/morphisms.py` vollständig: alle 13 Methoden der fünf Morphismenklassen besitzen typisierte native Einstiege, der gemeinsame Topologiekontext bleibt erhalten, Bereiche werden wirklich wie `sorted(set(...))` dedupliziert und Rendererzustände werden direkt nativ angewendet. Zugleich starten nun alle Shell-Pytestpfade über `scripts/run_pytest.sh`, sodass die pytest-fähige Projekt-`.venv` nicht mehr durch `/usr/bin/python3` umgangen wird. Details: [`STAGE12C5P_NATIVE_MORPHISMS_PYTEST_RESOLVER.md`](STAGE12C5P_NATIVE_MORPHISMS_PYTEST_RESOLVER.md).
+
+Stage 12c5o schließt `reta_architecture/meta_columns.py` vollständig: alle 14 öffentlichen Funktionen, der typisierte Bundle-/Snapshotvertrag, Meta-/Konkreta-Zustandsmaschine, rationale Strukturalienauflösung, Überschriften/Tags und Primwirkungsfamilie besitzen native Einstiege. Ein unter `PYTHONHASHSEED=0` erzeugter Katalog friert 87 Brüche und 884 historische Kombinationseinträge einschließlich der beobachtbaren Set-Reihenfolge ein. Der entdeckte leere `stern/div`-Zweig ist als `PY-CAND-013` dokumentiert; Details: [`STAGE12C5O_NATIVE_META_COLUMNS.md`](STAGE12C5O_NATIVE_META_COLUMNS.md).
+
+Stage 12c5n korrigiert die CSV-Quotezustandsmaschine für eingebettete Religion-JSON-Zellen und macht den historischen `prompt_toolkit`-Defektreproducer versionsrobust. `reta_extract_html_classes.py` ist vollständig durch einen nativen HTML-Kopfzeilenparser und kompakten JSONL-Renderer ersetzt; Details: [`STAGE12C5N_NATIVE_HTML_CLASS_EXTRACTION.md`](STAGE12C5N_NATIVE_HTML_CLASS_EXTRACTION.md).
+
+Stage 12c5m korrigiert die feste Python-Priorität `bbcode > html` unabhängig von der Argumentreihenfolge, richtet eine reproduzierbare `pytest`-Testumgebung ein und ersetzt den 177-Sekunden-Workflowtest durch eine kleine UTF-8-/JSON-Fixture. Zusätzlich besitzt `reta_domain_probe_py.py` nun einen nativen Kern für Haupt-/Unterparameter, Paare, Spaltenvereinigungen, Rückabbildungen und kompakte JSON-Ausgaben; Details: [`STAGE12C5M_NATIVE_DOMAIN_PROBE_TEST_ENVIRONMENT.md`](STAGE12C5M_NATIVE_DOMAIN_PROBE_TEST_ENVIRONMENT.md).
+
+Stage 12c5l behebt die lokale Mojo-Compiler-Selbstreferenz und den UTF-8-Bytegrenzenfehler im Religion-JSON-Scanner. `libs/generate4readme.py` ist nun vollständig reproduzierbar generiert und wird zur Laufzeit durch `generate-readme-native` ohne Python ersetzt; Details: [`STAGE12C5L_NATIVE_README_UTF8_COMPILER_RESOLUTION.md`](STAGE12C5L_NATIVE_README_UTF8_COMPILER_RESOLUTION.md).
+
+Stage 12c5k portiert den deterministischen Kern von `reta_architecture/program_workflow.py`: Religion-CSV-Laden und -Decodierung, native Threadverarbeitung, Sprachspaltenersatz, Laufzeitflag-Reset, beide Kombi-Verzweigungspläne sowie der geordnete Workflowvertrag sind nativ. Welche Inhalte für Upload, Build und Installation gebraucht werden, steht in [`PROJECT_CONTENT_PROFILES.md`](PROJECT_CONTENT_PROFILES.md); Details: [`STAGE12C5K_NATIVE_PROGRAM_WORKFLOW.md`](STAGE12C5K_NATIVE_PROGRAM_WORKFLOW.md).
+
+Stage 12c5j behebt den beim lokalen Gesamtbuild entdeckten expliziten Ownership-Transfer im Exportfilter und portiert den statischen Vertrag von `reta_architecture/facade.py` als reproduzierbaren nativen Kompositionsgraphen: 45 Felder, 49 Methoden, 45 Bootstrap-Schritte, 44 Rebuild-Einstiege, 98 Abhängigkeitskanten und 48 Snapshot-Einträge. `reta-mojo-facade` macht den Graphen ohne Python-Import abfragbar; Details: [`STAGE12C5J_NATIVE_ARCHITECTURE_FACADE.md`](STAGE12C5J_NATIVE_ARCHITECTURE_FACADE.md).
+
+Stage 12c5i schließt die 419-zeilige Architektur-Fassade `reta_architecture/table_adapters.py`: vier Modulhelfer, 17 logische `Prepare`-Methoden, 34 `Concat`-Methoden und beide Konstruktorzustände sind typisiert und leiten ausschließlich auf bereits native Besitzer. Details: [`STAGE12C5I_NATIVE_TABLE_ADAPTERS.md`](STAGE12C5I_NATIVE_TABLE_ADAPTERS.md).
+
+Stage 12c5h portiert die reine 598-zeilige `reta_architecture/__init__.py`-
+Reexportfassade als typisierten Katalog mit 314 Importbindungen, 232 geordneten
+`__all__`-Exporten und 46 Besitzermodulen. `reta-mojo-exports` fragt diese
+Oberfläche ohne Python-Import ab. Zugleich trennt der `middle.alx`-Vergleich
+Container- von Nutzlastdigests und der Installer verwendet eine feste
+31-Ziel-Allowlist; Details: [`STAGE12C5H_NATIVE_PACKAGE_EXPORTS_INSTALL_MANIFEST.md`](STAGE12C5H_NATIVE_PACKAGE_EXPORTS_INSTALL_MANIFEST.md).
+
+Stage 12c5d schließt die beiden historischen Kompatibilitätsfassaden `libs/center.py` und `libs/lib4tables.py`. 27 aktive Center-Wrapper, die vollständige 18-Namen-Tabellenhilfeoberfläche, vier reproduzierbare Hilfetexte und der Python-`str.isdigit()`-Vertrag mit 808 Codepoints sind nun typisiert nativ; Details: [`STAGE12C5D_NATIVE_LEGACY_FACADES.md`](STAGE12C5D_NATIVE_LEGACY_FACADES.md). Stage 12c5c portiert den vollständigen Quellbaum-Integritätsvertrag mit binärem SHA-256, Pflichtpfaden, Laufzeitartefakten, CSV-Zeilenzählung und einer installierbaren Diagnose-CLI. Zugleich ersetzt eine typisierte Split-i18n-Fassade den dynamischen `SimpleNamespace`-Merge; Details: [`STAGE12C5C_NATIVE_PACKAGE_INTEGRITY_SPLIT_I18N.md`](STAGE12C5C_NATIVE_PACKAGE_INTEGRITY_SPLIT_I18N.md). Stage 12c5a aktiviert einen eigenen nativen Besitzer für die produktive Prompt-Interaktionsschleife, Speicher-/Löschmodi, One-shots und Previous-Command-Policy; Details: [`STAGE12C5A_NATIVE_PROMPT_INTERACTION.md`](STAGE12C5A_NATIVE_PROMPT_INTERACTION.md). Stage 12c4z macht `generate_html` zu einem FHS-fähigen Unix-Kommando mit atomarer Dateiausgabe, expliziter Mitteltabelle, Manpage und wiederverwendbarer vollständiger Python-Referenz; Details: [`STAGE12C4Z_PROFESSIONAL_GENERATE_HTML.md`](STAGE12C4Z_PROFESSIONAL_GENERATE_HTML.md). Stage 12c4y gibt der produktiven Spalten-, Zeilen-, Breiten-, Ausgabe- und Obergrenzenplanung einen eigenständigen typisierten Besitzer und ergänzt wiederverwendbare vollständige `--alles`-Referenzpakete; Details: [`STAGE12C4Y_NATIVE_PARAMETER_RUNTIME.md`](STAGE12C4Y_NATIVE_PARAMETER_RUNTIME.md). Stage 12c4x übernimmt den vollständigen fünfsprachigen `i18n.words`-Split als nativen Baumkatalog; Details: [`STAGE12C4X_NATIVE_I18N_WORDS.md`](STAGE12C4X_NATIVE_I18N_WORDS.md). Stage 12c4w ergänzt die native Prompt-Vorbereitung und das vollständige semantische `--alles`-Gate; Details: [`STAGE12C4W_NATIVE_PROMPT_PREPARATION_FULL_ALL.md`](STAGE12C4W_NATIVE_PROMPT_PREPARATION_FULL_ALL.md). Stage 12c4v besitzt Prompt-Sitzung und Prompt-Runtime vollständig nativ beziehungsweise reproduzierbar generiert; Details: [`STAGE12C4V_NATIVE_PROMPT_SESSION_RUNTIME.md`](STAGE12C4V_NATIVE_PROMPT_SESSION_RUNTIME.md).
+
+### Native normale Reta-Syntax
+
+```bash
+./reta-native \
+  -zeilen --vorhervonausschnitt=1-3 \
+  -spalten --religionen=sternpolygon \
+  -ausgabe --art=csv --breite=40
+```
+
+Oder über den historischen Namen:
+
+```bash
+RETA_NATIVE=1 ./reta \
+  -zeilen --vorhervonausschnitt=1-3 \
+  -spalten --religionen=sternpolygon \
+  -ausgabe --art=markdown --breite=40
+```
+
+`./reta` ist seit Stage 12c4e **native-first**: Ein strenger Ownership-Test führt nur vollständig unterstützte Argumentvektoren direkt im Mojo-Tabellenkern aus. Sobald eine Option oder ein Wert nicht vollständig besessen wird, fällt der gesamte Aufruf unverändert auf die Python-Referenz zurück. `RETA_FORCE_REFERENCE=1 ./reta ...` erzwingt diese Referenz; `RETA_NATIVE=1 ./reta ...` erzwingt weiterhin den nativen Pfad ohne Fallback.
+
+Auch die tatsächlichen englischen Namen werden unterstützt:
+
+```bash
+./reta-native \
+  -language=english \
+  -lines --thisrangebefore=1-3 \
+  -columns --religions=starpolygon \
+  -output --type=csv --width=40
+```
+
+### CSV-Kern
+
+Nativ sind:
+
+- Semikolon-CSV
+- UTF-8
+- Quotes und eingebettete Zeilenumbrüche
+- schneller Pfad für die großen einfachen Tabellen
+- Zeilen- und Spaltenprojektion
+- kompletter Referenzbestand mit 16 CSV-Dateien
+
+```bash
+./bin/reta-mojo --mojo-csv-info
+```
+
+```text
+Zeilen: 1025
+Spalten: 746
+Zellen: 764650
+```
+
+### Zeilenfilter
+
+Vollständig nativ umgesetzt wurden:
+
+- absolute und relative Bereiche
+- positive und negative Werte
+- Teilererweiterung
+- Vergangenheit, Gegenwart und Zukunft
+- Zählungsgruppen
+- innere und äußere Primzahlklassen
+- Mond, Sonne, schwarze Sonne und Planet
+- Primvielfache und gewöhnliche Vielfache
+- Potenzen
+- Invertierung
+- nachträgliche Positionsfilter
+
+### Generatorspalten
+
+Deutsch und Englisch sind nun für die zentralen historischen Generatorpfade nativ:
+
+- Gleichheit/Freiheit/Dominieren, Geist/Energie, Prim-Kreativität und Gestirn
+- Vielfachen-Vererbung, Modallogik, Mond-/Exponent-Beziehungen und Liebespolygon
+- Primzahlkreuz Pro/Contra
+- alle sieben Primzahlwirkungsquellen
+- vier ganzzahlige Primuniversum-Familien
+- vier gebrochen-rationale Primuniversum-Familien
+- die beschriebene Primzahlvielfachen-Spalte `PrimCSV`
+
+Die gebrochen-rationalen Generatoren verwenden einen reproduzierbaren Katalog mit 71.820 geordneten Relationen. Die historische CPython-Mengenreihenfolge wird beim Erzeugen des Assets mit `PYTHONHASHSEED=0` festgeschrieben. Zusätzlich sind die zwölf allgemeinen Meta-/Konkretachsen und die vollständige 14-Funktionen-Oberfläche aus `meta_columns.py` portiert. `meta_request_order.tsv` hält die exakte Reihenfolge aller 4.095 nichtleeren Anfrage-Teilmengen fest; `meta_columns_catalog.tsv` konserviert zusätzlich 87 Brüche und 884 historische Bruchkombinationen.
+
+Beispiel:
+
+```bash
+./reta-native \
+  -zeilen --vorhervonausschnitt=1-8 \
+  -spalten --multiplikationen=motivgebrstern \
+  -ausgabe --art=csv --breite=40
+```
+
+### Kombinationen und CSV-Verkettung
+
+Stufe 8 portiert die vier gebrochen-rationalen CSV-Prägarben sowie den relationalen Galaxie-/Universum-Kombi-Join. 173 zweisprachige Aliase und 151 Relationsordnungen werden reproduzierbar geladen. Mehrfachauswahl, Negativauswahl, gemischte Galaxie-/Universum-Abfragen, leere Segmente und historische Rand-Leerzeichen sind erhalten.
+
+### Ausgabe
+
+CSV, Markdown und Emacs sind für die geprüften realen Befehle bytegleich. BBCode reproduziert Zählungsfarben, Zellabstände, Wortumbruch und Seitenteilung. HTML verwendet Klassenmetadaten für alle 746 physischen Haupttabellenspalten und einen semantischen Katalog für Generatorüberschriften. Beabsichtigte Tags wie `<ul>`, `<li>` und `<br>` bleiben aktiv, während mathematische Vergleichszeichen weiter maskiert werden.
+
+Die derzeit bytegleich geprüften HTML-Generatorpfade umfassen Primzahlwirkung, allgemeine Meta-Spalten und gebrochenes Universum auf Deutsch und Englisch. Der zentrale farbige ANSI-Shellpfad ist ebenfalls bytegleich portiert. Offen bleiben seltene Terminal-/Rich-Sonderfälle und noch nicht katalogisierte kombinierte HTML-Familien.
+
+## Stufe 10: native Prompt-Sprache
+
+Die vordere Promptverarbeitung läuft nun in Mojo: klammerbewusstes Tokenisieren, kompakte Kurzbefehle, Ein-Zeichen-Ersetzungen, CPython-kompatible Mengenordnung und kontextabhängige Completion. Ein reproduzierbarer Katalog bündelt 25.834 Completion-Werte in 561 Sektionen und enthält fünf Sprachen sowie 1.355 Vokabularaliase.
+
+Seit Stage 12c4d liest auch ein reales Terminal vollständig nativ: Ein reiner Mojo-Editor besitzt UTF-8-Cursorlogik, History und verschachtelte Completion; ein kleiner POSIX-Adapter kapselt `termios`, ANSI-Tastenfolgen und Linux-/macOS-`FIONREAD`. Übliche Emacs- und Vi-Kernbindings sind vorhanden. Der frühere GNU-Readline-/CPython-Eingang und der zusätzliche Completion-Kindprozess sind für den Controller nicht mehr erforderlich. Noch nicht portierte Fachoperationen erhalten am expliziten Kindprozessfallback weiterhin unverändert die ursprüngliche Eingabezeile.
+
+Geprüft sind 27 kompakte deutsch/englische Kurzsprachenkontexte, 23 vollständige Vorbereitungskontexte und 12 verschachtelte Completion-Kontexte bytegleich zur Python-Referenz.
+
+### Neu: native Prompt-Fachausführung
+
+`src/reta_mojo/prompt_fraction_execution.mojo` übernimmt die vordere Bruch- und Bereichssprache aus `prompt_execution.py`. `primfaktorenvergleich` sowie `abstand`/`abstandPrim` mit beliebig vielen stabilen Zahlenbereichen werden nativ ausgeführt; die verschachtelte CPython-`set[frozenset[int]]`-Reihenfolge bleibt dabei erhalten.
+
+`src/reta_mojo/prompt_table_execution.mojo` plant 18 Domänenfamilien: `mond`, `richtung`, `primzahlkreuz`, `alles`, `thomas`, `emotion`, `wirklichkeit`, `triebe`, `impulse`, `bewusstsein`, `geist`, `freiheit/gleichheit`, `groesse`, `kugeln/kreise`, `netzwerk`, `komplex`, `absicht/motiv` und `universum`. Mehrere Fachwörter in einer Eingabe erzeugen mehrere native Aufrufe wie die unabhängigen Python-Zweige; `range`, Invertierung und Ausgabeparameter werden weitergereicht. Stage 10n ergänzt die zwei dynamischen Eigenschaftsachsen `EIGN…` und `EIGR…` mit allen 165 deutschen Katalogbefehlen.
+
+Neben den Ganzzahlpfaden werden ganzzahlige `vielfache`/`teiler`/`einzeln`, positive `1/n`- und `n/m`-Ausdrücke, reduzierte Achsen sowie historische Rechteck- und Versatzformen wie `1/2-3/3` und `4/5+2/2` nativ geplant. Stage 10d ergänzt stabile negative Bruchausschlüsse, Bruchteiler und Reziprok-Vielfache wie `v1/256,-1/512`; Stage 10i übernimmt zusätzlich Nullwerte, rein negative Selektoren und kollidierende All-Zeilen-Ausschlüsse. Die eigentlichen Tabellen laufen im kompilierten `reta-native`-Kern. Echte `v n/m`-Vielfache mit Zähler größer 1 werden seit Stage 12c4r trotz des reproduzierbaren Python-`IndexError` nativ anhand der realen CSV-Rechtecke korrigiert; Stage 12c5az ergänzt gemischte `v1/n`+`v n/m`-Achsen mit getrennten Obergrenzen.
+
+`--nocolor` ist im Shellrenderer jetzt wirksam. Außerdem kann eine explizite, nicht vorhandene Ergebnisposition nicht mehr auf die vollständige Spaltenmenge zurückfallen. Ein explizites `--oberesmaximum` hebt nun wie in Python beide historischen Zeilengrenzen an; ohne Angabe bleibt die Kurzgrenze korrekt bei 163.
+
+#
+## Stage 12c5ce – Bare logging dispatch ownership
+
+- `loggen`/`nichtloggen` als alleinstehende Promptbefehle werden jetzt durch `PromptLoggingDispatchPlan` in `prompt_interaction.mojo` geplant.
+- `prompt_main.mojo` enthält im interaktiven `_run_command` keine bare `KIND_LOG_ON`-/`KIND_LOG_OFF`-Sessionmutation mehr.
+- Zusammengesetzte historische Logging-Effekte bleiben beim Tabellenbesitzer, weil sie erst nach erfolgreicher Tabellen-/mulpri-Planung wirken.
+- Benutzerprüfung: `RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5ce.sh -- -j 8`.
+
+## Stage 10e: native Einmalbefehle ohne Python-Prozess
+
+Vollständig besessene One-shot-Befehle werden nun vor dem Import von `mojo_bridge.py` ausgeführt. Arithmetik, `abc`, `leeren`, die nativen Tabellenfamilien und streng validierte rohe `reta`-Aufrufe rufen den Tabellenkern direkt im selben Mojo-Prozess auf. Unbekannte Optionen bleiben atomar an der Bridge; positive Shell-/HTML-/BBCode-Breiten gehören nun zum nativen Promptvertrag. Details stehen in [`STAGE10E_NATIVE_PROMPT_ONESHOT.md`](STAGE10E_NATIVE_PROMPT_ONESHOT.md).
+
+### Stage 10f: kompakte Kurzformen mit historischem Echo
+
+Eine getrennte Legacy-Präsentationsschicht gibt nun die ursprüngliche Expansion und gemischt geschriebenen Optionsnamen aus, während der Tabellenplan intern kanonisch bleibt. Rendererstabile Kurzformen der Familien `absicht/motiv`, `geist`, `impulse`, `thomas` und `richtung` sowie der zusammengesetzte `mulpri`/`p`-Ablauf laufen ohne Python-Import. Fünf vollständige Ausgaben sind mit Python 3.13.5 und `PYTHONHASHSEED=0` bytegleich eingefroren. Rendererempfindliche Familien und reine Zahlenkürzel bleiben als ganze Eingabe am Fallback. Details: [`STAGE10F_NATIVE_COMPACT_PROMPT.md`](STAGE10F_NATIVE_COMPACT_PROMPT.md).
+
+### Stage 10g: vollständige kompakte Tabellenfamilien
+
+Der Shellrenderer misst Spalten nun an den mit Breite 73 vorbereiteten Fragmenten und übernimmt Python-`textwrap`-Umbrüche an vorhandenen Bindestrichen. Dadurch laufen auch `bewusstsein`, `emotion`, `triebe`, `wirklichkeit` und `universum` als kompakte One-shots vollständig nativ. Zehn komplette Ausgaben sind bytegleich; Ankündigung, sichtbares `reta`-Echo und erste Tabellenzeile behalten den historischen zusammenhängenden Farbausgabestrom. Reine Zahlenkürzel waren in diesem Zwischenstand noch als mehrteilige Komposition an der Bridge. Details: [`STAGE10G_RENDERER_COMPACT_PARITY.md`](STAGE10G_RENDERER_COMPACT_PARITY.md).
+
+### Stage 10h: native Zahlen- und Katalogkomposition
+
+Positive reine Zahlen, Bereiche, Listen und Brüche komponieren nun dieselben typisierten Tabellen- und `mulpri`-Pläne direkt im Mojo-Prozess. Auch `15_<key>`, `16_<key>` und `16_15_<key>` werden aus dem fünfsprachigen Katalog auf Grundstrukturen beziehungsweise Multiversum abgebildet; 365 historisch adressierbare Einträge sind geprüft. Der Shellrenderer gibt die Zählungsgruppenmarkierung `█` wie Python aus. Elf vollständige Zahlenfixtures sind bytegleich, acht repräsentative Klassen laufen isoliert ohne Python oder Kindprozess. `0`, rein negative Ausdrücke und doppelte generierte Spalteninstanzen bleiben bewusst am Fallback. Details: [`STAGE10H_NATIVE_NUMERIC_PROMPT.md`](STAGE10H_NATIVE_NUMERIC_PROMPT.md).
+
+### Stage 10i: native numerische Selektoralgebra
+
+`0`, rein negative Ganzzahlselektoren und kollidierende positive/negative Ganzzahl- und Bruchbedingungen werden jetzt vollständig nativ geplant. Gleiche positive und negative Prädikate kürzen sich vor der Zeilenauswahl; eine danach leere Bedingungsmenge aktiviert wie in Python die All-Zeilen-Semantik. Beim `teiler`-Modifikator erfolgt diese Kürzung vor der Teilerbildung. Die CPython-`set[str]`-Reihenfolge und die besondere Nummernspaltenbreite des All-Zeilen-Pfads sind reproduziert. Wiederholte Katalogauswahlen wurden in Stage 10j übernommen; echte `v n/m`-Vielfache mit Zähler größer 1 bleiben offen. Details: [`STAGE10I_NATIVE_NUMERIC_SELECTORS.md`](STAGE10I_NATIVE_NUMERIC_SELECTORS.md).
+
+Stage 10l ersetzt die zentrale `pathlib`-Dateibrücke durch natives Mojo-I/O, gibt dem persistenten Completion-Arbeiter direkte stdin/stdout-Dateideskriptoren und portiert die äußere `generate_html`-Orchestrierung. Stage 12b ergänzt den reproduzierbaren zwölfteiligen `--spalten --alles`-Plan; Normal- und Overridepfad laufen nun vollständig ohne Python-Kindprozess. Positive Shell-, HTML- und BBCode-Breiten laufen nun auch aus dem Prompt vor jedem Python-Import. Details: [`STAGE10L_NATIVE_IO_ORCHESTRATION.md`](STAGE10L_NATIVE_IO_ORCHESTRATION.md).
+
+### Stage 10m: komponierte Ganzzahlmodifikatoren und dynamische `vN`-Grenzen
+
+Ganzzahlige `vielfache`- und `teiler`-Befehle werden nun auch kombiniert vollständig nativ geplant. Die sichtbare Teilervereinigung reproduziert die verschachtelte CPython-3.13-Semantik aus Faktor-Tupelmengen, zweielementigen Ganzzahlmengen und `set_merge`; dadurch bleibt selbst die Reihenfolge `24 -> 2,3,4,6,8,24,12` erhalten. Absolute `vN`-Selektoren heben die native Tabellenobergrenze wie Python aus `max(Auswahl) + 1` an und können die physische CSV-Tabelle für generierte Zeilen über 1024 erweitern. Details: [`STAGE10M_NATIVE_INTEGER_MODIFIER_COMPOSITION.md`](STAGE10M_NATIVE_INTEGER_MODIFIER_COMPOSITION.md).
+
+### Stage 10n: native EIGN/EIGR-Eigenschaftsachsen
+
+Alle 165 im deutschen Promptkatalog veröffentlichten `EIGN…`- und `EIGR…`-Befehle werden vor dem Python-Import geplant. EIGN adressiert `--konzept`, EIGR `--konzept2`; Ganzzahlen, Reziproke, reduzierte Ganzzahlbrüche und die historische zweite `-zeilen`-Sektion werden typisiert erhalten. Die aktuelle Python-Promptschicht scheitert bei EIGR in `deepcopy(module)`; Mojo führt stattdessen den direkt lauffähigen, im Referenzcode explizit gebildeten `reta.py`-Argumentvektor aus. Details: [`STAGE10N_NATIVE_PROMPT_PROPERTIES.md`](STAGE10N_NATIVE_PROMPT_PROPERTIES.md).
+
+### Stage 10j: wiederholte Katalogauswahl und Whitespace-genauer Shellumbruch
+
+Wiederholte `15_…`-/`16_15…`-Katalogauswahlen laufen nun vollständig nativ. Das sichtbare Legacy-Echo behält beide Aliasbündel, während der Generatorregisterpfad sie wie Python semantisch dedupliziert. Die vermeintliche Instanzbreitenlücke war ein Shell-Wrappingfehler: interne Leerzeichenläufe werden jetzt als eigene `textwrap`-Chunks gezählt und nur an Zeilengrenzen verworfen. Dadurch ist auch die lange Primzahlkreuz-Spalte mit `|  Darin …` bytegleich. Details: [`STAGE10J_NATIVE_DUPLICATE_CATALOG.md`](STAGE10J_NATIVE_DUPLICATE_CATALOG.md).
+
+### Stage 10k: mehrbereichige Abstandsberechnung
+
+`abstand` und `abstandPrim` besitzen nun keine Zweibereichsgrenze mehr. Beliebig viele stabile Zahlenbereiche werden vollständig in Mojo verarbeitet, einschließlich doppelter Bereiche, gemischter Kardinalitäten, äußerer Set-Resizes und der größenabhängigen CPython-`set.difference`-Strategien. Die konkrete `set[frozenset[int]]`-Slotordnung sowie die historischen Wörterbuchüberschreibungen sind reproduziert; normale und primfaktorisierte Mehrbereichsausgaben laufen vor jedem Python-Import. Details: [`STAGE10K_NATIVE_MULTI_DISTANCE.md`](STAGE10K_NATIVE_MULTI_DISTANCE.md).
+
+Die explizite Spaltenfolge wird bei semantischen Spaltenauswahlen nach der Generatorpipeline als relative Ergebnisposition angewandt. Dadurch entspricht `--Bedeutung=gestirn --spaltenreihenfolgeundnurdiese=3-6` wieder der Python-Referenz. Auch die historische Unterdrückung der zusätzlichen Universumsspalte bei `e`, `ee`, fehlenden Überschriften oder mehr als zwei kombinierten Fachbefehlen ist modelliert.
+
+## Weitere native Bereiche
+
+- Zahlentheorie, Primzahlkreuz und Arithmetik
+- Zeilenbereichssprache
+- Parameterschema, Aliase und Spalten-Buckets
+- Promptcontroller: `rp`, `rpl`, `rpb`, `rpe`, `retaPrompt`
+- `prim`, `prim24`, `multis`, `multis3`, `modulo`
+- Tabellen-Tag-Schema
+- Tabellenzustand und Unicode-Wrapping
+- Topologie, Prägarbenanteile, Morphismen und universelle Bucket-Normalisierung
+- Grundstrukturen-HTML
+- `generate_html`-Orchestrierung
+- generierter Kategorien-/Funktorenkatalog
+
+## Öffentliche Programme
+
+```bash
+./reta
+./reta-native
+./retaPrompt
+./rp
+./rpb prim 60
+./multis3 36
+./grundStrukHtml.py blank
+./generate_html > religionen-tabelle.html
+./generate_html --output religionen-tabelle.html --language english
+./generate_html --middle-file middle.alx --output religionen-tabelle.html
+man generate_html
+```
+
+Siehe [`BINARIES.md`](BINARIES.md).
+
+## Stage 12c5bh: getrennte Testphasen und nichtpositive Bruchachsen
+
+Stage 12c5bi führt Compileroptionen nun auch durch den kombinierten Gesamttest und die fokussierten Stage-/Bruchproben: `scripts/test_all.sh --heavy --run-jobs 4 -- -j 4` steuert interne Compilerthreads und Laufzeitjobs unabhängig. Der Prompt-History-Test besitzt sein Sandboxverzeichnis explizit als `String` statt als geliehenen `StringSlice`. Außerdem sind separat negative No-op-Tokens und nichtpositive `teiler`-Kompositionen neben korrigierten echten Bruchvielfachen nativ; die Universe-Ganzzahl-/Reziprokblockgrenze ist exakt getestet. Details: [`STAGE12C5BI_COMPILER_OPTIONS_PROMPT_STRING_DIVIDER_AXES.md`](STAGE12C5BI_COMPILER_OPTIONS_PROMPT_STRING_DIVIDER_AXES.md).
+
+Die vollständige Mojo-Suite kann jetzt einmal mit `scripts/build-tests.sh` kompiliert und danach beliebig oft mit `scripts/run-tests.sh` ausgeführt werden. `scripts/test_all.sh` bleibt als kompatibler Wrapper erhalten. Laufzeitparallelität ist über `--jobs N` beziehungsweise `RETA_TEST_RUN_JOBS=N` opt-in; jeder Lauf erhält ein eigenes temporäres Sandboxverzeichnis; bekannte Schwergewichte und verschachtelt parallele Tests bleiben exklusive Barrieren. Die historische 12c5aq-Kette migriert ausschließlich zwei exakt bekannte alte Kommandoasset-Hashes und lehnt jede unbekannte Abweichung weiterhin ab. Außerdem sind kommalokale Null- und Ausschlussachsen neben echten Bruchvielfachen nativ; separat geschriebene negative Tokens und nichtpositive Teilerkompositionen bleiben atomar. Details: [`STAGE12C5BH_SPLIT_TEST_PIPELINE_NONPOSITIVE_FRACTION_AXES.md`](STAGE12C5BH_SPLIT_TEST_PIPELINE_NONPOSITIVE_FRACTION_AXES.md).
+
+## Tests
+
+```bash
+./scripts/test_stage7.sh
+./scripts/test_stage8.sh
+./scripts/test_stage9.sh
+./scripts/test_stage10.sh
+./scripts/test_stage11c.sh
+./scripts/test_stage11d.sh
+./scripts/test_stage11e.sh
+MOJO_BIN="$(pwd)/.venv/bin/mojo" ./scripts/test_stage12c5c.sh
+./scripts/check_architecture_control_generation.sh
+./scripts/check_architecture_coherence_trace_parity.sh
+./scripts/check_generated_column_parity.sh
+./scripts/check_kombi_parity.sh
+./scripts/check_markup_parity.sh
+./scripts/check_native_table_parity.sh
+./scripts/check_runtime_alias_catalog.sh
+./scripts/check_schema_catalog.sh
+./scripts/check_category_catalog.sh
+```
+
+Gesamtbestand:
+
+```text
+172 Test-/Probe-Dateien (127 Mojo, 45 Python)
+465 native Mojo-Testfunktionen plus 182 Python-Testfunktionen
+Stage 12a aktuell 480/480 fokussierte Mojo-/Paritätsprüfungen plus 1/1 Boundary-Pytest
+30 Generator- und 9 Kombi-CLI-Fälle in den Paritätssuiten
+8 schnelle Markup-Fixtures; 16 Fälle einzeln gegen Python validiert
+27 Kurzsprachen-, 23 Vorbereitung- und 12 Completion-Kontexte bytegleich
+18 Bruchparserfälle bytegleich; 14 reale Bruch-/Modifikator-Tokenströme identisch
+10 vollständige kompakte, 12 numerische und 8 mehrbereichige Abstandsausgaben bytegleich; 14 allgemeine plus 16 numerische plus 2 Abstands-One-shot-Klassen isoliert
+2 schwere Katalogtestdateien bleiben im normalen Lauf optional
+```
+
+Weitere bestehende Prüfungen:
+
+```bash
+./scripts/check_multis3_parity.sh
+./scripts/check_tag_schema.sh
+./scripts/check_table_runtime_parity.sh
+./scripts/test_prompt_bins.sh
+./scripts/check_compat_parity.sh
+./scripts/check_html_parity.sh
+```
+
+Details: [`TEST_RESULTS.md`](TEST_RESULTS.md).
+
+## Nächster Portierungsblock
+
+Stufe 9 wird mit seltenen Terminal-/Rich-Sonderfällen fortgesetzt. Stufe 10 erweitert die bereits native Promptausführung und i18n-Laufzeit. Stufe 11 ist mit 11a–11j abgeschlossen. Stage 12a und 12b sind abgeschlossen: Sämtliche nativen Parallelpfade verwenden Mojo-Threads, und `generate_html` besitzt nun auch die vollständige `--alles`-Mitteltabelle. Stage 12c ist bis 12c4i fortgesetzt: `rpb a1` trennt Befehlszeile und Tabellenkopf wieder exakt, `--breite=0` verwendet die reale TTY-Breite, und Pipe-, Skript- sowie echte TTY-Eingabe laufen nativ in Mojo. Die Rohbefehle `shell`, `python` und `math`, nicht-native `reta`-Zeilen und atomare Restfallbacks starten direkt am expliziten Mojo-Kindprozessadapter. Stabile Kombinationen aus `vielfache`, `teiler` und `1/n`, klassische Bruch-No-ops und gemischte Tokens wie `mond 1/2,3` werden nativ geplant. Weder Prompt noch historischer Tabellenlauncher betten Python ein; vollständig besessene `./reta`-Argumentvektoren laufen automatisch nativ, während Restsemantik atomar als Referenzkindprozess ausgeführt wird. Mehrere gleichzeitig ausgewählte, verschieden große Bruchdomänen besitzen nun domänenspezifische native Pläne. Offen bleiben nur unbewiesene Mischkompositionen dieser Raster mit zusätzlichen klassischen Familien, Eigenschaften oder Ganzzahlachsen, seltene hintere Restalgorithmen sowie 12d–12e.
+
+## Dokumentation
+
+- [`ROADMAP.md`](ROADMAP.md) – zwölf Stufen und Prozentmetriken
+- [`STATUS.md`](STATUS.md) – aktueller Stand
+- [`BUILD.md`](BUILD.md) – Compilerprodukte und `.gitignore`
+- [`BINARIES.md`](BINARIES.md) – öffentliche Namen und Ziele
+- [`TEST_RESULTS.md`](TEST_RESULTS.md) – Testnachweise
+- [`PORTING_MATRIX.md`](PORTING_MATRIX.md) – Status jeder Python-Datei
+- [`MIGRATION_NOTES.md`](MIGRATION_NOTES.md) – semantische Entscheidungen
+
+
+## Stage 11a: Architekturkarte und Kapselgrenzen
+
+Die bisher ausschließlich pythonische Metaarchitektur besitzt nun zwei separate schwere Mojo-Bundles:
+
+- `architecture_map.mojo`: 11 Kapseln, 34 Einschließungen, 53 Flüsse, 34 Legacy-Zuordnungen und 42 Stufenschritte
+- `architecture_boundaries.mojo`: 161 Modulbesitzer, 279 interne Importkanten, 37 Cross-Capsule-Kanten, 11 Kapselgrenzen und fünf bestandene Checks
+
+Die AST-Auswertung der Python-Referenz ist ein expliziter Regenerationsschritt. Das eingecheckte Ergebnis, seine Navigation und die Validierungsabfragen laufen nativ:
+
+```bash
+./scripts/build-heavy.sh
+./bin/reta-mojo-boundaries --summary
+./bin/reta-mojo-boundaries --module reta.py
+./bin/reta-mojo-boundaries --capsule InputPromptCapsule
+```
+
+Reproduzierbarkeit:
+
+```bash
+./scripts/check_architecture_control_generation.sh
+```
+
+
+## Stage 11b: Architekturverträge und Witness-Matrix
+
+Die beiden auf Stage 11a folgenden Metaebenen sind als getrennte, reproduzierbar generierte Mojo-Bundles verfügbar:
+
+- `architecture_contracts.mojo`: 33 kommutierende Diagramme, 11 Kapselverträge und 22 Refactor-Gesetze
+- `architecture_witnesses.mojo`: 536 Anker, 11 Kapselschnitte, 33 Diagrammnachweise, 42 Natürlichkeitsnachweise und 55 Verpflichtungen
+
+Alle 351 dateiartigen Witness-Anker werden gegen den unveränderten Referenzbaum aufgelöst. Beide Validierungen besitzen den Status `passed`.
+
+```bash
+./scripts/build-heavy.sh
+./bin/reta-mojo-contracts --summary
+./bin/reta-mojo-contracts --diagram RawCommandNaturalitySquare
+./bin/reta-mojo-witnesses --summary
+./bin/reta-mojo-witnesses --anchor RetaArchitectureRoot reta_architecture/facade.py
+```
+
+Die Generatorprüfung umfasst Karte, Boundaries, Verträge und Witnesses. Details: [`STAGE11B_NATIVE_ARCHITECTURE_CONTRACTS_WITNESSES.md`](STAGE11B_NATIVE_ARCHITECTURE_CONTRACTS_WITNESSES.md).
+
+
+## Stage 11c: Kohärenzmatrix und Trace-Navigation
+
+Die nächsten Metaebenen sind ebenfalls als getrennte Mojo-Bundles verfügbar:
+
+- `architecture_coherence.mojo`: 11 Kapselkohärenzen, 53 Routen, 42 Natürlichkeits- und 22 Gesetzeskohärenzen
+- `architecture_traces.mojo`: 34 Komponenten-, 11 Kapsel- und 42 Stufentraces mit 204 Route-Hops
+
+```bash
+./scripts/build-heavy.sh
+./bin/reta-mojo-coherence --summary
+./bin/reta-mojo-coherence --route SchemaTopologyCapsule LocalSectionCapsule
+./bin/reta-mojo-traces --summary
+./bin/reta-mojo-traces --component reta.py
+./scripts/test_stage11c.sh
+```
+
+Die sechs Architekturkontrollgeneratoren regenerieren byteidentisch; acht repräsentative Python↔Mojo-Abfragen sind vollständig bytegleich. Details: [`STAGE11C_NATIVE_ARCHITECTURE_COHERENCE_TRACES.md`](STAGE11C_NATIVE_ARCHITECTURE_COHERENCE_TRACES.md).
+
+
+## Stage 11d: Impact-Kalkül und Migrationsplan
+
+Die nächsten beiden Architektursteuerungsschichten sind als getrennte, reproduzierbar generierte Mojo-Bundles verfügbar:
+
+- `architecture_impact.mojo`: 34 Impact-Quellen, 34 Verträge, 10 Regression-Gates und 34 Migrationskandidaten
+- `architecture_migration.mojo`: 7 geordnete Wellen, 34 Schritte, 34 Gate-Bindungen und 7 Natürlichkeitsinvarianten
+
+```bash
+./scripts/build-heavy.sh
+./bin/reta-mojo-impact --summary
+./bin/reta-mojo-impact --source reta.py
+./bin/reta-mojo-migration --summary
+./bin/reta-mojo-migration --wave M3
+./scripts/test_stage11d.sh
+./scripts/test_stage11e.sh
+MOJO_BIN="$(pwd)/.venv/bin/mojo" ./scripts/test_stage12c5c.sh
+```
+
+Beide Validierungen besitzen den Status `passed`. Acht repräsentative Python↔Mojo-Abfragen sind byteidentisch, und die Architekturkontrollregeneration umfasst nun acht byteidentische Generatorziele. Details: [`STAGE11D_NATIVE_ARCHITECTURE_IMPACT_MIGRATION.md`](STAGE11D_NATIVE_ARCHITECTURE_IMPACT_MIGRATION.md).
+
+
+## Stage 11e: Rehearsal und Aktivierung
+
+Die Stage-35-/36-Metadaten sind als getrennte, reproduzierbare Mojo-Bundles verfügbar:
+
+- `architecture_rehearsal.mojo`: 7 Öffnungen, 34 Moves, 34 Gate-Suiten und 7 Readiness-Cover
+- `architecture_activation.mojo`: 7 Fenster, 34 Units, 34 Commit-Gates, 34 Rollbacks und 7 Transaktionen
+
+```bash
+./scripts/build-heavy.sh
+./bin/reta-mojo-rehearsal --summary
+./bin/reta-mojo-rehearsal --move REH35-MOVE-MIG34-01
+./bin/reta-mojo-activation --summary
+./bin/reta-mojo-activation --transaction ACT36-TX-M0
+./scripts/test_stage11e.sh
+MOJO_BIN="$(pwd)/.venv/bin/mojo" ./scripts/test_stage12c5c.sh
+```
+
+Beide gespeicherten Referenzvalidierungen und beide nativen Kreuzvalidierungen bestehen. Elf repräsentative Python↔Mojo-Abfragen sind byteidentisch; die Architekturkontrollregeneration umfasst zehn Ziele. Details: [`STAGE11E_NATIVE_ARCHITECTURE_REHEARSAL_ACTIVATION.md`](STAGE11E_NATIVE_ARCHITECTURE_REHEARSAL_ACTIVATION.md).
+
+
+## Stage 11f: Gesamtvalidierung und Fortschritts-Overlay
+
+Die beiden abschließenden reinen Architektursteuerungsschichten sind als getrennte, reproduzierbare Mojo-Bundles verfügbar:
+
+- `architecture_validation.mojo`: 51 Checks in 17 Schichten, 51 bestanden, 3.448 geprüfte Einzelobjekte
+- `architecture_progress.mojo`: 30 Oberflächen, 34 Schritte, 7 Wellen, ein dokumentierter Umweltblock
+
+```bash
+./scripts/build-heavy.sh
+./bin/reta-mojo-validation --summary
+./bin/reta-mojo-validation --check CategoryFunctorReferenceCheck
+./bin/reta-mojo-progress --summary
+./bin/reta-mojo-progress --surface reta.py
+./scripts/test_stage11f.sh
+```
+
+Die Gesamtvalidierung steht auf `passed`. Das Fortschritts-Overlay ist intern vollständig konsistent und bewusst `attention`, weil genau die externe ursprüngliche Command-Parity-Baseline fehlt. Acht repräsentative Python↔Mojo-Abfragen sind byteidentisch; die Architekturkontrollregeneration umfasst zwölf Ziele. Details: [`STAGE11F_NATIVE_ARCHITECTURE_VALIDATION_PROGRESS.md`](STAGE11F_NATIVE_ARCHITECTURE_VALIDATION_PROGRESS.md).
+
+
+## Stage 11g: Native SQLite-Persistenz
+
+`persistence.py` ist nun als reale native SQLite-Laufzeitschicht portiert. Das Modul besitzt sechs Tabellen und zwölf Persistenzmorphismen für Kontexte, Sections, Garben-Snapshots, Ausführungsläufe, Audit und Cache. Stabile SHA-256-Digests stimmen mit der Python-Referenz überein; beide Implementierungen lesen die jeweils andere Datenbank.
+
+```bash
+./scripts/test_stage11g.sh
+./bin/reta-mojo-persistence --summary
+./bin/reta-mojo-persistence --demo /tmp/reta-persistence.db
+./bin/reta-mojo-persistence --inspect /tmp/reta-persistence.db
+```
+
+Der fokussierte Lauf besteht aus 47/47 nativen Prüfungen und 5/5 Python↔Mojo-Paritäts-/Interoperabilitätsprüfungen. Details: [`STAGE11G_NATIVE_PERSISTENCE.md`](STAGE11G_NATIVE_PERSISTENCE.md).
+
+
+## Stage 11h: Natives deterministisches Ausführungsnetz
+
+`execution_network.py` ist als reale Mojo-Laufzeitschicht portiert. FIFO-, LIFO- und Prioritätswarteschlangen, Halb-/Vollduplexkanäle, Semaphoren, Snapshotbildung und deterministische Reduktion laufen ohne Python. Seit Stage 12a führen Mojos CPU-Workerthreads die statisch bekannten Operationen aus; Eingaben werden gemeinsam gelesen, jeder Worker schreibt in einen disjunkten Ergebnisslot und die Reduktion bleibt deterministisch.
+
+```bash
+./scripts/test_stage11h.sh
+./bin/reta-mojo-execution-network --summary
+./bin/reta-mojo-execution-network --order priority
+./bin/reta-mojo-execution-network --run-threads fifo
+./bin/reta-mojo-execution-network --task double_int 21
+```
+
+Die statische Mojo-Grenze verwendet UTF-8-Text, kanonisches Metadaten-JSON und geprüfte Operationskennungen anstelle von Python-`Any`, Pickle und dynamischen Imports. Der fokussierte Lauf besteht aus 85/85 nativen Netzprüfungen, 15/15 Persistenzintegrationsprüfungen und 8/8 Python↔Mojo-Paritätsfällen. Details: [`STAGE11H_NATIVE_EXECUTION_NETWORK.md`](STAGE11H_NATIVE_EXECUTION_NETWORK.md).
+
+
+## Stage 11i/12a: Native Thread-Chunk-Kerne
+
+Der reine Kern von `parallel_execution.py` läuft in Mojo. Zehn Tabellen- und Zahlenoperationen besitzen serielle Referenzpfade und typisierte Thread-Chunks. Stage 12a hat die historischen `fork`-Worker und das längenpräfixierte Prozessprotokoll vollständig entfernt. Ergebnisse werden unabhängig von der Schedulerreihenfolge wieder in die von Python definierte Zeilen-/Zahlenindexordnung zusammengesetzt; Filterwerte werden wie die Referenz dedupliziert.
+
+```bash
+./scripts/test_stage11i.sh
+./bin/reta-mojo-parallel-execution --summary
+./bin/reta-mojo-parallel-execution --demo 2 2
+./bin/reta-mojo-parallel-execution --prime-factors 12 18 25 49
+```
+
+Die historische Stage-11i-Prüfung bleibt dokumentiert. Der aktuelle Stage-12a-Lauf prüft die Threadmigration mit 480/480 Mojo-/Paritätsfällen plus 1/1 Boundary-Pytest. Alte Namen und Konfigurationswerte mit `process` bleiben vorläufig als Kompatibilitätsalias erhalten, erzeugen aber keinen Prozess. Details: [`STAGE12A_NATIVE_THREAD_MIGRATION.md`](STAGE12A_NATIVE_THREAD_MIGRATION.md).
+
+
+## Stage 11j: Typisierte Thread-Zeilenvorbereitung
+
+Der letzte dynamische `WorkerPrepare`-/`deepcopy`-Objektgraph ist durch `ParallelRowPreparationContext` ersetzt. Reine In-Memory-Kerne verwenden native Mojo-Threads. Jeder Thread schreibt ausschließlich in seinen vorab zugewiesenen Chunkslot, danach wird seriell nach der ursprünglichen Zeilennummer reduziert. SQLite-Schreibvorgänge, globale Header-Tag-Mutationen und Ausgabe-I/O bleiben bewusst seriell.
+
+```bash
+./scripts/test_stage11j.sh
+./bin/reta-mojo-row-preparation --summary 8 128 512
+./bin/reta-mojo-row-preparation --demo 2 2
+./bin/reta-mojo-parallel-execution --demo-threads 2 2
+```
+
+Die hier ausgeführten fokussierten Prüfungen umfassen 36/36 Konfigurationsfälle, 40/40 typisierte Zeilenvorbereitungsfälle und 2/2 Python↔seriell↔Thread-Vollstromparitätsfälle. Ein vorläufiger Lauf mit 20.000 Zeilen benötigte in dieser Umgebung 4,12 s seriell und 3,22 s mit acht Thread-Workern bei identischer Prüfsumme. Details: [`STAGE11J_NATIVE_THREADED_ROW_PREPARATION.md`](STAGE11J_NATIVE_THREADED_ROW_PREPARATION.md).
+
+## Stage 12b: Native `--alles`-Mitteltabelle und `generate_html`
+
+Der synthetische Spaltenparameter `--alles` wird als reproduzierbarer zwölfteiliger Plan aus der Python-Referenz eingefroren und zur Laufzeit typisiert in Mojo geladen. Der Plan umfasst 756 Quellwerte und führt für das Ein-Zeilen-HTML-Referenzfixture zu 805 Daten-/Generatorspalten. `generate-html-native` ruft `run_native_reta` direkt auf; `std.subprocess` und der Python-Kindprozess sind entfernt.
+
+```bash
+./scripts/check_all_columns_plan.sh
+./scripts/test_stage12b.sh
+./scripts/build.sh
+./scripts/check_html_parity.sh
+```
+
+Nach Stage 12b verbleiben nur noch die allgemeine Kompatibilitätsbrücke in `compat_main.mojo` und der interaktive Prompt-Callback in `prompt_main.mojo`. Details: [`STAGE12B_NATIVE_ALL_COLUMNS_HTML.md`](STAGE12B_NATIVE_ALL_COLUMNS_HTML.md).
+
+## Stage 12c1: Native Terminalgeometrie und exakte Prompt-Zeilengrenzen
+
+Der öffentliche Aufruf bleibt unverändert:
+
+```bash
+bin/rpb a1
+```
+
+Der native Promptcontroller beendet die sichtbare `reta`-Befehlszeile nun wie die Python-Referenz vor dem Tabellenkopf. `--breite=0` liest die aktuelle Terminalbreite per `ioctl(TIOCGWINSZ)` und reserviert anschließend die historischen sieben Spalten; die früher fest verdrahteten 80/73 Spalten sind entfernt. PTY-Proben prüfen 80, 120 und 200 Spalten. Details: [`STAGE12C1_NATIVE_TERMINAL_PROMPT_PARITY.md`](STAGE12C1_NATIVE_TERMINAL_PROMPT_PARITY.md).
+
+
+## Stage 12c2: Portabler nativer Prompt-Eingabekanal
+
+`ioctl(TIOCGWINSZ)` ist eine kleine OS-ABI-Grenze, nicht Python: Linux/WSL
+verwenden `0x5413`, macOS/Darwin `0x40087468`; sonst greifen `COLUMNS` und
+der historische 80-Spalten-Fallback. Für stdin-Pipes und umgeleitete Sessions
+liest `prompt_main.mojo` nun direkt mit Mojos eingebautem `input()` und
+persistiert History best effort. Python wird erst beim tatsächlichen
+TTY-Readline-/Vi-/Completion-Eingang importiert. Die öffentlichen
+Promptbefehle ändern sich nicht. Details:
+[`STAGE12C2_NATIVE_PORTABLE_PROMPT_INPUT.md`](STAGE12C2_NATIVE_PORTABLE_PROMPT_INPUT.md).
+
+
+## Stage 12c3: Native rohe Promptbefehle
+
+Die expliziten Promptbefehle `shell`, `python` und `math` überschreiten nicht
+mehr `mojo_bridge.py`. Ein enger Mojo-Systemadapter reproduziert die
+`shlex.split`-/Kindprozesssemantik, vererbt stdin/stdout/stderr und die
+Umgebung bytegetreu und verwendet einen eng gekapselten libc-`system()`-Aufruf statt dynamischer `dlsym`-/`environ`-Auflösung. Rohe Unicode-Nutzlasten werden vor dem Kompaktscanner
+erkannt, sodass beispielsweise `python print("ä λ")` unverändert ausgeführt
+wird. Details: [`STAGE12C3_NATIVE_RAW_PROMPT_COMMANDS.md`](STAGE12C3_NATIVE_RAW_PROMPT_COMMANDS.md).
+
+Stage 12c4a kapselt die verbliebene Python-Grenze in
+`prompt_python_bridge.mojo` und behebt die erst im Gesamtbuild sichtbare
+`dlsym`-Signaturkollision. Details:
+[`STAGE12C4A_PROMPT_BRIDGE_INTEGRATION.md`](STAGE12C4A_PROMPT_BRIDGE_INTEGRATION.md).
+
+Stage 12c4b entfernt daraus die beiden reinen Spawn-Operationen: nicht-native
+`reta`-Zeilen und atomare Promptfallbacks laufen nun direkt über den typisierten
+Mojo-Kindprozessadapter. Details:
+[`STAGE12C4B_NATIVE_PROMPT_FALLBACK_CHILDREN.md`](STAGE12C4B_NATIVE_PROMPT_FALLBACK_CHILDREN.md).
+
+Stage 12c4c übernimmt die stabile Kombination `vielfache + teiler + 1/n`,
+korrigiert die Reziprok-Maximum- und Universum-Spaltenparität und bewahrt den
+historischen leeren `teiler 1/n`-Anteil. Details:
+[`STAGE12C4C_NATIVE_MIXED_RECIPROCAL_MODIFIERS.md`](STAGE12C4C_NATIVE_MIXED_RECIPROCAL_MODIFIERS.md).
+
+Stage 12c4d ersetzt schließlich auch den echten TTY-Readline-Eingang durch einen
+UTF-8-sicheren Mojo-Zeileneditor mit History, verschachtelter Completion,
+Emacs-/Vi-Kernbindings und einer gekapselten POSIX-`termios`-Grenze. Außerdem
+sind die klassischen Bruch-No-ops und gemischte Bruch-/Ganzzahl-Kommatokens
+nativ. Details:
+[`STAGE12C4D_NATIVE_TTY_EDITOR.md`](STAGE12C4D_NATIVE_TTY_EDITOR.md).
+
+
+Stage 12c4e entfernt schließlich auch die letzte eingebettete Python-Laufzeit aus
+`compat_main.mojo`. Der historische `./reta`-Name wählt jetzt konservativ
+native Ausführung oder einen atomaren Python-Kindprozessfallback; es gibt keine
+aktive `std.python`-Brücke mehr. Zwölf physische, generierte, modale, Meta-,
+Bruch-, Kombi- und Markupfälle laufen mit absichtlich ungültigem
+`RETA_PYTHON` bytegleich zur Referenz. Details:
+[`STAGE12C4E_NATIVE_FIRST_COMPAT.md`](STAGE12C4E_NATIVE_FIRST_COMPAT.md).
+
+Stage 12c4f übernimmt anschließend die Shell-Ausgabegruppe `--onetable`,
+`--endlessscreen`, `--endless`, `--dontwrap` und `--justtext`. Ein-Tabellen-
+Ausgabe, Breite-null-No-wrap und der Unicode-sichere Restzeilenumbruch sind
+bytegleich. Details:
+[`STAGE12C4F_NATIVE_OUTPUT_STREAM_FLAGS.md`](STAGE12C4F_NATIVE_OUTPUT_STREAM_FLAGS.md).
+
+Stage 12c4g erweitert dieselben vier Ein-Tabellen-Aliase auf HTML und BBCode.
+Alle Markup-Spalten bleiben nun in einem einzigen `<table>`-/`[table]`-Block;
+Metadaten, Wrapping und Zeilenfarben sind bytegleich. Der historische `reta`-
+Launcher besitzt diese Kombinationen ohne Python-Kindprozess. Details:
+[`STAGE12C4G_NATIVE_MARKUP_ONETABLE.md`](STAGE12C4G_NATIVE_MARKUP_ONETABLE.md).
+
+Stage 12c4h übernimmt `--keineleereninhalte` und `--noblankcontents` in den
+nativen Tabellenplan. Die historische Filterentscheidung wird für Shell, HTML
+und BBCode pro Seite und umgebrochener Sichtzeile sowie für CSV, Markdown und
+Emacs pro logischer Tabellenzeile ausgeführt. Der native-first Launcher besteht
+mit diesem neuen Pfad 10/10 Prüfungen; der No-blank-Fall läuft dabei mit einem
+absichtlich ungültigen Python-Pfad. Details:
+[`STAGE12C4H_NATIVE_NO_BLANK_CONTENTS.md`](STAGE12C4H_NATIVE_NO_BLANK_CONTENTS.md).
+
+Stage 12c4i schließt die verbliebenen Kernabweichungen horizontal paginierter
+Shell-, HTML- und BBCode-Ausgaben. Vorhandene Bindestriche werden wie in der
+Python-Referenz vor einem harten Überlangwortschnitt genutzt; fehlende
+Shell-Fortsetzungsfragmente erhalten die neutrale Restfarbe. Sechs deutsche und
+englische Mehrspaltenströme sind byteidentisch. Details:
+[`STAGE12C4I_NATIVE_PAGINATED_RENDERING.md`](STAGE12C4I_NATIVE_PAGINATED_RENDERING.md).
+
+
+Stage 12c4j übernimmt positive individuelle Spaltenbreiten über `--breiten`
+und `--widths` für Shell, HTML und BBCode. Die Breitenliste ist typisiert,
+spaltenbezogen, ersetzbar und mit globaler Breite null kombinierbar. Details:
+[`STAGE12C4J_NATIVE_COLUMN_WIDTHS.md`](STAGE12C4J_NATIVE_COLUMN_WIDTHS.md).
+
+Stage 12c4k übernimmt zusätzlich explizite Nullwerte innerhalb dieser
+Breitenliste. Shell reproduziert dabei auch die historische Seitenabbruchlogik
+für überbreite ungebrochene Nullspalten; HTML und BBCode trennen rohe
+Leerraummessung von normalisierter Serialisierung. Zwölf neue Referenzströme
+sind byteidentisch. Details:
+[`STAGE12C4K_NATIVE_ZERO_COLUMN_WIDTHS.md`](STAGE12C4K_NATIVE_ZERO_COLUMN_WIDTHS.md).
+
+Stage 12c4l macht übertragene Mojo-ELF-Dateien unabhängig vom absoluten
+Compilerpfad des Buildrechners. Alle Builds erhalten den relativen RUNPATH
+`$ORIGIN/../lib:$ORIGIN/../lib/mojo`; `scripts/configure_mojo_runtime.sh` füllt den
+projektrelativen Ort `target/lib/mojo`, und `bin/mojo-runtime-exec` kann auch
+ältere Binaries über `LD_LIBRARY_PATH` starten. Das betrifft die Modular-
+Laufzeitbibliotheken, nicht die CSV-Dateien. Gleichzeitig ist der rohe
+HTML-/BBCode-Serializer von `--nocolor` einschließlich signifikanter
+Leerraumläufe, Einzel- und Nullbreiten nativ. Details:
+[`STAGE12C4L_PORTABLE_RUNTIME_RAW_MARKUP.md`](STAGE12C4L_PORTABLE_RUNTIME_RAW_MARKUP.md).
+
+
+Stage 12c4m trennt Quellbaum, private Laufzeit und unveränderliche Daten nach
+FHS. CSV-Dateien liegen je nach `PREFIX` unter `share/reta/csv`; der alte
+Python-Referenzbaum ist kein Bestandteil der nativen Standardinstallation mehr.
+Er bleibt normalerweise im Quellbaum und wird nur mit dem expliziten
+`install-reference`-/`--reference`-Sonderfall nach
+`share/reta/python_reference` kopiert. `DESTDIR`, `/usr`, `/usr/local`,
+`$HOME/.local` und Fedora-`libexec` sind getestet. Details:
+[`STAGE12C4M_FHS_RESOURCE_INSTALLATION.md`](STAGE12C4M_FHS_RESOURCE_INSTALLATION.md).
+
+Stage 12c4n korrigiert den vollständigen nativen `--alles`-Plan von 863 auf die
+807 Referenzspalten. Unmögliche Bruchkoordinaten werden anhand der realen
+CSV-Form verworfen, `PrimCSV` steht wieder an der historischen Position und
+die semantischen HTML-Metadaten umfassen 1.626 deutsch/englische Einträge.
+Die vollständige Ein-Zeilen-Ausgabe von `generate_html` ist deutsch und
+englisch bytegleich. Details:
+[`STAGE12C4N_ALL_COLUMNS_HTML_PARITY.md`](STAGE12C4N_ALL_COLUMNS_HTML_PARITY.md).
+
+
+Stage 12c4o übernimmt individuelle `--breiten`/`--widths` nun auch für CSV,
+Markdown und Emacs/Org. Der gemeinsame flache Zeilenexpander reproduziert
+Fortsetzungsnummerierung, wiederholte Überschriftentrenner, explizite
+Nullbreiten und die seltenen CSV-Leerraumbytes des Python-`textwrap`-/Rich-
+Pfads. Dreizehn deutsche und englische Referenzströme sind byteidentisch; zusätzlich sind unnummerierte CSV-Ströme mit den zwei historischen leeren Strukturfeldern (`;;`) abgesichert. Details:
+[`STAGE12C4O_NATIVE_FLAT_COLUMN_WIDTHS.md`](STAGE12C4O_NATIVE_FLAT_COLUMN_WIDTHS.md).
+
+Stage 12c4p übernimmt die dokumentierten Python-artigen Ganzzahlausdrücke in
+Zeilenbereichen sicher nativ. Ein endlicher Mojo-Parser unterstützt
+Ganzzahlarithmetik, Listen/Mengen/Tupel und einvariable Comprehensions über
+`range`; beliebiger Python-Code, Gleitkomma- und komplexere
+Comprehensionsyntax bleibt atomarer Referenzfallback. Sechs reale Tabellenströme
+sind bytegleich. Details:
+[`STAGE12C4P_NATIVE_INTEGER_EXPRESSIONS.md`](STAGE12C4P_NATIVE_INTEGER_EXPRESSIONS.md).
+
+Stage 12c4q übernimmt die Start-, Sprach- und Hilfeoberfläche vor der
+Tabellenplanung nativ. Leerer Aufruf, reine Sprachwahl und die vollständigen
+deutschen/englischen Hilfetexte sind bytegleich, ohne Python-Kindprozess. Der
+Ownership-Prüfer weist reine Hauptparameter ohne Nebenoption zurück, sodass
+`-language=english` oder `-zeilen` nicht mehr fälschlich die Standardtabelle
+ausgeben. Details:
+[`STAGE12C4Q_NATIVE_CLI_STARTUP_HELP.md`](STAGE12C4Q_NATIVE_CLI_STARTUP_HELP.md).
+
+## Fehlerkatalog und bewusste Referenzabweichungen
+
+Während der Transpilierung bleibt `python_reference` grundsätzlich als reproduzierbare historische Referenz eingefroren. Bestätigte Fehler des Originals werden nicht vergessen und nicht als scheinbare Parität behandelt. Sie stehen mit Reproduktion, Quellorten, Mojo-Vertrag und späterem Python-Arbeitsauftrag in [`KNOWN_DEFECTS.md`](KNOWN_DEFECTS.md); die maßgebliche Quelle ist `KNOWN_DEFECTS.json`. Die daraus erzeugte [`PYTHON_CLEANUP_BACKLOG.md`](PYTHON_CLEANUP_BACKLOG.md) ist die konkrete Arbeitsliste für die spätere Python-/PyPy3-Bereinigungsphase.
+
+Prüfen beziehungsweise neu erzeugen:
+
+```bash
+python3 tools/check_known_defects.py --write
+python3 tools/check_known_defects.py
+python3 -m pytest -q tests/test_known_defects.py
+```
+
+Stage 12c4r nutzt diesen Prozess erstmals für eine absichtliche Korrektur gegenüber dem Original: `rpb 'universum v2/3'` stürzt in Python mit `IndexError` ab, während Mojo ein an der realen Bruch-CSV-Form begrenztes Zähler×Nenner-Raster erzeugt. Details: [`STAGE12C4R_DEFECT_LEDGER_FRACTION_MULTIPLES.md`](STAGE12C4R_DEFECT_LEDGER_FRACTION_MULTIPLES.md).
+
+Stage 12c4s hat den Katalog rückwirkend gegen die bisherigen Migrations- und Testberichte geprüft. Er umfasst nun 35 bekannte Befunde; zwölf davon bilden den späteren Python-/PyPy3-Bereinigungsrückstand. `-debug` und `-nichts`/`-nothing` werden nativ behandelt, ohne `-nichts` mit dem echten stillen Renderer `--art=nichts` zu verwechseln. Details: [`STAGE12C4S_DEFECT_BACKFILL_NATIVE_CONTROL_MAINS.md`](STAGE12C4S_DEFECT_BACKFILL_NATIVE_CONTROL_MAINS.md).
+
+Stage 12c4t portiert die allgemeine Wortvervollständigung aus `reta_architecture/completion_word.py` sowie die historische `word_completerAlx`-Fassade. UTF-8-Bytecursor, Unicode-skalare Startpositionen, `WORD`-/Satzmodus, Middle-Match, besitzender Completer, erneuerbare Wortquellen, Muster-Präfixadapter und dekorierte Anzeige-/Metadaten sind nativ; fünf Unit-Tests und zehn byteidentische Python↔Mojo-Proben bestehen. Der Katalog enthält nun 37 Befunde und 13 spätere Python-/PyPy3-Arbeitspunkte. `PY-CAND-007` dokumentiert die vom Original geerbte ASCII-/Unicode-Trennung innerhalb deutscher Wörter. Details: [`STAGE12C4T_NATIVE_WORD_COMPLETION.md`](STAGE12C4T_NATIVE_WORD_COMPLETION.md).
+## Stage 12c5bd – Prägarbenvererbung und reziproke Bruchkollision
+
+Eine Sprachrestriktion ist in der Prägarbe eine Verfeinerung, kein Dateinamensfilter. `language=cn` übernimmt deshalb sowohl 16 explizite `cn-*`-CSV-Sektionen als auch 16 sprachneutrale CSV-Sektionen; alle 32 Resultate tragen anschließend `cn` im Kontext.
+
+Der historische Python-Absturzfall mit globalem Vielfachenwort, `universum v 1/4,-1/8,2/3`, wird nativ in zwei unabhängige Achsen zerlegt: Vielfache von vier unterhalb 1024 abzüglich der Vielfachen von acht sowie das reale Universum-Bruchrechteck für `2/3`. Der globale Plan besitzt 13 Aufrufe und benötigt keinen Python-Kindprozess. Die spätere Stage 12c5bq trennt diese Form ausdrücklich vom kommalokalen Präfix in `v1/4,-1/8,2/3`. Details: [`STAGE12C5BD_PRESHEAF_INHERITANCE_RECIPROCAL_COLLISION.md`](STAGE12C5BD_PRESHEAF_INHERITANCE_RECIPROCAL_COLLISION.md).
+
+## Stage 12c5be – Workflow-Ressourcenbesitz und Rich-Output-Gluing
+
+Der vollständige Benutzerlauf deckte zwei bislang vom fokussierten Test
+verdeckte Workflow-Lücken auf. `ProgramWorkflowBundle.repo_root` ist nun ein
+echter Besitzerwert: konkrete Roots laden `root/csv/basename`, während `.` und
+leere Roots weiterhin den portablen FHS-/Umgebungsresolver verwenden. Der
+UTF-8-Fixturetest benötigt deshalb kein externes `RETA_DATA_DIR` mehr.
+
+Außerdem teilen Religion-Zelldekodierung, Tabellengenerierung und Renderer jetzt
+einen kanonischen Rich-Modus. Ein direkt erkanntes `--art=html` oder
+`--art=bbcode` kann nicht mehr gleichzeitig mit einem `shell`-Plan weiterlaufen;
+BBCode behält bei beiden Argumenten die historische Priorität. Details:
+[`STAGE12C5BE_WORKFLOW_ROOT_OUTPUT_MODE_FULL_SUITE.md`](STAGE12C5BE_WORKFLOW_ROOT_OUTPUT_MODE_FULL_SUITE.md).
+
+## Stage 12c5bf – domänenspezifische Mehrfachpläne für Bruchvielfache
+
+Die vier realen Bruch-CSV-Familien besitzen unterschiedliche Formen und werden deshalb nicht mehr über ein gemeinsames Rechteck approximiert. `universum motive v2/3` wird in 13 Galaxie- und 13 Universumsaufrufe zerlegt; der Vierdomänenfall erzeugt 44 geordnete Aufrufe. Gemischte Reziprokachsen bleiben unter 1024, während jede echte Bruchachse an ihrer eigenen physischen CSV-Form endet. Unbewiesene Mischungen mit weiteren Tabellenfamilien oder Ganzzahlen bleiben atomar. Details: [`STAGE12C5BF_MULTI_DOMAIN_FRACTION_PLANS.md`](STAGE12C5BF_MULTI_DOMAIN_FRACTION_PLANS.md).
+
+## Stage 12c5bg – deterministische Kommandoassets und positive Ganzzahlachsen
+
+Der vollständige Benutzerbuild von 12c5bf war erfolgreich; die historische
+Stage-Kette legte anschließend eine umgebungsabhängige Assetgrenze offen.
+Markdown- und HTML-Referenzausgaben werden jetzt mit einem kleinen
+repositoryeigenen Rich-Kompatibilitätsadapter erzeugt, sodass installierte
+Rich-Versionen und Benutzer-Site-Packages die vier kanonischen Kommandoassets
+nicht mehr verändern.
+
+Außerdem komponiert der native Promptplan positive gewöhnliche Ganzzahlen und
+Bereiche korrekt mit echten Bruchvielfachen. Projektionen aus dem
+Bruchrechteck, Originalausdruck und `v`-Ausdruck bleiben getrennte Achsen;
+`--vielfachevonzahlen` erhält ausschließlich die gewöhnliche Ganzzahlachse.
+Null- und Ausschlussformen bleiben bis zu einem eigenen Vertrag atomar.
+Details:
+[`STAGE12C5BG_DETERMINISTIC_COMMAND_PARITY_INTEGER_FRACTION_AXES.md`](STAGE12C5BG_DETERMINISTIC_COMMAND_PARITY_INTEGER_FRACTION_AXES.md).
+
+## Stage 12c5bj – interpreterunabhängige Kommando-Paritätsprüfung
+
+Die vier nativen Kommando-Referenzausgaben und ihr TSV-Manifest sind nun als fünf feste SHA-256-Verträge gepinnt. `tools/generate_command_parity_assets.py --check` ist read-only und führt weder CPython noch den Python-Renderer aus. Für eine bewusste Diagnose der aktuellen Python-Referenz gibt es getrennt `--check-reference`. Dadurch blockieren Unterschiede zwischen CPython 3.13 und 3.14 den Stage-Lauf nicht mehr und Tests verändern keine versionierten Assets. Details: [`STAGE12C5BJ_PINNED_COMMAND_PARITY_ASSETS.md`](STAGE12C5BJ_PINNED_COMMAND_PARITY_ASSETS.md).
+
+Stage 12c5bj prüft den Bruchteilerpfad zusätzlich mit einem echten Mojo-Probe;
+die von `range_to_numbers` gelieferte Menge wird vor dem List-basierten
+Divisorreihenfolgehelfer explizit materialisiert.
+
+## Stage 12c5bk – hermetische Parität und vollständige Bruchachsen-Grenzen
+
+Der native Kommando-Paritätsprüfer bindet seine CSV-, Asset- und Referenzpfade nun zwingend an den Repository-Stand. Installierte `RETA_SHARE_DIR`- oder `RETA_DATA_DIR`-Werte können einen Source-Test daher nicht mehr mit fremden Daten ausführen. Echte Abweichungen zeigen zusätzlich die erste unterschiedliche Zeichenposition.
+
+Im Promptplaner aktiviert ein reines echtes Bruchvielfaches keine klassischen Ganzzahlfamilien mehr über seine projizierten Ganzzeilen. Außerdem bewahrt der `teiler`-Zweig die historische äußere Zeile `1` vor nichttrivialen Divisoren. Details: [`STAGE12C5BK_HERMETIC_PARITY_CLASSIC_FRACTION_GUARDS.md`](STAGE12C5BK_HERMETIC_PARITY_CLASSIC_FRACTION_GUARDS.md).
+
+### Inkrementelle Mojo-Testbuilds
+
+```sh
+scripts/build-tests.sh --heavy -- -j 4   # baut nur veraltete Testbinaries
+scripts/run-tests.sh --jobs 4
+```
+
+Für einen bewusst vollständigen Neuaufbau:
+
+```sh
+scripts/test_all.sh --rebuild-all --heavy --run-jobs 4 -- -j 4
+```
+
+## Stage 12c5bl
+
+Klassische Ganzzahltabellen können jetzt mit einer expliziten gewöhnlichen
+Achse neben mehreren korrigierten Bruchdomänen vollständig nativ geplant
+werden. Thomas läuft vor den Domänen; Mond, Alles, Primzahlkreuz und Richtung
+folgen danach. Die klassische Achse verwendet die geordnete Vereinigung der
+domänenspezifischen Ganzprojektionen. Außerdem ist die repräsentative native
+Kommando-Parität nun vollständig TTY-unabhängig: stdin ist abgetrennt und die
+Referenzgeometrie fest 80×24. Details stehen in
+`STAGE12C5BL_CLASSIC_INTEGER_MULTI_DOMAIN_COMPOSITION.md`.
+
+## Stage 12c5bm – Mehrdomänen-Eigenschafts- und Katalogachsen
+
+Korrigierte echte Bruchvielfache über mehrere physische CSV-Domänen können nun
+mit `EIGN…`-/`EIGR…`-Eigenschaftsselektionen und numerischen 16-/15-Katalogkürzeln
+komponiert werden. Jede physische Familie behält ihr eigenes Rechteck; nur die
+äußeren Ganzzahl- und Reziprokprojektionen werden in Domänenreihenfolge vereinigt.
+
+Die feste Ausführungsordnung lautet: Emotion/Größe/Motive, EIGN/EIGR, Universum,
+anschließend numerische Familie 16 vor 15. Eine explizite gewöhnliche
+Ganzzahlachse wird genau einmal angehängt. Die noch nicht separat bewiesene
+Mischung derselben Erweiterungen mit klassischen Ganzzahltabellen bleibt
+atomarer Fallback.
+
+Der positive Ausschlussfall `universum v1/4,-2/3` wird in der Referenzprüfung
+nun direkt an der ersetzten `retaExecuteNprint`-Grenze beobachtet; gerenderte
+Python-Tabellen und lokalisierte Ankündigungen sind kein Planvertrag mehr.
+
+Fokussierter Lauf:
+
+```bash
+RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bm.sh -- -j 4
+```
+
+## Stage 12c5bn – kombinierte äußere Tabellenachsen
+
+Die bisher getrennt bewiesenen Mehrdomänenverträge sind nun gemeinsam aktiv.
+Klassische Ganzzahlfamilien, `EIGN…`/`EIGR…` und numerische 16/15-Katalogachsen
+können in einem einzigen korrigierten echten Bruchvielfachplan auftreten. Die
+feste Ordnung lautet Thomas vor den physischen Blöcken, EIGN/EIGR zwischen
+Motive und Universum, danach Mond, Alles, Primzahlkreuz und Richtung sowie zum
+Schluss Familie 16 vor 15.
+
+Der vollständige Motive-/Universum-Fall besitzt 34 Aufrufe, mit zusätzlichem
+EIGR 35. Die Python-Referenz dient nur als Beleg der äußeren Zweigreihenfolge;
+ihre bekannte gemeinsame n/m-Rechteckbildung wird nicht übernommen. Details:
+[`STAGE12C5BN_COMBINED_OUTER_AXES.md`](STAGE12C5BN_COMBINED_OUTER_AXES.md).
+
+## Stage 12c5bo – kanonische Emotion-Option im Probevertrag
+
+Der Benutzerlauf bestätigte den vollständigen nativen Build und fand danach
+einen reinen Prüfstandsfehler: Der native Plan verwendet korrekt
+`--grundstrukturen=emotion`, während der Python-Prüfer noch die historische
+Referenzschreibweise `--Grundstrukturen=emotion` verlangte. Referenz-argv und
+nativer kanonischer Parameter werden nun getrennt geprüft; Produktions-Mojo
+blieb unverändert. Details:
+[`STAGE12C5BO_CANONICAL_EMOTION_OPTION_CHECK.md`](STAGE12C5BO_CANONICAL_EMOTION_OPTION_CHECK.md).
+
+Fokussierter Lauf:
+
+```sh
+RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bo.sh -- -j 4
+```
+
+## Stage 12c5bp – korrigierter historischer Zwischenstand
+
+12c5bp machte die fehlende Trennung lokaler und globaler Vielfachenschreibweisen
+sichtbar, verallgemeinerte das kompakte Präfix zunächst jedoch zu weit. Dieser
+Zwischenstand ist in
+[`STAGE12C5BP_FRACTION_MULTIPLE_SCOPE.md`](STAGE12C5BP_FRACTION_MULTIPLE_SCOPE.md)
+als durch 12c5bq korrigiert markiert.
+
+## Stage 12c5bq – kommalokales Präfix und positionsunabhängiges globales v
+
+Der Python-Code behandelt `v` in zwei klar getrennten Rollen. Ein direkt an
+eine Kommakomponente angeheftetes Präfix ist lokal: `v1/4,-1/8,2/3` markiert
+nur `1/4`. Ein eigenständiges Wort `v` oder `vielfache` gilt dagegen global
+und darf vor, zwischen oder nach den übrigen Befehlswörtern stehen.
+
+Der native Parser bildet diese Grammatik jetzt direkt ab. Der lokale
+Universums-Kollisionsplan besitzt 2 Aufrufe, der globale 13; Emotion plus
+Universum besitzt lokal 4 und global 19 Aufrufe. Eine ausführbare
+Python-Referenzprobe bindet sowohl Kommalokalität als auch Positionsfreiheit.
+Details:
+[`STAGE12C5BQ_POSITION_INDEPENDENT_MULTIPLE_SCOPE.md`](STAGE12C5BQ_POSITION_INDEPENDENT_MULTIPLE_SCOPE.md).
+
+Fokussierter Lauf nach dem Produktionsbuild:
+
+```sh
+RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bq.sh -- -j 4
+```
+
+## Stage 12c5br – vollständige Prompt-Ausgabeparameter
+
+Der Tabellenplaner und der native Renderer besaßen bereits die komplette
+Ausgabeoberfläche, während der atomare Eigentumsbeweis nur sieben Namen
+freigab. Nun sind alle 13 kanonischen Optionen einschließlich `--justtext`,
+`--onetable`, `--endlessscreen`, `--endless`, `--dontwrap` und `--breiten`
+nativ; alle fünf Sprachkataloge ergeben zusammen 65 gebundene Aliasnamen.
+
+Python filtert diese Parameter erst nach `list(set(...))` über den gesamten
+vorbereiteten Promptvektor. Der native Plan reproduziert deshalb die
+CPython-kompatible Gesamtmengenordnung und entfernt Duplikate, statt bloß die
+Quellreihenfolge der Parameter zu übernehmen. Details:
+[`STAGE12C5BR_COMPLETE_PROMPT_OUTPUT_PARAMETERS.md`](STAGE12C5BR_COMPLETE_PROMPT_OUTPUT_PARAMETERS.md).
+
+Der aktuelle Stage-Test bindet außerdem die aus dem realen 12c5bq-Gesamtlauf
+gefundenen veralteten Bruchassertions, die modulgeprüfte Brotli-Pythonwahl und
+die race-sichere Cachebereinigung.
+
+Fokussierter Lauf nach dem Produktionsbuild:
+
+```sh
+RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5br.sh -- -j 8
+```
+
+
+## Stage 12c5bs – positionsunabhängige Prompt-Begleiteffekte
+
+Die historische `abc`-Kurzform wird bei genau zwei Wörtern unabhängig von der
+Position erkannt: `abc Haus` und `Haus abc` besitzen denselben nativen
+`abc_line`-Plan, während der ursprüngliche Rohtext unverändert bleibt.
+
+`loggen` und `nichtloggen` sind außerdem keine isolierten Vorabkommandos, wenn
+sie einen nativen Tabellen- oder `mulpri`-Plan begleiten. Sie dürfen vor,
+zwischen oder nach dessen Tokens stehen und verändern den Sitzungszustand erst
+nach erfolgreicher nativer Ausführung. Bei gleichzeitigem Auftreten gewinnt
+entsprechend dem Python-`if/elif` stets `loggen`. Details:
+[`STAGE12C5BS_POSITION_INDEPENDENT_PROMPT_EFFECTS.md`](STAGE12C5BS_POSITION_INDEPENDENT_PROMPT_EFFECTS.md).
+
+Der Stage-Test bindet zusätzlich die korrigierte direkte Ausführung des
+komponentenlokalen `v1/4,-1/8,2/3` an genau zwei Aufrufe.
+
+```sh
+RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bs.sh -- -j 8
+```
+
+
+## Stage 12c5bt – Informations-Begleiteffekte
+
+Die historischen Informationswörter `kurzbefehle`, `befehle` und
+`h`/`help`/`hilfe` sind nun positionsunabhängige Begleiteffekte eines nativen
+Tabellen- oder `mulpri`-Plans. Sie werden erst nach vollständigem atomarem
+Eigentumsbeweis, aber in der Python-Reihenfolge Kurzbefehle → Befehle → Hilfe
+vor der Tabellenwirkung ausgegeben. Das terminalabhängige zusammengesetzte `leeren` blieb in dieser Stage noch am
+Kompatibilitätsrand und wird in Stage 12c5bu nativ geschlossen. Scheitert der vollständige
+Eigentumsbeweis eines erkannten Tabellen-/`mulpri`-Kandidaten, erfolgt der
+Fallback nun vor jedem Einzelbefehlsdispatch atomar und ohne Teilwirkung.
+
+Der Stage-Test bindet außerdem die zwei aus dem vollständigen 12c5bs-Lauf
+gefundenen veralteten Tabellenassertions in einem kleinen fokussierten
+Mojo-Test. Details:
+[`STAGE12C5BT_INFORMATIONAL_PROMPT_COMPANION_EFFECTS.md`](STAGE12C5BT_INFORMATIONAL_PROMPT_COMPANION_EFFECTS.md).
+
+```sh
+RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bt.sh -- -j 8
+```
+
+## Stage 12c5bu – natives zusammengesetztes `leeren`
+
+`leeren` beziehungsweise `clear` ist nun auch als positionsunabhängiger
+Begleiteffekt eines vollständig nativen Tabellen- oder `mulpri`-Plans besessen.
+Der Controller gibt nach Kurzbefehlen, Befehlen und Hilfe, aber vor der Tabelle,
+exakt `Terminalzeilen + 1` Leerzeilen aus. Die Höhe wird über
+`ioctl(TIOCGWINSZ)`, danach `LINES` und schließlich 24 bestimmt.
+
+Das alleinstehende `leeren` bleibt ein getrennter ANSI-Clear-Befehl. Der erste
+12c5bt-Benutzerlauf zeigte außerdem einen Testcompilerfehler; Struct-Gleichheit
+wird nun über den vorhandenen `Equatable`-Operator statt über das zusätzlich
+`Writable` verlangende `assert_equal` geprüft. Details:
+[`STAGE12C5BU_NATIVE_COMPOUND_CLEAR.md`](STAGE12C5BU_NATIVE_COMPOUND_CLEAR.md).
+
+```sh
+RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bu.sh -- -j 8
+```
+
+## Stage 12c5bv – positionsunabhängige Speicherung
+
+Zusammengesetzte Speicherbefehle wie `emotion S 1` und `emotion 1 s` werden nun vollständig nativ verarbeitet: Der Alias wird entfernt, der übrige Prompt gespeichert und nicht ausgeführt. Mehrere unterschiedliche Speicheraliase, reine Speicherwortfolgen und `abc`/`abcd` verbleiben atomar am Kompatibilitätsrand. Zusätzlich sind die Mond-/Sonnenreferenz und terminalbreitenabhängige Shell-Renderer-Tests deterministisch gebunden.
+
+```sh
+RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bv.sh -- -j 8
+```
+
+## Stage 12c5bw – Verlaufseigentum der Inline-Speicherung
+
+Die in 12c5bv geschlossene positionsunabhängige `S`-/`s`-Speicherung besitzt
+nun auch ihre vollständige Verlaufswirkung. Eine bereits konsumierte
+Speicherzeile wie `emotion S 1` oder `emotion 1 s` darf nicht nachträglich als
+letzter ausführbarer Befehl registriert werden; ein späteres alleinstehendes
+`s` speichert dadurch weiterhin das tatsächlich zuletzt ausgeführte Kommando.
+
+Die Entscheidung liegt in `prompt_interaction.mojo`: Der balanciert zerlegte
+physische Prompt wird gegen denselben reinen Speicherplan geprüft, bevor die
+kindbasierte Previous-Command-Policy greift. Eine Python-Referenzprobe bindet
+vier Aliaspositionen und den `continue`-Übergang vor `_execute`. Details:
+[`STAGE12C5BW_INLINE_STORAGE_HISTORY_OWNERSHIP.md`](STAGE12C5BW_INLINE_STORAGE_HISTORY_OWNERSHIP.md).
+
+```sh
+RETA_STAGE_SKIP_PREVIOUS=1 scripts/test_stage12c5bw.sh -- -j 8
+```
