@@ -410,18 +410,20 @@ den Präfix `/usr/local`:
 DESTDIR="$pkgdir" PREFIX=/usr/local ./scripts/install.sh
 ```
 
-Dann liegen die Tabellen unter `/usr/local/share/reta/csv`. Der installierte
-Python-Referenz-/Kompatibilitätsbaum liegt unter
-`/usr/local/share/reta/python_reference`; im alten privaten Library-Ordner
+Dann liegen die Tabellen unter `/usr/local/share/reta/csv`. Der alte
+Python-Referenz-/Kompatibilitätsbaum wird in den nativen Profilen nicht mehr
+mitinstalliert; `python_reference` bleibt standardmäßig Quell-, Test- und
+Portierungsmaterial im Projektbaum. Nur der explizite Sonderfall
+`scripts/install.sh --reference` kopiert ihn nach
+`/usr/local/share/reta/python_reference`. Im alten privaten Library-Ordner
 `/usr/local/lib/reta` wird nichts Neues mehr abgelegt; `python_reference`,
 private `bin/`- und `scripts/`-Verzeichnisse werden dort entfernt.
 Öffentliche Befehle und Wrapper liegen direkt unter `/usr/local/bin`; echte
 Shared Libraries und die optionale Mojo-Laufzeit liegen flach unter
 `/usr/local/lib`. Die privaten ELFs werden nicht mehr per Wildcard kopiert,
 sondern ausschließlich aus der Ziel-Allowlist `scripts/install_targets.txt`;
-dadurch gelangen keine lokalen Alt-/Debugziele ins Paket. Der
-Python-Kompatibilitätsbaum liegt physisch unter `share/reta/python_reference`;
-installierte Symlink-Depots werden vermieden.
+dadurch gelangen keine lokalen Alt-/Debugziele ins Paket. Installierte
+Symlink-Depots werden vermieden.
 
 Benutzerinstallation ohne Administratorrechte:
 
@@ -1027,15 +1029,21 @@ Wenn diese Anzeige und der Doctor grün sind, ist Punkt 4 abgeschlossen und der
 nächste Hauptschritt ist die ABI-/Shared-Library-Stabilisierung.
 
 
-### Installationsprofile standard, zusatz und all
+### Installationsprofile standard, zusatz, all und reference
 
-Der Installer besitzt drei Profile. Ohne Option gilt `standard`:
+Der Installer besitzt drei native Profile plus einen getrennten
+Referenz-Sonderfall. Ohne Option gilt `standard`:
 
 ```text
-standard  reta, rp, rpl, rpe, rpb, generate_html, grundStrukHtml
-zusatz    standard + reguläre Entwickler-/Diagnosebefehle
-all       standard + zusatz + schwere Architektur-/Stage-Diagnosen
+standard   reta, rp, rpl, rpe, rpb, generate_html, grundStrukHtml
+zusatz     standard + reguläre Entwickler-/Diagnosebefehle
+all        standard + zusatz + schwere Architektur-/Stage-Diagnosen
+reference  nur alter Python-Referenzbaum für Paritäts-/Debugarbeit
 ```
+
+`standard`, `zusatz` und `all` installieren `python_reference` bewusst nicht.
+Wer die alte Referenz zusätzlich braucht, installiert sie getrennt mit
+`--reference` nach dem gewünschten nativen Profil.
 
 Shell:
 
@@ -1043,9 +1051,11 @@ Shell:
 sudo ./scripts/install.sh              # standard
 sudo ./scripts/install.sh --zusatz
 sudo ./scripts/install.sh --all
+sudo ./scripts/install.sh --reference  # optional, nur alte Python-Referenz
 sudo ./scripts/uninstall.sh --standard
 sudo ./scripts/uninstall.sh --zusatz
-sudo ./scripts/uninstall.sh --all      # auch Default
+sudo ./scripts/uninstall.sh --all      # auch Default, entfernt auch Referenz
+sudo ./scripts/uninstall.sh --reference
 ```
 
 Pixi bleibt für Build/Tasksteuerung Benutzerprozess. Für `/usr/local` wird nicht
@@ -1062,7 +1072,9 @@ Für Benutzerprefix ohne root sind die Pixi-Profile direkt nutzbar:
 PREFIX="$HOME/.local" pixi run install
 PREFIX="$HOME/.local" pixi run install-zusatz
 PREFIX="$HOME/.local" pixi run install-all
+PREFIX="$HOME/.local" pixi run install-reference
 PREFIX="$HOME/.local" pixi run uninstall-all
+PREFIX="$HOME/.local" pixi run uninstall-reference
 ```
 
 CMake:
@@ -1071,8 +1083,12 @@ CMake:
 sudo cmake --install build                         # standard
 sudo cmake --build build --target reta-install-zusatz
 sudo cmake --build build --target reta-install-all
+sudo cmake --build build --target reta-install-reference
 sudo cmake --build build --target reta-uninstall-all
+sudo cmake --build build --target reta-uninstall-reference
 ```
 
 Alle Shared Libraries liegen flach unter `PREFIX/lib`; ausführbare Dateien liegen
 nur unter `PREFIX/bin`. `lib/reta` ist nur noch Legacy-Cleanup.
+`python_reference` ist kein Bestandteil der nativen Installation mehr und wird
+nur bei `install-reference` als nicht ausführbares Datenmaterial kopiert.

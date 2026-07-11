@@ -14,9 +14,11 @@ Tasks:
   install | install-standard
   install-zusatz
   install-all
+  install-reference
   uninstall | uninstall-all
   uninstall-standard
   uninstall-zusatz
+  uninstall-reference
   check-install-layout
   check-manpages
   install-layout
@@ -68,6 +70,9 @@ case $TASK in
     install-all)
         run_install_profile all
         ;;
+    install-reference)
+        run_install_profile reference
+        ;;
     uninstall|uninstall-all)
         run_uninstall_profile all
         ;;
@@ -76,6 +81,9 @@ case $TASK in
         ;;
     uninstall-zusatz)
         run_uninstall_profile zusatz
+        ;;
+    uninstall-reference)
+        run_uninstall_profile reference
         ;;
     check-install-layout)
         reta_exec_or_print env PREFIX="$PREFIX" BINDIR="$BINDIR" LIBDIR="$LIBDIR" LIBEXECDIR="$LIBEXECDIR" DATADIR="$DATADIR" REFERENCEDIR="$REFERENCEDIR" MANDIR="$MANDIR" "$ROOT/scripts/check_install_layout.sh"

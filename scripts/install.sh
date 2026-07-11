@@ -14,13 +14,19 @@ INSTALL_PROFILE=${RETA_INSTALL_PROFILE:-standard}
 
 usage() {
     cat <<'USAGE'
-Verwendung: scripts/install.sh [--standard|--zusatz|--all]
+Verwendung: scripts/install.sh [--standard|--zusatz|--all|--reference]
 
 Installationsprofile:
   --standard   Nur öffentliche Nutzerbefehle: reta, rp, rpl, rpe, rpb,
                generate_html, grundStrukHtml. Dies ist der Default.
   --zusatz     Standard + reguläre Entwickler-/Diagnosebefehle.
   --all        Standard + Zusatz + schwere Architektur-/Stage-Diagnosen.
+  --reference  Nur den alten Python-Referenzbaum als explizites Debug-/
+               Paritätsmaterial unter share/reta/python_reference installieren.
+
+standard, zusatz und all installieren python_reference bewusst nicht. Wer die
+Python-Referenz zusätzlich will, führt --reference nach dem gewünschten
+Nativprofil aus.
 
 PREFIX, DESTDIR, BINDIR, LIBDIR, DATADIR, REFERENCEDIR und MANDIR können wie
 bisher per Umgebung gesetzt werden.
@@ -31,6 +37,7 @@ case ${1:-} in
     --standard) INSTALL_PROFILE=standard; shift ;;
     --zusatz|--diagnostics) INSTALL_PROFILE=zusatz; shift ;;
     --all|--alles) INSTALL_PROFILE=all; shift ;;
+    --reference|--python-reference) INSTALL_PROFILE=reference; shift ;;
     -h|--help) usage; exit 0 ;;
 esac
 [ "$#" -eq 0 ] || { usage >&2; exit 2; }
@@ -87,6 +94,37 @@ STAGE_DATADIR=$(stage_path "$DATADIR")
 STAGE_REFERENCEDIR=$(stage_path "$REFERENCEDIR")
 STAGE_MANDIR=$(stage_path "$MANDIR")
 
+install_reference_tree() {
+    install -d "$STAGE_DATADIR"
+    rm -rf "$STAGE_LIBEXECDIR/python_reference" "$STAGE_REFERENCEDIR"
+    install -d "$(dirname -- "$STAGE_REFERENCEDIR")"
+    cp -aL "$ROOT/python_reference" "$STAGE_REFERENCEDIR"
+    find "$STAGE_REFERENCEDIR" -type d -name __pycache__ -prune -exec rm -rf {} + 2>/dev/null || true
+    find "$STAGE_REFERENCEDIR" -type f \( -name '*.pyc' -o -name '*.pyo' \) -delete 2>/dev/null || true
+    # The reference tree is installed as data, not as another command depot.
+    find "$STAGE_REFERENCEDIR" -type f -perm /111 -exec chmod a-x {} + 2>/dev/null || true
+    if find "$STAGE_REFERENCEDIR" -type l 2>/dev/null | grep -q .; then
+        printf '%s\n' 'Fehler: Python-Referenz darf keine Symlinks installieren.' >&2
+        exit 3
+    fi
+    cat > "$STAGE_DATADIR/PYTHON_REFERENCE_LAYOUT" <<LAYOUT
+prefix=$PREFIX
+install_profile=reference
+datadir=$DATADIR
+referencedir=$REFERENCEDIR
+python_reference_installed=1
+LAYOUT
+}
+
+if [ "$INSTALL_PROFILE" = reference ]; then
+    install_reference_tree
+    printf 'Reta Python-Referenz installiert: %s\n' "$REFERENCEDIR"
+    if [ -n "$DESTDIR" ]; then
+        printf '  Paketwurzel:        %s\n' "$DESTDIR"
+    fi
+    exit 0
+fi
+
 install -d "$STAGE_BINDIR" "$STAGE_LIBDIR" \
     "$STAGE_DATADIR/csv" "$STAGE_DATADIR/assets" \
     "$STAGE_MANDIR/man1"
@@ -116,13 +154,11 @@ done
 cp -aL "$ROOT/python_reference/csv/." "$STAGE_DATADIR/csv/"
 cp -aL "$ROOT/assets/." "$STAGE_DATADIR/assets/"
 
-# Keep the Python reference tree out of lib/reta. It is architecture-independent
-# reference/compatibility material, so its installed home is share/reta. Do not
-# replace subtrees by symlinks.
+# The old Python reference tree is not runtime material for native installs.
+# Keep standard/zusatz/all exact and remove leftovers from older installs; use
+# scripts/install.sh --reference for explicit parity/debug reference material.
 rm -rf "$STAGE_LIBEXECDIR/python_reference" "$STAGE_REFERENCEDIR"
-cp -aL "$ROOT/python_reference" "$STAGE_REFERENCEDIR"
-find "$STAGE_REFERENCEDIR" -type d -name __pycache__ -prune -exec rm -rf {} + 2>/dev/null || true
-find "$STAGE_REFERENCEDIR" -type f \( -name '*.pyc' -o -name '*.pyo' \) -delete 2>/dev/null || true
+rm -f "$STAGE_DATADIR/PYTHON_REFERENCE_LAYOUT"
 
 # Legacy private install trees are no longer used.
 rm -rf "$STAGE_LIBEXECDIR/assets" \
@@ -272,6 +308,7 @@ datadir=$DATADIR
 csvdir=$DATADIR/csv
 assetdir=$DATADIR/assets
 referencedir=$REFERENCEDIR
+python_reference_installed=0
 mandir=$MANDIR
 installed_public_commands=reta,rp,rpl,rpe,rpb,generate_html,grundStrukHtml
 installed_commands=$INSTALLED_COMMANDS

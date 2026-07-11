@@ -48,14 +48,20 @@ def test_pixi_and_cmake_expose_manpage_checks() -> None:
 
     assert 'check-manpages = "scripts/run_install_task.sh check-manpages"' in pixi
     assert 'install-zusatz = "scripts/run_install_task.sh install-zusatz"' in pixi
+    assert 'install-reference = "scripts/run_install_task.sh install-reference"' in pixi
     assert 'uninstall-all = "scripts/run_install_task.sh uninstall-all"' in pixi
+    assert 'uninstall-reference = "scripts/run_install_task.sh uninstall-reference"' in pixi
     assert 'cmake-check-manpages = "cmake --build build --target reta-check-manpages"' in pixi
     assert "reta-check-manpages" in cmake
     assert "reta-install-zusatz" in cmake
+    assert "reta-install-reference" in cmake
     assert "reta-uninstall-all" in cmake
+    assert "reta-uninstall-reference" in cmake
     assert "check-manpages" in runner
     assert "install-zusatz" in runner
+    assert "install-reference" in runner
     assert "uninstall-all" in runner
+    assert "uninstall-reference" in runner
 
 
 def test_check_manpages_script() -> None:

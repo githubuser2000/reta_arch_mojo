@@ -29,13 +29,18 @@ sudo ./scripts/uninstall.sh
 
 ## Installationsprofile
 
-Es gibt drei kumulative Installationsprofile:
+Es gibt drei native Installationsprofile plus einen getrennten
+Referenz-Sonderfall:
 
 ```text
-standard  reta, rp, rpl, rpe, rpb, generate_html, grundStrukHtml
-zusatz    standard + reguläre Entwickler-/Diagnosebefehle
-all       standard + zusatz + schwere Architektur-/Stage-Diagnosen
+standard   reta, rp, rpl, rpe, rpb, generate_html, grundStrukHtml
+zusatz     standard + reguläre Entwickler-/Diagnosebefehle
+all        standard + zusatz + schwere Architektur-/Stage-Diagnosen
+reference  nur alter Python-Referenzbaum für Paritäts-/Debugarbeit
 ```
+
+`standard`, `zusatz` und `all` installieren `python_reference` nicht. Die alte
+Python-Referenz wird nur mit `install-reference` bzw. `--reference` kopiert.
 
 Shell-Installation:
 
@@ -43,6 +48,7 @@ Shell-Installation:
 sudo ./scripts/install.sh              # standard
 sudo ./scripts/install.sh --zusatz
 sudo ./scripts/install.sh --all
+sudo ./scripts/install.sh --reference  # optional, nur alte Python-Referenz
 ```
 
 Shell-Deinstallation:
@@ -51,6 +57,7 @@ Shell-Deinstallation:
 sudo ./scripts/uninstall.sh --standard
 sudo ./scripts/uninstall.sh --zusatz
 sudo ./scripts/uninstall.sh --all      # auch Default von uninstall.sh
+sudo ./scripts/uninstall.sh --reference
 ```
 
 Pixi sollte für `/usr/local` nicht mit `sudo` gestartet werden. Für
@@ -67,7 +74,9 @@ Für Benutzerinstallation ohne root gehen die Pixi-Tasks direkt:
 PREFIX="$HOME/.local" pixi run install
 PREFIX="$HOME/.local" pixi run install-zusatz
 PREFIX="$HOME/.local" pixi run install-all
+PREFIX="$HOME/.local" pixi run install-reference
 PREFIX="$HOME/.local" pixi run uninstall-all
+PREFIX="$HOME/.local" pixi run uninstall-reference
 ```
 
 CMake-Profile:
@@ -76,9 +85,11 @@ CMake-Profile:
 sudo cmake --install build                         # standard
 sudo cmake --build build --target reta-install-zusatz
 sudo cmake --build build --target reta-install-all
+sudo cmake --build build --target reta-install-reference
 sudo cmake --build build --target reta-uninstall-standard
 sudo cmake --build build --target reta-uninstall-zusatz
 sudo cmake --build build --target reta-uninstall-all
+sudo cmake --build build --target reta-uninstall-reference
 ```
 
 ## Pixi

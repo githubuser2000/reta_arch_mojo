@@ -127,11 +127,13 @@ def test_profile_manifests_are_cumulative() -> None:
     standard = set(_shell_words("reta_artifact_profile_install_executables standard"))
     zusatz = set(_shell_words("reta_artifact_profile_install_executables zusatz"))
     all_ = set(_shell_words("reta_artifact_profile_install_executables all"))
+    reference = set(_shell_words("reta_artifact_profile_install_executables reference"))
     assert standard == PUBLIC
     assert standard < zusatz < all_
     assert REGULAR_DIAGNOSTIC_SAMPLE <= zusatz
     assert HEAVY_SAMPLE.isdisjoint(zusatz)
     assert HEAVY_SAMPLE <= all_
+    assert reference == set()
 
 
 def test_standard_installer_copies_only_public_commands_and_needed_libraries(tmp_path: Path) -> None:
@@ -157,6 +159,8 @@ def test_standard_installer_copies_only_public_commands_and_needed_libraries(tmp
     assert "install_profile=standard" in layout
     assert "installed_public_commands=reta,rp,rpl,rpe,rpb,generate_html,grundStrukHtml" in layout
     assert "compiled_targets=7" in layout
+    assert "python_reference_installed=0" in layout
+    assert not (stage / "usr/share/reta/python_reference").exists()
 
 
 def test_zusatz_installer_adds_regular_diagnostics_but_not_heavy(tmp_path: Path) -> None:
@@ -179,6 +183,25 @@ def test_all_installer_adds_heavy_diagnostics(tmp_path: Path) -> None:
     layout = (stage / "usr/share/reta/INSTALL_LAYOUT").read_text(encoding="utf-8")
     assert "install_profile=all" in layout
 
+
+
+
+def test_reference_install_is_explicit_and_has_no_command_or_library_profile(tmp_path: Path) -> None:
+    stage = tmp_path / "stage-reference"
+    result = subprocess.run(
+        [str(ROOT / "scripts/install.sh"), "--reference"],
+        cwd=ROOT,
+        env={**os.environ, "DESTDIR": str(stage), "PREFIX": "/usr"},
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr
+    assert (stage / "usr/share/reta/python_reference/reta.py").is_file()
+    assert (stage / "usr/share/reta/PYTHON_REFERENCE_LAYOUT").is_file()
+    assert not (stage / "usr/bin").exists()
+    assert not (stage / "usr/lib/libreta_core_mojo.so").exists()
 
 def test_build_layout_still_uses_central_build_manifest() -> None:
     layout = (ROOT / "scripts/check_build_layout.sh").read_text(encoding="utf-8")

@@ -110,9 +110,8 @@ def test_fhs_usr_local_layout_uses_share_for_csv_assets_and_public_commands(tmp_
     for manpage in ("generate_html.1", "grundStrukHtml.1", "reta.1", "rp.1", "rpl.1", "rpe.1", "rpb.1"):
         assert (prefix / "share" / "man" / "man1" / manpage).is_file()
     assert not (private / "python_reference").exists()
-    assert (shared / "python_reference" / "csv").is_dir()
-    assert not (shared / "python_reference" / "csv").is_symlink()
-    assert (shared / "python_reference" / "csv" / "religion.csv").is_file()
+    assert not (shared / "python_reference").exists()
+    assert not (shared / "PYTHON_REFERENCE_LAYOUT").exists()
     assert not (private / "assets").exists()
     assert not (private / "bin").exists()
     assert not (private / "scripts").exists()
@@ -125,6 +124,7 @@ def test_fhs_usr_local_layout_uses_share_for_csv_assets_and_public_commands(tmp_
     assert "csvdir=/usr/local/share/reta/csv" in layout
     assert "assetdir=/usr/local/share/reta/assets" in layout
     assert "referencedir=/usr/local/share/reta/python_reference" in layout
+    assert "python_reference_installed=0" in layout
     assert "binarydir=/usr/local/bin" in layout
     assert "libdir=/usr/local/lib" in layout
     assert "sharedlibdir=/usr/local/lib" in layout
@@ -149,7 +149,7 @@ def test_user_local_prefix_keeps_data_below_home_share(tmp_path: Path) -> None:
     assert not (private / "python_reference").exists()
     assert not (private / "bin").exists()
     assert not (private / "scripts").exists()
-    assert (shared / "python_reference" / "csv" / "religion.csv").is_file()
+    assert not (shared / "python_reference").exists()
     _assert_public_only(prefix)
     assert not list(prefix.rglob("*.reta-source-id"))
     assert not [p for p in prefix.rglob("*") if p.is_symlink()]
@@ -170,6 +170,43 @@ def test_shared_libraries_install_flat_below_libdir_and_are_not_executable(tmp_p
         assert not (prefix / "lib" / f"{library}.reta-source-id").exists()
     assert not (prefix / "lib" / "libreta_diagnostics_mojo.so").exists()
 
+
+
+def test_python_reference_is_explicit_separate_install_case(tmp_path: Path) -> None:
+    stage = _install(tmp_path)
+    shared = stage / "usr" / "local" / "share" / "reta"
+    assert not (shared / "python_reference").exists()
+
+    result = subprocess.run(
+        [str(ROOT / "scripts" / "install.sh"), "--reference"],
+        cwd=ROOT,
+        env={**os.environ, "DESTDIR": str(stage), "PREFIX": "/usr/local"},
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr
+    reference = shared / "python_reference"
+    assert (reference / "csv" / "religion.csv").is_file()
+    assert (reference / "reta.py").is_file()
+    assert not os.access(reference / "reta.py", os.X_OK)
+    assert (shared / "PYTHON_REFERENCE_LAYOUT").is_file()
+
+    result = subprocess.run(
+        [str(ROOT / "scripts" / "uninstall.sh"), "--reference"],
+        cwd=ROOT,
+        env={**os.environ, "DESTDIR": str(stage), "PREFIX": "/usr/local"},
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr
+    assert not reference.exists()
+    assert not (shared / "PYTHON_REFERENCE_LAYOUT").exists()
+    for command in PUBLIC_COMMANDS:
+        assert (stage / "usr" / "local" / "bin" / command).is_file()
 
 def test_uninstall_removes_current_and_legacy_reta_layout(tmp_path: Path) -> None:
     stage = _install(tmp_path)
@@ -229,5 +266,5 @@ def test_fedora_libexec_override_keeps_shared_data_in_usr_share(tmp_path: Path) 
     assert not (private / "python_reference").exists()
     assert not (private / "bin").exists()
     assert not (private / "scripts").exists()
-    assert (shared / "python_reference" / "csv" / "religion.csv").is_file()
+    assert not (shared / "python_reference").exists()
     assert not list((stage / "usr").rglob("*.reta-source-id"))

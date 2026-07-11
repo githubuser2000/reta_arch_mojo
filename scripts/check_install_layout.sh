@@ -49,10 +49,8 @@ done
 [ ! -e "$STAGE_BINDIR/reta-native" ]
 
 [ ! -e "$STAGE_LIBEXECDIR/python_reference" ]
-[ -d "$STAGE_REFERENCEDIR" ]
-[ -d "$STAGE_REFERENCEDIR/csv" ]
-[ ! -L "$STAGE_REFERENCEDIR/csv" ]
-[ -f "$STAGE_REFERENCEDIR/csv/religion.csv" ]
+[ ! -e "$STAGE_REFERENCEDIR" ]
+[ ! -e "$STAGE_DATADIR/PYTHON_REFERENCE_LAYOUT" ]
 [ ! -e "$STAGE_LIBEXECDIR/assets" ]
 [ ! -e "$STAGE_LIBEXECDIR/bin" ]
 [ ! -e "$STAGE_LIBEXECDIR/scripts" ]

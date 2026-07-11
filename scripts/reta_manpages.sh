@@ -75,6 +75,7 @@ reta_profile_manpages() {
         standard) reta_standard_manpages ;;
         zusatz) reta_zusatz_manpages ;;
         all) reta_all_manpages ;;
+        reference) : ;;
         *)
             printf 'Unbekanntes Manpage-Profil: %s\n' "$profile" >&2
             return 2

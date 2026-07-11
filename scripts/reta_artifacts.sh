@@ -117,10 +117,10 @@ ARTIFACTS
 
 reta_artifact_validate_install_profile() {
     case ${1:-standard} in
-        standard|zusatz|all) return 0 ;;
+        standard|zusatz|all|reference) return 0 ;;
         *)
             printf 'Unbekanntes Installationsprofil: %s\n' "$1" >&2
-            printf '%s\n' 'Erlaubt: standard, zusatz, all' >&2
+            printf '%s\n' 'Erlaubt: standard, zusatz, all, reference' >&2
             return 2
             ;;
     esac
@@ -129,9 +129,10 @@ reta_artifact_validate_install_profile() {
 reta_artifact_profile_install_pairs() {
     profile=${1:-standard}
     reta_artifact_validate_install_profile "$profile" || return $?
+    [ "$profile" = reference ] && return 0
     reta_artifact_standard_install_pairs
     case "$profile" in
-        standard) ;;
+        standard|reference) ;;
         zusatz)
             reta_artifact_zusatz_alias_pairs
             reta_artifact_regular_install_pairs
@@ -148,7 +149,7 @@ reta_artifact_profile_script_pairs() {
     profile=${1:-standard}
     reta_artifact_validate_install_profile "$profile" || return $?
     case "$profile" in
-        standard) ;;
+        standard|reference) ;;
         zusatz|all) reta_artifact_zusatz_script_pairs ;;
     esac
 }
@@ -234,10 +235,11 @@ ARTIFACTS
 reta_artifact_profile_shared_libraries() {
     profile=${1:-standard}
     reta_artifact_validate_install_profile "$profile" || return $?
+    [ "$profile" = reference ] && return 0
     reta_artifact_core_shared_libraries
     reta_artifact_prompt_shared_libraries
     case "$profile" in
-        standard) ;;
+        standard|reference) ;;
         zusatz|all) reta_artifact_diagnostics_shared_libraries ;;
     esac
 }

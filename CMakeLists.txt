@@ -179,6 +179,11 @@ reta_script_target(reta-install-all
   COMMAND ${CMAKE_COMMAND} -E env PREFIX=${RETA_INSTALL_PREFIX} scripts/run_install_task.sh install-all
 )
 
+reta_script_target(reta-install-reference
+  COMMENT "Install the optional Python reference tree under ${RETA_INSTALL_PREFIX}"
+  COMMAND ${CMAKE_COMMAND} -E env PREFIX=${RETA_INSTALL_PREFIX} scripts/run_install_task.sh install-reference
+)
+
 reta_script_target(reta-install-plan
   COMMENT "Print standard install command for ${RETA_INSTALL_PREFIX} without installing"
   COMMAND ${CMAKE_COMMAND} -E env RETA_DRY_RUN=1 PREFIX=${RETA_INSTALL_PREFIX} scripts/run_install_task.sh install-standard
@@ -197,6 +202,11 @@ reta_script_target(reta-install-zusatz-plan
 reta_script_target(reta-install-all-plan
   COMMENT "Print all install command for ${RETA_INSTALL_PREFIX} without installing"
   COMMAND ${CMAKE_COMMAND} -E env RETA_DRY_RUN=1 PREFIX=${RETA_INSTALL_PREFIX} scripts/run_install_task.sh install-all
+)
+
+reta_script_target(reta-install-reference-plan
+  COMMENT "Print Python-reference install command for ${RETA_INSTALL_PREFIX} without installing"
+  COMMAND ${CMAKE_COMMAND} -E env RETA_DRY_RUN=1 PREFIX=${RETA_INSTALL_PREFIX} scripts/run_install_task.sh install-reference
 )
 
 reta_script_target(reta-uninstall
@@ -219,6 +229,11 @@ reta_script_target(reta-uninstall-all
   COMMAND ${CMAKE_COMMAND} -E env PREFIX=${RETA_INSTALL_PREFIX} scripts/run_install_task.sh uninstall-all
 )
 
+reta_script_target(reta-uninstall-reference
+  COMMENT "Uninstall the optional Python reference tree from ${RETA_INSTALL_PREFIX}"
+  COMMAND ${CMAKE_COMMAND} -E env PREFIX=${RETA_INSTALL_PREFIX} scripts/run_install_task.sh uninstall-reference
+)
+
 reta_script_target(reta-uninstall-plan
   COMMENT "Print all uninstall command for ${RETA_INSTALL_PREFIX} without uninstalling"
   COMMAND ${CMAKE_COMMAND} -E env RETA_DRY_RUN=1 PREFIX=${RETA_INSTALL_PREFIX} scripts/run_install_task.sh uninstall-all
@@ -237,6 +252,11 @@ reta_script_target(reta-uninstall-zusatz-plan
 reta_script_target(reta-uninstall-all-plan
   COMMENT "Print all uninstall command for ${RETA_INSTALL_PREFIX} without uninstalling"
   COMMAND ${CMAKE_COMMAND} -E env RETA_DRY_RUN=1 PREFIX=${RETA_INSTALL_PREFIX} scripts/run_install_task.sh uninstall-all
+)
+
+reta_script_target(reta-uninstall-reference-plan
+  COMMENT "Print Python-reference uninstall command for ${RETA_INSTALL_PREFIX} without uninstalling"
+  COMMAND ${CMAKE_COMMAND} -E env RETA_DRY_RUN=1 PREFIX=${RETA_INSTALL_PREFIX} scripts/run_install_task.sh uninstall-reference
 )
 
 reta_script_target(reta-check-install-layout

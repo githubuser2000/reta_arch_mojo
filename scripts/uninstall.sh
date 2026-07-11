@@ -10,12 +10,14 @@ UNINSTALL_PROFILE=${RETA_UNINSTALL_PROFILE:-all}
 
 usage() {
     cat <<'USAGE'
-Verwendung: scripts/uninstall.sh [--standard|--zusatz|--all]
+Verwendung: scripts/uninstall.sh [--standard|--zusatz|--all|--reference]
 
 Deinstallationsprofile:
   --standard   entfernt die Standardinstallation
   --zusatz     entfernt Standard + reguläre Entwickler-/Diagnosebefehle
   --all        entfernt alles, inklusive schwerer Architektur-/Stage-Diagnosen
+               und optional installierter Python-Referenz
+  --reference  entfernt nur share/reta/python_reference
 
 Ohne Option ist --all der Default, damit alte breite Installationen sicher
 aufgeräumt werden.
@@ -26,6 +28,7 @@ case ${1:-} in
     --standard) UNINSTALL_PROFILE=standard; shift ;;
     --zusatz|--diagnostics) UNINSTALL_PROFILE=zusatz; shift ;;
     --all|--alles) UNINSTALL_PROFILE=all; shift ;;
+    --reference|--python-reference) UNINSTALL_PROFILE=reference; shift ;;
     -h|--help) usage; exit 0 ;;
 esac
 [ "$#" -eq 0 ] || { usage >&2; exit 2; }
@@ -41,6 +44,14 @@ STAGE_LIBEXECDIR=$(stage_path "$LIBEXECDIR")
 STAGE_DATADIR=$(stage_path "$DATADIR")
 STAGE_REFERENCEDIR=$(stage_path "$REFERENCEDIR")
 STAGE_MANDIR=$(stage_path "$MANDIR")
+
+if [ "$UNINSTALL_PROFILE" = reference ]; then
+    rm -rf "$STAGE_LIBEXECDIR/python_reference" "$STAGE_REFERENCEDIR"
+    rm -f "$STAGE_DATADIR/PYTHON_REFERENCE_LAYOUT"
+    rmdir "$STAGE_DATADIR" 2>/dev/null || true
+    printf 'Reta Python-Referenz entfernt: %s\n' "$REFERENCEDIR"
+    exit 0
+fi
 
 remove_public_command() {
     name=$1
@@ -86,13 +97,14 @@ if [ "$UNINSTALL_PROFILE" = all ]; then
 fi
 
 if [ "$UNINSTALL_PROFILE" = all ]; then
+    rm -rf "$STAGE_REFERENCEDIR"
     if [ "$STAGE_REFERENCEDIR" != "$STAGE_DATADIR/python_reference" ]; then
-        rm -rf "$STAGE_REFERENCEDIR"
+        rm -rf "$STAGE_DATADIR/python_reference"
     fi
     rm -rf "$STAGE_LIBEXECDIR" "$STAGE_DATADIR"
 else
-    # Data/reference files are shared by cumulative profiles. Keep them unless
-    # the caller requests the full cleanup.
+    # CSV/assets are shared by cumulative native profiles. Python reference is
+    # independent and only removed by --reference or --all.
     rm -rf "$STAGE_LIBEXECDIR"
 fi
 
