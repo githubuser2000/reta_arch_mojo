@@ -63,7 +63,7 @@ def append_prompt_history(path: String, line: String) -> Bool:
 def read_plain_prompt_line(
     prompt: String,
     history_enabled: Bool = False,
-    history_path: String = "~/.ReTaPromptHistory",
+    history_path: String = "~/.ReTa_arch_mojo_prompt_history",
 ) -> String:
     """Read one line with Mojo I/O and return the historical EOF sentinel."""
     try:
@@ -101,7 +101,7 @@ def read_native_prompt_line(
     language: String,
     vi_mode: Bool = False,
     history_enabled: Bool = False,
-    history_path: String = "~/.ReTaPromptHistory",
+    history_path: String = "~/.ReTa_arch_mojo_prompt_history",
 ) raises -> String:
     """Read one prompt line through the appropriate fully native input path."""
     if native_plain_input_requested():

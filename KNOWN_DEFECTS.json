@@ -833,7 +833,7 @@
       "python_status": "correct_reference",
       "mojo_status": "fixed",
       "discovered_stage": "12c4v",
-      "reproducer": "History aktivieren und loggen beziehungsweise nichtloggen oder logging_yes beziehungsweise logging_no eingeben; die Befehle dürfen nicht in ~/.ReTaPromptHistory landen.",
+      "reproducer": "History aktivieren und loggen beziehungsweise nichtloggen oder logging_yes beziehungsweise logging_no eingeben; die Befehle dürfen nicht in ~/.ReTa_arch_mojo_prompt_history landen.",
       "python_locations": [
         "python_reference/reta_architecture/prompt_session.py"
       ],

@@ -1,1 +1,1 @@
-{"class":"PromptSessionBundle","history_file":"@@RETA_HOME@@/.ReTaPromptHistory","prompt_runtime_class":"PromptRuntimeBundle","completion_runtime_class":"CompletionRuntimeBundle","prompt_language_class":"PromptLanguageBundle","default_text_architecture":"@@RETA_REFERENCE_ROOT@@"}
+{"class":"PromptSessionBundle","history_file":"@@RETA_HOME@@/.ReTa_arch_mojo_prompt_history","prompt_runtime_class":"PromptRuntimeBundle","completion_runtime_class":"CompletionRuntimeBundle","prompt_language_class":"PromptLanguageBundle","default_text_architecture":"@@RETA_REFERENCE_ROOT@@"}

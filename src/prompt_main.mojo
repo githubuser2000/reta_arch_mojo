@@ -216,7 +216,7 @@ def _read_line(
         profile.language,
         profile.vi_mode,
         session.logging_enabled,
-        "~/.ReTaPromptHistory",
+        "~/.ReTa_arch_mojo_prompt_history",
     )
 
 

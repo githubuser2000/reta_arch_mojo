@@ -122,7 +122,7 @@ def test_generator_uses_manifest_isolation_and_portable_home_token() -> None:
     assert '"os.process_cpu_count"' in source
     assert '"os.sched_getaffinity"' in source
     prompt = (ASSETS / "prompt-session-json.json").read_text(encoding="utf-8")
-    assert "@@RETA_HOME@@/.ReTaPromptHistory" in prompt
+    assert "@@RETA_HOME@@/.ReTa_arch_mojo_prompt_history" in prompt
     assert "/home/oai" not in prompt
     assert "/home/alex" not in prompt
 

@@ -466,6 +466,6 @@ def prompt_session_contract_snapshot() -> List[String]:
     result.append("runtime=PromptRuntimeBundle")
     result.append("completion=CompletionRuntimeBundle")
     result.append("language=PromptLanguageBundle")
-    result.append("history=~/.ReTaPromptHistory")
+    result.append("history=~/.ReTa_arch_mojo_prompt_history")
     result.append("terminal=native-posix-editor")
     return result^

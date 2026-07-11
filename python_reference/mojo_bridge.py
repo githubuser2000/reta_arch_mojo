@@ -210,7 +210,7 @@ def read_prompt_line_encoded(encoded: str) -> str:
     prompt = fields[0] if fields else "> "
     history_enabled = len(fields) > 1 and fields[1] == "1"
     vi_mode = len(fields) > 2 and fields[2] == "1"
-    history_file = fields[3] if len(fields) > 3 else str(Path.home() / ".ReTaPromptHistory")
+    history_file = fields[3] if len(fields) > 3 else str(Path.home() / ".ReTa_arch_mojo_prompt_history")
     language = fields[4] if len(fields) > 4 else "deutsch"
     completion_words = fields[5:]
     readline = _configure_prompt_readline(

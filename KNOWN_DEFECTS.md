@@ -518,7 +518,7 @@ Nach Abschluss der funktionalen Transpilierung werden alle Einträge mit python_
 - Python-Status: `correct_reference`
 - Mojo-Status: `fixed`
 - entdeckt in: `12c4v`
-- Reproduktion: `History aktivieren und loggen beziehungsweise nichtloggen oder logging_yes beziehungsweise logging_no eingeben; die Befehle dürfen nicht in ~/.ReTaPromptHistory landen.`
+- Reproduktion: `History aktivieren und loggen beziehungsweise nichtloggen oder logging_yes beziehungsweise logging_no eingeben; die Befehle dürfen nicht in ~/.ReTa_arch_mojo_prompt_history landen.`
 - heutiger Vertrag: Leere Zeilen und beide lokalisierten History-Umschalter werden vor dem Anhängen über den nativen fünfsprachigen Befehlsalias-Katalog ausgeschlossen; normale Befehle und Duplikate bleiben erhalten.
 - spätere Python-Aktion: Keine Python-Änderung erforderlich; Python ToggleHistory ist die korrekte Referenz.
 - Python-Orte: `python_reference/reta_architecture/prompt_session.py`

@@ -238,7 +238,7 @@ class PromptSessionBundle:
     prompt_runtime: PromptRuntimeBundle
     completion_runtime: CompletionRuntimeBundle
     prompt_language: PromptLanguageBundle
-    history_file: str = field(default_factory=lambda: os.path.expanduser("~") + os.sep + ".ReTaPromptHistory")
+    history_file: str = field(default_factory=lambda: os.path.expanduser("~") + os.sep + ".ReTa_arch_mojo_prompt_history")
 
     def snapshot(self) -> Dict[str, object]:
         return {

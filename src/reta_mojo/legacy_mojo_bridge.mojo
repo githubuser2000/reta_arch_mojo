@@ -143,7 +143,7 @@ def read_prompt_line_encoded(encoded: String) raises -> String:
     var prompt = String("> ")
     var history_enabled = False
     var vi_mode = False
-    var history_file = String("~/.ReTaPromptHistory")
+    var history_file = String("~/.ReTa_arch_mojo_prompt_history")
     var language = String("deutsch")
     if len(fields) > 0:
         prompt = fields[0]
