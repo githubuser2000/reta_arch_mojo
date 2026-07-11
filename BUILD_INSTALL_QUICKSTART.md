@@ -186,3 +186,19 @@ Dann muss `$HOME/.local/bin` im `PATH` liegen.
 ## Library-Layout
 
 Alle installierten Shared Libraries, inklusive Mojo-Runtime-`.so`, liegen flach unter `/usr/local/lib`. Öffentliche ausführbare Dateien liegen nur unter `/usr/local/bin`. Alte private Reste unter `/usr/local/lib/reta` werden von `scripts/uninstall.sh` entfernt.
+
+
+## Release-Härtung / Release hardening
+
+Vor einem Release oder nach Installationsänderungen sollten zusätzlich laufen:
+
+```sh
+scripts/check_install_profile_matrix.sh
+scripts/check_release_bridge_policy.sh
+scripts/release_check.sh --dry-run
+```
+
+`check_install_profile_matrix.sh` prüft, dass Shell, Pixi und CMake dieselben
+Profile und Pfade benutzen. `check_release_bridge_policy.sh` prüft die Trennung
+zwischen nativer Standardinstallation, Diagnosewerkzeugen und optionaler
+Python-Referenz.

@@ -188,10 +188,12 @@ static void set_runtime_environment(const char *argv0) {
     set_environment_if_unset("RETA_ROOT", root);
 
     if (installed_bin_layout) {
-        if (join_path(reference, sizeof(reference), root, "share/reta/python_reference") == 0) {
+        if (join_path(reference, sizeof(reference), root, "share/reta/python_reference") == 0 &&
+            directory_exists(reference)) {
             set_environment_if_unset("RETA_REFERENCE_DIR", reference);
         }
-    } else if (join_path(reference, sizeof(reference), root, "python_reference") == 0) {
+    } else if (join_path(reference, sizeof(reference), root, "python_reference") == 0 &&
+               directory_exists(reference)) {
         set_environment_if_unset("RETA_REFERENCE_DIR", reference);
     }
 
@@ -220,7 +222,9 @@ static void set_runtime_environment(const char *argv0) {
         if (configured_share != NULL && configured_share[0] != '\0' &&
             join_path(csv, sizeof(csv), configured_share, "csv") == 0) {
             setenv("RETA_DATA_DIR", csv, 1);
-        } else if (join_path(csv, sizeof(csv), root, "python_reference/csv") == 0) {
+        } else if (!installed_bin_layout &&
+                   join_path(csv, sizeof(csv), root, "python_reference/csv") == 0 &&
+                   directory_exists(csv)) {
             setenv("RETA_DATA_DIR", csv, 1);
         }
     }
@@ -230,7 +234,9 @@ static void set_runtime_environment(const char *argv0) {
         if (configured_share != NULL && configured_share[0] != '\0' &&
             join_path(assets, sizeof(assets), configured_share, "assets") == 0) {
             setenv("RETA_ASSET_DIR", assets, 1);
-        } else if (join_path(assets, sizeof(assets), root, "assets") == 0) {
+        } else if (!installed_bin_layout &&
+                   join_path(assets, sizeof(assets), root, "assets") == 0 &&
+                   directory_exists(assets)) {
             setenv("RETA_ASSET_DIR", assets, 1);
         }
     }

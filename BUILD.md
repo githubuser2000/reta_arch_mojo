@@ -921,6 +921,23 @@ cmake --build build --target reta-artifact-manifest
 Die Datei `scripts/reta_artifacts.sh` ist die Namensquelle für öffentliche
 Dünnstarter, reguläre native Ziele, schwere native Ziele und Shared Libraries.
 
+### Release-Härtung: Installprofile und Bridge-Policy
+
+Die letzten Release-Gates trennen normale Runtime, Diagnosewerkzeuge und die
+alte Python-Referenz hart voneinander:
+
+```sh
+scripts/check_install_profile_matrix.sh
+scripts/check_release_bridge_policy.sh
+```
+
+`check_install_profile_matrix.sh` prüft die kumulativen Profile `standard`,
+`zusatz`, `all` und das getrennte Profil `reference` gegen Shell-, Pixi- und
+CMake-Tasks. `check_release_bridge_policy.sh` verhindert, dass die native
+Standardinstallation wieder versteckte Python-Referenzpfade, Diagnosebefehle
+oder zusätzliche Shared Libraries bekommt. Beide Checks sind Teil von
+`scripts/release_check.sh`.
+
 ### Artefaktmanifest als Release-Gate
 
 `scripts/install_targets.txt` wird jetzt gegen `scripts/reta_artifacts.sh`

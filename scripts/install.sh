@@ -336,7 +336,7 @@ printf '  Compilerziele:      %s\n' "$INSTALLED_TARGETS"
 printf '  Shared Libraries:   %s\n' "$INSTALLED_LIBRARIES"
 printf '  CSV-Daten:          %s\n' "$DATADIR/csv"
 printf '  Assets:             %s\n' "$DATADIR/assets"
-printf '  Python-Referenz:    %s\n' "$REFERENCEDIR"
+printf '  Python-Referenz:    nicht installiert; optional mit --reference: %s\n' "$REFERENCEDIR"
 printf '  Manpages:           %s/man1\n' "$MANDIR"
 if [ -n "$DESTDIR" ]; then
     printf '  Paketwurzel:        %s\n' "$DESTDIR"

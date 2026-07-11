@@ -116,6 +116,22 @@ cmp "$ROOT/assets/reta_help_en.txt" "$TMP/installed-help-en.out"
 )
 grep -q '^60: 2\^2 3 5$' "$TMP/installed-rpb.out"
 
+# The optional Python reference is a separate install/uninstall profile and is
+# installed as inert data only.  Native profiles must keep working without it.
+DESTDIR="$STAGE" PREFIX="$PREFIX" BINDIR="$BINDIR" LIBDIR="$LIBDIR" LIBEXECDIR="$LIBEXECDIR" DATADIR="$DATADIR" REFERENCEDIR="$REFERENCEDIR" MANDIR="$MANDIR" "$ROOT/scripts/install.sh" --reference >"$TMP/install-reference.log"
+[ -d "$STAGE_REFERENCEDIR" ]
+[ -f "$STAGE_REFERENCEDIR/reta.py" ]
+[ -d "$STAGE_REFERENCEDIR/reta_architecture" ]
+! find "$STAGE_REFERENCEDIR" -type f -perm /111 2>/dev/null | grep -q .
+[ -x "$STAGE_BINDIR/reta" ]
+[ -f "$STAGE_DATADIR/csv/religion.csv" ]
+
+DESTDIR="$STAGE" PREFIX="$PREFIX" BINDIR="$BINDIR" LIBDIR="$LIBDIR" LIBEXECDIR="$LIBEXECDIR" DATADIR="$DATADIR" REFERENCEDIR="$REFERENCEDIR" MANDIR="$MANDIR" "$ROOT/scripts/uninstall.sh" --reference >"$TMP/uninstall-reference.log"
+[ ! -e "$STAGE_REFERENCEDIR" ]
+[ ! -e "$STAGE_DATADIR/PYTHON_REFERENCE_LAYOUT" ]
+[ -x "$STAGE_BINDIR/reta" ]
+[ -f "$STAGE_DATADIR/csv/religion.csv" ]
+
 DESTDIR="$STAGE" PREFIX="$PREFIX" BINDIR="$BINDIR" LIBDIR="$LIBDIR" LIBEXECDIR="$LIBEXECDIR" DATADIR="$DATADIR" REFERENCEDIR="$REFERENCEDIR" MANDIR="$MANDIR" "$ROOT/scripts/uninstall.sh" >/dev/null
 for manpage in $(reta_public_manpages); do
     [ ! -e "$STAGE_MANDIR/man1/$manpage" ]

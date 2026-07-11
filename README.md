@@ -184,6 +184,18 @@ man reta
 scripts/check_install_layout.sh
 ```
 
+Release hardening gates:
+
+```sh
+scripts/check_install_profile_matrix.sh
+scripts/check_release_bridge_policy.sh
+scripts/release_check.sh --dry-run
+```
+
+These checks verify that shell scripts, Pixi and CMake use the same install
+profiles, that `standard` does not install Python fallback/reference material,
+and that the public commands stay separated from diagnostic binaries.
+
 If man pages were installed but are not found immediately, refresh the man-page
 index:
 
@@ -394,6 +406,19 @@ rp --help
 man reta
 scripts/check_install_layout.sh
 ```
+
+Release-Härtungsprüfungen:
+
+```sh
+scripts/check_install_profile_matrix.sh
+scripts/check_release_bridge_policy.sh
+scripts/release_check.sh --dry-run
+```
+
+Diese Prüfungen erzwingen, dass Shellskripte, Pixi und CMake dieselben
+Installationsprofile benutzen, dass `standard` kein Python-Fallback-/
+Referenzmaterial installiert und dass öffentliche Befehle von Diagnose-Binaries
+getrennt bleiben.
 
 Falls Manpages nicht sofort gefunden werden:
 

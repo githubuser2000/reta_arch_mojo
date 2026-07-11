@@ -269,6 +269,16 @@ reta_script_target(reta-check-install-layout-plan
   COMMAND ${CMAKE_COMMAND} -E env RETA_DRY_RUN=1 PREFIX=${RETA_INSTALL_PREFIX} scripts/run_install_task.sh check-install-layout
 )
 
+reta_script_target(reta-check-install-profile-matrix
+  COMMENT "Check install profile consistency across shell, Pixi and CMake"
+  COMMAND scripts/check_install_profile_matrix.sh
+)
+
+reta_script_target(reta-check-release-bridge-policy
+  COMMENT "Check native release bridge policy and Python reference separation"
+  COMMAND scripts/check_release_bridge_policy.sh
+)
+
 reta_script_target(reta-clean-generated
   COMMENT "Clean generated build artifacts with the existing project script"
   COMMAND scripts/clean.sh
