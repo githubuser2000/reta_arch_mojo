@@ -85,6 +85,14 @@ def test_fhs_usr_local_layout_uses_share_for_csv_and_assets(tmp_path: Path) -> N
     assert (prefix / "bin" / "mojo-runtime-exec").is_file()
     assert not list(prefix.rglob("*.reta-source-id"))
     assert not [p for p in prefix.rglob("*") if p.is_symlink()]
+    executable_outside_bin = [
+        path
+        for path in prefix.rglob("*")
+        if path.is_file()
+        and os.access(path, os.X_OK)
+        and not path.is_relative_to(prefix / "bin")
+    ]
+    assert executable_outside_bin == []
     for wrapper in ("generate_html", "generate4readme", "reta-extract-html-classes", "reta-mojo", "reta-mojo-compat"):
         assert (prefix / "bin" / wrapper).is_file()
         assert not (prefix / "bin" / wrapper).is_symlink()
@@ -154,6 +162,14 @@ def test_user_local_prefix_keeps_data_below_home_share(tmp_path: Path) -> None:
     assert not (private / "reta-native").exists()
     assert not list(prefix.rglob("*.reta-source-id"))
     assert not [p for p in prefix.rglob("*") if p.is_symlink()]
+    executable_outside_bin = [
+        path
+        for path in prefix.rglob("*")
+        if path.is_file()
+        and os.access(path, os.X_OK)
+        and not path.is_relative_to(prefix / "bin")
+    ]
+    assert executable_outside_bin == []
 
     csv_info = subprocess.run(
         [str(prefix / "bin" / "reta-mojo"), "--mojo-csv-info"],

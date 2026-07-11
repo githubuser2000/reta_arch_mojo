@@ -69,6 +69,11 @@ done
 [ ! -e "$STAGE_LIBEXECDIR/target" ]
 ! find "$STAGE_BINDIR" "$STAGE_LIBEXECDIR" \( -name '*.reta-source-id' -o -name '*.reta-test-source-id' \) | grep -q .
 ! find "$STAGE_BINDIR" "$STAGE_LIBEXECDIR" "$STAGE_DATADIR" -type l | grep -q .
+! find "$STAGE_LIBEXECDIR" "$STAGE_DATADIR" "$STAGE_REFERENCEDIR" "$STAGE_MANDIR" \
+    -type f \( -perm -0100 -o -perm -0010 -o -perm -0001 \) -print | grep -q .
+for installed_command in $(find "$STAGE_BINDIR" -maxdepth 1 -type f -perm -0100 -print); do
+    [ -x "$installed_command" ]
+done
 
 (
     cd "$TMP"

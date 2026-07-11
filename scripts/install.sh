@@ -103,6 +103,25 @@ install -d "$STAGE_BINDIR" "$STAGE_LIBEXECDIR" \
     "$STAGE_DATADIR/csv" "$STAGE_DATADIR/assets" \
     "$STAGE_MANDIR/man1"
 
+strip_executable_bits_outside_bindir() {
+    for dir in "$STAGE_LIBEXECDIR" "$STAGE_DATADIR" "$STAGE_REFERENCEDIR" "$STAGE_MANDIR"; do
+        [ -d "$dir" ] || continue
+        find "$dir" -type f \( -perm -0100 -o -perm -0010 -o -perm -0001 \) -exec chmod a-x {} +
+    done
+}
+
+assert_no_executable_files_outside_bindir() {
+    bad_files=$(
+        find "$STAGE_LIBEXECDIR" "$STAGE_DATADIR" "$STAGE_REFERENCEDIR" "$STAGE_MANDIR" \
+            -type f \( -perm -0100 -o -perm -0010 -o -perm -0001 \) -print 2>/dev/null || true
+    )
+    if [ -n "$bad_files" ]; then
+        printf '%s\n' 'Fehler: ausführbare Dateien dürfen nur unter BINDIR installiert werden.' >&2
+        printf '%s\n' "$bad_files" >&2
+        exit 3
+    fi
+}
+
 for manpage in $(reta_public_manpages); do
     install -m 0644 "$ROOT/man/$manpage" "$STAGE_MANDIR/man1/$manpage"
 done
@@ -176,7 +195,7 @@ install_shared_library() {
     RETA_REBUILD_COMMAND="$rebuild_command" \
     RETA_CURRENT_SOURCE_ID="$CURRENT_SOURCE_ID" \
         "$ROOT/scripts/check_mojo_binary_freshness.sh" "$source_library"
-    install -m 0755 "$source_library" \
+    install -m 0644 "$source_library" \
         "$STAGE_LIBEXECDIR/$installed_name"
     # Shared-library .reta-source-id files stay in the build tree only.
     INSTALLED_LIBRARIES=$((INSTALLED_LIBRARIES + 1))
@@ -204,13 +223,18 @@ if [ "$INSTALL_MOJO_RUNTIME" != 0 ]; then
         libNVPTX.so
     do
         require_file "$RUNTIME_DIR/$library"
-        install -m 0755 "$RUNTIME_DIR/$library" \
+        install -m 0644 "$RUNTIME_DIR/$library" \
             "$STAGE_LIBEXECDIR/mojo/$library"
     done
 fi
 
 # Public commands are now either compiled files or shell frontends directly
 # below BINDIR.  lib/reta intentionally contains no bin/ launcher depot.
+# Shared libraries, Mojo runtime files, data, reference files and manpages are
+# not public executable commands; strip accidental execute bits from all Reta-
+# owned install trees outside BINDIR and then enforce that invariant.
+strip_executable_bits_outside_bindir
+assert_no_executable_files_outside_bindir
 
 # Make accidental source-id/python-reference leakage into bin/lib a hard installation error.
 if find "$STAGE_BINDIR" "$STAGE_LIBEXECDIR" \( -name '*.reta-source-id' -o -name '*.reta-test-source-id' \) | grep -q .; then
@@ -244,6 +268,7 @@ mandir=$MANDIR
 compiled_targets=$INSTALLED_TARGETS
 compiled_shared_libraries=$INSTALLED_LIBRARIES
 installed_source_id_sidecars=0
+executable_files_outside_bindir=0
 LAYOUT
 
 printf 'Reta installiert:\n'
