@@ -30,6 +30,15 @@ for loader in tools/reta_core_loader.c tools/reta_prompt_loader.c; do
         fail "$loader setzt Asset-Fallback nicht existenzgeprüft"
 done
 
+
+# Release gates for the native install layout must not import the optional
+# Python reference.  In particular they must not trigger pyphen/pkg_resources
+# warnings from python_reference/reta.py.
+! grep -q 'python3 python_reference/reta.py' scripts/check_install_layout.sh || \
+    fail 'check_install_layout.sh darf python_reference/reta.py nicht ausführen'
+! grep -qi 'pyphen' scripts/check_install_layout.sh || \
+    fail 'check_install_layout.sh darf pyphen nicht verwenden oder erwähnen'
+
 # Standardprofile exposes only the real public commands.
 for command in reta rp rpl rpe rpb generate_html grundStrukHtml; do
     reta_artifact_profile_install_executables standard | grep -qx "$command" || \

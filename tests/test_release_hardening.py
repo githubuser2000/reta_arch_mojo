@@ -57,3 +57,16 @@ def test_user_readme_points_to_hardening_checks() -> None:
     assert "scripts/check_release_bridge_policy.sh" in text
     assert "standard` does not install Python" in text
     assert "`standard` kein Python" in text
+
+
+def test_install_layout_check_does_not_execute_python_reference_or_pyphen() -> None:
+    text = (ROOT / "scripts" / "check_install_layout.sh").read_text(encoding="utf-8")
+    assert "python3 python_reference/reta.py" not in text
+    assert "pyphen" not in text.lower()
+    assert "tests/fixtures/install_layout/reta_sternpolygon_csv_reference.txt" in text
+
+    fixture = ROOT / "tests" / "fixtures" / "install_layout" / "reta_sternpolygon_csv_reference.txt"
+    assert fixture.is_file()
+    fixture_text = fixture.read_text(encoding="utf-8")
+    assert "Sternpolygon" in fixture_text
+    assert "Diespiter" in fixture_text

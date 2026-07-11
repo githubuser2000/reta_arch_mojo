@@ -90,15 +90,16 @@ set -- \
     -zeilen --vorhervonausschnitt=1-2 \
     -spalten --religionen=sternpolygon \
     -ausgabe --art=csv --breite=40
-(
-    cd "$ROOT"
-    python3 python_reference/reta.py "$@" >"$TMP/reference.out"
-)
+# Do not execute python_reference/reta.py here.  The install-layout gate must
+# stay independent from optional Python reference dependencies.  The fixture
+# was generated from the historical reference once and is kept as inert data.
+REFERENCE_FIXTURE="$ROOT/tests/fixtures/install_layout/reta_sternpolygon_csv_reference.txt"
+[ -f "$REFERENCE_FIXTURE" ]
 (
     cd "$TMP"
     "$STAGE_BINDIR/reta" "$@" >"$TMP/core-launcher.out"
 )
-cmp "$TMP/reference.out" "$TMP/core-launcher.out"
+cmp "$REFERENCE_FIXTURE" "$TMP/core-launcher.out"
 
 (
     cd "$TMP"
