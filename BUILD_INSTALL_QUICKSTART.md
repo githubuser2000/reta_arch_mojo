@@ -27,6 +27,60 @@ Deinstallieren:
 sudo ./scripts/uninstall.sh
 ```
 
+## Installationsprofile
+
+Es gibt drei kumulative Installationsprofile:
+
+```text
+standard  reta, rp, rpl, rpe, rpb, generate_html, grundStrukHtml
+zusatz    standard + reguläre Entwickler-/Diagnosebefehle
+all       standard + zusatz + schwere Architektur-/Stage-Diagnosen
+```
+
+Shell-Installation:
+
+```sh
+sudo ./scripts/install.sh              # standard
+sudo ./scripts/install.sh --zusatz
+sudo ./scripts/install.sh --all
+```
+
+Shell-Deinstallation:
+
+```sh
+sudo ./scripts/uninstall.sh --standard
+sudo ./scripts/uninstall.sh --zusatz
+sudo ./scripts/uninstall.sh --all      # auch Default von uninstall.sh
+```
+
+Pixi sollte für `/usr/local` nicht mit `sudo` gestartet werden. Für
+Systeminstallation deshalb weiterhin das Shell-Installskript mit `sudo` nutzen:
+
+```sh
+pixi run build-all
+sudo ./scripts/install.sh --zusatz
+```
+
+Für Benutzerinstallation ohne root gehen die Pixi-Tasks direkt:
+
+```sh
+PREFIX="$HOME/.local" pixi run install
+PREFIX="$HOME/.local" pixi run install-zusatz
+PREFIX="$HOME/.local" pixi run install-all
+PREFIX="$HOME/.local" pixi run uninstall-all
+```
+
+CMake-Profile:
+
+```sh
+sudo cmake --install build                         # standard
+sudo cmake --build build --target reta-install-zusatz
+sudo cmake --build build --target reta-install-all
+sudo cmake --build build --target reta-uninstall-standard
+sudo cmake --build build --target reta-uninstall-zusatz
+sudo cmake --build build --target reta-uninstall-all
+```
+
 ## Pixi
 
 ```sh
@@ -91,7 +145,6 @@ sudo cmake --build build --target reta-uninstall
 
 ```sh
 /usr/local/bin/reta --version
-/usr/local/bin/reta-native --version
 man reta
 ```
 

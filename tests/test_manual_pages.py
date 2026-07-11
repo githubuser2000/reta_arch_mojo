@@ -34,8 +34,8 @@ def test_central_manpage_manifest_is_used_by_installer_and_uninstaller() -> None
     uninstall = (ROOT / "scripts" / "uninstall.sh").read_text(encoding="utf-8")
     check = (ROOT / "scripts" / "check_install_layout.sh").read_text(encoding="utf-8")
 
-    assert "reta_public_manpages" in install
-    assert "reta_public_manpages" in uninstall
+    assert "reta_profile_manpages" in install
+    assert "reta_profile_manpages" in uninstall
     assert "reta_public_manpages" in check
     assert "install -m 0644 \"$ROOT/man/$manpage\"" in install
     assert "rm -f \"$STAGE_MANDIR/man1/$manpage\"" in uninstall
@@ -47,9 +47,15 @@ def test_pixi_and_cmake_expose_manpage_checks() -> None:
     runner = (ROOT / "scripts" / "run_install_task.sh").read_text(encoding="utf-8")
 
     assert 'check-manpages = "scripts/run_install_task.sh check-manpages"' in pixi
+    assert 'install-zusatz = "scripts/run_install_task.sh install-zusatz"' in pixi
+    assert 'uninstall-all = "scripts/run_install_task.sh uninstall-all"' in pixi
     assert 'cmake-check-manpages = "cmake --build build --target reta-check-manpages"' in pixi
     assert "reta-check-manpages" in cmake
+    assert "reta-install-zusatz" in cmake
+    assert "reta-uninstall-all" in cmake
     assert "check-manpages" in runner
+    assert "install-zusatz" in runner
+    assert "uninstall-all" in runner
 
 
 def test_check_manpages_script() -> None:

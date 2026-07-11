@@ -150,33 +150,93 @@ reta_script_target(reta-check-manpages
 
 install(CODE "
   execute_process(
-    COMMAND \"${CMAKE_COMMAND}\" -E env \"PREFIX=\${CMAKE_INSTALL_PREFIX}\" \"${CMAKE_CURRENT_SOURCE_DIR}/scripts/run_install_task.sh\" install
+    COMMAND \"${CMAKE_COMMAND}\" -E env \"PREFIX=\${CMAKE_INSTALL_PREFIX}\" \"${CMAKE_CURRENT_SOURCE_DIR}/scripts/run_install_task.sh\" install-standard
     WORKING_DIRECTORY \"${CMAKE_CURRENT_SOURCE_DIR}\"
     RESULT_VARIABLE _reta_install_result
   )
   if(NOT _reta_install_result EQUAL 0)
-    message(FATAL_ERROR \"reta install failed with exit code \${_reta_install_result}\")
+    message(FATAL_ERROR \"reta standard install failed with exit code \${_reta_install_result}\")
   endif()
 ")
 
 reta_script_target(reta-install
-  COMMENT "Install reta under ${RETA_INSTALL_PREFIX}"
-  COMMAND ${CMAKE_COMMAND} -E env PREFIX=${RETA_INSTALL_PREFIX} scripts/run_install_task.sh install
+  COMMENT "Install standard reta command profile under ${RETA_INSTALL_PREFIX}"
+  COMMAND ${CMAKE_COMMAND} -E env PREFIX=${RETA_INSTALL_PREFIX} scripts/run_install_task.sh install-standard
+)
+
+reta_script_target(reta-install-standard
+  COMMENT "Install standard reta command profile under ${RETA_INSTALL_PREFIX}"
+  COMMAND ${CMAKE_COMMAND} -E env PREFIX=${RETA_INSTALL_PREFIX} scripts/run_install_task.sh install-standard
+)
+
+reta_script_target(reta-install-zusatz
+  COMMENT "Install standard plus regular diagnostic reta commands under ${RETA_INSTALL_PREFIX}"
+  COMMAND ${CMAKE_COMMAND} -E env PREFIX=${RETA_INSTALL_PREFIX} scripts/run_install_task.sh install-zusatz
+)
+
+reta_script_target(reta-install-all
+  COMMENT "Install all reta commands including heavy diagnostics under ${RETA_INSTALL_PREFIX}"
+  COMMAND ${CMAKE_COMMAND} -E env PREFIX=${RETA_INSTALL_PREFIX} scripts/run_install_task.sh install-all
 )
 
 reta_script_target(reta-install-plan
-  COMMENT "Print install command for ${RETA_INSTALL_PREFIX} without installing"
-  COMMAND ${CMAKE_COMMAND} -E env RETA_DRY_RUN=1 PREFIX=${RETA_INSTALL_PREFIX} scripts/run_install_task.sh install
+  COMMENT "Print standard install command for ${RETA_INSTALL_PREFIX} without installing"
+  COMMAND ${CMAKE_COMMAND} -E env RETA_DRY_RUN=1 PREFIX=${RETA_INSTALL_PREFIX} scripts/run_install_task.sh install-standard
+)
+
+reta_script_target(reta-install-standard-plan
+  COMMENT "Print standard install command for ${RETA_INSTALL_PREFIX} without installing"
+  COMMAND ${CMAKE_COMMAND} -E env RETA_DRY_RUN=1 PREFIX=${RETA_INSTALL_PREFIX} scripts/run_install_task.sh install-standard
+)
+
+reta_script_target(reta-install-zusatz-plan
+  COMMENT "Print zusatz install command for ${RETA_INSTALL_PREFIX} without installing"
+  COMMAND ${CMAKE_COMMAND} -E env RETA_DRY_RUN=1 PREFIX=${RETA_INSTALL_PREFIX} scripts/run_install_task.sh install-zusatz
+)
+
+reta_script_target(reta-install-all-plan
+  COMMENT "Print all install command for ${RETA_INSTALL_PREFIX} without installing"
+  COMMAND ${CMAKE_COMMAND} -E env RETA_DRY_RUN=1 PREFIX=${RETA_INSTALL_PREFIX} scripts/run_install_task.sh install-all
 )
 
 reta_script_target(reta-uninstall
-  COMMENT "Uninstall reta from ${RETA_INSTALL_PREFIX}"
-  COMMAND ${CMAKE_COMMAND} -E env PREFIX=${RETA_INSTALL_PREFIX} scripts/run_install_task.sh uninstall
+  COMMENT "Uninstall all reta command profiles from ${RETA_INSTALL_PREFIX}"
+  COMMAND ${CMAKE_COMMAND} -E env PREFIX=${RETA_INSTALL_PREFIX} scripts/run_install_task.sh uninstall-all
+)
+
+reta_script_target(reta-uninstall-standard
+  COMMENT "Uninstall standard reta command profile from ${RETA_INSTALL_PREFIX}"
+  COMMAND ${CMAKE_COMMAND} -E env PREFIX=${RETA_INSTALL_PREFIX} scripts/run_install_task.sh uninstall-standard
+)
+
+reta_script_target(reta-uninstall-zusatz
+  COMMENT "Uninstall standard plus regular diagnostic reta commands from ${RETA_INSTALL_PREFIX}"
+  COMMAND ${CMAKE_COMMAND} -E env PREFIX=${RETA_INSTALL_PREFIX} scripts/run_install_task.sh uninstall-zusatz
+)
+
+reta_script_target(reta-uninstall-all
+  COMMENT "Uninstall all reta command profiles from ${RETA_INSTALL_PREFIX}"
+  COMMAND ${CMAKE_COMMAND} -E env PREFIX=${RETA_INSTALL_PREFIX} scripts/run_install_task.sh uninstall-all
 )
 
 reta_script_target(reta-uninstall-plan
-  COMMENT "Print uninstall command for ${RETA_INSTALL_PREFIX} without uninstalling"
-  COMMAND ${CMAKE_COMMAND} -E env RETA_DRY_RUN=1 PREFIX=${RETA_INSTALL_PREFIX} scripts/run_install_task.sh uninstall
+  COMMENT "Print all uninstall command for ${RETA_INSTALL_PREFIX} without uninstalling"
+  COMMAND ${CMAKE_COMMAND} -E env RETA_DRY_RUN=1 PREFIX=${RETA_INSTALL_PREFIX} scripts/run_install_task.sh uninstall-all
+)
+
+reta_script_target(reta-uninstall-standard-plan
+  COMMENT "Print standard uninstall command for ${RETA_INSTALL_PREFIX} without uninstalling"
+  COMMAND ${CMAKE_COMMAND} -E env RETA_DRY_RUN=1 PREFIX=${RETA_INSTALL_PREFIX} scripts/run_install_task.sh uninstall-standard
+)
+
+reta_script_target(reta-uninstall-zusatz-plan
+  COMMENT "Print zusatz uninstall command for ${RETA_INSTALL_PREFIX} without uninstalling"
+  COMMAND ${CMAKE_COMMAND} -E env RETA_DRY_RUN=1 PREFIX=${RETA_INSTALL_PREFIX} scripts/run_install_task.sh uninstall-zusatz
+)
+
+reta_script_target(reta-uninstall-all-plan
+  COMMENT "Print all uninstall command for ${RETA_INSTALL_PREFIX} without uninstalling"
+  COMMAND ${CMAKE_COMMAND} -E env RETA_DRY_RUN=1 PREFIX=${RETA_INSTALL_PREFIX} scripts/run_install_task.sh uninstall-all
 )
 
 reta_script_target(reta-check-install-layout

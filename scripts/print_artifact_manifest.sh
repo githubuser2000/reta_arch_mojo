@@ -30,6 +30,12 @@ print_words heavy_executables $(reta_artifact_heavy_executables)
 # shellcheck disable=SC2046
 print_words build_executables $(reta_artifact_build_executables)
 # shellcheck disable=SC2046
+print_words install_standard $(reta_artifact_profile_install_executables standard)
+# shellcheck disable=SC2046
+print_words install_zusatz $(reta_artifact_profile_install_executables zusatz)
+# shellcheck disable=SC2046
+print_words install_all $(reta_artifact_profile_install_executables all)
+# shellcheck disable=SC2046
 print_words shared_libraries $(reta_artifact_shared_libraries)
 printf 'install_targets_file=%s\n' "$(reta_artifact_install_target_file "$ROOT")"
 printf 'install_targets_count=%s\n' "$(grep -Ev '^[[:space:]]*($|#)' "$(reta_artifact_install_target_file "$ROOT")" | wc -l | tr -d ' ')"

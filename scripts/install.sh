@@ -10,6 +10,31 @@ INSTALL_MOJO_RUNTIME=${RETA_INSTALL_MOJO_RUNTIME:-1}
 TARGETDIR=${RETA_TARGET_DIR:-$ROOT/target/bin}
 TARGETROOT=$(dirname -- "$TARGETDIR")
 TARGETLIBDIR=${RETA_TARGET_LIB_DIR:-$TARGETROOT/lib/reta}
+INSTALL_PROFILE=${RETA_INSTALL_PROFILE:-standard}
+
+usage() {
+    cat <<'USAGE'
+Verwendung: scripts/install.sh [--standard|--zusatz|--all]
+
+Installationsprofile:
+  --standard   Nur öffentliche Nutzerbefehle: reta, rp, rpl, rpe, rpb,
+               generate_html, grundStrukHtml. Dies ist der Default.
+  --zusatz     Standard + reguläre Entwickler-/Diagnosebefehle.
+  --all        Standard + Zusatz + schwere Architektur-/Stage-Diagnosen.
+
+PREFIX, DESTDIR, BINDIR, LIBDIR, DATADIR, REFERENCEDIR und MANDIR können wie
+bisher per Umgebung gesetzt werden.
+USAGE
+}
+
+case ${1:-} in
+    --standard) INSTALL_PROFILE=standard; shift ;;
+    --zusatz|--diagnostics) INSTALL_PROFILE=zusatz; shift ;;
+    --all|--alles) INSTALL_PROFILE=all; shift ;;
+    -h|--help) usage; exit 0 ;;
+esac
+[ "$#" -eq 0 ] || { usage >&2; exit 2; }
+reta_artifact_validate_install_profile "$INSTALL_PROFILE"
 
 stage_path() {
     printf '%s%s\n' "$DESTDIR" "$1"
@@ -27,34 +52,33 @@ maybe_require_stamp() {
     require_file "$1.reta-source-id"
 }
 
+word_in_list() {
+    needle=$1
+    shift
+    for item in "$@"; do
+        [ "$item" = "$needle" ] && return 0
+    done
+    return 1
+}
+
 require_file "$ROOT/python_reference/csv/religion.csv"
 require_file "$ROOT/assets/parameter_aliases.tsv"
-for manpage in $(reta_public_manpages); do
+for manpage in $(reta_profile_manpages "$INSTALL_PROFILE"); do
     require_file "$ROOT/man/$manpage"
 done
 require_file "$(reta_artifact_install_target_file "$ROOT")"
 
-CORE_LIBRARY="$TARGETLIBDIR/$(reta_artifact_core_shared_libraries | sed -n '1p')"
-PROMPT_LIBRARY="$TARGETLIBDIR/$(reta_artifact_prompt_shared_libraries | sed -n '1p')"
-PROMPT_INTERACTIVE_LIBRARY="$TARGETLIBDIR/$(reta_artifact_prompt_shared_libraries | sed -n '2p')"
-
-# Standard installation exposes only the public user commands.  The generated
-# HTML command is installed under its public name generate_html, but its build
-# artifact is still target/bin/generate-html-native.
-for required_target in \
-    reta \
-    grundStrukHtml \
-    rp \
-    rpl \
-    rpe \
-    rpb \
-    generate-html-native
- do
-    maybe_require_stamp "$TARGETDIR/$required_target"
+for pair in $(reta_artifact_profile_install_pairs "$INSTALL_PROFILE"); do
+    source_name=${pair#*:}
+    maybe_require_stamp "$TARGETDIR/$source_name"
 done
-maybe_require_stamp "$CORE_LIBRARY"
-maybe_require_stamp "$PROMPT_LIBRARY"
-maybe_require_stamp "$PROMPT_INTERACTIVE_LIBRARY"
+for pair in $(reta_artifact_profile_script_pairs "$INSTALL_PROFILE"); do
+    source_path=${pair#*:}
+    require_file "$ROOT/$source_path"
+done
+for library_name in $(reta_artifact_profile_shared_libraries "$INSTALL_PROFILE"); do
+    maybe_require_stamp "$TARGETLIBDIR/$library_name"
+done
 
 STAGE_BINDIR=$(stage_path "$BINDIR")
 STAGE_LIBDIR=$(stage_path "$LIBDIR")
@@ -67,16 +91,24 @@ install -d "$STAGE_BINDIR" "$STAGE_LIBDIR" \
     "$STAGE_DATADIR/csv" "$STAGE_DATADIR/assets" \
     "$STAGE_MANDIR/man1"
 
-# Remove old public diagnostics/stage helpers from previous broader installs.
-for legacy in $(reta_artifact_legacy_installed_executables 2>/dev/null || true); do
-    rm -f "$STAGE_BINDIR/$legacy" "$STAGE_BINDIR/$legacy.reta-source-id"
+# Keep install profiles exact: installing --standard after --all removes the
+# diagnostic commands and manpages again.  Libraries are filtered below too.
+ALLOWED_COMMANDS=$(reta_artifact_profile_install_executables "$INSTALL_PROFILE" | tr '\n' ' ')
+for command in $(reta_artifact_all_known_installed_executables 2>/dev/null || true); do
+    case " $ALLOWED_COMMANDS " in
+        *" $command "*) ;;
+        *) rm -f "$STAGE_BINDIR/$command" "$STAGE_BINDIR/$command.reta-source-id" ;;
+    esac
 done
-for wrapper_name in $(reta_artifact_public_shell_wrappers 2>/dev/null || true); do
-    rm -f "$STAGE_BINDIR/$wrapper_name" "$STAGE_BINDIR/$wrapper_name.reta-source-id"
-done
-rm -f "$STAGE_BINDIR/mojo-runtime-exec" "$STAGE_BINDIR/mojo-runtime-exec.reta-source-id"
 
-for manpage in $(reta_public_manpages); do
+ALLOWED_MANPAGES=$(reta_profile_manpages "$INSTALL_PROFILE" | tr '\n' ' ')
+for manpage in $(reta_all_manpages); do
+    case " $ALLOWED_MANPAGES " in
+        *" $manpage "*) ;;
+        *) rm -f "$STAGE_MANDIR/man1/$manpage" ;;
+    esac
+done
+for manpage in $(reta_profile_manpages "$INSTALL_PROFILE"); do
     install -m 0644 "$ROOT/man/$manpage" "$STAGE_MANDIR/man1/$manpage"
 done
 
@@ -85,9 +117,8 @@ cp -aL "$ROOT/python_reference/csv/." "$STAGE_DATADIR/csv/"
 cp -aL "$ROOT/assets/." "$STAGE_DATADIR/assets/"
 
 # Keep the Python reference tree out of lib/reta. It is architecture-independent
-# reference/compatibility material, so its installed home is share/reta.  Do not
-# replace subtrees by symlinks: installed layout should not grow launcher/data
-# symlink depots either.
+# reference/compatibility material, so its installed home is share/reta. Do not
+# replace subtrees by symlinks.
 rm -rf "$STAGE_LIBEXECDIR/python_reference" "$STAGE_REFERENCEDIR"
 cp -aL "$ROOT/python_reference" "$STAGE_REFERENCEDIR"
 find "$STAGE_REFERENCEDIR" -type d -name __pycache__ -prune -exec rm -rf {} + 2>/dev/null || true
@@ -116,13 +147,23 @@ install_compiled_command() {
     INSTALLED_TARGETS=$((INSTALLED_TARGETS + 1))
 }
 
-install_compiled_command reta reta
-install_compiled_command grundStrukHtml grundStrukHtml
-install_compiled_command rp rp
-install_compiled_command rpl rpl
-install_compiled_command rpe rpe
-install_compiled_command rpb rpb
-install_compiled_command generate_html generate-html-native
+install_script_command() {
+    public_name=$1
+    source_path=$2
+    install -m 0755 "$ROOT/$source_path" "$STAGE_BINDIR/$public_name"
+    INSTALLED_TARGETS=$((INSTALLED_TARGETS + 1))
+}
+
+for pair in $(reta_artifact_profile_install_pairs "$INSTALL_PROFILE"); do
+    public_name=${pair%%:*}
+    source_name=${pair#*:}
+    install_compiled_command "$public_name" "$source_name"
+done
+for pair in $(reta_artifact_profile_script_pairs "$INSTALL_PROFILE"); do
+    public_name=${pair%%:*}
+    source_path=${pair#*:}
+    install_script_command "$public_name" "$source_path"
+done
 
 INSTALLED_LIBRARIES=0
 install_shared_library() {
@@ -139,11 +180,22 @@ install_shared_library() {
     INSTALLED_LIBRARIES=$((INSTALLED_LIBRARIES + 1))
 }
 
-for library_name in $(reta_artifact_core_shared_libraries); do
-    install_shared_library "$TARGETLIBDIR/$library_name" scripts/build_core_shared.sh
+ALLOWED_LIBRARIES="$(reta_artifact_profile_shared_libraries "$INSTALL_PROFILE" | tr '\n' ' ')"
+for library_name in $(reta_artifact_shared_libraries); do
+    case " $ALLOWED_LIBRARIES " in
+        *" $library_name "*) ;;
+        *) rm -f "$STAGE_LIBDIR/$library_name" "$STAGE_LIBDIR/$library_name.reta-source-id" \
+                "$STAGE_LIBEXECDIR/$library_name" "$STAGE_LIBEXECDIR/$library_name.reta-source-id" ;;
+    esac
 done
-for library_name in $(reta_artifact_prompt_shared_libraries); do
-    install_shared_library "$TARGETLIBDIR/$library_name" scripts/build_prompt_shared.sh
+
+for library_name in $(reta_artifact_profile_shared_libraries "$INSTALL_PROFILE"); do
+    case "$library_name" in
+        libreta_core_mojo.so) install_shared_library "$TARGETLIBDIR/$library_name" scripts/build_core_shared.sh ;;
+        libreta_prompt_mojo.so|libreta_prompt_interactive_mojo.so) install_shared_library "$TARGETLIBDIR/$library_name" scripts/build_prompt_shared.sh ;;
+        libreta_diagnostics_mojo.so) install_shared_library "$TARGETLIBDIR/$library_name" scripts/build_diagnostics_shared.sh ;;
+        *) install_shared_library "$TARGETLIBDIR/$library_name" scripts/build-all.sh ;;
+    esac
 done
 
 if [ "$INSTALL_MOJO_RUNTIME" != 0 ]; then
@@ -168,8 +220,7 @@ if find "$STAGE_BINDIR" "$STAGE_LIBEXECDIR" \( -name '*.reta-source-id' -o -name
     exit 3
 fi
 for library_name in \
-    $(reta_artifact_core_shared_libraries) \
-    $(reta_artifact_prompt_shared_libraries) \
+    $(reta_artifact_shared_libraries) \
     libKGENCompilerRTShared.so \
     libAsyncRTMojoBindings.so \
     libMSupportGlobals.so \
@@ -197,18 +248,21 @@ if find "$STAGE_BINDIR" "$STAGE_LIBEXECDIR" "$STAGE_DATADIR" -type l 2>/dev/null
     printf '%s\n' 'Fehler: Installation darf keine Launcher-/Daten-Symlinks erzeugen.' >&2
     exit 3
 fi
-for forbidden in $(reta_artifact_legacy_installed_executables 2>/dev/null || true); do
-    case "$forbidden" in
-        reta|grundStrukHtml|rp|rpl|rpe|rpb|generate_html) continue ;;
+for forbidden in $(reta_artifact_all_known_installed_executables 2>/dev/null || true); do
+    case " $ALLOWED_COMMANDS " in
+        *" $forbidden "*) continue ;;
     esac
     [ ! -e "$STAGE_BINDIR/$forbidden" ] || {
-        printf 'Fehler: Diagnose-/Backend-Befehl darf nicht installiert werden: %s\n' "$STAGE_BINDIR/$forbidden" >&2
+        printf 'Fehler: Befehl gehört nicht zum Installationsprofil %s: %s\n' "$INSTALL_PROFILE" "$STAGE_BINDIR/$forbidden" >&2
         exit 3
     }
 done
 
+INSTALLED_COMMANDS=$(reta_artifact_profile_install_executables "$INSTALL_PROFILE" | paste -sd, -)
+INSTALLED_MANPAGES=$(reta_profile_manpages "$INSTALL_PROFILE" | paste -sd, -)
 cat > "$STAGE_DATADIR/INSTALL_LAYOUT" <<LAYOUT
 prefix=$PREFIX
+install_profile=$INSTALL_PROFILE
 bindir=$BINDIR
 binarydir=$BINDIR
 libdir=$LIBDIR
@@ -220,6 +274,8 @@ assetdir=$DATADIR/assets
 referencedir=$REFERENCEDIR
 mandir=$MANDIR
 installed_public_commands=reta,rp,rpl,rpe,rpb,generate_html,grundStrukHtml
+installed_commands=$INSTALLED_COMMANDS
+installed_manpages=$INSTALLED_MANPAGES
 compiled_targets=$INSTALLED_TARGETS
 compiled_shared_libraries=$INSTALLED_LIBRARIES
 installed_source_id_sidecars=0
@@ -236,15 +292,15 @@ maybe_ldconfig() {
 }
 maybe_ldconfig
 
-printf 'Reta installiert:\n'
-printf '  Programme/Binaries: %s/{reta,rp,rpl,rpe,rpb,generate_html,grundStrukHtml}\n' "$BINDIR"
+printf 'Reta installiert (%s):\n' "$INSTALL_PROFILE"
+printf '  Programme/Binaries: %s\n' "$BINDIR"
 printf '  Shared Libraries:   %s\n' "$LIBDIR"
 printf '  Compilerziele:      %s\n' "$INSTALLED_TARGETS"
 printf '  Shared Libraries:   %s\n' "$INSTALLED_LIBRARIES"
 printf '  CSV-Daten:          %s\n' "$DATADIR/csv"
 printf '  Assets:             %s\n' "$DATADIR/assets"
 printf '  Python-Referenz:    %s\n' "$REFERENCEDIR"
-printf '  Manpages:           %s/man1/{generate_html,grundStrukHtml,reta,rp,rpl,rpe,rpb}.1\n' "$MANDIR"
+printf '  Manpages:           %s/man1\n' "$MANDIR"
 if [ -n "$DESTDIR" ]; then
     printf '  Paketwurzel:        %s\n' "$DESTDIR"
 fi

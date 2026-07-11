@@ -3,7 +3,7 @@ set -eu
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 . "$ROOT/scripts/reta_manpages.sh"
 
-for manpage in $(reta_public_manpages); do
+for manpage in $(reta_all_manpages); do
     path="$ROOT/man/$manpage"
     [ -f "$path" ] || {
         printf 'Fehlende Manpage: %s\n' "$path" >&2
@@ -30,4 +30,4 @@ grep -q 'Emacs-style output' "$ROOT/man/rpe.1"
 grep -q 'one-shot Reta prompt frontend' "$ROOT/man/rpb.1"
 grep -q -- '--middle-file' "$ROOT/man/generate_html.1"
 
-printf 'Manpages konsistent: %s Dateien\n' "$(reta_public_manpages | wc -l | tr -d ' ')"
+printf 'Manpages konsistent: %s Dateien\n' "$(reta_all_manpages | wc -l | tr -d ' ')"

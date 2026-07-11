@@ -389,29 +389,41 @@ Source-only Archive enthalten bewusst kein `target/`. Jeder Build versieht sein 
 
 ### Installation der CSV- und Assetdaten
 
-Für eine manuelle Installation ist `/usr/local` der Standard:
+Für eine manuelle Standardinstallation ist `/usr/local` der Standard:
 
 ```bash
 ./scripts/build-all.sh
 sudo ./scripts/install.sh
 ```
 
+Die Standardinstallation enthält nur die öffentlichen Nutzerbefehle
+`reta`, `rp`, `rpl`, `rpe`, `rpb`, `generate_html` und `grundStrukHtml`.
+Zusätzliche Entwickler-/Diagnosebefehle werden bewusst getrennt installiert:
+
+```bash
+sudo ./scripts/install.sh --zusatz
+sudo ./scripts/install.sh --all
+```
+
+Deinstallation ist ebenfalls profiliert; ohne Option räumt `uninstall.sh` alles
+auf, damit alte breite Installationen verschwinden:
+
+```bash
+sudo ./scripts/uninstall.sh --standard
+sudo ./scripts/uninstall.sh --zusatz
+sudo ./scripts/uninstall.sh --all
+```
+
 Die CSV-Dateien liegen dann unter `/usr/local/share/reta/csv`. Ein
 Distributionspaket verwendet `DESTDIR="$pkgdir" PREFIX=/usr` und installiert
 sie unter `/usr/share/reta/csv`. Eine Installation ohne Root verwendet
-`PREFIX="$HOME/.local"` und damit `$HOME/.local/share/reta/csv`. Private
-Mojo-Programme und der verbleibende Python-Kompatibilitätsbaum liegen
-standardmäßig getrennt unter `lib/reta`; Fedora-/RPM-Pakete können
-`LIBEXECDIR=/usr/libexec/reta` setzen. Relative Symlinks erhalten die
-historische Projektstruktur ohne Datenkopie. Seit Stage 12c5h kopiert der
-Installer ausschließlich die in `scripts/install_targets.txt` deklarierten
-39 Executables und die gemeinsame Diagnosebibliothek; lokale Debug-/Altdateien unter
-`target/bin` werden nicht mehr versehentlich installiert. Details:
-[`STAGE12C4M_FHS_RESOURCE_INSTALLATION.md`](STAGE12C4M_FHS_RESOURCE_INSTALLATION.md).
+`PREFIX="$HOME/.local"` und damit `$HOME/.local/share/reta/csv`. Alle Shared
+Libraries liegen flach unter `PREFIX/lib`; ausführbare Dateien liegen nur unter
+`PREFIX/bin`. Details: [`STAGE12C4M_FHS_RESOURCE_INSTALLATION.md`](STAGE12C4M_FHS_RESOURCE_INSTALLATION.md).
 
 ## Stufen 7–10: Generatoren, Kombinationen, Markup und Prompt
 
-Stage 12c5z konsolidiert vier installierbare Diagnoseprogramme in `libreta_diagnostics_mojo.so` und einen kleinen ABI-geprüften Loader. Die bisherigen Befehlsnamen bleiben als kompatible Launcher bestehen; die Standardinstallation enthält nun 39 Executables plus eine Shared Library. `scripts/export_target.sh` ersetzt die beim lokalen Build sinnvollen absoluten Runtime-Symlinks durch echte Dateien für die Rechnerübergabe. Details: [`STAGE12C5Z_SHARED_DIAGNOSTIC_LIBRARY.md`](STAGE12C5Z_SHARED_DIAGNOSTIC_LIBRARY.md).
+Stage 12c5z konsolidiert vier installierbare Diagnoseprogramme in `libreta_diagnostics_mojo.so` und einen kleinen ABI-geprüften Loader. Die bisherigen Befehlsnamen bleiben als Diagnose-/Zusatzprofile verfügbar; die Standardinstallation enthält nur die öffentlichen Nutzerbefehle. `scripts/export_target.sh` ersetzt die beim lokalen Build sinnvollen absoluten Runtime-Symlinks durch echte Dateien für die Rechnerübergabe. Details: [`STAGE12C5Z_SHARED_DIAGNOSTIC_LIBRARY.md`](STAGE12C5Z_SHARED_DIAGNOSTIC_LIBRARY.md).
 
 Stage 12c5y schließt `reta_architecture/table_output.py` vollständig. `TableOutputConfig`, `TableOutput`, Ergebnisbuffer, Spaltenprojektion, ANSI-Farbpolitik und Bundle/Snapshot sind typisiert; alle sieben Ausgabearten delegieren an die bereits nativen und breit getesteten Serializer. `reta-mojo-table-output` war zunächst ein eigenes Diagnoseziel und wird seit Stage 12c5z über die gemeinsame Diagnosebibliothek bereitgestellt. Details: [`STAGE12C5Y_NATIVE_TABLE_OUTPUT.md`](STAGE12C5Y_NATIVE_TABLE_OUTPUT.md).
 

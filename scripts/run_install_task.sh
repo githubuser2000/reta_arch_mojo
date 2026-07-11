@@ -11,8 +11,12 @@ Alle Varianten verwenden dieselben Install-Defaults; standardmäßig ist das:
   PREFIX=/usr/local
 
 Tasks:
-  install
-  uninstall
+  install | install-standard
+  install-zusatz
+  install-all
+  uninstall | uninstall-all
+  uninstall-standard
+  uninstall-zusatz
   check-install-layout
   check-manpages
   install-layout
@@ -44,12 +48,34 @@ cd "$ROOT"
 . "$ROOT/scripts/reta_command_runner.sh"
 reta_install_set_defaults
 
+run_install_profile() {
+    profile=$1
+    reta_exec_or_print env PREFIX="$PREFIX" BINDIR="$BINDIR" LIBDIR="$LIBDIR" LIBEXECDIR="$LIBEXECDIR" DATADIR="$DATADIR" REFERENCEDIR="$REFERENCEDIR" MANDIR="$MANDIR" "$ROOT/scripts/install.sh" "--$profile"
+}
+
+run_uninstall_profile() {
+    profile=$1
+    reta_exec_or_print env PREFIX="$PREFIX" BINDIR="$BINDIR" LIBDIR="$LIBDIR" LIBEXECDIR="$LIBEXECDIR" DATADIR="$DATADIR" REFERENCEDIR="$REFERENCEDIR" MANDIR="$MANDIR" "$ROOT/scripts/uninstall.sh" "--$profile"
+}
+
 case $TASK in
-    install)
-        reta_exec_or_print env PREFIX="$PREFIX" BINDIR="$BINDIR" LIBDIR="$LIBDIR" LIBEXECDIR="$LIBEXECDIR" DATADIR="$DATADIR" REFERENCEDIR="$REFERENCEDIR" MANDIR="$MANDIR" "$ROOT/scripts/install.sh"
+    install|install-standard)
+        run_install_profile standard
         ;;
-    uninstall)
-        reta_exec_or_print env PREFIX="$PREFIX" BINDIR="$BINDIR" LIBDIR="$LIBDIR" LIBEXECDIR="$LIBEXECDIR" DATADIR="$DATADIR" REFERENCEDIR="$REFERENCEDIR" MANDIR="$MANDIR" "$ROOT/scripts/uninstall.sh"
+    install-zusatz)
+        run_install_profile zusatz
+        ;;
+    install-all)
+        run_install_profile all
+        ;;
+    uninstall|uninstall-all)
+        run_uninstall_profile all
+        ;;
+    uninstall-standard)
+        run_uninstall_profile standard
+        ;;
+    uninstall-zusatz)
+        run_uninstall_profile zusatz
         ;;
     check-install-layout)
         reta_exec_or_print env PREFIX="$PREFIX" BINDIR="$BINDIR" LIBDIR="$LIBDIR" LIBEXECDIR="$LIBEXECDIR" DATADIR="$DATADIR" REFERENCEDIR="$REFERENCEDIR" MANDIR="$MANDIR" "$ROOT/scripts/check_install_layout.sh"

@@ -617,7 +617,7 @@ scripts/test_stage12c5w.sh
 
 Die wiederholte Modular-Meldung `Failed to initialize Crashpad` ist nicht der Buildabbruch; erfolgreich erzeugte Ziele bleiben gültig. Maßgeblich ist die erste nachfolgende `error:`-Diagnose. Stage 12c5w schließt den gemeldeten reservierten Bezeichner `alias` und vergleicht anschließend den 18-Felder-Vokabularsnapshot mit Python beziehungsweise PyPy3. Für Paketierungs- oder Layoutprüfungen kann die Quelle obligatorischer Binaries mit `RETA_TARGET_DIR=/pfad/zu/target/bin scripts/install.sh` explizit gesetzt werden.
 
-Der FHS-Installer kopiert außerdem `check_mojo_binary_freshness.sh` und `current_source_id.sh` in den privaten Skriptbaum. Ohne diese beiden Helfer würde ein installierter `mojo-runtime-exec` vor der eigentlichen Laufzeitsuche abbrechen.
+Der FHS-Installer installiert im Standardprofil keine privaten Skriptbäume mehr. `mojo-runtime-exec` gehört nur zu den Zusatzprofilen; normale Nutzerbefehle liegen direkt unter `PREFIX/bin`.
 
 ## Vollständiges Console-IO und Modulimportprüfung (Stage 12c5x)
 
@@ -1025,3 +1025,54 @@ pixi run cmake-script-cleanup-status
 
 Wenn diese Anzeige und der Doctor grün sind, ist Punkt 4 abgeschlossen und der
 nächste Hauptschritt ist die ABI-/Shared-Library-Stabilisierung.
+
+
+### Installationsprofile standard, zusatz und all
+
+Der Installer besitzt drei Profile. Ohne Option gilt `standard`:
+
+```text
+standard  reta, rp, rpl, rpe, rpb, generate_html, grundStrukHtml
+zusatz    standard + reguläre Entwickler-/Diagnosebefehle
+all       standard + zusatz + schwere Architektur-/Stage-Diagnosen
+```
+
+Shell:
+
+```bash
+sudo ./scripts/install.sh              # standard
+sudo ./scripts/install.sh --zusatz
+sudo ./scripts/install.sh --all
+sudo ./scripts/uninstall.sh --standard
+sudo ./scripts/uninstall.sh --zusatz
+sudo ./scripts/uninstall.sh --all      # auch Default
+```
+
+Pixi bleibt für Build/Tasksteuerung Benutzerprozess. Für `/usr/local` wird nicht
+`sudo pixi run install`, sondern das Installskript direkt mit sudo verwendet:
+
+```bash
+pixi run build-all
+sudo ./scripts/install.sh --all
+```
+
+Für Benutzerprefix ohne root sind die Pixi-Profile direkt nutzbar:
+
+```bash
+PREFIX="$HOME/.local" pixi run install
+PREFIX="$HOME/.local" pixi run install-zusatz
+PREFIX="$HOME/.local" pixi run install-all
+PREFIX="$HOME/.local" pixi run uninstall-all
+```
+
+CMake:
+
+```bash
+sudo cmake --install build                         # standard
+sudo cmake --build build --target reta-install-zusatz
+sudo cmake --build build --target reta-install-all
+sudo cmake --build build --target reta-uninstall-all
+```
+
+Alle Shared Libraries liegen flach unter `PREFIX/lib`; ausführbare Dateien liegen
+nur unter `PREFIX/bin`. `lib/reta` ist nur noch Legacy-Cleanup.
