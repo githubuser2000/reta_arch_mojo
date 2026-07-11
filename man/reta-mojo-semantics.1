@@ -1,0 +1,16 @@
+.TH RETA\-MOJO\-SEMANTICS 1 "July 2026" "reta_arch_mojo" "User Commands"
+.SH NAME
+reta\-mojo\-semantics \- native parameter semantics checker
+.SH SYNOPSIS
+.B reta\-mojo\-semantics
+.RI [ ARGUMENT ...]
+.SH DESCRIPTION
+.B reta\-mojo\-semantics
+runs the native Mojo semantics tool. It is mainly a diagnostic, parity, architecture, or release\-check command for the ongoing port rather than a normal end\-user frontend.
+
+.SH NOTES
+This command is installed because it is a build or diagnostic target of the native Mojo port. Normal users usually start with .BR reta (1), .BR rp (1), .BR rpl (1), .BR rpe (1), or .BR rpb (1).
+.SH EXIT STATUS
+Returns 0 on success and non-zero on errors, failed checks, missing build targets, or invalid arguments.
+.SH SEE ALSO
+.BR reta(1), rp(1), rpl(1), rpe(1), rpb(1), reta-mojo(1)

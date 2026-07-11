@@ -104,6 +104,8 @@ find_mojo_runtime() {
         return 2
     fi
     for candidate in \
+        "$ROOT/lib" \
+        "$ROOT/lib64" \
         "$ROOT/lib/reta/mojo" \
         "$ROOT/lib64/reta/mojo" \
         "$ROOT/mojo" \

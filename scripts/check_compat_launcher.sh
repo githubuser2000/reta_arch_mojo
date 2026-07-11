@@ -4,7 +4,7 @@ ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 cd "$ROOT"
 TEST_DIR=${RETA_TEST_TARGET_DIR:-"$ROOT/target/test-bin"}
 mkdir -p "$TEST_DIR"
-MOJO_RUNTIME_RPATH='$ORIGIN/../lib/mojo'
+MOJO_RUNTIME_RPATH='$ORIGIN/../lib:$ORIGIN/../lib/mojo'
 "$ROOT/scripts/configure_mojo_runtime.sh" >/dev/null
 
 if [ "${RETA_SKIP_COMPAT_BUILD:-0}" != 1 ]; then

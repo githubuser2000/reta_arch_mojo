@@ -383,7 +383,7 @@ PYTHONHASHSEED=0 pypy3 reta -spalten --alles --breite=0 \
 
 `.venv/`, `.git/`, `target/` und Caches gehören nicht in Quellarchive. Für weitere Transpilierungsrunden ist `scripts/create_source_archive.sh <name>.tar.xz` der richtige Export; die vollständige Einteilung steht in [`PROJECT_CONTENT_PROFILES.md`](PROJECT_CONTENT_PROFILES.md). Brotli-Archive (`.tar.br`) werden ebenfalls unterstützt.
 
-Nach jedem Build entfernt `tools/sanitize_mojo_runpath.py` den von Mojo selbst ergänzten absoluten Compilerpfad aus dem ELF-RUNPATH. Ausgelieferte Programme enthalten damit nur `$ORIGIN/../lib/mojo` und bleiben zwischen Rechnern übertragbar.
+Nach jedem Build entfernt `tools/sanitize_mojo_runpath.py` den von Mojo selbst ergänzten absoluten Compilerpfad aus dem ELF-RUNPATH. Ausgelieferte Programme enthalten damit nur `$ORIGIN/../lib:$ORIGIN/../lib/mojo` und bleiben zwischen Rechnern übertragbar.
 
 Source-only Archive enthalten bewusst kein `target/`. Jeder Build versieht sein ELF deshalb mit einer `*.reta-source-id`-Sidecar. `bin/mojo-runtime-exec` verweigert ein altes Binary aus einem früheren Archiv und fordert `scripts/build.sh` an, statt unbemerkt veralteten Code auszuführen.
 
@@ -1018,7 +1018,7 @@ sind byteidentisch. Details:
 
 Stage 12c4l macht übertragene Mojo-ELF-Dateien unabhängig vom absoluten
 Compilerpfad des Buildrechners. Alle Builds erhalten den relativen RUNPATH
-`$ORIGIN/../lib/mojo`; `scripts/configure_mojo_runtime.sh` füllt den
+`$ORIGIN/../lib:$ORIGIN/../lib/mojo`; `scripts/configure_mojo_runtime.sh` füllt den
 projektrelativen Ort `target/lib/mojo`, und `bin/mojo-runtime-exec` kann auch
 ältere Binaries über `LD_LIBRARY_PATH` starten. Das betrifft die Modular-
 Laufzeitbibliotheken, nicht die CSV-Dateien. Gleichzeitig ist der rohe

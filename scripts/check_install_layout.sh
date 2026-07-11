@@ -8,6 +8,7 @@ STAGE=$TMP/stage
 . "$ROOT/scripts/reta_manpages.sh"
 reta_install_set_defaults
 STAGE_BINDIR=$STAGE$BINDIR
+STAGE_LIBDIR=$STAGE$LIBDIR
 STAGE_LIBEXECDIR=$STAGE$LIBEXECDIR
 STAGE_DATADIR=$STAGE$DATADIR
 STAGE_REFERENCEDIR=$STAGE$REFERENCEDIR
@@ -15,7 +16,7 @@ STAGE_MANDIR=$STAGE$MANDIR
 trap 'rm -rf "$TMP"' EXIT HUP INT TERM
 mkdir -p "$TMP"
 
-DESTDIR="$STAGE" PREFIX="$PREFIX" BINDIR="$BINDIR" LIBEXECDIR="$LIBEXECDIR" DATADIR="$DATADIR" REFERENCEDIR="$REFERENCEDIR" MANDIR="$MANDIR" "$ROOT/scripts/install.sh" >"$TMP/install.log"
+DESTDIR="$STAGE" PREFIX="$PREFIX" BINDIR="$BINDIR" LIBDIR="$LIBDIR" LIBEXECDIR="$LIBEXECDIR" DATADIR="$DATADIR" REFERENCEDIR="$REFERENCEDIR" MANDIR="$MANDIR" "$ROOT/scripts/install.sh" >"$TMP/install.log"
 
 [ -f "$STAGE_DATADIR/csv/religion.csv" ]
 [ -f "$STAGE_DATADIR/assets/parameter_aliases.tsv" ]
@@ -48,6 +49,7 @@ for starter in $(reta_artifact_core_starters); do
     [ -x "$STAGE_BINDIR/$starter" ]
     [ ! -L "$STAGE_BINDIR/$starter" ]
     [ ! -e "$STAGE_LIBEXECDIR/$starter" ]
+    [ ! -e "$STAGE_LIBDIR/$starter" ]
     [ ! -e "$STAGE_BINDIR/$starter.reta-source-id" ]
     [ ! -e "$STAGE_LIBEXECDIR/$starter.reta-source-id" ]
 done
@@ -55,25 +57,39 @@ for starter in $(reta_artifact_prompt_starters); do
     [ -x "$STAGE_BINDIR/$starter" ]
     [ ! -L "$STAGE_BINDIR/$starter" ]
     [ ! -e "$STAGE_LIBEXECDIR/$starter" ]
+    [ ! -e "$STAGE_LIBDIR/$starter" ]
     [ ! -e "$STAGE_BINDIR/$starter.reta-source-id" ]
     [ ! -e "$STAGE_LIBEXECDIR/$starter.reta-source-id" ]
 done
 for library_name in $(reta_artifact_core_shared_libraries); do
-    [ -f "$STAGE_LIBEXECDIR/$library_name" ]
+    [ -f "$STAGE_LIBDIR/$library_name" ]
+    [ ! -x "$STAGE_LIBDIR/$library_name" ]
+    [ ! -e "$STAGE_LIBDIR/$library_name.reta-source-id" ]
+    [ ! -e "$STAGE_LIBEXECDIR/$library_name" ]
     [ ! -e "$STAGE_LIBEXECDIR/$library_name.reta-source-id" ]
 done
 for library_name in $(reta_artifact_prompt_shared_libraries); do
-    [ -f "$STAGE_LIBEXECDIR/$library_name" ]
+    [ -f "$STAGE_LIBDIR/$library_name" ]
+    [ ! -x "$STAGE_LIBDIR/$library_name" ]
+    [ ! -e "$STAGE_LIBDIR/$library_name.reta-source-id" ]
+    [ ! -e "$STAGE_LIBEXECDIR/$library_name" ]
     [ ! -e "$STAGE_LIBEXECDIR/$library_name.reta-source-id" ]
 done
 [ ! -e "$STAGE_LIBEXECDIR/target" ]
-! find "$STAGE_BINDIR" "$STAGE_LIBEXECDIR" \( -name '*.reta-source-id' -o -name '*.reta-test-source-id' \) | grep -q .
-! find "$STAGE_BINDIR" "$STAGE_LIBEXECDIR" "$STAGE_DATADIR" -type l | grep -q .
-! find "$STAGE_LIBEXECDIR" "$STAGE_DATADIR" "$STAGE_REFERENCEDIR" "$STAGE_MANDIR" \
-    -type f \( -perm -0100 -o -perm -0010 -o -perm -0001 \) -print | grep -q .
-for installed_command in $(find "$STAGE_BINDIR" -maxdepth 1 -type f -perm -0100 -print); do
-    [ -x "$installed_command" ]
+[ ! -e "$STAGE_LIBEXECDIR/mojo" ]
+for runtime_library in \
+    libKGENCompilerRTShared.so \
+    libAsyncRTMojoBindings.so \
+    libMSupportGlobals.so \
+    libAsyncRTRuntimeGlobals.so \
+    libNVPTX.so
+do
+    [ -f "$STAGE_LIBDIR/$runtime_library" ]
+    [ ! -x "$STAGE_LIBDIR/$runtime_library" ]
+    [ ! -e "$STAGE_LIBEXECDIR/mojo/$runtime_library" ]
 done
+! find "$STAGE_BINDIR" "$STAGE_LIBEXECDIR" \( -name '*.reta-source-id' -o -name '*.reta-test-source-id' \) 2>/dev/null | grep -q .
+! find "$STAGE_BINDIR" "$STAGE_LIBEXECDIR" "$STAGE_DATADIR" -type l 2>/dev/null | grep -q .
 
 (
     cd "$TMP"
@@ -152,7 +168,7 @@ cmp "$ROOT/assets/reta_help_en.txt" "$TMP/installed-help-en.out"
 
 # Installed packages intentionally do not ship .reta-source-id sidecars, so the
 # source-tree Prompt-Shared-Runtime check is not applicable here. The installed
-# smoke below checks the public BINDIR launchers against LIBEXECDIR libraries.
+# smoke below checks the public BINDIR launchers against flat LIBDIR libraries.
 
 (
     cd "$TMP"
@@ -161,11 +177,23 @@ cmp "$ROOT/assets/reta_help_en.txt" "$TMP/installed-help-en.out"
     printf 'q\n' | "$STAGE_BINDIR/rp" >"$TMP/installed-rp.out"
 )
 grep -q '^60: 2\^2 3 5$' "$TMP/installed-rpb.out"
-DESTDIR="$STAGE" PREFIX="$PREFIX" BINDIR="$BINDIR" LIBEXECDIR="$LIBEXECDIR" DATADIR="$DATADIR" REFERENCEDIR="$REFERENCEDIR" MANDIR="$MANDIR" "$ROOT/scripts/uninstall.sh" >/dev/null
+DESTDIR="$STAGE" PREFIX="$PREFIX" BINDIR="$BINDIR" LIBDIR="$LIBDIR" LIBEXECDIR="$LIBEXECDIR" DATADIR="$DATADIR" REFERENCEDIR="$REFERENCEDIR" MANDIR="$MANDIR" "$ROOT/scripts/uninstall.sh" >/dev/null
 for manpage in $(reta_public_manpages); do
     [ ! -e "$STAGE_MANDIR/man1/$manpage" ]
 done
 [ ! -e "$STAGE_LIBEXECDIR" ]
 [ ! -e "$STAGE_DATADIR" ]
+for library_name in \
+    $(reta_artifact_core_shared_libraries) \
+    $(reta_artifact_prompt_shared_libraries) \
+    $(reta_artifact_diagnostics_shared_libraries) \
+    libKGENCompilerRTShared.so \
+    libAsyncRTMojoBindings.so \
+    libMSupportGlobals.so \
+    libAsyncRTRuntimeGlobals.so \
+    libNVPTX.so
+do
+    [ ! -e "$STAGE_LIBDIR/$library_name" ]
+done
 
 printf '%s\n' 'FHS-Installation: Layout, native CSV, Core-/Prompt-Starter und Deinstallation bestanden.'

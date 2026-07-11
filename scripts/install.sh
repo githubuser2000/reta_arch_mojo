@@ -94,33 +94,15 @@ if [ -f "$TARGETDIR/reta-mojo-diagnostics" ]; then
 fi
 
 STAGE_BINDIR=$(stage_path "$BINDIR")
+STAGE_LIBDIR=$(stage_path "$LIBDIR")
 STAGE_LIBEXECDIR=$(stage_path "$LIBEXECDIR")
 STAGE_DATADIR=$(stage_path "$DATADIR")
 STAGE_REFERENCEDIR=$(stage_path "$REFERENCEDIR")
 STAGE_MANDIR=$(stage_path "$MANDIR")
 
-install -d "$STAGE_BINDIR" "$STAGE_LIBEXECDIR" \
+install -d "$STAGE_BINDIR" "$STAGE_LIBDIR" \
     "$STAGE_DATADIR/csv" "$STAGE_DATADIR/assets" \
     "$STAGE_MANDIR/man1"
-
-strip_executable_bits_outside_bindir() {
-    for dir in "$STAGE_LIBEXECDIR" "$STAGE_DATADIR" "$STAGE_REFERENCEDIR" "$STAGE_MANDIR"; do
-        [ -d "$dir" ] || continue
-        find "$dir" -type f \( -perm -0100 -o -perm -0010 -o -perm -0001 \) -exec chmod a-x {} +
-    done
-}
-
-assert_no_executable_files_outside_bindir() {
-    bad_files=$(
-        find "$STAGE_LIBEXECDIR" "$STAGE_DATADIR" "$STAGE_REFERENCEDIR" "$STAGE_MANDIR" \
-            -type f \( -perm -0100 -o -perm -0010 -o -perm -0001 \) -print 2>/dev/null || true
-    )
-    if [ -n "$bad_files" ]; then
-        printf '%s\n' 'Fehler: ausführbare Dateien dürfen nur unter BINDIR installiert werden.' >&2
-        printf '%s\n' "$bad_files" >&2
-        exit 3
-    fi
-}
 
 for manpage in $(reta_public_manpages); do
     install -m 0644 "$ROOT/man/$manpage" "$STAGE_MANDIR/man1/$manpage"
@@ -139,8 +121,8 @@ cp -aL "$ROOT/python_reference" "$STAGE_REFERENCEDIR"
 find "$STAGE_REFERENCEDIR" -type d -name __pycache__ -prune -exec rm -rf {} + 2>/dev/null || true
 find "$STAGE_REFERENCEDIR" -type f \( -name '*.pyc' -o -name '*.pyo' \) -delete 2>/dev/null || true
 
-# Assets are installed physically under share/reta/assets only.  lib/reta is for
-# native shared libraries and the Mojo runtime, not data aliases.
+# Assets are installed physically under share/reta/assets only.  The legacy
+# lib/reta directory must not keep old data aliases from previous installs.
 rm -rf "$STAGE_LIBEXECDIR/assets"
 
 # Public shell frontends belong directly below BINDIR, never below lib/reta.
@@ -164,7 +146,9 @@ done
 
 rm -rf "$STAGE_LIBEXECDIR/bin" "$STAGE_LIBEXECDIR/scripts"
 
-rm -rf "$STAGE_LIBEXECDIR/target"
+# New installs keep all shared libraries flat in LIBDIR, not in lib/reta or
+# lib/reta/mojo.  Remove legacy private install trees before copying.
+rm -rf "$STAGE_LIBEXECDIR/target" "$STAGE_LIBEXECDIR/mojo"
 CURRENT_SOURCE_ID=$("$ROOT/scripts/current_source_id.sh")
 INSTALLED_TARGETS=0
 while IFS= read -r name || [ -n "$name" ]; do
@@ -195,8 +179,9 @@ install_shared_library() {
     RETA_REBUILD_COMMAND="$rebuild_command" \
     RETA_CURRENT_SOURCE_ID="$CURRENT_SOURCE_ID" \
         "$ROOT/scripts/check_mojo_binary_freshness.sh" "$source_library"
+    rm -f "$STAGE_LIBEXECDIR/$installed_name" "$STAGE_LIBEXECDIR/$installed_name.reta-source-id"
     install -m 0644 "$source_library" \
-        "$STAGE_LIBEXECDIR/$installed_name"
+        "$STAGE_LIBDIR/$installed_name"
     # Shared-library .reta-source-id files stay in the build tree only.
     INSTALLED_LIBRARIES=$((INSTALLED_LIBRARIES + 1))
 }
@@ -213,7 +198,6 @@ if [ "$INSTALL_DIAGNOSTICS" = 1 ]; then
 fi
 
 if [ "$INSTALL_MOJO_RUNTIME" != 0 ]; then
-    install -d "$STAGE_LIBEXECDIR/mojo"
     RUNTIME_DIR=$($ROOT/scripts/find_mojo_runtime.sh)
     for library in \
         libKGENCompilerRTShared.so \
@@ -223,24 +207,39 @@ if [ "$INSTALL_MOJO_RUNTIME" != 0 ]; then
         libNVPTX.so
     do
         require_file "$RUNTIME_DIR/$library"
+        rm -f "$STAGE_LIBEXECDIR/mojo/$library"
         install -m 0644 "$RUNTIME_DIR/$library" \
-            "$STAGE_LIBEXECDIR/mojo/$library"
+            "$STAGE_LIBDIR/$library"
     done
 fi
 
 # Public commands are now either compiled files or shell frontends directly
 # below BINDIR.  lib/reta intentionally contains no bin/ launcher depot.
-# Shared libraries, Mojo runtime files, data, reference files and manpages are
-# not public executable commands; strip accidental execute bits from all Reta-
-# owned install trees outside BINDIR and then enforce that invariant.
-strip_executable_bits_outside_bindir
-assert_no_executable_files_outside_bindir
 
-# Make accidental source-id/python-reference leakage into bin/lib a hard installation error.
-if find "$STAGE_BINDIR" "$STAGE_LIBEXECDIR" \( -name '*.reta-source-id' -o -name '*.reta-test-source-id' \) | grep -q .; then
+# Make accidental source-id/python-reference leakage into bin/legacy-private-lib a hard installation error.
+if find "$STAGE_BINDIR" "$STAGE_LIBEXECDIR" \( -name '*.reta-source-id' -o -name '*.reta-test-source-id' \) 2>/dev/null | grep -q .; then
     printf '%s\n' 'Fehler: Source-ID-Sidecars dürfen nicht installiert werden.' >&2
     exit 3
 fi
+for library_name in \
+    $(reta_artifact_core_shared_libraries) \
+    $(reta_artifact_prompt_shared_libraries) \
+    $(reta_artifact_diagnostics_shared_libraries) \
+    libKGENCompilerRTShared.so \
+    libAsyncRTMojoBindings.so \
+    libMSupportGlobals.so \
+    libAsyncRTRuntimeGlobals.so \
+    libNVPTX.so
+do
+    [ ! -e "$STAGE_LIBDIR/$library_name.reta-source-id" ] || {
+        printf 'Fehler: Source-ID-Sidecar in LIBDIR installiert: %s\n' "$STAGE_LIBDIR/$library_name.reta-source-id" >&2
+        exit 3
+    }
+    if [ -e "$STAGE_LIBDIR/$library_name" ] && [ -x "$STAGE_LIBDIR/$library_name" ]; then
+        printf 'Fehler: Library darf nicht ausführbar installiert werden: %s\n' "$STAGE_LIBDIR/$library_name" >&2
+        exit 3
+    fi
+done
 if [ -e "$STAGE_LIBEXECDIR/python_reference" ]; then
     printf '%s\n' 'Fehler: python_reference darf nicht unter lib/reta installiert werden.' >&2
     exit 3
@@ -249,17 +248,18 @@ if [ -e "$STAGE_LIBEXECDIR/bin" ] || [ -e "$STAGE_LIBEXECDIR/scripts" ]; then
     printf '%s\n' 'Fehler: bin/ und scripts/ dürfen nicht unter lib/reta installiert werden.' >&2
     exit 3
 fi
-if find "$STAGE_BINDIR" "$STAGE_LIBEXECDIR" "$STAGE_DATADIR" -type l | grep -q .; then
+if find "$STAGE_BINDIR" "$STAGE_LIBEXECDIR" "$STAGE_DATADIR" -type l 2>/dev/null | grep -q .; then
     printf '%s\n' 'Fehler: Installation darf keine Launcher-/Daten-Symlinks erzeugen.' >&2
     exit 3
 fi
 
-cat > "$STAGE_LIBEXECDIR/INSTALL_LAYOUT" <<LAYOUT
+cat > "$STAGE_DATADIR/INSTALL_LAYOUT" <<LAYOUT
 prefix=$PREFIX
 bindir=$BINDIR
 binarydir=$BINDIR
-libexecdir=$LIBEXECDIR
-sharedlibdir=$LIBEXECDIR
+libdir=$LIBDIR
+legacy_libexecdir=$LIBEXECDIR
+sharedlibdir=$LIBDIR
 datadir=$DATADIR
 csvdir=$DATADIR/csv
 assetdir=$DATADIR/assets
@@ -268,12 +268,22 @@ mandir=$MANDIR
 compiled_targets=$INSTALLED_TARGETS
 compiled_shared_libraries=$INSTALLED_LIBRARIES
 installed_source_id_sidecars=0
-executable_files_outside_bindir=0
 LAYOUT
+
+maybe_ldconfig() {
+    [ -z "$DESTDIR" ] || return 0
+    case "$LIBDIR" in
+        /usr/local/lib|/usr/lib|/lib|/lib64|/usr/lib64) ;;
+        *) return 0 ;;
+    esac
+    command -v ldconfig >/dev/null 2>&1 || return 0
+    ldconfig 2>/dev/null || true
+}
+maybe_ldconfig
 
 printf 'Reta installiert:\n'
 printf '  Programme/Binaries: %s\n' "$BINDIR"
-printf '  Shared Libraries:   %s\n' "$LIBEXECDIR"
+printf '  Shared Libraries:   %s\n' "$LIBDIR"
 printf '  Compilerziele:      %s\n' "$INSTALLED_TARGETS"
 printf '  Shared Libraries:   %s\n' "$INSTALLED_LIBRARIES"
 printf '  CSV-Daten:          %s\n' "$DATADIR/csv"

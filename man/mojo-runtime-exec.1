@@ -1,0 +1,17 @@
+.TH MOJO\-RUNTIME\-EXEC 1 "July 2026" "reta_arch_mojo" "User Commands"
+.SH NAME
+mojo\-runtime\-exec \- Reta Mojo runtime execution wrapper
+.SH SYNOPSIS
+.B mojo\-runtime\-exec
+.I PROGRAM
+.RI [ ARGUMENT ...]
+.SH DESCRIPTION
+.B mojo\-runtime\-exec
+executes a compiled Mojo target with the installed Reta runtime environment. Wrapper commands use it to locate data files, assets, Python reference material, and Mojo runtime libraries.
+
+.SH NOTES
+This helper is used by installed wrapper commands. It sets the Reta data, asset, reference, and Mojo runtime library environment before executing the requested native target. It is mainly useful for debugging installed native executables.
+.SH EXIT STATUS
+Returns 0 on success and non-zero on errors, failed checks, missing build targets, or invalid arguments.
+.SH SEE ALSO
+.BR reta(1), rp(1), rpl(1), rpe(1), rpb(1)

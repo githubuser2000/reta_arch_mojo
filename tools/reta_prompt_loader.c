@@ -315,9 +315,13 @@ static int library_path(
         readable_path(buffer)) {
         return 0;
     }
+    if (format_library_path(buffer, size, executable, "../lib", library_name) == 0 &&
+        readable_path(buffer)) {
+        return 0;
+    }
 
     /* Preserve the historic build-tree path in the final error message. */
-    return format_library_path(buffer, size, executable, "../lib/reta", library_name);
+    return format_library_path(buffer, size, executable, "../lib", library_name);
 }
 
 static int read_stamp(const char *path, char *buffer, size_t size) {

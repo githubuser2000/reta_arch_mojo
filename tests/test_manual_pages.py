@@ -4,7 +4,11 @@ from pathlib import Path
 import subprocess
 
 ROOT = Path(__file__).resolve().parents[1]
-MANPAGES = ("generate_html.1", "reta.1", "rp.1", "rpl.1", "rpe.1", "rpb.1")
+MANPAGES = tuple(
+    line.strip()
+    for line in (ROOT / "scripts" / "reta_manpages.sh").read_text(encoding="utf-8").splitlines()
+    if line.strip().endswith(".1")
+)
 
 
 def test_public_manpages_exist_and_cover_prompt_profiles() -> None:
@@ -58,4 +62,4 @@ def test_check_manpages_script() -> None:
         check=False,
     )
     assert result.returncode == 0, result.stderr
-    assert "Manpages konsistent: 6 Dateien" in result.stdout
+    assert f"Manpages konsistent: {len(MANPAGES)} Dateien" in result.stdout

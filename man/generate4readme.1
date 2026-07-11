@@ -1,0 +1,14 @@
+.TH GENERATE4README 1 "July 2026" "reta_arch_mojo" "User Commands"
+.SH NAME
+generate4readme \- public wrapper for generating README/reference material
+.SH SYNOPSIS
+.B generate4readme
+.RI [ ARGUMENT ...]
+.SH DESCRIPTION
+.B generate4readme
+runs the native README/reference generator. It is a public convenience wrapper around generate\-readme\-native and is primarily used when regenerating project documentation from native data.
+
+.SH EXIT STATUS
+Returns 0 on success and non-zero on errors, failed checks, missing build targets, or invalid arguments.
+.SH SEE ALSO
+.BR reta(1), rp(1), rpl(1), rpe(1), rpb(1), generate_html(1)

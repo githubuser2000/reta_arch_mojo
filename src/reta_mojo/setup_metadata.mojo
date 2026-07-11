@@ -121,7 +121,7 @@ def setup_install_plan() -> SetupInstallPlan:
     return SetupInstallPlan(
         "scripts/install.sh",
         "scripts/install_targets.txt",
-        "${PREFIX}/lib/reta",
+        "${PREFIX}/lib",
         "${PREFIX}/share/reta",
         False,
     )

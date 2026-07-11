@@ -143,9 +143,10 @@ def test_installer_copies_only_manifested_compiler_targets(tmp_path: Path) -> No
     assert actual_targets == expected_compiled | expected_public_helpers
     assert sidecars == set()
     assert not (stage / "usr/lib/reta/target/bin").exists()
+    assert not (stage / "usr/lib/reta").exists()
     assert "reta-unofficial-stale-test" not in actual_targets
     assert "reta-native-o0" not in actual_targets
-    layout = (stage / "usr/lib/reta/INSTALL_LAYOUT").read_text(encoding="utf-8")
+    layout = (stage / "usr/share/reta/INSTALL_LAYOUT").read_text(encoding="utf-8")
     assert f"compiled_targets={len(expected_compiled)}" in layout
 
 
@@ -194,11 +195,16 @@ def test_installer_places_shared_diagnostics_bundle_atomically(tmp_path: Path) -
     assert result.returncode == 0, result.stderr
     assert (stage / "usr/bin/reta-mojo-diagnostics").is_file()
     assert not (stage / "usr/bin/reta-mojo-diagnostics.reta-source-id").exists()
-    assert (stage / "usr/lib/reta/libreta_diagnostics_mojo.so").read_bytes() == b"fake-shared-library"
-    assert not (stage / "usr/lib/reta/libreta_diagnostics_mojo.so.reta-source-id").exists()
+    installed_library = stage / "usr/lib/libreta_diagnostics_mojo.so"
+    assert installed_library.read_bytes() == b"fake-shared-library"
+    assert not os.access(installed_library, os.X_OK)
+    assert not (stage / "usr/lib/libreta_diagnostics_mojo.so.reta-source-id").exists()
+    assert not (stage / "usr/lib/reta/libreta_diagnostics_mojo.so").exists()
     assert not list((stage / "usr").rglob("*.reta-source-id"))
-    layout = (stage / "usr/lib/reta/INSTALL_LAYOUT").read_text(encoding="utf-8")
+    layout = (stage / "usr/share/reta/INSTALL_LAYOUT").read_text(encoding="utf-8")
     assert "compiled_shared_libraries=1" in layout
     assert "binarydir=/usr/bin" in layout
-    assert "sharedlibdir=/usr/lib/reta" in layout
+    assert "libdir=/usr/lib" in layout
+    assert "legacy_libexecdir=/usr/lib/reta" in layout
+    assert "sharedlibdir=/usr/lib" in layout
     assert "installed_source_id_sidecars=0" in layout

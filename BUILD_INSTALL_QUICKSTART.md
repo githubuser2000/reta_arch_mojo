@@ -31,7 +31,7 @@ sudo ./scripts/uninstall.sh
 
 ```sh
 pixi run build-all
-sudo env PATH="$PATH" pixi run install
+sudo ./scripts/install.sh
 ```
 
 Optional vorher prüfen:
@@ -43,7 +43,7 @@ pixi run check-toolchain
 Deinstallieren:
 
 ```sh
-sudo env PATH="$PATH" pixi run uninstall
+sudo ./scripts/uninstall.sh
 ```
 
 ## CMake
@@ -70,7 +70,7 @@ Die alten expliziten Targets bleiben gültig:
 
 ```sh
 cmake --build build --target reta-all
-sudo cmake --build build --target reta-install
+sudo cmake --install build
 ```
 
 CMake über Pixi:
@@ -118,3 +118,7 @@ PREFIX="$HOME/.local" ./scripts/install.sh
 ```
 
 Dann muss `$HOME/.local/bin` im `PATH` liegen.
+
+## Library-Layout
+
+Alle installierten Shared Libraries, inklusive Mojo-Runtime-`.so`, liegen flach unter `/usr/local/lib`. Öffentliche ausführbare Dateien liegen nur unter `/usr/local/bin`. Alte private Reste unter `/usr/local/lib/reta` werden von `scripts/uninstall.sh` entfernt.

@@ -60,6 +60,8 @@ def _install(tmp_path: Path, prefix: str = "/usr/local") -> Path:
 def test_fhs_usr_local_layout_uses_share_for_csv_and_assets(tmp_path: Path) -> None:
     stage = _install(tmp_path)
     prefix = stage / "usr" / "local"
+    libdir = prefix / "lib"
+    libdir = prefix / "lib"
     private = prefix / "lib" / "reta"
     shared = prefix / "share" / "reta"
 
@@ -85,25 +87,20 @@ def test_fhs_usr_local_layout_uses_share_for_csv_and_assets(tmp_path: Path) -> N
     assert (prefix / "bin" / "mojo-runtime-exec").is_file()
     assert not list(prefix.rglob("*.reta-source-id"))
     assert not [p for p in prefix.rglob("*") if p.is_symlink()]
-    executable_outside_bin = [
-        path
-        for path in prefix.rglob("*")
-        if path.is_file()
-        and os.access(path, os.X_OK)
-        and not path.is_relative_to(prefix / "bin")
-    ]
-    assert executable_outside_bin == []
     for wrapper in ("generate_html", "generate4readme", "reta-extract-html-classes", "reta-mojo", "reta-mojo-compat"):
         assert (prefix / "bin" / wrapper).is_file()
         assert not (prefix / "bin" / wrapper).is_symlink()
 
-    layout = (private / "INSTALL_LAYOUT").read_text(encoding="utf-8")
+    assert not private.exists()
+    layout = (shared / "INSTALL_LAYOUT").read_text(encoding="utf-8")
     assert "csvdir=/usr/local/share/reta/csv" in layout
     assert "assetdir=/usr/local/share/reta/assets" in layout
     assert "referencedir=/usr/local/share/reta/python_reference" in layout
     assert "mandir=/usr/local/share/man" in layout
     assert "binarydir=/usr/local/bin" in layout
-    assert "sharedlibdir=/usr/local/lib/reta" in layout
+    assert "libdir=/usr/local/lib" in layout
+    assert "legacy_libexecdir=/usr/local/lib/reta" in layout
+    assert "sharedlibdir=/usr/local/lib" in layout
     assert "installed_source_id_sidecars=0" in layout
 
     help_result = subprocess.run(
@@ -145,6 +142,7 @@ def test_default_prefix_is_usr_local(tmp_path: Path) -> None:
 def test_user_local_prefix_keeps_data_below_home_share(tmp_path: Path) -> None:
     stage = _install(tmp_path, prefix="/home/alex/.local")
     prefix = stage / "home" / "alex" / ".local"
+    libdir = prefix / "lib"
     private = prefix / "lib" / "reta"
     shared = prefix / "share" / "reta"
 
@@ -162,14 +160,6 @@ def test_user_local_prefix_keeps_data_below_home_share(tmp_path: Path) -> None:
     assert not (private / "reta-native").exists()
     assert not list(prefix.rglob("*.reta-source-id"))
     assert not [p for p in prefix.rglob("*") if p.is_symlink()]
-    executable_outside_bin = [
-        path
-        for path in prefix.rglob("*")
-        if path.is_file()
-        and os.access(path, os.X_OK)
-        and not path.is_relative_to(prefix / "bin")
-    ]
-    assert executable_outside_bin == []
 
     csv_info = subprocess.run(
         [str(prefix / "bin" / "reta-mojo"), "--mojo-csv-info"],
@@ -185,7 +175,7 @@ def test_user_local_prefix_keeps_data_below_home_share(tmp_path: Path) -> None:
         assert "Fehlendes Compilerziel" in csv_info.stderr
         assert "Keine installierte Mojo-Quelle verfügbar" in csv_info.stderr
     else:
-        if (prefix / "lib" / "reta" / "mojo" / "libKGENCompilerRTShared.so").exists():
+        if (prefix / "lib" / "libKGENCompilerRTShared.so").exists():
             assert csv_info.returncode == 0, csv_info.stderr
             assert "Zeilen: 1025" in csv_info.stdout
             assert "Spalten: 746" in csv_info.stdout
@@ -193,12 +183,59 @@ def test_user_local_prefix_keeps_data_below_home_share(tmp_path: Path) -> None:
             assert csv_info.returncode == 127
             assert "Keine vollständige Modular-Mojo-Laufzeit gefunden" in csv_info.stderr
 
-    layout = (private / "INSTALL_LAYOUT").read_text(encoding="utf-8")
+    assert not private.exists()
+    layout = (shared / "INSTALL_LAYOUT").read_text(encoding="utf-8")
     assert "csvdir=/home/alex/.local/share/reta/csv" in layout
     assert "assetdir=/home/alex/.local/share/reta/assets" in layout
     assert "referencedir=/home/alex/.local/share/reta/python_reference" in layout
     assert "binarydir=/home/alex/.local/bin" in layout
-    assert "sharedlibdir=/home/alex/.local/lib/reta" in layout
+    assert "libdir=/home/alex/.local/lib" in layout
+    assert "legacy_libexecdir=/home/alex/.local/lib/reta" in layout
+    assert "sharedlibdir=/home/alex/.local/lib" in layout
+
+def test_shared_libraries_install_flat_below_libdir_and_are_not_executable(tmp_path: Path) -> None:
+    target_dir = _layout_target_dir(tmp_path)
+    target_root = target_dir.parent
+    target_lib = target_root / "lib" / "reta"
+    target_lib.mkdir(parents=True, exist_ok=True)
+    for starter in ("reta", "grundStrukHtml", "rpb", "rp", "rpl", "rpe"):
+        _write_stub_target(target_dir / starter)
+    for library in (
+        "libreta_core_mojo.so",
+        "libreta_prompt_mojo.so",
+        "libreta_prompt_interactive_mojo.so",
+    ):
+        (target_lib / library).write_text("fake shared library\n", encoding="utf-8")
+        (target_lib / f"{library}.reta-source-id").write_text(_current_source_id(), encoding="utf-8")
+
+    stage = tmp_path / "stage"
+    result = subprocess.run(
+        [str(ROOT / "scripts" / "install.sh")],
+        cwd=ROOT,
+        env={
+            **os.environ,
+            "DESTDIR": str(stage),
+            "PREFIX": "/usr/local",
+            "RETA_INSTALL_MOJO_RUNTIME": "0",
+            "RETA_TARGET_DIR": str(target_dir),
+        },
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr
+    prefix = stage / "usr" / "local"
+    for library in (
+        "libreta_core_mojo.so",
+        "libreta_prompt_mojo.so",
+        "libreta_prompt_interactive_mojo.so",
+    ):
+        installed = prefix / "lib" / library
+        assert installed.is_file()
+        assert not os.access(installed, os.X_OK)
+        assert not (prefix / "lib" / "reta" / library).exists()
+        assert not (prefix / "lib" / f"{library}.reta-source-id").exists()
 
 def test_uninstall_removes_only_reta_layout(tmp_path: Path) -> None:
     stage = _install(tmp_path)
@@ -245,6 +282,7 @@ def test_fedora_libexec_override_keeps_shared_data_in_usr_share(tmp_path: Path) 
     )
     assert result.returncode == 0, result.stderr
     private = stage / "usr" / "libexec" / "reta"
+    libdir = stage / "usr" / "lib"
     shared = stage / "usr" / "share" / "reta"
     assert (stage / "usr" / "bin" / "reta-native").is_file()
     assert not (private / "reta-native").exists()

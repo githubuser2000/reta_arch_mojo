@@ -45,7 +45,7 @@ def test_native_install_owner_replaces_setuptools_runtime() raises:
     var install = setup_install_plan()
     assert_equal(install.installer, "scripts/install.sh")
     assert_equal(install.target_manifest, "scripts/install_targets.txt")
-    assert_equal(install.private_runtime, "${PREFIX}/lib/reta")
+    assert_equal(install.private_runtime, "${PREFIX}/lib")
     assert_equal(install.shared_data, "${PREFIX}/share/reta")
     assert_false(install.python_build_backend_required)
     assert_equal(len(setup_metadata_owner_contract()), 10)

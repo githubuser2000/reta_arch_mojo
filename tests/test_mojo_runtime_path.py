@@ -84,7 +84,7 @@ def test_runtime_exec_prepends_detected_directory(tmp_path: Path) -> None:
 def test_builds_embed_project_relative_runtime_runpath() -> None:
     for relative in ("scripts/build.sh", "scripts/build-heavy.sh"):
         source = (ROOT / relative).read_text(encoding="utf-8")
-        assert "MOJO_RUNTIME_RPATH='$ORIGIN/../lib/mojo'" in source
+        assert "MOJO_RUNTIME_RPATH='$ORIGIN/../lib:$ORIGIN/../lib/mojo'" in source
         assert "configure_mojo_runtime.sh" in source
         assert '-Xlinker -rpath -Xlinker "$MOJO_RUNTIME_RPATH"' in source
 
@@ -119,7 +119,7 @@ def test_shared_library_build_uses_library_relative_runtime_runpath() -> None:
         encoding="utf-8"
     )
     assert "--emit shared-lib" in source
-    assert "'$ORIGIN/../mojo'" in source
+    assert "'$ORIGIN:$ORIGIN/mojo:$ORIGIN/../mojo'" in source
     assert "--portable-component '$ORIGIN/../mojo'" in source
 
 

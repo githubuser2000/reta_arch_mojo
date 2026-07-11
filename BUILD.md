@@ -142,7 +142,7 @@ Python-Referenz. `scripts/select_reference_python.sh` wählt explizite
 Mojo-ELF-Dateien benötigen `libKGENCompilerRTShared.so` und
 `libAsyncRTMojoBindings.so`. Das ist unabhängig von den CSV-Dateien. Absolute
 Compilerpfade im ELF-`RUNPATH` sind zwischen Rechnern nicht portabel; deshalb
-betten alle Builds zusätzlich `$ORIGIN/../lib/mojo` ein und richten den
+betten alle Builds zusätzlich `$ORIGIN/../lib:$ORIGIN/../lib/mojo` ein und richten den
 projektrelativen Ort `target/lib/mojo` ein.
 
 ```bash
@@ -375,7 +375,7 @@ installiert. Das FHS-konforme Standardlayout einer manuellen Installation ist:
 
 ```text
 /usr/local/bin
-/usr/local/lib/reta
+/usr/local/lib
 /usr/local/share/reta/csv
 /usr/local/share/reta/assets
 ```
@@ -389,14 +389,18 @@ sudo ./scripts/install.sh
 Pixi-Variante:
 
 ```bash
-sudo pixi run install
+pixi run build-all
+sudo ./scripts/install.sh
 ```
+
+`sudo pixi run install` wird vermieden, damit Pixi-Umgebung und Cache nicht als root laufen.
 
 CMake-Variante:
 
 ```bash
 pixi run cmake-configure
-sudo pixi run cmake-install
+pixi run cmake-build
+sudo cmake --install build
 ```
 
 Ein Staging-Verzeichnis für lokale Pakete verwendet ebenfalls standardmäßig
@@ -408,16 +412,16 @@ DESTDIR="$pkgdir" PREFIX=/usr/local ./scripts/install.sh
 
 Dann liegen die Tabellen unter `/usr/local/share/reta/csv`. Der installierte
 Python-Referenz-/Kompatibilitätsbaum liegt unter
-`/usr/local/share/reta/python_reference`; im Library-Ordner
-`/usr/local/lib/reta` wird kein `python_reference` mehr abgelegt. Ebenso werden
-dort keine privaten `bin/`- oder `scripts/`-Verzeichnisse mehr installiert.
+`/usr/local/share/reta/python_reference`; im alten privaten Library-Ordner
+`/usr/local/lib/reta` wird nichts Neues mehr abgelegt; `python_reference`,
+private `bin/`- und `scripts/`-Verzeichnisse werden dort entfernt.
 Öffentliche Befehle und Wrapper liegen direkt unter `/usr/local/bin`; echte
-Shared Libraries und die optionale Mojo-Laufzeit liegen unter
-`/usr/local/lib/reta`. Die privaten ELFs werden nicht mehr per Wildcard kopiert,
+Shared Libraries und die optionale Mojo-Laufzeit liegen flach unter
+`/usr/local/lib`. Die privaten ELFs werden nicht mehr per Wildcard kopiert,
 sondern ausschließlich aus der Ziel-Allowlist `scripts/install_targets.txt`;
 dadurch gelangen keine lokalen Alt-/Debugziele ins Paket. Der
-Python-Kompatibilitätsbaum behält seinen historischen Pfad `python_reference/csv`
-als relativen Symlink auf die kanonischen Shared-Data-Dateien.
+Python-Kompatibilitätsbaum liegt physisch unter `share/reta/python_reference`;
+installierte Symlink-Depots werden vermieden.
 
 Benutzerinstallation ohne Administratorrechte:
 
@@ -443,7 +447,7 @@ Prüfung des vollständigen Staging-Vertrags:
 ```
 
 Deinstallation verwendet dieselben `PREFIX`, `DESTDIR`, `BINDIR`,
-`LIBEXECDIR` und `DATADIR`-Werte:
+`LIBDIR`, `LIBEXECDIR` und `DATADIR`-Werte. `LIBEXECDIR` ist nur noch ein Legacy-Cleanup-Pfad; neue Shared Libraries liegen in `LIBDIR`:
 
 ```bash
 sudo ./scripts/uninstall.sh
@@ -457,7 +461,7 @@ Mojo 1.0.0b2 ergänzt beim Linken automatisch den absoluten Pfad seiner lokalen
 Verschieben anderer Daten auf den portablen Vertrag gekürzt:
 
 ```text
-$ORIGIN/../lib/mojo
+$ORIGIN/../lib:$ORIGIN/../lib/mojo
 ```
 
 Prüfung eines vorhandenen Binaries:
@@ -467,14 +471,14 @@ python3 tools/sanitize_mojo_runpath.py --check target/bin/reta-native
 readelf -d target/bin/reta-native | grep RUNPATH
 ```
 
-Der Runtime-Starter `bin/mojo-runtime-exec` bleibt für ältere, noch nicht
+Der Runtime-Starter `mojo-runtime-exec` bleibt für ältere, noch nicht
 sanitisierte Binärdateien erhalten.
 
 ## Installierbares `generate_html`
 
 Nach `scripts/build.sh` und `scripts/install.sh` liegt der öffentliche
-Starter unter `/usr/local/bin/generate_html`, das private Mojo-ELF unter
-`/usr/local/lib/reta/generate-html-native` und die Manpage unter
+Starter unter `/usr/local/bin/generate_html`, das native Mojo-ELF unter
+`/usr/local/bin/generate-html-native` und die Manpage unter
 `/usr/local/share/man/man1/generate_html.1`.
 
 ```sh
@@ -661,7 +665,7 @@ Die optionale tiefe Alt-vs.-Shared-Library-Parität lautet:
 scripts/build-and-test-shared-diagnostics.sh
 ```
 
-Der Standardbuild erzeugt `target/bin/reta-mojo-diagnostics` und `target/lib/reta/libreta_diagnostics_mojo.so`. Die vier bisherigen Launcher für TableGeneration, OutputSyntax, ConsoleIO und TableOutput bleiben unverändert öffentlich, leiten aber auf den gemeinsamen Loader weiter. Die Shared Library trägt `$ORIGIN/../mojo`, während Executables `$ORIGIN/../lib/mojo` verwenden. Für direkte Alt-vs.-Bibliothek-Parität können die vier Einzelprogramme mit `RETA_BUILD_STANDALONE_DIAGNOSTICS=1` zusätzlich gebaut werden. Ein transferierbarer Binärbaum wird mit `scripts/export_target.sh` erzeugt.
+Der Standardbuild erzeugt `target/bin/reta-mojo-diagnostics` und `target/lib/reta/libreta_diagnostics_mojo.so`. Die vier bisherigen Launcher für TableGeneration, OutputSyntax, ConsoleIO und TableOutput bleiben unverändert öffentlich, leiten aber auf den gemeinsamen Loader weiter. Die Shared Library trägt `$ORIGIN:$ORIGIN/mojo:$ORIGIN/../mojo`, während Executables `$ORIGIN/../lib:$ORIGIN/../lib/mojo` verwenden. Für direkte Alt-vs.-Bibliothek-Parität können die vier Einzelprogramme mit `RETA_BUILD_STANDALONE_DIAGNOSTICS=1` zusätzlich gebaut werden. Ein transferierbarer Binärbaum wird mit `scripts/export_target.sh` erzeugt.
 
 ## Fokussierter Stage-12c5ab-Compilerlauf
 

@@ -36,7 +36,7 @@ TARGET_ROOT=$(dirname -- "$TARGET_DIR")
 RUNTIME_LINK_DIR=${RETA_MOJO_RUNTIME_LINK_DIR:-"$TARGET_ROOT/lib/mojo"}
 MOJO=${MOJO_BIN:-"$ROOT/bin/mojo-real"}
 mkdir -p "$TARGET_DIR" "$RUNTIME_LINK_DIR"
-MOJO_RUNTIME_RPATH='$ORIGIN/../lib/mojo'
+MOJO_RUNTIME_RPATH='$ORIGIN/../lib:$ORIGIN/../lib/mojo'
 BUILD_SOURCE_ID=${RETA_BUILD_SOURCE_ID:-$("$ROOT/scripts/current_source_id.sh")}
 RETA_MOJO_RUNTIME_LINK_DIR="$RUNTIME_LINK_DIR" \
     "$ROOT/scripts/configure_mojo_runtime.sh" >/dev/null

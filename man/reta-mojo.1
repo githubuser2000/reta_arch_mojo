@@ -1,0 +1,15 @@
+.TH RETA\-MOJO 1 "July 2026" "reta_arch_mojo" "User Commands"
+.SH NAME
+reta\-mojo \- developer facade for native Mojo Reta tools
+.SH SYNOPSIS
+.B reta\-mojo
+.RI [ OPTION ]
+.RI [ ARGUMENT ...]
+.SH DESCRIPTION
+.B reta\-mojo
+is a developer facade for the native Mojo implementation. It dispatches selected \-\-mojo\-* modes to the corresponding native helper when available.
+
+.SH EXIT STATUS
+Returns 0 on success and non-zero on errors, failed checks, missing build targets, or invalid arguments.
+.SH SEE ALSO
+.BR reta(1), rp(1), rpl(1), rpe(1), rpb(1), reta-mojo(1)

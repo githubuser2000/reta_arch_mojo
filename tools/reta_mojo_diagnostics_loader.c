@@ -103,6 +103,10 @@ static int library_path(char *buffer, size_t size, const char *argv0) {
 #endif
 
     int written = snprintf(buffer, size, "%s/../lib/reta/%s", executable, library_name);
+    if (written >= 0 && (size_t)written < size && access(buffer, R_OK) == 0) {
+        return 0;
+    }
+    written = snprintf(buffer, size, "%s/../lib/%s", executable, library_name);
     return written < 0 || (size_t)written >= size ? -1 : 0;
 }
 

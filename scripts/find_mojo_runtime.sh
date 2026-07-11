@@ -34,9 +34,10 @@ if [ -n "${RETA_MOJO_RUNTIME_LIBDIR-}" ]; then
     exit 2
 fi
 
-# Configured or installed private runtime.  Source builds keep the Mojo
-# runtime below target/lib/mojo; installed FHS trees keep it flat below
-# LIBEXECDIR/mojo so /usr/lib/reta does not contain a synthetic target tree.
+# Configured or installed runtime.  Source builds keep the Mojo runtime below
+# target/lib/mojo. Installed FHS trees keep runtime .so files flat in LIBDIR.
+emit_if_runtime "$ROOT/lib"
+emit_if_runtime "$ROOT/lib64"
 emit_if_runtime "$ROOT/mojo"
 emit_if_runtime "$ROOT/target/lib/mojo"
 

@@ -46,19 +46,19 @@ reta_install_set_defaults
 
 case $TASK in
     install)
-        reta_exec_or_print env PREFIX="$PREFIX" "$ROOT/scripts/install.sh"
+        reta_exec_or_print env PREFIX="$PREFIX" BINDIR="$BINDIR" LIBDIR="$LIBDIR" LIBEXECDIR="$LIBEXECDIR" DATADIR="$DATADIR" REFERENCEDIR="$REFERENCEDIR" MANDIR="$MANDIR" "$ROOT/scripts/install.sh"
         ;;
     uninstall)
-        reta_exec_or_print env PREFIX="$PREFIX" "$ROOT/scripts/uninstall.sh"
+        reta_exec_or_print env PREFIX="$PREFIX" BINDIR="$BINDIR" LIBDIR="$LIBDIR" LIBEXECDIR="$LIBEXECDIR" DATADIR="$DATADIR" REFERENCEDIR="$REFERENCEDIR" MANDIR="$MANDIR" "$ROOT/scripts/uninstall.sh"
         ;;
     check-install-layout)
-        reta_exec_or_print env PREFIX="$PREFIX" "$ROOT/scripts/check_install_layout.sh"
+        reta_exec_or_print env PREFIX="$PREFIX" BINDIR="$BINDIR" LIBDIR="$LIBDIR" LIBEXECDIR="$LIBEXECDIR" DATADIR="$DATADIR" REFERENCEDIR="$REFERENCEDIR" MANDIR="$MANDIR" "$ROOT/scripts/check_install_layout.sh"
         ;;
     check-manpages)
         reta_exec_or_print "$ROOT/scripts/check_manpages.sh"
         ;;
     install-layout)
-        reta_exec_or_print env PREFIX="$PREFIX" "$ROOT/scripts/print_install_layout.sh"
+        reta_exec_or_print env PREFIX="$PREFIX" BINDIR="$BINDIR" LIBDIR="$LIBDIR" LIBEXECDIR="$LIBEXECDIR" DATADIR="$DATADIR" REFERENCEDIR="$REFERENCEDIR" MANDIR="$MANDIR" "$ROOT/scripts/print_install_layout.sh"
         ;;
     *)
         printf 'Unbekannter Install-Task: %s\n' "$TASK" >&2

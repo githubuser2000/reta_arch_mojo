@@ -1,0 +1,16 @@
+.TH GENERATE\-README\-NATIVE 1 "July 2026" "reta_arch_mojo" "User Commands"
+.SH NAME
+generate\-readme\-native \- native helper that renders generated README/reference material
+.SH SYNOPSIS
+.B generate\-readme\-native
+.RI [ ARGUMENT ...]
+.SH DESCRIPTION
+.B generate\-readme\-native
+is the compiled native backend used by generate4readme to produce README/reference material.
+
+.SH NOTES
+This command is installed because it is a build or diagnostic target of the native Mojo port. Normal users usually start with .BR reta (1), .BR rp (1), .BR rpl (1), .BR rpe (1), or .BR rpb (1).
+.SH EXIT STATUS
+Returns 0 on success and non-zero on errors, failed checks, missing build targets, or invalid arguments.
+.SH SEE ALSO
+.BR reta(1), rp(1), rpl(1), rpe(1), rpb(1), generate_html(1)
