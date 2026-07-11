@@ -1,51 +1,10 @@
-# Official compiled runtime targets installed directly below BINDIR.
-# Missing optional targets are skipped; unknown/stale files and source-id sidecars are never copied.
-# core shared build_core_shared.sh targets
+# Official public runtime commands installed directly below BINDIR.
+# Diagnostic/stage/compiler helper targets stay in target/bin and are not installed.
 reta
 grundStrukHtml
-# prompt shared build_prompt_shared.sh targets
 rp
 rpl
 rpe
 rpb
-# regular build.sh targets
-generate-html-native
-generate-readme-native
-reta-extract-html-classes-native
-grundStrukHtml-native
-reta-mojo-combi-join
-reta-mojo-diagnostics
-reta-mojo-architecture-probe
-reta-mojo-domain-probe
-reta-mojo-compat-bin
-reta-mojo-exports
-reta-mojo-facade
-reta-mojo-sheaves
-reta-mojo-workflow
-reta-mojo-i18n
-reta-mojo-native
-reta-mojo-package-integrity
-reta-mojo-table
-reta-mojo-tags
-reta-native
-reta-prompt-complete
-reta-prompt-native
-# optional build-heavy.sh targets
-reta-mojo-activation
-reta-mojo-architecture
-reta-mojo-boundaries
-reta-mojo-coherence
-reta-mojo-contracts
-reta-mojo-execution-network
-reta-mojo-impact
-reta-mojo-migration
-reta-mojo-parallel-execution
-reta-mojo-persistence
-reta-mojo-progress
-reta-mojo-rehearsal
-reta-mojo-row-preparation
-reta-mojo-schema
-reta-mojo-semantics
-reta-mojo-traces
-reta-mojo-validation
-reta-mojo-witnesses
+# Installed command name is generate_html; source target is target/bin/generate-html-native.
+generate_html

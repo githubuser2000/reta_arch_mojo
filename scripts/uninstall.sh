@@ -20,26 +20,31 @@ STAGE_MANDIR=$(stage_path "$MANDIR")
 
 remove_public_command() {
     name=$1
-    rm -f "$STAGE_BINDIR/$name"
+    rm -f "$STAGE_BINDIR/$name" "$STAGE_BINDIR/$name.reta-source-id"
 }
 
 remove_library() {
     name=$1
     rm -f "$STAGE_LIBDIR/$name" "$STAGE_LIBDIR/$name.reta-source-id"
     rm -f "$STAGE_LIBEXECDIR/$name" "$STAGE_LIBEXECDIR/$name.reta-source-id"
+    rm -f "$STAGE_LIBEXECDIR/mojo/$name"
 }
 
-while IFS= read -r name || [ -n "$name" ]; do
-    case "$name" in
-        ''|'#'*) continue ;;
-    esac
+# Remove the current public command set.
+for name in $(reta_artifact_public_install_executables); do
     remove_public_command "$name"
-done < "$ROOT/scripts/install_targets.txt"
+done
 
-for wrapper_name in $(reta_artifact_public_shell_wrappers); do
+# Also remove commands from older broad installs so narrowing the install set is
+# fixed by a simple uninstall/install cycle.
+for name in $(reta_artifact_legacy_installed_executables 2>/dev/null || true); do
+    remove_public_command "$name"
+done
+for wrapper_name in $(reta_artifact_public_shell_wrappers 2>/dev/null || true); do
     remove_public_command "$wrapper_name"
 done
 remove_public_command mojo-runtime-exec
+remove_public_command generate-html-native
 
 for library_name in \
     $(reta_artifact_core_shared_libraries) \
@@ -50,14 +55,35 @@ for library_name in \
     libMSupportGlobals.so \
     libAsyncRTRuntimeGlobals.so \
     libNVPTX.so
-do
+ do
     remove_library "$library_name"
-    rm -f "$STAGE_LIBEXECDIR/mojo/$library_name"
-done
+ done
 
 for manpage in $(reta_public_manpages); do
     rm -f "$STAGE_MANDIR/man1/$manpage"
 done
+# Remove legacy broad-install manpages too when present.
+for manpage in \
+    generate-html-native.1 generate-readme-native.1 generate4readme.1 \
+    grundStrukHtml-native.1 mojo-runtime-exec.1 \
+    reta-extract-html-classes.1 reta-extract-html-classes-native.1 \
+    reta-mojo.1 reta-mojo-activation.1 reta-mojo-architecture.1 \
+    reta-mojo-architecture-probe.1 reta-mojo-boundaries.1 reta-mojo-coherence.1 \
+    reta-mojo-combi-join.1 reta-mojo-compat.1 reta-mojo-compat-bin.1 \
+    reta-mojo-contracts.1 reta-mojo-diagnostics.1 reta-mojo-domain-probe.1 \
+    reta-mojo-execution-network.1 reta-mojo-exports.1 reta-mojo-facade.1 \
+    reta-mojo-i18n.1 reta-mojo-impact.1 reta-mojo-migration.1 \
+    reta-mojo-native.1 reta-mojo-package-integrity.1 \
+    reta-mojo-parallel-execution.1 reta-mojo-persistence.1 reta-mojo-progress.1 \
+    reta-mojo-rehearsal.1 reta-mojo-row-preparation.1 reta-mojo-schema.1 \
+    reta-mojo-semantics.1 reta-mojo-sheaves.1 reta-mojo-table.1 \
+    reta-mojo-tags.1 reta-mojo-traces.1 reta-mojo-validation.1 \
+    reta-mojo-witnesses.1 reta-mojo-workflow.1 reta-native.1 \
+    reta-prompt-complete.1 reta-prompt-native.1
+ do
+    rm -f "$STAGE_MANDIR/man1/$manpage"
+ done
+
 if [ "$STAGE_REFERENCEDIR" != "$STAGE_DATADIR/python_reference" ]; then
     rm -rf "$STAGE_REFERENCEDIR"
 fi

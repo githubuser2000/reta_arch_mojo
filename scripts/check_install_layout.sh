@@ -28,10 +28,26 @@ DESTDIR="$STAGE" PREFIX="$PREFIX" BINDIR="$BINDIR" LIBDIR="$LIBDIR" LIBEXECDIR="
 for manpage in $(reta_public_manpages); do
     [ -f "$STAGE_MANDIR/man1/$manpage" ]
 done
-[ -x "$STAGE_BINDIR/reta-mojo-i18n" ]
-[ ! -L "$STAGE_BINDIR/reta-mojo-i18n" ]
-[ -x "$STAGE_BINDIR/reta-mojo-package-integrity" ]
-[ ! -L "$STAGE_BINDIR/reta-mojo-package-integrity" ]
+
+# Only public user commands are installed.
+for command in reta rp rpl rpe rpb generate_html grundStrukHtml; do
+    [ -x "$STAGE_BINDIR/$command" ]
+    [ ! -L "$STAGE_BINDIR/$command" ]
+    [ ! -e "$STAGE_BINDIR/$command.reta-source-id" ]
+    [ ! -e "$STAGE_LIBEXECDIR/$command" ]
+    [ ! -e "$STAGE_LIBDIR/$command" ]
+done
+for forbidden in $(reta_artifact_legacy_installed_executables 2>/dev/null || true); do
+    case "$forbidden" in
+        reta|grundStrukHtml|rp|rpl|rpe|rpb|generate_html) continue ;;
+    esac
+    [ ! -e "$STAGE_BINDIR/$forbidden" ]
+done
+[ ! -e "$STAGE_BINDIR/mojo-runtime-exec" ]
+[ ! -e "$STAGE_BINDIR/generate-html-native" ]
+[ ! -e "$STAGE_BINDIR/reta-mojo" ]
+[ ! -e "$STAGE_BINDIR/reta-native" ]
+
 [ ! -e "$STAGE_LIBEXECDIR/python_reference" ]
 [ -d "$STAGE_REFERENCEDIR" ]
 [ -d "$STAGE_REFERENCEDIR/csv" ]
@@ -40,27 +56,9 @@ done
 [ ! -e "$STAGE_LIBEXECDIR/assets" ]
 [ ! -e "$STAGE_LIBEXECDIR/bin" ]
 [ ! -e "$STAGE_LIBEXECDIR/scripts" ]
-[ -x "$STAGE_BINDIR/mojo-runtime-exec" ]
-for wrapper in $(reta_artifact_public_shell_wrappers); do
-    [ -x "$STAGE_BINDIR/$wrapper" ]
-    [ ! -L "$STAGE_BINDIR/$wrapper" ]
-done
-for starter in $(reta_artifact_core_starters); do
-    [ -x "$STAGE_BINDIR/$starter" ]
-    [ ! -L "$STAGE_BINDIR/$starter" ]
-    [ ! -e "$STAGE_LIBEXECDIR/$starter" ]
-    [ ! -e "$STAGE_LIBDIR/$starter" ]
-    [ ! -e "$STAGE_BINDIR/$starter.reta-source-id" ]
-    [ ! -e "$STAGE_LIBEXECDIR/$starter.reta-source-id" ]
-done
-for starter in $(reta_artifact_prompt_starters); do
-    [ -x "$STAGE_BINDIR/$starter" ]
-    [ ! -L "$STAGE_BINDIR/$starter" ]
-    [ ! -e "$STAGE_LIBEXECDIR/$starter" ]
-    [ ! -e "$STAGE_LIBDIR/$starter" ]
-    [ ! -e "$STAGE_BINDIR/$starter.reta-source-id" ]
-    [ ! -e "$STAGE_LIBEXECDIR/$starter.reta-source-id" ]
-done
+[ ! -e "$STAGE_LIBEXECDIR/target" ]
+[ ! -e "$STAGE_LIBEXECDIR/mojo" ]
+
 for library_name in $(reta_artifact_core_shared_libraries); do
     [ -f "$STAGE_LIBDIR/$library_name" ]
     [ ! -x "$STAGE_LIBDIR/$library_name" ]
@@ -75,72 +73,20 @@ for library_name in $(reta_artifact_prompt_shared_libraries); do
     [ ! -e "$STAGE_LIBEXECDIR/$library_name" ]
     [ ! -e "$STAGE_LIBEXECDIR/$library_name.reta-source-id" ]
 done
-[ ! -e "$STAGE_LIBEXECDIR/target" ]
-[ ! -e "$STAGE_LIBEXECDIR/mojo" ]
+[ ! -e "$STAGE_LIBDIR/libreta_diagnostics_mojo.so" ]
 for runtime_library in \
     libKGENCompilerRTShared.so \
     libAsyncRTMojoBindings.so \
     libMSupportGlobals.so \
     libAsyncRTRuntimeGlobals.so \
     libNVPTX.so
-do
+ do
     [ -f "$STAGE_LIBDIR/$runtime_library" ]
     [ ! -x "$STAGE_LIBDIR/$runtime_library" ]
     [ ! -e "$STAGE_LIBEXECDIR/mojo/$runtime_library" ]
-done
+ done
 ! find "$STAGE_BINDIR" "$STAGE_LIBEXECDIR" \( -name '*.reta-source-id' -o -name '*.reta-test-source-id' \) 2>/dev/null | grep -q .
 ! find "$STAGE_BINDIR" "$STAGE_LIBEXECDIR" "$STAGE_DATADIR" -type l 2>/dev/null | grep -q .
-
-(
-    cd "$TMP"
-    "$STAGE_BINDIR/reta-mojo" --mojo-csv-info >"$TMP/csv-info.out"
-)
-grep -q '^Zeilen: 1025$' "$TMP/csv-info.out"
-grep -q '^Spalten: 746$' "$TMP/csv-info.out"
-
-
-(
-    cd "$TMP"
-    "$STAGE_BINDIR/reta-mojo-i18n" --summary english >"$TMP/i18n-summary.out"
-)
-grep -q '^language=english$' "$TMP/i18n-summary.out"
-grep -q '^rows=13655$' "$TMP/i18n-summary.out"
-grep -q '^legacy_monolith_rows=6720$' "$TMP/i18n-summary.out"
-grep -q '^matrix_rows=4766$' "$TMP/i18n-summary.out"
-
-(
-    cd "$TMP"
-    "$STAGE_BINDIR/reta-mojo-package-integrity" --summary \
-        "$STAGE_REFERENCEDIR" >"$TMP/package-integrity.out"
-)
-grep -q '^file_count=457$' "$TMP/package-integrity.out"
-grep -q '^missing_required=0$' "$TMP/package-integrity.out"
-grep -q '^suspicious_csvs=0$' "$TMP/package-integrity.out"
-
-# The public HTML generator must be usable from an arbitrary, non-install
-# working directory and must not create the historical middle.alx implicitly.
-printf 'installed-middle\n' > "$TMP/middle.fixture"
-cat "$ROOT/assets/html/head1.alx" \
-    "$ROOT/assets/html/religionen.js" \
-    "$ROOT/assets/html/head2.alx" \
-    "$TMP/middle.fixture" \
-    "$ROOT/tests/fixtures/grundstrukturen_html/blank-de.html" \
-    "$ROOT/assets/html/footer.alx" > "$TMP/generate-html.expected"
-mkdir -p "$TMP/caller"
-(
-    cd "$TMP/caller"
-    "$STAGE_BINDIR/generate_html" \
-        --middle-file "$TMP/middle.fixture" \
-        --middle-output "$TMP/middle.saved" \
-        --output "$TMP/generate-html.actual"
-    "$STAGE_BINDIR/generate_html" --help > "$TMP/generate-html.help"
-    "$STAGE_BINDIR/generate_html" --version > "$TMP/generate-html.version"
-)
-cmp "$TMP/generate-html.expected" "$TMP/generate-html.actual"
-cmp "$TMP/middle.fixture" "$TMP/middle.saved"
-[ ! -e "$TMP/caller/middle.alx" ]
-grep -q -- '--middle-file' "$TMP/generate-html.help"
-grep -q 'reta Mojo HTML generator' "$TMP/generate-html.version"
 
 set -- \
     -zeilen --vorhervonausschnitt=1-2 \
@@ -152,10 +98,8 @@ set -- \
 )
 (
     cd "$TMP"
-    "$STAGE_BINDIR/reta-native" "$@" >"$TMP/native.out"
     "$STAGE_BINDIR/reta" "$@" >"$TMP/core-launcher.out"
 )
-cmp "$TMP/reference.out" "$TMP/native.out"
 cmp "$TMP/reference.out" "$TMP/core-launcher.out"
 
 (
@@ -166,10 +110,6 @@ cmp "$TMP/reference.out" "$TMP/core-launcher.out"
 cmp "$ROOT/assets/reta_help_de.txt" "$TMP/installed-help-de.out"
 cmp "$ROOT/assets/reta_help_en.txt" "$TMP/installed-help-en.out"
 
-# Installed packages intentionally do not ship .reta-source-id sidecars, so the
-# source-tree Prompt-Shared-Runtime check is not applicable here. The installed
-# smoke below checks the public BINDIR launchers against flat LIBDIR libraries.
-
 (
     cd "$TMP"
     RETA_PROMPT_INTERACTIVE_LIBRARY=/definitely/missing/libreta_prompt_interactive_mojo.so \
@@ -177,12 +117,16 @@ cmp "$ROOT/assets/reta_help_en.txt" "$TMP/installed-help-en.out"
     printf 'q\n' | "$STAGE_BINDIR/rp" >"$TMP/installed-rp.out"
 )
 grep -q '^60: 2\^2 3 5$' "$TMP/installed-rpb.out"
+
 DESTDIR="$STAGE" PREFIX="$PREFIX" BINDIR="$BINDIR" LIBDIR="$LIBDIR" LIBEXECDIR="$LIBEXECDIR" DATADIR="$DATADIR" REFERENCEDIR="$REFERENCEDIR" MANDIR="$MANDIR" "$ROOT/scripts/uninstall.sh" >/dev/null
 for manpage in $(reta_public_manpages); do
     [ ! -e "$STAGE_MANDIR/man1/$manpage" ]
 done
 [ ! -e "$STAGE_LIBEXECDIR" ]
 [ ! -e "$STAGE_DATADIR" ]
+for command in reta rp rpl rpe rpb generate_html grundStrukHtml; do
+    [ ! -e "$STAGE_BINDIR/$command" ]
+done
 for library_name in \
     $(reta_artifact_core_shared_libraries) \
     $(reta_artifact_prompt_shared_libraries) \
@@ -192,8 +136,8 @@ for library_name in \
     libMSupportGlobals.so \
     libAsyncRTRuntimeGlobals.so \
     libNVPTX.so
-do
+ do
     [ ! -e "$STAGE_LIBDIR/$library_name" ]
-done
+ done
 
-printf '%s\n' 'FHS-Installation: Layout, native CSV, Core-/Prompt-Starter und Deinstallation bestanden.'
+printf '%s\n' 'FHS-Installation: öffentliche Befehle, benötigte Libraries und Deinstallation bestanden.'

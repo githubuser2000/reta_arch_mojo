@@ -49,12 +49,39 @@ ARTIFACTS
 
 
 reta_artifact_public_shell_wrappers() {
+    # Standard installs no longer expose shell wrapper helper commands.
+    # Kept as an empty manifest for older scripts/tests that source it.
+    :
+}
+
+reta_artifact_public_install_executables() {
+    cat <<'ARTIFACTS'
+reta
+grundStrukHtml
+rp
+rpl
+rpe
+rpb
+generate_html
+ARTIFACTS
+}
+
+reta_artifact_legacy_installed_executables() {
+    reta_artifact_regular_executables
+    reta_artifact_heavy_executables
     cat <<'ARTIFACTS'
 generate4readme
-generate_html
 reta-extract-html-classes
 reta-mojo
 reta-mojo-compat
+mojo-runtime-exec
+generate-html-native
+generate-readme-native
+reta-extract-html-classes-native
+grundStrukHtml-native
+reta-native
+reta-prompt-native
+reta-prompt-complete
 ARTIFACTS
 }
 
@@ -88,8 +115,7 @@ reta_artifact_build_executables() {
 }
 
 reta_artifact_install_executables() {
-    reta_artifact_build_executables
-    reta_artifact_heavy_executables
+    reta_artifact_public_install_executables
 }
 
 reta_artifact_core_shared_libraries() {
