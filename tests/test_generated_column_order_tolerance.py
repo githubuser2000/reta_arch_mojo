@@ -66,3 +66,53 @@ def test_repeated_relation_lists_are_sorted_per_relation_word():
     assert module.normalize_text(text) == (
         "gegen 4, gegen 5 | against 3, against 9 | pro 2, pro 7"
     )
+
+
+def _csv_text(cell: str) -> str:
+    import csv
+    import io
+
+    output = io.StringIO()
+    writer = csv.writer(output, delimiter=";", lineterminator="\n")
+    writer.writerow(["", " ", "heading"])
+    writer.writerow(["1", "1 ", cell])
+    return output.getvalue()
+
+
+def test_fractional_motif_pairs_ignore_segment_and_factor_orientation():
+    python_cell = (
+        '""A" (2/9)*(9/2) "B""'
+        '| außerdem:""C" (7/3)*(3/7) "D""'
+    )
+    mojo_cell = (
+        '""D" (3/7)*(7/3) "C""'
+        '| außerdem:""B" (9/2)*(2/9) "A""'
+    )
+
+    assert module.normalize_fractional_motif_star_csv(
+        _csv_text(python_cell)
+    ) == module.normalize_fractional_motif_star_csv(_csv_text(mojo_cell))
+
+
+def test_fractional_motif_pairs_accept_english_separator():
+    german = (
+        '""A" (2/9)*(9/2) "B""'
+        '| außerdem:""C" (7/3)*(3/7) "D""'
+    )
+    english = (
+        '""D" (3/7)*(7/3) "C""'
+        '| moreover:""B" (9/2)*(2/9) "A""'
+    )
+
+    assert module.normalize_fractional_motif_star_csv(
+        _csv_text(german)
+    ) == module.normalize_fractional_motif_star_csv(_csv_text(english))
+
+
+def test_fractional_motif_pairs_still_detect_changed_content():
+    original = '""A" (2/9)*(9/2) "B""'
+    changed = '""A" (2/9)*(9/2) "B geändert""'
+
+    assert module.normalize_fractional_motif_star_csv(
+        _csv_text(original)
+    ) != module.normalize_fractional_motif_star_csv(_csv_text(changed))

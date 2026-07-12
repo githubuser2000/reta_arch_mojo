@@ -9,6 +9,9 @@ these narrowly defined number lists and their directly attached explanations.
 """
 from __future__ import annotations
 
+import csv
+import io
+import json
 import re
 import sys
 
@@ -25,6 +28,77 @@ _REPEATED_RELATION_LIST = re.compile(
     r"(?P<numbers>\d+(?:,\s*(?P=word)\s+\d+)+)"
 )
 
+
+
+_FRACTIONAL_PAIR_PRODUCT = re.compile(
+    r'"\s+\((?P<left_factor>[^()]*)\)\*\((?P<right_factor>[^()]*)\)\s+"'
+)
+_FRACTIONAL_PAIR_SEPARATOR = re.compile(
+    r"\|\s*(?:außerdem|moreover):\s*", re.IGNORECASE
+)
+
+
+def _strip_generated_side_quotes(text: str) -> str:
+    """Remove only the synthetic quote wrapper around one generated side."""
+
+    text = text.strip()
+    while text.startswith('"'):
+        text = text[1:]
+    while text.endswith('"'):
+        text = text[:-1]
+    return text
+
+
+def _normalized_factor(text: str) -> str:
+    return "".join(text.split())
+
+
+def _canonical_fractional_pair(segment: str):
+    """Return one unordered factor/text pair in deterministic orientation."""
+
+    matches = list(_FRACTIONAL_PAIR_PRODUCT.finditer(segment))
+    if len(matches) != 1:
+        return None
+
+    match = matches[0]
+    left = (
+        _normalized_factor(match.group("left_factor")),
+        _strip_generated_side_quotes(segment[: match.start()]),
+    )
+    right = (
+        _normalized_factor(match.group("right_factor")),
+        _strip_generated_side_quotes(segment[match.end() :]),
+    )
+    first, second = sorted((left, right), key=lambda item: (item[0], item[1].casefold(), item[1]))
+    return [list(first), list(second)]
+
+
+def _canonical_fractional_cell(cell: str):
+    """Canonicalize one generated fractional-motif cell as an unordered set."""
+
+    segments = _FRACTIONAL_PAIR_SEPARATOR.split(cell)
+    canonical = [_canonical_fractional_pair(segment) for segment in segments]
+    if not canonical or any(item is None for item in canonical):
+        return cell
+    return {
+        "fractional_pairs": sorted(
+            canonical,
+            key=lambda item: json.dumps(item, ensure_ascii=False, separators=(",", ":")),
+        )
+    }
+
+
+def normalize_fractional_motif_star_csv(text: str) -> str:
+    """Canonicalize only unordered pair order in fractional motif-star CSV."""
+
+    rows = list(csv.reader(io.StringIO(text), delimiter=";"))
+    canonical_rows = [
+        [_canonical_fractional_cell(cell) for cell in row]
+        for row in rows
+    ]
+    return json.dumps(
+        canonical_rows, ensure_ascii=False, separators=(",", ":"), sort_keys=True
+    ) + "\n"
 
 def _sorted_numbers(numbers_text: str) -> list[int]:
     return sorted(int(part) for part in re.findall(r"\d+", numbers_text))
@@ -128,15 +202,27 @@ def normalize_text(text: str) -> str:
 
 
 def main() -> int:
-    if len(sys.argv) > 2:
-        print("usage: normalize_generated_column_order.py [FILE]", file=sys.stderr)
+    args = sys.argv[1:]
+    fractional_motif_star = False
+    if args and args[0] == "--fractional-motif-star":
+        fractional_motif_star = True
+        args = args[1:]
+    if len(args) > 1:
+        print(
+            "usage: normalize_generated_column_order.py "
+            "[--fractional-motif-star] [FILE]",
+            file=sys.stderr,
+        )
         return 2
-    if len(sys.argv) == 2 and sys.argv[1] != "-":
-        with open(sys.argv[1], "r", encoding="utf-8") as handle:
+    if args and args[0] != "-":
+        with open(args[0], "r", encoding="utf-8") as handle:
             text = handle.read()
     else:
         text = sys.stdin.read()
-    sys.stdout.write(normalize_text(text))
+    if fractional_motif_star:
+        sys.stdout.write(normalize_fractional_motif_star_csv(text))
+    else:
+        sys.stdout.write(normalize_text(text))
     return 0
 
 

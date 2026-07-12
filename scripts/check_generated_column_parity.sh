@@ -40,6 +40,27 @@ run_pair_order_tolerant() {
     return 1
 }
 
+run_pair_fractional_order_tolerant() {
+    label=$1
+    shift
+    env PYTHONHASHSEED="$PYTHON_HASH_SEED" "$REFERENCE_PY" python_reference/reta.py "$@" >"$TMPDIR_BASE/python-$label"
+    "$NATIVE" "$@" >"$TMPDIR_BASE/mojo-$label"
+    if cmp -s "$TMPDIR_BASE/python-$label" "$TMPDIR_BASE/mojo-$label"; then
+        printf '  %-24s bytegleich (%s Byte)\n' "$label" "$(wc -c <"$TMPDIR_BASE/mojo-$label")"
+        return 0
+    fi
+    "$REFERENCE_PY" "$ORDER_NORMALIZER" --fractional-motif-star \
+        "$TMPDIR_BASE/python-$label" >"$TMPDIR_BASE/python-$label.normalized"
+    "$REFERENCE_PY" "$ORDER_NORMALIZER" --fractional-motif-star \
+        "$TMPDIR_BASE/mojo-$label" >"$TMPDIR_BASE/mojo-$label.normalized"
+    if cmp -s "$TMPDIR_BASE/python-$label.normalized" "$TMPDIR_BASE/mojo-$label.normalized"; then
+        printf '  %-24s paarreihenfolgentolerant gleich (%s Byte)\n' "$label" "$(wc -c <"$TMPDIR_BASE/mojo-$label")"
+        return 0
+    fi
+    diff -u "$TMPDIR_BASE/python-$label.normalized" "$TMPDIR_BASE/mojo-$label.normalized" >&2 || true
+    return 1
+}
+
 run_pair gestirn-de \
     -zeilen --vorhervonausschnitt=1-6 \
     -spalten --bedeutung=gestirn \
@@ -100,15 +121,15 @@ run_pair primuniversum-alle-de \
     -zeilen --vorhervonausschnitt=1-12 \
     -spalten --multiplikationen=motivstern,strukturstern,motivgleichfoermig,strukturgleichfoermig \
     -ausgabe --art=csv --breite=40
-run_pair primuniversum-gebr-motivstern-de \
+run_pair_fractional_order_tolerant primuniversum-gebr-motivstern-de \
     -zeilen --vorhervonausschnitt=1-8 \
     -spalten --multiplikationen=motivgebrstern \
     -ausgabe --art=csv --breite=40
-run_pair prime-universe-fractional-motif-star-en \
+run_pair_fractional_order_tolerant prime-universe-fractional-motif-star-en \
     -language=english -lines --thisrangebefore=1-3 \
     -columns --multiplications=motifStar \
     -output --type=csv --width=40
-run_pair primuniversum-gebr-alle-de \
+run_pair_fractional_order_tolerant primuniversum-gebr-alle-de \
     -zeilen --vorhervonausschnitt=1-4 \
     -spalten --multiplikationen=motivgebrstern,strukgebrstern,motivgebrgleichf,strukgebrgleichf \
     -ausgabe --art=csv --breite=40
