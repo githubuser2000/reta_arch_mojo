@@ -5,7 +5,14 @@ cd "$ROOT"
 TMP=${TMPDIR:-/tmp}/reta-prompt-language-catalog.$$
 trap 'rm -rf "$TMP"' EXIT HUP INT TERM
 mkdir -p "$TMP"
-PYTHON=$("$ROOT/scripts/select_reference_python.sh")
+# Diese Snapshot-Dateien bilden absichtlich die stabile CPython-Reihenfolge ab.
+# PyPy enthält dieselben Werte, ordnet jedoch set-basierte Teilfolgen anders.
+# Ein expliziter Override bleibt für Diagnosezwecke möglich.
+PYTHON=${RETA_PROMPT_CATALOG_PYTHON:-python3}
+command -v "$PYTHON" >/dev/null 2>&1 || {
+    printf 'Prompt-Kataloginterpreter ist nicht ausführbar: %s\n' "$PYTHON" >&2
+    exit 127
+}
 RETA_PROMPT_CATALOG_OUT="$TMP" PYTHONHASHSEED=0 \
     "$PYTHON" scripts/generate_prompt_nested_catalog.py >/dev/null
 PYTHONHASHSEED=0 "$PYTHON" tools/generate_prompt_language_legacy_catalog.py \
