@@ -45,7 +45,15 @@ python3 python_reference/retaPrompt.py -vi -e -befehl a 2 > "$TMP/python-a"
 "$ROOT/tools/wrappers/rpb" a 2 > "$TMP/mojo-a"
 cmp "$TMP/python-a" "$TMP/mojo-a"
 
-printf 'S\nprim 60\no\nq\n' | "$ROOT/tools/wrappers/rp" > "$TMP/storage"
+command -v script >/dev/null 2>&1 || {
+    printf '%s\n' \
+        'Fehlendes Testwerkzeug: script aus util-linux wird für den interaktiven Prompt-Test benötigt.' >&2
+    exit 2
+}
+
+printf 'S\nprim 60\no\nq\n' |
+    script -qefc "$ROOT/tools/wrappers/rp" /dev/null |
+    tr -d '\r' >"$TMP/storage"
 grep -F 'Gespeichert: prim 60' "$TMP/storage" >/dev/null
 grep -F '60: 2^2 3 5' "$TMP/storage" >/dev/null
 

@@ -244,7 +244,10 @@ def get_text_wrap_things(max_len=None) -> tuple:
         except OSError:
             try:
                 if sys.stdin is not None and hasattr(sys.stdin, "isatty") and sys.stdin.isatty():
-                    columns_amount, shell_rows_amount = os.popen("stty size", "r").read().split()
+                    # ``stty size`` prints ``rows columns``.  Keep this order
+                    # explicit: swapping it makes the terminal height act as
+                    # the table width (for example 57 rows -> 50 text columns).
+                    shell_rows_amount, columns_amount = os.popen("stty size", "r").read().split()
                 else:
                     raise OSError
             except Exception:
