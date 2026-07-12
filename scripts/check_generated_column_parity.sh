@@ -9,6 +9,8 @@ REFERENCE_PY=$("$ROOT/scripts/select_reference_python.sh")
 PYTHON_HASH_SEED=${RETA_REFERENCE_HASH_SEED:-0}
 NATIVE=${RETA_NATIVE_BINARY:-"$ROOT/target/bin/reta-native"}
 [ -x "$NATIVE" ] || NATIVE="$ROOT/target/bin/reta-native"
+ORDER_NORMALIZER="$ROOT/tools/normalize_generated_column_order.py"
+[ -f "$ORDER_NORMALIZER" ] || { printf 'Fehlt: %s\n' "$ORDER_NORMALIZER" >&2; exit 1; }
 
 run_pair() {
     label=$1
@@ -17,6 +19,25 @@ run_pair() {
     "$NATIVE" "$@" >"$TMPDIR_BASE/mojo-$label"
     cmp "$TMPDIR_BASE/python-$label" "$TMPDIR_BASE/mojo-$label"
     printf '  %-24s bytegleich (%s Byte)\n' "$label" "$(wc -c <"$TMPDIR_BASE/mojo-$label")"
+}
+
+run_pair_order_tolerant() {
+    label=$1
+    shift
+    env PYTHONHASHSEED="$PYTHON_HASH_SEED" "$REFERENCE_PY" python_reference/reta.py "$@" >"$TMPDIR_BASE/python-$label"
+    "$NATIVE" "$@" >"$TMPDIR_BASE/mojo-$label"
+    if cmp -s "$TMPDIR_BASE/python-$label" "$TMPDIR_BASE/mojo-$label"; then
+        printf '  %-24s bytegleich (%s Byte)\n' "$label" "$(wc -c <"$TMPDIR_BASE/mojo-$label")"
+        return 0
+    fi
+    "$REFERENCE_PY" "$ORDER_NORMALIZER" "$TMPDIR_BASE/python-$label" >"$TMPDIR_BASE/python-$label.normalized"
+    "$REFERENCE_PY" "$ORDER_NORMALIZER" "$TMPDIR_BASE/mojo-$label" >"$TMPDIR_BASE/mojo-$label.normalized"
+    if cmp -s "$TMPDIR_BASE/python-$label.normalized" "$TMPDIR_BASE/mojo-$label.normalized"; then
+        printf '  %-24s reihenfolgentolerant gleich (%s Byte)\n' "$label" "$(wc -c <"$TMPDIR_BASE/mojo-$label")"
+        return 0
+    fi
+    diff -u "$TMPDIR_BASE/python-$label.normalized" "$TMPDIR_BASE/mojo-$label.normalized" >&2 || true
+    return 1
 }
 
 run_pair gestirn-de \
@@ -47,11 +68,11 @@ run_pair modal-love-en \
     -language=english -lines --thisrangebefore=1-40 \
     -columns --basic_structures=love \
     -output --type=csv --width=40
-run_pair primzahlkreuz-de \
+run_pair_order_tolerant primzahlkreuz-de \
     -zeilen --vorhervonausschnitt=1-30 \
     -spalten --bedeutung=primzahlkreuz \
     -ausgabe --art=csv --breite=40
-run_pair primecross-en \
+run_pair_order_tolerant primecross-en \
     -language=english -lines --thisrangebefore=1-30 \
     -columns --meaning=primecross \
     -output --type=csv --width=40

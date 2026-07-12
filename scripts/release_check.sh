@@ -76,7 +76,7 @@ run_step 'Generated-Alias-Katalog prüfen' "$ROOT/scripts/check_generated_alias_
 run_step 'Fraction-Pair-Katalog prüfen' "$ROOT/scripts/check_fraction_pair_catalog.sh"
 run_step 'Meta-Request-Reihenfolge prüfen' "$ROOT/scripts/check_meta_request_order.sh"
 run_step 'Kombi-Kataloge prüfen' "$ROOT/scripts/check_kombi_catalogs.sh"
-run_step 'Generated-Column-Parität prüfen' "$ROOT/scripts/check_generated_column_parity.sh"
+run_step 'Generated-Column-Parität prüfen (Mengenlisten reihenfolgentolerant)' "$ROOT/scripts/check_generated_column_parity.sh"
 run_step 'Schema-Katalog prüfen' "$ROOT/scripts/check_schema_catalog.sh"
 run_step 'Kategorie-Katalog prüfen' "$ROOT/scripts/check_category_catalog.sh"
 run_step 'Native-Table-Parität prüfen' "$ROOT/scripts/check_native_table_parity.sh"
