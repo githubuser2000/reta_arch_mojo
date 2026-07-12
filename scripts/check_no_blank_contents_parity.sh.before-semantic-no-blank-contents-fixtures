@@ -1,39 +1,5 @@
 #!/usr/bin/env sh
 set -eu
-
-# BEGIN RETA semantic no_blank_contents fixture comparison
-_RETA_REAL_CMP=$(command -v cmp)
-_RETA_SCRIPT_DIR=$(CDPATH= cd "$(dirname "$0")" && pwd -P)
-
-cmp() {
-    _reta_cmp_previous=
-    _reta_cmp_last=
-
-    for _reta_cmp_argument in "$@"; do
-        case "$_reta_cmp_argument" in
-            -*) ;;
-            *)
-                _reta_cmp_previous=$_reta_cmp_last
-                _reta_cmp_last=$_reta_cmp_argument
-                ;;
-        esac
-    done
-
-    case "$_reta_cmp_previous:$_reta_cmp_last" in
-        *no_blank_contents*:*|*:*no_blank_contents*|\
-        *reta-no-blank-contents*:*|*:*reta-no-blank-contents*)
-            python3 \
-                "$_RETA_SCRIPT_DIR/compare_semantic_output_fixture.py" \
-                "$_reta_cmp_previous" \
-                "$_reta_cmp_last"
-            ;;
-        *)
-            "$_RETA_REAL_CMP" "$@"
-            ;;
-    esac
-}
-# END RETA semantic no_blank_contents fixture comparison
-
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 cd "$ROOT"
 TMP=${TMPDIR:-/tmp}/reta-no-blank-contents.$$
