@@ -1,9 +1,7 @@
 from __future__ import annotations
 
-from html.parser import HTMLParser
 import os
 from pathlib import Path
-import re
 import subprocess
 import sys
 
@@ -169,190 +167,6 @@ def test_shell_onetable_runs_without_python_child() -> None:
     )
 
 
-_WHITESPACE_RE = re.compile(r"\s+")
-_BBCODE_ROW_RE = re.compile(r'\[tr="([^"]*)"\](.*?)\[/tr\]', re.DOTALL)
-_BBCODE_CELL_RE = re.compile(r'\[td="([^"]*)"\](.*?)\[/td\]', re.DOTALL)
-
-
-def _without_whitespace(value: str) -> str:
-    return _WHITESPACE_RE.sub("", value)
-
-
-def _normalize_style(value: str) -> str:
-    return ";".join(part.strip() for part in value.split(";") if part.strip())
-
-
-def _group_semantic_markup_rows(
-    rows: list[tuple[str, list[tuple[str, tuple[str, ...], bool]]]],
-) -> tuple[tuple[str, tuple[tuple[str, tuple[str, ...], bool], ...]], ...]:
-    """Merge layout continuation rows while retaining semantic columns and styles."""
-    groups: list[dict[str, object]] = []
-
-    for row_style, cells in rows:
-        second_cell_has_text = len(cells) > 1 and bool(_without_whitespace(cells[1][0]))
-        starts_group = (
-            not groups
-            or row_style != groups[-1]["row_style"]
-            or second_cell_has_text
-        )
-        if starts_group:
-            groups.append(
-                {
-                    "row_style": row_style,
-                    "columns": [
-                        {"text": "", "styles": set(), "symbol": False}
-                        for _ in cells
-                    ],
-                }
-            )
-
-        columns = groups[-1]["columns"]
-        assert isinstance(columns, list)
-        assert len(columns) == len(cells)
-        for column, (text, styles, symbol) in zip(columns, cells, strict=True):
-            assert isinstance(column, dict)
-            column["text"] += _without_whitespace(text)
-            column["styles"].update(styles)
-            column["symbol"] = bool(column["symbol"]) or symbol
-
-    normalized_groups = []
-    for group in groups:
-        columns = group["columns"]
-        assert isinstance(columns, list)
-        normalized_groups.append(
-            (
-                str(group["row_style"]),
-                tuple(
-                    (
-                        str(column["text"]),
-                        tuple(sorted(column["styles"])),
-                        bool(column["symbol"]),
-                    )
-                    for column in columns
-                ),
-            )
-        )
-    return tuple(normalized_groups)
-
-
-class _SemanticHtmlTableParser(HTMLParser):
-    def __init__(self) -> None:
-        super().__init__(convert_charrefs=True)
-        self.table_count = 0
-        self.table_depth = 0
-        self.rows: list[tuple[str, list[tuple[str, tuple[str, ...], bool]]]] = []
-        self._row_style: str | None = None
-        self._row_cells: list[tuple[str, tuple[str, ...], bool]] = []
-        self._cell_text: list[str] | None = None
-        self._cell_styles: tuple[str, ...] = ()
-        self._cell_is_symbol = False
-        self._outside_text: list[str] = []
-
-    def handle_starttag(
-        self,
-        tag: str,
-        attrs: list[tuple[str, str | None]],
-    ) -> None:
-        if tag == "table":
-            self.table_count += 1
-            self.table_depth += 1
-            return
-        if tag == "tr" and self.table_depth:
-            assert self._row_style is None
-            self._row_style = _normalize_style(
-                next((value or "" for key, value in attrs if key == "style"), "")
-            )
-            self._row_cells = []
-            return
-        if tag == "td" and self._row_style is not None:
-            assert self._cell_text is None
-            classes = [value or "" for key, value in attrs if key == "class"]
-            self._cell_text = []
-            self._cell_styles = tuple(
-                _normalize_style(value or "")
-                for key, value in attrs
-                if key == "style"
-            )
-            self._cell_is_symbol = any(
-                "tdSymbole" in class_value.split() for class_value in classes
-            )
-
-    def handle_endtag(self, tag: str) -> None:
-        if tag == "td" and self._cell_text is not None:
-            self._row_cells.append(
-                ("".join(self._cell_text), self._cell_styles, self._cell_is_symbol)
-            )
-            self._cell_text = None
-            self._cell_styles = ()
-            self._cell_is_symbol = False
-            return
-        if tag == "tr" and self._row_style is not None:
-            self.rows.append((self._row_style, self._row_cells))
-            self._row_style = None
-            self._row_cells = []
-            return
-        if tag == "table" and self.table_depth:
-            self.table_depth -= 1
-
-    def handle_data(self, data: str) -> None:
-        if self._cell_text is not None:
-            self._cell_text.append(data)
-        elif _without_whitespace(data):
-            self._outside_text.append(data)
-
-
-def _semantic_html_table(
-    data: bytes,
-) -> tuple[tuple[str, tuple[tuple[str, tuple[str, ...], bool], ...]], ...]:
-    parser = _SemanticHtmlTableParser()
-    parser.feed(data.decode("utf-8"))
-    parser.close()
-    assert parser.table_count == 1
-    assert parser.table_depth == 0
-    assert parser._row_style is None
-    assert parser._cell_text is None
-    assert not parser._outside_text
-    return _group_semantic_markup_rows(parser.rows)
-
-
-def _semantic_bbcode_table(
-    data: bytes,
-) -> tuple[tuple[str, tuple[tuple[str, tuple[str, ...], bool], ...]], ...]:
-    text = data.decode("utf-8").strip()
-    assert text.startswith("[table]")
-    assert text.endswith("[/table]")
-    body = text[len("[table]") : -len("[/table]")]
-    assert not _without_whitespace(_BBCODE_ROW_RE.sub("", body))
-
-    rows: list[tuple[str, list[tuple[str, tuple[str, ...], bool]]]] = []
-    for row_match in _BBCODE_ROW_RE.finditer(body):
-        row_body = row_match.group(2)
-        assert not _without_whitespace(_BBCODE_CELL_RE.sub("", row_body))
-        cells = [
-            (
-                cell_match.group(2),
-                (_normalize_style(cell_match.group(1)),),
-                False,
-            )
-            for cell_match in _BBCODE_CELL_RE.finditer(row_body)
-        ]
-        rows.append((_normalize_style(row_match.group(1)), cells))
-
-    assert rows
-    return _group_semantic_markup_rows(rows)
-
-
-def _semantic_markup_table(
-    output_mode: str,
-    data: bytes,
-) -> tuple[tuple[str, tuple[tuple[str, tuple[str, ...], bool], ...]], ...]:
-    if output_mode == "html":
-        return _semantic_html_table(data)
-    if output_mode == "bbcode":
-        return _semantic_bbcode_table(data)
-    raise AssertionError(f"unsupported semantic markup mode: {output_mode}")
-
-
 def test_markup_onetable_runs_without_python_child() -> None:
     fixtures = ROOT / "tests" / "fixtures" / "markup_onetable"
     for output_mode in ("html", "bbcode"):
@@ -368,11 +182,11 @@ def test_markup_onetable_runs_without_python_child() -> None:
         ]
         native = _run_compat(arguments, python="/definitely/not/available")
         expected = (fixtures / f"{output_mode}-de-width40.out").read_bytes()
-        assert native.returncode == 0
-        assert native.stderr == b""
-        assert _semantic_markup_table(
-            output_mode, native.stdout
-        ) == _semantic_markup_table(output_mode, expected)
+        assert (native.returncode, native.stdout, native.stderr) == (
+            0,
+            expected,
+            b"",
+        )
 
 
 def test_no_blank_contents_runs_without_python_child() -> None:
@@ -391,11 +205,11 @@ def test_no_blank_contents_runs_without_python_child() -> None:
     expected = (
         ROOT / "tests" / "fixtures" / "no_blank_contents" / "html-noempty.out"
     ).read_bytes()
-    assert native.returncode == 0
-    assert native.stderr == b""
-    assert _semantic_markup_table(
-        "html", native.stdout
-    ) == _semantic_markup_table("html", expected)
+    assert (native.returncode, native.stdout, native.stderr) == (
+        0,
+        expected,
+        b"",
+    )
 
 
 

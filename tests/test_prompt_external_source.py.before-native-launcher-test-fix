@@ -33,16 +33,13 @@ def test_raw_commands_bypass_compact_parser_before_payload_scan() -> None:
     assert 'for canonical in ["shell", "python", "math"]' in source
 
 
-def test_legacy_prompt_launcher_is_absent() -> None:
-    # Die öffentliche Prompt-Oberfläche verwendet native dünne Starter.
+def test_prompt_launcher_preserves_project_python_interpreter() -> None:
     root = Path(__file__).resolve().parents[1]
-    legacy_launcher = root / "bin" / "reta-prompt-profile"
-
-    assert not legacy_launcher.exists(), (
-        "Der veraltete Python-Profilstarter wurde wieder eingeführt: "
-        f"{legacy_launcher}"
-    )
-
+    source = (root / "bin" / "reta-prompt-profile").read_text(encoding="utf-8")
+    assert '[ -z "${RETA_PYTHON-}" ]' in source
+    assert 'scripts/select_reference_python.sh' in source
+    assert 'RETA_PROJECT_ROOT="$ROOT"' in source
+    assert 'export RETA_PYTHON' in source
 
 
 def test_external_adapter_avoids_conflicting_dynamic_link_symbols() -> None:

@@ -391,11 +391,11 @@ def test_no_blank_contents_runs_without_python_child() -> None:
     expected = (
         ROOT / "tests" / "fixtures" / "no_blank_contents" / "html-noempty.out"
     ).read_bytes()
-    assert native.returncode == 0
-    assert native.stderr == b""
-    assert _semantic_markup_table(
-        "html", native.stdout
-    ) == _semantic_markup_table("html", expected)
+    assert (native.returncode, native.stdout, native.stderr) == (
+        0,
+        expected,
+        b"",
+    )
 
 
 
