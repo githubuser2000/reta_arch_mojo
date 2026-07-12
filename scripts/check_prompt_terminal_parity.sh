@@ -1,5 +1,6 @@
 #!/usr/bin/env sh
 set -eu
+
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 cd "$ROOT"
 TEST_DIR=${RETA_TEST_TARGET_DIR:-"$ROOT/target/test-bin"}

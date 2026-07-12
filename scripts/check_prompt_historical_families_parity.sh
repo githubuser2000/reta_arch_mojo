@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 cd "$ROOT"
 PYTHON=${PYTHON_BIN:-$("$ROOT/scripts/find_test_python.sh")}
