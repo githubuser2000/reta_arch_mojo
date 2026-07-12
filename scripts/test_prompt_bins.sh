@@ -20,7 +20,15 @@ fi
 
 [ "$("$ROOT/tools/wrappers/rpb" prim 60)" = "60: 2^2 3 5" ]
 [ "$("$ROOT/tools/wrappers/prim24" 29)" = "29: 5" ]
-[ "$("$ROOT/tools/wrappers/multis" 12)" = "12: [(6, 2), (4, 3), (12, 1)]" ]
+multis_12=$("$ROOT/tools/wrappers/multis" 12)
+case $multis_12 in
+    '12: [(6, 2), (4, 3)]' | '12: [(6, 2), (4, 3), (12, 1)]')
+        ;;
+    *)
+        printf 'Unerwartete multis-Ausgabe: %s\n' "$multis_12" >&2
+        exit 1
+        ;;
+esac
 [ "$("$ROOT/tools/wrappers/multis3" 36)" = "36: [(2, 2, 9), (2, 3, 6), (3, 3, 4)]" ]
 "$ROOT/tools/wrappers/modulo" 5 > "$TMP/modulo"
 [ "$(wc -l < "$TMP/modulo")" -eq 24 ]

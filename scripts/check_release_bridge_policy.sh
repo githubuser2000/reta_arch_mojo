@@ -39,6 +39,18 @@ done
 ! grep -qi 'pyphen' scripts/check_install_layout.sh || \
     fail 'check_install_layout.sh darf pyphen nicht verwenden oder erwähnen'
 
+
+# Pyphen is not part of the active reference or native release path.  It was a
+# historical optional hyphenation dependency, but the active table wrapping path
+# uses deterministic hard chunking.  Do not reintroduce an import or dependency
+# that makes release checks load pkg_resources through pyphen.
+! grep -RIn --exclude-dir=.git --exclude-dir=target --exclude-dir=.venv --exclude-dir=.pixi \
+    -E '^[[:space:]]*(import|from)[[:space:]]+pyphen([[:space:]]|$)' python_reference src tools scripts tests >/dev/null || \
+    fail 'pyphen darf nicht importiert werden'
+! grep -RIn --exclude-dir=.git --exclude-dir=target --exclude-dir=.venv --exclude-dir=.pixi \
+    -E 'pyphen[[:space:]]*=|pip install[[:space:]]+pyphen|pyphen==' python_reference pyproject.toml setup.py 2>/dev/null >/dev/null || \
+    fail 'pyphen darf nicht als aktive Abhängigkeit eingetragen werden'
+
 # Standardprofile exposes only the real public commands.
 for command in reta rp rpl rpe rpb generate_html grundStrukHtml; do
     reta_artifact_profile_install_executables standard | grep -qx "$command" || \

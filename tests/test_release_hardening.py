@@ -70,3 +70,17 @@ def test_install_layout_check_does_not_execute_python_reference_or_pyphen() -> N
     fixture_text = fixture.read_text(encoding="utf-8")
     assert "Sternpolygon" in fixture_text
     assert "Diespiter" in fixture_text
+
+def test_pyphen_is_not_an_active_dependency() -> None:
+    active_files = [
+        ROOT / "python_reference" / "reta_architecture" / "console_io.py",
+        ROOT / "python_reference" / "pyproject.toml",
+        ROOT / "python_reference" / "install.sh",
+    ]
+    joined = "\n".join(path.read_text(encoding="utf-8") for path in active_files)
+    assert "import pyphen" not in joined
+    assert "from pyphen" not in joined
+    assert "pyphen==" not in joined
+    assert "pip install pyphen" not in joined
+    assert 'pyphen = "' not in joined
+

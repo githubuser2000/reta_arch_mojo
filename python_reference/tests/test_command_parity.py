@@ -149,15 +149,6 @@ class CommandParityMatrixTest(unittest.TestCase):
             '    return _fill(text, width=width, **kwargs)\n',
             encoding='utf-8',
         )
-        (root / 'pyphen.py').write_text(
-            'class Pyphen:\n'
-            '    def __init__(self,*a,**k): pass\n'
-            '    def inserted(self, word): return word\n'
-            '    def wrap(self, text, width):\n'
-            '        if width <= 0: return [text]\n'
-            '        return [text[i:i+width] for i in range(0, len(text), width)] or [""]\n',
-            encoding='utf-8',
-        )
         (root / 'prompt_toolkit').mkdir(parents=True, exist_ok=True)
         (root / 'prompt_toolkit' / 'completion').mkdir(parents=True, exist_ok=True)
         (root / 'prompt_toolkit' / 'history').mkdir(parents=True, exist_ok=True)

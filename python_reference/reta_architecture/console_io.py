@@ -215,18 +215,19 @@ def get_text_wrap_things(max_len=None) -> tuple:
         except (ModuleNotFoundError, ImportError):
             html2text = None
 
-        class _FallbackHyphenator:
+        class _ChunkFallbackDictionary:
             def wrap(self, text, width):
                 if width <= 0:
                     return [text]
                 return [text[i : i + width] for i in range(0, len(text), width)] or [""]
 
-        try:
-            import pyphen
-
-            dic = pyphen.Pyphen(lang="de_DE")
-        except (ModuleNotFoundError, ImportError):
-            dic = _FallbackHyphenator()
+        # The historical syllable-hyphenation dependency was never reached by
+        # the active wrapping path: ``table_wrapping.alxwrap`` deliberately
+        # raises into the simple chunk fallback before consulting a dictionary.
+        # Keep the compatibility object shape, but do not import optional
+        # third-party hyphenation packages during release checks or prompt
+        # smokes.
+        dic = _ChunkFallbackDictionary()
         try:
             from textwrap2 import fill
         except (ModuleNotFoundError, ImportError):
@@ -250,7 +251,6 @@ def get_text_wrap_things(max_len=None) -> tuple:
                 columns_amount, shell_rows_amount = "80", "80"
     else:  # pragma: no cover - Brython compatibility path
         html2text = None
-        pyphen = None
         Hyphenator = None
         fill = None
         dic = None

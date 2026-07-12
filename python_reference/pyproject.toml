@@ -12,7 +12,6 @@ html2text = "==2020.1.16"
 prompt-toolkit = "==3.0.19"
 pyhyphen = "==3.0.1"
 rich = "==10.12.0"
-pyphen = "==0.9.5"
 
 [build-system]
 requires = ["poetry-core"]

@@ -25,8 +25,10 @@ PYTHONHASHSEED=0 pypy3 reta -spalten --alles --breite=0 \
   -ausgabe --art=html --onetable --nocolor > middle.alx
 ```
 
-`python reta ...` startet dagegen ausdrücklich CPython. Die sichtbare
-`pyphen`-/`pkg_resources`-Warnung stammt aus dieser CPython-Umgebung.
+`python reta ...` startet dagegen ausdrücklich CPython. `pyphen` ist kein
+aktiver Bestandteil des Referenz- oder Releasepfads mehr; eine
+`pyphen`-/`pkg_resources`-Warnung wäre ein Regressionshinweis und sollte nicht
+ignoriert werden.
 
 ## Referenz einmal lokal erzeugen
 
