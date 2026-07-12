@@ -100,6 +100,51 @@ def normalize_fractional_motif_star_csv(text: str) -> str:
         canonical_rows, ensure_ascii=False, separators=(",", ":"), sort_keys=True
     ) + "\n"
 
+
+_META_MULTI_HEADERS = (
+    "Meta für n",
+    "Meta für 1/n statt n",
+    "Konkretes für n",
+    "Konkretes für 1/n statt n",
+    "Theorie für n",
+    "Theorie für 1/n statt n",
+    "Praxis für n",
+    "Praxis für 1/n statt n",
+)
+
+
+def normalize_meta_multi_columns_csv(text: str) -> str:
+    """Canonicalize only the eight known German meta-multi CSV columns.
+
+    The first two row/number columns remain untouched.  Normalization is only
+    applied when the header contains exactly the expected eight unique labels;
+    unknown, duplicate, missing, or additional columns remain byte-sensitive.
+    """
+
+    rows = list(csv.reader(io.StringIO(text), delimiter=";"))
+    if not rows:
+        return text
+
+    header = rows[0]
+    if len(header) != 2 + len(_META_MULTI_HEADERS):
+        return text
+    if len(set(header[2:])) != len(_META_MULTI_HEADERS):
+        return text
+    if set(header[2:]) != set(_META_MULTI_HEADERS):
+        return text
+    if any(len(row) != len(header) for row in rows):
+        return text
+
+    positions = {name: index for index, name in enumerate(header)}
+    canonical_rows = []
+    for row in rows:
+        canonical_rows.append(
+            row[:2] + [row[positions[name]] for name in _META_MULTI_HEADERS]
+        )
+    return json.dumps(
+        canonical_rows, ensure_ascii=False, separators=(",", ":")
+    ) + "\n"
+
 def _sorted_numbers(numbers_text: str) -> list[int]:
     return sorted(int(part) for part in re.findall(r"\d+", numbers_text))
 
@@ -203,14 +248,14 @@ def normalize_text(text: str) -> str:
 
 def main() -> int:
     args = sys.argv[1:]
-    fractional_motif_star = False
-    if args and args[0] == "--fractional-motif-star":
-        fractional_motif_star = True
+    mode = "text"
+    if args and args[0] in ("--fractional-motif-star", "--meta-multi-columns"):
+        mode = args[0]
         args = args[1:]
     if len(args) > 1:
         print(
             "usage: normalize_generated_column_order.py "
-            "[--fractional-motif-star] [FILE]",
+            "[--fractional-motif-star|--meta-multi-columns] [FILE]",
             file=sys.stderr,
         )
         return 2
@@ -219,8 +264,10 @@ def main() -> int:
             text = handle.read()
     else:
         text = sys.stdin.read()
-    if fractional_motif_star:
+    if mode == "--fractional-motif-star":
         sys.stdout.write(normalize_fractional_motif_star_csv(text))
+    elif mode == "--meta-multi-columns":
+        sys.stdout.write(normalize_meta_multi_columns_csv(text))
     else:
         sys.stdout.write(normalize_text(text))
     return 0

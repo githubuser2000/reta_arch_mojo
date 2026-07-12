@@ -116,3 +116,53 @@ def test_fractional_motif_pairs_still_detect_changed_content():
     assert module.normalize_fractional_motif_star_csv(
         _csv_text(original)
     ) != module.normalize_fractional_motif_star_csv(_csv_text(changed))
+
+
+META_HEADERS = [
+    "Meta für n",
+    "Meta für 1/n statt n",
+    "Konkretes für n",
+    "Konkretes für 1/n statt n",
+    "Theorie für n",
+    "Theorie für 1/n statt n",
+    "Praxis für n",
+    "Praxis für 1/n statt n",
+]
+
+
+def _meta_csv(order, values):
+    import csv
+    import io
+
+    output = io.StringIO()
+    writer = csv.writer(output, delimiter=";", lineterminator="\n")
+    writer.writerow(["", " "] + list(order))
+    writer.writerow(["1", "2 "] + [values[name] for name in order])
+    writer.writerow(["1", "3 "] + [values[name] + "-row3" for name in order])
+    return output.getvalue()
+
+
+def test_meta_multi_columns_ignore_only_known_header_order():
+    values = {name: f"value-{index}" for index, name in enumerate(META_HEADERS)}
+    python_order = META_HEADERS
+    mojo_order = META_HEADERS[6:] + META_HEADERS[:6]
+
+    assert module.normalize_meta_multi_columns_csv(
+        _meta_csv(python_order, values)
+    ) == module.normalize_meta_multi_columns_csv(_meta_csv(mojo_order, values))
+
+
+def test_meta_multi_columns_still_detect_changed_content_or_unknown_header():
+    values = {name: f"value-{index}" for index, name in enumerate(META_HEADERS)}
+    changed = dict(values)
+    changed["Praxis für n"] = "changed"
+
+    assert module.normalize_meta_multi_columns_csv(
+        _meta_csv(META_HEADERS, values)
+    ) != module.normalize_meta_multi_columns_csv(
+        _meta_csv(META_HEADERS[6:] + META_HEADERS[:6], changed)
+    )
+
+    unknown = META_HEADERS[:-1] + ["Unbekannt"]
+    unknown_text = _meta_csv(unknown, {**values, "Unbekannt": "x"})
+    assert module.normalize_meta_multi_columns_csv(unknown_text) == unknown_text
