@@ -1,39 +1,5 @@
 #!/usr/bin/env sh
 set -eu
-
-# BEGIN RETA semantic paginated fixture comparison
-_RETA_REAL_CMP=$(command -v cmp)
-_RETA_SCRIPT_DIR=$(CDPATH= cd "$(dirname "$0")" && pwd -P)
-
-cmp() {
-    _reta_cmp_previous=
-    _reta_cmp_last=
-
-    for _reta_cmp_argument in "$@"; do
-        case "$_reta_cmp_argument" in
-            -*) ;;
-            *)
-                _reta_cmp_previous=$_reta_cmp_last
-                _reta_cmp_last=$_reta_cmp_argument
-                ;;
-        esac
-    done
-
-    case "$_reta_cmp_previous:$_reta_cmp_last" in
-        *paginated_rendering*:*|*:*paginated_rendering*|\
-        *reta-paginated-rendering*:*|*:*reta-paginated-rendering*)
-            python3 \
-                "$_RETA_SCRIPT_DIR/compare_semantic_paginated_fixture.py" \
-                "$_reta_cmp_previous" \
-                "$_reta_cmp_last"
-            ;;
-        *)
-            "$_RETA_REAL_CMP" "$@"
-            ;;
-    esac
-}
-# END RETA semantic paginated fixture comparison
-
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 cd "$ROOT"
 TMP=${TMPDIR:-/tmp}/reta-paginated-rendering.$$
