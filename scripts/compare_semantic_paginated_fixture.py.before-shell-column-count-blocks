@@ -91,66 +91,6 @@ def _split_pages(mode: str, text: str) -> tuple[str, list[str]]:
     return "single-block", [text]
 
 
-
-def _semantic_paginated_shell_page(
-    namespace: dict[str, object],
-    page: str,
-) -> tuple[object, ...]:
-    # Eine paginierte Shell-Seite kann mehrere Tabellenabschnitte mit
-    # unterschiedlicher ANSI-Zellzahl enthalten. Jeder Abschnitt wird
-    # separat rekonstruiert und in seiner ursprünglichen Reihenfolge geprüft.
-    ansi_cell_re = namespace["_ANSI_CELL_RE"]
-    semantic_shell_table = namespace["_semantic_shell_table"]
-    ansi_sgr_re = namespace["_ANSI_SGR_RE"]
-
-    parts: list[tuple[str, object]] = []
-    current_cell_count: int | None = None
-    current_lines: list[str] = []
-
-    def flush_table() -> None:
-        nonlocal current_cell_count, current_lines
-        if not current_lines:
-            return
-
-        table_text = "\n".join(current_lines) + "\n"
-        parts.append(
-            (
-                "table",
-                (
-                    current_cell_count,
-                    semantic_shell_table(table_text.encode("utf-8")),
-                ),
-            )
-        )
-        current_cell_count = None
-        current_lines = []
-
-    for line_number, line in enumerate(page.splitlines(), start=1):
-        if not line.strip():
-            continue
-
-        matches = list(ansi_cell_re.finditer(line))
-        if not matches:
-            flush_table()
-            visible = ansi_sgr_re.sub("", line)
-            visible = "".join(visible.split())
-            if visible:
-                parts.append(("text", visible))
-            continue
-
-        cell_count = len(matches)
-        if current_cell_count is None:
-            current_cell_count = cell_count
-        elif cell_count != current_cell_count:
-            flush_table()
-            current_cell_count = cell_count
-
-        current_lines.append(line)
-
-    flush_table()
-    return tuple(parts)
-
-
 def _semantic_page(
     namespace: dict[str, object],
     family: str,
@@ -160,7 +100,7 @@ def _semantic_page(
     data = page.encode("utf-8")
 
     if family == "shell":
-        return _semantic_paginated_shell_page(namespace, page)
+        return namespace["_semantic_shell_table"](data)
     if family == "markup":
         return namespace["_semantic_markup_table"](mode, data)
     return namespace["_semantic_flat_table"](mode, data)
