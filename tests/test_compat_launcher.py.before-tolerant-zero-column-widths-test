@@ -697,16 +697,11 @@ def test_zero_column_widths_run_without_python_child() -> None:
         ]
         native = _run_compat(arguments, python="/definitely/not/available")
         expected = (fixtures / f"de-{output_mode}-zero-first-plus.out").read_bytes()
-        assert native.returncode == 0
-        assert native.stderr == b""
-        if output_mode == "shell":
-            assert _semantic_shell_table(
-                native.stdout
-            ) == _semantic_shell_table(expected)
-        else:
-            assert _semantic_markup_table(
-                output_mode, native.stdout
-            ) == _semantic_markup_table(output_mode, expected)
+        assert (native.returncode, native.stdout, native.stderr) == (
+            0,
+            expected,
+            b"",
+        )
 
 def test_force_reference_keeps_empty_cli_on_complete_reference_surface(
     tmp_path: Path,
