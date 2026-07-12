@@ -65,17 +65,14 @@ def _split_shell_blocks(
     current_lines: list[str] = []
     current_cell_count: int | None = None
     seen_numbered_row = False
-    last_row_number: int | None = None
 
     def flush() -> None:
-        nonlocal current_lines, current_cell_count
-        nonlocal seen_numbered_row, last_row_number
+        nonlocal current_lines, current_cell_count, seen_numbered_row
         if current_lines:
             blocks.append("\n".join(current_lines) + "\n")
         current_lines = []
         current_cell_count = None
         seen_numbered_row = False
-        last_row_number = None
 
     for line in text.splitlines():
         if not line.strip():
@@ -92,17 +89,10 @@ def _split_shell_blocks(
 
         prefix = ansi_sgr_re.sub("", line[: matches[0].start()]).strip()
         cell_count = len(matches)
-        number_matches = re.findall(r"\d+", prefix)
-        row_number = int(number_matches[-1]) if number_matches else None
-        is_numbered_row = row_number is not None
+        is_numbered_row = bool(re.search(r"\d", prefix))
         is_underlined_header = (
             not is_numbered_row
             and "\x1b[4m" in line
-        )
-        row_number_restarted = bool(
-            row_number is not None
-            and last_row_number is not None
-            and row_number <= last_row_number
         )
 
         starts_new_block = bool(
@@ -110,7 +100,6 @@ def _split_shell_blocks(
             and (
                 cell_count != current_cell_count
                 or (seen_numbered_row and is_underlined_header)
-                or row_number_restarted
             )
         )
         if starts_new_block:
@@ -121,8 +110,6 @@ def _split_shell_blocks(
 
         current_lines.append(line)
         seen_numbered_row = seen_numbered_row or is_numbered_row
-        if row_number is not None:
-            last_row_number = row_number
 
     flush()
     return blocks, tuple(visible_text)
