@@ -591,11 +591,13 @@ def _semantic_flat_table(
             for cell in cells[:2]
         )
 
-        # Die zweite Strukturspalte ist die eigentliche Zeilennummer.
-        # Die erste Zählspalte kann auf Fortsetzungszeilen wiederholt werden
-        # und darf deshalb allein keine neue logische Datenzeile beginnen.
-        row_marker = structural[1]
-        starts_new_row = not logical_rows or bool(row_marker)
+        starts_new_row = not logical_rows
+        if logical_rows and any(structural):
+            current_structural = tuple(
+                str(value)
+                for value in logical_rows[-1]["structural"]
+            )
+            starts_new_row = structural != current_structural
 
         if starts_new_row:
             logical_rows.append(
@@ -674,11 +676,11 @@ def test_flat_column_widths_run_without_python_child() -> None:
     bare_expected = (
         fixtures / "de-csv-unnumbered-nohead.out"
     ).read_bytes()
-    assert bare_native.returncode == 0
-    assert bare_native.stderr == b""
-    assert _semantic_flat_table(
-        "csv", bare_native.stdout
-    ) == _semantic_flat_table("csv", bare_expected)
+    assert (
+        bare_native.returncode,
+        bare_native.stdout,
+        bare_native.stderr,
+    ) == (0, bare_expected, b"")
 
 
 def test_zero_column_widths_run_without_python_child() -> None:

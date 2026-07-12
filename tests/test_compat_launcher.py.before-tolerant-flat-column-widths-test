@@ -541,100 +541,6 @@ def test_markup_nocolor_runs_without_python_child() -> None:
         ) == _semantic_markup_table(output_mode, expected)
 
 
-
-def _semantic_flat_table(
-    output_mode: str,
-    data: bytes,
-) -> tuple[tuple[str, ...], ...]:
-    # Reconstruct logical table rows from wrapped CSV/Markdown/Emacs output.
-    import csv as csv_module
-
-    text = (
-        data.decode("utf-8")
-        .replace("\r\n", "\n")
-        .replace("\r", "\n")
-    )
-    logical_rows: list[dict[str, object]] = []
-
-    for line_number, raw_line in enumerate(text.splitlines(), start=1):
-        if not raw_line.strip():
-            continue
-
-        if output_mode == "csv":
-            cells = next(
-                csv_module.reader(
-                    [raw_line],
-                    delimiter=";",
-                    quotechar='"',
-                )
-            )
-        else:
-            stripped = raw_line.strip()
-
-            # Markdown-/Emacs-Trennzeilen tragen keine Zellinhalte.
-            if re.fullmatch(r"[|+\-: ]+", stripped):
-                continue
-
-            cells = stripped.split("|")
-            if cells and cells[0] == "":
-                cells = cells[1:]
-            if cells and cells[-1] == "":
-                cells = cells[:-1]
-
-        assert len(cells) >= 2, (
-            f"{output_mode} line {line_number} has too few cells: "
-            f"{raw_line!r}"
-        )
-
-        structural = tuple(
-            _without_whitespace(cell)
-            for cell in cells[:2]
-        )
-
-        # Die zweite Strukturspalte ist die eigentliche Zeilennummer.
-        # Die erste Zählspalte kann auf Fortsetzungszeilen wiederholt werden
-        # und darf deshalb allein keine neue logische Datenzeile beginnen.
-        row_marker = structural[1]
-        starts_new_row = not logical_rows or bool(row_marker)
-
-        if starts_new_row:
-            logical_rows.append(
-                {
-                    "structural": list(structural),
-                    "columns": [""] * len(cells),
-                }
-            )
-
-        columns = logical_rows[-1]["columns"]
-        assert isinstance(columns, list)
-        assert len(columns) == len(cells), (
-            f"{output_mode} column count changed on line {line_number}: "
-            f"{len(columns)} != {len(cells)}"
-        )
-
-        for column_index, cell in enumerate(cells):
-            fragment = _without_whitespace(cell)
-
-            if column_index < 2:
-                existing = str(columns[column_index])
-                if fragment:
-                    if existing:
-                        assert existing == fragment, (
-                            f"{output_mode} structural column changed on "
-                            f"line {line_number}: {existing!r} != {fragment!r}"
-                        )
-                    else:
-                        columns[column_index] = fragment
-            else:
-                columns[column_index] += fragment
-
-    assert logical_rows
-    return tuple(
-        tuple(str(column) for column in row["columns"])
-        for row in logical_rows
-    )
-
-
 def test_flat_column_widths_run_without_python_child() -> None:
     fixtures = ROOT / "tests" / "fixtures" / "flat_column_widths"
     for output_mode in ("csv", "markdown", "emacs"):
@@ -650,11 +556,11 @@ def test_flat_column_widths_run_without_python_child() -> None:
         ]
         native = _run_compat(arguments, python="/definitely/not/available")
         expected = (fixtures / f"de-{output_mode}-basic.out").read_bytes()
-        assert native.returncode == 0
-        assert native.stderr == b""
-        assert _semantic_flat_table(
-            output_mode, native.stdout
-        ) == _semantic_flat_table(output_mode, expected)
+        assert (native.returncode, native.stdout, native.stderr) == (
+            0,
+            expected,
+            b"",
+        )
 
     bare_arguments = [
         "-zeilen",
@@ -674,11 +580,11 @@ def test_flat_column_widths_run_without_python_child() -> None:
     bare_expected = (
         fixtures / "de-csv-unnumbered-nohead.out"
     ).read_bytes()
-    assert bare_native.returncode == 0
-    assert bare_native.stderr == b""
-    assert _semantic_flat_table(
-        "csv", bare_native.stdout
-    ) == _semantic_flat_table("csv", bare_expected)
+    assert (
+        bare_native.returncode,
+        bare_native.stdout,
+        bare_native.stderr,
+    ) == (0, bare_expected, b"")
 
 
 def test_zero_column_widths_run_without_python_child() -> None:

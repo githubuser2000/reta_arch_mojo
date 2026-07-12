@@ -674,11 +674,11 @@ def test_flat_column_widths_run_without_python_child() -> None:
     bare_expected = (
         fixtures / "de-csv-unnumbered-nohead.out"
     ).read_bytes()
-    assert bare_native.returncode == 0
-    assert bare_native.stderr == b""
-    assert _semantic_flat_table(
-        "csv", bare_native.stdout
-    ) == _semantic_flat_table("csv", bare_expected)
+    assert (
+        bare_native.returncode,
+        bare_native.stdout,
+        bare_native.stderr,
+    ) == (0, bare_expected, b"")
 
 
 def test_zero_column_widths_run_without_python_child() -> None:
