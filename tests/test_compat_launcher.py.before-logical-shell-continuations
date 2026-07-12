@@ -462,13 +462,7 @@ def _semantic_shell_table(
 
         fragments = [match.group(1) for match in matches]
 
-        # Nur eine echte Nummerierung beginnt eine neue logische Zeile.
-        # Das Blockzeichen "█" allein kennzeichnet eine Fortsetzungszeile.
-        starts_new_row = (
-            not logical_rows
-            or bool(re.search(r"\d", prefix))
-        )
-        if starts_new_row:
+        if not logical_rows or prefix:
             logical_rows.append(
                 {
                     "prefix": prefix,

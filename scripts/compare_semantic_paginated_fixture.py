@@ -5,6 +5,7 @@ from pathlib import Path
 import re
 import runpy
 import sys
+from typing import Any
 
 
 def _mode_from_paths(expected: Path, actual: Path) -> tuple[str, str]:
@@ -29,7 +30,7 @@ def _mode_from_paths(expected: Path, actual: Path) -> tuple[str, str]:
     )
 
 
-def _normalize_text(data: bytes) -> str:
+def _normalize(data: bytes) -> str:
     return (
         data.decode("utf-8")
         .replace("\r\n", "\n")
@@ -37,133 +38,253 @@ def _normalize_text(data: bytes) -> str:
     )
 
 
-def _split_before_marker(text: str, marker: re.Pattern[str]) -> list[str]:
+def _split_before_marker(text: str, pattern: str) -> list[str]:
+    marker = re.compile(pattern, re.IGNORECASE)
     starts = [match.start() for match in marker.finditer(text)]
     if not starts:
         return []
 
-    prefix = text[: starts[0]]
-    if prefix.strip():
-        raise ValueError(
-            f"unerwarteter Text vor erster Seitentabelle: {prefix!r}"
-        )
-
-    pages: list[str] = []
+    blocks: list[str] = []
     for index, start in enumerate(starts):
         end = starts[index + 1] if index + 1 < len(starts) else len(text)
-        page = text[start:end]
-        if page.strip():
-            pages.append(page)
-    return pages
+        block = text[start:end]
+        if block.strip():
+            blocks.append(block)
+    return blocks
 
 
-def _split_pages(mode: str, text: str) -> tuple[str, list[str]]:
-    if "\f" in text:
-        return (
-            "form-feed",
-            [page for page in text.split("\f") if page.strip()],
+def _split_shell_blocks(
+    namespace: dict[str, Any],
+    text: str,
+) -> tuple[list[str], tuple[str, ...]]:
+    ansi_cell_re = namespace["_ANSI_CELL_RE"]
+    ansi_sgr_re = namespace["_ANSI_SGR_RE"]
+
+    blocks: list[str] = []
+    visible_text: list[str] = []
+    current_lines: list[str] = []
+    current_cell_count: int | None = None
+    seen_numbered_row = False
+
+    def flush() -> None:
+        nonlocal current_lines, current_cell_count, seen_numbered_row
+        if current_lines:
+            blocks.append("\n".join(current_lines) + "\n")
+        current_lines = []
+        current_cell_count = None
+        seen_numbered_row = False
+
+    for line in text.splitlines():
+        if not line.strip():
+            continue
+
+        matches = list(ansi_cell_re.finditer(line))
+        if not matches:
+            flush()
+            visible = ansi_sgr_re.sub("", line)
+            visible = "".join(visible.split())
+            if visible:
+                visible_text.append(visible)
+            continue
+
+        prefix = ansi_sgr_re.sub("", line[: matches[0].start()]).strip()
+        cell_count = len(matches)
+        is_numbered_row = bool(re.search(r"\d", prefix))
+        is_underlined_header = (
+            not is_numbered_row
+            and "\x1b[4m" in line
         )
+
+        starts_new_block = bool(
+            current_lines
+            and (
+                cell_count != current_cell_count
+                or (seen_numbered_row and is_underlined_header)
+            )
+        )
+        if starts_new_block:
+            flush()
+
+        if current_cell_count is None:
+            current_cell_count = cell_count
+
+        current_lines.append(line)
+        seen_numbered_row = seen_numbered_row or is_numbered_row
+
+    flush()
+    return blocks, tuple(visible_text)
+
+
+def _split_blocks(
+    namespace: dict[str, Any],
+    family: str,
+    mode: str,
+    text: str,
+) -> tuple[list[str], tuple[str, ...]]:
+    if family == "shell":
+        return _split_shell_blocks(namespace, text)
 
     if mode == "html":
-        pages = _split_before_marker(
-            text,
-            re.compile(r"<table\b", re.IGNORECASE),
-        )
-        if pages:
-            return "html-table", pages
+        return _split_before_marker(text, r"<table\b"), ()
 
     if mode == "bbcode":
-        pages = _split_before_marker(
-            text,
-            re.compile(r"\[table(?:[=\]])", re.IGNORECASE),
-        )
-        if pages:
-            return "bbcode-table", pages
+        return _split_before_marker(text, r"\[table(?:[=\]])"), ()
+
+    if "\f" in text:
+        return [block for block in text.split("\f") if block.strip()], ()
 
     blocks = [
         block
         for block in re.split(r"\n[ \t]*\n+", text)
         if block.strip()
     ]
-    if len(blocks) > 1:
-        return "blank-line", blocks
-
-    return "single-block", [text]
+    return blocks or [text], ()
 
 
-
-def _semantic_paginated_shell_page(
-    namespace: dict[str, object],
-    page: str,
-) -> tuple[object, ...]:
-    # Eine paginierte Shell-Seite kann mehrere Tabellenabschnitte mit
-    # unterschiedlicher ANSI-Zellzahl enthalten. Jeder Abschnitt wird
-    # separat rekonstruiert und in seiner ursprünglichen Reihenfolge geprüft.
-    ansi_cell_re = namespace["_ANSI_CELL_RE"]
-    semantic_shell_table = namespace["_semantic_shell_table"]
-    ansi_sgr_re = namespace["_ANSI_SGR_RE"]
-
-    parts: list[tuple[str, object]] = []
-    current_cell_count: int | None = None
-    current_lines: list[str] = []
-
-    def flush_table() -> None:
-        nonlocal current_cell_count, current_lines
-        if not current_lines:
-            return
-
-        table_text = "\n".join(current_lines) + "\n"
-        parts.append(
-            (
-                "table",
-                (
-                    current_cell_count,
-                    semantic_shell_table(table_text.encode("utf-8")),
-                ),
-            )
-        )
-        current_cell_count = None
-        current_lines = []
-
-    for line_number, line in enumerate(page.splitlines(), start=1):
-        if not line.strip():
-            continue
-
-        matches = list(ansi_cell_re.finditer(line))
-        if not matches:
-            flush_table()
-            visible = ansi_sgr_re.sub("", line)
-            visible = "".join(visible.split())
-            if visible:
-                parts.append(("text", visible))
-            continue
-
-        cell_count = len(matches)
-        if current_cell_count is None:
-            current_cell_count = cell_count
-        elif cell_count != current_cell_count:
-            flush_table()
-            current_cell_count = cell_count
-
-        current_lines.append(line)
-
-    flush_table()
-    return tuple(parts)
-
-
-def _semantic_page(
-    namespace: dict[str, object],
+def _semantic_block(
+    namespace: dict[str, Any],
     family: str,
     mode: str,
-    page: str,
-) -> object:
-    data = page.encode("utf-8")
+    block: str,
+) -> Any:
+    data = block.encode("utf-8")
 
     if family == "shell":
-        return _semantic_paginated_shell_page(namespace, page)
+        return namespace["_semantic_shell_table"](data)
     if family == "markup":
         return namespace["_semantic_markup_table"](mode, data)
     return namespace["_semantic_flat_table"](mode, data)
+
+
+def _shell_row_key(prefix: str) -> str:
+    digits = "".join(re.findall(r"\d+", prefix))
+    return digits
+
+
+def _merge_shell_blocks(blocks: list[Any]) -> tuple[Any, ...]:
+    merged_keys: list[str] = []
+    merged_columns: list[list[str]] = []
+
+    for block_number, rows in enumerate(blocks, start=1):
+        if not isinstance(rows, tuple):
+            raise AssertionError(
+                f"Shell-Block {block_number} ist keine Zeilentupel-Struktur."
+            )
+
+        keys = [_shell_row_key(str(prefix)) for prefix, _ in rows]
+
+        if block_number == 1:
+            merged_keys = keys
+            merged_columns = [
+                list(columns)
+                for _, columns in rows
+            ]
+            continue
+
+        if keys != merged_keys:
+            raise AssertionError(
+                f"Shell-Block {block_number} hat andere logische Zeilen: "
+                f"{keys!r} != {merged_keys!r}"
+            )
+
+        for row_index, (_, columns) in enumerate(rows):
+            merged_columns[row_index].extend(columns)
+
+    return tuple(
+        (key, tuple(columns))
+        for key, columns in zip(
+            merged_keys,
+            merged_columns,
+            strict=True,
+        )
+    )
+
+
+def _merge_flat_blocks(blocks: list[Any]) -> tuple[Any, ...]:
+    if not blocks:
+        return ()
+
+    row_count = len(blocks[0])
+    merged = [list(row) for row in blocks[0]]
+
+    for block_number, rows in enumerate(blocks[1:], start=2):
+        if len(rows) != row_count:
+            raise AssertionError(
+                f"Flat-Block {block_number} hat {len(rows)} statt "
+                f"{row_count} logische Zeilen."
+            )
+        for row_index, row in enumerate(rows):
+            merged[row_index].extend(row)
+
+    return tuple(tuple(row) for row in merged)
+
+
+def _merge_markup_blocks(blocks: list[Any]) -> tuple[Any, ...]:
+    if not blocks:
+        return ()
+
+    row_count = len(blocks[0])
+    row_styles = [row_style for row_style, _ in blocks[0]]
+    merged_cells = [list(cells) for _, cells in blocks[0]]
+
+    for block_number, rows in enumerate(blocks[1:], start=2):
+        if len(rows) != row_count:
+            raise AssertionError(
+                f"Markup-Block {block_number} hat {len(rows)} statt "
+                f"{row_count} logische Zeilen."
+            )
+
+        styles = [row_style for row_style, _ in rows]
+        if styles != row_styles:
+            raise AssertionError(
+                f"Markup-Block {block_number} hat andere Zeilenstile."
+            )
+
+        for row_index, (_, cells) in enumerate(rows):
+            merged_cells[row_index].extend(cells)
+
+    return tuple(
+        (row_style, tuple(cells))
+        for row_style, cells in zip(
+            row_styles,
+            merged_cells,
+            strict=True,
+        )
+    )
+
+
+def _canonical(
+    namespace: dict[str, Any],
+    family: str,
+    mode: str,
+    text: str,
+) -> tuple[int, tuple[str, ...], Any]:
+    raw_blocks, visible_text = _split_blocks(
+        namespace,
+        family,
+        mode,
+        text,
+    )
+
+    semantic_blocks = [
+        _semantic_block(namespace, family, mode, block)
+        for block in raw_blocks
+    ]
+
+    if len(semantic_blocks) < 2:
+        raise AssertionError(
+            f"{mode}-Ausgabe ist nicht paginiert: "
+            f"nur {len(semantic_blocks)} Tabellenblock"
+        )
+
+    if family == "shell":
+        merged = _merge_shell_blocks(semantic_blocks)
+    elif family == "markup":
+        merged = _merge_markup_blocks(semantic_blocks)
+    else:
+        merged = _merge_flat_blocks(semantic_blocks)
+
+    return len(semantic_blocks), visible_text, merged
 
 
 def main() -> int:
@@ -183,94 +304,73 @@ def main() -> int:
         print(error, file=sys.stderr)
         return 2
 
-    expected_text = _normalize_text(expected_path.read_bytes())
-    actual_text = _normalize_text(actual_path.read_bytes())
-
-    try:
-        expected_separator, expected_pages = _split_pages(mode, expected_text)
-        actual_separator, actual_pages = _split_pages(mode, actual_text)
-    except ValueError as error:
-        print(error, file=sys.stderr)
-        return 1
-
-    if expected_separator != actual_separator:
-        print(
-            "Unterschiedliche Art der Seitentrennung:\n"
-            f"  erwartet: {expected_separator}\n"
-            f"  aktuell:  {actual_separator}",
-            file=sys.stderr,
-        )
-        return 1
-
-    if len(expected_pages) != len(actual_pages):
-        print(
-            "Unterschiedliche Seitenzahl:\n"
-            f"  erwartet: {len(expected_pages)}\n"
-            f"  aktuell:  {len(actual_pages)}",
-            file=sys.stderr,
-        )
-        return 1
-
     root = Path(__file__).resolve().parent.parent
     namespace = runpy.run_path(
         str(root / "tests" / "test_compat_launcher.py")
     )
 
-    for page_number, (expected_page, actual_page) in enumerate(
-        zip(expected_pages, actual_pages, strict=True),
-        start=1,
-    ):
-        expected = _semantic_page(
+    try:
+        expected_blocks, expected_text, expected = _canonical(
             namespace,
             family,
             mode,
-            expected_page,
+            _normalize(expected_path.read_bytes()),
         )
-        actual = _semantic_page(
+        actual_blocks, actual_text, actual = _canonical(
             namespace,
             family,
             mode,
-            actual_page,
+            _normalize(actual_path.read_bytes()),
         )
+    except (AssertionError, ValueError) as error:
+        print(f"Pagination konnte nicht rekonstruiert werden: {error}", file=sys.stderr)
+        return 1
 
-        if actual == expected:
-            continue
-
+    if actual_text != expected_text:
         print(
-            f"Semantische Abweichung auf Seite {page_number} "
-            f"({mode}):\n"
-            f"  erwartet: {expected_path}\n"
-            f"  aktuell:  {actual_path}",
+            "Nichttabellarischer Seitentext unterscheidet sich:\n"
+            f"  erwartet: {expected_text!r}\n"
+            f"  aktuell:  {actual_text!r}",
+            file=sys.stderr,
+        )
+        return 1
+
+    if actual == expected:
+        print(
+            f"Pagination semantisch gleich: "
+            f"{expected_blocks} Referenzblöcke, "
+            f"{actual_blocks} native Blöcke",
+            file=sys.stderr,
+        )
+        return 0
+
+    print(
+        f"Semantische paginierte {mode}-Ausgaben unterscheiden sich:\n"
+        f"  erwartet: {expected_path}\n"
+        f"  aktuell:  {actual_path}\n"
+        f"  Referenzblöcke: {expected_blocks}\n"
+        f"  native Blöcke:  {actual_blocks}",
+        file=sys.stderr,
+    )
+
+    limit = min(len(expected), len(actual))
+    for index in range(limit):
+        if expected[index] != actual[index]:
+            print(
+                f"  erste abweichende vollständige Tabellenzeile: {index}",
+                file=sys.stderr,
+            )
+            print(f"  erwartet: {expected[index]!r}", file=sys.stderr)
+            print(f"  aktuell:  {actual[index]!r}", file=sys.stderr)
+            break
+    else:
+        print(
+            f"  unterschiedliche Zeilenzahl: "
+            f"{len(expected)} != {len(actual)}",
             file=sys.stderr,
         )
 
-        limit = min(len(expected), len(actual))
-        for row_index in range(limit):
-            if expected[row_index] != actual[row_index]:
-                print(
-                    f"  erste abweichende logische Tabellenzeile: "
-                    f"{row_index}",
-                    file=sys.stderr,
-                )
-                print(
-                    f"  erwartet: {expected[row_index]!r}",
-                    file=sys.stderr,
-                )
-                print(
-                    f"  aktuell:  {actual[row_index]!r}",
-                    file=sys.stderr,
-                )
-                break
-        else:
-            print(
-                f"  unterschiedliche Zeilenzahl: "
-                f"{len(expected)} != {len(actual)}",
-                file=sys.stderr,
-            )
-
-        return 1
-
-    return 0
+    return 1
 
 
 if __name__ == "__main__":
