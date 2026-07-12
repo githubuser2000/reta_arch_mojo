@@ -534,11 +534,11 @@ def test_markup_nocolor_runs_without_python_child() -> None:
         ]
         native = _run_compat(arguments, python="/definitely/not/available")
         expected = (fixtures / f"de-{output_mode}-widths.out").read_bytes()
-        assert native.returncode == 0
-        assert native.stderr == b""
-        assert _semantic_markup_table(
-            output_mode, native.stdout
-        ) == _semantic_markup_table(output_mode, expected)
+        assert (native.returncode, native.stdout, native.stderr) == (
+            0,
+            expected,
+            b"",
+        )
 
 
 def test_flat_column_widths_run_without_python_child() -> None:
