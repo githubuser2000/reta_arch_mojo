@@ -209,25 +209,9 @@ def _group_semantic_markup_rows(
         columns = groups[-1]["columns"]
         assert isinstance(columns, list)
         assert len(columns) == len(cells)
-        for column_index, (column, (text, styles, symbol)) in enumerate(
-            zip(columns, cells, strict=True)
-        ):
+        for column, (text, styles, symbol) in zip(columns, cells, strict=True):
             assert isinstance(column, dict)
-            fragment = _without_whitespace(text)
-
-            if column_index < 2:
-                # Zählung und Nummerierung werden auf physischen
-                # Fortsetzungszeilen wiederholt. Semantisch gehören sie nur
-                # einmal zur logischen Tabellenzeile.
-                existing = str(column["text"])
-                if fragment:
-                    if existing:
-                        assert existing == fragment
-                    else:
-                        column["text"] = fragment
-            else:
-                column["text"] += fragment
-
+            column["text"] += _without_whitespace(text)
             column["styles"].update(styles)
             column["symbol"] = bool(column["symbol"]) or symbol
 
@@ -415,82 +399,6 @@ def test_no_blank_contents_runs_without_python_child() -> None:
 
 
 
-
-_ANSI_SGR_RE = re.compile(r"\x1b\[[0-9;]*m")
-_ANSI_CELL_RE = re.compile(
-    r"(?:(?:\x1b\[[0-9;]*m)+)(.*?)\x1b\[0m"
-)
-
-
-def _semantic_shell_table(
-    data: bytes,
-) -> tuple[tuple[str, tuple[str, ...]], ...]:
-    # Rebuild logical rows and columns from the colored shell table.
-    text = (
-        data.decode("utf-8")
-        .replace("\r\n", "\n")
-        .replace("\r", "\n")
-    )
-    logical_rows: list[dict[str, object]] = []
-
-    for line_number, line in enumerate(text.splitlines(), start=1):
-        if not line.strip():
-            continue
-
-        matches = list(_ANSI_CELL_RE.finditer(line))
-        assert matches, (
-            f"shell line {line_number} has no ANSI-delimited table cells: "
-            f"{line!r}"
-        )
-
-        prefix = _ANSI_SGR_RE.sub("", line[: matches[0].start()]).strip()
-
-        cursor = matches[0].end()
-        for match in matches[1:]:
-            separator = _ANSI_SGR_RE.sub("", line[cursor : match.start()])
-            assert not _without_whitespace(separator), (
-                f"unexpected shell text between cells on line {line_number}: "
-                f"{separator!r}"
-            )
-            cursor = match.end()
-
-        suffix = _ANSI_SGR_RE.sub("", line[matches[-1].end() :])
-        assert not _without_whitespace(suffix), (
-            f"unexpected shell text after cells on line {line_number}: "
-            f"{suffix!r}"
-        )
-
-        fragments = [match.group(1) for match in matches]
-
-        if not logical_rows or prefix:
-            logical_rows.append(
-                {
-                    "prefix": prefix,
-                    "columns": [""] * len(fragments),
-                }
-            )
-
-        columns = logical_rows[-1]["columns"]
-        assert isinstance(columns, list)
-        assert len(columns) == len(fragments), (
-            f"column count changed on shell line {line_number}: "
-            f"{len(columns)} != {len(fragments)}"
-        )
-
-        for index, fragment in enumerate(fragments):
-            visible_fragment = _ANSI_SGR_RE.sub("", fragment)
-            columns[index] += _without_whitespace(visible_fragment)
-
-    assert logical_rows
-    return tuple(
-        (
-            str(row["prefix"]),
-            tuple(str(column) for column in row["columns"]),
-        )
-        for row in logical_rows
-    )
-
-
 def test_positive_column_widths_run_without_python_child() -> None:
     fixtures = ROOT / "tests" / "fixtures" / "column_widths"
     for output_mode in ("shell", "html", "bbcode"):
@@ -506,16 +414,11 @@ def test_positive_column_widths_run_without_python_child() -> None:
         ]
         native = _run_compat(arguments, python="/definitely/not/available")
         expected = (fixtures / f"de-{output_mode}-basic.out").read_bytes()
-        assert native.returncode == 0
-        assert native.stderr == b""
-        if output_mode == "shell":
-            assert _semantic_shell_table(
-                native.stdout
-            ) == _semantic_shell_table(expected)
-        else:
-            assert _semantic_markup_table(
-                output_mode, native.stdout
-            ) == _semantic_markup_table(output_mode, expected)
+        assert (native.returncode, native.stdout, native.stderr) == (
+            0,
+            expected,
+            b"",
+        )
 
 
 def test_markup_nocolor_runs_without_python_child() -> None:
