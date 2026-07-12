@@ -1,49 +1,5 @@
 #!/usr/bin/env sh
 set -eu
-
-# BEGIN RETA semantic markup fixture comparison
-_RETA_REAL_CMP=$(command -v cmp)
-_RETA_SCRIPT_DIR=$(CDPATH= cd "$(dirname "$0")" && pwd -P)
-
-cmp() {
-    _reta_cmp_previous=
-    _reta_cmp_last=
-
-    for _reta_cmp_argument in "$@"; do
-        case "$_reta_cmp_argument" in
-            -*) ;;
-            *)
-                _reta_cmp_previous=$_reta_cmp_last
-                _reta_cmp_last=$_reta_cmp_argument
-                ;;
-        esac
-    done
-
-    case "$_reta_cmp_previous:$_reta_cmp_last" in
-        *markup_onetable*:*|*:*markup_onetable*|\
-        *reta-native-markup-onetable*:*|*:*reta-native-markup-onetable*)
-            case "$_reta_cmp_previous:$_reta_cmp_last" in
-                *html*) _reta_cmp_mode=html ;;
-                *bbcode*) _reta_cmp_mode=bbcode ;;
-                *)
-                    "$_RETA_REAL_CMP" "$@"
-                    return
-                    ;;
-            esac
-
-            python3 \
-                "$_RETA_SCRIPT_DIR/compare_semantic_markup_fixture.py" \
-                "$_reta_cmp_mode" \
-                "$_reta_cmp_previous" \
-                "$_reta_cmp_last"
-            ;;
-        *)
-            "$_RETA_REAL_CMP" "$@"
-            ;;
-    esac
-}
-# END RETA semantic markup fixture comparison
-
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 cd "$ROOT"
 TMP=${TMPDIR:-/tmp}/reta-native-markup-onetable.$$

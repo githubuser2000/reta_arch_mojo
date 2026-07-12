@@ -25,13 +25,6 @@ if [ -z "${RETA_PYTHON-}" ]; then
     export RETA_PYTHON
 fi
 cd "$ROOT"
-if [ -z "${RETA_PYTHON-}" ]; then
-    if [ -x "$ROOT/.venv/bin/python" ]; then
-        RETA_PYTHON="$ROOT/.venv/bin/python"
-        export RETA_PYTHON
-    fi
-fi
-
 if [ -x "$ROOT/target/bin/reta-mojo-compat-bin" ]; then
     exec "$ROOT/tools/wrappers/mojo-runtime-exec" "$ROOT/target/bin/reta-mojo-compat-bin" "$@"
 fi
