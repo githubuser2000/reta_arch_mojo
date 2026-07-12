@@ -128,7 +128,12 @@ def test_output_parameter_and_value_regex() raises:
     var plus_value = bundle.regex_replace(["+reta", "-spalten", "--menschliches=*"])
     assert_true(plus_value.changed)
     assert_equal(plus_value.tokens[0], "+reta")
-    assert_true(_contains(plus_value.tokens, "--menschliches=motive"))
+    # A wildcard on the value side is rendered as one comma-separated
+    # assignment, matching the Python reference.  It is not one token per
+    # value, so test the assignment and contained value instead.
+    assert_equal(len(plus_value.tokens), 3)
+    assert_true(plus_value.tokens[2].startswith("--menschliches="))
+    assert_true(plus_value.tokens[2].find("motive") >= 0)
 
 
 def test_line_and_combination_regex() raises:
