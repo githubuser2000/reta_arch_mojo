@@ -1,0 +1,7 @@
+class	title	command	args...
+parallel	Generated-Column-Parität prüfen	scripts/check_generated_column_parity.sh
+parallel	Native-Table-Parität prüfen	scripts/check_native_table_parity.sh
+parallel	Kompatibilitätsparität prüfen	scripts/check_compat_parity.sh
+parallel	Markup-Parität prüfen	scripts/check_markup_parity.sh
+parallel	Shell-Parität prüfen	scripts/check_shell_parity.sh
+exclusive	HTML-Parität einschließlich möglicher Buildbarriere prüfen	scripts/check_html_parity.sh

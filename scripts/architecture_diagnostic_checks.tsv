@@ -1,0 +1,10 @@
+class	title	command	args...
+parallel	Architektursteuerung generieren und vergleichen	scripts/check_architecture_control_generation.sh
+parallel	Kohärenz- und Trace-Parität prüfen	scripts/check_architecture_coherence_trace_parity.sh
+parallel	Impact- und Migrationsgeneratoren prüfen	scripts/check_architecture_impact_migration_generation.sh
+parallel	Rehearsal-/Activation-Generatoren prüfen	scripts/check_architecture_rehearsal_activation_generation.sh
+parallel	Rehearsal-/Activation-Parität prüfen	scripts/check_architecture_rehearsal_activation_parity.sh
+parallel	Validation-/Progress-Generatoren prüfen	scripts/check_architecture_validation_progress_generation.sh
+parallel	Validation-/Progress-Parität prüfen	scripts/check_architecture_validation_progress_parity.sh
+parallel	Persistenz-Parität prüfen	scripts/check_persistence_parity.sh
+exclusive	Execution-Network einschließlich Threadmodus prüfen	scripts/check_execution_network_parity.sh

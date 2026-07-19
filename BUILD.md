@@ -960,6 +960,20 @@ Standardinstallation wieder versteckte Python-Referenzpfade, Diagnosebefehle
 oder zusätzliche Shared Libraries bekommt. Beide Checks sind Teil von
 `scripts/release_check.sh`.
 
+Unabhängige Architektur-, Diagnose-, Katalog- und Runtime-Paritätsprüfungen
+werden dort global begrenzt parallel ausgeführt. Compiler-, Installations-,
+Prompt-, Completion- und explizite Threadprüfungen bleiben serielle Barrieren:
+
+```sh
+scripts/release_check.sh --jobs 4 --child-workers 2 -- -j 8
+scripts/check_architecture_diagnostics.sh --jobs 4
+```
+
+`--jobs` begrenzt gleichzeitig laufende Prüfprozesse. `--child-workers`
+begrenzt die nativen Worker innerhalb eines Prüfprozesses, sodass die
+Gesamtparallelität kontrollierbar bleibt. Der Prüfplan bleibt mit
+`scripts/release_check.sh --dry-run` vollständig sichtbar.
+
 ### Artefaktmanifest als Release-Gate
 
 `scripts/install_targets.txt` wird jetzt gegen `scripts/reta_artifacts.sh`

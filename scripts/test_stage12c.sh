@@ -3,21 +3,34 @@ set -eu
 
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 cd "$ROOT"
+CHECK_JOBS=${RETA_CHECK_JOBS:-4}
+CHECK_TIMEOUT=${RETA_CHECK_TIMEOUT:-0}
+CHILD_WORKERS=${RETA_CHECK_CHILD_WORKERS:-2}
+
+# Prompt-, Launcher- und interaktive Zustandsprüfungen bleiben seriell. Die
+# Anwendungspfade selbst werden nicht parallelisiert.
 ./scripts/check_native_prompt_input.sh
 ./scripts/check_prompt_external_commands.sh
 ./scripts/check_compat_launcher.sh
-./scripts/check_native_output_stream_parity.sh
-./scripts/check_native_markup_onetable_parity.sh
+
+# Reine Rendering-/Paritätsprüfungen sind unabhängig. Jede erhält einen eigenen
+# TMPDIR; Ausgabe wird trotz paralleler Ausführung in Manifestreihenfolge gezeigt.
+python3 "$ROOT/tools/run_check_group.py" \
+    --manifest "$ROOT/scripts/stage12c_rendering_parity_checks.tsv" \
+    --root "$ROOT" \
+    --jobs "$CHECK_JOBS" \
+    --timeout "$CHECK_TIMEOUT" \
+    --child-parallel-workers "$CHILD_WORKERS"
+
+# Diese Prüfungen kompilieren, installieren oder untersuchen globale Layouts und
+# bleiben deshalb exklusive Barrieren.
 ./scripts/check_no_blank_contents.sh
-./scripts/check_paginated_rendering_parity.sh
-./scripts/check_column_widths_parity.sh
-./scripts/check_column_zero_widths_parity.sh
-./scripts/check_flat_column_widths_parity.sh
-./scripts/check_generator_range_parity.sh
-./scripts/check_markup_nocolor_parity.sh
 ./scripts/check_resource_paths.sh
 ./scripts/check_install_layout.sh
 "$ROOT/scripts/run_pytest.sh" -q tests/test_mojo_runtime_path.py tests/test_install_layout.py
+
+# Prompt-/Completion-Parität bleibt seriell. Parallelisiert wird nur die
+# Testorchestrierung der unabhängigen, zustandslosen Gruppen oben.
 RETA_COMPAT_PARITY_GROUP=1 ./scripts/check_compat_native_first_parity.sh
 RETA_COMPAT_PARITY_GROUP=2 ./scripts/check_compat_native_first_parity.sh
 ./scripts/check_prompt_mixed_reciprocal_parity.sh

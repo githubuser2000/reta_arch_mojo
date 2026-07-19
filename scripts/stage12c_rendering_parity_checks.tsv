@@ -1,0 +1,9 @@
+class	title	command	args...
+parallel	Native Output-Stream-Parität prüfen	scripts/check_native_output_stream_parity.sh
+parallel	Native Markup-oneTable-Parität prüfen	scripts/check_native_markup_onetable_parity.sh
+parallel	Paginierte Rendering-Parität prüfen	scripts/check_paginated_rendering_parity.sh
+parallel	Positive Spaltenbreiten-Parität prüfen	scripts/check_column_widths_parity.sh
+parallel	Nullbreiten-Parität prüfen	scripts/check_column_zero_widths_parity.sh
+parallel	Flache Spaltenbreiten-Parität prüfen	scripts/check_flat_column_widths_parity.sh
+parallel	Generatorbereich-Parität prüfen	scripts/check_generator_range_parity.sh
+parallel	Markup-ohne-Farbe-Parität prüfen	scripts/check_markup_nocolor_parity.sh

@@ -1,0 +1,15 @@
+class	title	command	args...
+parallel	Tag-Schema prüfen	scripts/check_tag_schema.sh
+parallel	Runtime-Alias-Katalog prüfen	scripts/check_runtime_alias_catalog.sh
+parallel	Generated-Alias-Katalog prüfen	scripts/check_generated_alias_catalog.sh
+parallel	Fraction-Pair-Katalog prüfen	scripts/check_fraction_pair_catalog.sh
+parallel	Meta-Request-Reihenfolge prüfen	scripts/check_meta_request_order.sh
+parallel	Kombi-Kataloge prüfen	scripts/check_kombi_catalogs.sh
+parallel	Schema-Katalog prüfen	scripts/check_schema_catalog.sh
+parallel	Kategorie-Katalog prüfen	scripts/check_category_catalog.sh
+parallel	Prompt-Katalog prüfen	scripts/check_prompt_catalog.sh
+parallel	Grundstrukturen-Katalog prüfen	scripts/check_grundstrukturen_catalog.sh
+parallel	Alle-Spalten-Plan prüfen	scripts/check_all_columns_plan.sh
+parallel	HTML-Cell-Katalog prüfen	scripts/check_html_cell_catalog.sh
+parallel	HTML-Heading-Katalog prüfen	scripts/check_html_heading_catalog.sh
+exclusive	Table-Runtime-Parität einschließlich Mojo-Run prüfen	scripts/check_table_runtime_parity.sh

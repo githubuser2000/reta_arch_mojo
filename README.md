@@ -190,6 +190,8 @@ Release hardening gates:
 scripts/check_install_profile_matrix.sh
 scripts/check_release_bridge_policy.sh
 scripts/release_check.sh --dry-run
+scripts/release_check.sh --jobs 4 --child-workers 2 -- -j 8
+scripts/check_architecture_diagnostics.sh --jobs 4
 ```
 
 These checks verify that shell scripts, Pixi and CMake use the same install
