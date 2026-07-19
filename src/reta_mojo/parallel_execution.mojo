@@ -1,12 +1,13 @@
 """Native thread-chunked table and number preparation for Reta.
 
 This module ports the deterministic core of
-``reta_architecture.parallel_execution``. Mutable column generation and shared
-output boundaries remain serial. Pure row, cell and number transformations are
-split into indexed chunks and run on Mojo CPU worker threads. Results are glued
-back in source order; no Python, pickle, dynamic import, ``fork`` or pipe
-boundary is involved. Legacy process-mode spellings are accepted as aliases for
-the thread backend so existing command lines keep working.
+``reta_architecture.parallel_execution``. Shared table mutation, width analysis
+and final output writers remain serial. Independent generator columns, stateless
+row chunks, data-source loads and private rendering buffers may run on Mojo CPU
+worker threads. Every result is stored in an indexed slot and merged in source
+order; no Python, pickle, dynamic import, ``fork`` or pipe boundary is involved.
+Legacy process-mode spellings are accepted as aliases for the thread backend so
+existing command lines keep working.
 """
 
 from std.algorithm import parallelize

@@ -3,6 +3,7 @@ from std.testing import assert_equal, assert_true, TestSuite
 from reta_mojo.csv_table import CsvTable, read_semicolon_csv
 from reta_mojo.generated_table_columns import *
 from reta_mojo.generated_aliases import FractionColumnRequest, MetaColumnRequest, ModalConcept
+from reta_mojo.parallel_execution import make_parallel_config
 
 
 def _blank_table(row_count: Int, column_count: Int) -> CsvTable:
@@ -213,6 +214,43 @@ def test_modal_logic_stops_after_first_product_beyond_table() raises:
     assert_equal(last.count("sehr leicht überdurchschnittlich:"), 1)
     assert_equal(last.count("mittelstark überdurchschnittlich:"), 2)
     assert_equal(last.count("sehr:"), 1)
+
+def test_parallel_modal_and_generator_pipeline_matches_serial() raises:
+    var table = read_semicolon_csv("python_reference/csv/religion.csv")
+    var selected = List[Int]()
+    var modal = [ModalConcept(192, 193)]
+    var meta = List[MetaColumnRequest]()
+    var fractions = [FractionColumnRequest("universe", 20)]
+    var commands: List[String] = ["primMotivStern"]
+    var config = make_parallel_config(
+        "threads", 4, 2, 1, "", "generated-parity"
+    )
+    var serial = apply_native_generated_columns(
+        table,
+        selected,
+        modal,
+        meta,
+        fractions,
+        commands,
+        "german",
+        "bbcode",
+        20,
+    )
+    var parallel = apply_native_generated_columns_parallel(
+        table,
+        selected,
+        modal,
+        meta,
+        fractions,
+        commands,
+        "german",
+        "bbcode",
+        20,
+        config,
+    )
+    assert_equal(serial.output_columns, parallel.output_columns)
+    assert_equal(serial.generated_names, parallel.generated_names)
+    assert_equal(serial.table.rows, parallel.table.rows)
 
 def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()

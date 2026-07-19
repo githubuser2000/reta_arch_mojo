@@ -2,7 +2,12 @@ from std.collections import List
 from std.testing import assert_equal, assert_true, TestSuite
 from reta_mojo.csv_table import read_semicolon_csv
 from reta_mojo.generated_aliases import MetaColumnRequest
-from reta_mojo.meta_columns import generate_meta_columns, meta_column_value
+from reta_mojo.meta_columns import (
+    generate_meta_columns,
+    generate_meta_columns_parallel,
+    meta_column_value,
+)
+from reta_mojo.parallel_execution import make_parallel_config
 
 
 def test_meta_pair_has_historical_headings_and_identity() raises:
@@ -47,6 +52,25 @@ def test_english_historical_spelling_is_preserved() raises:
         table, fraction, 2, MetaColumnRequest(2, 1), 0, "csv", "english"
     )
     assert_true(value.startswith("sonrete things:"))
+
+
+def test_parallel_meta_columns_match_serial() raises:
+    var table = read_semicolon_csv("python_reference/csv/religion.csv")
+    var requests = [
+        MetaColumnRequest(2, 0),
+        MetaColumnRequest(3, 1),
+    ]
+    var config = make_parallel_config(
+        "threads", 4, 2, 1, "", "meta-parity"
+    )
+    var serial = generate_meta_columns(
+        table, requests, 20, "bbcode", "german"
+    )
+    var parallel = generate_meta_columns_parallel(
+        table, requests, 20, "bbcode", "german", config
+    )
+    assert_equal(serial.inversion_flags, parallel.inversion_flags)
+    assert_equal(serial.columns, parallel.columns)
 
 
 def main() raises:

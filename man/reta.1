@@ -112,6 +112,35 @@ and
 .PP
 .B --breite=0
 uses the effective terminal width in the native path when available.
+.SH PARALLEL EXECUTION
+The native table path can parallelize independent generated columns, large
+stateless row ranges, independent data files and private rendering buffers.
+It never writes worker output directly to the terminal and merges results in
+source order.
+.TP
+.B --parallel
+Enable the native thread backend.
+.TP
+.B --no-parallel
+Force the deterministic serial reference path.
+.TP
+.BI --parallel-workers= N
+Limit runtime worker threads.
+.TP
+.BI --parallel-chunk-size= N
+Set the number of rows assigned to one private chunk.
+.TP
+.BI --parallel-threshold= N
+Keep smaller workloads serial.
+.PP
+The same values can be supplied through
+.BR RETA_PARALLEL ,
+.BR RETA_PARALLEL_WORKERS ,
+.B RETA_PARALLEL_CHUNK_SIZE
+and
+.BR RETA_PARALLEL_THRESHOLD .
+Width analysis, page planning, final table mutation, prompt state, history and
+the output writer remain serial.
 .SH LANGUAGE
 Some frontends accept
 .BR -language=english ,

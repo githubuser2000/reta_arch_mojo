@@ -138,7 +138,8 @@ execution_class() {
         tests/test_parallel_thread_backend.mojo|\
         tests/test_prime_effect_columns.mojo|\
         tests/test_prime_universe_columns.mojo|\
-        tests/test_py_reta_truth_native.mojo) printf '%s' exclusive ;;
+        tests/test_py_reta_truth_native.mojo|\
+        tests/test_table_rendering.mojo) printf '%s' exclusive ;;
         *) printf '%s' parallel ;;
     esac
 }

@@ -316,6 +316,28 @@ Das Skript prüft zusätzlich die kompakte Prompt-Zeilengrenze, die Integrität 
 
 Die fokussierten Befehle dürfen mit längeren Zeitlimits ausgeführt werden. Die vollständigen Skripte `scripts/build-heavy.sh` und `scripts/build.sh` werden für das Übergabearchiv nicht erneut benötigt und können auf dem Zielsystem gebaut werden.
 
+### Adaptive Laufzeitparallelität der Tabellenpipeline
+
+Der native `reta`-Pfad verwendet pro Phase genau **eine** Parallelitätsachse:
+
+- mehrere unabhängige Generatoraufträge: Spalten/Aufträge parallel, Zeilen innerhalb des Auftrags seriell;
+- genau ein großer, zeilenunabhängiger Generatorauftrag: Zeilen-Chunks parallel;
+- Shell, BBCode, CSV, Markdown, Emacs und einfaches HTML: Zeilenblöcke in privaten Puffern parallel;
+- Seitenplanung, Spaltenbreiten, endgültige Tabellenmutation und Ausgabe-Writer: seriell;
+- zustandsabhängige Primzahlwirkungs-Zeilen: innerhalb einer Spalte seriell, mehrere Wirkungsspalten jedoch parallel.
+
+Es werden keine verschachtelten Worker-Pools erzeugt. Chunk-Ergebnisse liegen in indexierten Slots und werden immer in Quellreihenfolge zusammengefügt. Die Laufzeitsteuerung erfolgt beispielsweise so:
+
+```bash
+reta --parallel --parallel-workers=8 --parallel-chunk-size=64 \
+  --parallel-threshold=128 -spalten --alles -ausgabe --art=shell
+
+RETA_PARALLEL=threads RETA_PARALLEL_WORKERS=8 \
+RETA_PARALLEL_CHUNK_SIZE=64 RETA_PARALLEL_THRESHOLD=128 reta ...
+```
+
+`--no-parallel` erzwingt den seriellen Referenzpfad. `scripts/run-tests.sh --jobs N` besitzt weiterhin ein eigenes globales Limit; Tests, die intern Workerthreads verwenden, werden im Manifest als exklusive Barrieren markiert.
+
 
 ## Stage 12b: nativer `--alles`-HTML-Pfad
 

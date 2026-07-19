@@ -1,5 +1,6 @@
 from std.testing import assert_equal, assert_false, assert_true, TestSuite
 from reta_mojo.csv_table import parse_semicolon_csv
+from reta_mojo.parallel_execution import make_parallel_config
 from reta_mojo.table_rendering import *
 
 
@@ -386,6 +387,55 @@ def test_flat_markdown_and_emacs_repeat_wrapped_heading_contract() raises:
     )
     assert_true("|oder |xy |\n" in unnumbered_emacs)
     assert_true("|Bösar | |\n" in unnumbered_emacs)
+
+
+def test_parallel_renderers_are_byte_identical() raises:
+    var table = parse_semicolon_csv(
+        "; ;A;B;C\n"
+        + "1;1;alpha beta;one two;red\n"
+        + "2;2;gamma delta;three four;blue\n"
+        + "3;3;epsilon zeta;five six;green\n"
+        + "4;4;eta theta;seven eight;yellow\n"
+        + "5;5;iota kappa;nine ten;orange\n"
+        + "6;6;lambda mu;eleven twelve;violet\n"
+        + "7;7;nu xi;thirteen fourteen;black\n"
+        + "8;8;omicron pi;fifteen sixteen;white\n"
+    )
+    var row_numbers = [0, 1, 2, 3, 4, 5, 6, 7, 8]
+    var config = make_parallel_config(
+        "threads", 3, 2, 1, "", "render-parity"
+    )
+
+    assert_equal(
+        render_shell_table_with_width_reference(
+            table, table, row_numbers, True, 8, False, 0, False,
+            False, [8, 8, 8], 80
+        ),
+        render_shell_table_with_width_reference_parallel(
+            table, table, row_numbers, config, True, 8, False, 0,
+            False, False, [8, 8, 8], 80
+        ),
+    )
+    assert_equal(
+        render_bbcode_table_with_width_reference(
+            table, table, row_numbers, True, 8, False,
+            False, [8, 8, 8], True
+        ),
+        render_bbcode_table_with_width_reference_parallel(
+            table, table, row_numbers, config, True, 8, False,
+            False, [8, 8, 8], True
+        ),
+    )
+    for mode in ["csv", "markdown", "emacs", "html"]:
+        assert_equal(
+            render_table_with_width_reference(
+                table, table, row_numbers, mode, 0, True, False
+            ),
+            render_table_with_width_reference_parallel(
+                table, table, row_numbers, config, mode, 0, True, False
+            ),
+        )
+
 
 def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()

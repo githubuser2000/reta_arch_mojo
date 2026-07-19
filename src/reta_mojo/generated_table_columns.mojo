@@ -7,6 +7,7 @@ to ``TableGenerationOrchestrator._apply_generated_column_morphisms`` for the
 families implemented here.
 """
 
+from std.algorithm import parallelize
 from std.collections import List
 from .csv_table import CsvTable, read_semicolon_csv
 from .resource_paths import csv_resource
@@ -19,12 +20,13 @@ from .generated_aliases import (
 )
 from .prime_cross_columns import generate_prime_cross_columns
 from .prime_universe_columns import (
-    generate_integer_prime_universe_columns,
-    generate_fractional_prime_universe_columns,
+    generate_integer_prime_universe_columns_parallel,
+    generate_fractional_prime_universe_columns_parallel,
 )
-from .prime_effect_columns import generate_prime_effect_columns
-from .meta_columns import generate_meta_columns
-from .fraction_concat_columns import generate_fraction_concat_columns
+from .prime_effect_columns import generate_prime_effect_columns_parallel
+from .meta_columns import generate_meta_columns_parallel
+from .fraction_concat_columns import generate_fraction_concat_columns_parallel
+from .parallel_execution import ParallelExecutionConfig, make_parallel_config
 from .generated_columns import (
     equality_freedom_value,
     mind_energy_topology_value,
@@ -499,6 +501,73 @@ def _modal_item(
     return result^
 
 
+def _modal_logic_row_value(
+    table: CsvTable,
+    occurrences: List[Int],
+    row_index: Int,
+    concept: ModalConcept,
+    output_mode: String,
+    language: String,
+) -> String:
+    var content = String()
+    for distance in range(-4, 5):
+        var product = row_index + distance
+        if product <= 0:
+            continue
+        for occurrence_index in range(len(occurrences)):
+            var occurrence_row = occurrences[occurrence_index]
+            if occurrence_row <= 0 or product % occurrence_row != 0:
+                continue
+            # The historical finite multiplication map includes the first
+            # product at or beyond EOF, but no later product.
+            var maximum_product = (
+                (len(table.rows) + occurrence_row - 1) // occurrence_row
+            ) * occurrence_row
+            if product > maximum_product:
+                continue
+            var multiplier = product // occurrence_row
+            if multiplier <= 0:
+                continue
+            content += _modal_item(
+                table,
+                occurrence_row,
+                multiplier,
+                distance,
+                concept,
+                output_mode,
+                language,
+            )
+
+    if content.byte_length() > 0:
+        var fill_column = 197 if (
+            concept.first == 62
+            or concept.first == 63
+            or (concept.first >= 358 and concept.first <= 367)
+            or (concept.first >= 371 and concept.first <= 374)
+        ) else 4
+        if output_mode == "html":
+            content += (
+                "<li>"
+                + _modal_related_sentence(language)
+                + _cell(table, row_index, fill_column)
+                + "</li>"
+            )
+            content = "<ul>" + content + "</ul>"
+        elif output_mode == "bbcode":
+            content += (
+                "[*]"
+                + _modal_related_sentence(language)
+                + _cell(table, row_index, fill_column)
+            )
+            content = "[list]" + content + "[/list]"
+        else:
+            content += (
+                _modal_related_sentence(language)
+                + _cell(table, row_index, fill_column)
+            )
+    return content^
+
+
 def modal_logic_column(
     table: CsvTable,
     concept: ModalConcept,
@@ -512,59 +581,81 @@ def modal_logic_column(
     var stop = min(last_row, len(table.rows) - 1)
     for row_index in range(len(table.rows)):
         if row_index == 0:
-            values.append(_modal_generated_word(language) + _cell(table, 0, concept.first))
-            continue
-        if row_index > stop:
+            values.append(
+                _modal_generated_word(language)
+                + _cell(table, 0, concept.first)
+            )
+        elif row_index > stop:
             values.append("")
-            continue
-
-        var content = String()
-        for distance in range(-4, 5):
-            var product = row_index + distance
-            if product <= 0:
-                continue
-            for occurrence_index in range(len(occurrences)):
-                var occurrence_row = occurrences[occurrence_index]
-                if occurrence_row <= 0 or product % occurrence_row != 0:
-                    continue
-                # Python's legacy multiplication map deliberately stores the
-                # first product at or beyond the physical table boundary, but
-                # no later product.  Reproduce that finite map instead of
-                # accepting every mathematically valid multiple beyond EOF.
-                var maximum_product = (
-                    (len(table.rows) + occurrence_row - 1) // occurrence_row
-                ) * occurrence_row
-                if product > maximum_product:
-                    continue
-                var multiplier = product // occurrence_row
-                if multiplier <= 0:
-                    continue
-                content += _modal_item(
+        else:
+            values.append(
+                _modal_logic_row_value(
                     table,
-                    occurrence_row,
-                    multiplier,
-                    distance,
+                    occurrences,
+                    row_index,
                     concept,
                     output_mode,
                     language,
                 )
+            )
+    return values^
 
-        if content.byte_length() > 0:
-            var fill_column = 197 if (
-                concept.first == 62
-                or concept.first == 63
-                or (concept.first >= 358 and concept.first <= 367)
-                or (concept.first >= 371 and concept.first <= 374)
-            ) else 4
-            if output_mode == "html":
-                content += "<li>" + _modal_related_sentence(language) + _cell(table, row_index, fill_column) + "</li>"
-                content = "<ul>" + content + "</ul>"
-            elif output_mode == "bbcode":
-                content += "[*]" + _modal_related_sentence(language) + _cell(table, row_index, fill_column)
-                content = "[list]" + content + "[/list]"
-            else:
-                content += _modal_related_sentence(language) + _cell(table, row_index, fill_column)
-        values.append(content^)
+
+def _modal_logic_column_parallel(
+    table: CsvTable,
+    concept: ModalConcept,
+    last_row: Int,
+    output_mode: String,
+    language: String,
+    config: ParallelExecutionConfig,
+) -> List[String]:
+    """Use row chunks when only one modal concept column is active."""
+    var stop = min(last_row, len(table.rows) - 1)
+    var row_count = max(0, stop)
+    if not config.should_use_threads(row_count):
+        return modal_logic_column(
+            table, concept, last_row, output_mode, language
+        )
+    var chunks = (row_count + config.chunk_size - 1) // config.chunk_size
+    if chunks <= 1:
+        return modal_logic_column(
+            table, concept, last_row, output_mode, language
+        )
+    var occurrences = _modal_occurrence_rows(table, concept)
+    var chunk_results = List[List[String]]()
+    for _ in range(chunks):
+        chunk_results.append(List[String]())
+
+    @parameter
+    def worker(chunk_index: Int):
+        var start_row = 1 + chunk_index * config.chunk_size
+        var end_row = min(stop + 1, start_row + config.chunk_size)
+        var values = List[String]()
+        for row_index in range(start_row, end_row):
+            values.append(
+                _modal_logic_row_value(
+                    table,
+                    occurrences,
+                    row_index,
+                    concept,
+                    output_mode,
+                    language,
+                )
+            )
+        chunk_results[chunk_index] = values^
+
+    parallelize[worker](
+        chunks, min(config.resolved_workers(), chunks)
+    )
+    var values = List[String]()
+    values.append(
+        _modal_generated_word(language) + _cell(table, 0, concept.first)
+    )
+    for chunk_index in range(chunks):
+        for value in chunk_results[chunk_index]:
+            values.append(value)
+    for _ in range(stop + 1, len(table.rows)):
+        values.append("")
     return values^
 
 
@@ -593,7 +684,68 @@ def apply_modal_logic_columns(
         )
     return result^
 
-def apply_native_generated_columns(
+
+def apply_modal_logic_columns_parallel(
+    table: CsvTable,
+    concepts: List[ModalConcept],
+    last_row: Int,
+    output_mode: String,
+    language: String,
+    mut output_columns: List[Int],
+    mut generated_names: List[String],
+    config: ParallelExecutionConfig,
+) -> CsvTable:
+    var ordered = concepts.copy()
+    sort_modal_concepts(ordered)
+    var valid = List[ModalConcept]()
+    for concept_index in range(len(ordered)):
+        if ordered[concept_index].first >= 0 and ordered[concept_index].second >= 0:
+            valid.append(ordered[concept_index].copy())
+    var columns = List[List[String]]()
+    for _ in range(len(valid)):
+        columns.append(List[String]())
+    var work = len(valid) * max(1, min(last_row, len(table.rows) - 1) + 1)
+    if len(valid) == 1 and config.should_use_threads(work):
+        columns[0] = _modal_logic_column_parallel(
+            table,
+            valid[0],
+            last_row,
+            output_mode,
+            language,
+            config,
+        )
+    elif len(valid) <= 1 or not config.should_use_threads(work):
+        for index in range(len(valid)):
+            columns[index] = modal_logic_column(
+                table, valid[index], last_row, output_mode, language
+            )
+    else:
+        var workers = min(config.resolved_workers(), len(valid))
+
+        @parameter
+        def worker(index: Int):
+            columns[index] = modal_logic_column(
+                table, valid[index], last_row, output_mode, language
+            )
+
+        parallelize[worker](len(valid), workers)
+
+    var result = table.copy()
+    for index in range(len(valid)):
+        result = _append_generated(
+            result,
+            columns[index],
+            output_columns,
+            generated_names,
+            "concatModallogik:"
+            + String(valid[index].first)
+            + ","
+            + String(valid[index].second),
+        )
+    return result^
+
+
+def apply_native_generated_columns_parallel(
     table: CsvTable,
     selected_columns: List[Int],
     modal_concepts: List[ModalConcept],
@@ -603,6 +755,7 @@ def apply_native_generated_columns(
     language: String,
     output_mode: String,
     last_row: Int,
+    config: ParallelExecutionConfig,
 ) raises -> GeneratedTableResult:
     """Apply the native subset in historical mutation order.
 
@@ -633,8 +786,8 @@ def apply_native_generated_columns(
     # described-prime table and precede the generated-column morphism chain.
     # _concat_csv_inputs: fractional galaxy/universe/emotion/size presheaves
     # are glued before the generated-column morphism chain.
-    var fraction_columns = generate_fraction_concat_columns(
-        result, fraction_requests, stop, output_mode, language
+    var fraction_columns = generate_fraction_concat_columns_parallel(
+        result, fraction_requests, stop, output_mode, language, config
     )
     for fraction_index in range(len(fraction_columns.columns)):
         var request = fraction_columns.requests[fraction_index].copy()
@@ -660,7 +813,7 @@ def apply_native_generated_columns(
         result = propagate_multiples_column(result, 19, stop, output_mode)
 
     # concatModallogik appends one column per generated concept pair.
-    result = apply_modal_logic_columns(
+    result = apply_modal_logic_columns_parallel(
         result,
         modal_concepts,
         stop,
@@ -668,6 +821,7 @@ def apply_native_generated_columns(
         language,
         output_columns,
         generated_names,
+        config,
     )
 
     # concatPrimCreativityType
@@ -719,8 +873,8 @@ def apply_native_generated_columns(
 
     # concatPrimUniverseRow, integer branch (brr == 0).  Each command
     # contributes three coordinates; overlapping coordinates are emitted once.
-    var prime_universe = generate_integer_prime_universe_columns(
-        result, generated_commands, stop, output_mode, language
+    var prime_universe = generate_integer_prime_universe_columns_parallel(
+        result, generated_commands, stop, output_mode, language, config
     )
     for universe_index in range(len(prime_universe.columns)):
         var coordinate = prime_universe.coordinates[universe_index].copy()
@@ -737,8 +891,8 @@ def apply_native_generated_columns(
         )
 
     # concatPrimUniverseRow, fractional-rational branch (brr == 1).
-    var fractional_prime_universe = generate_fractional_prime_universe_columns(
-        result, generated_commands, stop, output_mode, language
+    var fractional_prime_universe = generate_fractional_prime_universe_columns_parallel(
+        result, generated_commands, stop, output_mode, language, config
     )
     for universe_index in range(len(fractional_prime_universe.columns)):
         var coordinate = fractional_prime_universe.coordinates[universe_index].copy()
@@ -787,8 +941,8 @@ def apply_native_generated_columns(
 
     # spalteFuerGegenInnenAussenSeitlichPrim: one generated column per
     # selected prime-effect source, sorted with Richtung-Richtung first.
-    var prime_effect = generate_prime_effect_columns(
-        result, generated_commands, stop, language
+    var prime_effect = generate_prime_effect_columns_parallel(
+        result, generated_commands, stop, language, config
     )
     for effect_index in range(len(prime_effect.columns)):
         result = _append_generated(
@@ -802,8 +956,8 @@ def apply_native_generated_columns(
 
     # spalteMetaKontretTheorieAbstrakt_etc_1 follows prime effects and emits
     # two columns per selected (metavariable, side) coordinate.
-    var meta_columns = generate_meta_columns(
-        result, meta_requests, stop, output_mode, language
+    var meta_columns = generate_meta_columns_parallel(
+        result, meta_requests, stop, output_mode, language, config
     )
     for meta_index in range(len(meta_columns.columns)):
         var request = meta_columns.requests[meta_index].copy()
@@ -832,3 +986,32 @@ def apply_native_generated_columns(
         )
 
     return GeneratedTableResult(result^, output_columns^, generated_names^)
+
+
+def apply_native_generated_columns(
+    table: CsvTable,
+    selected_columns: List[Int],
+    modal_concepts: List[ModalConcept],
+    meta_requests: List[MetaColumnRequest],
+    fraction_requests: List[FractionColumnRequest],
+    generated_commands: List[String],
+    language: String,
+    output_mode: String,
+    last_row: Int,
+) raises -> GeneratedTableResult:
+    """Compatibility wrapper retaining the historical serial API."""
+    return apply_native_generated_columns_parallel(
+        table,
+        selected_columns,
+        modal_concepts,
+        meta_requests,
+        fraction_requests,
+        generated_commands,
+        language,
+        output_mode,
+        last_row,
+        make_parallel_config(
+            "off", 1, 64, 128, "", "generated-columns-wrapper"
+        ),
+    )
+

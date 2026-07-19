@@ -10,10 +10,11 @@ from .row_ranges import parse_explicit_int_set
 from .table_preparation import select_display_lines, select_display_table
 from .table_rendering import (
     add_numbering_columns,
-    render_table_with_native_context,
+    render_table_with_native_context_parallel,
 )
-from .generated_table_columns import apply_native_generated_columns
-from .kombi_join_columns import apply_kombi_join_columns
+from .generated_table_columns import apply_native_generated_columns_parallel
+from .parallel_execution import ParallelExecutionConfig, make_parallel_config
+from .kombi_join_columns import apply_kombi_join_columns_parallel
 
 from .parameter_runtime import (
     ParameterRuntimePlan,
@@ -368,6 +369,19 @@ def has_absolute_multiple_row_selector(
 
 
 def run_native_reta(tokens: List[String], csv_path: String) raises -> String:
+    """Compatibility entry point with deterministic serial execution."""
+    return run_native_reta_with_parallel_config(
+        tokens,
+        csv_path,
+        make_parallel_config("off", 1, 64, 128, "", "native-wrapper"),
+    )
+
+
+def run_native_reta_with_parallel_config(
+    tokens: List[String],
+    csv_path: String,
+    parallel_config: ParallelExecutionConfig,
+) raises -> String:
     var table = read_semicolon_csv(csv_path)
     var maximum_rows = effective_runtime_highest(
         tokens, len(table.rows) - 1
@@ -400,7 +414,7 @@ def run_native_reta(tokens: List[String], csv_path: String) raises -> String:
     var display_last_row = 0
     for row_index in range(len(selection.rows)):
         display_last_row = max(display_last_row, selection.rows[row_index])
-    var generated = apply_native_generated_columns(
+    var generated = apply_native_generated_columns_parallel(
         table,
         plan.columns,
         plan.modal_concepts,
@@ -410,11 +424,16 @@ def run_native_reta(tokens: List[String], csv_path: String) raises -> String:
         plan.language,
         plan.output_mode,
         display_last_row,
+        parallel_config,
     )
     table = generated.table.copy()
     var output_columns = generated.output_columns.copy()
-    var kombi = apply_kombi_join_columns(
-        table, plan.kombi_requests, display_last_row, plan.output_mode
+    var kombi = apply_kombi_join_columns_parallel(
+        table,
+        plan.kombi_requests,
+        display_last_row,
+        parallel_config,
+        plan.output_mode,
     )
     table = kombi.table.copy()
     for kombi_index in range(len(kombi.output_columns)):
@@ -472,12 +491,13 @@ def run_native_reta(tokens: List[String], csv_path: String) raises -> String:
         and not rows_were_set
     ):
         numbering_highest = _requested_upper_maximum(tokens)
-    return render_table_with_native_context(
+    return render_table_with_native_context_parallel(
         selected,
         width_reference,
         selected_rows,
         output_columns,
         plan.language,
+        parallel_config,
         plan.output_mode,
         plan.width,
         plan.number_rows,

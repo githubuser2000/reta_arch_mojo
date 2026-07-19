@@ -7,9 +7,11 @@ branch follows integer multiplication chains while the lower branch follows
 normalised rational coordinates and stops on the first repeated fraction.
 """
 
+from std.algorithm import parallelize
 from std.collections import List
 from std.collections.string import atol
 from .csv_table import CsvTable, read_semicolon_csv, read_text_file
+from .parallel_execution import ParallelExecutionConfig
 from .resource_paths import asset_resource, csv_resource
 from .generated_aliases import MetaColumnRequest
 from .prime_effect_columns import PrimeEffectColumns, generate_prime_effect_columns
@@ -855,6 +857,80 @@ def _meta_column(
     return result^
 
 
+def _meta_column_parallel(
+    table: CsvTable,
+    fraction_table: CsvTable,
+    request: MetaColumnRequest,
+    inverse: Int,
+    last_row: Int,
+    output_mode: String,
+    language: String,
+    config: ParallelExecutionConfig,
+) -> List[String]:
+    """Use row chunks when only one meta column job exists."""
+    var stop = min(last_row, len(table.rows) - 1)
+    var row_count = max(0, stop - 1)
+    if not config.should_use_threads(row_count):
+        return _meta_column(
+            table,
+            fraction_table,
+            request,
+            inverse,
+            last_row,
+            output_mode,
+            language,
+        )
+    var chunks = (row_count + config.chunk_size - 1) // config.chunk_size
+    if chunks <= 1:
+        return _meta_column(
+            table,
+            fraction_table,
+            request,
+            inverse,
+            last_row,
+            output_mode,
+            language,
+        )
+    var chunk_results = List[List[String]]()
+    for _ in range(chunks):
+        chunk_results.append(List[String]())
+
+    @parameter
+    def worker(chunk_index: Int):
+        var start_row = 2 + chunk_index * config.chunk_size
+        var end_row = min(stop + 1, start_row + config.chunk_size)
+        var values = List[String]()
+        for row in range(start_row, end_row):
+            values.append(
+                meta_column_value(
+                    table,
+                    fraction_table,
+                    row,
+                    request,
+                    inverse,
+                    output_mode,
+                    language,
+                )
+            )
+        chunk_results[chunk_index] = values^
+
+    parallelize[worker](
+        chunks, min(config.resolved_workers(), chunks)
+    )
+    var result = List[String]()
+    result.append(
+        _meta_heading(request.metavariable, request.side, inverse, language)
+    )
+    if len(table.rows) > 1:
+        result.append("")
+    for chunk_index in range(chunks):
+        for value in chunk_results[chunk_index]:
+            result.append(value)
+    for _ in range(max(2, stop + 1), len(table.rows)):
+        result.append("")
+    return result^
+
+
 def generate_meta_columns(
     table: CsvTable,
     requests: List[MetaColumnRequest],
@@ -892,6 +968,90 @@ def generate_meta_columns(
                     language,
                 )
             )
+    return MetaColumnsResult(emitted_requests^, inversions^, columns^)
+
+
+
+def generate_meta_columns_parallel(
+    table: CsvTable,
+    requests: List[MetaColumnRequest],
+    last_row: Int,
+    output_mode: String,
+    language: String,
+    config: ParallelExecutionConfig,
+    fraction_csv_path: String = "",
+) raises -> MetaColumnsResult:
+    var columns = List[List[String]]()
+    var emitted_requests = List[MetaColumnRequest]()
+    var inversions = List[Int]()
+    if len(requests) == 0:
+        return MetaColumnsResult(emitted_requests^, inversions^, columns^)
+    var source_path = (
+        fraction_csv_path
+        if fraction_csv_path.byte_length() > 0
+        else csv_resource("gebrochen-rational-universum.csv")
+    )
+    var fraction_table = read_semicolon_csv(source_path)
+    for request_index in range(len(requests)):
+        var request = requests[request_index].copy()
+        if (
+            request.metavariable < 2
+            or request.metavariable > 7
+            or (request.side != 0 and request.side != 1)
+        ):
+            continue
+        for inverse in range(2):
+            emitted_requests.append(request.copy())
+            inversions.append(inverse)
+            columns.append(List[String]())
+
+    var work = len(columns) * max(
+        1, min(last_row, len(table.rows) - 1) + 1
+    )
+    if len(columns) == 1 and config.should_use_threads(work):
+        columns[0] = _meta_column_parallel(
+            table,
+            fraction_table,
+            emitted_requests[0],
+            inversions[0],
+            last_row,
+            output_mode,
+            language,
+            config,
+        )
+        return MetaColumnsResult(
+            emitted_requests^, inversions^, columns^
+        )
+    if len(columns) <= 1 or not config.should_use_threads(work):
+        for index in range(len(columns)):
+            columns[index] = _meta_column(
+                table,
+                fraction_table,
+                emitted_requests[index],
+                inversions[index],
+                last_row,
+                output_mode,
+                language,
+            )
+        return MetaColumnsResult(
+            emitted_requests^, inversions^, columns^
+        )
+
+    var workers = min(config.resolved_workers(), len(columns))
+
+    @parameter
+    def worker(index: Int):
+        columns[index] = _meta_column(
+            table,
+            fraction_table,
+            emitted_requests[index],
+            inversions[index],
+            last_row,
+            output_mode,
+            language,
+        )
+
+    parallelize[worker](len(columns), workers)
     return MetaColumnsResult(emitted_requests^, inversions^, columns^)
 
 

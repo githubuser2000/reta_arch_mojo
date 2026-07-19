@@ -1,7 +1,9 @@
 """Native deterministic renderers for selected Reta table rows."""
 
+from std.algorithm import parallelize
 from std.collections import List
 from .csv_table import CsvTable
+from .parallel_execution import ParallelExecutionConfig
 from .row_filtering import counting_groups
 from .number_theory import moon_number, prime_factors
 from .output_modes import colored_row_begin
@@ -610,6 +612,325 @@ def _maximum_row_number(row_numbers: List[Int]) -> Int:
     return highest
 
 
+
+def _render_chunk_count(item_count: Int, chunk_size: Int) -> Int:
+    if item_count <= 0:
+        return 0
+    return (item_count + chunk_size - 1) // chunk_size
+
+
+def _render_flat_row_range(
+    table: CsvTable,
+    row_numbers: List[Int],
+    start_row: Int,
+    end_row: Int,
+    mode: String,
+    number_rows: Bool,
+) -> String:
+    """Render independent flat-format rows into one private buffer."""
+    var result = String()
+    for row_index in range(start_row, end_row):
+        var row = table.rows[row_index].copy()
+        var number = (
+            row_numbers[row_index]
+            if row_index < len(row_numbers)
+            else row_index
+        )
+        if mode == "csv" or mode == "csv-flat":
+            if not number_rows:
+                result += ";;"
+            for column_index in range(len(row)):
+                if column_index > 0:
+                    result += ";"
+                var value = row[column_index]
+                if mode == "csv" and not number_rows:
+                    value = normalize_cell_whitespace(value)
+                elif column_index == 1 and number_rows:
+                    value += " "
+                elif (
+                    mode == "csv-flat"
+                    and column_index >= (2 if number_rows else 0)
+                    and column_index + 1 < len(row)
+                    and value.byte_length() == 0
+                ):
+                    value = " "
+                result += _csv_quote_minimal(value)
+            result += os_linesep()
+        elif mode == "markdown" or mode == "emacs":
+            result += "|"
+            for column_index in range(len(row)):
+                result += row[column_index]
+                if number == 0 or not number_rows or column_index != 0:
+                    result += " "
+                result += "|"
+            result += os_linesep()
+            if mode == "markdown" and number == 0:
+                result += "|"
+                for _ in range(len(row)):
+                    result += ":--:|"
+                result += os_linesep()
+            elif mode == "emacs" and (
+                number == 0 or _emacs_prime_power_separator(number)
+            ):
+                _append_emacs_separator(result, len(row))
+        elif mode == "html-basic":
+            result += colored_row_begin("html", number)
+            for column_index in range(len(row)):
+                if column_index == 0:
+                    result += " <td style=\"background-color:#ffffff;color:#000000;\"> "
+                else:
+                    result += " <td> "
+                result += _html_escape(row[column_index]) + " </td>"
+            result += " </tr>" + os_linesep()
+        else:
+            for column_index in range(len(row)):
+                if column_index > 0:
+                    result += " | "
+                result += row[column_index]
+            result += os_linesep()
+    return result^
+
+
+def _render_flat_rows_parallel(
+    table: CsvTable,
+    row_numbers: List[Int],
+    mode: String,
+    number_rows: Bool,
+    config: ParallelExecutionConfig,
+) -> String:
+    var row_count = len(table.rows)
+    if not config.should_use_threads(row_count):
+        return _render_flat_row_range(
+            table, row_numbers, 0, row_count, mode, number_rows
+        )
+    var chunks = _render_chunk_count(row_count, config.chunk_size)
+    if chunks <= 1:
+        return _render_flat_row_range(
+            table, row_numbers, 0, row_count, mode, number_rows
+        )
+    var workers = min(config.resolved_workers(), chunks)
+    var chunk_results = List[String]()
+    for _ in range(chunks):
+        chunk_results.append(String())
+
+    @parameter
+    def worker(chunk_index: Int):
+        var start_row = chunk_index * config.chunk_size
+        var end_row = min(row_count, start_row + config.chunk_size)
+        chunk_results[chunk_index] = _render_flat_row_range(
+            table,
+            row_numbers,
+            start_row,
+            end_row,
+            mode,
+            number_rows,
+        )
+
+    parallelize[worker](chunks, workers)
+    var result = String()
+    for chunk_index in range(chunks):
+        result += chunk_results[chunk_index]
+    return result^
+
+
+
+def _render_bbcode_row_range(
+    table: CsvTable,
+    width_reference: CsvTable,
+    row_numbers: List[Int],
+    start_row: Int,
+    end_row: Int,
+    page_start: Int,
+    page_end: Int,
+    data_start: Int,
+    number_rows: Bool,
+    width: Int,
+    no_blank_contents: Bool,
+    widths: List[Int],
+    color_rows: Bool,
+    raw_number_width: Int,
+    page_column_widths: List[Int],
+) -> String:
+    """Render an indexed BBCode row range into one private worker buffer."""
+    _ = data_start
+    var result = String()
+    for row_index in range(start_row, end_row):
+        var row = table.rows[row_index].copy()
+        var row_height = 1
+        for column_index in range(page_start, page_end):
+            var requested_width = _column_wrap_width(
+                column_index, 2 if number_rows else 0, width, widths
+            )
+            row_height = max(
+                row_height,
+                len(_markup_word_wrap_cell(
+                    width_reference.rows[row_index][column_index],
+                    requested_width,
+                    not color_rows,
+                )),
+            )
+        for visual_line in range(row_height):
+            if no_blank_contents:
+                var visible = False
+                for column_index in range(page_start, page_end):
+                    var requested_width = _column_wrap_width(
+                        column_index, 2 if number_rows else 0, width, widths
+                    )
+                    var visible_parts = _markup_word_wrap_cell(
+                        width_reference.rows[row_index][column_index],
+                        requested_width,
+                        not color_rows,
+                    )
+                    var visible_part = (
+                        visible_parts[visual_line]
+                        if visual_line < len(visible_parts)
+                        else ""
+                    )
+                    if _cell_fragment_visible(
+                        visible_part, no_blank_contents
+                    ):
+                        visible = True
+                        break
+                if not visible:
+                    continue
+            var number = (
+                row_numbers[row_index]
+                if row_index < len(row_numbers)
+                else row_index
+            )
+            result += colored_row_begin("bbcode", number)
+            var is_heading = number == 0
+            if number_rows and len(row) > 0:
+                result += _bbcode_counting_cell(row[0], is_heading)
+            if number_rows and len(row) > 1:
+                result += "[td=\"\"]"
+                if color_rows:
+                    result += (
+                        " "
+                        if is_heading or visual_line > 0
+                        else row[1] + " "
+                    )
+                else:
+                    result += _raw_number_field(
+                        ""
+                        if is_heading or visual_line > 0
+                        else String(row[1].strip()),
+                        raw_number_width,
+                    )
+                result += "[/td]"
+            for column_index in range(page_start, page_end):
+                var requested_width = _column_wrap_width(
+                    column_index, 2 if number_rows else 0, width, widths
+                )
+                var parts = _markup_word_wrap_cell(
+                    width_reference.rows[row_index][column_index],
+                    requested_width,
+                    not color_rows,
+                )
+                var part = (
+                    parts[visual_line] if visual_line < len(parts) else ""
+                )
+                var column_width = page_column_widths[
+                    column_index - page_start
+                ]
+                var rendered_part = (
+                    _pad_cell(part, column_width)
+                    if color_rows
+                    else _pad_cell_raw(part, column_width)
+                )
+                result += "[td=\"\"]" + rendered_part + "[/td] "
+            result += "[/tr]" + os_linesep()
+    return result^
+
+
+def _render_bbcode_page_rows(
+    table: CsvTable,
+    width_reference: CsvTable,
+    row_numbers: List[Int],
+    page_start: Int,
+    page_end: Int,
+    data_start: Int,
+    number_rows: Bool,
+    width: Int,
+    no_blank_contents: Bool,
+    widths: List[Int],
+    color_rows: Bool,
+    raw_number_width: Int,
+    page_column_widths: List[Int],
+    config: ParallelExecutionConfig,
+) -> String:
+    var row_count = len(table.rows)
+    if not config.should_use_threads(row_count):
+        return _render_bbcode_row_range(
+            table,
+            width_reference,
+            row_numbers,
+            0,
+            row_count,
+            page_start,
+            page_end,
+            data_start,
+            number_rows,
+            width,
+            no_blank_contents,
+            widths,
+            color_rows,
+            raw_number_width,
+            page_column_widths,
+        )
+    var chunks = _render_chunk_count(row_count, config.chunk_size)
+    if chunks <= 1:
+        return _render_bbcode_row_range(
+            table,
+            width_reference,
+            row_numbers,
+            0,
+            row_count,
+            page_start,
+            page_end,
+            data_start,
+            number_rows,
+            width,
+            no_blank_contents,
+            widths,
+            color_rows,
+            raw_number_width,
+            page_column_widths,
+        )
+    var workers = min(config.resolved_workers(), chunks)
+    var chunk_results = List[String]()
+    for _ in range(chunks):
+        chunk_results.append(String())
+
+    @parameter
+    def worker(chunk_index: Int):
+        var start_row = chunk_index * config.chunk_size
+        var end_row = min(row_count, start_row + config.chunk_size)
+        chunk_results[chunk_index] = _render_bbcode_row_range(
+            table,
+            width_reference,
+            row_numbers,
+            start_row,
+            end_row,
+            page_start,
+            page_end,
+            data_start,
+            number_rows,
+            width,
+            no_blank_contents,
+            widths,
+            color_rows,
+            raw_number_width,
+            page_column_widths,
+        )
+
+    parallelize[worker](chunks, workers)
+    var result = String()
+    for chunk_index in range(chunks):
+        result += chunk_results[chunk_index]
+    return result^
+
+
 def render_bbcode_table_with_width_reference(
     table: CsvTable,
     width_reference: CsvTable,
@@ -737,6 +1058,83 @@ def render_bbcode_table_with_width_reference(
         page_start = page_end
     return result^
 
+
+
+def render_bbcode_table_with_width_reference_parallel(
+    table: CsvTable,
+    width_reference: CsvTable,
+    row_numbers: List[Int],
+    config: ParallelExecutionConfig,
+    number_rows: Bool = True,
+    width: Int = 0,
+    one_table: Bool = False,
+    no_blank_contents: Bool = False,
+    widths: List[Int] = List[Int](),
+    color_rows: Bool = True,
+) -> String:
+    """Render BBCode rows in deterministic private chunk buffers."""
+    if len(table.rows) == 0:
+        return ""
+    var data_start = 2 if number_rows else 0
+    var total_columns = len(table.rows[0])
+    var result = String()
+    var page_start = data_start
+    var maximum_row_number = _maximum_row_number(row_numbers)
+    var raw_number_width = _decimal_width(maximum_row_number) + 1
+    var screen_width = 80 - _decimal_width(maximum_row_number) - 1
+    while page_start < total_columns:
+        var page_end = page_start
+        if width <= 0 or one_table:
+            page_end = total_columns
+        else:
+            var sum_widths = 0
+            while page_end < total_columns:
+                var requested_width = _column_wrap_width(
+                    page_end, data_start, width, widths
+                )
+                var column_width = _markup_wrapped_column_width(
+                    width_reference, page_end, requested_width, not color_rows
+                )
+                var candidate = sum_widths + column_width + 1
+                if page_end > page_start and candidate >= screen_width:
+                    break
+                sum_widths = candidate
+                page_end += 1
+        if page_end == page_start:
+            page_end += 1
+        var page_column_widths = List[Int]()
+        for column_index in range(page_start, page_end):
+            var requested_width = _column_wrap_width(
+                column_index, data_start, width, widths
+            )
+            page_column_widths.append(
+                _markup_wrapped_column_width(
+                    width_reference,
+                    column_index,
+                    requested_width,
+                    not color_rows,
+                )
+            )
+        result += "[table]" + os_linesep()
+        result += _render_bbcode_page_rows(
+            table,
+            width_reference,
+            row_numbers,
+            page_start,
+            page_end,
+            data_start,
+            number_rows,
+            width,
+            no_blank_contents,
+            widths,
+            color_rows,
+            raw_number_width,
+            page_column_widths,
+            config,
+        )
+        result += "[/table]" + os_linesep()
+        page_start = page_end
+    return result^
 
 def render_bbcode_table(
     table: CsvTable,
@@ -1130,6 +1528,190 @@ def _shell_page_has_data(
     return False
 
 
+
+def _render_shell_row_range(
+    table: CsvTable,
+    row_numbers: List[Int],
+    start_row: Int,
+    end_row: Int,
+    page_start: Int,
+    page_end: Int,
+    data_start: Int,
+    number_rows: Bool,
+    effective_width: Int,
+    color_rows: Bool,
+    no_blank_contents: Bool,
+    widths: List[Int],
+    number_width: Int,
+    counting: List[Int],
+    page_column_widths: List[Int],
+) -> String:
+    """Render an indexed shell row range into one private worker buffer."""
+    var result = String()
+    for row_index in range(start_row, end_row):
+        var row = table.rows[row_index].copy()
+        var number = (
+            row_numbers[row_index]
+            if row_index < len(row_numbers)
+            else row_index
+        )
+        if number != 0 and not _shell_page_row_has_content(
+            row, page_start, page_end, no_blank_contents
+        ):
+            continue
+        var row_height = 1
+        for column_index in range(page_start, page_end):
+            var requested_width = _column_wrap_width(
+                column_index, data_start, effective_width, widths
+            )
+            row_height = max(
+                row_height,
+                len(_shell_word_wrap_cell(
+                    row[column_index], requested_width
+                )),
+            )
+        for visual_line in range(row_height):
+            if no_blank_contents:
+                var visible = False
+                for column_index in range(page_start, page_end):
+                    var requested_width = _column_wrap_width(
+                        column_index, data_start, effective_width, widths
+                    )
+                    var visible_parts = _shell_word_wrap_cell(
+                        row[column_index], requested_width
+                    )
+                    var visible_part = (
+                        visible_parts[visual_line]
+                        if visual_line < len(visible_parts)
+                        else ""
+                    )
+                    if _cell_fragment_visible(
+                        visible_part, no_blank_contents
+                    ):
+                        visible = True
+                        break
+                if not visible:
+                    continue
+            if number_rows:
+                var counting_marker = (
+                    number > 0
+                    and number < len(counting)
+                    and counting[number] % 2 == 0
+                )
+                result += _shell_prefix(
+                    number, visual_line, number_width, counting_marker
+                )
+            for column_index in range(page_start, page_end):
+                var requested_width = _column_wrap_width(
+                    column_index, data_start, effective_width, widths
+                )
+                var parts = _shell_word_wrap_cell(
+                    row[column_index], requested_width
+                )
+                var has_fragment = visual_line < len(parts)
+                var part = parts[visual_line] if has_fragment else ""
+                var column_width = page_column_widths[
+                    column_index - page_start
+                ]
+                var padded = _shell_pad(part, column_width)
+                if color_rows:
+                    result += _shell_colorize(
+                        padded, number, not has_fragment
+                    ) + " "
+                else:
+                    result += padded + " "
+            result += os_linesep()
+    return result^
+
+
+def _render_shell_page_rows(
+    table: CsvTable,
+    row_numbers: List[Int],
+    page_start: Int,
+    page_end: Int,
+    data_start: Int,
+    number_rows: Bool,
+    effective_width: Int,
+    color_rows: Bool,
+    no_blank_contents: Bool,
+    widths: List[Int],
+    number_width: Int,
+    counting: List[Int],
+    page_column_widths: List[Int],
+    config: ParallelExecutionConfig,
+) -> String:
+    var row_count = len(table.rows)
+    if not config.should_use_threads(row_count):
+        return _render_shell_row_range(
+            table,
+            row_numbers,
+            0,
+            row_count,
+            page_start,
+            page_end,
+            data_start,
+            number_rows,
+            effective_width,
+            color_rows,
+            no_blank_contents,
+            widths,
+            number_width,
+            counting,
+            page_column_widths,
+        )
+    var chunks = _render_chunk_count(row_count, config.chunk_size)
+    if chunks <= 1:
+        return _render_shell_row_range(
+            table,
+            row_numbers,
+            0,
+            row_count,
+            page_start,
+            page_end,
+            data_start,
+            number_rows,
+            effective_width,
+            color_rows,
+            no_blank_contents,
+            widths,
+            number_width,
+            counting,
+            page_column_widths,
+        )
+    var workers = min(config.resolved_workers(), chunks)
+    var chunk_results = List[String]()
+    for _ in range(chunks):
+        chunk_results.append(String())
+
+    @parameter
+    def worker(chunk_index: Int):
+        var start_row = chunk_index * config.chunk_size
+        var end_row = min(row_count, start_row + config.chunk_size)
+        chunk_results[chunk_index] = _render_shell_row_range(
+            table,
+            row_numbers,
+            start_row,
+            end_row,
+            page_start,
+            page_end,
+            data_start,
+            number_rows,
+            effective_width,
+            color_rows,
+            no_blank_contents,
+            widths,
+            number_width,
+            counting,
+            page_column_widths,
+        )
+
+    parallelize[worker](chunks, workers)
+    var result = String()
+    for chunk_index in range(chunks):
+        result += chunk_results[chunk_index]
+    return result^
+
+
 def render_shell_table_with_width_reference(
     table: CsvTable,
     width_reference: CsvTable,
@@ -1291,6 +1873,114 @@ def render_shell_table_with_width_reference(
                     else:
                         result += padded + " "
                 result += os_linesep()
+        page_start = page_end
+    return result^
+
+
+def render_shell_table_with_width_reference_parallel(
+    table: CsvTable,
+    width_reference: CsvTable,
+    row_numbers: List[Int],
+    config: ParallelExecutionConfig,
+    number_rows: Bool = True,
+    width: Int = 0,
+    color_rows: Bool = True,
+    numbering_highest: Int = 0,
+    one_table: Bool = False,
+    no_blank_contents: Bool = False,
+    widths: List[Int] = List[Int](),
+    terminal_columns_override: Int = 0,
+) -> String:
+    """Render shell rows in deterministic private chunk buffers."""
+    if len(table.rows) == 0:
+        return ""
+    var data_start = 2 if number_rows else 0
+    var total_columns = len(table.rows[0])
+    var highest = max(_maximum_row_number(row_numbers), numbering_highest)
+    var number_width = _decimal_width(highest) + 1 if number_rows else 0
+    var counting = counting_groups(highest)
+    var detected_columns = (
+        terminal_columns_override
+        if terminal_columns_override > 0
+        else terminal_columns()
+    )
+    var automatic_width = automatic_cell_width(detected_columns)
+    var effective_width = (
+        _maximum_shell_cell_width(width_reference)
+        if one_table and width == 0
+        else effective_cell_width(width, detected_columns)
+    )
+    var screen_width = automatic_width if not number_rows else detected_columns
+    var result = String()
+    var page_start = data_start
+    var terminate_pages = False
+    while page_start < total_columns:
+        var page_end = total_columns if one_table else page_start
+        var skip_initial_oversized_zero = False
+        var sum_widths = number_width
+        while not one_table and page_end < total_columns:
+            var requested_width = _column_wrap_width(
+                page_end, data_start, effective_width, widths
+            )
+            var column_width = _shell_column_width(
+                width_reference, page_end, requested_width
+            )
+            var candidate = sum_widths + column_width + 1
+            if (
+                page_end == page_start
+                and requested_width == 0
+                and candidate >= screen_width
+            ):
+                if page_start == data_start:
+                    skip_initial_oversized_zero = True
+                else:
+                    terminate_pages = True
+                break
+            if page_end > page_start and candidate >= screen_width:
+                break
+            sum_widths = candidate
+            page_end += 1
+        if terminate_pages:
+            break
+        if skip_initial_oversized_zero:
+            page_start += 1
+            continue
+        if page_end == page_start:
+            page_end += 1
+        if page_start > data_start and not _shell_page_has_data(
+            table,
+            row_numbers,
+            page_start,
+            page_end,
+            no_blank_contents,
+        ):
+            result += os_linesep()
+        var page_column_widths = List[Int]()
+        for column_index in range(page_start, page_end):
+            var requested_width = _column_wrap_width(
+                column_index, data_start, effective_width, widths
+            )
+            page_column_widths.append(
+                _shell_column_width(
+                    width_reference, column_index, requested_width
+                )
+            )
+        result += _render_shell_page_rows(
+            table,
+            row_numbers,
+            page_start,
+            page_end,
+            data_start,
+            number_rows,
+            effective_width,
+            color_rows,
+            no_blank_contents,
+            widths,
+            number_width,
+            counting,
+            page_column_widths,
+            config,
+        )
         page_start = page_end
     return result^
 
@@ -1502,6 +2192,107 @@ def render_table_with_width_reference(
 
 
 
+def render_table_with_width_reference_parallel(
+    table: CsvTable,
+    width_reference: CsvTable,
+    row_numbers: List[Int],
+    config: ParallelExecutionConfig,
+    mode: String,
+    width: Int = 0,
+    number_rows: Bool = True,
+    color_rows: Bool = True,
+    numbering_highest: Int = 0,
+    one_table: Bool = False,
+    no_blank_contents: Bool = False,
+    widths: List[Int] = List[Int](),
+) -> String:
+    """Configured renderer; only independent row buffers run on workers."""
+    var filtered = _filter_no_blank_rows(
+        table,
+        row_numbers,
+        2 if number_rows else 0,
+        no_blank_contents,
+    )
+    var flat_table = filtered[0].copy()
+    var flat_row_numbers = filtered[1].copy()
+    if mode == "csv" or mode == "markdown" or mode == "emacs":
+        var expanded = _expand_flat_width_rows(
+            table,
+            width_reference,
+            row_numbers,
+            flat_table,
+            flat_row_numbers,
+            number_rows,
+            no_blank_contents,
+            widths,
+            mode == "csv",
+        )
+        flat_table = expanded[0].copy()
+        flat_row_numbers = expanded[1].copy()
+    if mode == "csv":
+        return _render_flat_rows_parallel(
+            flat_table,
+            flat_row_numbers,
+            "csv-flat" if len(widths) > 0 else "csv",
+            number_rows,
+            config,
+        )
+    if mode == "markdown":
+        return _render_flat_rows_parallel(
+            flat_table, flat_row_numbers, "markdown", number_rows, config
+        )
+    if mode == "emacs":
+        return _render_flat_rows_parallel(
+            flat_table, flat_row_numbers, "emacs", number_rows, config
+        )
+    if mode == "html":
+        return (
+            "<table border=0 id=\"bigtable\">"
+            + os_linesep()
+            + _render_flat_rows_parallel(
+                flat_table,
+                flat_row_numbers,
+                "html-basic",
+                number_rows,
+                config,
+            )
+            + "</table>"
+            + os_linesep()
+        )
+    if mode == "bbcode":
+        return render_bbcode_table_with_width_reference_parallel(
+            table,
+            width_reference,
+            row_numbers,
+            config,
+            number_rows,
+            width,
+            one_table,
+            no_blank_contents,
+            widths,
+            color_rows,
+        )
+    if mode == "shell":
+        return render_shell_table_with_width_reference_parallel(
+            table,
+            width_reference,
+            row_numbers,
+            config,
+            number_rows,
+            width,
+            color_rows,
+            numbering_highest,
+            one_table,
+            no_blank_contents,
+            widths,
+        )
+    if mode == "nichts":
+        return ""
+    return _render_flat_rows_parallel(
+        flat_table, flat_row_numbers, "plain", number_rows, config
+    )
+
+
 def render_table_with_native_context(
     table: CsvTable,
     width_reference: CsvTable,
@@ -1535,6 +2326,52 @@ def render_table_with_native_context(
         table,
         width_reference,
         row_numbers,
+        mode,
+        width,
+        number_rows,
+        color_rows,
+        numbering_highest,
+        one_table,
+        no_blank_contents,
+        widths,
+    )
+
+
+def render_table_with_native_context_parallel(
+    table: CsvTable,
+    width_reference: CsvTable,
+    row_numbers: List[Int],
+    source_columns: List[Int],
+    language: String,
+    config: ParallelExecutionConfig,
+    mode: String,
+    width: Int = 0,
+    number_rows: Bool = True,
+    color_rows: Bool = True,
+    numbering_highest: Int = 0,
+    one_table: Bool = False,
+    no_blank_contents: Bool = False,
+    widths: List[Int] = List[Int](),
+) raises -> String:
+    if mode == "html":
+        return render_html_table_with_context(
+            table,
+            width_reference,
+            row_numbers,
+            source_columns,
+            language,
+            number_rows,
+            width,
+            one_table,
+            no_blank_contents,
+            widths,
+            color_rows,
+        )
+    return render_table_with_width_reference_parallel(
+        table,
+        width_reference,
+        row_numbers,
+        config,
         mode,
         width,
         number_rows,

@@ -4,9 +4,11 @@ This ports the brr == 0 branch of concat_prim_universe_row.  Fractional-rational
 multiplication columns remain a separate Stage-7 substage.
 """
 
+from std.algorithm import parallelize
 from std.collections import List
 from std.collections.string import atol
 from .csv_table import CsvTable, read_semicolon_csv, read_text_file
+from .parallel_execution import ParallelExecutionConfig
 from .resource_paths import asset_resource, csv_resource
 from .arithmetic import factor_pairs
 from .types import IntPair
@@ -188,6 +190,56 @@ def _pu_column(
     return result^
 
 
+def _pu_column_parallel(
+    table: CsvTable,
+    coordinate: PrimeUniverseCoordinate,
+    last_row: Int,
+    output_mode: String,
+    language: String,
+    config: ParallelExecutionConfig,
+) -> List[String]:
+    """Use row chunks when one expensive coordinate is selected."""
+    var stop = min(last_row, len(table.rows) - 1)
+    var row_count = max(0, stop)
+    if not config.should_use_threads(row_count):
+        return _pu_column(
+            table, coordinate, last_row, output_mode, language
+        )
+    var chunks = (row_count + config.chunk_size - 1) // config.chunk_size
+    if chunks <= 1:
+        return _pu_column(
+            table, coordinate, last_row, output_mode, language
+        )
+    var chunk_results = List[List[String]]()
+    for _ in range(chunks):
+        chunk_results.append(List[String]())
+
+    @parameter
+    def worker(chunk_index: Int):
+        var start_row = 1 + chunk_index * config.chunk_size
+        var end_row = min(stop + 1, start_row + config.chunk_size)
+        var values = List[String]()
+        for row in range(start_row, end_row):
+            values.append(
+                _pu_row_value(
+                    table, row, coordinate, output_mode, language
+                )
+            )
+        chunk_results[chunk_index] = values^
+
+    parallelize[worker](
+        chunks, min(config.resolved_workers(), chunks)
+    )
+    var result = List[String]()
+    result.append(_pu_heading(coordinate, language))
+    for chunk_index in range(chunks):
+        for value in chunk_results[chunk_index]:
+            result.append(value)
+    for _ in range(stop + 1, len(table.rows)):
+        result.append("")
+    return result^
+
+
 def generate_integer_prime_universe_columns(
     table: CsvTable,
     commands: List[String],
@@ -207,6 +259,59 @@ def generate_integer_prime_universe_columns(
                 language,
             )
         )
+    return PrimeUniverseColumns(coordinates^, columns^)
+
+
+
+def generate_integer_prime_universe_columns_parallel(
+    table: CsvTable,
+    commands: List[String],
+    last_row: Int,
+    output_mode: String,
+    language: String,
+    config: ParallelExecutionConfig,
+) -> PrimeUniverseColumns:
+    var coordinates = _pu_coordinates(commands)
+    var columns = List[List[String]]()
+    for _ in range(len(coordinates)):
+        columns.append(List[String]())
+    var work = len(coordinates) * max(
+        1, min(last_row, len(table.rows) - 1) + 1
+    )
+    if len(coordinates) == 1 and config.should_use_threads(work):
+        columns[0] = _pu_column_parallel(
+            table,
+            coordinates[0],
+            last_row,
+            output_mode,
+            language,
+            config,
+        )
+        return PrimeUniverseColumns(coordinates^, columns^)
+    if len(coordinates) <= 1 or not config.should_use_threads(work):
+        for index in range(len(coordinates)):
+            columns[index] = _pu_column(
+                table,
+                coordinates[index],
+                last_row,
+                output_mode,
+                language,
+            )
+        return PrimeUniverseColumns(coordinates^, columns^)
+
+    var workers = min(config.resolved_workers(), len(coordinates))
+
+    @parameter
+    def worker(index: Int):
+        columns[index] = _pu_column(
+            table,
+            coordinates[index],
+            last_row,
+            output_mode,
+            language,
+        )
+
+    parallelize[worker](len(coordinates), workers)
     return PrimeUniverseColumns(coordinates^, columns^)
 
 
@@ -563,6 +668,76 @@ def _fpu_column(
     return result^
 
 
+def _fpu_column_parallel(
+    main_table: CsvTable,
+    fraction_table: CsvTable,
+    entries: List[FractionPairEntry],
+    coordinate: PrimeUniverseCoordinate,
+    last_row: Int,
+    output_mode: String,
+    language: String,
+    config: ParallelExecutionConfig,
+) -> List[String]:
+    """Use row chunks for a single fractional coordinate."""
+    var stop = min(last_row, len(main_table.rows) - 1)
+    var row_count = max(0, stop)
+    if not config.should_use_threads(row_count):
+        return _fpu_column(
+            main_table,
+            fraction_table,
+            entries,
+            coordinate,
+            last_row,
+            output_mode,
+            language,
+        )
+    var chunks = (row_count + config.chunk_size - 1) // config.chunk_size
+    if chunks <= 1:
+        return _fpu_column(
+            main_table,
+            fraction_table,
+            entries,
+            coordinate,
+            last_row,
+            output_mode,
+            language,
+        )
+    var chunk_results = List[List[String]]()
+    for _ in range(chunks):
+        chunk_results.append(List[String]())
+
+    @parameter
+    def worker(chunk_index: Int):
+        var start_row = 1 + chunk_index * config.chunk_size
+        var end_row = min(stop + 1, start_row + config.chunk_size)
+        var values = List[String]()
+        for row in range(start_row, end_row):
+            values.append(
+                _fpu_row_value(
+                    main_table,
+                    fraction_table,
+                    entries,
+                    row,
+                    coordinate,
+                    output_mode,
+                    language,
+                )
+            )
+        chunk_results[chunk_index] = values^
+
+    parallelize[worker](
+        chunks, min(config.resolved_workers(), chunks)
+    )
+    var result = List[String]()
+    result.append(_pu_heading(coordinate, language) + _fpu_suffix(language))
+    for chunk_index in range(chunks):
+        for value in chunk_results[chunk_index]:
+            result.append(value)
+    for _ in range(stop + 1, len(main_table.rows)):
+        result.append("")
+    return result^
+
+
 def generate_fractional_prime_universe_columns(
     table: CsvTable,
     commands: List[String],
@@ -600,3 +775,120 @@ def generate_fractional_prime_universe_columns(
             )
         )
     return FractionPrimeUniverseColumns(coordinates^, columns^)
+
+
+def generate_fractional_prime_universe_columns_parallel(
+    table: CsvTable,
+    commands: List[String],
+    last_row: Int,
+    output_mode: String,
+    language: String,
+    config: ParallelExecutionConfig,
+    pair_catalog_path: String = "",
+    fraction_csv_path: String = "",
+) raises -> FractionPrimeUniverseColumns:
+    var coordinates = _pu_fractional_coordinates(commands)
+    if len(coordinates) == 0:
+        return FractionPrimeUniverseColumns(
+            coordinates^, List[List[String]]()
+        )
+    var pair_path = (
+        pair_catalog_path
+        if pair_catalog_path.byte_length() > 0
+        else asset_resource("fraction_pairs.tsv")
+    )
+    var fraction_path = (
+        fraction_csv_path
+        if fraction_csv_path.byte_length() > 0
+        else csv_resource("gebrochen-rational-galaxie.csv")
+    )
+    var entry_slots = List[List[FractionPairEntry]]()
+    entry_slots.append(List[FractionPairEntry]())
+    var table_slots = List[CsvTable]()
+    table_slots.append(CsvTable(List[List[String]](), 0))
+    table_slots.append(CsvTable(List[List[String]](), 0))
+    var load_errors = [String(), String()]
+
+    @parameter
+    def load_worker(index: Int):
+        try:
+            if index == 0:
+                entry_slots[0] = load_fraction_pair_entries(
+                    pair_path, coordinates, last_row
+                )
+            else:
+                table_slots[1] = read_semicolon_csv(fraction_path)
+        except error:
+            load_errors[index] = String(error)
+
+    if config.enabled_by_mode() and config.resolved_workers() > 1:
+        parallelize[load_worker](2, 2)
+    else:
+        try:
+            entry_slots[0] = load_fraction_pair_entries(
+                pair_path, coordinates, last_row
+            )
+        except error:
+            load_errors[0] = String(error)
+        try:
+            table_slots[1] = read_semicolon_csv(fraction_path)
+        except error:
+            load_errors[1] = String(error)
+    if load_errors[0].byte_length() > 0:
+        raise Error(
+            "fraction pair catalog load failed: " + load_errors[0]
+        )
+    if load_errors[1].byte_length() > 0:
+        raise Error(
+            "fraction table load failed: " + load_errors[1]
+        )
+    var entries = entry_slots[0].copy()
+    var fraction_table = table_slots[1].copy()
+    var columns = List[List[String]]()
+    for _ in range(len(coordinates)):
+        columns.append(List[String]())
+    var work = len(coordinates) * max(
+        1, min(last_row, len(table.rows) - 1) + 1
+    )
+    if len(coordinates) == 1 and config.should_use_threads(work):
+        columns[0] = _fpu_column_parallel(
+            table,
+            fraction_table,
+            entries,
+            coordinates[0],
+            last_row,
+            output_mode,
+            language,
+            config,
+        )
+        return FractionPrimeUniverseColumns(coordinates^, columns^)
+    if len(coordinates) <= 1 or not config.should_use_threads(work):
+        for index in range(len(coordinates)):
+            columns[index] = _fpu_column(
+                table,
+                fraction_table,
+                entries,
+                coordinates[index],
+                last_row,
+                output_mode,
+                language,
+            )
+        return FractionPrimeUniverseColumns(coordinates^, columns^)
+
+    var workers = min(config.resolved_workers(), len(coordinates))
+
+    @parameter
+    def worker(index: Int):
+        columns[index] = _fpu_column(
+            table,
+            fraction_table,
+            entries,
+            coordinates[index],
+            last_row,
+            output_mode,
+            language,
+        )
+
+    parallelize[worker](len(coordinates), workers)
+    return FractionPrimeUniverseColumns(coordinates^, columns^)
+

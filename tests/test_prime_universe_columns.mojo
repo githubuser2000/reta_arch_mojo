@@ -2,6 +2,7 @@ from std.collections import List
 from std.testing import assert_equal, assert_true, TestSuite
 from reta_mojo.csv_table import read_semicolon_csv
 from reta_mojo.prime_universe_columns import *
+from reta_mojo.parallel_execution import make_parallel_config
 
 
 def test_integer_command_coordinates_are_deduplicated_and_ordered() raises:
@@ -99,6 +100,55 @@ def test_fractional_english_heading_and_separator() raises:
     )
     assert_true(generated.columns[0][1].find("| moreover:") >= 0)
 
+
+def test_parallel_prime_universe_columns_match_serial() raises:
+    var table = read_semicolon_csv("python_reference/csv/religion.csv")
+    var config = make_parallel_config(
+        "threads", 3, 2, 1, "", "prime-universe-parity"
+    )
+    var integer_commands: List[String] = [
+        "primMotivStern", "primStrukStern"
+    ]
+    var serial_integer = generate_integer_prime_universe_columns(
+        table, integer_commands, 20, "bbcode", "german"
+    )
+    var parallel_integer = generate_integer_prime_universe_columns_parallel(
+        table, integer_commands, 20, "bbcode", "german", config
+    )
+    assert_equal(
+        len(serial_integer.coordinates), len(parallel_integer.coordinates)
+    )
+    for index in range(len(serial_integer.coordinates)):
+        assert_equal(
+            serial_integer.coordinates[index].polygon,
+            parallel_integer.coordinates[index].polygon,
+        )
+        assert_equal(
+            serial_integer.coordinates[index].combination,
+            parallel_integer.coordinates[index].combination,
+        )
+    assert_equal(serial_integer.columns, parallel_integer.columns)
+
+    var fraction_commands: List[String] = ["primMotivSternGebr"]
+    var serial_fraction = generate_fractional_prime_universe_columns(
+        table, fraction_commands, 20, "bbcode", "german"
+    )
+    var parallel_fraction = generate_fractional_prime_universe_columns_parallel(
+        table, fraction_commands, 20, "bbcode", "german", config
+    )
+    assert_equal(
+        len(serial_fraction.coordinates), len(parallel_fraction.coordinates)
+    )
+    for index in range(len(serial_fraction.coordinates)):
+        assert_equal(
+            serial_fraction.coordinates[index].polygon,
+            parallel_fraction.coordinates[index].polygon,
+        )
+        assert_equal(
+            serial_fraction.coordinates[index].combination,
+            parallel_fraction.coordinates[index].combination,
+        )
+    assert_equal(serial_fraction.columns, parallel_fraction.columns)
 
 def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()

@@ -7,8 +7,10 @@ through the main table; proper fractions are resolved through the corresponding
 fraction CSV matrix.
 """
 
+from std.algorithm import parallelize
 from std.collections import List
-from .csv_table import CsvTable, read_semicolon_csv
+from .csv_table import CsvTable, empty_csv_table, read_semicolon_csv
+from .parallel_execution import ParallelExecutionConfig
 from .resource_paths import csv_resource
 from .generated_aliases import FractionColumnRequest
 
@@ -286,3 +288,265 @@ def generate_fraction_concat_columns(
                     )
                 )
     return FractionConcatColumns(emitted^, reciprocal_flags^, columns^)
+
+
+def _fraction_domain_name(rank: Int) -> String:
+    if rank == 0:
+        return "galaxy"
+    if rank == 1:
+        return "universe"
+    if rank == 2:
+        return "emotion"
+    return "size"
+
+
+def _load_fraction_source_by_rank(rank: Int) raises -> CsvTable:
+    return read_semicolon_csv(
+        _domain_source_path(_fraction_domain_name(rank))
+    )
+
+
+def _fraction_request_limit_from_source(
+    source: CsvTable, reciprocal: Int
+) -> Int:
+    if reciprocal != 0:
+        return len(source.rows)
+    if len(source.rows) == 0:
+        return 0
+    return len(source.rows[0])
+
+
+def _fraction_column_from_source(
+    main_table: CsvTable,
+    source: CsvTable,
+    request: FractionColumnRequest,
+    reciprocal: Int,
+    last_row: Int,
+    output_mode: String,
+    language: String,
+) -> List[String]:
+    var result = List[String]()
+    var denominator = request.denominator
+    var label = _domain_label(request.domain, language)
+    if reciprocal == 0:
+        result.append("n/" + String(denominator) + " " + label)
+    else:
+        result.append(String(denominator) + "/n " + label)
+    var stop = min(last_row, len(main_table.rows) - 1)
+    for row in range(1, len(main_table.rows)):
+        if row > stop:
+            result.append("")
+            continue
+        var coordinate = (
+            _coordinate(row, denominator)
+            if reciprocal == 0
+            else _coordinate(denominator, row)
+        )
+        result.append(
+            fraction_domain_value(
+                main_table, source, coordinate, request.domain, output_mode
+            )
+        )
+    return result^
+
+
+def _fraction_column_from_source_parallel(
+    main_table: CsvTable,
+    source: CsvTable,
+    request: FractionColumnRequest,
+    reciprocal: Int,
+    last_row: Int,
+    output_mode: String,
+    language: String,
+    config: ParallelExecutionConfig,
+) -> List[String]:
+    """Use private row chunks when only one fraction column is requested."""
+    var stop = min(last_row, len(main_table.rows) - 1)
+    var row_count = max(0, stop)
+    if not config.should_use_threads(row_count):
+        return _fraction_column_from_source(
+            main_table,
+            source,
+            request,
+            reciprocal,
+            last_row,
+            output_mode,
+            language,
+        )
+    var chunks = (row_count + config.chunk_size - 1) // config.chunk_size
+    if chunks <= 1:
+        return _fraction_column_from_source(
+            main_table,
+            source,
+            request,
+            reciprocal,
+            last_row,
+            output_mode,
+            language,
+        )
+    var chunk_results = List[List[String]]()
+    for _ in range(chunks):
+        chunk_results.append(List[String]())
+
+    @parameter
+    def worker(chunk_index: Int):
+        var start_row = 1 + chunk_index * config.chunk_size
+        var end_row = min(stop + 1, start_row + config.chunk_size)
+        var values = List[String]()
+        for row in range(start_row, end_row):
+            var coordinate = (
+                _coordinate(row, request.denominator)
+                if reciprocal == 0
+                else _coordinate(request.denominator, row)
+            )
+            values.append(
+                fraction_domain_value(
+                    main_table,
+                    source,
+                    coordinate,
+                    request.domain,
+                    output_mode,
+                )
+            )
+        chunk_results[chunk_index] = values^
+
+    parallelize[worker](
+        chunks, min(config.resolved_workers(), chunks)
+    )
+    var result = List[String]()
+    var label = _domain_label(request.domain, language)
+    if reciprocal == 0:
+        result.append("n/" + String(request.denominator) + " " + label)
+    else:
+        result.append(String(request.denominator) + "/n " + label)
+    for chunk_index in range(chunks):
+        for value in chunk_results[chunk_index]:
+            result.append(value)
+    for _ in range(stop + 1, len(main_table.rows)):
+        result.append("")
+    return result^
+
+
+def generate_fraction_concat_columns_parallel(
+    main_table: CsvTable,
+    requests: List[FractionColumnRequest],
+    last_row: Int,
+    output_mode: String,
+    language: String,
+    config: ParallelExecutionConfig,
+) raises -> FractionConcatColumns:
+    """Load independent fraction matrices and generate ordered columns."""
+    var ordered = requests.copy()
+    _sort_fraction_requests(ordered)
+    var sources = List[CsvTable]()
+    for _ in range(4):
+        sources.append(empty_csv_table())
+    var load_ranks = List[Int]()
+    for rank in range(4):
+        for request_index in range(len(ordered)):
+            if _domain_rank(ordered[request_index].domain) == rank:
+                load_ranks.append(rank)
+                break
+    var load_errors = List[String]()
+    for _ in range(len(load_ranks)):
+        load_errors.append(String())
+
+    @parameter
+    def load_worker(index: Int):
+        var rank = load_ranks[index]
+        try:
+            sources[rank] = _load_fraction_source_by_rank(rank)
+        except error:
+            load_errors[index] = String(error)
+
+    if (
+        len(load_ranks) > 1
+        and config.enabled_by_mode()
+        and config.resolved_workers() > 1
+    ):
+        parallelize[load_worker](
+            len(load_ranks),
+            min(config.resolved_workers(), len(load_ranks)),
+        )
+    else:
+        for index in range(len(load_ranks)):
+            var rank = load_ranks[index]
+            try:
+                sources[rank] = _load_fraction_source_by_rank(rank)
+            except error:
+                load_errors[index] = String(error)
+    for index in range(len(load_errors)):
+        if load_errors[index].byte_length() > 0:
+            raise Error(
+                "fraction source load failed: " + load_errors[index]
+            )
+
+    var emitted = List[FractionColumnRequest]()
+    var reciprocal_flags = List[Int]()
+    var source_ranks = List[Int]()
+    for domain_rank in range(4):
+        for reciprocal in range(2):
+            for index in range(len(ordered)):
+                var request = ordered[index].copy()
+                if _domain_rank(request.domain) != domain_rank:
+                    continue
+                if request.denominator > _fraction_request_limit_from_source(
+                    sources[domain_rank], reciprocal
+                ):
+                    continue
+                emitted.append(request.copy())
+                reciprocal_flags.append(reciprocal)
+                source_ranks.append(domain_rank)
+
+    var columns = List[List[String]]()
+    for _ in range(len(emitted)):
+        columns.append(List[String]())
+    var work = len(emitted) * max(
+        1, min(last_row, len(main_table.rows) - 1) + 1
+    )
+    if len(emitted) == 1 and config.should_use_threads(work):
+        columns[0] = _fraction_column_from_source_parallel(
+            main_table,
+            sources[source_ranks[0]],
+            emitted[0],
+            reciprocal_flags[0],
+            last_row,
+            output_mode,
+            language,
+            config,
+        )
+        return FractionConcatColumns(
+            emitted^, reciprocal_flags^, columns^
+        )
+    if len(emitted) <= 1 or not config.should_use_threads(work):
+        for index in range(len(emitted)):
+            columns[index] = _fraction_column_from_source(
+                main_table,
+                sources[source_ranks[index]],
+                emitted[index],
+                reciprocal_flags[index],
+                last_row,
+                output_mode,
+                language,
+            )
+        return FractionConcatColumns(
+            emitted^, reciprocal_flags^, columns^
+        )
+
+    var workers = min(config.resolved_workers(), len(emitted))
+
+    @parameter
+    def column_worker(index: Int):
+        columns[index] = _fraction_column_from_source(
+            main_table,
+            sources[source_ranks[index]],
+            emitted[index],
+            reciprocal_flags[index],
+            last_row,
+            output_mode,
+            language,
+        )
+
+    parallelize[column_worker](len(emitted), workers)
+    return FractionConcatColumns(emitted^, reciprocal_flags^, columns^)
+

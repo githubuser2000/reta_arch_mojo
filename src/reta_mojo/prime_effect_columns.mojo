@@ -1,7 +1,9 @@
 """Native prime-effect generated columns from meta_columns.py."""
 
+from std.algorithm import parallelize
 from std.collections import List
 from .csv_table import CsvTable
+from .parallel_execution import ParallelExecutionConfig
 from .number_theory import (
     couldBePrimeNumberPrimzahlkreuz,
     primCreativity,
@@ -229,3 +231,36 @@ def generate_prime_effect_columns(
     for index in range(len(sources)):
         columns.append(_pe_column(table, sources[index], last_row, language))
     return PrimeEffectColumns(sources^, columns^)
+
+
+def generate_prime_effect_columns_parallel(
+    table: CsvTable,
+    commands: List[String],
+    last_row: Int,
+    language: String,
+    config: ParallelExecutionConfig,
+) -> PrimeEffectColumns:
+    """Generate independent prime-effect columns in indexed worker slots."""
+    var sources = prime_effect_sources(commands)
+    var columns = List[List[String]]()
+    for _ in range(len(sources)):
+        columns.append(List[String]())
+    var work = len(sources) * max(1, min(last_row, len(table.rows) - 1) + 1)
+    if len(sources) <= 1 or not config.should_use_threads(work):
+        for index in range(len(sources)):
+            columns[index] = _pe_column(
+                table, sources[index], last_row, language
+            )
+        return PrimeEffectColumns(sources^, columns^)
+
+    var workers = min(config.resolved_workers(), len(sources))
+
+    @parameter
+    def worker(index: Int):
+        columns[index] = _pe_column(
+            table, sources[index], last_row, language
+        )
+
+    parallelize[worker](len(sources), workers)
+    return PrimeEffectColumns(sources^, columns^)
+

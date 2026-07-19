@@ -13,7 +13,10 @@ from .legacy_reta_program_catalog import (
     legacy_reta_program_public_names,
     legacy_reta_program_method_definitions,
 )
-from .native_reta_cli import native_reta_tokens_supported, run_native_reta
+from .native_reta_cli import (
+    native_reta_tokens_supported,
+    run_native_reta_with_parallel_config,
+)
 from .native_cli_controls import normalize_native_cli_controls
 from .native_cli_startup import native_cli_startup
 from .output_modes import canonicalize_output_mode
@@ -318,7 +321,10 @@ def workflowEverything(
         return LegacyRetaProgramRunResult(
             True,
             False,
-            controls.debug_prefix + run_native_reta(controls.tokens, path),
+            controls.debug_prefix
+            + run_native_reta_with_parallel_config(
+                controls.tokens, path, program.parallel_config
+            ),
             0,
         )
     # Unknown vectors remain atomic: pass the original argv, including control

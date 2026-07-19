@@ -1,6 +1,7 @@
 from std.testing import assert_equal, assert_true, TestSuite
 from reta_mojo.csv_table import read_semicolon_csv
 from reta_mojo.kombi_join_columns import *
+from reta_mojo.parallel_execution import make_parallel_config
 
 
 def test_alias_catalog_resolves_both_languages() raises:
@@ -73,6 +74,35 @@ def test_html_join_uses_nonempty_list_items() raises:
     assert_true(jobs.find("<li></li>") < 0)
     assert_true(jobs.find(" | ") < 0)
 
+
+def test_parallel_kombi_loading_columns_and_rows_match_serial() raises:
+    var table = read_semicolon_csv("python_reference/csv/religion.csv")
+    var config = make_parallel_config(
+        "threads", 4, 2, 1, "", "kombi-parity"
+    )
+    var multi_requests = [
+        KombiColumnRequest("galaxy", 1),
+        KombiColumnRequest("universe", 1),
+    ]
+    var serial_multi = apply_kombi_join_columns(
+        table, multi_requests, 20, "bbcode"
+    )
+    var parallel_multi = apply_kombi_join_columns_parallel(
+        table, multi_requests, 20, config, "bbcode"
+    )
+    assert_equal(serial_multi.output_columns, parallel_multi.output_columns)
+    assert_equal(serial_multi.generated_names, parallel_multi.generated_names)
+    assert_equal(serial_multi.table.rows, parallel_multi.table.rows)
+
+    var one_request = [KombiColumnRequest("galaxy", 1)]
+    var serial_one = apply_kombi_join_columns(
+        table, one_request, 20, "shell"
+    )
+    var parallel_one = apply_kombi_join_columns_parallel(
+        table, one_request, 20, config, "shell"
+    )
+    assert_equal(serial_one.output_columns, parallel_one.output_columns)
+    assert_equal(serial_one.table.rows, parallel_one.table.rows)
 
 def main() raises:
     TestSuite.discover_tests[__functions_in_module()]().run()
